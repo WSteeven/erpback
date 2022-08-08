@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 
 class CategoriaController extends Controller
 {
+    public function index() {
+        return response()->json(Categoria::all());
+    }
+
     public function store(Request $request)
     {
         $request->validate([
