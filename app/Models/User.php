@@ -7,10 +7,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    use HasRoles;
+
+    const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
+    const ROL_BODEGA = 'BODEGA';
+    const ROL_COORDINADOR = 'COORDINADOR';
+    const ROL_COMPRAS = 'COMPRAS';
+    const ROL_EMPLEADO = 'EMPLEADO';
+    const ROL_TECNICO = 'TECNICO';
+    const ROL_GERENTE = 'GERENTE';
+    const ROL_JEFE_TECNICO = 'JEFE TECNICO';
 
     /**
      * The attributes that are mass assignable.
@@ -43,7 +54,8 @@ class User extends Authenticatable
     ];
 
     // Relacion uno a uno
-    public function empleados() {
+    public function empleado()
+    {
         return $this->hasOne(Empleado::class, 'usuario_id');
     }
 }

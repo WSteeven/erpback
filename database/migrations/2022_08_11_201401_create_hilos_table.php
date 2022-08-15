@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tipo_de_transacciones', function (Blueprint $table) {
+        Schema::create('hilos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('tipo');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipo_de_transacciones');
+        Schema::dropIfExists('hilos');
     }
 };

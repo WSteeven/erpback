@@ -16,74 +16,158 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        // Coordinador
-		$coordinador = User::create([
-			'name' => 'MARILÚ',
-			'email' => 'mjaramillo@jp.com',
-			'email_verified_at' => date("Y-m-d"),
-			'password' => bcrypt('password'),
-        ]);//->assignRole(User::ROL_ADMINISTRADOR);
+        //Localidad
+        $localidad_machala = Localidad::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jp.com']);
+        $localidad_sto_domingo = Localidad::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jp.com']);
+        $localidad_cuenca = Localidad::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com']);
+        $localidad_guayaquil = Localidad::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com']);
 
-        $localidad_coordinador = Localidad::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'CORREO@GMAIL.COM']);
-        $coordinador->empleados()->create(['nombres' => 'MARILÚ', 'apellidos' => 'JARAMILLO', 'identificacion' => '0745125487', 'telefono' => '0987456', 'fecha_nacimiento' => '2019-05-12', 'localidad_id' => $localidad_coordinador->id]);
+
+        // Coordinador
+        $coordinador = User::create([
+            'name' => 'MARILÚ',
+            'email' => 'mjaramillo@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COORDINADOR);
+        $coordinador->empleado()->create([
+            'nombres' => 'MARILÚ',
+            'apellidos' => 'JARAMILLO',
+            'identificacion' => '0745125487',
+            'telefono' => '0987456',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
 
         // SuperAdministrador
-		$user = User::create([
-			'name' => 'Sebastian',
-			'email' => 'admin@admin.com',
-			'password' => bcrypt('password'),
-		]);
+        $admin = User::create([
+            'name' => 'Sebastian',
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_ADMINISTRADOR);
+
         // Gerente
-		$user = User::create([
-			'name' => 'Patricio Pazmiño',
-			'email' => 'gerente@jp.com',
-			'password' => bcrypt('password'),
-		]);
+        $gerente = User::create([
+            'name' => 'Patricio Pazmiño',
+            'email' => 'gerente@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_GERENTE);
+        $gerente->empleado()->create([
+            'nombres' => 'PATRICIO',
+            'apellidos' => 'PAZMIÑO',
+            'identificacion' => '0702875618001',
+            'telefono' => '0987456748',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
+
         // Coordinador
-		$user = User::create([
-			'name' => 'Bryan Chamba',
-			'email' => 'bchamba@jp.com',
-			'password' => bcrypt('password'),
-		]);
+        $coordinador_sto_domingo = User::create([
+            'name' => 'Bryan Chamba',
+            'email' => 'bchamba@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COORDINADOR);
+        $coordinador_sto_domingo->empleado()->create([
+            'nombres' => 'BRYAN',
+            'apellidos' => 'CHAMBA',
+            'identificacion' => '0745185287',
+            'telefono' => '0987456741',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_sto_domingo->id
+        ]);
+
         // Coordinador
-		$user = User::create([
-			'name' => 'Dario Loja',
-			'email' => 'dloja@jp.com',
-			'password' => bcrypt('password'),
-		]);
+        $coordinador_telconet = User::create([
+            'name' => 'Dario Loja',
+            'email' => 'dloja@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COORDINADOR);
+        $coordinador_telconet->empleado()->create([
+            'nombres' => 'DARIO',
+            'apellidos' => 'LOJA',
+            'identificacion' => '0745124163',
+            'telefono' => '0987456785',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
+
         // Asistente de bodega 1
-		$user = User::create([
-			'name' => 'Cristian Albarracin',
-			'email' => 'asistentebodega1@jp.com',
-			'password' => bcrypt('password'),
-		]);
+        $bodeguero1 = User::create([
+            'name' => 'Cristian Albarracin',
+            'email' => 'asistentebodega1@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_BODEGA);
+        $bodeguero1->empleado()->create([
+            'nombres' => 'CRISTIAN',
+            'apellidos' => 'ALBARRACIN',
+            'identificacion' => '0708549625',
+            'telefono' => '0987456112',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
+
         // Asistente de bodega 2
-		$user = User::create([
-			'name' => 'Juan Jose Torres',
-			'email' => 'asistentebodega2@jp.com',
-			'email_verified_at' => date("Y-m-d"),
-			'password' => bcrypt('password'),
-		]);
+        $bodeguero2 = User::create([
+            'name' => 'Juan Jose Torres',
+            'email' => 'asistentebodega2@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_BODEGA);
+        $bodeguero2->empleado()->create([
+            'nombres' => 'JUAN JOSE',
+            'apellidos' => 'TORRES',
+            'identificacion' => '0704126352',
+            'telefono' => '0987456965',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
+
         // Tecnico lider
-		$user = User::create([
-			'name' => 'Pedro Ramirez',
-			'email' => 'pramirez@jp.com',
-			'email_verified_at' => date("Y-m-d"),
-			'password' => bcrypt('password'),
-		]);
+        $tecnico = User::create([
+            'name' => 'Pedro Ramirez',
+            'email' => 'pramirez@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO);
+        $tecnico->empleado()->create([
+            'nombres' => 'PEDRO',
+            'apellidos' => 'RAMIREZ',
+            'identificacion' => '0707415236',
+            'telefono' => '0987456332',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_cuenca->id
+        ]);
+
         // Departamento de compras
-		$user = User::create([
-			'name' => 'Ingrid Lima',
-			'email' => 'asistentecompras@jp.com',
-			'email_verified_at' => date("Y-m-d"),
-			'password' => bcrypt('password'),
-		]);
+        $compras = User::create([
+            'name' => 'Ingrid Lima',
+            'email' => 'asistentecompras@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COMPRAS);
+        $compras->empleado()->create([
+            'nombres' => 'INGRID',
+            'apellidos' => 'LIMA',
+            'identificacion' => '0708541325',
+            'telefono' => '0984568596',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_machala->id
+        ]);
+
         // Personal administrativo
-		$user = User::create([
-			'name' => 'Santiago Sarmiento',
-			'email' => 'santiago@jp.com',
-			'email_verified_at' => date("Y-m-d"),
-			'password' => bcrypt('password'),
-		]);
+        $administrativo = User::create([
+            'name' => 'Santiago Sarmiento',
+            'email' => 'santiago@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_EMPLEADO);
+        $administrativo->empleado()->create([
+            'nombres' => 'SANTIAGO',
+            'apellidos' => 'SARMIENTO',
+            'identificacion' => '0745963251',
+            'telefono' => '0987456235',
+            'fecha_nacimiento' => '2019-05-12',
+            'localidad_id' => $localidad_guayaquil->id
+        ]);
     }
 }

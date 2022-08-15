@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TipoTransaccion extends Model
+class SubtipoTransaccion extends Model
 {
     use HasFactory;
-    protected $table="tipo_de_transacciones";
+    protected $table = "subtipos_de_transaccion";
 }
