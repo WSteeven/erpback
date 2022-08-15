@@ -15,21 +15,25 @@ return new class extends Migration
     {
         Schema::create('empleados', function (Blueprint $table) {
             $table->id();
-            $table->string('identificacion')->require();
+            $table->string('identificacion');
+            $table->string('nombres');
+            $table->string('apellidos');
             $table->string('telefono')->nullable();
             $table->date('fecha_nacimiento')->nullable();
-            $table->unsignedBigInteger('jefe_id')->nullable();
-            $table->unsignedBigInteger('localidad_id');
-            $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
-            $table->timestamps();
             /* $table->double('saldo_inicial')->nullable();
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable(); */
 
-
-            $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('jefe_id')->nullable();
             $table->foreign('jefe_id')->references('id')->on('empleados')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
+            $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('localidad_id');
             $table->foreign('localidad_id')->references('id')->on('localidades');
+
+            $table->timestamps();
         });
     }
 

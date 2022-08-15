@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Localidad;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,13 +16,16 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        // Administrador
-		$user = User::create([
+        // Coordinador
+		$coordinador = User::create([
 			'name' => 'MARILÚ',
 			'email' => 'mjaramillo@jp.com',
 			'email_verified_at' => date("Y-m-d"),
 			'password' => bcrypt('password'),
         ]);//->assignRole(User::ROL_ADMINISTRADOR);
+
+        $localidad_coordinador = Localidad::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'CORREO@GMAIL.COM']);
+        $coordinador->empleados()->create(['nombres' => 'MARILÚ', 'apellidos' => 'JARAMILLO', 'identificacion' => '0745125487', 'telefono' => '0987456', 'fecha_nacimiento' => '2019-05-12', 'localidad_id' => $localidad_coordinador->id]);
 
         // SuperAdministrador
 		$user = User::create([
