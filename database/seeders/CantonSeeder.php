@@ -20,8 +20,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CUENCA',
     		'cod_canton'=>'0101',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -31,8 +30,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GIRÓN',
     		'cod_canton'=>'0102',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -42,8 +40,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUALACEO',
     		'cod_canton'=>'0103',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -53,8 +50,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'NABÓN',
     		'cod_canton'=>'0104',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -64,8 +60,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PAUTE',
     		'cod_canton'=>'0105',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -75,8 +70,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUCARA',
     		'cod_canton'=>'0106',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -86,8 +80,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN FERNANDO',
     		'cod_canton'=>'0107',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -97,8 +90,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA ISABEL',
     		'cod_canton'=>'0108',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -108,8 +100,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SIGSIG',
     		'cod_canton'=>'0109',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -119,8 +110,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'OÑA',
     		'cod_canton'=>'0110',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -130,8 +120,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHORDELEG',
     		'cod_canton'=>'0111',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -141,8 +130,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL PAN',
     		'cod_canton'=>'0112',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -152,8 +140,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SEVILLA DE ORO',
     		'cod_canton'=>'0113',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -163,8 +150,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUACHAPALA',
     		'cod_canton'=>'0114',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -174,8 +160,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CAMILO PONCE ENRÍQUEZ',
     		'cod_canton'=>'0115',
     		'provincia_id'=>1,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -185,8 +170,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUARANDA',
     		'cod_canton'=>'0201',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -196,8 +180,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHILLANES',
     		'cod_canton'=>'0202',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -207,8 +190,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHIMBO',
     		'cod_canton'=>'0203',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -218,8 +200,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ECHEANDÍA',
     		'cod_canton'=>'0204',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -229,8 +210,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN MIGUEL',
     		'cod_canton'=>'0205',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -240,8 +220,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CALUMA',
     		'cod_canton'=>'0206',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -251,8 +230,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LAS NAVES',
     		'cod_canton'=>'0207',
     		'provincia_id'=>2,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -262,8 +240,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'AZOGUES',
     		'cod_canton'=>'0301',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -273,8 +250,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BIBLIÁN',
     		'cod_canton'=>'0302',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -284,8 +260,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CAÑAR',
     		'cod_canton'=>'0303',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -295,8 +270,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LA TRONCAL',
     		'cod_canton'=>'0304',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -306,8 +280,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL TAMBO',
     		'cod_canton'=>'0305',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -317,8 +290,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'DÉLEG',
     		'cod_canton'=>'0306',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -328,8 +300,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SUSCAL',
     		'cod_canton'=>'0307',
     		'provincia_id'=>3,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -339,8 +310,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TULCÁN',
     		'cod_canton'=>'0401',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -350,8 +320,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BOLÍVAR',
     		'cod_canton'=>'0402',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -361,8 +330,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ESPEJO',
     		'cod_canton'=>'0403',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -372,8 +340,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MIRA',
     		'cod_canton'=>'0404',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -383,8 +350,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MONTÚFAR',
     		'cod_canton'=>'0405',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -394,8 +360,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN PEDRO DE HUACA',
     		'cod_canton'=>'0406',
     		'provincia_id'=>4,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -405,8 +370,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LATACUNGA',
     		'cod_canton'=>'0501',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -416,8 +380,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LA MANÁ',
     		'cod_canton'=>'0502',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -427,8 +390,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PANGUA',
     		'cod_canton'=>'0503',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -438,8 +400,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUJILI',
     		'cod_canton'=>'0504',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -449,8 +410,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SALCEDO',
     		'cod_canton'=>'0505',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -460,8 +420,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAQUISILÍ',
     		'cod_canton'=>'0506',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -471,8 +430,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SIGCHOS',
     		'cod_canton'=>'0507',
     		'provincia_id'=>5,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -482,8 +440,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'RIOBAMBA',
     		'cod_canton'=>'0601',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -493,8 +450,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ALAUSI',
     		'cod_canton'=>'0602',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -504,8 +460,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'COLTA',
     		'cod_canton'=>'0603',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -515,8 +470,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHAMBO',
     		'cod_canton'=>'0604',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -526,8 +480,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHUNCHI',
     		'cod_canton'=>'0605',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -537,8 +490,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUAMOTE',
     		'cod_canton'=>'0606',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -548,8 +500,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUANO',
     		'cod_canton'=>'0607',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -559,8 +510,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALLATANGA',
     		'cod_canton'=>'0608',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -570,8 +520,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PENIPE',
     		'cod_canton'=>'0609',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -581,8 +530,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CUMANDÁ',
     		'cod_canton'=>'0610',
     		'provincia_id'=>6,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -592,8 +540,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MACHALA',
     		'cod_canton'=>'0701',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -603,8 +550,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ARENILLAS',
     		'cod_canton'=>'0702',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -614,8 +560,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ATAHUALPA',
     		'cod_canton'=>'0703',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -625,8 +570,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BALSAS',
     		'cod_canton'=>'0704',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -636,8 +580,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHILLA',
     		'cod_canton'=>'0705',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -647,8 +590,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL GUABO',
     		'cod_canton'=>'0706',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -658,8 +600,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'HUAQUILLAS',
     		'cod_canton'=>'0707',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -669,8 +610,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MARCABELÍ',
     		'cod_canton'=>'0708',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -680,8 +620,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PASAJE',
     		'cod_canton'=>'0709',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -691,8 +630,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PIÑAS',
     		'cod_canton'=>'0710',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -702,8 +640,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PORTOVELO',
     		'cod_canton'=>'0711',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -713,8 +650,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA ROSA',
     		'cod_canton'=>'0712',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -724,8 +660,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ZARUMA',
     		'cod_canton'=>'0713',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -735,8 +670,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LAS LAJAS',
     		'cod_canton'=>'0714',
     		'provincia_id'=>7,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -746,8 +680,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ESMERALDAS',
     		'cod_canton'=>'0801',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -757,8 +690,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ELOY ALFARO',
     		'cod_canton'=>'0802',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -768,8 +700,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MUISNE',
     		'cod_canton'=>'0803',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -779,8 +710,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUININDÉ',
     		'cod_canton'=>'0804',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -790,8 +720,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN LORENZO',
     		'cod_canton'=>'0805',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -801,8 +730,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ATACAMES',
     		'cod_canton'=>'0806',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -812,8 +740,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'RIOVERDE',
     		'cod_canton'=>'0807',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -823,8 +750,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LA CONCORDIA',
     		'cod_canton'=>'0808',
     		'provincia_id'=>8,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -834,8 +760,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUAYAQUIL',
     		'cod_canton'=>'0901',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -845,8 +770,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ALFREDO BAQUERIZO MORENO (JUJÁN)',
     		'cod_canton'=>'0902',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -856,8 +780,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BALAO',
     		'cod_canton'=>'0903',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -867,8 +790,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BALZAR',
     		'cod_canton'=>'0904',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -878,8 +800,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'COLIMES',
     		'cod_canton'=>'0905',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -889,8 +810,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'DAULE',
     		'cod_canton'=>'0906',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -900,8 +820,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'DURÁN',
     		'cod_canton'=>'0907',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -911,8 +830,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL EMPALME',
     		'cod_canton'=>'0908',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -922,8 +840,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL TRIUNFO',
     		'cod_canton'=>'0909',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -933,8 +850,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MILAGRO',
     		'cod_canton'=>'0910',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -944,8 +860,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'NARANJAL',
     		'cod_canton'=>'0911',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -955,8 +870,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'NARANJITO',
     		'cod_canton'=>'0912',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -966,8 +880,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALESTINA',
     		'cod_canton'=>'0913',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -977,8 +890,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PEDRO CARBO',
     		'cod_canton'=>'0914',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -988,8 +900,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAMBORONDÓN',
     		'cod_canton'=>'0916',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -999,8 +910,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA LUCÍA',
     		'cod_canton'=>'0918',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1010,8 +920,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SALITRE (URBINA JADO)',
     		'cod_canton'=>'0919',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1021,8 +930,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN JACINTO DE YAGUACHI',
     		'cod_canton'=>'0920',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1032,8 +940,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PLAYAS',
     		'cod_canton'=>'0921',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1043,8 +950,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SIMÓN BOLÍVAR',
     		'cod_canton'=>'0922',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1054,8 +960,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CORONEL MARCELINO MARIDUEÑA',
     		'cod_canton'=>'0923',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1065,8 +970,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LOMAS DE SARGENTILLO',
     		'cod_canton'=>'0924',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1076,8 +980,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'NOBOL',
     		'cod_canton'=>'0925',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1087,8 +990,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GENERAL ANTONIO ELIZALDE',
     		'cod_canton'=>'0927',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1098,8 +1000,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ISIDRO AYORA',
     		'cod_canton'=>'0928',
     		'provincia_id'=>9,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1109,8 +1010,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'IBARRA',
     		'cod_canton'=>'1001',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1120,8 +1020,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ANTONIO ANTE',
     		'cod_canton'=>'1002',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1131,8 +1030,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'COTACACHI',
     		'cod_canton'=>'1003',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1142,8 +1040,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'OTAVALO',
     		'cod_canton'=>'1004',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1153,8 +1050,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PIMAMPIRO',
     		'cod_canton'=>'1005',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1164,8 +1060,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN MIGUEL DE URCUQUÍ',
     		'cod_canton'=>'1006',
     		'provincia_id'=>10,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1175,8 +1070,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LOJA',
     		'cod_canton'=>'1101',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1186,8 +1080,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CALVAS',
     		'cod_canton'=>'1102',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1197,8 +1090,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CATAMAYO',
     		'cod_canton'=>'1103',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1208,8 +1100,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CELICA',
     		'cod_canton'=>'1104',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1219,8 +1110,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHAGUARPAMBA',
     		'cod_canton'=>'1105',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1230,8 +1120,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ESPÍNDOLA',
     		'cod_canton'=>'1106',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1241,8 +1130,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GONZANAMÁ',
     		'cod_canton'=>'1107',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1252,8 +1140,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MACARÁ',
     		'cod_canton'=>'1108',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1263,8 +1150,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALTAS',
     		'cod_canton'=>'1109',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1274,8 +1160,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUYANGO',
     		'cod_canton'=>'1110',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1285,8 +1170,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SARAGURO',
     		'cod_canton'=>'1111',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1296,8 +1180,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SOZORANGA',
     		'cod_canton'=>'1112',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1307,8 +1190,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ZAPOTILLO',
     		'cod_canton'=>'1113',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1318,8 +1200,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PINDAL',
     		'cod_canton'=>'1114',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1329,8 +1210,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUILANGA',
     		'cod_canton'=>'1115',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1340,8 +1220,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'OLMEDO',
     		'cod_canton'=>'1116',
     		'provincia_id'=>11,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1351,8 +1230,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BABAHOYO',
     		'cod_canton'=>'1201',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1362,8 +1240,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BABA',
     		'cod_canton'=>'1202',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1373,8 +1250,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MONTALVO',
     		'cod_canton'=>'1203',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1384,8 +1260,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUEBLOVIEJO',
     		'cod_canton'=>'1204',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1395,8 +1270,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUEVEDO',
     		'cod_canton'=>'1205',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1406,8 +1280,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'URDANETA',
     		'cod_canton'=>'1206',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1417,8 +1290,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'VENTANAS',
     		'cod_canton'=>'1207',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1428,8 +1300,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'VÍNCES',
     		'cod_canton'=>'1208',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1439,8 +1310,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALENQUE',
     		'cod_canton'=>'1209',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1450,8 +1320,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BUENA FÉ',
     		'cod_canton'=>'1210',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1461,8 +1330,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'VALENCIA',
     		'cod_canton'=>'1211',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1472,8 +1340,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MOCACHE',
     		'cod_canton'=>'1212',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1483,8 +1350,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUINSALOMA',
     		'cod_canton'=>'1213',
     		'provincia_id'=>12,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1494,8 +1360,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PORTOVIEJO',
     		'cod_canton'=>'1301',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1505,8 +1370,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BOLÍVAR',
     		'cod_canton'=>'1302',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1516,8 +1380,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHONE',
     		'cod_canton'=>'1303',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1527,8 +1390,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL CARMEN',
     		'cod_canton'=>'1304',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1538,8 +1400,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'FLAVIO ALFARO',
     		'cod_canton'=>'1305',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1549,8 +1410,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'JIPIJAPA',
     		'cod_canton'=>'1306',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1560,8 +1420,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'JUNÍN',
     		'cod_canton'=>'1307',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1571,8 +1430,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MANTA',
     		'cod_canton'=>'1308',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1582,8 +1440,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MONTECRISTI',
     		'cod_canton'=>'1309',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1593,8 +1450,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PAJÁN',
     		'cod_canton'=>'1310',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1604,8 +1460,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PICHINCHA',
     		'cod_canton'=>'1311',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1615,8 +1470,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ROCAFUERTE',
     		'cod_canton'=>'1312',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1626,8 +1480,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA ANA',
     		'cod_canton'=>'1313',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1637,8 +1490,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SUCRE',
     		'cod_canton'=>'1314',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1648,8 +1500,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TOSAGUA',
     		'cod_canton'=>'1315',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1659,8 +1510,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'24 DE MAYO',
     		'cod_canton'=>'1316',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
         Canton::create( [
@@ -1668,8 +1518,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PEDERNALES',
     		'cod_canton'=>'1317',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1679,8 +1528,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'OLMEDO',
     		'cod_canton'=>'1318',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1690,8 +1538,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUERTO LÓPEZ',
     		'cod_canton'=>'1319',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1701,8 +1548,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'JAMA',
     		'cod_canton'=>'1320',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1712,8 +1558,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'JARAMIJÓ',
     		'cod_canton'=>'1321',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1723,8 +1568,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN VICENTE',
     		'cod_canton'=>'1322',
     		'provincia_id'=>13,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1734,8 +1578,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MORONA',
     		'cod_canton'=>'1401',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1745,8 +1588,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GUALAQUIZA',
     		'cod_canton'=>'1402',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1756,8 +1598,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LIMÓN INDANZA',
     		'cod_canton'=>'1403',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1767,8 +1608,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALORA',
     		'cod_canton'=>'1404',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1778,8 +1618,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTIAGO',
     		'cod_canton'=>'1405',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1789,8 +1628,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SUCÚA',
     		'cod_canton'=>'1406',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1800,8 +1638,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'HUAMBOYA',
     		'cod_canton'=>'1407',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1811,8 +1648,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN JUAN BOSCO',
     		'cod_canton'=>'1408',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1822,8 +1658,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TAISHA',
     		'cod_canton'=>'1409',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1833,8 +1668,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LOGROÑO',
     		'cod_canton'=>'1410',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1844,8 +1678,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PABLO SEXTO',
     		'cod_canton'=>'1411',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1855,8 +1688,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TIWINTZA',
     		'cod_canton'=>'1412',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1866,8 +1698,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TENA',
     		'cod_canton'=>'1501',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1877,8 +1708,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ARCHIDONA',
     		'cod_canton'=>'1503',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1888,8 +1718,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL CHACO',
     		'cod_canton'=>'1504',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1899,8 +1728,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUIJOS',
     		'cod_canton'=>'1507',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1910,8 +1738,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CARLOS JULIO AROSEMENA TOLA',
     		'cod_canton'=>'1509',
     		'provincia_id'=>14,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1921,8 +1748,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PASTAZA',
     		'cod_canton'=>'1601',
     		'provincia_id'=>16,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1932,8 +1758,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MERA',
     		'cod_canton'=>'1602',
     		'provincia_id'=>16,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1943,8 +1768,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA CLARA',
     		'cod_canton'=>'1603',
     		'provincia_id'=>16,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1954,8 +1778,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ARAJUNO',
     		'cod_canton'=>'1604',
     		'provincia_id'=>16,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1965,8 +1788,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUITO',
     		'cod_canton'=>'1701',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1976,8 +1798,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CAYAMBE',
     		'cod_canton'=>'1702',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1987,8 +1808,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MEJIA',
     		'cod_canton'=>'1703',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -1998,8 +1818,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PEDRO MONCAYO',
     		'cod_canton'=>'1704',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2009,8 +1828,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'RUMIÑAHUI',
     		'cod_canton'=>'1705',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2020,8 +1838,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN MIGUEL DE LOS BANCOS',
     		'cod_canton'=>'1707',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2031,8 +1848,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PEDRO VICENTE MALDONADO',
     		'cod_canton'=>'1708',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2042,8 +1858,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUERTO QUITO',
     		'cod_canton'=>'1709',
     		'provincia_id'=>17,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2053,8 +1868,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'AMBATO',
     		'cod_canton'=>'1801',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2064,8 +1878,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'BAÑOS DE AGUA SANTA',
     		'cod_canton'=>'1802',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2075,8 +1888,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CEVALLOS',
     		'cod_canton'=>'1803',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2086,8 +1898,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MOCHA',
     		'cod_canton'=>'1804',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2097,8 +1908,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PATATE',
     		'cod_canton'=>'1805',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2108,8 +1918,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'QUERO',
     		'cod_canton'=>'1806',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2119,8 +1928,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN PEDRO DE PELILEO',
     		'cod_canton'=>'1807',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2130,8 +1938,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTIAGO DE PÍLLARO',
     		'cod_canton'=>'1808',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2141,8 +1948,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'TISALEO',
     		'cod_canton'=>'1809',
     		'provincia_id'=>18,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2152,8 +1958,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ZAMORA',
     		'cod_canton'=>'1901',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2163,8 +1968,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CHINCHIPE',
     		'cod_canton'=>'1902',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2176,8 +1980,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'NANGARITZA',
     		'cod_canton'=>'1903',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2186,8 +1989,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'YACUAMBI',
     		'cod_canton'=>'1904',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2197,8 +1999,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'YANTZAZA (YANZATZA)',
     		'cod_canton'=>'1905',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2208,8 +2009,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL PANGUI',
     		'cod_canton'=>'1906',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2219,8 +2019,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CENTINELA DEL CÓNDOR',
     		'cod_canton'=>'1907',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2230,8 +2029,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PALANDA',
     		'cod_canton'=>'1908',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2241,8 +2039,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PAQUISHA',
     		'cod_canton'=>'1909',
     		'provincia_id'=>19,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2252,8 +2049,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SAN CRISTÓBAL',
     		'cod_canton'=>'2001',
     		'provincia_id'=>20,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2263,8 +2059,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ISABELA',
     		'cod_canton'=>'2002',
     		'provincia_id'=>20,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2274,8 +2069,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA CRUZ',
     		'cod_canton'=>'2003',
     		'provincia_id'=>20,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2285,8 +2079,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LAGO AGRIO',
     		'cod_canton'=>'2101',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2296,8 +2089,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'GONZALO PIZARRO',
     		'cod_canton'=>'2102',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2307,8 +2099,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'PUTUMAYO',
     		'cod_canton'=>'2103',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2318,8 +2109,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SHUSHUFINDI',
     		'cod_canton'=>'2104',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2329,8 +2119,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SUCUMBÍOS',
     		'cod_canton'=>'2105',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2340,8 +2129,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CASCALES',
     		'cod_canton'=>'2106',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2351,8 +2139,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'CUYABENO',
     		'cod_canton'=>'2107',
     		'provincia_id'=>21,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2362,8 +2149,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'ORELLANA',
     		'cod_canton'=>'2201',
     		'provincia_id'=>22,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2373,8 +2159,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'AGUARICO',
     		'cod_canton'=>'2202',
     		'provincia_id'=>22,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2384,8 +2169,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LA JOYA DE LOS SACHAS',
     		'cod_canton'=>'2203',
     		'provincia_id'=>22,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2395,8 +2179,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LORETO',
     		'cod_canton'=>'2204',
     		'provincia_id'=>22,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2406,8 +2189,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTO DOMINGO',
     		'cod_canton'=>'2301',
     		'provincia_id'=>24,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2417,8 +2199,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SANTA ELENA',
     		'cod_canton'=>'2401',
     		'provincia_id'=>24,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2428,8 +2209,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LA LIBERTAD',
     		'cod_canton'=>'2402',
     		'provincia_id'=>24,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2439,8 +2219,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'SALINAS',
     		'cod_canton'=>'2403',
     		'provincia_id'=>24,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2450,8 +2229,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'LAS GOLONDRINAS',
     		'cod_canton'=>'9001',
     		'provincia_id'=>25,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2461,8 +2239,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'MANGA DEL CURA',
     		'cod_canton'=>'9003',
     		'provincia_id'=>25,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
 
@@ -2472,8 +2249,7 @@ class CantonSeeder extends Seeder
     		'canton'=>'EL PIEDRERO',
     		'cod_canton'=>'9004',
     		'provincia_id'=>25,
-    		'created_at'=>1,
-    		'updated_at'=>1
+
     	] );
 
     }
