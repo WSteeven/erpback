@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tipo_de_transacciones', function (Blueprint $table) {
+        Schema::create('subtipos_de_transaccion', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('tipo');
+            $table->unsignedBigInteger('tipo_transaccion_id');
             $table->timestamps();
+
+            $table->foreign('tipo_transaccion_id')->references('id')->on('tipo_de_transacciones');
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipo_de_transacciones');
+        Schema::dropIfExists('subtipos_de_transaccion');
     }
 };

@@ -22,12 +22,16 @@ return new class extends Migration
             $table->double('precio')->nullable()->default('0');
             $table->string('serial')->nullable();
             $table->unsignedBigInteger('categoria_id');
-            //$table->enum('estado',[Producto::ACTIVO, Producto::INACTIVO])->default(Producto::ACTIVO);
+            $table->unsignedBigInteger('hilo_id')->nullable();
+            $table->integer('punta_a')->nullable();
+            $table->integer('punta_b')->nullable();
+            $table->integer('punta_corte')->nullable();
             $table->timestamps();
 
             $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('nombre_id')->references('id')->on('nombres_de_productos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('hilo_id')->references('id')->on('hilos')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

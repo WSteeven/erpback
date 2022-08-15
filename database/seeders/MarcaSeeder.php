@@ -19,7 +19,7 @@ class MarcaSeeder extends Seeder
         /**
          * Marcas
          */
-        Marca::create(['nombre'=>'SIN MARCA']);
+        Marca::create(['nombre'=>'S/M']);
         Marca::create(['nombre'=>'DELL']);
         Marca::create(['nombre'=>'LENOVO']);
         Marca::create(['nombre'=>'HP']);
@@ -34,6 +34,9 @@ class MarcaSeeder extends Seeder
         Marca::create(['nombre'=>'SUNKIT']);
         Marca::create(['nombre'=>'CTC']);
         Marca::create(['nombre'=>'TACTIX']);
+        Marca::create(['nombre'=>'ACTIVE NETWORK']);
+        Marca::create(['nombre'=>'LATAM FIBERHOME']);
+
 
         /**
          * Modelos
@@ -51,7 +54,7 @@ class MarcaSeeder extends Seeder
             'marca_id'=>4
         ]);
         Modelo::create([
-            'nombre'=>'A7 LITE',
+            'nombre'=>'GALAXI TAB A7 LITE',
             'marca_id'=>6
         ]);
         Modelo::create([
@@ -71,6 +74,10 @@ class MarcaSeeder extends Seeder
             'marca_id'=>7
         ]);
         Modelo::create([
+            'nombre'=>'S/M',
+            'marca_id'=>7
+        ]);
+        Modelo::create([
             'nombre'=>'EBLPI400',
             'marca_id'=>8
         ]);
@@ -81,6 +88,55 @@ class MarcaSeeder extends Seeder
         Modelo::create([
             'nombre'=>'SC/LC',
             'marca_id'=>1
+        ]);
+        //16,17
+        Modelo::create([
+            'nombre'=>'DROP',
+            'marca_id'=>16
+        ]);
+        Modelo::create([
+            'nombre'=>'DROP',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'ADSS',
+            'marca_id'=>16
+        ]);
+        Modelo::create([
+            'nombre'=>'ADSS',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'SM',
+            'marca_id'=>16
+        ]);
+        Modelo::create([
+            'nombre'=>'SM',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'F8',
+            'marca_id'=>16
+        ]);
+        Modelo::create([
+            'nombre'=>'F8',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'MM',
+            'marca_id'=>16
+        ]);
+        Modelo::create([
+            'nombre'=>'MM',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'STANDARD',
+            'marca_id'=>7
+        ]);
+        Modelo::create([
+            'nombre'=>'3805E8',
+            'marca_id'=>9
         ]);
     }
 }
