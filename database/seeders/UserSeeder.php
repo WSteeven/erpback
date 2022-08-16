@@ -30,6 +30,8 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
+
+        
         $coordinador->empleado()->create([
             'nombres' => 'MARILÚ',
             'apellidos' => 'JARAMILLO',
