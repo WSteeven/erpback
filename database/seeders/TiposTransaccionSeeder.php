@@ -17,6 +17,7 @@ class TiposTransaccionSeeder extends Seeder
     public function run()
     {
         /* INGRESOS */
+        TipoTransaccion::create(['nombre'=>'STOCK INICIAL', 'tipo'=>'INGRESO']);
         TipoTransaccion::create(['nombre'=>'COMPRA A PROVEEDOR', 'tipo'=>'INGRESO']);
         TipoTransaccion::create(['nombre'=>'MERCADERIA DE CLIENTE', 'tipo'=>'INGRESO']);
         SubtipoTransaccion::create(['nombre'=>'ABASTECIMIENTO DE STOCK','tipo_transaccion_id'=>2]);
