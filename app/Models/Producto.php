@@ -27,7 +27,10 @@ class Producto extends Model
         'precio',
         'serial',
         'categoria_id',
-        'estado'
+        'hilo_id',
+        'punta_a',
+        'punta_b',
+        'punta_corte',
     ];
 
     /* Un producto puede estar en muchas perchas en distintas ubicaciones */

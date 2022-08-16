@@ -11,4 +11,14 @@ class Inventario extends Model
     protected $table = "inventarios";
     const INVENTARIO = "INVENTARIO";
     const NODISPONIBLE = "NO DISPONIBLE";
+
+    protected $fillable=[
+        'producto_id',
+        'condicion_id',
+        'ubicacion_id',
+        'propietario_id',
+        'stock',
+        'prestados',
+        'estado',
+    ];
 }

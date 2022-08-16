@@ -14,7 +14,7 @@ class ProductoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,12 +26,16 @@ class ProductoRequest extends FormRequest
     {
         return [
             'codigo_barras' => 'nullable|string',
-            'nombre_id'=> 'required|integer',
-            'descripcion'=> 'required|string',
-            'modelo_id'=> 'required|integer',
-            'precio'=> 'nullable|integer',
-            'serial'=>'nullable|string',
-            'categoria_id'=> 'required|integer',
+            'nombre_id' => 'required|integer',
+            'descripcion' => 'required|string',
+            'modelo_id' => 'required|integer',
+            'precio' => 'nullable|integer',
+            'serial' => 'nullable|string',
+            'categoria_id' => 'required|integer',
+            'hilo_id'=>'nullable|integer',
+            'punta_a' => 'nullable|integer',
+            'punta_b' => 'nullable|integer',
+            'punta_corte' => 'nullable|integer',
             //'estado'=>['nullable', Rule::in(Producto::ACTIVO, Producto::INACTIVO)]
         ];
         Log::channel('testing')->info('LOG', ['entro en las reglas ']);
