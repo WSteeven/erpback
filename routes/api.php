@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\NombresProductosController;
 use App\Http\Controllers\ProductoController;
@@ -27,3 +28,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         'nombre_productos'=> NombresProductosController::class,
         'productos'=> ProductoController::class,
     ]);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/userinfo', [AuthController::class, 'infouser'])->middleware('auth:sanctum');
