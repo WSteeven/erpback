@@ -27,7 +27,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         'categorias' => CategoriaController::class,
         'nombre_productos'=> NombresProductosController::class,
         'productos'=> ProductoController::class,
-    ]);
+    ], [
+        'middleware' => ['auth:sanctum']
+    ]
+);
+
+
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/userinfo', [AuthController::class, 'infouser'])->middleware('auth:sanctum');
+    Route::post('/verpermisos', [AuthController::class, 'verpermisos'])->middleware('auth:sanctum');

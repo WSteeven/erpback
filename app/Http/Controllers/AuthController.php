@@ -8,8 +8,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function index(){
-        return response()->json(['modelo' => User::all()]);
+    public function verpermisos(){
+        $user = Auth::user();
+        return response()->json([
+            'permisos' => $user->getPermissionsViaRoles(),
+            'roles' => $user->getRoleNames(),
+    ]);
     }
 
     public function register(Request $request){

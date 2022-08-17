@@ -4,13 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CategoriaController extends Controller
 {
+    /* public function __construct()
+    {
+        $this->middleware('can:puede.ver.categorias')->only('index', 'show');
+        $this->middleware('can:puede.crear.categorias')->only('store');
+        $this->middleware('can:puede.editar.categorias')->only('update');
+        
+    } */
+
     public function index()
     {
-
-        return response()->json(['modelo' => Categoria::all()]);
+        $user = Auth::user();
+        return response()->json([
+            'modelo' => Categoria::all(), 
+            'user'=>$user,
+            //'roles'=>$user->getRoleNames()
+        ]);
     }
 
     public function store(Request $request)
