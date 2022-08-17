@@ -22,6 +22,7 @@ class User extends Authenticatable
     const ROL_TECNICO = 'TECNICO';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
+    const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
 
     /**
      * The attributes that are mass assignable.
@@ -54,7 +55,7 @@ class User extends Authenticatable
     ];
 
     // Relacion uno a uno
-    public function empleados()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'usuario_id');
     }

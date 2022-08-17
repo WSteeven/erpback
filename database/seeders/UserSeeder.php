@@ -30,8 +30,6 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
-
-        
         $coordinador->empleado()->create([
             'nombres' => 'MARILÚ',
             'apellidos' => 'JARAMILLO',
@@ -41,8 +39,8 @@ class UserSeeder extends Seeder
             'localidad_id' => $localidad_machala->id
         ]);
 
-        // SuperAdministrador
 
+        // SuperAdministrador
         $admin = User::create([
             'name' => 'Sebastian',
             'email' => 'admin@admin.com',
@@ -171,6 +169,23 @@ class UserSeeder extends Seeder
             'telefono' => '0987456235',
             'fecha_nacimiento' => '2019-05-12',
             'localidad_id' => $localidad_guayaquil->id
+        ]);
+
+
+        // Activos fijos
+        $activos_fijos = User::create([
+            'name' => 'Pedro Aguilar',
+            'email' => 'pedro@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles([User::ROL_EMPLEADO, User::ROL_ACTIVOS_FIJOS]);
+        $activos_fijos->empleado()->create([
+            'nombres' => 'PEDRO',
+            'apellidos' => 'AGUILAR',
+            'identificacion' => '0702041526',
+            'telefono' => '0989857463',
+            'fecha_nacimiento' => '1993-05-12',
+            'localidad_id' => $localidad_machala->id
         ]);
     }
 }
