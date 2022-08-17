@@ -56,4 +56,8 @@ class Producto extends Model
     {
         return $this->belongsTo(Modelo::class);
     }
+
+    public function generarCodigo(){
+        //return
+    }
 }

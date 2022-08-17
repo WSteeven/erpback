@@ -13,18 +13,14 @@ class CategoriaController extends Controller
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
         $this->middleware('can:puede.crear.categorias')->only('store');
         $this->middleware('can:puede.editar.categorias')->only('update');
-        
+
     } */
 
     public function index()
     {
-        $user = Auth::user();
-        return response()->json([
-            'modelo' => Categoria::all(), 
-            'user'=>$user,
-            //'roles'=>$user->getRoleNames()
-        ]);
+        return response()->json(['modelo' => Categoria::all()]);
     }
+
 
     public function store(Request $request)
     {
@@ -34,10 +30,12 @@ class CategoriaController extends Controller
         return response()->json(['mensaje' => 'La categoría ha sido creada con exito', 'modelo' => $categoria]);
     }
 
+
     public function show(Categoria $categoria)
     {
         return response()->json(['modelo' => $categoria]);
     }
+
 
     public function update(Request $request, Categoria  $categoria)
     {
@@ -47,6 +45,7 @@ class CategoriaController extends Controller
         return response()->json(['mensaje' => 'La categoría ha sido actualizada con exito', 'modelo' => $categoria]);
     }
 
+    
     public function destroy(Categoria $categoria)
     {
         $categoria->delete();

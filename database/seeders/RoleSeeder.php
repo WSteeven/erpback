@@ -31,7 +31,7 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'puede.ver.categorias'])->syncRoles([$rol_activos_fijos, $rol_empleado]);
         Permission::create(['name' => 'puede.crear.categorias'])->assignRole($rol_activos_fijos);
         Permission::create(['name' => 'puede.editar.categorias'])->assignRole($rol_activos_fijos);
-        
+
         Permission::create(['name' => 'puede.ver.nombres_de_productos'])->assignRole($rol_activos_fijos);
         Permission::create(['name' => 'puede.crear.nombres_de_productos'])->assignRole($rol_activos_fijos);
         Permission::create(['name' => 'puede.editar.nombres_de_productos'])->assignRole($rol_activos_fijos);
