@@ -55,7 +55,7 @@ class User extends Authenticatable
     ];
 
     // Relacion uno a uno
-    public function empleado()
+    public function empleados()
     {
         return $this->hasOne(Empleado::class, 'usuario_id');
     }
