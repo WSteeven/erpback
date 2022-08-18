@@ -5,10 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CodigoCliente extends Model
+class TipoFibra extends Model
 {
     use HasFactory;
-
-    protected $table = "codigo_cliente";
-    protected $fillable = ['propietario_id', 'producto_id', 'codigo'];
 }

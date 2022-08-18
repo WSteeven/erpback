@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class CategoriaController extends Controller
 {
-    /* public function __construct()
+    public function __construct()
     {
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
         $this->middleware('can:puede.crear.categorias')->only('store');
         $this->middleware('can:puede.editar.categorias')->only('update');
 
-    } */
+    }
 
     public function index()
     {
@@ -27,7 +27,7 @@ class CategoriaController extends Controller
         $request->validate(['nombre' => 'required|unique:categorias']);
         $categoria = Categoria::create($request->all());
 
-        return response()->json(['mensaje' => 'La categoría ha sido creada con exito', 'modelo' => $categoria]);
+        return response()->json(['mensaje' => 'La categoría ha sido creada con éxito', 'modelo' => $categoria]);
     }
 
 
@@ -42,14 +42,14 @@ class CategoriaController extends Controller
         $request->validate(['nombre' => 'required|unique:categorias']);
         $categoria->update($request->all());
 
-        return response()->json(['mensaje' => 'La categoría ha sido actualizada con exito', 'modelo' => $categoria]);
+        return response()->json(['mensaje' => 'La categoría ha sido actualizada con éxito', 'modelo' => $categoria]);
     }
 
-    
+
     public function destroy(Categoria $categoria)
     {
         $categoria->delete();
 
-        return response()->json(['mensaje' => 'La categoría ha sido eliminada con exito', 'modelo' => $categoria]);
+        return response()->json(['mensaje' => 'La categoría ha sido eliminada con éxito', 'modelo' => $categoria]);
     }
 }

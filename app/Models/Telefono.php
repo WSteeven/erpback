@@ -10,11 +10,15 @@ class Telefono extends Model
     use HasFactory;
     protected $table = "telefonos";// <-- El nombre personalizado
 
+    public function telefonable()
+    {
+        return $this->morphTo();
+    }
 
     /*
     * Get the user that owns the phone
     */
-    public function user()
+    /* public function user()
     {
         return $this->belongsTo(User::class);
     }
@@ -22,5 +26,5 @@ class Telefono extends Model
     public function empresa()
     {
         return $this->belongsTo(Empresa::class);
-    }
+    } */
 }

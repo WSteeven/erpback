@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-
+use App\Models\ImagenesProducto;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         // ]);
         $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
+        $this->call(CondicionesProductosFacturasSeeder::class);
         $this->call(ProvinciaSeeder::class);
         $this->call(CantonSeeder::class);
         $this->call(ParroquiaSeeder::class);
@@ -34,8 +35,8 @@ class DatabaseSeeder extends Seeder
         $this->call(HiloSeeder::class);
         $this->call(ProductosSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
-        $this->call(CondicionesProductosFacturasSeeder::class);
         $this->call(TiposTransaccionSeeder::class);
         $this->call(ClienteProveedorSeeder::class);
+        ImagenesProducto::factory(10)->create();
     }
 }

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('localidad_id');
             $table->timestamps();
 
-            $table->foreign('localidad_id')->references('id')->on('localidades');
+            $table->foreign('localidad_id')->references('id')->on('sucursales');
         });
     }
 

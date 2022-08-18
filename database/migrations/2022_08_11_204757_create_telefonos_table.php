@@ -16,11 +16,9 @@ return new class extends Migration
         Schema::create('telefonos', function (Blueprint $table) {
             $table->id();
             $table->string('numero')->unique();
-            $table->unsignedBigInteger('empresa_id');
+            $table->unsignedBigInteger('telefonable_id');
+            $table->string('telefonable_type');
             $table->timestamps();
-
-            $table->foreign('empresa_id')->references('id')->on('empresas');
-
         });
     }
 

@@ -7,79 +7,40 @@ use Illuminate\Http\Request;
 
 class AutorizacionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        return response()->json(['modelo' => Autorizacion::all()]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate(['nombre' => 'required|unique:autorizaciones']);
+        $autorizacion = Autorizacion::create($request->all());
+
+        return response()->json(['mensaje' => 'La autorización ha sido creada con éxito', 'modelo' => $autorizacion]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Autorizacion  $autorizacion
-     * @return \Illuminate\Http\Response
-     */
+
     public function show(Autorizacion $autorizacion)
     {
-        //
+        return response()->json(['modelo' => $autorizacion]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Autorizacion  $autorizacion
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Autorizacion $autorizacion)
+
+    public function update(Request $request, Autorizacion  $autorizacion)
     {
-        //
+        $request->validate(['nombre' => 'required|unique:autorizacions']);
+        $autorizacion->update($request->all());
+
+        return response()->json(['mensaje' => 'La autorización ha sido actualizada con éxito', 'modelo' => $autorizacion]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Autorizacion  $autorizacion
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Autorizacion $autorizacion)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Autorizacion  $autorizacion
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Autorizacion $autorizacion)
     {
-        //
+        $autorizacion->delete();
+
+        return response()->json(['mensaje' => 'La autorización ha sido eliminada con éxito', 'modelo' => $autorizacion]);
     }
 }

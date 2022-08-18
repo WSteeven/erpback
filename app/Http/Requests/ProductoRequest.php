@@ -26,18 +26,20 @@ class ProductoRequest extends FormRequest
     {
         return [
             'codigo_barras' => 'nullable|string',
-            'nombre_id' => 'required|integer',
+            'nombre_id' => 'required|integer|exists:nombres_de_productos,id',
             'descripcion' => 'required|string',
-            'modelo_id' => 'required|integer',
+            'modelo_id' => 'required|integer|exists:modelos,id',
             'precio' => 'nullable|integer',
             'serial' => 'nullable|string',
-            'categoria_id' => 'required|integer',
-            'hilo_id'=>'nullable|integer',
+            'categoria_id' => 'required|integer|exists:categorias,id',
+            'tipo_fibra_id'=>'nullable|integer|exists:tipo_fibras,id',
+            'hilo_id'=>'nullable|integer|exists:hilos,id',
             'punta_a' => 'nullable|integer',
             'punta_b' => 'nullable|integer',
             'punta_corte' => 'nullable|integer',
-            //'estado'=>['nullable', Rule::in(Producto::ACTIVO, Producto::INACTIVO)]
+            "condicion_id"=>'required|exists:condiciones_de_productos,id'
+            //'propietario_id'=>'required|integer|exists:propietarios,id'
         ];
-        Log::channel('testing')->info('LOG', ['entro en las reglas ']);
+        //Log::channel('testing')->info('LOG', ['entro en las reglas ']);
     }
 }

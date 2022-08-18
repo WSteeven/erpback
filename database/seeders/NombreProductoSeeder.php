@@ -62,6 +62,9 @@ class NombreProductoSeeder extends Seeder
         //FIBRAS
         NombreProducto::create(['nombre'=>'ADSS CABLE SPAN 120M 48 FO G652D ']);
         NombreProducto::create(['nombre'=>'ADSS CABLE SPAN 250M 24 FO B1.3 ']);
-        NombreProducto::create(['nombre'=>'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE']);
+        NombreProducto::create(['nombre'=>'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE (PRECONECTORIZADO 100 MTS']);
+        NombreProducto::create(['nombre'=>'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE (PRECONECTORIZADO 150 MTS']);
+        NombreProducto::create(['nombre'=>'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE (PRECONECTORIZADO 200 MTS']);
+        NombreProducto::create(['nombre'=>'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE (PRECONECTORIZADO 250 MTS']);
     }
 }

@@ -15,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('codigo_cliente', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('propietario_id')->required();
-            $table->unsignedBigInteger('producto_id')->required();
+            $table->unsignedBigInteger('cliente_id')->required();
+            $table->unsignedBigInteger('nombre_producto_id')->required();
             $table->string('codigo')->required();
             $table->timestamps();
 
-            
-            $table->foreign('propietario_id')->references('id')->on('propietarios')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('nombre_producto_id')->references('id')->on('nombres_de_productos')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

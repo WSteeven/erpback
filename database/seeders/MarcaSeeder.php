@@ -138,5 +138,25 @@ class MarcaSeeder extends Seeder
             'nombre'=>'3805E8',
             'marca_id'=>9
         ]);
+        Modelo::create([
+            'nombre'=>'3805E8',
+            'marca_id'=>9
+        ]);
+        Modelo::create([
+            'nombre'=>'100 MTS',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'150 MTS',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'200 MTS',
+            'marca_id'=>17
+        ]);
+        Modelo::create([
+            'nombre'=>'250 MTS',
+            'marca_id'=>17
+        ]);
     }
 }

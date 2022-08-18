@@ -32,13 +32,14 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'puede.crear.categorias'])->assignRole($rol_activos_fijos);
         Permission::create(['name' => 'puede.editar.categorias'])->assignRole($rol_activos_fijos);
 
-        Permission::create(['name' => 'puede.ver.nombres_de_productos'])->assignRole($rol_activos_fijos);
+        Permission::create(['name' => 'puede.ver.nombres_de_productos'])->syncRoles($rol_activos_fijos, $rol_empleado);
         Permission::create(['name' => 'puede.crear.nombres_de_productos'])->assignRole($rol_activos_fijos);
         Permission::create(['name' => 'puede.editar.nombres_de_productos'])->assignRole($rol_activos_fijos);
 
         Permission::create(['name' => 'puede.ver.productos'])->assignRole($rol_empleado);
-        Permission::create(['name' => 'puede.crear.productos'])->assignRole($rol_activos_fijos);
-        Permission::create(['name' => 'puede.editar.productos'])->syncRoles([$rol_bodega, $rol_activos_fijos]);
+        Permission::create(['name' => 'puede.crear.productos'])->assignRole($rol_bodega);
+        Permission::create(['name' => 'puede.editar.productos'])->assignRole($rol_bodega);
+        Permission::create(['name' => 'puede.eliminar.productos']);
 
 
         Permission::create(['name' => 'puede.solicitar.productos'])->syncRoles([$rol_bodega, $rol_empleado]);

@@ -12,21 +12,25 @@ use Illuminate\Support\Facades\Log;
 
 class ProductoController extends Controller
 {
-    /* public function __construct()
+    public function __construct()
     {
         $this->middleware('can:puede.ver.productos')->only('index', 'show');
         $this->middleware('can:puede.crear.productos')->only('store');
-    } */
+        $this->middleware('can:puede.editar.productos')->only('update');
+        $this->middleware('can:puede.eliminar.productos')->only('destroy');
+
+    }
     public function generarCodigo($id)
     {
         $codigo = "";
-        while(strlen($codigo)<(6-strlen($id))){
-            $codigo.="0";
+        while (strlen($codigo) < (6 - strlen($id))) {
+            $codigo .= "0";
         }
         $codigo .= strval($id);
         //return " Tu numero tiene " . strlen($id) . " digitos, El codigo es " . $codigo." El id es ".$id;
         return $codigo;
     }
+
 
     public function index()
     {
@@ -36,20 +40,18 @@ class ProductoController extends Controller
 
     public function store(ProductoRequest $request)
     {
+
         $productoCreado = Producto::create($request->validated());
-        $propietario = Propietario::find(1);
-        $datos = [
-            "propietario_id"=> $propietario->id,
-            "producto_id"=>$productoCreado->id,
-            "codigo"=>trim($this->generarCodigo($productoCreado->id),'"')
-        ];
-        $codigoCliente = CodigoCliente::create([
-            "propietario_id"=> $propietario->id,
-            "producto_id"=>$productoCreado->id,
-            "codigo"=>$this->generarCodigo($productoCreado->id)
+        /* $codigoCliente = CodigoCliente::create([
+            "propietario_id" => 1,
+            "producto_id" => $productoCreado->id,
+            "codigo" => $this->generarCodigo($productoCreado->id)
+        ]); */
+        return response()->json([
+            'mensaje' => 'Producto creado',
+            'modelo' => new ProductoResource($productoCreado),
+            /* "codigo" => $codigoCliente */
         ]);
-        //$resultado = $this->generarCodigo($productoCreado->id);
-        return response()->json(['mensaje' => 'Producto creado', 'modelo' => new ProductoResource($productoCreado), "datos" => $datos]);
     }
 
 

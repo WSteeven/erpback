@@ -18,8 +18,19 @@ class NombreProducto extends Model
         Lenovo modelo xyz ...
         ... etc.
     */
-    /* public function productos()
+    public function productos()
     {
         return $this->hasMany(Producto::class);
-    } */
+    }
+
+    //Un producto tiene varias imagenes
+    public function imagenes(){
+        return $this->hasMany(ImagenesProducto::class);
+    }
+
+    //Un producto tiene varios codigos de cliente
+    public function clientes()
+    {
+        return $this->belongsToMany(Cliente::class);
+    }
 }

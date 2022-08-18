@@ -23,10 +23,12 @@ class ProductoResource extends JsonResource
             'precio' => $this->precio,
             'serial' => $this->serial,
             'categoria_id' => $this->categoria_id,
+            'tipo_fibra_id'=>$this->tipo_fibra_id,
             'hilo_id'=>$this->hilo_id,
             'punta_a' => $this->punta_a,
             'punta_b' => $this->punta_b,
             'punta_corte' => $this->punta_corte,
+            'condicion_id' => $this->condicion_id,
             //'estado' => $this->estado
         ];
     }

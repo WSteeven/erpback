@@ -10,8 +10,8 @@ class Empresa extends Model
     use HasFactory;
     public $table = 'empresas';
 
-    const NATURAL='N';
-    const JURIDICA='J';
+    const NATURAL = 'NATURAL';
+    const JURIDICA = 'JURIDICA';
 
     public function cliente()
     {
@@ -22,8 +22,14 @@ class Empresa extends Model
     {
         return $this->hasOne(Proveedor::class);
     }
-
+    /*
     public function telefonos(){
         return $this->hasMany(Telefono::class);
+    } */
+
+    //Relacion uno a muchos polimorfica
+    public function telefonos()
+    {
+        return $this->morphMany('App\Models\Telefono', 'telefonable');
     }
 }

@@ -39,9 +39,9 @@ class ClienteProveedorSeeder extends Seeder
             'correo'=>'servicio@accessnetecuador.ec',
             'direccion'=>'CUENCA, RICARDO DURAN Y CAMINO VIEJO A BAÑOS'
         ]);
-        Cliente::create(['empresa_id'=>1, 'parroquia_id'=>338]);
-        Cliente::create(['empresa_id'=>2, 'parroquia_id'=>525]);
-        Cliente::create(['empresa_id'=>3, 'parroquia_id'=>17]);
+        Cliente::create(['empresa_id'=>1, 'parroquia_id'=>338, 'requiere_bodega'=>true]);
+        Cliente::create(['empresa_id'=>2, 'parroquia_id'=>525, 'requiere_bodega'=>true]);
+        Cliente::create(['empresa_id'=>3, 'parroquia_id'=>17, 'requiere_bodega'=>true]);
 
         //PROVEEDORES
         Empresa::create([

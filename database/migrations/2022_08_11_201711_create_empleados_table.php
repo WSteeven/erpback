@@ -30,8 +30,8 @@ return new class extends Migration
             $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('localidad_id');
-            $table->foreign('localidad_id')->references('id')->on('localidades');
+            $table->unsignedBigInteger('sucursal_id');
+            $table->foreign('sucursal_id')->references('id')->on('sucursales');
 
             $table->timestamps();
         });

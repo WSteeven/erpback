@@ -19,4 +19,9 @@ class Cliente extends Model
     {
         return $this->belongsTo(Empresa::class);
     }
+
+    public function nombres()
+    {
+        return $this->belongsToMany(NombreProducto::class);
+    }
 }

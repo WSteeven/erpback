@@ -12,7 +12,7 @@ class ImagenesProducto extends Model
 
     public function producto()
     {
-        return $this->belongsToMany(Producto::class);
+        return $this->belongsToMany(NombreProducto::class);
     }
 
 

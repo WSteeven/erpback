@@ -10,6 +10,8 @@ class Marca extends Model
     use HasFactory;
     protected $table = "marcas";// <-- El nombre personalizado
 
+    protected $fillable = ['nombre'];
+
     /* Una marca tiene muchos modelos */
     public function modelos()
     {

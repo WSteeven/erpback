@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('empresa_id');
             $table->unsignedBigInteger('parroquia_id');
-            $table->string('status')->default('1');
+            $table->boolean('requiere_bodega')->default(false);
+            $table->boolean('estado')->default(true);
             $table->timestamps();
             $table->foreign('empresa_id')->references('id')->on('empresas');
             $table->foreign('parroquia_id')->references('id')->on('parroquias');

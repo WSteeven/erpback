@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Localidad extends Model
+class Sucursal extends Model
 {
     use HasFactory;
-    protected $table = "localidades";
+    protected $table = "sucursales";
 
     public function empleados()
     {

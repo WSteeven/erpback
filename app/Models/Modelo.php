@@ -9,6 +9,9 @@ class Modelo extends Model
 {
     use HasFactory;
     protected $table = 'modelos';
+    protected $fillable = [
+        'nombre',
+        'marca_id'];
 
     /* Un modelo pertenece a un producto */
     public function producto()

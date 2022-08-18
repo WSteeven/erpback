@@ -18,7 +18,8 @@ return new class extends Migration
             $table->id();
             $table->string('identificacion')->unique();
             $table->enum('tipo_contribuyente', [Empresa::NATURAL, Empresa::JURIDICA]);
-            $table->string('razon_social')->nullable();
+            $table->string('razon_social')->required();
+            $table->string('nombre_comercial')->nullable();
             $table->string('correo')->nullable();
             $table->text('direccion')->nullable();
             $table->timestamps();

@@ -13,11 +13,14 @@ class Empleado extends Model
 		'identificacion',
 		'nombres',
 		'apellidos',
-		'telefono',
 		'fecha_nacimiento',
 		'jefe_id',
 		'localidad_id',
 	];
+    //Relacion uno a muchos polimorfica
+    public function telefonos(){
+        return $this->morphMany('App\Models\Telefono','telefonable');
+    }
 
     /**
      * Obtiene el usuario que posee el perfil.

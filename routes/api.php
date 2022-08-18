@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\NombresProductosController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Resources\UserResource;
@@ -27,6 +29,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         'categorias' => CategoriaController::class,
         'nombre_productos'=> NombresProductosController::class,
         'productos'=> ProductoController::class,
+        'marcas'=> MarcaController::class,
+        'modelos'=> ModeloController::class,
     ], [
         'middleware' => ['auth:sanctum']
     ]

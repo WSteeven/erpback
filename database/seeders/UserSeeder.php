@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Localidad;
+use App\Models\Sucursal;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,10 +18,10 @@ class UserSeeder extends Seeder
     public function run()
     {
         //Localidad
-        $localidad_machala = Localidad::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jp.com']);
-        $localidad_sto_domingo = Localidad::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jp.com']);
-        $localidad_cuenca = Localidad::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com']);
-        $localidad_guayaquil = Localidad::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com']);
+        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jp.com']);
+        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jp.com']);
+        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com']);
+        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com']);
 
 
         // Coordinador
@@ -36,7 +37,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0745125487',
             'telefono' => '0987456',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
 
@@ -59,7 +60,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0702875618001',
             'telefono' => '0987456748',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Coordinador
@@ -74,7 +75,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0745185287',
             'telefono' => '0987456741',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_sto_domingo->id
+            'sucursal_id' => $localidad_sto_domingo->id
         ]);
 
         // Coordinador
@@ -89,7 +90,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0745124163',
             'telefono' => '0987456785',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Asistente de bodega 1
@@ -104,7 +105,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0708549625',
             'telefono' => '0987456112',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Asistente de bodega 2
@@ -120,7 +121,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0704126352',
             'telefono' => '0987456965',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Tecnico lider
@@ -136,7 +137,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415236',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_cuenca->id
+            'sucursal_id' => $localidad_cuenca->id
         ]);
 
         // Departamento de compras
@@ -152,7 +153,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0708541325',
             'telefono' => '0984568596',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Personal administrativo
@@ -168,7 +169,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0745963251',
             'telefono' => '0987456235',
             'fecha_nacimiento' => '2019-05-12',
-            'localidad_id' => $localidad_guayaquil->id
+            'sucursal_id' => $localidad_guayaquil->id
         ]);
 
 
@@ -185,7 +186,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0702041526',
             'telefono' => '0989857463',
             'fecha_nacimiento' => '1993-05-12',
-            'localidad_id' => $localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
     }
 }

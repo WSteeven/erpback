@@ -27,6 +27,7 @@ class Producto extends Model
         'precio',
         'serial',
         'categoria_id',
+        'tipo_fibra_id',
         'hilo_id',
         'punta_a',
         'punta_b',
@@ -39,7 +40,7 @@ class Producto extends Model
         return $this->hasMany(ProductosEnPercha::class);
     }
 
-    /* Un producto especifico pertenece a un nombre general */
+    /* Uno o varios productos pertenecen a un nombre general */
     public function nombre()
     {
         return $this->belongsTo(NombresProductos::class);
@@ -55,9 +56,5 @@ class Producto extends Model
     public function modelo()
     {
         return $this->belongsTo(Modelo::class);
-    }
-
-    public function generarCodigo(){
-        //return
     }
 }

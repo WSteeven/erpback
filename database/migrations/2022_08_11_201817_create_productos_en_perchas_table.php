@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Inventario;
+use App\Models\ProductoEnPercha;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('inventarios', function (Blueprint $table) {
+        Schema::create('productos_en_perchas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('producto_id'); //fk productos
             $table->unsignedBigInteger('condicion_id'); //fk condicion (nuevo, usado, dañado, etc)
@@ -23,12 +24,12 @@ return new class extends Migration
 
             $table->unsignedInteger('stock')->default(0);
             $table->integer('prestados')->default(0);
-            $table->enum('estado',[Inventario::INVENTARIO, Inventario::NODISPONIBLE])->default(Inventario::INVENTARIO);
+            $table->enum('estado',[ProductoEnPercha::INVENTARIO, ProductoEnPercha::NODISPONIBLE])->default(ProductoEnPercha::INVENTARIO);
             $table->timestamps();
 
             $table->foreign('condicion_id')->references('id')->on('condiciones_de_productos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ubicacion_id')->references('id')->on('ubicaciones')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('propietario_id')->references('id')->on('propietarios')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('propietario_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
         });
     }
@@ -40,6 +41,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('inventarios');
+        Schema::dropIfExists('productos_en_perchas');
     }
 };

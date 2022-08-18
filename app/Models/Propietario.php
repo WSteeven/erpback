@@ -11,8 +11,8 @@ class Propietario extends Model
     protected $table = "propietarios";
 
     /* Un propietario tiene varios productos en perchas */
-    public function productosPercha()
+    /* public function productosPercha()
     {
         return $this->hasMany(ProductosEnPercha::class);
-    }
+    } */
 }
