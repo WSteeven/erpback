@@ -25,19 +25,19 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
 
         Percha::create([
             'nombre'=>'PA1',
-            "localidad_id"=>1
+            "sucursal_id"=>1
         ]);
         Percha::create([
             'nombre'=>'PA2',
-            "localidad_id"=>1
+            "sucursal_id"=>1
         ]);
         Percha::create([
             'nombre'=>'PB1',
-            "localidad_id"=>1
+            "sucursal_id"=>1
         ]);
         Percha::create([
             'nombre'=>'PB2',
-            "localidad_id"=>1
+            "sucursal_id"=>1
         ]);
 
 

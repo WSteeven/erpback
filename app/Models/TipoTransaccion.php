@@ -9,4 +9,6 @@ class TipoTransaccion extends Model
 {
     use HasFactory;
     protected $table="tipo_de_transacciones";
+    const INGRESO = 'INGRESO';
+    const EGRESO = 'EGRESO';
 }

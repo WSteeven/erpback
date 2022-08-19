@@ -20,21 +20,21 @@ class ClienteProveedorSeeder extends Seeder
         //CLIENTES
         Empresa::create([
             'identificacion'=>'0750784123001',
-            'tipo_contribuyente'=>'J',
+            'tipo_contribuyente'=>Empresa::JURIDICA,
             'razon_social'=>'TELCONET S.A.',
             'correo'=>'servicio@telconet.ec',
             'direccion'=>'MACHALA, JUAN MONTALVO 2317'
         ]);
         Empresa::create([
             'identificacion'=>'0774854123001',
-            'tipo_contribuyente'=>'J',
+            'tipo_contribuyente'=>Empresa::JURIDICA,
             'razon_social'=>'NEGOCIOS Y TELEFONIA (NEDETEL) S.A.',
             'correo'=>'compras@nedetel.com',
             'direccion'=>'GUAYAQUIL, AV. PERIMETRAL KM 4 Y AV. FRANCISCO E ORELLANA'
         ]);
         Empresa::create([
             'identificacion'=>'0874074123001',
-            'tipo_contribuyente'=>'J',
+            'tipo_contribuyente'=>Empresa::JURIDICA,
             'razon_social'=>'ACCESSNET S.A.',
             'correo'=>'servicio@accessnetecuador.ec',
             'direccion'=>'CUENCA, RICARDO DURAN Y CAMINO VIEJO A BAÑOS'
@@ -46,19 +46,19 @@ class ClienteProveedorSeeder extends Seeder
         //PROVEEDORES
         Empresa::create([
             'identificacion'=>'0785965234001',
-            'tipo_contribuyente'=>'J',
+            'tipo_contribuyente'=>Empresa::JURIDICA,
             'razon_social'=>'FERREARMIJOS S.A.',
             'correo'=>'ventas@ferrearmijos.com.ec'
         ]);
         Empresa::create([
             'identificacion'=>'0874857432001',
-            'tipo_contribuyente'=>'N',
+            'tipo_contribuyente'=>Empresa::NATURAL,
             'razon_social'=>'DELGADO ROJAS LUIS LEROY',
             'correo'=>'luisleroy@gmail.com'
         ]);
         Empresa::create([
             'identificacion'=>'0841526395001',
-            'tipo_contribuyente'=>'J',
+            'tipo_contribuyente'=>Empresa::JURIDICA,
             'razon_social'=>'TRIONICA COMPUTACION LTDA',
             'correo'=>'ventas@trionica.com.ec'
         ]);

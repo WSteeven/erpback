@@ -21,7 +21,7 @@ class SucursalController extends Controller
     {
         $sucursal = Sucursal::create($request->all());
 
-        return response()->json(['mensaje' => 'La sucursal ha sido creada con exito', 'modelo' => $sucursal]);
+        return response()->json(['mensaje' => 'La sucursal ha sido creada con éxito', 'modelo' => $sucursal]);
     }
 
 
@@ -35,7 +35,7 @@ class SucursalController extends Controller
     {
         $sucursal->update($request->all());
 
-        return response()->json(['mensaje' => 'La sucursal ha sido actualizada con exito', 'modelo' => $sucursal]);
+        return response()->json(['mensaje' => 'La sucursal ha sido actualizada con éxito', 'modelo' => $sucursal]);
     }
 
 
@@ -43,6 +43,6 @@ class SucursalController extends Controller
     {
         $sucursal->delete();
 
-        return response()->json(['mensaje' => 'La sucursal ha sido eliminada con exito', 'modelo' => $sucursal]);
+        return response()->json(['mensaje' => 'La sucursal ha sido eliminada con éxito', 'modelo' => $sucursal]);
     }
 }

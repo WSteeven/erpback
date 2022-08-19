@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
-        $coordinador->empleado()->create([
+        $coordinador->empleados()->create([
             'nombres' => 'MARILÚ',
             'apellidos' => 'JARAMILLO',
             'identificacion' => '0745125487',
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             'email' => 'gerente@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_GERENTE);
-        $gerente->empleado()->create([
+        $gerente->empleados()->create([
             'nombres' => 'PATRICIO',
             'apellidos' => 'PAZMIÑO',
             'identificacion' => '0702875618001',
@@ -69,7 +69,7 @@ class UserSeeder extends Seeder
             'email' => 'bchamba@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
-        $coordinador_sto_domingo->empleado()->create([
+        $coordinador_sto_domingo->empleados()->create([
             'nombres' => 'BRYAN',
             'apellidos' => 'CHAMBA',
             'identificacion' => '0745185287',
@@ -84,7 +84,7 @@ class UserSeeder extends Seeder
             'email' => 'dloja@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
-        $coordinador_telconet->empleado()->create([
+        $coordinador_telconet->empleados()->create([
             'nombres' => 'DARIO',
             'apellidos' => 'LOJA',
             'identificacion' => '0745124163',
@@ -99,7 +99,7 @@ class UserSeeder extends Seeder
             'email' => 'asistentebodega1@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_BODEGA);
-        $bodeguero1->empleado()->create([
+        $bodeguero1->empleados()->create([
             'nombres' => 'CRISTIAN',
             'apellidos' => 'ALBARRACIN',
             'identificacion' => '0708549625',
@@ -115,7 +115,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_BODEGA);
-        $bodeguero2->empleado()->create([
+        $bodeguero2->empleados()->create([
             'nombres' => 'JUAN JOSE',
             'apellidos' => 'TORRES',
             'identificacion' => '0704126352',
@@ -131,7 +131,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_TECNICO);
-        $tecnico->empleado()->create([
+        $tecnico->empleados()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'RAMIREZ',
             'identificacion' => '0707415236',
@@ -147,7 +147,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COMPRAS);
-        $compras->empleado()->create([
+        $compras->empleados()->create([
             'nombres' => 'INGRID',
             'apellidos' => 'LIMA',
             'identificacion' => '0708541325',
@@ -163,7 +163,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_EMPLEADO);
-        $administrativo->empleado()->create([
+        $administrativo->empleados()->create([
             'nombres' => 'SANTIAGO',
             'apellidos' => 'SARMIENTO',
             'identificacion' => '0745963251',
@@ -180,7 +180,7 @@ class UserSeeder extends Seeder
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->syncRoles([User::ROL_EMPLEADO, User::ROL_ACTIVOS_FIJOS]);
-        $activos_fijos->empleado()->create([
+        $activos_fijos->empleados()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'AGUILAR',
             'identificacion' => '0702041526',

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('creador_id');
             $table->timestamps();
 
-            $table->foreign('creador_id')->references('id')->on('empleados');
+            $table->foreign('creador_id')->references('id')->on('users');
         });
     }
 

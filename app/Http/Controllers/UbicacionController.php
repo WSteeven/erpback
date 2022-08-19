@@ -15,32 +15,32 @@ class UbicacionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|unique:ubicaciones']);
-        $Ubicacion = Ubicacion::create($request->all());
+        $request->validate(['codigo' => 'required|string','percha_id' => 'required|exists:percha,id', 'piso_id' => 'required|exists:piso,id']);
+        $ubicacion = Ubicacion::create($request->all());
 
-        return response()->json(['mensaje' => 'La categoría ha sido creada con exito', 'modelo' => $Ubicacion]);
+        return response()->json(['mensaje' => 'La ubicación ha sido creada con éxito', 'modelo' => $ubicacion]);
     }
 
 
-    public function show(Ubicacion $Ubicacion)
+    public function show(Ubicacion $ubicacion)
     {
-        return response()->json(['modelo' => $Ubicacion]);
+        return response()->json(['modelo' => $ubicacion]);
     }
 
 
-    public function update(Request $request, Ubicacion  $Ubicacion)
+    public function update(Request $request, Ubicacion  $ubicacion)
     {
-        $request->validate(['nombre' => 'required|unique:Ubicacions']);
-        $Ubicacion->update($request->all());
+        $request->validate(['codigo' => 'required|string','percha_id' => 'required|exists:percha,id', 'piso_id' => 'required|exists:piso,id']);
+        $ubicacion->update($request->all());
 
-        return response()->json(['mensaje' => 'La categoría ha sido actualizada con exito', 'modelo' => $Ubicacion]);
+        return response()->json(['mensaje' => 'La ubicación ha sido actualizada con éxito', 'modelo' => $ubicacion]);
     }
 
 
-    public function destroy(Ubicacion $Ubicacion)
+    public function destroy(Ubicacion $ubicacion)
     {
-        $Ubicacion->delete();
+        $ubicacion->delete();
 
-        return response()->json(['mensaje' => 'La categoría ha sido eliminada con exito', 'modelo' => $Ubicacion]);
+        return response()->json(['mensaje' => 'La ubicación ha sido eliminada con éxito', 'modelo' => $ubicacion]);
     }
 }
