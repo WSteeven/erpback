@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Condicion extends Model
 {
     use HasFactory;
-    protected $table = "condiciones_de_productos";
+    protected $table = 'condiciones_de_productos';
+    protected $fillable = ['nombre'];
 
     public function productoPercha()
     {

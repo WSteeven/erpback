@@ -30,7 +30,7 @@ class AutorizacionController extends Controller
 
     public function update(Request $request, Autorizacion  $autorizacion)
     {
-        $request->validate(['nombre' => 'required|unique:autorizacions']);
+        $request->validate(['nombre' => 'required|unique:autorizaciones']);
         $autorizacion->update($request->all());
 
         return response()->json(['mensaje' => 'La autorización ha sido actualizada con éxito', 'modelo' => $autorizacion]);

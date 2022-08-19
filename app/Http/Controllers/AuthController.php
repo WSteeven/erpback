@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function verpermisos()
+    /* public function verpermisos()
     {
         $user = Auth::user();
         return response()->json([
             'roles' => $user->getRoleNames(),
             'permisos' => $user->getPermissionsViaRoles(),
         ]);
-    }
+    } */
 
     public function register(Request $request)
     {
@@ -30,21 +30,34 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
+        /* $user->empleados()->create([
+            'nombres' => 'PATRICIO',
+            'apellidos' => 'PAZMIÑO',
+            'identificacion' => '0702875618001',
+            'telefono' => '0987456748',
+            'fecha_nacimiento' => '2019-05-12',
+            'sucursal_id' => '1'
+        ]); */
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
-            'mensaje' => $token,
-            'modelo' => $user
+            'mensaje' => 'Registro exitoso',
+            'access_token' => $token,
+            'token_type' => 'Bearer'
         ]);
     }
 
     public function login(Request $request)
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['mensaje' => 'Usuario o contraseña incorrectos', 'email' => $request['email'], 'password' => $request['password']]);
+            return response()->json(['mensaje' => 'Usuario o contraseña incorrectos']);
         }
         $user = User::where('email', $request['email'])->first();
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer']);
+    }
+
+    public function updateEmail(){
+        
     }
     public function infouser(Request $request)
     {

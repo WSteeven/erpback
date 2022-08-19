@@ -2,45 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClienteRequest;
+use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ClienteController extends Controller
 {
     public function index()
     {
-        return response()->json(['modelo' => Cliente::all()]);
+        return response()->json(['modelo' => ClienteResource::collection(Cliente::all())]);
     }
-    private function reglas(){
+    /* private function reglas(){
         return [
-            'empresa_id' => 'required|exists:empresas,id',
-            'parroquia_id' => 'required|exists:parroquias,id',
+            'empresa_id' => 'exists:empresas,id|required',//|unique:clientes,empresa_id',
+            'parroquia_id' => 'required|exists:parroquias,id',//|unique:clientes,parroquia_id',
             'requiere_bodega' => 'boolean',
             'estado'=>'boolean'
         ];
-    }
+        /* if(in_array($this->method_exists('PUT'))){
+            $cliente = $this->route()->parameter('cliente');
 
-    public function store(Request $request)
+            $rules['empresa_id']=['required',Rule::unique('clientes')->ignore($cliente)];
+        }
+        return $rules;
+    } */
+
+    public function store(ClienteRequest $request)
     {
-        $request->validate($this->reglas());
-        $cliente = Cliente::create($request->all());
+        $cliente = Cliente::create($request->validated());
 
-        return response()->json(['mensaje' => 'El cliente ha sido creado con éxito', 'modelo' => $cliente]);
+        return response()->json(['mensaje' => 'El cliente ha sido creado con éxito', 'modelo' => new ClienteResource($cliente)]);
     }
 
 
     public function show(Cliente $cliente)
     {
-        return response()->json(['modelo' => $cliente]);
+        return response()->json(['modelo' => new ClienteResource($cliente)]);
     }
 
 
-    public function update(Request $request, Cliente  $cliente)
+    public function update(ClienteRequest $request, Cliente  $cliente)
     {
-        $request->validate($this->reglas());
-        $cliente->update($request->all());
+        $cliente->update($request->validated());
 
-        return response()->json(['mensaje' => 'El cliente ha sido actualizado con éxito', 'modelo' => $cliente]);
+        return response()->json(['mensaje' => 'El cliente ha sido actualizado con éxito', 'modelo' => new ClienteResource($cliente)]);
     }
 
 
@@ -48,6 +55,6 @@ class ClienteController extends Controller
     {
         $cliente->delete();
 
-        return response()->json(['mensaje' => 'El cliente ha sido eliminado con éxito', 'modelo' => $cliente]);
+        return response()->json(['mensaje' => 'El cliente ha sido eliminado con éxito', 'modelo' => new ClienteResource($cliente)]);
     }
 }

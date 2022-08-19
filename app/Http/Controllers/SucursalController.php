@@ -19,7 +19,7 @@ class SucursalController extends Controller
 
     public function store(SucursalRequest $request)
     {
-        $sucursal = Sucursal::create($request->all());
+        $sucursal = Sucursal::create($request->validated());
 
         return response()->json(['mensaje' => 'La sucursal ha sido creada con éxito', 'modelo' => $sucursal]);
     }
@@ -33,7 +33,7 @@ class SucursalController extends Controller
 
     public function update(SucursalRequest $request, Sucursal  $sucursal)
     {
-        $sucursal->update($request->all());
+        $sucursal->update($request->validated());
 
         return response()->json(['mensaje' => 'La sucursal ha sido actualizada con éxito', 'modelo' => $sucursal]);
     }

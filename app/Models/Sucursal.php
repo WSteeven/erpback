@@ -9,6 +9,7 @@ class Sucursal extends Model
 {
     use HasFactory;
     protected $table = "sucursales";
+    protected $fillable = ['lugar','telefono','correo'];
 
     public function empleados()
     {

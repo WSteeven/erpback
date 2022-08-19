@@ -9,6 +9,7 @@ class Autorizacion extends Model
 {
     use HasFactory;
     protected $table = "autorizaciones";
+    protected $fillable = ["nombre"];
 
     public function transacciones()
     {

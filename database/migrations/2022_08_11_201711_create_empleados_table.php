@@ -20,20 +20,22 @@ return new class extends Migration
             $table->string('apellidos');
             $table->string('telefono')->nullable();
             $table->date('fecha_nacimiento')->nullable();
+            $table->unsignedBigInteger('jefe_id')->nullable();
+            $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
+            $table->unsignedBigInteger('sucursal_id');
+            $table->timestamps();
+
+
             /* $table->double('saldo_inicial')->nullable();
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable(); */
 
-            $table->unsignedBigInteger('jefe_id')->nullable();
-            $table->foreign('jefe_id')->references('id')->on('empleados')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
+            $table->foreign('jefe_id')->references('id')->on('empleados')->onDelete(null)->onUpdate('cascade');
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-
-            $table->unsignedBigInteger('sucursal_id');
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
 
-            $table->timestamps();
+
         });
     }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpresaRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Models\Empresa;
-use Illuminate\Http\Request;
 
 class EmpresaController extends Controller
 {
@@ -20,22 +19,21 @@ class EmpresaController extends Controller
     {
         $empresa = Empresa::create($request->validated());
 
-        return response()->json(['mensaje' => 'La empresa ha sido creada con exito', 'modelo' => $empresa]);
+        return response()->json(['mensaje' => 'La empresa ha sido creada con éxito', 'modelo' => new EmpresaResource($empresa)]);
     }
 
 
     public function show(Empresa $empresa)
     {
-        return response()->json(['modelo' => $empresa]);
+        return response()->json(['modelo' => new EmpresaResource($empresa)]);
     }
 
 
     public function update(EmpresaRequest $request, Empresa  $empresa)
     {
-        $request->validate(['nombre' => 'required|unique:categorias']);
         $empresa->update($request->validated());
 
-        return response()->json(['mensaje' => 'La empresa ha sido actualizada con exito', 'modelo' => $empresa]);
+        return response()->json(['mensaje' => 'La empresa ha sido actualizada con éxito', 'modelo' => new EmpresaResource($empresa)]);
     }
 
 
@@ -43,6 +41,6 @@ class EmpresaController extends Controller
     {
         $empresa->delete();
 
-        return response()->json(['mensaje' => 'La empresa ha sido eliminada con exito', 'modelo' => $empresa]);
+        return response()->json(['mensaje' => 'La empresa ha sido eliminada con éxito', 'modelo' => new EmpresaResource($empresa)]);
     }
 }

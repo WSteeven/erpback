@@ -15,7 +15,7 @@ class EstadosTransaccionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|unique:estados']);
+        $request->validate(['nombre' => 'required|unique:estados_transacciones_bodega']);
         $estado = EstadosTransaccion::create($request->all());
 
         return response()->json(['mensaje' => 'El estado ha sido creado con éxito', 'modelo' => $estado]);
@@ -30,7 +30,7 @@ class EstadosTransaccionController extends Controller
 
     public function update(Request $request, EstadosTransaccion  $estado)
     {
-        $request->validate(['nombre' => 'required|unique:estados']);
+        $request->validate(['nombre' => 'required|unique:estados_transacciones_bodega']);
         $estado->update($request->all());
 
         return response()->json(['mensaje' => 'El estado ha sido actualizado con éxito', 'modelo' => $estado]);

@@ -27,7 +27,6 @@ class ProductoController extends Controller
             $codigo .= "0";
         }
         $codigo .= strval($id);
-        //return " Tu numero tiene " . strlen($id) . " digitos, El codigo es " . $codigo." El id es ".$id;
         return $codigo;
     }
 
@@ -48,7 +47,7 @@ class ProductoController extends Controller
             "codigo" => $this->generarCodigo($productoCreado->id)
         ]); */
         return response()->json([
-            'mensaje' => 'Producto creado',
+            'mensaje' => 'El producto ha sido creado con éxito',
             'modelo' => new ProductoResource($productoCreado),
             /* "codigo" => $codigoCliente */
         ]);
@@ -64,15 +63,13 @@ class ProductoController extends Controller
 
     public function update(ProductoRequest $request, Producto $producto)
     {
-        $datosValidados = $request->validated();
-
-        $producto->update($datosValidados);
-        return response()->json(['mensaje' => 'Producto actualizado con exito', 'modelo' => new ProductoResource($producto)]);
+        $producto->update($request->validated());
+        return response()->json(['mensaje' => 'El producto ha sido actualizado con éxito', 'modelo' => new ProductoResource($producto)]);
     }
 
     public function destroy(Producto $producto)
     {
         $producto->delete();
-        return response()->json(['mensaje' => 'Producto eliminado con exito']);
+        return response()->json(['mensaje' => 'El producto ha sido eliminado con éxito', 'modelo'=>new ProductoResource($producto)]);
     }
 }

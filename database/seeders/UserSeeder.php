@@ -23,6 +23,29 @@ class UserSeeder extends Seeder
         $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com']);
         $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com']);
 
+        // SuperAdministrador
+        $admin = User::create([
+            'name' => 'Sebastian',
+            'email' => 'admin@admin.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_ADMINISTRADOR);
+
+        
+        // Gerente
+        $gerente = User::create([
+            'name' => 'Patricio Pazmiño',
+            'email' => 'gerente@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_GERENTE);
+        $gerente->empleados()->create([
+            'nombres' => 'PATRICIO',
+            'apellidos' => 'PAZMIÑO',
+            'identificacion' => '0702875618001',
+            'telefono' => '0987456748',
+            'fecha_nacimiento' => '2019-05-12',
+            'sucursal_id' => $localidad_machala->id
+        ]);
+
 
         // Coordinador
         $coordinador = User::create([
@@ -40,28 +63,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-
-        // SuperAdministrador
-        $admin = User::create([
-            'name' => 'Sebastian',
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_ADMINISTRADOR);
-
-        // Gerente
-        $gerente = User::create([
-            'name' => 'Patricio Pazmiño',
-            'email' => 'gerente@jp.com',
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_GERENTE);
-        $gerente->empleados()->create([
-            'nombres' => 'PATRICIO',
-            'apellidos' => 'PAZMIÑO',
-            'identificacion' => '0702875618001',
-            'telefono' => '0987456748',
-            'fecha_nacimiento' => '2019-05-12',
-            'sucursal_id' => $localidad_machala->id
-        ]);
 
         // Coordinador
         $coordinador_sto_domingo = User::create([

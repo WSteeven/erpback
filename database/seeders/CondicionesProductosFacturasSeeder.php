@@ -15,9 +15,9 @@ class CondicionesProductosFacturasSeeder extends Seeder
      */
     public function run()
     {
-        Condicion::create(['condicion'=>'NUEVO']);
-        Condicion::create(['condicion'=>'USADO']);
-        Condicion::create(['condicion'=>'MAL ESTADO']);
-        Condicion::create(['condicion'=>'DAÑADO']);
+        Condicion::create(['nombre'=>'NUEVO']);
+        Condicion::create(['nombre'=>'USADO']);
+        Condicion::create(['nombre'=>'MAL ESTADO']);
+        Condicion::create(['nombre'=>'DAÑADO']);
     }
 }

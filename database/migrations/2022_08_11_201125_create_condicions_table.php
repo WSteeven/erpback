@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('condiciones_de_productos', function (Blueprint $table) {
             $table->id();
-            $table->string('condicion')->unique();
+            $table->string('nombre')->unique();
             $table->timestamps();
         });
     }
