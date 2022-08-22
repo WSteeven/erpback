@@ -43,35 +43,35 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
 
         //Pisos
         Piso::create([
-            'piso'=>'PISO 1',
+            'fila'=>'F1',
             "columna"=>'C1'
         ]);
         Piso::create([
-            'piso'=>'PISO 1',
+            'fila'=>'F1',
             "columna"=>'C2'
         ]);
         Piso::create([
-            'piso'=>'PISO 1',
+            'fila'=>'F1',
             "columna"=>'C3'
         ]);
         Piso::create([
-            'piso'=>'PISO 1',
+            'fila'=>'F1',
             "columna"=>'C4'
         ]);
         Piso::create([
-            'piso'=>'PISO 2',
+            'fila'=>'F2',
             "columna"=>'C1'
         ]);
         Piso::create([
-            'piso'=>'PISO 2',
+            'fila'=>'F2',
             "columna"=>'C2'
         ]);
         Piso::create([
-            'piso'=>'PISO 2',
+            'fila'=>'F2',
             "columna"=>'C3'
         ]);
         Piso::create([
-            'piso'=>'PISO 2',
+            'fila'=>'F2',
             "columna"=>'C4'
         ]);
 

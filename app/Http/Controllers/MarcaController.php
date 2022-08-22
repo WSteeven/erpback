@@ -18,7 +18,7 @@ class MarcaController extends Controller
         $request->validate(['nombre' => 'required|unique:marcas']);
         $marca = Marca::create($request->all());
 
-        return response()->json(['mensaje' => 'La marca ha sido creada con exito', 'modelo' => $marca]);
+        return response()->json(['mensaje' => 'La marca ha sido creada con éxito', 'modelo' => $marca]);
     }
 
 
@@ -33,7 +33,7 @@ class MarcaController extends Controller
         $request->validate(['nombre' => 'required|unique:marcas']);
         $marca->update($request->all());
 
-        return response()->json(['mensaje' => 'La marca ha sido actualizada con exito', 'modelo' => $marca]);
+        return response()->json(['mensaje' => 'La marca ha sido actualizada con éxito', 'modelo' => $marca]);
     }
 
 
@@ -41,6 +41,6 @@ class MarcaController extends Controller
     {
         $marca->delete();
 
-        return response()->json(['mensaje' => 'La marca ha sido eliminada con exito', 'modelo' => $marca]);
+        return response()->json(['mensaje' => 'La marca ha sido eliminada con éxito', 'modelo' => $marca]);
     }
 }

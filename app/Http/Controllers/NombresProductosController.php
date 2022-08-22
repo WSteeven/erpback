@@ -14,7 +14,7 @@ class NombresProductosController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|unique:categorias']);
+        $request->validate(['nombre' => 'required|unique:nombres_de_productos']);
         $nombreProducto = NombreProducto::create($request->all());
 
         return response()->json(['mensaje' => 'El nombre de producto ha sido creado con éxito', 'modelo' => $nombreProducto]);
@@ -27,7 +27,7 @@ class NombresProductosController extends Controller
 
     public function update(Request $request, NombreProducto  $nombreProducto)
     {
-        $request->validate(['nombre' => 'required|string']);
+        $request->validate(['nombre' => 'required|string|unique:nombres_de_productos']);
         $nombreProducto->update($request->all());
 
         return response()->json(['mensaje' => 'El nombre de producto ha sido actualizado con éxito', 'modelo' => $nombreProducto]);

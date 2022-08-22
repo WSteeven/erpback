@@ -19,7 +19,7 @@ class ModeloController extends Controller
             'marca_id' =>'required|exists:marcas,id']);
         $modelo = Modelo::create($request->all());
 
-        return response()->json(['mensaje' => 'El modelo ha sido creada con exito', 'modelo' => $modelo]);
+        return response()->json(['mensaje' => 'El modelo ha sido creado con éxito', 'modelo' => $modelo]);
     }
 
 
@@ -36,7 +36,7 @@ class ModeloController extends Controller
             'marca_id' =>'required|exists:marcas,id']);
         $modelo->update($request->all());
 
-        return response()->json(['mensaje' => 'El modelo ha sido actualizada con exito', 'modelo' => $modelo]);
+        return response()->json(['mensaje' => 'El modelo ha sido actualizado con éxito', 'modelo' => $modelo]);
     }
 
 
@@ -44,6 +44,6 @@ class ModeloController extends Controller
     {
         $modelo->delete();
 
-        return response()->json(['mensaje' => 'El modelo ha sido eliminada con exito', 'modelo' => $modelo]);
+        return response()->json(['mensaje' => 'El modelo ha sido eliminado con éxito', 'modelo' => $modelo]);
     }
 }

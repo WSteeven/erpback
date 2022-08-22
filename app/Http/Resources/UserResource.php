@@ -25,8 +25,8 @@ class UserResource extends JsonResource
             'identificacion' => $this->empleados->identificacion,
             'telefono' => $this->empleados->telefono,
             'fecha_nacimiento' => $this->empleados->fecha_nacimiento,
-            'jefe' => $this->empleados->jefes,
-            'localidad' => $this->empleados->localidad_id,
+            'jefe_id' => $this->empleados->jefe_id,
+            'sucursal_id' => $this->empleados->sucursal_id,
         ];
     }
 }

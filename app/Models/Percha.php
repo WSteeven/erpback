@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Percha extends Model
 {
     use HasFactory;
-    protected $table = "perchas";
+    protected $table = 'perchas';
+    protected $fillable = ['nombre', 'sucursal_id'];
 
     public function localidad()
     {

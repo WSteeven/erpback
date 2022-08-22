@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('pisos', function (Blueprint $table) {
             $table->id();
-            $table->string('piso');
+            $table->string('fila');
             $table->string('columna');
             $table->timestamps();
+
+            $table->unique(['fila','columna']);
         });
     }
 

@@ -18,7 +18,7 @@ class MovimientosProductosController extends Controller
 
         $movimientoCreado = MovimientosProductos::create($request->all());
         return response()->json([
-            'mensaje' => 'Movimiento creado',
+            'mensaje' => 'Movimiento creado con éxito',
             'modelo' => $movimientoCreado,
         ]);
     }
@@ -36,12 +36,12 @@ class MovimientosProductosController extends Controller
         $datosValidados = $request->all();
 
         $movimiento->update($datosValidados);
-        return response()->json(['mensaje' => 'Movimiento actualizado con exito', 'modelo' => $movimiento]);
+        return response()->json(['mensaje' => 'Movimiento actualizado con éxito', 'modelo' => $movimiento]);
     }
 
     public function destroy(MovimientosProductos $movimiento)
     {
         $movimiento->delete();
-        return response()->json(['mensaje' => 'Movimiento eliminado con exito']);
+        return response()->json(['mensaje' => 'Movimiento eliminado con éxito']);
     }
 }

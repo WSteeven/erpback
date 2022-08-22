@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Percha;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class PerchaController extends Controller
 {
@@ -15,8 +17,14 @@ class PerchaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['nombre' => 'required|string', 'sucursal_id'=>'required|exists:sucursales,id']);
-        $percha = Percha::create($request->all());
+        $messages = ['nombre.unique'=>'La percha ya existe en esta sucursal'];
+        $rules = [
+            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$request->sucursal_id,
+            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre'
+        ];
+        $validador = Validator::make($request->all(), $rules, $messages);
+
+        $percha = Percha::create($validador->validated());
 
         return response()->json(['mensaje' => 'La percha ha sido creada con éxito', 'modelo' => $percha]);
     }
@@ -30,8 +38,14 @@ class PerchaController extends Controller
 
     public function update(Request $request, Percha  $percha)
     {
-        $request->validate(['nombre' => 'required|string', 'sucursal_id'=>'required|exists:sucursales,id']);
-        $percha->update($request->all());
+        $messages = ['nombre.unique'=>'La percha ya existe en esta sucursal'];
+        $rules = [
+            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$request->sucursal_id,
+            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre'
+        ];
+        $validador = Validator::make($request->all(), $rules, $messages);
+
+        $percha->update($validador->validated());
 
         return response()->json(['mensaje' => 'La percha ha sido actualizada con éxito', 'modelo' => $percha]);
     }

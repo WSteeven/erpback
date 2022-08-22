@@ -25,13 +25,13 @@ class UserSeeder extends Seeder
 
         // SuperAdministrador
         $admin = User::create([
-            'name' => 'Sebastian',
+            'name' => 'Superusuario Administrador',
             'email' => 'admin@admin.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_ADMINISTRADOR);
 
-        
-        // Gerente
+
+        /* // Gerente
         $gerente = User::create([
             'name' => 'Patricio Pazmiño',
             'email' => 'gerente@jp.com',
@@ -188,6 +188,6 @@ class UserSeeder extends Seeder
             'telefono' => '0989857463',
             'fecha_nacimiento' => '1993-05-12',
             'sucursal_id' => $localidad_machala->id
-        ]);
+        ]); */
     }
 }

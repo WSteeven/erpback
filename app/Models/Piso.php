@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Piso extends Model
 {
     use HasFactory;
-    protected $table = "pisos";
+    protected $table = 'pisos';
+    protected $fillable = ['piso','columna'];
 
     public function perchas()
     {

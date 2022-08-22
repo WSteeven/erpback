@@ -13,9 +13,12 @@ class Empleado extends Model
 		'identificacion',
 		'nombres',
 		'apellidos',
+		'telefono',
 		'fecha_nacimiento',
 		'jefe_id',
-		'localidad_id',
+		'sucursal_id',
+		'grupo_id',
+		'rol',
 	];
     //Relacion uno a muchos polimorfica
     public function telefonos(){

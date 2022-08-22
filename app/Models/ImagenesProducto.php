@@ -9,6 +9,7 @@ class ImagenesProducto extends Model
 {
     use HasFactory;
     protected $table = "imagenes_productos";
+    protected $fillable = ["url",'producto_id'];
 
     public function producto()
     {

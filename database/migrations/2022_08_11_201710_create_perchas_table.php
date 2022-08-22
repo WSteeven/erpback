@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('perchas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre')->unique();
+            $table->string('nombre');
             $table->unsignedBigInteger('sucursal_id');
             $table->timestamps();
 
+            $table->unique(['nombre','sucursal_id']);
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
         });
     }

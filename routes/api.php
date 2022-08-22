@@ -16,9 +16,12 @@ use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MovimientosProductosController;
 use App\Http\Controllers\NombresProductosController;
 use App\Http\Controllers\PerchaController;
+use App\Http\Controllers\PermisosRolesController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTransaccionController;
@@ -45,9 +48,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 //rutas de user
-Route::post('/register', [AuthController::class, 'register']);
+Route::apiResource('users', AuthController::class)->names([
+    'index' => 'verEmpleados',
+    'create' => 'registrar'
+]);
+/* Route::post('/registrar', [AuthController::class, 'registrar']);
+Route::put('/actualizar/{empleado}', [AuthController::class, 'update']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/verpermisos', [AuthController::class, 'verpermisos'])->middleware('auth:sanctum');
+ */ //Route::post('/verpermisos', [AuthController::class, 'verpermisos'])->middleware('auth:sanctum');
 
 
 Route::apiResources(
@@ -67,9 +75,11 @@ Route::apiResources(
         'movimientosproductos' => MovimientosProductosController::class,
         'nombre_productos' => NombresProductosController::class,
         'perchas' => PerchaController::class,
+        'permisos' => PermissionController::class,
         'pisos' => PisoController::class,
         'productos' => ProductoController::class,
         'proveedores' => ProveedorController::class,
+        'roles' => RoleController::class,
         'sucursales' => SucursalController::class,
         'tiposfibras' => TipoFibraController::class,
         'tipostransacciones' => TipoTransaccionController::class,
@@ -91,3 +101,6 @@ Route::apiResources(
         //'middleware' => ['auth:sanctum']
     ]
 );
+
+Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
+Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);

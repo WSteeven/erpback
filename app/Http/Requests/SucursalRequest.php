@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SucursalRequest extends FormRequest
 {
@@ -23,10 +24,17 @@ class SucursalRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules =  [
             'lugar'=>'required|unique:sucursales|string',
             'telefono'=>'required|string|min:7|max:10',
             'correo'=>'required|email',
         ];
+
+        if(in_array($this->method(), ['PUT', 'PATCH'])){
+            $sucursal = $this->route()->parameter('sucursal');
+
+            $rules['lugar']=['required','string',Rule::unique('sucursales')->ignore($sucursal)];
+        }
+        return $rules;
     }
 }

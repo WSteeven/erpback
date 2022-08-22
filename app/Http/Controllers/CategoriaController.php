@@ -25,7 +25,7 @@ class CategoriaController extends Controller
     public function store(Request $request)
     {
         $request->validate(['nombre' => 'required|unique:categorias']);
-        $categoria = Categoria::create($request->all());
+        $categoria = Categoria::create($request->validated());
 
         return response()->json(['mensaje' => 'La categoría ha sido creada con éxito', 'modelo' => $categoria]);
     }
@@ -40,7 +40,7 @@ class CategoriaController extends Controller
     public function update(Request $request, Categoria  $categoria)
     {
         $request->validate(['nombre' => 'required|unique:categorias']);
-        $categoria->update($request->all());
+        $categoria->update($request->validated());
 
         return response()->json(['mensaje' => 'La categoría ha sido actualizada con éxito', 'modelo' => $categoria]);
     }
