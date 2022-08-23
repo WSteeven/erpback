@@ -15,15 +15,15 @@ class TransaccionBodegaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'autorizacion_id'=>$this->autorizacion_id,
-            'observacion'=>$this->observacion,
+            'autorizacion_id'=>$this->autorizaciones()->id,
+            'justificacion'=>$this->justificacion,
             'fecha_limite'=>$this->fecha_limite,
-            'estado_id'=>$this->estado_id,
-            'solicitante_id'=>$this->solicitante_id,
-            'tipo_id'=>$this->tipo_id,
-            'sucursal_id'=>$this->sucursal_id,
-            'per_autoriza_id'=>$this->per_autoriza_id,
-            'per_entrega_id'=>$this->per_entrega_id,
+            'estado_id'=>$this->estados()->id,
+            'solicitante_id'=>$this->solicitante()->id,
+            'tipo_id'=>$this->tipoTransaccion()->id,
+            'sucursal_id'=>$this->solicitante()->empleados()->sucursal_id,
+            'per_autoriza_id'=>$this->solicitante()->empleados()->jefe_id,
+            'per_entrega_id'=>$this->solicitante()->id,
             'lugar_destino'=>$this->lugar_destino
         ];
     }

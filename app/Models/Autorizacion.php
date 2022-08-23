@@ -13,6 +13,6 @@ class Autorizacion extends Model
 
     public function transacciones()
     {
-        return $this->belongsToMany(TransaccionBodega::class);
+        return $this->belongsToMany(TransaccionesBodega::class);
     }
 }

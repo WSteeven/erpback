@@ -9,6 +9,14 @@ use Illuminate\Http\Request;
 
 class TransaccionesBodegaController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.transaccion')->only('index', 'show');
+        $this->middleware('can:puede.crear.transaccion')->only('store');
+        $this->middleware('can:puede.editar.transaccion')->only('update');
+        $this->middleware('can:puede.autorizar.transaccion')->only('autorizar');
+    }
+
     public function index()
     {
         $transacciones = TransaccionBodegaResource::collection(TransaccionesBodega::all());

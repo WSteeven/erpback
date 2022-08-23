@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('tipo_contribuyente', [Empresa::NATURAL, Empresa::JURIDICA])->required();
             $table->string('razon_social')->required();
             $table->string('nombre_comercial')->nullable();
+            $table->string('telefono')->nullable();
             $table->string('correo')->nullable();
             $table->text('direccion')->nullable();
             $table->timestamps();

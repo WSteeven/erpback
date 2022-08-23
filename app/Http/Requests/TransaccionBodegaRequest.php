@@ -13,7 +13,7 @@ class TransaccionBodegaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,8 +25,8 @@ class TransaccionBodegaRequest extends FormRequest
     {
         return [
             'autorizacion_id'=>'required|exists:autorizaciones,id',
-            'observacion'=>'nullable|string',
-            'fecha_limite'=>'nullable|date',
+            'justificacion'=>'nullable|string',
+            'fecha_limite'=>'nullable|string',
             'estado_id'=>'required|exists:estados_transacciones_bodega,id',
             'solicitante_id'=>'required|exists:users,id',
             'tipo_id'=>'required|exists:tipo_de_transacciones,id',

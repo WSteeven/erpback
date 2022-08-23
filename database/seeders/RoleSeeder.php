@@ -47,8 +47,10 @@ class RoleSeeder extends Seeder
 
         Permission::create(['name' => 'puede.ver.materiales'])->syncRoles([$rol_coordinador, $rol_bodega]);
         Permission::create(['name' => 'puede.crear.liquidacion'])->syncRoles([$rol_coordinador, $rol_bodega]);
-        Permission::create(['name' => 'puede.crear.transaccion'])->syncRoles([$rol_coordinador, $rol_bodega]);
-        Permission::create(['name' => 'puede.editar.transaccion'])->syncRoles([$rol_coordinador, $rol_bodega]);
+
+        Permission::create(['name' => 'puede.ver.transaccion'])->syncRoles([$rol_bodega]);
+        Permission::create(['name' => 'puede.crear.transaccion'])->syncRoles([$rol_empleado]);
+        Permission::create(['name' => 'puede.editar.transaccion'])->syncRoles([$rol_bodega]);
         Permission::create(['name' => 'puede.autorizar.transaccion'])->syncRoles([$rol_coordinador, $rol_gerente, $rol_jefe_tecnico]);
 
         Permission::create(['name' => 'puede.crear.compras'])->assignRole($rol_compras);
