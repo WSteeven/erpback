@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -27,9 +27,6 @@ use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionesBodegaController;
 use App\Http\Controllers\UbicacionController;
-use App\Http\Resources\UserResource;
-use App\Models\Cliente;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,20 +40,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/* Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
-});
+}); */
 
 //rutas de user
-Route::apiResource('users', AuthController::class)->names([
-    'index' => 'verEmpleados',
-    'create' => 'registrar'
-]);
-/* Route::post('/registrar', [AuthController::class, 'registrar']);
-Route::put('/actualizar/{empleado}', [AuthController::class, 'update']);
-Route::post('/login', [AuthController::class, 'login']);
- */ //Route::post('/verpermisos', [AuthController::class, 'verpermisos'])->middleware('auth:sanctum');
-
+Route::group(['prefix'=>'/usuarios'],function(){
+    Route::get('/',[UserController::class, 'index']);
+    Route::post('registrar',[UserController::class, 'store']);
+    Route::post('login',[UserController::class, 'login']);
+    Route::get('ver/{empleado}',[UserController::class, 'show']);
+    Route::put('actualizar/{empleado}',[UserController::class, 'update']);
+});
+Route::group(['prefix'=>'/permisos'], function(){
+    Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
+    Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);
+});
 
 Route::apiResources(
     [
@@ -102,5 +101,4 @@ Route::apiResources(
     ]
 );
 
-Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
-Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);
+

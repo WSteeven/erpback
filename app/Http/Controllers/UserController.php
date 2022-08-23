@@ -12,15 +12,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class AuthController extends Controller
+class UserController extends Controller
 {
     public function index()
     {
-        $empleados = Auth::user();
-        return response()->json(['modelo' => $empleados]);
+        return response()->json(['modelo' => UserResource::collection(User::all()->except(1))]);
     }
 
-    public function registrar(UserRequest $request)
+    public function store(UserRequest $request)
     {
         try {
             $request->validated();
@@ -64,6 +63,12 @@ class AuthController extends Controller
         return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer']);
     }
 
+    public function show(Empleado $empleado)
+    {
+        $user = User::find($empleado->usuario_id);
+        return response()->json(['modelo'=>new UserResource($user)]);
+    }
+
     public function update(UserRequest $request, Empleado $empleado){
         $user = User::find($empleado->usuario_id);
         try{
@@ -87,14 +92,9 @@ class AuthController extends Controller
             DB::commit();
         }catch(Exception $e){
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e]);
         }
 
-        return response()->json(['mensaje' => 'El usuario ha sido actualizado con éxito', 'modelo' => new UserResource($user)]);
-    }
-
-    public function infouser(Request $request)
-    {
-        return $request->user();
+        return response()->json(['mensaje' => 'El empleado ha sido actualizado con éxito', 'modelo' => new UserResource($user)]);
     }
 }

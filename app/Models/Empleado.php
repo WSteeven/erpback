@@ -18,6 +18,7 @@ class Empleado extends Model
 		'jefe_id',
 		'sucursal_id',
 		'grupo_id',
+		'estado',
 		'rol',
 	];
     //Relacion uno a muchos polimorfica

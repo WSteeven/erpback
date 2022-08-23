@@ -36,7 +36,7 @@ class UserRequest extends FormRequest
             'jefe_id' => 'sometimes|exists:users,id',
             'sucursal_id' => 'required|exists:sucursales,id',
             'grupo_id' => 'sometimes|exists:grupos,id',
-            'rol'=>'required'
+            'rol'=>'required|exists:roles,id'
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){

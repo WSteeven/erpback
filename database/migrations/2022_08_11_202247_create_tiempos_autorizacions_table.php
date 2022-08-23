@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('autorizacion_id');
             $table->unsignedBigInteger('transaccion_id');
+            $table->string('observacion');
             $table->date('fecha_hora')->nullable();
             $table->timestamps();
 
