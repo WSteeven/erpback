@@ -9,6 +9,12 @@ class Provincia extends Model
 {
     use HasFactory;
     protected $table = "provincias";
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
+    
 
     /**
      * Get the cantones of the provincia.

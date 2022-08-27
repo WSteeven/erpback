@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Empleado extends Model
 {
-    use HasFactory;
+    use HasFactory, UppercaseValuesTrait;
     protected $table = "empleados";
     protected $fillable = [
 		'identificacion',
@@ -21,6 +22,13 @@ class Empleado extends Model
 		'estado',
 		'rol',
 	];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
+
     //Relacion uno a muchos polimorfica
     public function telefonos(){
         return $this->morphMany('App\Models\Telefono','telefonable');

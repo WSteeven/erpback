@@ -37,4 +37,11 @@ class ClienteRequest extends FormRequest
         }
         return $rules;
     }
+    public function attributes()
+    {
+        return [
+            'empresa_id'=>'empresa_id',
+            'parroquia_id'=>'parroquia_id'
+        ];
+    }
 }

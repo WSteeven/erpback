@@ -102,7 +102,8 @@
     "starts_with": "Debe comenzar con alguno de los siguientes valores: :values.",
     "string": "Debe ser un texto.",
     "timezone": "Debe ser de una zona horaria válida.",
-    "unique": "Este campo ya ha sido tomado.",
+    "unique2": "Este campo ya ha sido tomado.",
+    "unique": "Este campo ya ha sido registrado, intenta con uno diferente.",
     "uploaded": "Falló al subir.",
     "url": "Debe ser una URL válida.",
     "uuid": "Debe ser un UUID válido."

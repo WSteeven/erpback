@@ -9,6 +9,10 @@ class Canton extends Model
 {
     use HasFactory;
     protected $table = "cantones";
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
 
     /**
      * Get the parroquia associated with the canton.

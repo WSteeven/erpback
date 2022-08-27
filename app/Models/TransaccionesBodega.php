@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TransaccionesBodega extends Model
 {
-    use HasFactory;
+    use HasFactory, UppercaseValuesTrait;
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',
@@ -18,6 +19,10 @@ class TransaccionesBodega extends Model
         'per_autoriza_id',
         'per_entrega_id',
         'lugar_destino',
+    ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
 

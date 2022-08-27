@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
-    use HasFactory;
+    use HasFactory, UppercaseValuesTrait;
     protected $table = "productos";
     // estado
     const ACTIVO = "ACTIVO";
@@ -33,6 +34,11 @@ class Producto extends Model
         'punta_b',
         'punta_corte',
     ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
 
     /* Un producto puede estar en muchas perchas en distintas ubicaciones */
     public function productosPercha()

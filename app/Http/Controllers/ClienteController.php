@@ -14,21 +14,7 @@ class ClienteController extends Controller
     {
         return response()->json(['modelo' => ClienteResource::collection(Cliente::all())]);
     }
-    /* private function reglas(){
-        return [
-            'empresa_id' => 'exists:empresas,id|required',//|unique:clientes,empresa_id',
-            'parroquia_id' => 'required|exists:parroquias,id',//|unique:clientes,parroquia_id',
-            'requiere_bodega' => 'boolean',
-            'estado'=>'boolean'
-        ];
-        /* if(in_array($this->method_exists('PUT'))){
-            $cliente = $this->route()->parameter('cliente');
-
-            $rules['empresa_id']=['required',Rule::unique('clientes')->ignore($cliente)];
-        }
-        return $rules;
-    } */
-
+    
     public function store(ClienteRequest $request)
     {
         $cliente = Cliente::create($request->validated());

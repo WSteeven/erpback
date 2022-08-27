@@ -27,6 +27,8 @@ use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionesBodegaController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,16 +47,19 @@ use Illuminate\Support\Facades\Route;
 }); */
 
 //rutas de user
-Route::group(['prefix'=>'/usuarios'],function(){
-    Route::get('/',[UserController::class, 'index']);
-    Route::post('registrar',[UserController::class, 'store']);
+Route::prefix('usuarios')->group(function(){
+    Route::get('/',[UserController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('registrar',[UserController::class, 'store'])->middleware('auth:sanctum');
     Route::post('login',[UserController::class, 'login']);
-    Route::get('ver/{empleado}',[UserController::class, 'show']);
-    Route::put('actualizar/{empleado}',[UserController::class, 'update']);
+    Route::get('ver/{empleado}',[UserController::class, 'show'])->middleware('auth:sanctum');
+    Route::put('actualizar/{empleado}',[UserController::class, 'update'])->middleware('auth:sanctum');
 });
 Route::group(['prefix'=>'/permisos'], function(){
     Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
     Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);
+});
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return new UserResource($request->user());
 });
 
 Route::apiResources(
@@ -97,7 +102,7 @@ Route::apiResources(
             'transacciones' => 'transaccion',
             'ubicaciones' => 'ubicacion',
         ],
-        //'middleware' => ['auth:sanctum']
+        'middleware' => ['auth:sanctum']
     ]
 );
 
