@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 class Cliente extends Model
 {
     use HasFactory, UppercaseValuesTrait;
+
     protected $table = "clientes";
-    protected $fillable = ['empresa_id','parroquia_id','requiere_bodega','estado'];
+    protected $fillable = ['empresa_id', 'parroquia_id', 'requiere_bodega', 'estado'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

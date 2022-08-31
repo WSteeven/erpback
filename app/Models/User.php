@@ -15,7 +15,7 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
-    use UppercaseValuesTrait;
+    //use UppercaseValuesTrait; // comentar por ahora
 
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
     const ROL_BODEGA = 'BODEGA';
