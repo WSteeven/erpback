@@ -16,8 +16,9 @@ class Empresa extends Model
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    const NATURAL = 'NATURAL';
-    const JURIDICA = 'JURIDICA';
+    const NATURAL = 'NATURAL'; //persona natural
+    const PRIVADA = 'PRIVADA'; //sociedad privada
+    const PUBLICA = 'PUBLICA'; //sociedad publica
 
     public function cliente()
     {

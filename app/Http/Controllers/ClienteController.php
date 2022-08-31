@@ -14,7 +14,7 @@ class ClienteController extends Controller
     {
         return response()->json(['modelo' => ClienteResource::collection(Cliente::all())]);
     }
-    
+
     public function store(ClienteRequest $request)
     {
         $cliente = Cliente::create($request->validated());

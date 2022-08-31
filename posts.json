@@ -1,0 +1,14 @@
+[
+    {
+        "__comment": "Estructura de POST para  empresas",
+        "ruta": "jpconstrucred.test/api/empresas",
+        "identificacion": "9999999999",
+        "razon_social": "consumidor final",
+        "tipo_contribuyente": " NATURAL"
+    },
+    {
+        "__comment": "Estructura de POST para  clientes",
+        "ruta": "jpconstrucred.test/api/clientes"
+
+    }
+]

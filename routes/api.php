@@ -27,6 +27,7 @@ use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionesBodegaController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,20 +48,26 @@ use Illuminate\Support\Facades\Route;
 }); */
 
 //rutas de user
-Route::prefix('usuarios')->group(function(){
-    Route::get('/',[UserController::class, 'index'])->middleware('auth:sanctum');
-    Route::post('registrar',[UserController::class, 'store'])->middleware('auth:sanctum');
-    Route::post('login',[UserController::class, 'login']);
-    Route::get('ver/{empleado}',[UserController::class, 'show'])->middleware('auth:sanctum');
-    Route::put('actualizar/{empleado}',[UserController::class, 'update'])->middleware('auth:sanctum');
+Route::prefix('usuarios')->group(function () {
+    Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('login', [UserController::class, 'login']);
+    Route::get('ver/{empleado}', [UserController::class, 'show'])->middleware('auth:sanctum');
+    Route::put('actualizar/{empleado}', [UserController::class, 'update'])->middleware('auth:sanctum');
 });
-Route::group(['prefix'=>'/permisos'], function(){
+Route::group(['prefix' => '/permisos'], function () {
     Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
     Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);
 });
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
 });
+
+
+Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
+Route::post('validar_rucn', [ValidarCedulaController::class, 'validarRUCPNatural']);
+Route::post('validar_rucpriv', [ValidarCedulaController::class, 'validarRUCSPrivada']);
+Route::post('validar_rucpub', [ValidarCedulaController::class, 'validarRUCSPublica']);
 
 Route::apiResources(
     [
@@ -105,5 +112,3 @@ Route::apiResources(
         'middleware' => ['auth:sanctum']
     ]
 );
-
-

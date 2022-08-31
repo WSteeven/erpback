@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('empresa_id')->references('id')->on('empresas');
             $table->foreign('parroquia_id')->references('id')->on('parroquias');
-            //$table->unique(['empresa_id','parroquia_id']);
+            $table->unique(['empresa_id','parroquia_id']);
         });
     }
 
