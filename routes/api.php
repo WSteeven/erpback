@@ -33,6 +33,7 @@ use App\Http\Controllers\TipoTareaController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionesBodegaController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
 });
 
+
+Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
+Route::post('validar_rucn', [ValidarCedulaController::class, 'validarRUCPNatural']);
+Route::post('validar_rucpriv', [ValidarCedulaController::class, 'validarRUCSPrivada']);
+Route::post('validar_rucpub', [ValidarCedulaController::class, 'validarRUCSPublica']);
+
 Route::apiResources(
     [
         'autorizaciones' => AutorizacionController::class,
@@ -90,7 +97,7 @@ Route::apiResources(
         'proveedores' => ProveedorController::class,
         'roles' => RoleController::class,
         'sucursales' => SucursalController::class,
-        'tiposfibras' => TipoFibraController::class,
+        'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
         'transacciones' => TransaccionesBodegaController::class,
         'ubicaciones' => UbicacionController::class,

@@ -19,8 +19,9 @@ class ClienteProveedorSeeder extends Seeder
     {
         //CLIENTES
         Empresa::create([
+
             'identificacion' => '0750784123001',
-            'tipo_contribuyente' => Empresa::JURIDICA,
+            'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'TELCONET S.A.',
             'correo' => 'servicio@telconet.ec',
             'direccion' => 'MACHALA, JUAN MONTALVO 2317'
@@ -28,7 +29,7 @@ class ClienteProveedorSeeder extends Seeder
 
         Empresa::create([
             'identificacion' => '0774854123001',
-            'tipo_contribuyente' => Empresa::JURIDICA,
+            'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'NEGOCIOS Y TELEFONIA (NEDETEL) S.A.',
             'correo' => 'compras@nedetel.com',
             'direccion' => 'GUAYAQUIL, AV. PERIMETRAL KM 4 Y AV. FRANCISCO E ORELLANA'
@@ -36,7 +37,7 @@ class ClienteProveedorSeeder extends Seeder
 
         Empresa::create([
             'identificacion' => '0874074123001',
-            'tipo_contribuyente' => Empresa::JURIDICA,
+            'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'ACCESSNET S.A.',
             'correo' => 'servicio@accessnetecuador.ec',
             'direccion' => 'CUENCA, RICARDO DURAN Y CAMINO VIEJO A BAÑOS'
@@ -49,7 +50,7 @@ class ClienteProveedorSeeder extends Seeder
         // PROVEEDORES
         Empresa::create([
             'identificacion' => '0785965234001',
-            'tipo_contribuyente' => Empresa::JURIDICA,
+            'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'FERREARMIJOS S.A.',
             'correo' => 'ventas@ferrearmijos.com.ec'
         ]);
@@ -63,7 +64,7 @@ class ClienteProveedorSeeder extends Seeder
 
         Empresa::create([
             'identificacion' => '0841526395001',
-            'tipo_contribuyente' => Empresa::JURIDICA,
+            'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'TRIONICA COMPUTACION LTDA',
             'correo' => 'ventas@trionica.com.ec'
         ]);

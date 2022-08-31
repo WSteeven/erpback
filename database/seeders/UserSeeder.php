@@ -29,6 +29,11 @@ class UserSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_ADMINISTRADOR);
+        $admin->empleados()->create([
+            'nombres' => 'Superusuario',
+            'apellidos' => 'Administrador',
+            'sucursal_id'=>$localidad_machala->id
+        ]);
 
 
         // Gerente
