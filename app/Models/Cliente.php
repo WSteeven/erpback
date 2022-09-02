@@ -15,6 +15,7 @@ class Cliente extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'requiere_bodega' => 'boolean'
     ];
 
     public function parroquia()

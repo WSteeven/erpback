@@ -18,6 +18,9 @@ return new class extends Migration
 
             $table->string('codigo_subtarea');
             $table->text('detalle');
+            $table->timestamp('fecha_solicitud');
+            $table->timestamp('fecha_inicio')->nullable();
+            $table->timestamp('fecha_finalizacion')->nullable();
             $table->text('actividad_realizada');
             $table->text('novedades');
             $table->string('fiscalizador');

@@ -5,14 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClienteRequest;
 use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
+use App\Models\Empresa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ClienteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(['modelo' => ClienteResource::collection(Cliente::all())]);
+        $search = $request['search'];
+        $results = [];
+
+        if ($search) {
+            $empresa = Empresa::select('id')->where('razon_social', 'LIKE', '%' . $search . '%')->first();
+            // Log::channel('testing')->info('Log', ['empresa', $empresa->id]);
+
+            if ($empresa) $results = ClienteResource::collection(Cliente::where('empresa_id', $empresa->id)->get());
+        } else {
+            $results = ClienteResource::collection(Cliente::all());
+        }
+
+        return response()->json(compact('results'));
     }
 
     public function store(ClienteRequest $request)

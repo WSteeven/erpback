@@ -6,6 +6,7 @@ use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class TareaController extends Controller
@@ -29,6 +30,8 @@ class TareaController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['codigo_tarea_jp'] = 'JP00000' . Tarea::latest('id')->first()->id + 1;
+        $datos['coordinador_id'] = Auth::id();
 
         // Respuesta
         $modelo = Tarea::create($datos);

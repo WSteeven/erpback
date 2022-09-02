@@ -17,7 +17,15 @@ class SubtareaController extends Controller
      */
     public function index(Request $request)
     {
-        $results = SubtareaResource::collection(Subtarea::all());
+        $tarea = $request['tarea'];
+        $results = [];
+
+        if ($tarea) {
+            $results = SubtareaResource::collection(Subtarea::where('tarea_id', $tarea)->get());
+        } else {
+            $results = SubtareaResource::collection(SubtareaResource::all());
+        }
+
         return response()->json(compact('results'));
     }
 
