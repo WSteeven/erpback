@@ -49,7 +49,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Rutas de user (para pruebas)
+// Rutas de user (para pruebas) 
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
     Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');

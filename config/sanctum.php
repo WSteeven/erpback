@@ -20,6 +20,7 @@ return [
         'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,localhost:9000,127.0.0.1:9000',
         Sanctum::currentApplicationUrlWithPort()
     ))),
+    //'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1,localhost:9000,127.0.0.1:9000, localhost:8080, 127.0.0.1:8080',
 
     /*
     |--------------------------------------------------------------------------
