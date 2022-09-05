@@ -10,6 +10,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
 
 class User extends Authenticatable
 {
@@ -64,4 +66,18 @@ class User extends Authenticatable
     {
         return $this->hasOne(Empleado::class, 'usuario_id');
     }
+
+    // Permite a vue acceder a los roles y permisos
+	public function getAllPermissionsAttribute()
+	{
+		$permissions = [];
+		$user = User::find(Auth::id());
+
+		foreach (Permission::all() as $permission) {
+			if ($user->can($permission->name)) {
+				$permissions[] = $permission->name;
+			}
+		}
+		return $permissions;
+	}
 }

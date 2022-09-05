@@ -17,42 +17,91 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
+        // -----------------
+        // Roles
+        // -----------------
         Role::create(['name' => User::ROL_ADMINISTRADOR]);
-        $rol_coordinador = Role::create(['name' => User::ROL_COORDINADOR]);
-        $rol_bodega = Role::create(['name' => User::ROL_BODEGA]);
-        $rol_empleado = Role::create(['name' => User::ROL_EMPLEADO]);
-        $rol_jefe_tecnico = Role::create(['name' => User::ROL_JEFE_TECNICO]);
-        $rol_gerente = Role::create(['name' => User::ROL_GERENTE]);
-        $rol_compras = Role::create(['name' => User::ROL_COMPRAS]);
-        $rol_tecnico = Role::create(['name' => User::ROL_TECNICO]);
-        $rol_activos_fijos = Role::create(['name' => User::ROL_ACTIVOS_FIJOS]);
+        $coordinador = Role::create(['name' => User::ROL_COORDINADOR]);
+        $bodega = Role::create(['name' => User::ROL_BODEGA]);
+        $empleado = Role::create(['name' => User::ROL_EMPLEADO]);
+        $jefe_tecnico = Role::create(['name' => User::ROL_JEFE_TECNICO]);
+        $gerente = Role::create(['name' => User::ROL_GERENTE]);
+        $compras = Role::create(['name' => User::ROL_COMPRAS]);
+        $tecnico = Role::create(['name' => User::ROL_TECNICO]);
+        $activos_fijos = Role::create(['name' => User::ROL_ACTIVOS_FIJOS]);
+
+        // -----------------
+        // Modulo de Sistema
+        // -----------------
+        // Tablero
+        Permission::create(['name' => 'puede.ver.tablero'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos]);
+        // Perfil
+        Permission::create(['name' => 'puede.ver.perfil'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos]);
+        // Configuracion
+        Permission::create(['name' => 'puede.ver.configuracion'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos]);
 
 
-        Permission::create(['name' => 'puede.ver.categorias'])->syncRoles([$rol_activos_fijos, $rol_empleado]);
-        Permission::create(['name' => 'puede.crear.categorias'])->assignRole($rol_activos_fijos);
-        Permission::create(['name' => 'puede.editar.categorias'])->assignRole($rol_activos_fijos);
+        // -----------------
+        // Modulo de Bodega
+        // -----------------
+        Permission::create(['name' => 'puede.ver.modulo_bodega'])->assignRole($activos_fijos, $bodega, $empleado);
 
-        Permission::create(['name' => 'puede.ver.nombres_de_productos'])->syncRoles($rol_activos_fijos, $rol_empleado);
-        Permission::create(['name' => 'puede.crear.nombres_de_productos'])->assignRole($rol_activos_fijos);
-        Permission::create(['name' => 'puede.editar.nombres_de_productos'])->assignRole($rol_activos_fijos);
+        Permission::create(['name' => 'puede.ver.categorias'])->syncRoles([$activos_fijos, $empleado]);
+        Permission::create(['name' => 'puede.crear.categorias'])->assignRole($activos_fijos);
+        Permission::create(['name' => 'puede.editar.categorias'])->assignRole($activos_fijos);
 
-        Permission::create(['name' => 'puede.ver.productos'])->assignRole($rol_empleado);
-        Permission::create(['name' => 'puede.crear.productos'])->assignRole($rol_bodega);
-        Permission::create(['name' => 'puede.editar.productos'])->assignRole($rol_bodega);
+        Permission::create(['name' => 'puede.ver.nombres_de_productos'])->syncRoles($activos_fijos, $empleado);
+        Permission::create(['name' => 'puede.crear.nombres_de_productos'])->assignRole($activos_fijos);
+        Permission::create(['name' => 'puede.editar.nombres_de_productos'])->assignRole($activos_fijos);
+
+        Permission::create(['name' => 'puede.ver.productos'])->assignRole($empleado);
+        Permission::create(['name' => 'puede.crear.productos'])->assignRole($bodega);
+        Permission::create(['name' => 'puede.editar.productos'])->assignRole($bodega);
         Permission::create(['name' => 'puede.eliminar.productos']);
 
 
-        Permission::create(['name' => 'puede.solicitar.productos'])->syncRoles([$rol_bodega, $rol_empleado]);
-        Permission::create(['name' => 'puede.ver.nombres.de.productos'])->syncRoles([$rol_bodega, $rol_empleado]);
+        Permission::create(['name' => 'puede.solicitar.productos'])->syncRoles([$bodega, $empleado]);
+        Permission::create(['name' => 'puede.ver.nombres.de.productos'])->syncRoles([$bodega, $empleado]);
 
-        Permission::create(['name' => 'puede.ver.materiales'])->syncRoles([$rol_coordinador, $rol_bodega]);
-        Permission::create(['name' => 'puede.crear.liquidacion'])->syncRoles([$rol_coordinador, $rol_bodega]);
+        Permission::create(['name' => 'puede.ver.materiales'])->syncRoles([$coordinador, $bodega]);
+        Permission::create(['name' => 'puede.crear.liquidacion'])->syncRoles([$coordinador, $bodega]);
 
-        Permission::create(['name' => 'puede.ver.transaccion'])->syncRoles([$rol_bodega]);
-        Permission::create(['name' => 'puede.crear.transaccion'])->syncRoles([$rol_empleado]);
-        Permission::create(['name' => 'puede.editar.transaccion'])->syncRoles([$rol_bodega]);
-        Permission::create(['name' => 'puede.autorizar.transaccion'])->syncRoles([$rol_coordinador, $rol_gerente, $rol_jefe_tecnico]);
+        Permission::create(['name' => 'puede.ver.transaccion'])->syncRoles([$bodega]);
+        Permission::create(['name' => 'puede.crear.transaccion'])->syncRoles([$empleado]);
+        Permission::create(['name' => 'puede.editar.transaccion'])->syncRoles([$bodega]);
+        Permission::create(['name' => 'puede.autorizar.transaccion'])->syncRoles([$coordinador, $gerente, $jefe_tecnico]);
 
-        Permission::create(['name' => 'puede.crear.compras'])->assignRole($rol_compras);
+        Permission::create(['name' => 'puede.crear.compras'])->assignRole($compras);
+
+        // -----------------
+        // Modulo de Tareas
+        // -----------------
+        Permission::create(['name' => 'puede.ver.modulo_tareas'])->assignRole($coordinador);
+
+        // Tareas
+        Permission::create(['name' => 'puede.ver.tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.crear.tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.editar.tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.eliminar.tareas'])->assignRole($coordinador);
+        // Subtareas
+        Permission::create(['name' => 'puede.ver.subtareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.crear.subtareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.editar.subtareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.eliminar.subtareas'])->assignRole($coordinador);
+        // Tipos tareas
+        Permission::create(['name' => 'puede.ver.tipos_tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.crear.tipos_tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.editar.tipos_tareas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.eliminar.tipos_tareas'])->assignRole($coordinador);
+        // Progresivas
+        Permission::create(['name' => 'puede.ver.progresivas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.crear.progresivas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.editar.progresivas'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.eliminar.progresivas'])->assignRole($coordinador);
+        // Tipos elementos
+        Permission::create(['name' => 'puede.ver.tipos_elementos'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.crear.tipos_elementos'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.editar.tipos_elementos'])->assignRole($coordinador);
+        Permission::create(['name' => 'puede.eliminar.tipos_elementos'])->assignRole($coordinador);
     }
 }

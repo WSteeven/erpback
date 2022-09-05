@@ -26,10 +26,10 @@ class TareaRequest extends FormRequest
         return [
             'codigo_tarea_jp' => 'nullable|string',
             'codigo_tarea_cliente' => 'nullable|string',
-            'fecha_solicitud' => 'required|date',
             'fecha_inicio' => 'nullable|date',
             'fecha_finalizacion' => 'nullable|date',
             'solicitante' => 'required|string',
+            'cliente' => 'required|numeric|integer',
             'correo_solicitante' => 'nullable|string',
             'detalle' => 'required|string',
             'es_proyecto' => 'boolean',

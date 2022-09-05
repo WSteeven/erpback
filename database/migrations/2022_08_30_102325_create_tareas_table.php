@@ -17,9 +17,6 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_tarea_jp');
             $table->string('codigo_tarea_cliente')->nullable();
-            $table->timestamp('fecha_solicitud');
-            $table->timestamp('fecha_inicio')->nullable();
-            $table->timestamp('fecha_finalizacion')->nullable();
             $table->string('solicitante');
             $table->string('correo_solicitante')->nullable();
             $table->string('detalle');

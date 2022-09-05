@@ -29,6 +29,7 @@ class TareaResource extends JsonResource
             'es_proyecto' => $this->es_proyecto,
             'codigo_proyecto' => $this->codigo_proyecto,
             'cliente' => $this->cliente->empresa->razon_social,
+            'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 
         if ($controller_method == 'show') {
