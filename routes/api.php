@@ -68,6 +68,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
 });
 
+// El frontend usa esta ruta para obtener los permisos del usuario autenticado
+Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
+    return $request->user()->allPermissions;
+});
+
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_rucn', [ValidarCedulaController::class, 'validarRUCPNatural']);
