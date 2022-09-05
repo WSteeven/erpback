@@ -5,10 +5,14 @@ namespace App\Models;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class TransaccionesBodega extends Model
+class TransaccionesBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
+    use AuditableModel;
+    
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',

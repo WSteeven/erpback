@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Canton extends Model
+class Canton extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
     protected $table = "cantones";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -29,17 +32,4 @@ class Canton extends Model
         return $this->belongsTo(Provincia::class);
     }
 
-    /**
-     * Interact with the canton's  name.
-     *
-     * @param  string  $value
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    /* protected function canton(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => strtoupper($value),
-            set: fn($value) => strtoupper($value),
-        );
-    } */
 }

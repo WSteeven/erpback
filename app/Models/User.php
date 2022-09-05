@@ -12,11 +12,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
+    use AuditableModel;
     //use UppercaseValuesTrait; // comentar por ahora
 
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';

@@ -39,6 +39,8 @@ class TipoElementoController extends Controller
     public function show(TipoElemento $tipo_elemento)
     {
         $modelo = new TipoElementoResource($tipo_elemento);
+        //En caso de querer acceder a las auditorias usa la siguiente línea
+        //return response()->json(['modelo'=>$modelo, "audits"=>$modelo->audits]);
         return response()->json(compact('modelo'));
     }
 

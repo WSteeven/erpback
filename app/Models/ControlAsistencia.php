@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ControlAsistencia extends Model
+class ControlAsistencia extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
 
     protected $table = "control_asistencias";
     protected $fillable = [
