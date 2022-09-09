@@ -46,7 +46,7 @@ class TransaccionesBodega extends Model implements Auditable
     //Una transaccion tiene varios productos solicitados
     public function productos()
     {
-        return $this->belongsToMany(NombreProducto::class);
+        return $this->belongsToMany(Producto::class);
     }
 
     /* Una o varias transacciones pertenece a un solicitante */

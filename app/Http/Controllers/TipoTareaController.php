@@ -61,7 +61,7 @@ class TipoTareaController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
-
+ 
     /**
      * Eliminar
      */

@@ -19,6 +19,10 @@ class Categoria extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Una categoría tiene muchos productos
+     * Relacion 1 a m
+     */
     public function productos()
     {
         return $this->hasMany(Producto::class);

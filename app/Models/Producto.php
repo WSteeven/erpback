@@ -14,57 +14,40 @@ class Producto extends Model implements Auditable
     use AuditableModel;
     
     protected $table = "productos";
-    // estado
-    const ACTIVO = "ACTIVO";
-    const INACTIVO = "INACTIVO";
 
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var string[]
-     */
-    protected $fillable = [
-        'codigo_barras',
-        'nombre_id',
-        'descripcion',
-        'modelo_id',
-        'precio',
-        'serial',
-        'categoria_id',
-        'tipo_fibra_id',
-        'hilo_id',
-        'punta_a',
-        'punta_b',
-        'punta_corte',
-    ];
+    protected $fillable = ["nombre", "categoria_id"];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
 
-    /* Un producto puede estar en muchas perchas en distintas ubicaciones */
-    public function productosPercha()
+    /* Un nombre de producto es como una categoria. Ejm: Laptop
+        DELL i5 ...
+        Lenovo modelo xyz ...
+        ... etc.
+    */
+    public function detalles_productos()
     {
-        return $this->hasMany(ProductosEnPercha::class);
+        return $this->hasMany(DetallesProducto::class);
     }
 
-    /* Uno o varios productos pertenecen a un nombre general */
-    public function nombre()
-    {
-        return $this->belongsTo(NombresProductos::class);
+    //Un producto tiene varias imagenes
+    public function imagenes(){
+        return $this->hasMany(ImagenesProducto::class);
     }
 
-    /* Uno o varios productos pertenecen a una misma categoria */
-    public function categoria()
+    //Un producto tiene varios codigos de cliente
+    public function clientes()
     {
+        return $this->belongsToMany(Cliente::class);
+    }
+
+
+    /**
+     * Uno o varios productos pertenecen a una categoría
+     */
+    public function categorias(){
         return $this->belongsTo(Categoria::class);
-    }
-
-    /* Un producto tiene un solo modelo */
-    public function modelo()
-    {
-        return $this->belongsTo(Modelo::class);
     }
 }

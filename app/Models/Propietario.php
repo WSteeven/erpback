@@ -21,9 +21,4 @@ class Propietario extends Model implements Auditable
 
 
 
-    /* Un propietario tiene varios productos en perchas */
-    /* public function productosPercha()
-    {
-        return $this->hasMany(ProductosEnPercha::class);
-    } */
 }

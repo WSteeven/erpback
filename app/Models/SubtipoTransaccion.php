@@ -13,7 +13,7 @@ class SubtipoTransaccion extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     
-    protected $table = "subtipos_de_transaccion";
+    protected $table = "subtipos_transacciones";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

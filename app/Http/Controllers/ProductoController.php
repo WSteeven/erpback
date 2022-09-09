@@ -4,72 +4,73 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
-use App\Models\CodigoCliente;
+use App\Http\Resources\TipoTareaResource;
 use App\Models\Producto;
-use App\Models\Propietario;
+use App\Models\TipoTarea;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class ProductoController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('can:puede.ver.productos')->only('index', 'show');
-        $this->middleware('can:puede.crear.productos')->only('store');
-        $this->middleware('can:puede.editar.productos')->only('update');
-        $this->middleware('can:puede.eliminar.productos')->only('destroy');
+    private $entidad = 'Producto';
 
-    }
-    public function generarCodigo($id)
-    {
-        $codigo = "";
-        while (strlen($codigo) < (6 - strlen($id))) {
-            $codigo .= "0";
-        }
-        $codigo .= strval($id);
-        return $codigo;
-    }
-
-
+    /**
+     * Listar
+     */
     public function index()
     {
-        $productos = ProductoResource::collection(Producto::all());
-        return response()->json(['productos' => $productos]);
+        $results = ProductoResource::collection(Producto::all());
+        return response()->json(compact('results'));
     }
 
+    /**
+     * Guardar
+     */
     public function store(ProductoRequest $request)
     {
+        // Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['categoria_id'] = $request->safe()->only(['categoria'])['categoria'];
 
-        $productoCreado = Producto::create($request->validated());
-        /* $codigoCliente = CodigoCliente::create([
-            "propietario_id" => 1,
-            "producto_id" => $productoCreado->id,
-            "codigo" => $this->generarCodigo($productoCreado->id)
-        ]); */
-        return response()->json([
-            'mensaje' => 'El producto ha sido creado con éxito',
-            'modelo' => new ProductoResource($productoCreado),
-            /* "codigo" => $codigoCliente */
-        ]);
+        // Respuesta
+        $modelo = Producto::create($datos);
+        $modelo = new ProductoResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
-
+    /**
+     * Consultar
+     */
     public function show(Producto $producto)
     {
-        return response()->json(['modelo' => new ProductoResource($producto)]);
+        $modelo = new ProductoResource($producto);
+        return response()->json(compact('modelo'));
     }
 
-
-    public function update(ProductoRequest $request, Producto $producto)
+    /**
+     * Actualizar
+     */
+    public function update(ProductoRequest $request, Producto  $producto)
     {
-        $producto->update($request->validated());
-        return response()->json(['mensaje' => 'El producto ha sido actualizado con éxito', 'modelo' => new ProductoResource($producto)]);
+        // Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['categoria_id'] = $request->safe()->only(['categoria'])['categoria'];
+
+        // Respuesta
+        $producto->update($datos);
+        $modelo = new ProductoResource($producto->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
+    /**
+     * Eliminar
+     */
     public function destroy(Producto $producto)
     {
         $producto->delete();
-        return response()->json(['mensaje' => 'El producto ha sido eliminado con éxito', 'modelo'=>new ProductoResource($producto)]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

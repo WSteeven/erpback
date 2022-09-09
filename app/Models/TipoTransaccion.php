@@ -13,7 +13,9 @@ class TipoTransaccion extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     
-    protected $table="tipo_de_transacciones";
+    protected $table="tipos_transacciones";
+    protected $INGRESO = "INGRESO";
+    protected $EGRESO = "EGRESO";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

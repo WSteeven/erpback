@@ -32,12 +32,12 @@ class DatabaseSeeder extends Seeder
         $this->call(AutorizacionSeeder::class);
         $this->call(CategoriaSeeder::class);
         $this->call(MarcaSeeder::class);
-        $this->call(NombreProductoSeeder::class);
-        $this->call(HiloSeeder::class);
+        $this->call(ClienteProveedorSeeder::class);
         $this->call(ProductosSeeder::class);
+        $this->call(HiloSeeder::class);
+        $this->call(DetallesProductosSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TiposTransaccionSeeder::class);
-        $this->call(ClienteProveedorSeeder::class);
         ImagenesProducto::factory(10)->create();
 
         // Módulo de Tareas

@@ -31,8 +31,8 @@ class Cliente extends Model implements Auditable
         return $this->belongsTo(Empresa::class);
     }
 
-    public function nombres()
+    /* public function nombres()
     {
         return $this->belongsToMany(NombreProducto::class);
-    }
+    } */
 }

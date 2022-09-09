@@ -69,4 +69,32 @@ class Utils
 
         return $mensajes[$metodo];
     }
+    /**
+     * Metodo para generar codigos de 6 digitos basandose en el id recibido
+     * @param int $id
+     * @return String $codigo  de 6 dígitos
+     */
+    public static function generarCodigo6Digitos(int $id)
+    {
+        $codigo = "";
+        while (strlen($codigo) < (6 - strlen($id))) {
+            $codigo .= "0";
+        }
+        $codigo .= strval($id);
+        return $codigo;
+    }
+    /**
+     * Metodo para generar codigos de 4 dígitos basandose en el id recibido
+     * @param int $id
+     * @return String $codigo  de 4 dígitos
+     */
+    public static function generarCodigo4Digitos(int $id)
+    {
+        $codigo = "";
+        while (strlen($codigo) < (4 - strlen($id))) {
+            $codigo .= "0";
+        }
+        $codigo .= strval($id);
+        return $codigo;
+    }
 }

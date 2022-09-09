@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoriaRequest;
+use App\Http\Resources\CategoriaResource;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Src\Shared\Utils;
 
 class CategoriaController extends Controller
 {
+    private $entidad = 'Categoria';
     /* public function __construct()
     {
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
@@ -16,40 +20,55 @@ class CategoriaController extends Controller
 
     } */
 
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Categoria::all()]);
+        $results = CategoriaResource::collection(Categoria::all());
+        return response()->json(compact('results'));
     }
 
-
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(CategoriaRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:categorias']);
-        $categoria = Categoria::create($request->all());
+        //Respuesta
+        $modelo = Categoria::created($request->validated());
+        $modelo = new CategoriaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La categoría ha sido creada con éxito', 'modelo' => $categoria]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Consultar
+     */
     public function show(Categoria $categoria)
     {
-        return response()->json(['modelo' => $categoria]);
+        $modelo = new CategoriaResource($categoria);
+        return response()->json(compact('modelo'));
     }
 
-
-    public function update(Request $request, Categoria  $categoria)
+    /**
+     * Actualizar
+     */
+    public function update(CategoriaRequest $request, Categoria  $categoria)
     {
-        $request->validate(['nombre' => 'required|unique:categorias']);
-        $categoria->update($request->all());
+        //Respuesta
+        $modelo = Categoria::created($request->validated());
+        $modelo = new CategoriaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La categoría ha sido actualizada con éxito', 'modelo' => $categoria]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
     public function destroy(Categoria $categoria)
     {
         $categoria->delete();
-
-        return response()->json(['mensaje' => 'La categoría ha sido eliminada con éxito', 'modelo' => $categoria]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

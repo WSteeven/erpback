@@ -24,7 +24,7 @@ class ImagenesProducto extends Model implements Auditable
 
     public function producto()
     {
-        return $this->belongsToMany(NombreProducto::class);
+        return $this->belongsToMany(Producto::class);
     }
 
 
