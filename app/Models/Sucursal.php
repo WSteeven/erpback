@@ -12,14 +12,22 @@ class Sucursal extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
-    
+
     protected $table = "sucursales";
-    protected $fillable = ['lugar','telefono','correo'];
+    protected $fillable = ['lugar', 'telefono', 'correo'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Relacion uno a muchos
+     * Obtener los control de stock para una sucursal 
+     */
+    public function control_stocks()
+    {
+        return $this->hasMany(ControlStock::class);
+    }
 
     public function empleados()
     {

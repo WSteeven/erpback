@@ -13,20 +13,31 @@ class MovimientosProductos extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     
-    protected $table = "movimientos_de_productos";
+    protected $table = "movimientos_productos";
     protected $fillable=[
-        'producto_id',
+        'inventario_id',
+        'transaccion_id',
         'cantidad',
         'precio_unitario',
-        'precio_total',
+        'saldo',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    public function inventario()
+    /**
+     * Obtener el id en el inventario al que pertenecen los movimientos 
+     */
+    public function inventarios()
     {
         return $this->belongsTo(Inventario::class);
+    }
+
+    /**
+     * Obtener la transaccion a la que pertenecen los movimientos
+     */
+    public function transacciones(){
+        return $this->belongsTo(TransaccionesBodega::class);
     }
 }

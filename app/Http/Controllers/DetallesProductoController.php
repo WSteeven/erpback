@@ -10,7 +10,7 @@ use App\Models\Propietario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class DetallesDetallesProductoController extends Controller
+class DetallesProductoController extends Controller
 {
     /* public function __construct()
     {

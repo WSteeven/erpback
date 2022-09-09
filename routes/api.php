@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -16,7 +15,6 @@ use App\Http\Controllers\ImagenesProductoController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MovimientosProductosController;
-use App\Http\Controllers\NombresProductosController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisosRolesController;
 use App\Http\Controllers\PermissionController;
@@ -33,8 +31,10 @@ use App\Http\Controllers\TipoTareaController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionesBodegaController;
 use App\Http\Controllers\UbicacionController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\UserResource;
+use App\Models\DetallesProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -94,11 +94,11 @@ Route::apiResources(
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientosProductosController::class,
-        'nombre-productos' => NombresProductosController::class,
+        'productos' => ProductoController::class,
         'perchas' => PerchaController::class,
         'permisos' => PermissionController::class,
         'pisos' => PisoController::class,
-        'productos' => ProductoController::class,
+        'detalles' => DetallesProducto::class,
         'proveedores' => ProveedorController::class,
         'roles' => RoleController::class,
         'sucursales' => SucursalController::class,

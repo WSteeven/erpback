@@ -56,10 +56,13 @@ class DetallesProducto extends Model implements Auditable
         return $this->belongsTo(Producto::class);
     }
 
-    /* Uno o varios productos pertenecen a una misma categoria */
-    public function categoria()
+    /**
+     * Relacion uno a muchos
+     * Obtener los control de stock para un detalle 
+     */
+    public function control_stocks()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->hasMany(ControlStock::class);
     }
 
     /* Un producto tiene un solo modelo */

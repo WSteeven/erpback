@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class ControlStock extends Model
 {
     use HasFactory;
-    protected $table='control_stocks';
-    
+    protected $table = 'control_stocks';
+
     const SUFICIENTE = "STOCK SUFICIENTE";
     const REORDEN = "PROXIMO A AGOTARSE";
     const MINIMO = "DEBAJO DEL MINIMO";
@@ -24,4 +24,20 @@ class ControlStock extends Model
      * Si sumatoria es menor al punto minimo, el estado debe ser @const MINIMO
      */
 
+    /**
+     * Relacion uno a muchos (inversa)
+     * Obtener el detalle de producto al que pertenece el control de stock 
+     */
+    public function detalles_producto()
+    {
+        return $this->belongsTo(DetallesProducto::class);
+    }
+    /**
+     * Relacion uno a muchos (inversa)
+     * Obtener la sucursal al que pertenece el control de stock 
+     */
+    public function sucursales()
+    {
+        return $this->belongsTo(Sucursal::class);
+    }
 }

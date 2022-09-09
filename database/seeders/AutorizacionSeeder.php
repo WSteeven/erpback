@@ -19,16 +19,16 @@ class AutorizacionSeeder extends Seeder
         /*
         * Estados de autorizaciones
         */
+        Autorizacion::create(['nombre'=>'PENDIENTE']);
         Autorizacion::create(['nombre'=>'APROBADO']);
         Autorizacion::create(['nombre'=> 'CANCELADO']);
-        Autorizacion::create(['nombre'=>'PENDIENTE']);
 
         /*
         Estados de transacciones
         */
+        EstadosTransaccion::create(['nombre'=>'PENDIENTE']);
         EstadosTransaccion::create(['nombre'=>'COMPLETA']);
         EstadosTransaccion::create(['nombre'=>'PARCIAL']);
-        EstadosTransaccion::create(['nombre'=>'PENDIENTE']);
 
     }
 }

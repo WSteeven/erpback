@@ -20,9 +20,14 @@ class Autorizacion extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-
+    /**
+     * Relacion muchos a muchos
+     * Obtener las transacciones que pertenecen a la autorizacion 
+     */
     public function transacciones()
     {
-        return $this->belongsToMany(TransaccionesBodega::class);
+        //return $this->belongsToMany(TransaccionesBodega::class, 'tiempo_autorizacion_transaccion');
+        //return $this->belongsToMany(TransaccionesBodega::class, 'tiempo_autorizacion_transaccion', 'autorizacion_id', 'transaccion_id');
+        return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')->withPivot('observacion');
     }
 }

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('transacciones_bodega', function (Blueprint $table) {
             $table->id();
             $table->string('justificacion')->nullable();
-            $table->date('fecha_limite')->required();
+            $table->date('fecha_limite')->nullable();
             $table->unsignedBigInteger('solicitante_id')->nullable();
             $table->unsignedBigInteger('subtipo_id');
             $table->unsignedBigInteger('sucursal_id')->nullable();

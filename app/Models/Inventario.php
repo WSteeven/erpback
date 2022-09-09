@@ -13,4 +13,12 @@ class Inventario extends Model
     const INVENTARIO = "INVENTARIO";
     const TRANSITO = "TRANSITO";
     const SIN_STOCK = "SIN STOCK";
+    
+    /**
+     * Obtener los movimientos para el id de inventario
+     */
+    public function movimientos()
+    {
+        return $this->hasMany(MovimientosProductos::class);
+    }
 }
