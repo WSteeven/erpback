@@ -20,6 +20,14 @@ class ClienteProveedorSeeder extends Seeder
         //CLIENTES
         Empresa::create([
 
+            'identificacion' => '0702875618001',
+            'tipo_contribuyente' => Empresa::NATURAL,
+            'razon_social' => 'Pazmiño Barros Jean Patricio',
+            'correo' => 'informacion@jeanpazmino.com',
+            'direccion' => 'MACHALA, NAPOLEON MERA Y 8AVA NORTE'
+        ]);
+        Empresa::create([
+
             'identificacion' => '0750784123001',
             'tipo_contribuyente' => Empresa::PRIVADA,
             'razon_social' => 'TELCONET S.A.',
@@ -44,8 +52,9 @@ class ClienteProveedorSeeder extends Seeder
         ]);
 
         Cliente::create(['empresa_id' => 1, 'parroquia_id' => 338, 'requiere_bodega' => true]);
-        Cliente::create(['empresa_id' => 2, 'parroquia_id' => 525, 'requiere_bodega' => true]);
-        Cliente::create(['empresa_id' => 3, 'parroquia_id' => 17, 'requiere_bodega' => true]);
+        Cliente::create(['empresa_id' => 2, 'parroquia_id' => 338, 'requiere_bodega' => true]);
+        Cliente::create(['empresa_id' => 3, 'parroquia_id' => 525, 'requiere_bodega' => true]);
+        Cliente::create(['empresa_id' => 4, 'parroquia_id' => 17, 'requiere_bodega' => true]);
 
         // PROVEEDORES
         Empresa::create([
@@ -69,8 +78,8 @@ class ClienteProveedorSeeder extends Seeder
             'correo' => 'ventas@trionica.com.ec'
         ]);
 
-        Proveedor::create(['empresa_id' => 4]);
         Proveedor::create(['empresa_id' => 5]);
         Proveedor::create(['empresa_id' => 6]);
+        Proveedor::create(['empresa_id' => 7]);
     }
 }

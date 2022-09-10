@@ -5,10 +5,14 @@ namespace App\Models;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Telefono extends Model
+class Telefono extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
+    use AuditableModel;
+    
     protected $table = "telefonos";// <-- El nombre personalizado
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

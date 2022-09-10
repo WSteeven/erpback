@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tiempo_estado_transacciones', function (Blueprint $table) {
+        Schema::create('tiempo_estado_transaccion', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('estado_id');
             $table->unsignedBigInteger('transaccion_id');
-            $table->dateTime('fecha');
+            $table->string('observacion')->nullable();
             $table->timestamps();
 
             $table->foreign('estado_id')->references('id')->on('estados_transacciones_bodega');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tiempo_estado_transacciones');
+        Schema::dropIfExists('tiempo_estado_transaccion');
     }
 };

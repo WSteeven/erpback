@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Categoria extends Model
+class Categoria extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
+    use AuditableModel;
     protected $table = 'categorias';
 	protected $fillable = ['nombre'];
     protected $casts = [
@@ -16,6 +19,10 @@ class Categoria extends Model
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Una categoría tiene muchos productos
+     * Relacion 1 a m
+     */
     public function productos()
     {
         return $this->hasMany(Producto::class);

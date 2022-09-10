@@ -10,5 +10,16 @@
         "__comment": "Estructura de POST para  clientes",
         "ruta": "jpconstrucred.test/api/clientes"
 
+    },
+    {
+        "__comment": "Estructura de POST para  productos",
+        "ruta": "jpconstrucred.test/api/productos"
+
+    }
+    ,
+    {
+        "__comment": "Estructura de POST para  productos",
+        "ruta": "jpconstrucred.test/api/productos"
+
     }
 ]

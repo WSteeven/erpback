@@ -9,7 +9,8 @@ class AutorizacionController extends Controller
 {
     public function index()
     {
-        return response()->json(['modelo' => Autorizacion::all()]);
+        $results = Autorizacion::all();
+        return response()->json(compact('results'));
     }
 
 

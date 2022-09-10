@@ -12,11 +12,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
+    use AuditableModel;
     //use UppercaseValuesTrait; // comentar por ahora
 
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
@@ -61,6 +64,15 @@ class User extends Authenticatable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Relacion uno a muchos
+     * Un usuario es solicitante de varias transacciones
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
+    }
+    
     // Relacion uno a uno
     public function empleados()
     {
@@ -68,16 +80,16 @@ class User extends Authenticatable
     }
 
     // Permite a vue acceder a los roles y permisos
-	public function getAllPermissionsAttribute()
-	{
-		$permissions = [];
-		$user = User::find(Auth::id());
+    public function getAllPermissionsAttribute()
+    {
+        $permissions = [];
+        $user = User::find(Auth::id());
 
-		foreach (Permission::all() as $permission) {
-			if ($user->can($permission->name)) {
-				$permissions[] = $permission->name;
-			}
-		}
-		return $permissions;
-	}
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+        return $permissions;
+    }
 }

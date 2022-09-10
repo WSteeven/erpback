@@ -29,7 +29,7 @@ class TransaccionBodegaRequest extends FormRequest
             'fecha_limite'=>'nullable|string',
             'estado_id'=>'required|exists:estados_transacciones_bodega,id',
             'solicitante_id'=>'required|exists:users,id',
-            'tipo_id'=>'required|exists:tipo_de_transacciones,id',
+            'subtipo_id'=>'required|exists:subtipos_transacciones,id',
             'sucursal_id'=>'required|exists:sucursales,id',
             'per_autoriza_id'=>'required|exists:users,id',
             'per_entrega_id'=>'nullable|exists:users,id',

@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tiempo_autorizaciones', function (Blueprint $table) {
+        Schema::create('tiempo_autorizacion_transaccion', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('autorizacion_id');
             $table->unsignedBigInteger('transaccion_id');
-            $table->string('observacion');
-            $table->date('fecha_hora')->nullable();
+            $table->string('observacion')->nullable();
+            /* $table->date('fecha_hora')->nullable(); */
             $table->timestamps();
 
 
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tiempo_autorizaciones');
+        Schema::dropIfExists('tiempo_autorizacion_transaccion');
     }
 };

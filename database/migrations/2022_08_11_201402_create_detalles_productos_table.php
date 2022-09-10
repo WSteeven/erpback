@@ -13,29 +13,24 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('productos', function (Blueprint $table) {
+        Schema::create('detalles_productos', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_barras')->nullable();
-            $table->unsignedBigInteger('nombre_id');
+            $table->unsignedBigInteger('producto_id');
             $table->text('descripcion')->nullable();
             $table->unsignedBigInteger('modelo_id');
-            $table->double('precio')->nullable()->default('0');
             $table->string('serial')->nullable();
-            $table->unsignedBigInteger('categoria_id');
+            $table->integer('precio_compra')->default(0);
             $table->unsignedBigInteger('tipo_fibra_id')->nullable();
             $table->unsignedBigInteger('hilo_id')->nullable();
             $table->integer('punta_a')->nullable();
             $table->integer('punta_b')->nullable();
             $table->integer('punta_corte')->nullable();
-            $table->unsignedBigInteger('condicion_id')->required()->default(1);
             $table->timestamps();
 
-            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('nombre_id')->references('id')->on('nombres_de_productos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tipo_fibra_id')->references('id')->on('tipo_fibras')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('hilo_id')->references('id')->on('hilos')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('condicion_id')->references('id')->on('condiciones_de_productos')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -46,6 +41,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('productos');
+        Schema::dropIfExists('detalles_productos');
     }
 };

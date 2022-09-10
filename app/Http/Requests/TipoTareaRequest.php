@@ -13,7 +13,7 @@ class TipoTareaRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return true; 
     }
 
     /**

@@ -17,20 +17,14 @@ return new class extends Migration
     {
         Schema::create('productos_en_perchas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('producto_id'); //fk productos
-            $table->unsignedBigInteger('condicion_id'); //fk condicion (nuevo, usado, dañado, etc)
-            $table->unsignedBigInteger('ubicacion_id'); //fk ubicaciones (percha-piso donde se encuentra el producto)
-            $table->unsignedBigInteger('propietario_id'); //fk propietarios (dueños del productos)
-
             $table->unsignedInteger('stock')->default(0);
-            $table->integer('prestados')->default(0);
-            $table->enum('estado',[ProductoEnPercha::INVENTARIO, ProductoEnPercha::NODISPONIBLE])->default(ProductoEnPercha::INVENTARIO);
+            $table->unsignedBigInteger('ubicacion_id'); //fk ubicaciones (percha-piso donde se encuentra el producto)
+            $table->unsignedBigInteger('inventario_id'); //fk inventarios (producto del inventario)
+
             $table->timestamps();
 
-            $table->foreign('condicion_id')->references('id')->on('condiciones_de_productos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('ubicacion_id')->references('id')->on('ubicaciones')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('propietario_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('inventario_id')->references('id')->on('inventarios')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
