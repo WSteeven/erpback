@@ -103,5 +103,20 @@ class RoleSeeder extends Seeder
         Permission::create(['name' => 'puede.crear.tipos_elementos'])->assignRole($coordinador);
         Permission::create(['name' => 'puede.editar.tipos_elementos'])->assignRole($coordinador);
         Permission::create(['name' => 'puede.eliminar.tipos_elementos'])->assignRole($coordinador);
+        // Control de asistencia
+        Permission::create(['name' => 'puede.ver.control_asistencia'])->assignRole($coordinador, $tecnico);
+        Permission::create(['name' => 'puede.crear.control_asistencia'])->assignRole($tecnico);
+        Permission::create(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico);
+        Permission::create(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico);
+        // Control de progresivas
+        Permission::create(['name' => 'puede.ver.control_progresivas'])->assignRole($coordinador, $tecnico);
+        Permission::create(['name' => 'puede.crear.control_progresivas'])->assignRole($tecnico);
+        Permission::create(['name' => 'puede.editar.control_progresivas'])->assignRole($coordinador, $tecnico);
+        Permission::create(['name' => 'puede.eliminar.control_progresivas'])->assignRole($tecnico);
+         // Control de cambios
+         Permission::create(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico);
+         Permission::create(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico);
+         Permission::create(['name' => 'puede.editar.control_cambios'])->assignRole($coordinador, $tecnico);
+         Permission::create(['name' => 'puede.eliminar.control_cambios'])->assignRole($coordinador, $tecnico);
     }
 }
