@@ -47,7 +47,7 @@ class Producto extends Model implements Auditable
     /**
      * Uno o varios productos pertenecen a una categoría
      */
-    public function categorias(){
+    public function categoria(){
         return $this->belongsTo(Categoria::class);
     }
 }

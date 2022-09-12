@@ -25,7 +25,7 @@ class ProductoRequest extends FormRequest
     {
         return [
             'nombre' => 'required|string|unique:productos',
-            'categoria' => 'required'
+            'categoria' => 'required|exists:categorias,id'
         ];
     }
 }

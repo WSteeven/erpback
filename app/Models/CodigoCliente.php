@@ -14,10 +14,11 @@ class CodigoCliente extends Model implements Auditable
     use AuditableModel;
 
     protected $table = "codigo_cliente";
-    protected $fillable = ['cliente_id', 'nombre_producto_id', 'codigo'];
+    protected $fillable = ['cliente_id', 'producto_id', 'codigo'];
+    
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-
+    
 }
