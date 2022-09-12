@@ -62,7 +62,7 @@ class ProductoController extends Controller
         $modelo = new ProductoResource($producto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
-    }
+    } 
 
     /**
      * Eliminar

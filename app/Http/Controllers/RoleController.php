@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RolesRequest;
+use App\Http\Resources\RolesResource;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
+use Src\Shared\Utils;
 
 class RoleController extends Controller
 {
+    private $entidad = 'Rol';
+
     /**
      * Display a listing of the resource.
      *
@@ -14,20 +19,24 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return response()->json(['modelo' => Role::all()]);
+        $results = RolesResource::collection(Role::all());
+        return response()->json(compact('results'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\RolesRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(RolesRequest $request)
     {
-        $request->validate(['name' => 'required|string|unique:roles,name']);
-        $rol = Role::create($request->all());
-        return response()->json(['mensaje' => 'El rol ha sido creado con éxito', 'modelo' => $rol]);
+        //Respuesta
+        $modelo = Role::create($request->validated());
+        $modelo = new RolesResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -38,21 +47,25 @@ class RoleController extends Controller
      */
     public function show(Role $rol)
     {
-        return response()->json(['modelo' => $rol]);
+        $modelo = new RolesResource($rol);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Http\Requests\RolesRequest  $request
+     * @param  \Spatie\Permission\Models\Role  $rol
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Role $rol)
+    public function update(RolesRequest $request, Role $rol)
     {
-        $request->validate(['name' => 'required|string|unique:roles,name']);
-        $rol->update($request->all());
-        return response()->json(['mensaje' => 'El rol ha sido actualizado con éxito', 'modelo' => $rol]);
+        //Respuesta
+        $rol->update($request->validated());
+        $modelo = new RolesResource($rol->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -64,6 +77,7 @@ class RoleController extends Controller
     public function destroy(Role $rol)
     {
         $rol->delete();
-        return response()->json(['mensaje' => 'El rol ha sido eliminado con éxito', 'modelo' => $rol]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

@@ -5,42 +5,67 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpresaRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Models\Empresa;
+use Src\Shared\Utils;
 
 class EmpresaController extends Controller
 {
+    private $entidad = 'Empresa';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        $empresas = EmpresaResource::collection(Empresa::all());
-        return response()->json(['modelo' => $empresas]);
+        $results = EmpresaResource::collection(Empresa::all());
+        return response()->json(compact('results'));
     }
 
 
+    /**
+     * Guardar
+     */
     public function store(EmpresaRequest $request)
     {
-        $empresa = Empresa::create($request->validated());
+        //Respuesta
+        $modelo = Empresa::create($request->validated());
+        $modelo = new EmpresaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La empresa ha sido creada con éxito', 'modelo' => new EmpresaResource($empresa)]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Empresa $empresa)
     {
-        return response()->json(['modelo' => new EmpresaResource($empresa)]);
+        $modelo = new EmpresaResource($empresa);
+        return response()->json(compact('modelo'));
     }
 
 
+    /**
+     * Actualizar
+     */
     public function update(EmpresaRequest $request, Empresa  $empresa)
     {
+        //Respuesta
         $empresa->update($request->validated());
+        $modelo = new EmpresaResource($empresa->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La empresa ha sido actualizada con éxito', 'modelo' => new EmpresaResource($empresa)]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Empresa $empresa)
     {
         $empresa->delete();
-
-        return response()->json(['mensaje' => 'La empresa ha sido eliminada con éxito', 'modelo' => new EmpresaResource($empresa)]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

@@ -6,42 +6,64 @@ use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class EmpleadoController extends Controller
 {
+    private $entidad = 'Empleado';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        $empleado = EmpleadoResource::collection(Empleado::all());
-        return response()->json(['modelo' => $empleado]);
+        $results = EmpleadoResource::collection(Empleado::all());
+        return response()->json(compact('results'));
     }
 
-
+/**
+ * Guardar
+ */
     public function store(EmpleadoRequest $request)
     {
-        $empleado = Empleado::create($request->validated());
+        //Respuesta
+        $modelo = Empleado::create($request->validated());
+        $modelo = new EmpleadoResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El empleado ha sido creado con éxito', 'modelo' => $empleado]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+/**
+ * Consultar
+ */
     public function show(Empleado $empleado)
     {
-        return response()->json(['modelo' => new EmpleadoResource($empleado)]);
+        $modelo = new EmpleadoResource($empleado);
+        return response()->json(compact('modelo'));
     }
 
-
+/**
+ * Actualizar
+ */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
+        //Respuesta
         $empleado->update($request->validated());
+        $modelo = new EmpleadoResource($empleado->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El empleado ha sido actualizado con éxito', 'modelo' => $empleado]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Empleado $empleado)
     {
         $empleado->delete();
-
-        return response()->json(['mensaje' => 'El empleado ha sido eliminado con éxito', 'modelo' => $empleado]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

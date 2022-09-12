@@ -6,9 +6,11 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\TransaccionesBodega;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class TransaccionesBodegaController extends Controller
 {
+    private $entidad = 'Transaccion';
     public function __construct()
     {
         $this->middleware('can:puede.ver.transaccion')->only('index', 'show');
@@ -17,39 +19,58 @@ class TransaccionesBodegaController extends Controller
         $this->middleware('can:puede.autorizar.transaccion')->only('autorizar');
     }
 
+    /**
+     * Listar
+     */
     public function index()
     {
-        $transacciones = TransaccionBodegaResource::collection(TransaccionesBodega::all());
-        return response()->json(['modelo' => $transacciones]);
+        $results = TransaccionBodegaResource::collection(TransaccionesBodega::all());
+        return response()->json(compact('results'));
     }
 
-
+    /**
+     * Guardar
+     */
     public function store(TransaccionBodegaRequest $request)
     {
+        //Respuesta
         $transaccion = TransaccionesBodega::create($request->validated());
+        $modelo = new TransaccionBodegaResource($transaccion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La transacción ha sido creada con éxito', 'modelo' => $transaccion]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(TransaccionesBodega $transaccion)
     {
-        return response()->json(['modelo' => new TransaccionBodegaResource($transaccion)]);
+        $modelo = new TransaccionBodegaResource($transaccion);
+        return response()->json(compact('modelo'));
     }
 
 
+    /**
+     * Actualizar
+     */
     public function update(TransaccionBodegaRequest $request, TransaccionesBodega  $transaccion)
     {
         $transaccion->update($request->validated());
+        $modelo = new TransaccionBodegaResource($transaccion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La transacción ha sido actualizada con éxito', 'modelo' => new TransaccionBodegaResource($transaccion)]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(TransaccionesBodega $transaccion)
     {
         $transaccion->delete();
-
-        return response()->json(['mensaje' => 'La transacción ha sido eliminada con éxito', 'modelo' => $transaccion]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

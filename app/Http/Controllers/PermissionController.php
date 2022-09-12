@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PermisosRequest;
+use App\Http\Resources\PermisosResource;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
+use Src\Shared\Utils;
 
 class PermissionController extends Controller
 {
+    private $entidad = 'Permiso';
     /**
-     * Display a listing of the resource.
+     * Display a listing of all permissions.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return response()->json(['modelo' => Permission::all()]);
+        $results = PermisosResource::collection(Permission::all());
+        return response()->json(compact('results'));
     }
 
     /**
@@ -23,36 +28,43 @@ class PermissionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PermisosRequest $request)
     {
-        $request->validate(['name' => 'required|string|unique:permissions,name']);
-        $permiso = Permission::create($request->all());
-        return response()->json(['mensaje' => 'El permiso ha sido creado con éxito', 'modelo' => $permiso]);
+        //Respuesta
+        $modelo = Permission::create($request->validated());
+        $modelo = new PermisosResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \Spatie\Permission\Models\Permission  $permiso
      * @return \Illuminate\Http\Response
      */
     public function show(Permission $permiso)
     {
-        return response()->json(['modelo' => $permiso]);
+        $modelo = new PermisosResource($permiso);
+        return response()->json(compact('modelo'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \App\Http\Requests\PermisosRequest $request
+     * @param  \Spatie\Permission\Models\Permission  $permiso
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Permission $permiso)
+    public function update(PermisosRequest $request, Permission $permiso)
     {
-        $request->validate(['name' => 'required|string|unique:permissions,name']);
-        $permiso->update($request->all());
-        return response()->json(['mensaje' => 'El permiso ha sido actualizado con éxito', 'modelo' => $permiso]);
+        //Respuesta
+        $permiso->update($request->validated());
+        $modelo = new PermisosResource($permiso->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -64,6 +76,7 @@ class PermissionController extends Controller
     public function destroy(Permission $permiso)
     {
         $permiso->delete();
-        return response()->json(['mensaje'=>'El permiso ha sido eliminado con éxito', 'modelo'=>$permiso]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

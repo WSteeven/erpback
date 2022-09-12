@@ -2,45 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImagenesProductoRequest;
+use App\Http\Resources\ImagenesProductoResource;
 use App\Models\ImagenesProducto;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class ImagenesProductoController extends Controller
 {
+    private $entidad = 'Imagen de producto';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => ImagenesProducto::all()]);
+        $results = ImagenesProductoResource::collection(ImagenesProducto::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(ImagenesProductoRequest $request)
     {
         $request->validate(['url' => 'required|unique:imagenes_productos','producto_id'=>'required|exists:nombres_de_productos,id']);
-        $imagenproducto = ImagenesProducto::create($request->all());
+        //Respuesta
+        $modelo = ImagenesProducto::create($request->validated());
+        $modelo = new ImagenesProductoResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La imagen ha sido creada con éxito', 'modelo' => $imagenproducto]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(ImagenesProducto $imagenproducto)
     {
-        return response()->json(['modelo' => $imagenproducto]);
+        $modelo = new ImagenesProductoResource($imagenproducto);
+        return response()->json(compact('modelo'));
     }
 
-
-    public function update(Request $request, ImagenesProducto  $imagenproducto)
+/**
+ * Actualizar
+ */
+    public function update(ImagenesProductoRequest $request, ImagenesProducto  $imagenproducto)
     {
         $request->validate(['url' => 'required|unique:imagenes_productos','producto_id'=>'required|exists:nombres_de_productos,id']);
-        $imagenproducto->update($request->all());
+        //Respuesta
+        $imagenproducto->update($request->validated());
+        $modelo = new ImagenesProductoResource($imagenproducto->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La imagen ha sido actualizada con éxito', 'modelo' => $imagenproducto]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+/**
+ * Eliminar
+ */
     public function destroy(ImagenesProducto $imagenproducto)
     {
         $imagenproducto->delete();
-
-        return response()->json(['mensaje' => 'La imagen ha sido eliminada con éxito', 'modelo' => $imagenproducto]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

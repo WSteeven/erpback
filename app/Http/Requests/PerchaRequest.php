@@ -13,7 +13,7 @@ class PerchaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,14 @@ class PerchaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$this->sucursal_id,
+            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'nombre.unique'=>'La percha ya existe en esta sucursal'
         ];
     }
 }

@@ -13,7 +13,7 @@ class ModeloRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class ModeloRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|string',
+            'marca_id' => 'required|exists:marcas,id'
         ];
     }
 }

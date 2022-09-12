@@ -292,6 +292,7 @@ class ValidarIdentificacion
 	{
 		if ($numero < 1) {
 			throw new Exception('Código de establecimiento no puede ser 0');
+			//throw new Exception('RUC debe terminar en 001');
 		}
 
 		return true;

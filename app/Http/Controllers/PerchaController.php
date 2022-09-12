@@ -2,59 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PerchaRequest;
+use App\Http\Resources\PerchaResource;
 use App\Models\Percha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Src\Shared\Utils;
 
 class PerchaController extends Controller
 {
+    private $entidad = 'Percha';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Percha::all()]);
+        $results = PerchaResource::collection(Percha::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(PerchaRequest $request)
     {
-        $messages = ['nombre.unique'=>'La percha ya existe en esta sucursal'];
-        $rules = [
-            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$request->sucursal_id,
-            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre'
-        ];
-        $validador = Validator::make($request->all(), $rules, $messages);
+        //Respuesta
+        $modelo = Percha::create($request->validated());
+        $modelo = new PerchaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        $percha = Percha::create($validador->validated());
-
-        return response()->json(['mensaje' => 'La percha ha sido creada con éxito', 'modelo' => $percha]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Percha $percha)
     {
-        return response()->json(['modelo' => $percha]);
+        $modelo = new PerchaResource($percha);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Percha  $percha)
+    /**
+     * Actualizar
+     */
+    public function update(PerchaRequest $request, Percha  $percha)
     {
-        $messages = ['nombre.unique'=>'La percha ya existe en esta sucursal'];
-        $rules = [
-            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$request->sucursal_id,
-            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre'
-        ];
-        $validador = Validator::make($request->all(), $rules, $messages);
+        //Respuesta
+        $percha->update($request->validated());
+        $modelo = new PerchaResource($percha->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        $percha->update($validador->validated());
-
-        return response()->json(['mensaje' => 'La percha ha sido actualizada con éxito', 'modelo' => $percha]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Percha $percha)
     {
         $percha->delete();
-
-        return response()->json(['mensaje' => 'La percha ha sido eliminada con éxito', 'modelo' => $percha]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

@@ -2,45 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EstadosTransaccionRequest;
+use App\Http\Resources\EstadosTransaccionResource;
 use App\Models\EstadosTransaccion;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class EstadosTransaccionController extends Controller
 {
+    private $entidad = 'Estado';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => EstadosTransaccion::all()]);
+        $results = EstadosTransaccionResource::collection(EstadosTransaccion::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(EstadosTransaccionRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:estados_transacciones_bodega']);
-        $estado = EstadosTransaccion::create($request->all());
+        $modelo = EstadosTransaccion::create($request->validated());
+        $modelo = new EstadosTransaccionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El estado ha sido creado con éxito', 'modelo' => $estado]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(EstadosTransaccion $estado)
     {
-        return response()->json(['modelo' => $estado]);
+        $modelo = new EstadosTransaccionResource($estado);
+        return response()->json(compact('modelo'));
     }
 
-
-    public function update(Request $request, EstadosTransaccion  $estado)
+/**
+ * Actualizar
+ */
+    public function update(EstadosTransaccionRequest $request, EstadosTransaccion  $estado)
     {
-        $request->validate(['nombre' => 'required|unique:estados_transacciones_bodega']);
-        $estado->update($request->all());
+        //Respuesta
+        $estado->update($request->validated());
+        $modelo = new EstadosTransaccionResource($estado->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El estado ha sido actualizado con éxito', 'modelo' => $estado]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(EstadosTransaccion $estado)
     {
         $estado->delete();
-
-        return response()->json(['mensaje' => 'El estado ha sido eliminado con éxito', 'modelo' => $estado]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

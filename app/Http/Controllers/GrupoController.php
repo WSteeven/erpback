@@ -2,45 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GrupoRequest;
+use App\Http\Resources\GrupoResource;
 use App\Models\Grupo;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class GrupoController extends Controller
 {
+    private $entidad = 'Grupo';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Grupo::all()]);
+        $results = GrupoResource::collection(Grupo::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(GrupoRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:grupos', 'creador_id'=>'required|exists:users,id']);
-        $grupo = Grupo::create($request->all());
+        //Respuesta
+        $modelo = Grupo::create($request->validated());
+        $modelo = new GrupoResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El grupo ha sido creado con éxito', 'modelo' => $grupo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Grupo $grupo)
     {
-        return response()->json(['modelo' => $grupo]);
+        $modelo = new GrupoResource($grupo);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Grupo  $grupo)
+    /**
+     * Actualizar
+     */
+    public function update(GrupoRequest $request, Grupo  $grupo)
     {
-        $request->validate(['nombre' => 'required|unique:grupos', 'creador_id'=>'required|exists:users,id']);
-        $grupo->update($request->all());
+        //Respuesta
+        $grupo->update($request->validated());
+        $modelo = new GrupoResource($grupo->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El grupo ha sido actualizado con éxito', 'modelo' => $grupo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Grupo $grupo)
     {
         $grupo->delete();
-
-        return response()->json(['mensaje' => 'El grupo ha sido eliminado con éxito', 'modelo' => $grupo]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

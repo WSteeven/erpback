@@ -2,45 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MarcaRequest;
+use App\Http\Resources\CategoriaResource;
+use App\Http\Resources\MarcaResource;
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class MarcaController extends Controller
 {
+    private $entidad = 'Marca';
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Marca::all()]);
+        $results = MarcaResource::collection(Marca::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(MarcaRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:marcas']);
-        $marca = Marca::create($request->all());
+        //Respuesta
+        $modelo = Marca::create($request->validated());
+        $modelo = new MarcaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La marca ha sido creada con éxito', 'modelo' => $marca]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Marca $marca)
     {
-        return response()->json(['modelo' => $marca]);
+        $modelo = new MarcaResource($marca);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Marca  $marca)
+    /**
+     * Actualizar
+     */
+    public function update(MarcaRequest $request, Marca  $marca)
     {
-        $request->validate(['nombre' => 'required|unique:marcas']);
-        $marca->update($request->all());
+        
+        //Respuesta
+        $marca->update($request->validated());
+        $modelo = new MarcaResource($marca->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La marca ha sido actualizada con éxito', 'modelo' => $marca]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Marca $marca)
     {
         $marca->delete();
-
-        return response()->json(['mensaje' => 'La marca ha sido eliminada con éxito', 'modelo' => $marca]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

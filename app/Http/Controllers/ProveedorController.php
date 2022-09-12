@@ -2,45 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProveedorRequest;
+use App\Http\Resources\ProveedorResource;
 use App\Models\Proveedor;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class ProveedorController extends Controller
 {
+    private $entidad = 'Proveedor';
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Proveedor::all()]);
+        $results = ProveedorResource::collection(Proveedor::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(ProveedorRequest $request)
     {
-        $request->validate(['empresa_id' => 'required|exists:empresas,id', 'estado'=>'boolean']);
-        $proveedor = Proveedor::create($request->all());
+        //Respuesta
+        $modelo = Proveedor::create($request->validated());
+        $modelo = new ProveedorResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El proveedor ha sido creado con éxito', 'modelo' => $proveedor]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Proveedor $proveedor)
     {
-        return response()->json(['modelo' => $proveedor]);
+        $modelo = new ProveedorResource($proveedor);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Proveedor  $proveedor)
+    /**
+     * Actualizar
+     */
+    public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
-        $request->validate(['empresa_id' => 'required|exists:empresas,id', 'estado'=>'boolean']);
-        $proveedor->update($request->all());
+        //Respuesta
+        $proveedor->update($request->validated());
+        $modelo = new ProveedorResource($proveedor->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El proveedor ha sido actualizado con éxito', 'modelo' => $proveedor]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Proveedor $proveedor)
     {
         $proveedor->delete();
-
-        return response()->json(['mensaje' => 'El proveedor ha sido eliminado con éxito', 'modelo' => $proveedor]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

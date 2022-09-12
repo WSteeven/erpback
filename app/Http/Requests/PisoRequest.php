@@ -13,7 +13,7 @@ class PisoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,15 @@ class PisoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'piso' => 'unique:pisos,piso,NULL,id,columna,' . $this->columna,
+            'columna' => 'required|string'
+        ];
+    }
+    
+    public function messages()
+    {
+        return [
+            'piso.unique'=>'Ya existe el piso y columna que intentas ingresar'
         ];
     }
 }

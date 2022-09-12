@@ -2,45 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CondicionRequest;
+use App\Http\Resources\CondicionResource;
 use App\Models\Condicion;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class CondicionController extends Controller
 {
+    private $entidad = 'Condicion';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Condicion::all()]);
+        $results = CondicionResource::collection(Condicion::all());
+        return response()->json(compact('results'));
     }
 
-
-    public function store(Request $request)
+/**
+ * Guardar
+ */
+    public function store(CondicionRequest $request)
     {
         $request->validate(['nombre' => 'required|unique:condiciones_de_productos']);
-        $condicion = Condicion::create($request->all());
 
-        return response()->json(['mensaje' => 'La condición ha sido creada con éxito', 'modelo' => $condicion]);
+        //Respuesta
+        $modelo = Condicion::create($request->validated());
+        $modelo = new CondicionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+/**
+ * Consultar
+ */
     public function show(Condicion $condicion)
     {
-        return response()->json(['modelo' => $condicion]);
+        $modelo = new CondicionResource($condicion);
+        return response()->json(compact('modelo'));
     }
 
-
-    public function update(Request $request, Condicion  $condicion)
+/**
+ * Actualizar
+ */
+    public function update(CondicionRequest $request, Condicion  $condicion)
     {
         $request->validate(['nombre' => 'required|unique:condiciones_de_productos']);
-        $condicion->update($request->all());
+        //Respuesta
+        $condicion->update($request->validated());
+        $modelo = new CondicionResource($condicion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La condición ha sido actualizada con éxito', 'modelo' => $condicion]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Condicion $condicion)
     {
         $condicion->delete();
-
-        return response()->json(['mensaje' => 'La condición ha sido eliminada con éxito', 'modelo' => $condicion]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

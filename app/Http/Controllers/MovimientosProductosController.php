@@ -2,46 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MovimientosProductosRequest;
+use App\Http\Resources\MovimientosProductosResource;
 use App\Models\MovimientosProductos;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class MovimientosProductosController extends Controller
 {
+    private $entidad = 'Movimiento de Producto';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        $movimiento = MovimientosProductos::all();
-        return response()->json(['modelo' => $movimiento]);
+        $results = MovimientosProductosResource::collection(MovimientosProductos::all());
+        return response()->json(compact('results'));
     }
 
+    /**
+     * Guardar
+     */
     public function store(Request $request)
     {
+        //Respuesta
+        $modelo = MovimientosProductos::create($request->validated());
+        $modelo = new MovimientosProductosResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        $movimientoCreado = MovimientosProductos::create($request->all());
-        return response()->json([
-            'mensaje' => 'Movimiento creado con éxito',
-            'modelo' => $movimientoCreado,
-        ]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
-
+    /**
+     * Consultar
+     */
     public function show(MovimientosProductos $movimiento)
     {
-        return response()->json(['modelo' => $movimiento]);
+        $modelo = new MovimientosProductosResource($movimiento);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, MovimientosProductos $movimiento)
+    /**
+     * Actualizar
+     */
+    public function update(MovimientosProductosRequest $request, MovimientosProductos $movimiento)
     {
-        $datosValidados = $request->all();
+        //Respuesta
+        $movimiento->update($request->validated());
+        $modelo = new MovimientosProductosResource($movimiento->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        $movimiento->update($datosValidados);
-        return response()->json(['mensaje' => 'Movimiento actualizado con éxito', 'modelo' => $movimiento]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * Eliminar
+     */
     public function destroy(MovimientosProductos $movimiento)
     {
         $movimiento->delete();
-        return response()->json(['mensaje' => 'Movimiento eliminado con éxito']);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

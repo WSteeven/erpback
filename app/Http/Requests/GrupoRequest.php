@@ -13,7 +13,7 @@ class GrupoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class GrupoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|string|unique:grupos', 
+            'creador_id'=>'required|exists:users,id'
         ];
     }
 }

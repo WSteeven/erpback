@@ -13,7 +13,7 @@ class EstadosTransaccionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class EstadosTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|unique:estados_transacciones_bodega'
         ];
     }
 }

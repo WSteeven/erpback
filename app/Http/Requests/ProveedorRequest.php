@@ -13,7 +13,7 @@ class ProveedorRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class ProveedorRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'empresa_id' => 'required|exists:empresas,id', 
+            'estado'=>'boolean'
         ];
     }
 }

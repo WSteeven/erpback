@@ -7,42 +7,62 @@ use App\Http\Resources\SucursalResource;
 use App\Models\Sucursal;
 use Illuminate\Http\Request;
 use Psy\Sudo;
+use Src\Shared\Utils;
 
 class SucursalController extends Controller
 {
+    private $entidad = 'Sucursal';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        $sucursal = SucursalResource::collection(Sucursal::all());
-        return response()->json(['modelo' => $sucursal]);
+        $results = SucursalResource::collection(Sucursal::all());
+        return response()->json(compact('results'));
     }
 
 
+    /**
+     * Guardar
+     */
     public function store(SucursalRequest $request)
     {
         $sucursal = Sucursal::create($request->validated());
+        $modelo = new SucursalResource($sucursal);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La sucursal ha sido creada con éxito', 'modelo' => $sucursal]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Consultar
+     */
     public function show(Sucursal $sucursal)
     {
-        return response()->json(['modelo' => new SucursalResource($sucursal)]);
+        $modelo = new SucursalResource($sucursal);
+        return response()->json(compact('modelo'));
     }
 
-
+    /**
+     * Actualizar
+     */
     public function update(SucursalRequest $request, Sucursal  $sucursal)
     {
         $sucursal->update($request->validated());
+        $modelo = new SucursalResource($sucursal->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La sucursal ha sido actualizada con éxito', 'modelo' => $sucursal]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Sucursal $sucursal)
     {
         $sucursal->delete();
-
-        return response()->json(['mensaje' => 'La sucursal ha sido eliminada con éxito', 'modelo' => $sucursal]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

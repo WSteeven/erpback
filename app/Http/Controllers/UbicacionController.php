@@ -2,69 +2,74 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UbicacionRequest;
+use App\Http\Resources\UbicacionResource;
 use App\Models\Percha;
 use App\Models\Piso;
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class UbicacionController extends Controller
 {
+    private $entidad = 'Ubicacion';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Ubicacion::all()]);
+        $results = UbicacionResource::collection(Ubicacion::all());
+        return response()->json(compact('results'));
     }
 
-    public function obtenerCodigoUbicacion($percha_id, $piso_id)
-    {
-        $percha = Percha::find($percha_id);
-        $piso = Piso::find($piso_id);
-        $codigo = $percha->nombre . $piso->fila . $piso->columna;
-
-        return $codigo;
-    }
-
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(UbicacionRequest $request)
     {
         if ($request['piso_id'] && $request['percha_id']) {
-            $request['codigo'] = $this->obtenerCodigoUbicacion($request->percha_id, $request->piso_id);
-            $request->validate([
-                'codigo' => 'required|string',
-                'percha_id' => 'required|exists:perchas,id',
-                'piso_id' => 'required|exists:pisos,id'
-            ]);
+            $request['codigo'] = Ubicacion::obtenerCodigoUbicacion($request->percha_id, $request->piso_id);
         }else{
             $request->validate(['codigo' => 'required|string|unique:ubicaciones,codigo']);
         }
 
-        $ubicacion = Ubicacion::create($request->all());
+        $ubicacion = Ubicacion::create($request->validated());
+        $modelo = new UbicacionResource($ubicacion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'La ubicación ha sido creada con éxito', 'modelo' => $ubicacion]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Ubicacion $ubicacion)
     {
-        return response()->json(['modelo' => $ubicacion]);
+        $modelo = new UbicacionResource($ubicacion);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Ubicacion  $ubicacion)
+    /**
+     * Actualizar
+     */
+    public function update(UbicacionRequest $request, Ubicacion  $ubicacion)
     {
-        $request->validate([
-            'codigo' => 'string',
-            'percha_id' => 'exists:perchas,id',
-            'piso_id' => 'exists:pisos,id'
-        ]);
-        $ubicacion->update($request->all());
+        //Respuesta
+        $ubicacion->update($request->validated());
+        $modelo = new UbicacionResource($ubicacion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'La ubicación ha sido actualizada con éxito', 'modelo' => $ubicacion]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
     public function destroy(Ubicacion $ubicacion)
     {
         $ubicacion->delete();
-
-        return response()->json(['mensaje' => 'La ubicación ha sido eliminada con éxito', 'modelo' => $ubicacion]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

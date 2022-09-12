@@ -2,41 +2,65 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TipoTransaccionRequest;
+use App\Http\Resources\TipoTransaccionResource;
 use App\Models\TipoTransaccion;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Src\Shared\Utils;
 
 class TipoTransaccionController extends Controller
 {
+    private $entidad = 'Tipo de transaccion';
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => TipoTransaccion::all()]);
+        $results = TipoTransaccionResource::collection(TipoTransaccion::all());
+        return response()->json(compact('results'));
     }
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(TipoTransaccionRequest $request)
     {
-        $request->validate(['nombre' => 'required|string|unique:tipo_de_transacciones,nombre', 'tipo'=>Rule::in(TipoTransaccion::INGRESO, TipoTransaccion::EGRESO)]);
-        $tipo = TipoTransaccion::create($request->all());
+        //Respuesta
+        $modelo = TipoTransaccion::create($request->validated());
+        $modelo = new TipoTransaccionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El tipo ha sido creado con éxito', 'modelo' => $tipo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
+    /**
+     * Consultar
+     */
     public function show(TipoTransaccion $tipo)
     {
-        return response()->json(['modelo' => $tipo]);
+        $modelo = new TipoTransaccionResource($tipo);
+        return response()->json(compact('modelo'));
     }
 
-    public function update(Request $request, TipoTransaccion  $tipo)
+    /**
+     * Actualizar
+     */
+    public function update(TipoTransaccionRequest $request, TipoTransaccion  $tipo)
     {
-        $request->validate(['nombre' => 'required|string|unique:tipo_de_transacciones,nombre', 'tipo'=>Rule::in(TipoTransaccion::INGRESO, TipoTransaccion::EGRESO)]);
+        
         $tipo->update($request->all());
 
         return response()->json(['mensaje' => 'El tipo ha sido actualizado con éxito', 'modelo' => $tipo]);
     }
 
+    /**
+     * Eliminar
+     */
     public function destroy(TipoTransaccion $tipo)
     {
         $tipo->delete();
-        return response()->json(['mensaje' => 'El tipo ha sido eliminado con éxito', 'modelo' => $tipo]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

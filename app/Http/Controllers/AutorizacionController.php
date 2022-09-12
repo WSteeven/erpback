@@ -2,46 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AutorizacionRequest;
+use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
 {
+    private $entidad = 'Autorizacion';
+    
+    /**
+     * Listar 
+     */
     public function index()
     {
-        $results = Autorizacion::all();
+        $results =AutorizacionResource::collection(Autorizacion::all());
         return response()->json(compact('results'));
     }
 
-
-    public function store(Request $request)
+/**
+ * Guardar
+ */
+    public function store(AutorizacionRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:autorizaciones']);
-        $autorizacion = Autorizacion::create($request->all());
-
-        return response()->json(['mensaje' => 'La autorización ha sido creada con éxito', 'modelo' => $autorizacion]);
+        
+        // Respuesta
+        $modelo = Autorizacion::create($request->validated());
+        $modelo = new AutorizacionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+/**
+ * Consultar
+ */
     public function show(Autorizacion $autorizacion)
     {
-        return response()->json(['modelo' => $autorizacion]);
+        $modelo = new AutorizacionResource($autorizacion);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Autorizacion  $autorizacion)
+    public function update(AutorizacionRequest $request, Autorizacion  $autorizacion)
     {
-        $request->validate(['nombre' => 'required|unique:autorizaciones']);
-        $autorizacion->update($request->all());
-
-        return response()->json(['mensaje' => 'La autorización ha sido actualizada con éxito', 'modelo' => $autorizacion]);
+        //Respuesta
+        $autorizacion->update($request->validated());
+        $modelo = new AutorizacionResource($autorizacion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
-
+/**
+ * Eliminar
+ */
     public function destroy(Autorizacion $autorizacion)
     {
         $autorizacion->delete();
-
-        return response()->json(['mensaje' => 'La autorización ha sido eliminada con éxito', 'modelo' => $autorizacion]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

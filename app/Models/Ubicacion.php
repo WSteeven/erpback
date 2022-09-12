@@ -30,4 +30,17 @@ class Ubicacion extends Model implements Auditable
     {
         return $this->hasMany(ProductosEnPercha::class);
     }
+
+    /* Metodos */
+    /**
+     * Obtener la percha, fila y columna para generar el codigo de ubicacion
+     */
+    public static function obtenerCodigoUbicacion($percha_id, $piso_id)
+    {
+        $percha = Percha::find($percha_id);
+        $piso = Piso::find($piso_id);
+        $codigo = $percha->nombre . $piso->fila . $piso->columna;
+
+        return $codigo;
+    }
 }

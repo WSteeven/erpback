@@ -13,7 +13,7 @@ class ImagenesProductoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class ImagenesProductoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'url' => 'required|unique:imagenes_productos',
+            'producto_id'=>'required|exists:nombres_de_productos,id',
         ];
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\TipoTransaccion;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TipoTransaccionRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class TipoTransaccionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +26,8 @@ class TipoTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|string|unique:tipo_de_transacciones,nombre', 
+            'tipo'=>Rule::in(TipoTransaccion::INGRESO, TipoTransaccion::EGRESO),
         ];
     }
 }

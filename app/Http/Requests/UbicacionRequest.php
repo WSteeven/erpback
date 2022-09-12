@@ -13,7 +13,7 @@ class UbicacionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,11 @@ class UbicacionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+
+            'codigo' => 'string',
+            'percha_id' => 'exists:perchas,id',
+            'piso_id' => 'exists:pisos,id'
+
         ];
     }
 }

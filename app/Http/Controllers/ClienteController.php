@@ -9,9 +9,14 @@ use App\Models\Empresa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Src\Shared\Utils;
 
 class ClienteController extends Controller
 {
+    private $entidad = 'Cliente';
+    /**
+     * Listar 
+     */
     public function index(Request $request)
     {
         $search = $request['search'];
@@ -28,33 +33,48 @@ class ClienteController extends Controller
 
         return response()->json(compact('results'));
     }
-
+    /**
+     * Guardar
+     */
     public function store(ClienteRequest $request)
     {
-        $cliente = Cliente::create($request->validated());
-
-        return response()->json(['mensaje' => 'El cliente ha sido creado con éxito', 'modelo' => new ClienteResource($cliente)]);
+        //Respuesta
+        $modelo = Cliente::create($request->validated());
+        $modelo = new ClienteResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Cliente $cliente)
     {
-        return response()->json(['modelo' => new ClienteResource($cliente)]);
+        $modelo = new ClienteResource($cliente);
+        return response()->json(compact('modelo'));
     }
 
 
+    /**
+     * Actualizar
+     */
     public function update(ClienteRequest $request, Cliente  $cliente)
     {
+        // Respuesta
         $cliente->update($request->validated());
-
-        return response()->json(['mensaje' => 'El cliente ha sido actualizado con éxito', 'modelo' => new ClienteResource($cliente)]);
+        $modelo = new ClienteResource($cliente->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Cliente $cliente)
     {
         $cliente->delete();
-
-        return response()->json(['mensaje' => 'El cliente ha sido eliminado con éxito', 'modelo' => new ClienteResource($cliente)]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

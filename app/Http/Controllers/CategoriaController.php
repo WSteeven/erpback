@@ -35,7 +35,7 @@ class CategoriaController extends Controller
     public function store(CategoriaRequest $request)
     {
         //Respuesta
-        $modelo = Categoria::created($request->validated());
+        $modelo = Categoria::create($request->validated());
         $modelo = new CategoriaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -57,14 +57,16 @@ class CategoriaController extends Controller
     public function update(CategoriaRequest $request, Categoria  $categoria)
     {
         //Respuesta
-        $modelo = Categoria::created($request->validated());
-        $modelo = new CategoriaResource($modelo);
+        $categoria->update($request->validated());
+        $modelo = new CategoriaResource($categoria->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Categoria $categoria)
     {
         $categoria->delete();

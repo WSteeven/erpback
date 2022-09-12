@@ -75,9 +75,7 @@ Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $requ
 
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
-Route::post('validar_rucn', [ValidarCedulaController::class, 'validarRUCPNatural']);
-Route::post('validar_rucpriv', [ValidarCedulaController::class, 'validarRUCSPrivada']);
-Route::post('validar_rucpub', [ValidarCedulaController::class, 'validarRUCSPublica']);
+Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 
 Route::apiResources(
     [

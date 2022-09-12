@@ -2,45 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\HiloRequest;
+use App\Http\Resources\HiloResource;
 use App\Models\Hilo;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class HiloController extends Controller
 {
+    private $entidad = 'Hilo';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Hilo::all()]);
+        $results = HiloResource::collection(Hilo::all());
+        return response()->json(compact('results'));
     }
 
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(HiloRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:hilos']);
-        $hilo = Hilo::create($request->all());
+        
+        //Respuesta
+        $modelo = Hilo::create($request->validated());
+        $modelo = new HiloResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El hilo ha sido creado con exito', 'modelo' => $hilo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Hilo $hilo)
     {
-        return response()->json(['modelo' => $hilo]);
+        $modelo = new HiloResource($hilo);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Hilo  $hilo)
+    /**
+     * Actualizar
+     */
+    public function update(HiloRequest $request, Hilo  $hilo)
     {
-        $request->validate(['nombre' => 'required|unique:hilos']);
-        $hilo->update($request->all());
+        //Respuesta
+        $hilo->update($request->validated());
+        $modelo = new HiloResource($hilo->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El hilo ha sido actualizado con exito', 'modelo' => $hilo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Eliminar
+     */
     public function destroy(Hilo $hilo)
     {
         $hilo->delete();
-
-        return response()->json(['mensaje' => 'El hilo ha sido eliminado con exito', 'modelo' => $hilo]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

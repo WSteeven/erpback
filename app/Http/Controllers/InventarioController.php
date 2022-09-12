@@ -2,9 +2,67 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InventarioRequest;
+use App\Http\Resources\InventarioResource;
+use App\Models\Inventario;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class InventarioController extends Controller
 {
-    //
+    private $entidad = 'Inventario';
+    
+    /**
+     * Listar
+     */
+    public function index()
+    {
+        $results = InventarioResource::collection(Inventario::all());
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar
+     */
+    public function store(InventarioRequest $request)
+    {
+        //Respuesta
+        $modelo = Inventario::create($request->validated());
+        $modelo = new InventarioResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Consultar
+     */
+    public function show(Inventario $inventario)
+    {
+        $modelo = new InventarioResource($inventario);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Actualizar
+     */
+    public function update(InventarioRequest $request, Inventario  $inventario)
+    {
+        //Respuesta
+        $inventario->update($request->validated());
+        $modelo = new InventarioResource($inventario->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Eliminar
+     */
+    public function destroy(Inventario $inventario)
+    {
+        $inventario->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
+    }
 }

@@ -9,9 +9,11 @@ use App\Models\DetallesProducto;
 use App\Models\Propietario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class DetallesProductoController extends Controller
 {
+    private $entidad = 'Detalle de producto';
     /* public function __construct()
     {
         $this->middleware('can:puede.ver.DetallesProductos')->only('index', 'show');
@@ -20,47 +22,58 @@ class DetallesProductoController extends Controller
         $this->middleware('can:puede.eliminar.DetallesProductos')->only('destroy');
 
     } */
-    
+
+    /**
+     * Listar
+     */
     public function index()
     {
         $results = DetallesProductoResource::collectiond(DetallesProducto::all());
         return response()->json(compact('results'));
     }
 
+    /**
+     * Guardar
+     */
     public function store(DetallesProductoRequest $request)
     {
+        //Respuesta
+        $modelo = DetallesProducto::create($request->validated());
+        $modelo = new DetallesProductoResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        $DetallesProductoCreado = DetallesProducto::create($request->validated());
-        /* $codigoCliente = CodigoCliente::create([
-            "propietario_id" => 1,
-            "DetallesProducto_id" => $DetallesProductoCreado->id,
-            "codigo" => $this->generarCodigo($DetallesProductoCreado->id)
-        ]); */
-        return response()->json([
-            'mensaje' => 'El DetallesProducto ha sido creado con éxito',
-            'modelo' => new DetallesProductoResource($DetallesProductoCreado),
-            /* "codigo" => $codigoCliente */
-        ]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
-
-    public function show(DetallesProducto $DetallesProducto)
+    /**
+     * Consultar
+     */
+    public function show(DetallesProducto $detalleProducto)
     {
-        $modelo = new DetallesProductoResource($DetallesProducto);
+        $modelo = new DetallesProductoResource($detalleProducto);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(DetallesProductoRequest $request, DetallesProducto $DetallesProducto)
+    /**
+     * Actualizar
+     */
+    public function update(DetallesProductoRequest $request, DetallesProducto $detalleProducto)
     {
-        $DetallesProducto->update($request->validated());
-        return response()->json(['mensaje' => 'El DetallesProducto ha sido actualizado con éxito', 'modelo' => new DetallesProductoResource($DetallesProducto)]);
+        //Respuesta
+        $detalleProducto->update($request->validated());
+        $modelo = new DetallesProductoResource($detalleProducto->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function destroy(DetallesProducto $DetallesProducto)
+    /**
+     * Eliminar
+     */
+    public function destroy(DetallesProducto $detalleProducto)
     {
-        $DetallesProducto->delete();
-        return response()->json(['mensaje' => 'El DetallesProducto ha sido eliminado con éxito', 'modelo'=>new DetallesProductoResource($DetallesProducto)]);
+        $detalleProducto->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

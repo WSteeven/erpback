@@ -2,48 +2,71 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ModeloRequest;
+use App\Http\Resources\ModeloResource;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class ModeloController extends Controller
 {
+    private $entidad = 'Modelo';
+
+    /**
+     * Listar
+     */
     public function index()
     {
-        return response()->json(['modelo' => Modelo::all()]);
+        $results = ModeloResource::collection(Modelo::all());
+        return response()->json(compact('results'));
     }
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(ModeloRequest $request)
     {
-        $request->validate([
-            'nombre' => 'required|string',
-            'marca_id' =>'required|exists:marcas,id']);
-        $modelo = Modelo::create($request->all());
+        $modelo = Modelo::create($request->validated());
+        $modelo = new ModeloResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(['mensaje' => 'El modelo ha sido creado con éxito', 'modelo' => $modelo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
 
+    /**
+     * Consultar
+     */
     public function show(Modelo $modelo)
     {
-        return response()->json(['modelo' => $modelo]);
+        $modelo = new ModeloResource($modelo);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Modelo  $modelo)
+    /**
+     * Actualizar
+     */
+    public function update(ModeloRequest $request, Modelo  $modelo)
     {
         $request->validate([
             'nombre' => 'required|string',
             'marca_id' =>'required|exists:marcas,id']);
-        $modelo->update($request->all());
+        //Respuesta
+        $modelo->update($request->validated());
+        $modelo = new ModeloResource($modelo->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(['mensaje' => 'El modelo ha sido actualizado con éxito', 'modelo' => $modelo]);
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-
+    /**
+     * Eliminar
+     */
     public function destroy(Modelo $modelo)
     {
         $modelo->delete();
-
-        return response()->json(['mensaje' => 'El modelo ha sido eliminado con éxito', 'modelo' => $modelo]);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }
