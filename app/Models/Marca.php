@@ -21,7 +21,10 @@ class Marca extends Model implements Auditable
     ];
 
 
-    /* Una marca tiene muchos modelos */
+    /**
+     * Relacion uno a muchos
+     * Una marca tiene muchos modelos
+     */
     public function modelos()
     {
         return $this->hasMany(Modelo::class);

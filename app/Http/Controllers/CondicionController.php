@@ -26,8 +26,6 @@ class CondicionController extends Controller
  */
     public function store(CondicionRequest $request)
     {
-        $request->validate(['nombre' => 'required|unique:condiciones_de_productos']);
-
         //Respuesta
         $modelo = Condicion::create($request->validated());
         $modelo = new CondicionResource($modelo);

@@ -6,6 +6,7 @@ use App\Http\Requests\ModeloRequest;
 use App\Http\Resources\ModeloResource;
 use App\Models\Modelo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ModeloController extends Controller
@@ -26,7 +27,14 @@ class ModeloController extends Controller
      */
     public function store(ModeloRequest $request)
     {
-        $modelo = Modelo::create($request->validated());
+        Log::channel('testing')->info('Log', ['request_recibida', $request]);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['marca_id'] = $request->safe()->only(['marca'])['marca'];
+        
+        //Respuesta
+        $modelo = Modelo::create($datos);
+        //$modelo = Modelo::create($request->validated());
         $modelo = new ModeloResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -49,11 +57,12 @@ class ModeloController extends Controller
      */
     public function update(ModeloRequest $request, Modelo  $modelo)
     {
-        $request->validate([
-            'nombre' => 'required|string',
-            'marca_id' =>'required|exists:marcas,id']);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['marca_id'] = $request->safe()->only(['marca'])['marca'];
+
         //Respuesta
-        $modelo->update($request->validated());
+        $modelo->update($datos);
         $modelo = new ModeloResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

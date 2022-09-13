@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('marca_id');
             $table->timestamps();
 
+            $table->unique(['nombre', 'marca_id']);
             $table->foreign('marca_id')->references('id')->on('marcas');
         });
     }

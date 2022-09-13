@@ -7,6 +7,7 @@ use App\Http\Resources\CategoriaResource;
 use App\Http\Resources\MarcaResource;
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class MarcaController extends Controller
@@ -15,9 +16,19 @@ class MarcaController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = MarcaResource::collection(Marca::all());
+        $search = $request['search'];
+        $results = [];
+        //Log::channel('testing')->info('Log', ['search', $search]);
+        if ($search) {
+            $marca = Marca::select('id')->where('nombre', 'LIKE', '%' . $search . '%')->first();
+            //Log::channel('testing')->info('Log', ['marca', $marca->id]);
+            if ($marca) $results = MarcaResource::collection(Marca::where('id', $marca->id)->get());
+        } else {
+            $results = MarcaResource::collection(Marca::all());
+        }
+
         return response()->json(compact('results'));
     }
 
@@ -51,7 +62,7 @@ class MarcaController extends Controller
      */
     public function update(MarcaRequest $request, Marca  $marca)
     {
-        
+
         //Respuesta
         $marca->update($request->validated());
         $modelo = new MarcaResource($marca->refresh());

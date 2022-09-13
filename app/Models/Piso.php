@@ -14,7 +14,7 @@ class Piso extends Model implements Auditable
     use AuditableModel;
     
     protected $table = 'pisos';
-    protected $fillable = ['piso','columna'];
+    protected $fillable = ['fila','columna'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

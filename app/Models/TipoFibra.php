@@ -13,6 +13,10 @@ class TipoFibra extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
 
+    protected $table = 'tipo_fibras';
+    protected $fillable = ['nombre'];
+
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

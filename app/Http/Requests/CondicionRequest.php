@@ -13,7 +13,7 @@ class CondicionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class CondicionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre' => 'required|unique:condiciones_de_productos'
         ];
     }
 }

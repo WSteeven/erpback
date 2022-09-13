@@ -24,7 +24,14 @@ class HiloRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|unique:hilos'
+            'nombre' => 'required|integer|unique:hilos'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'nombre.integer'=> 'Este campo acepta solo numeros enteros',
         ];
     }
 }

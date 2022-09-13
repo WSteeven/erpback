@@ -27,4 +27,10 @@ class TipoFibraRequest extends FormRequest
             'nombre' => 'required|unique:tipo_fibras'
         ];
     }
+    public function attributes()
+    {
+        return [
+            'nombre'=>'tipo de fibra'
+        ];
+    }
 }

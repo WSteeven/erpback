@@ -17,7 +17,7 @@ class TipoFibraController extends Controller
      */
     public function index()
     {
-        $results = TipoFibra::collection(TipoFibra::all());
+        $results = TipoFibraResource::collection(TipoFibra::all());
         return response()->json(compact('results'));
     }
 
@@ -29,7 +29,7 @@ class TipoFibraController extends Controller
     {
         //Respuesta
         $modelo = TipoFibra::create($request->validated());
-        $modelo = new TipoFibra($modelo);
+        $modelo = new TipoFibraResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -39,9 +39,9 @@ class TipoFibraController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoFibra $tipoFibra)
+    public function show(TipoFibra $tipo_fibra)
     {
-        $modelo = new TipoFibraResource($tipoFibra);
+        $modelo = new TipoFibraResource($tipo_fibra);
         return response()->json(compact('modelo'));
     }
 
@@ -49,23 +49,23 @@ class TipoFibraController extends Controller
     /**
      * Actualizar
      */
-    public function update(TipoFibraRequest $request, TipoFibra  $tipoFibra)
+    public function update(TipoFibraRequest $request, TipoFibra  $tipo_fibra)
     {
         //Respuesta
-        $tipoFibra->update($request->validated());
-        $modelo = new TipoFibraResource($tipoFibra->refresh());
+        $tipo_fibra->update($request->validated());
+        $modelo = new TipoFibraResource($tipo_fibra->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('mensaje', 'modelo'));
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
 
     /**
      * Eliminar
      */
-    public function destroy(TipoFibra $tipoFibra)
+    public function destroy(TipoFibra $tipo_fibra)
     {
-        $tipoFibra->delete();
+        $tipo_fibra->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

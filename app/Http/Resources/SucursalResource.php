@@ -15,6 +15,7 @@ class SucursalResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'lugar' => $this->lugar,
             'telefono' => $this->telefono,
             'correo' => $this->correo,

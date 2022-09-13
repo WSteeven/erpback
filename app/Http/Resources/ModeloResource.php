@@ -14,6 +14,17 @@ class ModeloResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id'=>$this->id,
+            'nombre'=>$this->nombre,
+            'marca'=>$this->marca->nombre,
+        ];
+
+        if($controller_method=='show'){
+            $modelo['marca'] = $this->marca_id;
+        }
+        
+        return $modelo;
     }
 }

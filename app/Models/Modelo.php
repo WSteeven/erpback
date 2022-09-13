@@ -29,7 +29,10 @@ class Modelo extends Model implements Auditable
         return $this->hasOne(Producto::class);
     }
 
-    /* Uno o varios modelos pertenecen a una marca */
+    /**
+     * Relacion uno a muchos (inversa)
+     * Uno o varios modelos pertenecen a una marca
+     *  */ 
     public function marca()
     {
         return $this->belongsTo(Marca::class);

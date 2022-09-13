@@ -24,8 +24,20 @@ class ModeloRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string',
-            'marca_id' => 'required|exists:marcas,id'
+            /* Funciona bien para la api, controla clave unica para dos campos
+
+            'nombre' => 'required|string|unique:modelos,nombre,NULL,id,marca_id,'.$this->marca_id,
+            'marca_id' => 'required|exists:marcas,id|unique:modelos,nombre', */
+
+            //Configuracion para el front
+            'nombre' => 'required|string|unique:modelos,nombre,NULL,id,marca_id,'.$this->marca,
+            'marca' => 'required|exists:marcas,id|unique:modelos,nombre',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'nombre.unique'=>'Ya existe un modelo con ese :attribute para la marca seleccionada. Por favor verifica los modelos en el listado o ingresa uno diferente',
         ];
     }
 }

@@ -24,7 +24,7 @@ class PisoRequest extends FormRequest
     public function rules()
     {
         return [
-            'piso' => 'unique:pisos,piso,NULL,id,columna,' . $this->columna,
+            'fila' => 'unique:pisos,fila,NULL,id,columna,' . $this->columna,
             'columna' => 'required|string'
         ];
     }

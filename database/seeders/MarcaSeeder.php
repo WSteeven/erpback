@@ -139,10 +139,6 @@ class MarcaSeeder extends Seeder
             'marca_id'=>9
         ]);
         Modelo::create([
-            'nombre'=>'3805E8',
-            'marca_id'=>9
-        ]);
-        Modelo::create([
             'nombre'=>'100 MTS',
             'marca_id'=>17
         ]);

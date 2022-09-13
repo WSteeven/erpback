@@ -124,6 +124,7 @@ Route::apiResources(
             'ubicaciones' => 'ubicacion',
             'tipos-tareas' => 'tipo_tarea',
             'tipos-elementos' => 'tipo_elemento',
+            'tipos-fibras'=>'tipo_fibra',
         ],
         'middleware' => ['auth:sanctum']
     ]

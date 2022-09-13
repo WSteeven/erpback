@@ -27,4 +27,10 @@ class MarcaRequest extends FormRequest
             'nombre' => 'required|unique:marcas'
         ];
     }
+    public function attributes()
+    {
+        return [
+            'nombre'=>'marca',
+        ];
+    }
 }
