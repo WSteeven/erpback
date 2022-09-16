@@ -37,7 +37,7 @@ class ModeloRequest extends FormRequest
     public function messages()
     {
         return [
-            'nombre.unique'=>'Ya existe un modelo con ese :attribute para la marca seleccionada. Por favor verifica los modelos en el listado o ingresa uno diferente',
+            'nombre.unique'=>'El modelo ya existe para la marca seleccionada', //Por favor verifica los modelos en el listado o ingresa uno diferente',
         ];
     }
 }

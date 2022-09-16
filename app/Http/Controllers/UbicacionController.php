@@ -8,6 +8,7 @@ use App\Models\Percha;
 use App\Models\Piso;
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class UbicacionController extends Controller
@@ -17,9 +18,17 @@ class UbicacionController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = UbicacionResource::collection(Ubicacion::all());
+        $search = $request['search'];
+        $results = [];
+        if ($search) {
+            $ubicacion = Ubicacion::select('id')->where('codigo', 'LIKE', '%' . $search . '%')->first();
+
+            if ($ubicacion) $results = UbicacionResource::collection(Ubicacion::where('id', $ubicacion->id)->get());
+        } else {
+            $results = UbicacionResource::collection(Ubicacion::all());
+        }
         return response()->json(compact('results'));
     }
 
@@ -28,13 +37,17 @@ class UbicacionController extends Controller
      */
     public function store(UbicacionRequest $request)
     {
-        if ($request['piso_id'] && $request['percha_id']) {
-            $request['codigo'] = Ubicacion::obtenerCodigoUbicacion($request->percha_id, $request->piso_id);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        if($request->percha && $request->piso){
+            $datos['percha_id'] = $request->safe()->only(['percha'])['percha'];
+            $datos['piso_id'] = $request->safe()->only(['piso'])['piso'];
         }else{
-            $request->validate(['codigo' => 'required|string|unique:ubicaciones,codigo']);
+            $datos['percha_id'] = $request->safe()->only(['percha'])['percha'];
+            //Log::channel('testing')->info('Log', ['Datos en el else:', $datos]);
         }
 
-        $ubicacion = Ubicacion::create($request->validated());
+        $ubicacion = Ubicacion::create($datos);
         $modelo = new UbicacionResource($ubicacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

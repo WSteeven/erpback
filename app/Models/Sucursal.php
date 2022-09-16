@@ -34,6 +34,10 @@ class Sucursal extends Model implements Auditable
         return $this->hasMany(Empleado::class);
     }
 
+    /**
+     * Relacion uno a muchos
+     * Una sucursal tiene muchas perchas
+     */
     public function perchas()
     {
         return $this->hasMany(Percha::class);

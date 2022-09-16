@@ -16,9 +16,17 @@ class SucursalController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = SucursalResource::collection(Sucursal::all());
+        $search = $request['search'];
+        $results = [];
+        if($search){
+            $sucursal = Sucursal::select('id')->where('lugar', 'LIKE', '%'.$search.'%')->first();
+
+            if($sucursal) $results = SucursalResource::collection(Sucursal::where('id', $sucursal->id)->get());
+        }else{
+            $results = SucursalResource::collection(Sucursal::all());
+        }
         return response()->json(compact('results'));
     }
 

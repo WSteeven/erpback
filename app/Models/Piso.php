@@ -21,8 +21,16 @@ class Piso extends Model implements Auditable
     ];
 
 
-    public function perchas()
+    /* public function perchas()
     {
         return $this->belongsToMany(Percha::class);
+    } */
+
+    /**
+     * Relacion uno a muchos
+     * Varias ubicaciones en un piso
+     */
+    public function ubicaciones(){
+        return $this->hasMany(Ubicacion::class);
     }
 }

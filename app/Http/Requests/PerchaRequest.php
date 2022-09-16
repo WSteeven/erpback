@@ -24,8 +24,9 @@ class PerchaRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'unique:perchas,nombre,NULL,id,sucursal_id,'.$this->sucursal_id,
-            'sucursal_id' => 'required|exists:sucursales,id|unique:perchas,nombre',
+            // Configuracion para la api
+            'nombre' => 'required|string|unique:perchas,nombre,NULL,id,sucursal_id,'.$this->sucursal,
+            'sucursal' => 'required|exists:sucursales,id|unique:perchas,nombre',           
         ];
     }
     public function messages()

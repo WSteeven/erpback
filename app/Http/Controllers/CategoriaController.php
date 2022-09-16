@@ -23,9 +23,17 @@ class CategoriaController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = CategoriaResource::collection(Categoria::all());
+        $search = $request['search'];
+        $results = [];
+        if($search){
+            $categoria = Categoria::select('id')->where('nombre', 'LIKE', '%'.$search.'%')->first();
+
+            if($categoria) $results = CategoriaResource::collection(Categoria::where('id', $categoria->id)->get());
+        }else{
+            $results = CategoriaResource::collection(Categoria::all());
+        }
         return response()->json(compact('results'));
     }
 

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('pisos', function (Blueprint $table) {
             $table->id();
             $table->string('fila');
-            $table->string('columna');
+            $table->string('columna')->nullable();
             $table->timestamps();
 
             $table->unique(['fila','columna']);

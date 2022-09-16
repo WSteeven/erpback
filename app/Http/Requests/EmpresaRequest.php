@@ -3,10 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Models\Empresa;
-use App\Validadores\ValidarIdentificacion;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
+use Src\Shared\ValidarIdentificacion;
 
 class EmpresaRequest extends FormRequest
 {
@@ -28,7 +28,6 @@ class EmpresaRequest extends FormRequest
     public function rules()
     {
         $rules =  [
-            //'identificacion'=>'required_if:tipo_contribuyente,NATURAL|min:10|max:13|unique:empresas,identificacion',
             'identificacion' => 'required|min:10|max:13|unique:empresas,identificacion',
             'tipo_contribuyente' => ['required', Rule::in([Empresa::NATURAL, Empresa::PRIVADA, Empresa::PUBLICA])],
             'razon_social' => 'string|required',
@@ -51,7 +50,6 @@ class EmpresaRequest extends FormRequest
      */
     public function withValidator($validator)
     {
-
         $validator->after(function ($validator) {
             if(substr_count($this->identificacion,'9')<9){
                 $validador = new ValidarIdentificacion();

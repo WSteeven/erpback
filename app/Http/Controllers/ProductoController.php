@@ -17,9 +17,17 @@ class ProductoController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = ProductoResource::collection(Producto::all());
+        $search = $request['search'];
+        $results = [];
+        if($search){
+            $producto = Producto::select('id')->where('nombre', 'LIKE', '%'.$search.'%')->first();
+
+            if($producto) $results = ProductoResource::collection(Producto::where('id', $producto->id)->get());
+        }else{
+            $results = ProductoResource::collection(Producto::all());
+        }
         return response()->json(compact('results'));
     }
 

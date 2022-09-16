@@ -14,6 +14,17 @@ class PerchaResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'sucursal' => $this->sucursal->lugar,
+        ];
+
+        if ($controller_method == 'show') {
+            $modelo['sucursal'] = $this->sucursal_id;
+        }
+        
+        return $modelo;
     }
 }

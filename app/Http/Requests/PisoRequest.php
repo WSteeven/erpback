@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Piso;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PisoRequest extends FormRequest
 {
@@ -25,14 +27,32 @@ class PisoRequest extends FormRequest
     {
         return [
             'fila' => 'unique:pisos,fila,NULL,id,columna,' . $this->columna,
-            'columna' => 'required|string'
+            'columna' => 'sometimes|required|string|unique:pisos,fila'
         ];
     }
-    
+    /**
+     * Configure the validator instance.
+     *
+     * @param  \Illuminate\Validation\Validator  $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if(!$this->columna){
+                $piso = Piso::where('fila', $this->fila)->where('columna', null)->first();
+                   
+                if ($piso) {
+                    $validator->errors()->add('fila', 'Esta fila ya se encuentra registrada. Intenta con un valor diferente');
+                }
+            }
+        });
+    }
+
     public function messages()
     {
         return [
-            'piso.unique'=>'Ya existe el piso y columna que intentas ingresar'
+            'fila.unique' => 'Ya existe la fila y columna que intentas ingresar'
         ];
     }
 }

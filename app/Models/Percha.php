@@ -22,16 +22,24 @@ class Percha extends Model implements Auditable
 
 
 
-    public function localidad()
+    /**
+     * Relacion uno a muchos (inversa)
+     * Una o varias perchas pertenecen a una sucursal
+     */
+    public function sucursal()
     {
-        return $this->belongsTo(Localidad::class);
+        return $this->belongsTo(Sucursal::class);
     }
 
-    public function pisos()
+    /* public function pisos()
     {
         return $this->belongsToMany(Piso::class);
-    }
+    } */
 
+    /**
+     * Relacion uno a muchos
+     * Una percha tiene muchas ubicaciones
+     */
     public function ubicaciones()
     {
         return $this->hasMany(Ubicacion::class);
