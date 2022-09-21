@@ -24,13 +24,13 @@ class InventarioRequest extends FormRequest
     public function rules()
     {
         return [
-            'producto_id'=>'required|integer',
-            'condicion_id'=>'required|integer',
-            'ubicacion_id'=>'required|integer',
-            'propietario_id'=>'required|integer',
-            'stock'=>'required|integer',
-            'prestados'=>'required|integer',
-            'estado'=>'required|integer',
+            'detalle'=>'required|integer|exists:detalles_productos,id',
+            'condicion'=>'required|integer|exists:condiciones_de_productos,id',
+            'sucursal'=>'required|integer|exists:sucursales,id',
+            'cliente'=>'required|integer|exists:clientes,id',
+            'cantidad'=>'required|integer',
+            //'prestados'=>'sometimes|integer',
+            //'estado'=>'required|integer',
         ];
     }
 }

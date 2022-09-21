@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('producto_id');
             $table->text('descripcion')->nullable();
             $table->unsignedBigInteger('modelo_id');
-            $table->string('serial')->nullable();
-            $table->integer('precio_compra')->default(0);
+            $table->string('serial')->unique()->nullable();
+            $table->double('precio_compra')->default(0);
             $table->unsignedBigInteger('tipo_fibra_id')->nullable();
             $table->unsignedBigInteger('hilo_id')->nullable();
             $table->integer('punta_a')->nullable();

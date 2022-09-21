@@ -23,7 +23,10 @@ class Modelo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    /* Un modelo pertenece a un producto */
+    /**
+     * Relacion uno a uno 
+     * Un modelo esta en un producto 
+     */
     public function producto()
     {
         return $this->hasOne(Producto::class);

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TipoTransaccionRequest;
 use App\Http\Resources\TipoTransaccionResource;
 use App\Models\TipoTransaccion;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Src\Shared\Utils;
 
 class TipoTransaccionController extends Controller
@@ -37,29 +35,29 @@ class TipoTransaccionController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoTransaccion $tipo)
+    public function show(TipoTransaccion $tipo_transaccion)
     {
-        $modelo = new TipoTransaccionResource($tipo);
+        $modelo = new TipoTransaccionResource($tipo_transaccion);
         return response()->json(compact('modelo'));
     }
 
     /**
      * Actualizar
      */
-    public function update(TipoTransaccionRequest $request, TipoTransaccion  $tipo)
+    public function update(TipoTransaccionRequest $request, TipoTransaccion  $tipo_transaccion)
     {
         
-        $tipo->update($request->all());
+        $tipo_transaccion->update($request->all());
 
-        return response()->json(['mensaje' => 'El tipo ha sido actualizado con éxito', 'modelo' => $tipo]);
+        return response()->json(['mensaje' => 'El tipo ha sido actualizado con éxito', 'modelo' => $tipo_transaccion]);
     }
 
     /**
      * Eliminar
      */
-    public function destroy(TipoTransaccion $tipo)
+    public function destroy(TipoTransaccion $tipo_transaccion)
     {
-        $tipo->delete();
+        $tipo_transaccion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

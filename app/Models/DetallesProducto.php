@@ -25,13 +25,11 @@ class DetallesProducto extends Model implements Auditable
      * @var string[]
      */
     protected $fillable = [
-        'codigo_barras',
-        'nombre_id',
+        'producto_id',
         'descripcion',
         'modelo_id',
-        'precio',
         'serial',
-        'categoria_id',
+        'precio_compra',
         'tipo_fibra_id',
         'hilo_id',
         'punta_a',
@@ -44,16 +42,26 @@ class DetallesProducto extends Model implements Auditable
     ];
 
 
-    /* Un producto puede estar en muchas perchas en distintas ubicaciones */
-    public function productosPercha()
+    /**
+     * Relacion uno a muchos 
+     * Un producto puede estar en muchos inventarios 
+     */
+    public function inventarios()
     {
-        return $this->hasMany(ProductosEnPercha::class);
+        return $this->hasMany(Inventario::class);
     }
 
     /* Uno o mas detalles de productos pertenecen a un producto en general */
-    public function productos()
+    public function producto()
     {
         return $this->belongsTo(Producto::class);
+    }
+
+    public function tipo_fibra(){
+        return $this->belongsTo(TipoFibra::class);
+    }
+    public function hilo(){
+        return $this->belongsTo(Hilo::class);
     }
 
     /**
@@ -65,7 +73,10 @@ class DetallesProducto extends Model implements Auditable
         return $this->hasMany(ControlStock::class);
     }
 
-    /* Un producto tiene un solo modelo */
+    /**
+     * Relacion uno a uno (inversa)
+     * Un producto tiene un solo modelo
+     */
     public function modelo()
     {
         return $this->belongsTo(Modelo::class);

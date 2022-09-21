@@ -14,14 +14,21 @@ class TipoTransaccion extends Model implements Auditable
     use AuditableModel;
     
     protected $table="tipos_transacciones";
-    protected $INGRESO = "INGRESO";
-    protected $EGRESO = "EGRESO";
+    protected $fillable = ['nombre','tipo'];
+    
+    const INGRESO = 'INGRESO';
+    const EGRESO = 'EGRESO';
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-
-    const INGRESO = 'INGRESO';
-    const EGRESO = 'EGRESO';
+    /**
+     * Relacion uno a muchos
+     * Un tipo de transaccion tiene varios subtipos
+     */
+    public function subtipos(){
+        return $this->hasMany(SubtipoTransaccion::class);
+    }
 }

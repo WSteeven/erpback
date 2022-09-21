@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UbicacionResource extends JsonResource
+class CodigoClienteResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,20 +14,19 @@ class UbicacionResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
-        
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id'=>$this->id,
-            'codigo'=>$this->codigo,
-            'percha'=>$this->percha->nombre.' | '.$this->percha->sucursal->lugar,
-            'piso'=>$this->piso->fila.$this->piso->columna,
+            'id' => $this->id,
+            'codigo' => $this->codigo,
+            'cliente' => $this->cliente->empresa->razon_social,
+            'producto' => $this->producto->nombre,
         ];
 
-        if($controller_method=='show'){
-            $modelo['percha'] = $this->percha_id;
-            $modelo['piso'] = $this->piso_id;
+        if ($controller_method == 'show') {
+            $modelo['cliente'] = $this->cliente_id;
+            $modelo['producto'] = $this->producto_id;
         }
+        
         return $modelo;
     }
 }

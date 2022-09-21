@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CodigoClienteRequest;
+use App\Http\Resources\CodigoClienteResource;
+use App\Models\CodigoCliente;
+use Illuminate\Http\Request;
+use Src\Shared\Utils;
+
+class CodigoClienteController extends Controller
+{
+    private $entidad = 'Codigo de cliente';
+
+    /**
+     * Listar
+     */
+    public function index()
+    {
+        $results = CodigoClienteResource::collection(CodigoCliente::all());
+
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar
+     *
+     */
+    public function store(CodigoClienteRequest $request)
+    {
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
+        $datos['producto_id']=$request->safe()->only(['producto'])['producto'];
+
+        //Respuesta
+        $modelo = CodigoCliente::create($datos);
+        $modelo = new CodigoClienteResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Consultar
+     */
+    public function show(CodigoCliente $codigo_cliente)
+    {
+        $modelo = new CodigoClienteResource($codigo_cliente);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Actualizar
+     */
+    public function update(CodigoClienteRequest $request, CodigoCliente $codigo_cliente)
+    {
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
+        $datos['producto_id']=$request->safe()->only(['producto'])['producto'];
+
+        //Respuesta
+        $codigo_cliente->update($datos);
+        $modelo = new CodigoClienteResource($codigo_cliente->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * Eliminar
+     */
+    public function destroy(CodigoCliente $codigo_cliente)
+    {
+        $codigo_cliente->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
+    }
+}

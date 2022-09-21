@@ -26,13 +26,27 @@ class Cliente extends Model implements Auditable
         return $this->belongsTo(Parroquia::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa)
+     */
     public function empresa()
     {
         return $this->belongsTo(Empresa::class);
     }
+    /**
+     * Relacion uno a muchos
+     * Un cliente tiene varios codigos para varios productos
+     */
+    public function codigos(){
+        return $this->hasOne(CodigoCliente::class);
+    }
 
-    /* public function nombres()
+    /**
+     * Relacion uno a muchos
+     * Un cliente es propietario de muchos items del inventario
+     */
+    public function inventarios()
     {
-        return $this->belongsToMany(NombreProducto::class);
-    } */
+        return $this->hasMany(Inventario::class);
+    }
 }

@@ -19,5 +19,8 @@ class Hilo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    public function detalle(){
+        return $this->hasOne(DetallesProducto::class);
+    }
 
 }

@@ -21,4 +21,12 @@ class TipoFibra extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    /**
+     * Relacion uno a muchos (inversa)
+     * Un tipo de fibra pertenece a un detalle
+     */
+    public function producto(){
+        return $this->hasOne(DetallesProducto::class);
+    }
 }

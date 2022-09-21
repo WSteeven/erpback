@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class Percha extends FormRequest
+class SubtipoTransaccionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class Percha extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class Percha extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre'=>'required|string|unique:subtipos_transacciones',
+            'tipo_transaccion'=>'required|exists:tipos_transacciones,id'
         ];
     }
 }

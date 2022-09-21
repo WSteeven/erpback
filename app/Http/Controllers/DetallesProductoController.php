@@ -28,7 +28,7 @@ class DetallesProductoController extends Controller
      */
     public function index()
     {
-        $results = DetallesProductoResource::collectiond(DetallesProducto::all());
+        $results = DetallesProductoResource::collection(DetallesProducto::all());
         return response()->json(compact('results'));
     }
 
@@ -37,8 +37,16 @@ class DetallesProductoController extends Controller
      */
     public function store(DetallesProductoRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
+        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+        $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
+        $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+        Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
         //Respuesta
-        $modelo = DetallesProducto::create($request->validated());
+        $modelo = DetallesProducto::create($datos);
         $modelo = new DetallesProductoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

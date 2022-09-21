@@ -10,7 +10,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 class Sucursal extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait;
+    use HasFactory;
+    //use UppercaseValuesTrait;
     use AuditableModel;
 
     protected $table = "sucursales";
@@ -41,5 +42,13 @@ class Sucursal extends Model implements Auditable
     public function perchas()
     {
         return $this->hasMany(Percha::class);
+    }
+    /**
+     * Relacion uno a uno
+     * Una sucursal tiene muchas inventarios
+     */
+    public function inventarios()
+    {
+        return $this->hasOne(Inventario::class);
     }
 }

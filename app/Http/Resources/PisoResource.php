@@ -14,6 +14,12 @@ class PisoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        //return parent::toArray($request);
+        return [
+            'id'=>$this->id,
+            //'nombre'=>$this->fila.$this->columna,
+            'fila'=>$this->fila,
+            'columna'=>$this->columna,
+        ];
     }
 }

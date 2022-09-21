@@ -19,8 +19,11 @@ class Condicion extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    public function productoPercha()
+    /**
+     * Relacion uno a uno
+     */
+    public function inventario()
     {
-        return $this->belongsTo(ProductosEnPercha::class);
+        return $this->hasOne(Inventario::class);
     }
 }

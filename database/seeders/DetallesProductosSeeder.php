@@ -97,7 +97,7 @@ class DetallesProductosSeeder extends Seeder
             'producto_id' => 17,
             'descripcion' => 'CLEANER PEN SC/F2H/STANDARD',
             'modelo_id' => 23,
-            'serial' => 'DD71201903273469506',
+            'serial' => 'DD71201903273469507',
         ]);
         DetallesProducto::create([
             'producto_id' => 18,

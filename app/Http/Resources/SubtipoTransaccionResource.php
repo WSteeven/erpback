@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoTransaccionResource extends JsonResource
+class SubtipoTransaccionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,17 @@ class TipoTransaccionResource extends JsonResource
     {
         //return parent::toArray($request);
 
-        return [
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
             'id'=>$this->id,
             'nombre'=>$this->nombre,
-            'tipo'=>$this->tipo,
+            'tipo_transaccion'=>$this->tipo_transaccion->nombre,
         ];
+
+        if($controller_method=='show'){
+            $modelo['tipo_transaccion'] = $this->tipo_transaccion_id;
+        }
+
+        return $modelo;
     }
 }

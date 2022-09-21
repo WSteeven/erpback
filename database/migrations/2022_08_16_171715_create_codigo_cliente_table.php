@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('cliente_id')->required()->default(1);
             $table->unsignedBigInteger('producto_id')->required();
-            $table->string('codigo')->required();
+            $table->string('codigo')->unique()->required();
             $table->timestamps();
 
 

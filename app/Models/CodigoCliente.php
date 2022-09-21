@@ -21,4 +21,18 @@ class CodigoCliente extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
     
+    /**
+     * Relacion uno a muchos (inversa)
+     * Un producto tiene varios codigos
+     */
+    public function producto(){
+        return $this->belongsTo(Producto::class);
+    }
+    /**
+     * Relacion uno a muchos (inversa)
+     * Un cliente tiene varios codigos para varios productos
+     */
+    public function cliente(){
+        return $this->belongsTo(Cliente::class);
+    }
 }

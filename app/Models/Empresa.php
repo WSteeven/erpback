@@ -24,6 +24,9 @@ class Empresa extends Model implements Auditable
     const PRIVADA = 'PRIVADA'; //sociedad privada
     const PUBLICA = 'PUBLICA'; //sociedad publica
 
+    /**
+     * Relacion uno a uno
+     */
     public function cliente()
     {
         return $this->hasOne(Cliente::class);

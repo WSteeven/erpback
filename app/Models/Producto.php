@@ -22,12 +22,17 @@ class Producto extends Model implements Auditable
     ];
 
 
-    /* Un nombre de producto es como una categoria. Ejm: Laptop
-        DELL i5 ...
-        Lenovo modelo xyz ...
-        ... etc.
-    */
-    public function detalles_productos()
+    public static function cantidadDetalles($id){
+        $detalles = DetallesProducto::where('producto_id', $id)->get();
+        $result = count($detalles);
+        return $result;
+    }
+
+    /**
+     * Relacion uno a muchos
+     * Un producto tiene varios detalles
+     */
+    public function detalles()
     {
         return $this->hasMany(DetallesProducto::class);
     }
@@ -43,11 +48,18 @@ class Producto extends Model implements Auditable
         return $this->belongsToMany(Cliente::class);
     }
 
-
     /**
      * Uno o varios productos pertenecen a una categoría
      */
     public function categoria(){
         return $this->belongsTo(Categoria::class);
+    }
+
+    /**
+     * Relacion uno a muchos
+     * Un producto tiene varios codigos
+     */
+    public function codigos(){
+        return $this->hasMany(CodigoCliente::class);
     }
 }

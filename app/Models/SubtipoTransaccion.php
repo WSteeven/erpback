@@ -14,10 +14,18 @@ class SubtipoTransaccion extends Model implements Auditable
     use AuditableModel;
     
     protected $table = "subtipos_transacciones";
+    protected $fillable = ['nombre', 'tipo_transaccion_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Relacion uno a muchos (inversa)
+     * Uno o varios subtipos pertenecen a un tipo de transaccion
+     */
+    public function tipo_transaccion(){
+        return $this->belongsTo(TipoTransaccion::class);
+    }
 
 }

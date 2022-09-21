@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->enum('tipo',[TipoTransaccion::INGRESO, TipoTransaccion::EGRESO]);
             $table->timestamps();
+
+            $table->unique(['nombre', 'tipo']);
         });
     }
 

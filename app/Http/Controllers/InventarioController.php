@@ -26,8 +26,14 @@ class InventarioController extends Controller
      */
     public function store(InventarioRequest $request)
     {
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
+        $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
+        $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
+        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
-        $modelo = Inventario::create($request->validated());
+        $modelo = Inventario::create($datos);
         $modelo = new InventarioResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

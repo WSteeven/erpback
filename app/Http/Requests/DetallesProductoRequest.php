@@ -25,21 +25,24 @@ class DetallesProductoRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo_barras' => 'nullable|string',
-            'nombre_id' => 'required|integer|exists:nombres_de_productos,id',
+            'producto' => 'required|integer|exists:productos,id',
             'descripcion' => 'required|string',
-            'modelo_id' => 'required|integer|exists:modelos,id',
-            'precio' => 'nullable|integer',
-            'serial' => 'nullable|string',
-            'categoria_id' => 'required|integer|exists:categorias,id',
-            'tipo_fibra_id'=>'nullable|integer|exists:tipo_fibras,id',
-            'hilo_id'=>'nullable|integer|exists:hilos,id',
+            'modelo' => 'required|integer|exists:modelos,id',
+            'precio_compra' => 'sometimes|numeric',
+            'serial' => 'nullable|string|sometimes|unique:detalles_productos,serial',
+            'tipo_fibra'=>'nullable|integer|exists:tipo_fibras,id',
+            'hilos'=>'nullable|integer|exists:hilos,id',
             'punta_a' => 'nullable|integer',
             'punta_b' => 'nullable|integer',
             'punta_corte' => 'nullable|integer',
-            "condicion_id"=>'required|exists:condiciones_de_productos,id'
-            //'propietario_id'=>'required|integer|exists:propietarios,id'
         ];
         //Log::channel('testing')->info('LOG', ['entro en las reglas ']);
+    }
+
+    public function messages()
+    {
+        return [
+            'serial.unique'=>'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
+        ];
     }
 }

@@ -3,15 +3,18 @@
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\ControlCambioController;
+use App\Http\Controllers\DetallesProductoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EstadosTransaccionController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\HiloController;
 use App\Http\Controllers\ImagenesProductoController;
+use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MovimientosProductosController;
@@ -23,6 +26,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SubtareaController;
+use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\TipoElementoController;
@@ -34,7 +38,6 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Resources\UserResource;
-use App\Models\DetallesProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -83,11 +86,13 @@ Route::apiResources(
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
+        'codigos-clientes' => CodigoClienteController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
         'estados' => EstadosTransaccionController::class,
         'grupos' => GrupoController::class,
         'hilos' => HiloController::class,
+        'inventarios' => InventarioController::class,
         'imagenes-productos' => ImagenesProductoController::class,
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
@@ -96,12 +101,13 @@ Route::apiResources(
         'perchas' => PerchaController::class,
         'permisos' => PermissionController::class,
         'pisos' => PisoController::class,
-        'detalles' => DetallesProducto::class,
+        'detalles' => DetallesProductoController::class,
         'proveedores' => ProveedorController::class,
         'roles' => RoleController::class,
         'sucursales' => SucursalController::class,
         'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
+        'subtipos-transacciones' => SubtipoTransaccionController::class,
         'transacciones' => TransaccionesBodegaController::class,
         'ubicaciones' => UbicacionController::class,
         'tareas' => TareaController::class,
@@ -115,11 +121,13 @@ Route::apiResources(
         'parameters' => [
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
+            'codigos-clientes'=>'codigo_cliente',
             'imagenesproductos' => 'imagenproducto',
             'movimientosproductos' => 'movimiento',
             'proveedores' => 'proveedor',
             'sucursales' => 'sucursal',
-            'tipostransacciones' => 'tipo',
+            'tipos-transacciones' => 'tipo_transaccion',
+            'subtipos-transacciones' => 'subtipo_transaccion',
             'transacciones' => 'transaccion',
             'ubicaciones' => 'ubicacion',
             'tipos-tareas' => 'tipo_tarea',
