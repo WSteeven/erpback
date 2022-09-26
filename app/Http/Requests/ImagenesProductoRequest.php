@@ -25,7 +25,7 @@ class ImagenesProductoRequest extends FormRequest
     {
         return [
             'url' => 'required|unique:imagenes_productos',
-            'producto_id'=>'required|exists:nombres_de_productos,id',
+            'detalle'=>'required|exists:detalles_productos,id',
         ];
     }
 }

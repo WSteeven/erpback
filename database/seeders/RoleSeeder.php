@@ -53,6 +53,8 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.categorias'])->assignRole($activos_fijos);
         //Condiciones
         Permission::firstOrCreate(['name' => 'puede.ver.condiciones']);
+        //Estados de transacciones
+        Permission::firstOrCreate(['name' => 'puede.ver.estados']);
         // Hilos
         Permission::firstOrCreate(['name' => 'puede.ver.hilos']);
         //Marcas

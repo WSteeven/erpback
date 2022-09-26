@@ -14,7 +14,7 @@ class ImagenesProducto extends Model implements Auditable
     use AuditableModel;
     
     protected $table = "imagenes_productos";
-    protected $fillable = ["url",'producto_id'];
+    protected $fillable = ["url",'detalle_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -22,9 +22,13 @@ class ImagenesProducto extends Model implements Auditable
 
 
 
-    public function producto()
+    /**
+     * Relacion uno a muchos (inversa).
+     * Una o más imagenes pertenecen a un solo detalle de producto.
+     */
+    public function detalle()
     {
-        return $this->belongsToMany(Producto::class);
+        return $this->belongsTo(DetallesProducto::class);
     }
 
 

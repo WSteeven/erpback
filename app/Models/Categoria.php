@@ -20,7 +20,7 @@ class Categoria extends Model implements Auditable
     ];
 
     /**
-     * Relacion uno a muchos
+     * Relacion uno a muchos.
      * Una categoría tiene muchos productos
      */
     public function productos()

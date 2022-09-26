@@ -54,8 +54,14 @@ class InventarioController extends Controller
      */
     public function update(InventarioRequest $request, Inventario  $inventario)
     {
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
+        $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
+        $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
+        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
-        $inventario->update($request->validated());
+        $inventario->update($datos);
         $modelo = new InventarioResource($inventario->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

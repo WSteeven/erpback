@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class DetallesProductoRequest extends FormRequest
 {
@@ -24,19 +25,28 @@ class DetallesProductoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'producto' => 'required|integer|exists:productos,id',
+        $rules = [
+            'producto' => 'required|exists:productos,id',
             'descripcion' => 'required|string',
-            'modelo' => 'required|integer|exists:modelos,id',
+            'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
-            'serial' => 'nullable|string|sometimes|unique:detalles_productos,serial',
+            'serial' => 'nullable|string|sometimes|unique:detalles_productos',
             'tipo_fibra'=>'nullable|integer|exists:tipo_fibras,id',
             'hilos'=>'nullable|integer|exists:hilos,id',
             'punta_a' => 'nullable|integer',
             'punta_b' => 'nullable|integer',
             'punta_corte' => 'nullable|integer',
         ];
-        //Log::channel('testing')->info('LOG', ['entro en las reglas ']);
+
+        if(in_array($this->method(), ['PUT', 'PATCH'])){
+            $detalle = $this->route()->parameter('detalle');
+            Log::channel('testing')->info('Log', ['serial recibido:', $this->route()->parameter('detalle')]);
+            Log::channel('testing')->info('Log', ['serial encontrado:', $detalle->serial]);
+            $rules['serial']=['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle)];
+            //$rules['serial']=['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle['serial'])];
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -44,5 +54,14 @@ class DetallesProductoRequest extends FormRequest
         return [
             'serial.unique'=>'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        if(is_null($this->precio_compra)){
+            $this->merge([
+                'precio_compra'=>0
+            ]);
+        }
     }
 }

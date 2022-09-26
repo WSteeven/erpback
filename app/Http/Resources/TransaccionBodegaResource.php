@@ -15,10 +15,10 @@ class TransaccionBodegaResource extends JsonResource
      */
     public function toArray($request)
     {
-        [$nom, $obs]  = TransaccionesBodega::obtenerUltimaAutorizacion($this->id, $this->autorizacion_id);
+        //[$nom, $obs]  = TransaccionesBodega::obtenerUltimaAutorizacion($this->id, $this->autorizacion_id);
         return [
-            'autorizacion'=>$nom,
-            'obs_autorizacion'=>$obs,
+            //'autorizacion'=>$nom,
+            //'obs_autorizacion'=>$obs,
             'justificacion'=>$this->justificacion,
             'fecha_limite'=>$this->fecha_limite,
             //'estado_id'=>$this->estados()->id,

@@ -14,6 +14,18 @@ class ImagenesProductoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id'=>$this->id,
+            'url'=>$this->url,
+            'detalle'=>$this->detalle->producto->nombre.' | '.$this->detalle->descripcion
+            //'detalle'=>$this->detalle->descripcion
+        ];
+
+        if($controller_method == 'show'){
+            $modelo['detalle'] = $this->detalle_id;
+        }
+
+        return $modelo;
     }
 }

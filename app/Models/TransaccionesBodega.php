@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -39,7 +40,7 @@ class TransaccionesBodega extends Model implements Auditable
     /* Una transaccion tiene varios estados durante su ciclo de vida */
     public function estados()
     {
-        return $this->belongsToMany(EstadosTransaccionesBodega::class, 'tiempo_estado_transacciones')->withTimestamps()->wherePivot('created_at','orderBy','desc');
+        return $this->belongsToMany(EstadosTransaccion::class, 'tiempo_estado_transaccion', 'transaccion_id', 'estado_id')->withPivot('observacion')->withTimestamps();//->wherePivot('created_at','orderBy','desc');
 
     }
 
@@ -89,10 +90,17 @@ class TransaccionesBodega extends Model implements Auditable
         //$ultima = TiemposAutorizacionTransaccion::where('transaccion_id', $transaccion->id)->orderBy('created_at', 'desc')->limit(1)->get();
         $ultima = TiemposAutorizacionTransaccion::where('transaccion_id', $transaccion->id)->latest()->limit(1)->get();
         //return [$transaccion->nombre, $ultima->observacion];
+        $aut=null;
+
+        if(!$ultima){
+            //
+        }
+
         foreach($ultima as $ult){
             $aut = $ult->autorizacion_id;
             $obs = $ult->observacion;
         }
+        Log::channel('testing')->info('Log', ['ultima?:', $aut]);
         $nombre = Autorizacion::find($aut);
         return [
             $nombre->nombre, 

@@ -6,6 +6,7 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\TransaccionesBodega;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class TransaccionesBodegaController extends Controller
@@ -37,6 +38,20 @@ class TransaccionesBodegaController extends Controller
         $transaccion = TransaccionesBodega::create($request->validated());
         $modelo = new TransaccionBodegaResource($transaccion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        //Guardar la autorizacion con su observacion 
+        if($request->observacion_aut){
+            $transaccion->autorizaciones()->attach($request->autorizacion_id, ['observacion'=>$request->observacion_aut]);
+        }else{
+            $transaccion->autorizaciones()->attach($request->autorizacion_id);
+        }
+
+        //Guardar el estado con su observacion
+        if($request->observacion_est){
+            //Log::channel('testing')->info('Log', ['Segundo IF:', $transaccion->observacion_est]);
+            $transaccion->estados()->attach($request->estado_id, ['observacion'=>$request->observacion_est]);
+        }else{
+            $transaccion->estados()->attach($request->estado_id);
+        }
 
         return response()->json(compact('mensaje', 'modelo'));
     }

@@ -41,32 +41,63 @@ class DetallesProducto extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Comprobar si un detalle es fibra
+     * @param $id DetalleProducto
+     * @return boolean
+     */
+    public static function comprobarFibra($id){
+        $detalle = DetallesProducto::find($id);
+        if($detalle->tipo_fibra||$detalle->punta_b){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     /**
-     * Relacion uno a muchos 
-     * Un producto puede estar en muchos inventarios 
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    /**
+     * Relacion uno a muchos.
+     * Un detalle de producto puede estar en muchos inventarios.
      */
     public function inventarios()
     {
         return $this->hasMany(Inventario::class);
     }
 
-    /* Uno o mas detalles de productos pertenecen a un producto en general */
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o mas detalles de productos pertenecen a un producto en general 
+     */
     public function producto()
     {
         return $this->belongsTo(Producto::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 0 o 1 tipo de fibra
+     */
     public function tipo_fibra(){
         return $this->belongsTo(TipoFibra::class);
     }
+
+    /**
+     * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 0 o 1 hilo
+     */
     public function hilo(){
         return $this->belongsTo(Hilo::class);
     }
 
     /**
-     * Relacion uno a muchos
-     * Obtener los control de stock para un detalle 
+     * Relacion uno a muchos.
+     * Un detalle de producto tiene un control de stock diferente para cada sucursal.
+     * Obtener los control de stock para un detalle. 
      */
     public function control_stocks()
     {
@@ -74,11 +105,20 @@ class DetallesProducto extends Model implements Auditable
     }
 
     /**
-     * Relacion uno a uno (inversa)
-     * Un producto tiene un solo modelo
+     * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 1 y solo 1 modelo
      */
     public function modelo()
     {
         return $this->belongsTo(Modelo::class);
+    }
+
+    /**
+     * Relacion uno a muchos.
+     * Un detalle de producto tiene varias imagenes.
+     * Generalmente solo dos, pero queda la posibilidad de que sean más en un futuro.
+     */
+    public function imagenes(){
+        return $this->hasMany(ImagenesProducto::class);
     }
 }

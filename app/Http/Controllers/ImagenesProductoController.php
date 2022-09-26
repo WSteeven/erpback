@@ -27,9 +27,11 @@ class ImagenesProductoController extends Controller
      */
     public function store(ImagenesProductoRequest $request)
     {
-        $request->validate(['url' => 'required|unique:imagenes_productos','producto_id'=>'required|exists:nombres_de_productos,id']);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['detalle_id'] = $request->safe()->only(['detalle'])['detalle'];
         //Respuesta
-        $modelo = ImagenesProducto::create($request->validated());
+        $modelo = ImagenesProducto::create($datos);
         $modelo = new ImagenesProductoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -51,9 +53,12 @@ class ImagenesProductoController extends Controller
  */
     public function update(ImagenesProductoRequest $request, ImagenesProducto  $imagenproducto)
     {
-        $request->validate(['url' => 'required|unique:imagenes_productos','producto_id'=>'required|exists:nombres_de_productos,id']);
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['detalle_id'] = $request->safe()->only(['detalle'])['detalle'];
+        
         //Respuesta
-        $imagenproducto->update($request->validated());
+        $imagenproducto->update($datos);
         $modelo = new ImagenesProductoResource($imagenproducto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

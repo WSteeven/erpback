@@ -56,9 +56,9 @@ class DetallesProductoController extends Controller
     /**
      * Consultar
      */
-    public function show(DetallesProducto $detalleProducto)
+    public function show(DetallesProducto $detalle)
     {
-        $modelo = new DetallesProductoResource($detalleProducto);
+        $modelo = new DetallesProductoResource($detalle);
         return response()->json(compact('modelo'));
     }
 
@@ -66,11 +66,18 @@ class DetallesProductoController extends Controller
     /**
      * Actualizar
      */
-    public function update(DetallesProductoRequest $request, DetallesProducto $detalleProducto)
+    public function update(DetallesProductoRequest $request, DetallesProducto $detalle)
     {
+        //Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
+        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+        $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
+        $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+        
         //Respuesta
-        $detalleProducto->update($request->validated());
-        $modelo = new DetallesProductoResource($detalleProducto->refresh());
+        $detalle->update($datos);
+        $modelo = new DetallesProductoResource($detalle->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -78,9 +85,9 @@ class DetallesProductoController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(DetallesProducto $detalleProducto)
+    public function destroy(DetallesProducto $detalle)
     {
-        $detalleProducto->delete();
+        $detalle->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

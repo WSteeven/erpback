@@ -37,10 +37,6 @@ class Producto extends Model implements Auditable
         return $this->hasMany(DetallesProducto::class);
     }
 
-    //Un producto tiene varias imagenes
-    public function imagenes(){
-        return $this->hasMany(ImagenesProducto::class);
-    }
 
     //Un producto tiene varios codigos de cliente
     public function clientes()

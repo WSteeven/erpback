@@ -140,7 +140,6 @@ class DetallesProductosSeeder extends Seeder
             'producto_id' => 44,
             'descripcion' => 'FIBRA DROP BOW TIE SHAPE 2 FO G657A2 METRAJE (PRECONECTARIZADO 250M)',
             'modelo_id' => 14,
-
             'hilo_id' => 2,
             'serial' => 'DB21031113-250-001',
             'punta_b' => 250
