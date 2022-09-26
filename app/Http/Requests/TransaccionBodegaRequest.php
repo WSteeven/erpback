@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class TransaccionBodegaRequest extends FormRequest
 {
@@ -24,16 +25,26 @@ class TransaccionBodegaRequest extends FormRequest
     public function rules()
     {
         return [
-            'autorizacion_id'=>'required|exists:autorizaciones,id',
-            'justificacion'=>'nullable|string',
+            'autorizacion'=>'required|exists:autorizaciones,id',
+            'observacion_aut'=>'nullable|string|sometimes',
+            'justificacion'=>'required|string',
             'fecha_limite'=>'nullable|string',
-            'estado_id'=>'required|exists:estados_transacciones_bodega,id',
-            'solicitante_id'=>'required|exists:users,id',
-            'subtipo_id'=>'required|exists:subtipos_transacciones,id',
-            'sucursal_id'=>'required|exists:sucursales,id',
-            'per_autoriza_id'=>'required|exists:users,id',
-            'per_entrega_id'=>'nullable|exists:users,id',
+            'estado'=>'required|exists:estados_transacciones_bodega,id',
+            'observacion_est'=>'nullable|string|sometimes',
+            'solicitante'=>'required|exists:empleados,id',
+            'subtipo'=>'required|exists:subtipos_transacciones,id',
+            'sucursal'=>'required|exists:sucursales,id',
+            'per_autoriza'=>'required|exists:empleados,id',
+            'per_atiende'=>'sometimes|exists:empleados,id',
             'lugar_destino'=>'nullable|string',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'solicitante'=>auth()->user()->empleado->id,
+        ]);
+        //Log::channel('testing')->info('Log', ['Usuario es:', auth()->user()->empleado->id]);
     }
 }

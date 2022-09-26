@@ -23,7 +23,7 @@ class Producto extends Model implements Auditable
 
 
     public static function cantidadDetalles($id){
-        $detalles = DetallesProducto::where('producto_id', $id)->get();
+        $detalles = DetalleProducto::where('producto_id', $id)->get();
         $result = count($detalles);
         return $result;
     }
@@ -52,10 +52,19 @@ class Producto extends Model implements Auditable
     }
 
     /**
-     * Relacion uno a muchos
-     * Un producto tiene varios codigos
+     * Relacion uno a muchos.
+     * Un producto tiene varios codigos.
+     * Para obtener todos los codigos de cliente de un producto.
      */
     public function codigos(){
         return $this->hasMany(CodigoCliente::class);
+    }
+
+    /**
+     * Relacion uno a uno.
+     * Para obtener los codigos de producto de JP.
+     */
+    public function codigoJP(){
+        return $this->hasOne(CodigoCliente::class);
     }
 }

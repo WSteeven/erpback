@@ -17,17 +17,17 @@ return new class extends Migration
             $table->id();
             $table->string('justificacion')->nullable();
             $table->date('fecha_limite')->nullable();
-            $table->unsignedBigInteger('solicitante_id')->nullable();
+            $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('subtipo_id');
             $table->unsignedBigInteger('sucursal_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
-            $table->unsignedBigInteger('per_entrega_id')->nullable();
+            $table->unsignedBigInteger('per_atiende_id')->nullable();
             $table->string('lugar_destino')->nullable();
             $table->timestamps();
 
-            $table->foreign('solicitante_id')->references('id')->on('users');
-            $table->foreign('per_autoriza_id')->references('id')->on('users');
-            $table->foreign('per_entrega_id')->references('id')->on('users');
+            $table->foreign('solicitante_id')->references('id')->on('empleados');
+            $table->foreign('per_autoriza_id')->references('id')->on('empleados');
+            $table->foreign('per_atiende_id')->references('id')->on('empleados');
             $table->foreign('subtipo_id')->references('id')->on('subtipos_transacciones');
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
         });

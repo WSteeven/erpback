@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\ImagenesProducto;
+use App\Models\ImagenProducto;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -35,10 +35,10 @@ class DatabaseSeeder extends Seeder
         $this->call(ClienteProveedorSeeder::class);
         $this->call(ProductosSeeder::class);
         $this->call(HiloSeeder::class);
-        $this->call(DetallesProductosSeeder::class);
+        $this->call(DetalleProductoSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TiposTransaccionSeeder::class);
-        ImagenesProducto::factory(10)->create();
+        ImagenProducto::factory(10)->create();
 
         // Módulo de Tareas
         $this->call(TareaSeeder::class);

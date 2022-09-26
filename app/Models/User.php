@@ -74,7 +74,7 @@ class User extends Authenticatable implements Auditable
     }
     
     // Relacion uno a uno
-    public function empleados()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'usuario_id');
     }

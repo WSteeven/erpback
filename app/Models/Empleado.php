@@ -61,4 +61,30 @@ class Empleado extends Model implements Auditable
     public function jefes() {
         return $this->hasOne(Empleado::class, 'jefe_id');
     }
+
+    /**
+     * Relacion uno a muchos
+     * Un empleado es solicitante de varias transacciones
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(TransaccionBodega::class);
+    }
+
+    /**
+     * Relacion uno a muchos.
+     * Un empleado con rol superior o igual a COORDINADOR puede autorizar todas las transacciones de sus empleados a cargo
+     */
+    public function autorizadas(){
+        return $this->hasMany(TransaccionBodega::class);
+    }
+
+    /**
+     * Relacion uno a muchos.
+     * Un empleado con rol BODEGA puede entregar cualquier transaccion 
+     */
+    public function atendidas(){
+        return $this->hasMany(TransaccionBodega::class);
+    }
 }
+

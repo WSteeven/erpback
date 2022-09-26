@@ -18,19 +18,19 @@ class UserResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->empleados->id,
-            'nombres' => $this->empleados->nombres,
-            'apellidos' => $this->empleados->apellidos,
+            'id' => $this->empleado->id,
+            'nombres' => $this->empleado->nombres,
+            'apellidos' => $this->empleado->apellidos,
             'email' => $this->email,
-            'identificacion' => $this->empleados->identificacion,
-            'telefono' => $this->empleados->telefono,
-            'fecha_nacimiento' => $this->empleados->fecha_nacimiento,
-            'jefe_id' => $this->empleados->jefe_id,
+            'identificacion' => $this->empleado->identificacion,
+            'telefono' => $this->empleado->telefono,
+            'fecha_nacimiento' => $this->empleado->fecha_nacimiento,
+            'jefe_id' => $this->empleado->jefe_id,
             'usuario_id' => $this->id,
-            'sucursal_id' => $this->empleados->sucursal_id,
-            'grupo_id' => $this->empleados->grupo_id,
+            'sucursal_id' => $this->empleado->sucursal_id,
+            'grupo_id' => $this->empleado->grupo_id,
             'rol'=>$this->getRoleNames(),
-            'estado' => $this->empleados->estado,
+            'estado' => $this->empleado->estado,
         ];
     }
 }

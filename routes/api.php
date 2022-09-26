@@ -7,24 +7,24 @@ use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\ControlCambioController;
-use App\Http\Controllers\DetallesProductoController;
+use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\EstadosTransaccionController;
+use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\HiloController;
-use App\Http\Controllers\ImagenesProductoController;
+use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ModeloController;
-use App\Http\Controllers\MovimientosProductosController;
+use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\PerchaController;
-use App\Http\Controllers\PermisosRolesController;
-use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RolController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\SucursalController;
@@ -33,7 +33,7 @@ use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTareaController;
 use App\Http\Controllers\TipoTransaccionController;
-use App\Http\Controllers\TransaccionesBodegaController;
+use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
@@ -62,8 +62,8 @@ Route::prefix('usuarios')->group(function () {
 });
 
 Route::group(['prefix' => '/permisos'], function () {
-    Route::get('verpermisos/{rol}', [PermisosRolesController::class, 'listarPermisos']);
-    Route::post('actualizarpermisos/{rol}', [PermisosRolesController::class, 'asignarPermisos']);
+    Route::get('verpermisos/{rol}', [PermisoRolController::class, 'listarPermisos']);
+    Route::post('actualizarpermisos/{rol}', [PermisoRolController::class, 'asignarPermisos']);
 });
 
 // El frontend usa esta ruta para verificar si está autenticado
@@ -89,26 +89,26 @@ Route::apiResources(
         'codigos-clientes' => CodigoClienteController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
-        'estados' => EstadosTransaccionController::class,
+        'estados' => EstadoTransaccionController::class,
         'grupos' => GrupoController::class,
         'hilos' => HiloController::class,
         'inventarios' => InventarioController::class,
-        'imagenes-productos' => ImagenesProductoController::class,
+        'imagenes-productos' => ImagenProductoController::class,
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
-        'movimientos-productos' => MovimientosProductosController::class,
+        'movimientos-productos' => MovimientoProductoController::class,
         'productos' => ProductoController::class,
         'perchas' => PerchaController::class,
-        'permisos' => PermissionController::class,
+        'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
-        'detalles' => DetallesProductoController::class,
+        'detalles' => DetalleProductoController::class,
         'proveedores' => ProveedorController::class,
-        'roles' => RoleController::class,
+        'roles' => RolController::class,
         'sucursales' => SucursalController::class,
         'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
         'subtipos-transacciones' => SubtipoTransaccionController::class,
-        'transacciones' => TransaccionesBodegaController::class,
+        'transacciones' => TransaccionBodegaController::class,
         'ubicaciones' => UbicacionController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
@@ -123,7 +123,7 @@ Route::apiResources(
             'condiciones' => 'condicion',
             'codigos-clientes'=>'codigo_cliente',
             'imagenesproductos' => 'imagenproducto',
-            'movimientosproductos' => 'movimiento',
+            'movimientos-productos' => 'movimiento',
             'proveedores' => 'proveedor',
             'sucursales' => 'sucursal',
             'tipos-transacciones' => 'tipo_transaccion',

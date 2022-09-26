@@ -28,7 +28,7 @@ class Inventario extends Model
      */
     public function movimientos()
     {
-        return $this->hasMany(MovimientosProductos::class);
+        return $this->hasMany(MovimientoProducto::class);
     }
     /**
      * Relacion uno a muchos (inversa)

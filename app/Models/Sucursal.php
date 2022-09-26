@@ -51,4 +51,12 @@ class Sucursal extends Model implements Auditable
     {
         return $this->hasOne(Inventario::class);
     }
+
+    /**
+     * Relacion uno a muchos.
+     * En una sucursal se realizan varias transacciones
+     */
+    public function transacciones(){
+        return $this->hasMany(TransaccionBodega::class);
+    }
 }

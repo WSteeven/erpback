@@ -9,17 +9,44 @@
     {
         "__comment": "Estructura de POST para  clientes",
         "ruta": "jpconstrucred.test/api/clientes"
-
     },
     {
         "__comment": "Estructura de POST para  productos",
         "ruta": "jpconstrucred.test/api/productos"
-
-    }
-    ,
+    },
     {
         "__comment": "Estructura de POST para  productos",
         "ruta": "jpconstrucred.test/api/productos"
-
+    },
+    {
+        "__comment": "Espacio para pruebas..."
+    },
+    {
+        "justificacion": "justificacion de postman legitima",
+        "autorizacion": 3,
+        "estado": 3,
+        "subtipo": 2,
+        "sucursal": 1,
+        "per_autoriza": 5,
+        "per_atiende_id": 7,
+        "lugar_destino": "oficina",
+        "solicitante": 10
+    },
+    {
+        "autorizacion": 3,
+        "justificacion": "justificacion de postman legitima",
+        "estado": 3,
+        "solicitante": 10,
+        "subtipo": 2,
+        "sucursal": 1,
+        "per_autoriza": 5,
+        "per_atiende_id": 7,
+        "lugar_destino": "oficina",
+        "subtipo_id": 2,
+        "solicitante_id": 10,
+        "sucursal_id": 1,
+        "per_autoriza_id": 5,
+        "autorizacion_id": 3,
+        "estado_id": 3
     }
 ]

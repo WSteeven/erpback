@@ -3,8 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Autorizacion;
-use App\Models\EstadosTransaccion;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\EstadoTransaccion;
 use Illuminate\Database\Seeder;
 
 class AutorizacionSeeder extends Seeder
@@ -26,9 +25,9 @@ class AutorizacionSeeder extends Seeder
         /*
         Estados de transacciones
         */
-        EstadosTransaccion::create(['nombre'=>'PENDIENTE']);
-        EstadosTransaccion::create(['nombre'=>'COMPLETA']);
-        EstadosTransaccion::create(['nombre'=>'PARCIAL']);
+        EstadoTransaccion::create(['nombre'=>'PENDIENTE']);
+        EstadoTransaccion::create(['nombre'=>'COMPLETA']);
+        EstadoTransaccion::create(['nombre'=>'PARCIAL']);
 
     }
 }
