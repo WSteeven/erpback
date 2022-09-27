@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TransaccionBodega;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TransaccionBodegaResource extends JsonResource
@@ -15,21 +16,37 @@ class TransaccionBodegaResource extends JsonResource
     public function toArray($request)
     {
         //[$nom, $obs]  = TransaccionesBodega::obtenerUltimaAutorizacion($this->id, $this->autorizacion_id);
-        return [
-            //'autorizacion'=>$nom,
-            //'obs_autorizacion'=>$obs,
+        $controller_method = $request->route()->getActionMethod();
+        $autorizacion = TransaccionBodega::ultimaAutorizacion($this->id);
+        $estado = TransaccionBodega::ultimoEstado($this->id);
+
+        $modelo = [
+            'id'=>$this->id,
+            'autorizacion'=>is_null($autorizacion)?'N/A':$autorizacion->nombre,
+            'obs_autorizacion'=>is_null($autorizacion->pivot->observacion)?'N/A':$autorizacion->pivot->observacion,
             'justificacion'=>$this->justificacion,
-            'fecha_limite'=>$this->fecha_limite,
-            //'estado_id'=>$this->estados()->id,
+            'fecha_limite'=>is_null($this->fecha_limite)?'N/A': $this->fecha_limite,
+            'estado'=>is_null($estado)?'N/A':$estado->nombre,
+            'obs_estado'=>is_null($estado->pivot->observacion)?'N/A':$estado->pivot->observacion,
             'solicitante'=>$this->solicitante->nombres.' '.$this->solicitante->apellidos,
-            //'solicitante_id'=>$this->solicitante->name,
-            // 'tipo_id'=>$this->tipoTransaccion()->id,
+            'tipo'=>$this->subtipo->tipoTransaccion->nombre,
             'subtipo'=>$this->subtipo->nombre,
             'sucursal'=>$this->sucursal->lugar,
-            //'per_autoriza_id'=>$this->solicitante()->empleados()->jefe_id,
             'autoriza'=>$this->autoriza->nombres.' '.$this->autoriza->apellidos,
             'lugar_destino'=>$this->lugar_destino,
-            'atiende'=>$this->atiende->nombres.' '.$this->atiende->apellidos,
+            'atiende'=>is_null($this->atiende)?'':$this->atiende->nombres.' '.$this->atiende->apellidos,
+            'created_at'=>$this->created_at,
         ];
+
+        if($controller_method=='show'){
+            $modelo['solicitante_id']=$this->solicitante_id;
+            // $modelo['tipo_id']=$this->tipoTransaccion->id;
+            $modelo['subtipo_id']=$this->subtipo_id;
+            $modelo['sucursal_id']=$this->solicitante_id;
+            $modelo['per_autoriza_id']=$this->solicitante_id;
+            $modelo['per_atiende_id']=$this->solicitante_id;
+        }
+
+        return $modelo;
     }
 }

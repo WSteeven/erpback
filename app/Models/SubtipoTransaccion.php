@@ -24,7 +24,7 @@ class SubtipoTransaccion extends Model implements Auditable
      * Relacion uno a muchos (inversa)
      * Uno o varios subtipos pertenecen a un tipo de transaccion
      */
-    public function tipo_transaccion(){
+    public function tipoTransaccion(){
         return $this->belongsTo(TipoTransaccion::class);
     }
 

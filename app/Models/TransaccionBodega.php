@@ -34,14 +34,19 @@ class TransaccionBodega extends Model implements Auditable
     /* Una transaccion tiene varios estados de autorizacion durante su ciclo de vida */
     public function autorizaciones()
     {
-        return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')->withPivot('observacion')->withTimestamps();
+        return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')
+            ->withPivot('observacion')
+            ->withTimestamps()
+            ->orderByPivot('created_at', 'desc');
     }
 
     /* Una transaccion tiene varios estados durante su ciclo de vida */
     public function estados()
     {
-        return $this->belongsToMany(EstadoTransaccion::class, 'tiempo_estado_transaccion', 'transaccion_id', 'estado_id')->withPivot('observacion')->withTimestamps(); //->wherePivot('created_at','orderBy','desc');
-
+        return $this->belongsToMany(EstadoTransaccion::class, 'tiempo_estado_transaccion', 'transaccion_id', 'estado_id')
+            ->withPivot('observacion')
+            ->withTimestamps()
+            ->orderByPivot('created_at', 'desc');
     }
 
     //Una transaccion tiene varios productos solicitados
@@ -98,41 +103,21 @@ class TransaccionBodega extends Model implements Auditable
     }
 
 
-
+    
     /* Funciones */
     /**
      * Obtener la ultima autorizacion de una transaccion 
      */
-    public static function obtenerUltimaAutorizacion($transaccion_id, $autorizacion_id)
+    public static function ultimaAutorizacion($id)
     {
-        $transaccion = TransaccionBodega::find($transaccion_id);
-        $autorizacion = Autorizacion::find($autorizacion_id);
-        /* $ultima_act = Autorizacion::with(['autorizaciones'=>function ($query) use($id){
-            $query->where('transaccion_id', $id);
-        }])->whereHas('autorizacion_id', function($query) use($id){
-            $query->where('transaccion_id', $id);
-        })->get(); */
-        $ultima_act = $transaccion->autorizaciones()
-            ->orderBy('created_at', 'asc')->first();
-
-        //$ultima = TiemposAutorizacionTransaccion::where('transaccion_id', $transaccion->id)->orderBy('created_at', 'desc')->limit(1)->get();
-        $ultima = TiempoAutorizacionTransaccion::where('transaccion_id', $transaccion->id)->latest()->limit(1)->get();
-        //return [$transaccion->nombre, $ultima->observacion];
-        $aut = null;
-
-        if (!$ultima) {
-            //
-        }
-
-        foreach ($ultima as $ult) {
-            $aut = $ult->autorizacion_id;
-            $obs = $ult->observacion;
-        }
-        Log::channel('testing')->info('Log', ['ultima?:', $aut]);
-        $nombre = Autorizacion::find($aut);
-        return [
-            $nombre->nombre,
-            $obs
-        ];
+        $autorizaciones = TransaccionBodega::find($id)->autorizaciones()->get();
+        $autorizacion = $autorizaciones->first();
+        return $autorizacion;
+    }
+    public static function ultimoEstado($id)
+    {
+        $observaciones = TransaccionBodega::find($id)->estados()->get();
+        $observacion = $observaciones->first();
+        return $observacion;
     }
 }

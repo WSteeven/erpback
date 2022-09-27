@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TipoTransaccionRequest;
 use App\Http\Resources\TipoTransaccionResource;
 use App\Models\TipoTransaccion;
+use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class TipoTransaccionController extends Controller
@@ -13,9 +14,16 @@ class TipoTransaccionController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = TipoTransaccionResource::collection(TipoTransaccion::all());
+        $tipo = $request['tipo'];
+        $results = [];
+        if($tipo){
+            $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+        }else{
+            $results = TipoTransaccionResource::collection(TipoTransaccion::all());
+        }
+
         return response()->json(compact('results'));
     }
 
