@@ -61,5 +61,74 @@
             "created_at": "2022-09-27T14:15:20.000000Z",
             "updated_at": "2022-09-27T14:15:20.000000Z"
         }
+    },
+    {
+        "id": null,
+        "autorizacion": 2,
+        "observacion_aut": "AUTORIZA COORDINADOR",
+        "justificacion": "PRUEBA",
+        "fecha_limite": null,
+        "estado": 2,
+        "observacion_est": "N.A",
+        "solicitante": 3,
+        "tipo": "MERCADERIA DE CLIENTE",
+        "subtipo": 1,
+        "sucursal": 1,
+        "autoriza": null,
+        "atiende": null,
+        "lugar_destino": "MACHALA",
+        "created_at": "2022-09-28",
+        "tiene_obs_autorizacion": true,
+        "tiene_obs_estado": true,
+        "per_autoriza": 3
+    },
+    {
+        "autorizacion": 2,
+        "observacion_aut": "AUTORIZA COORDINADOR",
+        "justificacion": "PRUEBA",
+        "fecha_limite": null,
+        "estado": 2,
+        "observacion_est": "N.A",
+        "solicitante": 3,
+        "subtipo": 1,
+        "sucursal": 1,
+        "per_autoriza": 3,
+        "lugar_destino": "MACHALA",
+        "subtipo_id": 1,
+        "solicitante_id": 3,
+        "sucursal_id": 1,
+        "per_autoriza_id": 3,
+        "autorizacion_id": 2,
+        "estado_id": 2
+    },
+    {
+        "id": 1,
+        "nombre": "COMPRA A PROVEEDOR",
+        "tipo": "INGRESO"
+    },
+    {
+        "id": 2,
+        "nombre": "MERCADERIA DE CLIENTE",
+        "tipo": "INGRESO"
+    },
+    {
+        "id": 3,
+        "nombre": "DEVOLUCION DEL PERSONAL",
+        "tipo": "INGRESO"
+    },
+    {
+        "id": 4,
+        "nombre": "DEVOLUCION DE TAREA",
+        "tipo": "INGRESO"
+    },
+    {
+        "id": 5,
+        "nombre": "STOCK INICIAL",
+        "tipo": "INGRESO"
+    },
+    {
+        "id": 11,
+        "nombre": "TRANSFERENCIA ENTRE BODEGAS",
+        "tipo": "INGRESO"
     }
 ]

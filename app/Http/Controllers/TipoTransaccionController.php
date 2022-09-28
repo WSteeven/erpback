@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TipoTransaccionRequest;
 use App\Http\Resources\TipoTransaccionResource;
 use App\Models\TipoTransaccion;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class TipoTransaccionController extends Controller
@@ -19,12 +21,24 @@ class TipoTransaccionController extends Controller
         $tipo = $request['tipo'];
         $results = [];
         if($tipo){
-            $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+            $datos = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+            $results= TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+            if(auth()->user()->hasRole(User::ROL_BODEGA)){
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')->get());
+                return response()->json(compact('results'));        
+            }
+            if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')->get());
+                return response()->json(compact('results'));
+            }
+            if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')->get());
+                return response()->json(compact('results'));
+            }
         }else{
             $results = TipoTransaccionResource::collection(TipoTransaccion::all());
+            return response()->json(compact('results'));
         }
-
-        return response()->json(compact('results'));
     }
 
     /**

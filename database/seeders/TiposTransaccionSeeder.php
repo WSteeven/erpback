@@ -33,15 +33,24 @@ class TiposTransaccionSeeder extends Seeder
 
         /* EGRESOS */
         TipoTransaccion::create(['nombre'=>'DESPACHO', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'DESPACHO','tipo_transaccion_id'=>6]);
         TipoTransaccion::create(['nombre'=>'DESPACHO DE TAREA', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'DESPACHO DE TAREA','tipo_transaccion_id'=>7]);
         TipoTransaccion::create(['nombre'=>'DEVOLUCION A PROVEEDOR', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'DEVOLUCION A PROVEEDOR','tipo_transaccion_id'=>8]);
         TipoTransaccion::create(['nombre'=>'REPOSICION', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'REPOSICION','tipo_transaccion_id'=>9]);
         TipoTransaccion::create(['nombre'=>'VENTA', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'VENTA','tipo_transaccion_id'=>10]);
 
         /* BIDIRECCIONALES */
         TipoTransaccion::create(['nombre'=>'TRANSFERENCIA ENTRE BODEGAS', 'tipo'=>'INGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'TRANSFERENCIA ENTRE BODEGAS','tipo_transaccion_id'=>11]);
         TipoTransaccion::create(['nombre'=>'TRANSFERENCIA ENTRE BODEGAS', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'TRANSFERENCIA ENTRE BODEGAS','tipo_transaccion_id'=>12]);
         TipoTransaccion::create(['nombre'=>'LIQUIDACION DE MATERIALES', 'tipo'=>'INGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'LIQUIDACION DE MATERIALES','tipo_transaccion_id'=>13]);
         TipoTransaccion::create(['nombre'=>'LIQUIDACION DE MATERIALES', 'tipo'=>'EGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'LIQUIDACION DE MATERIALES','tipo_transaccion_id'=>14]);
     }
 }

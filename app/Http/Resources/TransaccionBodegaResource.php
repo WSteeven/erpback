@@ -15,7 +15,6 @@ class TransaccionBodegaResource extends JsonResource
      */
     public function toArray($request)
     {
-        //[$nom, $obs]  = TransaccionesBodega::obtenerUltimaAutorizacion($this->id, $this->autorizacion_id);
         $controller_method = $request->route()->getActionMethod();
         $autorizacion = TransaccionBodega::ultimaAutorizacion($this->id);
         $estado = TransaccionBodega::ultimoEstado($this->id);
@@ -40,9 +39,9 @@ class TransaccionBodegaResource extends JsonResource
 
         if($controller_method=='show'){
             $modelo['solicitante_id']=$this->solicitante_id;
-            // $modelo['tipo_id']=$this->tipoTransaccion->id;
-            $modelo['subtipo_id']=$this->subtipo_id;
-            $modelo['sucursal_id']=$this->solicitante_id;
+            // $modelo['tipo']=$this->subtipo->tipoTransaccion->id;
+            $modelo['subtipo']=$this->subtipo_id;
+            $modelo['sucursal']=$this->sucursal_id;
             $modelo['per_autoriza_id']=$this->solicitante_id;
             $modelo['per_atiende_id']=$this->solicitante_id;
         }
