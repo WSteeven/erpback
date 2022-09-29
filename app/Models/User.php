@@ -23,6 +23,7 @@ class User extends Authenticatable implements Auditable
     //use UppercaseValuesTrait; // comentar por ahora
 
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
+    const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
     const ROL_BODEGA = 'BODEGA';
     const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_COMPRAS = 'COMPRAS';

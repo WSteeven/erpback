@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -42,9 +43,15 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])){
+            $this->merge([
+                'per_autoriza'=>auth()->user()->empleado->id,
+            ]);
+        }
         $this->merge([
             'solicitante'=>auth()->user()->empleado->id,
+            'per_autoriza'=>auth()->user()->empleado->jefe_id,
         ]);
-        //Log::channel('testing')->info('Log', ['Usuario es:', auth()->user()->empleado->id]);
+        //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);
     }
 }

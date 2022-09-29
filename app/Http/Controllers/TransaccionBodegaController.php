@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\SubtipoTransaccion;
 use App\Models\TransaccionBodega;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -15,7 +17,8 @@ class TransaccionBodegaController extends Controller
     public function __construct()
     {
         $this->middleware('can:puede.ver.transaccion')->only('index', 'show');
-        $this->middleware('can:puede.crear.transaccion')->only('store');
+        //$this->middleware('can:puede.crear.transaccion')->only('store');
+        $this->middleware('can:puede.crear.transacciones')->only('store');
         $this->middleware('can:puede.editar.transaccion')->only('update');
         $this->middleware('can:puede.autorizar.transaccion')->only('autorizar');
     }
@@ -35,42 +38,52 @@ class TransaccionBodegaController extends Controller
     public function store(TransaccionBodegaRequest $request)
     {
         Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
-        //Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['subtipo_id'] = $request->safe()->only(['subtipo'])['subtipo'];
-        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if ($request->per_atiende) {
-            $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        }
-        //datos de las relaciones muchos a muchos
-        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
         
-        Log::channel('testing')->info('Log', ['Datos modificados:', $datos]);
+        $subtipo = SubtipoTransaccion::find($request->subtipo);
+        $tipo_contable = $subtipo->tipoTransaccion->tipo;
 
-        //Respuesta
-        $transaccion = TransaccionBodega::create($datos);
-        $modelo = new TransaccionBodegaResource($transaccion);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
-        //Guardar la autorizacion con su observacion 
-        if ($request->observacion_aut) {
-            $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
-        } else {
-            $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
+        if(!(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])) && $tipo_contable==='INGRESO'){
+            Log::channel('testing')->info('Log', ['No pasó la validacion, solo los coordinadores y bodegueros pueden hacer ingresos']);
+            return response()->json(compact('Este usuario no puede realizar ingreso de materiales', 'modelo'));
+        }else{
+            Log::channel('testing')->info('Log', ['Pasó la validacion, solo los coordinadores y bodegueros pueden hacer ingresos']);
+            //Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['subtipo_id'] = $request->safe()->only(['subtipo'])['subtipo'];
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            if ($request->per_atiende) {
+                $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+            }
+            //datos de las relaciones muchos a muchos
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            
+            Log::channel('testing')->info('Log', ['Datos modificados:', $datos]);
+    
+            //Respuesta
+            $transaccion = TransaccionBodega::create($datos);
+            $modelo = new TransaccionBodegaResource($transaccion);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+    
+            //Guardar la autorizacion con su observacion 
+            if ($request->observacion_aut) {
+                $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
+            } else {
+                $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
+            }
+    
+            //Guardar el estado con su observacion
+            if ($request->observacion_est) {
+                //Log::channel('testing')->info('Log', ['Segundo IF:', $transaccion->observacion_est]);
+                $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['observacion_est']]);
+            } else {
+                $transaccion->estados()->attach($datos['estado_id']);
+            }
+    
+            return response()->json(compact('mensaje', 'modelo'));
         }
-
-        //Guardar el estado con su observacion
-        if ($request->observacion_est) {
-            //Log::channel('testing')->info('Log', ['Segundo IF:', $transaccion->observacion_est]);
-            $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['observacion_est']]);
-        } else {
-            $transaccion->estados()->attach($datos['estado_id']);
-        }
-
-        return response()->json(compact('mensaje', 'modelo'));
     }
 
 

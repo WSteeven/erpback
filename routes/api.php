@@ -40,6 +40,7 @@ use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -72,7 +73,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return new UserResource($request->user());
 });
 
-// El frontend usa esta ruta para obtener los permisos del usuario autenticado
+// El frontend usa esta ruta para obtener los roles y permisos del usuario autenticado
+Route::middleware('auth:sanctum')->get('/user/roles', function (Request $request) {
+    return $request->user()->getRoleNames();
+});
 Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
     return $request->user()->allPermissions;
 });
