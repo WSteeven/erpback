@@ -19,6 +19,7 @@ class TiposTransaccionSeeder extends Seeder
         /* INGRESOS */
         //
         TipoTransaccion::create(['nombre'=>'COMPRA A PROVEEDOR', 'tipo'=>'INGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'COMPRA A PROVEEDOR','tipo_transaccion_id'=>1]);
         TipoTransaccion::create(['nombre'=>'MERCADERIA DE CLIENTE', 'tipo'=>'INGRESO']);
         SubtipoTransaccion::create(['nombre'=>'ABASTECIMIENTO DE STOCK','tipo_transaccion_id'=>2]);
         SubtipoTransaccion::create(['nombre'=>'MATERIALES PARA TAREAS','tipo_transaccion_id'=>2]);
@@ -30,6 +31,7 @@ class TiposTransaccionSeeder extends Seeder
         TipoTransaccion::create(['nombre'=>'DEVOLUCION DE TAREA', 'tipo'=>'INGRESO']);
         SubtipoTransaccion::create(['nombre'=>'FINALIZACION DE TAREA','tipo_transaccion_id'=>4]);
         TipoTransaccion::create(['nombre'=>'STOCK INICIAL', 'tipo'=>'INGRESO']);
+        SubtipoTransaccion::create(['nombre'=>'STOCK INICIAL','tipo_transaccion_id'=>5]);
 
         /* EGRESOS */
         TipoTransaccion::create(['nombre'=>'DESPACHO', 'tipo'=>'EGRESO']);

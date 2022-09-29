@@ -31,8 +31,11 @@ class TipoTransaccionController extends Controller
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')->get());
                 return response()->json(compact('results'));
             }
-            if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
-                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')->get());
+            if(!auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])){
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
+                    ->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')
+                    ->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')
+                    ->get());
                 return response()->json(compact('results'));
             }
         }else{

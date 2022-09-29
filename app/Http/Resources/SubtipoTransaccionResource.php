@@ -20,8 +20,9 @@ class SubtipoTransaccionResource extends JsonResource
         $modelo = [
             'id'=>$this->id,
             'nombre'=>$this->nombre,
-            // 'tipo_transaccion'=>is_null($this->tipo_transaccion)?null :$this->tipo_transaccion->nombre,
             'tipo_transaccion'=>$this->tipoTransaccion->nombre,
+            'tipo_transaccion_id'=>$this->tipo_transaccion_id,
+            // 'tipo_transaccion'=>is_null($this->tipo_transaccion)?null :$this->tipo_transaccion->nombre,
         ];
 
         if($controller_method=='show'){
