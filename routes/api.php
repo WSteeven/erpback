@@ -37,6 +37,7 @@ use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
+use App\Http\Controllers\TableroController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -51,7 +52,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+Route::get('tablero', [TableroController::class, 'index']);
 // Rutas de user (para pruebas) 
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
