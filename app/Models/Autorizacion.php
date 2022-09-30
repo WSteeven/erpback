@@ -26,6 +26,9 @@ class Autorizacion extends Model implements Auditable
      */
     public function transacciones()
     {
-        return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')->withPivot('observacion');
+        return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')
+            ->withPivot('observacion')
+            ->withTimestamps()
+            ->orderByPivot('created_at', 'desc');
     }
 }

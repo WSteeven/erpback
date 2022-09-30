@@ -81,7 +81,12 @@ class TransaccionBodegaController extends Controller
             } else {
                 $transaccion->estados()->attach($datos['estado_id']);
             }
-    
+
+            foreach($request->listadoProductosSeleccionados as $listado){
+                Log::channel('testing')->info('Log', ['Listado recibido en el foreach:', $listado]);
+                $transaccion->productos()->attach($listado['id'], ['cantidad_inicial'=>$listado['cantidades']]);
+            }
+            Log::channel('testing')->info('Log', ['Los productos se guardaron en el detalle']);
             return response()->json(compact('mensaje', 'modelo'));
         }
     }

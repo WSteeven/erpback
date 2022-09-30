@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('producto_id');
             $table->unsignedBigInteger('transaccion_id');
-            $table->integer('cantidad_inicial');
-            $table->integer('cantidad final');
+            $table->integer('cantidad_inicial')->required(); //la cantidad solicitada/registrada al inicio de la solicitud
+            $table->integer('cantidad final')->default(0)->nullable(); //la cantidad despachada/devuelta
             $table->timestamps();
 
             $table->foreign('producto_id')->references('id')->on('productos');

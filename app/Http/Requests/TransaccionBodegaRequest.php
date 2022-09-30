@@ -38,20 +38,40 @@ class TransaccionBodegaRequest extends FormRequest
             'per_autoriza'=>'required|exists:empleados,id',
             'per_atiende'=>'sometimes|exists:empleados,id',
             'lugar_destino'=>'nullable|string',
+            'listadoProductosSeleccionados.*.cantidades'=>'required'
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'listadoProductosSeleccionados.*.cantidades'=>'listado',
+        ];
+    }
+    
+    
+    public function messages()
+    {
+        return [
+            'listadoProductosSeleccionados.*.cantidades'=>'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
 
     protected function prepareForValidation()
     {
-        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])){
+        $this->merge([
+            'solicitante'=>auth()->user()->empleado->id,
+        ]);
+
+        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])){
             $this->merge([
                 'per_autoriza'=>auth()->user()->empleado->id,
             ]);
+        }else{
+            $this->merge([            
+                'per_autoriza'=>auth()->user()->empleado->jefe_id,
+            ]);
         }
-        $this->merge([
-            'solicitante'=>auth()->user()->empleado->id,
-            'per_autoriza'=>auth()->user()->empleado->jefe_id,
-        ]);
         //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);
     }
 }
