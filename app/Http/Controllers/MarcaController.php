@@ -13,6 +13,15 @@ use Src\Shared\Utils;
 class MarcaController extends Controller
 {
     private $entidad = 'Marca';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.marcas')->only('index', 'show');
+        $this->middleware('can:puede.crear.marcas')->only('store');
+        $this->middleware('can:puede.editar.marcas')->only('update');
+        $this->middleware('can:puede.eliminar.marcas')->only('update');
+
+    }
+
     /**
      * Listar
      */

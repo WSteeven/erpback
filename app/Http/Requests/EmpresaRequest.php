@@ -53,7 +53,7 @@ class EmpresaRequest extends FormRequest
         $validator->after(function ($validator) {
             if(substr_count($this->identificacion,'9')<9){
                 $validador = new ValidarIdentificacion();
-                $existeRUC = Http::timeout(3)->get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc='.$this->identificacion);
+                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc='.$this->identificacion);
                 if(!(($validador->validarCedula($this->identificacion))||($existeRUC->body()=='true'))){
                     $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
                 }

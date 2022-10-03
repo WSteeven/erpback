@@ -45,13 +45,14 @@ class RoleSeeder extends Seeder
         // -----------------
         // Modulo de Bodega
         // -----------------
-        Permission::firstOrCreate(['name' => 'puede.ver.modulo_bodega'])->assignRole($activos_fijos, $administrativo, $bodega, $empleado);
+        Permission::firstOrCreate(['name' => 'puede.ver.modulo_bodega'])->syncRoles([$activos_fijos, $administrativo, $bodega, $coordinador]);
         // Autorizaciones
         Permission::firstOrCreate(['name' => 'puede.ver.autorizaciones']);
         //Categorias
-        Permission::firstOrCreate(['name' => 'puede.ver.categorias'])->syncRoles([$activos_fijos, $empleado]);
+        Permission::firstOrCreate(['name' => 'puede.ver.categorias'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.crear.categorias'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.categorias'])->assignRole($activos_fijos);
+        // Permission::firstOrCreate(['name' => 'puede.eliminar.categorias'])->assignRole($activos_fijos);
         //Condiciones
         Permission::firstOrCreate(['name' => 'puede.ver.condiciones']);
         //Estados de transacciones
@@ -59,13 +60,13 @@ class RoleSeeder extends Seeder
         // Hilos
         Permission::firstOrCreate(['name' => 'puede.ver.hilos']);
         //Marcas
-        Permission::firstOrCreate(['name' => 'puede.ver.marcas'])->syncRoles($activos_fijos, $empleado);
-        Permission::firstOrCreate(['name' => 'puede.crear.marcas'])->assignRole($activos_fijos);
-        Permission::firstOrCreate(['name' => 'puede.editar.marcas'])->assignRole($activos_fijos);
+        Permission::firstOrCreate(['name' => 'puede.ver.marcas'])->syncRoles($activos_fijos, $bodega);
+        Permission::firstOrCreate(['name' => 'puede.crear.marcas'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.editar.marcas'])->assignRole($bodega);
         //Modelos
-        Permission::firstOrCreate(['name' => 'puede.ver.modelos'])->syncRoles($activos_fijos, $empleado);
-        Permission::firstOrCreate(['name' => 'puede.crear.modelos'])->assignRole($activos_fijos);
-        Permission::firstOrCreate(['name' => 'puede.editar.modelos'])->assignRole($activos_fijos);
+        Permission::firstOrCreate(['name' => 'puede.ver.modelos'])->syncRoles($activos_fijos, $bodega);
+        Permission::firstOrCreate(['name' => 'puede.crear.modelos'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.editar.modelos'])->assignRole($bodega);
         //Productos
         Permission::firstOrCreate(['name' => 'puede.ver.productos'])->syncRoles($activos_fijos, $empleado);
         Permission::firstOrCreate(['name' => 'puede.crear.productos'])->assignRole($activos_fijos);

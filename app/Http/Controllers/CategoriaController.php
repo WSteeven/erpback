@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessagePruebaEvent;
+use App\Events\PruebaEvent;
 use App\Http\Requests\CategoriaRequest;
 use App\Http\Resources\CategoriaResource;
 use App\Models\Categoria;
@@ -12,13 +14,14 @@ use Src\Shared\Utils;
 class CategoriaController extends Controller
 {
     private $entidad = 'Categoria';
-    /* public function __construct()
+    public function __construct()
     {
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
         $this->middleware('can:puede.crear.categorias')->only('store');
         $this->middleware('can:puede.editar.categorias')->only('update');
+        $this->middleware('can:puede.eliminar.categorias')->only('update');
 
-    } */
+    }
 
     /**
      * Listar
@@ -34,6 +37,8 @@ class CategoriaController extends Controller
         }else{
             $results = CategoriaResource::collection(Categoria::all());
         }
+
+        event(new NewMessagePruebaEvent("Evento con el Listado de todas las categorias"));
         return response()->json(compact('results'));
     }
 
@@ -47,6 +52,7 @@ class CategoriaController extends Controller
         $modelo = new CategoriaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
+        event(new PruebaEvent("Se ha creado una categoria nueva"));
         return response()->json(compact('mensaje', 'modelo'));
     }
 
