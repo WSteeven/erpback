@@ -11,7 +11,14 @@ use Src\Shared\Utils;
 class AutorizacionController extends Controller
 {
     private $entidad = 'Autorizacion';
-    
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.autorizaciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.autorizaciones')->only('store');
+        $this->middleware('can:puede.editar.autorizaciones')->only('update');
+        $this->middleware('can:puede.eliminar.autorizaciones')->only('update');
+
+    }
     /**
      * Listar 
      */

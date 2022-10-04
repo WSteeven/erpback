@@ -38,7 +38,8 @@ class CategoriaController extends Controller
             $results = CategoriaResource::collection(Categoria::all());
         }
 
-        event(new NewMessagePruebaEvent("Evento con el Listado de todas las categorias"));
+        // event(new NewMessagePruebaEvent("Evento con el Listado de todas las categorias"));
+
         return response()->json(compact('results'));
     }
 
@@ -52,7 +53,7 @@ class CategoriaController extends Controller
         $modelo = new CategoriaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new PruebaEvent("Se ha creado una categoria nueva"));
+        // event(new PruebaEvent("Se ha creado una categoria nueva"));
         return response()->json(compact('mensaje', 'modelo'));
     }
 

@@ -30,6 +30,10 @@ class Sucursal extends Model implements Auditable
         return $this->hasMany(ControlStock::class);
     }
 
+    /**
+     * Relación uno a muchos.
+     * Una sucursal tiene muchos empleados
+     */
     public function empleados()
     {
         return $this->hasMany(Empleado::class);

@@ -5,19 +5,31 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
+use App\Models\User;
+use DateTime;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.empleados')->only('index', 'show');
+        $this->middleware('can:puede.crear.empleados')->only('store');
+        $this->middleware('can:puede.editar.empleados')->only('update');
+        $this->middleware('can:puede.eliminar.empleados')->only('update');
 
+    }
     /**
      * Listar
      */
     public function index()
     {
-        $results = EmpleadoResource::collection(Empleado::all());
+        $results = EmpleadoResource::collection(Empleado::all()->except(1));
         return response()->json(compact('results'));
     }
 
@@ -26,12 +38,43 @@ class EmpleadoController extends Controller
  */
     public function store(EmpleadoRequest $request)
     {
-        //Respuesta
-        $modelo = Empleado::create($request->validated());
-        $modelo = new EmpleadoResource($modelo);
+        Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
+        //adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
+        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        
+        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+
+        try {
+            DB::beginTransaction();
+            $user = User::create([
+                'name' => $datos['nombres'] . ' ' . $datos['apellidos'],
+                'email' => $datos['email'],
+                'password' => bcrypt($datos['password']),
+            ])->assignRole($datos['roles']);
+            $datos['usuario_id']=$user->id;
+            Log::channel('testing')->info('Log', ['Datos validados 2:', $datos]);
+            $user->empleado()->create([
+                'nombres' => $datos['nombres'],
+                'apellidos' => $datos['apellidos'],
+                'identificacion' => $datos['identificacion'],
+                'telefono' => $datos['telefono'],
+                'fecha_nacimiento' => new DateTime($datos['fecha_nacimiento']),
+                'jefe_id' => $datos['jefe_id'],
+                'sucursal_id' => $datos['sucursal_id']
+            ]);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
+        }
+
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(compact('mensaje', 'modelo'));
+        return response()->json(compact('mensaje'));
     }
 
 /**

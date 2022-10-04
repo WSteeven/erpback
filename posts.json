@@ -178,5 +178,44 @@
             }
         ],
         "per_autoriza": 2
+    },
+    {
+        "identificacion": "1234567894",
+        "nombres": "1234567899",
+        "apellidos": "CFVF",
+        "telefono": "1234567899",
+        "email": "nuevo@jp.com",
+        "password": "PASSWORD",
+        "fecha_nacimiento": "2019-12-30",
+        "jefe": 12,
+        "sucursal": 1,
+        "roles": [
+            2,
+            5,
+            6,
+            7
+        ],
+        "jefe_id": 12,
+        "sucursal_id": 1
+    },
+    {
+        "identificacion": "1234567894",
+        "nombres": "1234567899",
+        "apellidos": "CFVF",
+        "telefono": "1234567899",
+        "email": "nuevo@jp.com",
+        "password": "PASSWORD",
+        "fecha_nacimiento": "2019-12-30",
+        "jefe": 12,
+        "sucursal": 1,
+        "roles": [
+            2,
+            5,
+            6,
+            7
+        ],
+        "jefe_id": 12,
+        "sucursal_id": 1,
+        "usuario_id": 16
     }
 ]

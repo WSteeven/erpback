@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EmpleadoRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class EmpleadoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,15 +25,25 @@ class EmpleadoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules= [
             'identificacion'=>'string|required|min:10|max:13',
             'nombres'=>'required|string',
             'apellidos'=>'string',
             'telefono'=>'required|min:7|max:13',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
             'fecha_nacimiento'=>'required|date',
-            'jefe_id'=>'required|exists:empleados,id',
-            'usuario_id'=>'required|exists:users,id',
-            'sucursal_id'=>'required|exists:sucursales,id',
+            'jefe'=>'required|exists:empleados,id',
+            'sucursal'=>'required|exists:sucursales,id',
+            'roles'=>'required|exists:roles,id'
         ];
+
+        if(in_array($this->method(), ['PUT', 'PATCH'])){
+            $user = User::find($this->route()->parameter('empleado.usuario_id'));
+
+            $rules['email']=[Rule::unique('users')->ignore($user)];
+        }
+
+        return $rules;
     }
 }

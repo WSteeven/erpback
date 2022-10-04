@@ -11,7 +11,14 @@ use Src\Shared\Utils;
 class CodigoClienteController extends Controller
 {
     private $entidad = 'Codigo de cliente';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.codigos_clientes')->only('index', 'show');
+        $this->middleware('can:puede.crear.codigos_clientes')->only('store');
+        $this->middleware('can:puede.editar.codigos_clientes')->only('update');
+        $this->middleware('can:puede.eliminar.codigos_clientes')->only('update');
 
+    }
     /**
      * Listar
      */

@@ -11,10 +11,14 @@ use Src\Shared\Utils;
 class CondicionController extends Controller
 {
     private $entidad = 'Condicion';
-
-    /**
-     * Listar
-     */
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.condiciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.condiciones')->only('store');
+        $this->middleware('can:puede.editar.condiciones')->only('update');
+        $this->middleware('can:puede.eliminar.condiciones')->only('update');
+    }
+    /** Listar*/
     public function index()
     {
         $results = CondicionResource::collection(Condicion::all());

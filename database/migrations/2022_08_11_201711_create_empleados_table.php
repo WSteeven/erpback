@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Empleado;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,10 +24,8 @@ return new class extends Migration
             $table->unsignedBigInteger('jefe_id')->nullable();
             $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
             $table->unsignedBigInteger('sucursal_id');
-            $table->unsignedBigInteger('grupo_id')->nullable();
-            $table->boolean('estado')->default(true);
+            $table->enum('estado', [Empleado::ACTIVO, Empleado::INACTIVO])->default(Empleado::ACTIVO);
             $table->timestamps();
-
 
             /* $table->double('saldo_inicial')->nullable();
             $table->date('fecha_inicio')->nullable();
@@ -36,7 +35,6 @@ return new class extends Migration
             $table->foreign('jefe_id')->references('id')->on('empleados')->onDelete(null)->onUpdate('cascade');
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
-            $table->foreign('grupo_id')->references('id')->on('grupos');
 
         });
     }

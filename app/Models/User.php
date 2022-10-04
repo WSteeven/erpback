@@ -29,9 +29,11 @@ class User extends Authenticatable implements Auditable
     const ROL_COMPRAS = 'COMPRAS';
     const ROL_EMPLEADO = 'EMPLEADO';
     const ROL_TECNICO = 'TECNICO';
+    const ROL_TECNICO_LIDER = 'TECNICO LIDER';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
+    const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
 
     /**
      * The attributes that are mass assignable.
@@ -69,10 +71,10 @@ class User extends Authenticatable implements Auditable
      * Relacion uno a muchos
      * Un usuario es solicitante de varias transacciones
      */
-    public function transacciones()
+    /*public function transacciones()
     {
         return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
-    }
+    } */
     
     // Relacion uno a uno
     public function empleado()
