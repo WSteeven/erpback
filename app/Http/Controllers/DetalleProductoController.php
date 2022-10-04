@@ -12,14 +12,13 @@ use Src\Shared\Utils;
 class DetalleProductoController extends Controller
 {
     private $entidad = 'Detalle de producto';
-    /* public function __construct()
+    public function __construct()
     {
-        $this->middleware('can:puede.ver.DetallesProductos')->only('index', 'show');
-        $this->middleware('can:puede.crear.DetallesProductos')->only('store');
-        $this->middleware('can:puede.editar.DetallesProductos')->only('update');
-        $this->middleware('can:puede.eliminar.DetallesProductos')->only('destroy');
-
-    } */
+        $this->middleware('can:puede.ver.detalles')->only('index', 'show');
+        $this->middleware('can:puede.crear.detalles')->only('store');
+        $this->middleware('can:puede.editar.detalles')->only('update');
+        $this->middleware('can:puede.eliminar.detalles')->only('destroy');
+    }
 
     /**
      * Listar

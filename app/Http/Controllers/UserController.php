@@ -28,8 +28,8 @@ class UserController extends Controller
                 'name' => $request->nombres . ' ' . $request->apellidos,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
-            ])->assignRole($request->rol);
-            $user->empleados()->create([
+            ])->assignRole($request->roles);
+            $user->empleado()->create([
                 'nombres' => $request->nombres,
                 'apellidos' => $request->apellidos,
                 'identificacion' => $request->identificacion,
@@ -42,7 +42,7 @@ class UserController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([

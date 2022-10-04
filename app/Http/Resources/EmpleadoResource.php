@@ -14,15 +14,28 @@ class EmpleadoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id'=>$this->id,
             'identificacion'=>$this->identificacion,
             'nombres'=>$this->nombres,
             'apellidos'=>$this->apellidos,
             'telefono'=>$this->telefono,
             'fecha_nacimiento'=>$this->fecha_nacimiento,
-            'jefe_id'=>$this->jefe_id,
-            'usuario_id'=>$this->usuario_id,
-            'sucursal_id'=>$this->sucursal_id,
+            'email'=>$this->user? $this->user->email:'',
+            'jefe'=>$this->jefe? $this->jefe->nombres.' '.$this->jefe->apellidos:'N/A',
+            'usuario'=>$this->user->name,
+            'sucursal'=>$this->sucursal->lugar,
+            'estado'=>$this->estado,
+            'roles'=>$this->user->getRoleNames(),
         ];
+
+        if($controller_method=='show'){
+            $modelo['jefe'] = $this->jefe_id;
+            $modelo['usuario'] = $this->usuario_id;
+            $modelo['sucursal'] = $this->sucursal_id;
+        }
+
+        return $modelo;
     }
 }

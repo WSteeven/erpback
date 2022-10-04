@@ -69,6 +69,22 @@ class UserSeeder extends Seeder
         ]);
 
 
+        // RR HH
+        $recursos_humanos = User::create([
+            'name' => 'Luis Manuel',
+            'email' => 'manuel@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_RECURSOS_HUMANOS);
+        $recursos_humanos->empleado()->create([
+            'nombres' => 'MANUEL',
+            'apellidos' => 'PESANTEZ',
+            'identificacion' => '0784956230',
+            'telefono' => '0987456747',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '2',
+            'sucursal_id' => $localidad_machala->id
+        ]);
+        
         // Coordinador
         $coordinador_sto_domingo = User::create([
             'name' => 'Bryan Chamba',

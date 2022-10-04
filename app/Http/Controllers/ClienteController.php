@@ -14,6 +14,14 @@ use Src\Shared\Utils;
 class ClienteController extends Controller
 {
     private $entidad = 'Cliente';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.clientes')->only('index', 'show');
+        $this->middleware('can:puede.crear.clientes')->only('store');
+        $this->middleware('can:puede.editar.clientes')->only('update');
+        $this->middleware('can:puede.eliminar.clientes')->only('update');
+
+    }
     /**
      * Listar 
      */

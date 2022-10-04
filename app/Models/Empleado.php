@@ -21,10 +21,12 @@ class Empleado extends Model implements Auditable
 		'fecha_nacimiento',
 		'jefe_id',
 		'sucursal_id',
-		'grupo_id',
 		'estado',
 		'rol',
 	];
+
+    const ACTIVO = 'ACTIVO';
+    const INACTIVO = 'INACTIVO';
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -43,7 +45,7 @@ class Empleado extends Model implements Auditable
     // Relacion uno a uno (inversa)
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'usuario_id', 'id');
     }
 
     // Relacion muchos a muchos
@@ -51,15 +53,18 @@ class Empleado extends Model implements Auditable
         return $this->belongsToMany(Grupo::class);
     }
 
-    // Relacion uno a uno (inversa)
-    public function localidad()
+    /**
+     * Relación uno a muchos (inversa).
+     * Uno o más empleados pertenecen a una sucursal.
+     */
+    public function sucursal()
     {
-        return $this->belongsTo(Localidad::class);
+        return $this->belongsTo(Sucursal::class);
     }
 
     // Relacion uno a uno
-    public function jefes() {
-        return $this->hasOne(Empleado::class, 'jefe_id');
+    public function jefe() {
+        return $this->belongsTo(Empleado::class, 'jefe_id');
     }
 
     /**
