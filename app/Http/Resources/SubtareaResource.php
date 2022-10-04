@@ -28,7 +28,7 @@ class SubtareaResource extends JsonResource
             'tipo_instalacion' => $this->tipo_instalacion,
             'id_servicio' => $this->id_servicio,
             'ticket_phoenix' => $this->ticket_phoenix,
-            'tipo_tarea' => $this->tipo_tarea->nombre,
+            'tipo_trabajo' => $this->tipo_tarea->nombre,
             'tarea' => $this->tarea->codigo_tarea_jp,
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
         ];
