@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Src\Shared\ValidarIdentificacion;
 
 class EmpleadoRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class EmpleadoRequest extends FormRequest
     public function rules()
     {
         $rules= [
-            'identificacion'=>'string|required|min:10|max:13',
+            'identificacion'=>'string|required|unique:empleados,identificacion|min:10|max:13',
             'nombres'=>'required|string',
             'apellidos'=>'string',
             'telefono'=>'required|min:7|max:13',
@@ -35,15 +37,29 @@ class EmpleadoRequest extends FormRequest
             'fecha_nacimiento'=>'required|date',
             'jefe'=>'required|exists:empleados,id',
             'sucursal'=>'required|exists:sucursales,id',
-            'roles'=>'required|exists:roles,id'
+            'roles'=>'required|exists:roles,name',
+            'estado'=>['sometimes', Rule::in([Empleado::ACTIVO, Empleado::INACTIVO])],
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){
             $user = User::find($this->route()->parameter('empleado.usuario_id'));
 
+            $rules['identificacion']=[Rule::unique('empleados')->ignore($user)];
             $rules['email']=[Rule::unique('users')->ignore($user)];
+            $rules['password']='nullable';
         }
 
         return $rules;
+    }
+
+    public function withValidator($validator){
+        $validator->after(function( $validator){
+            $validador = new ValidarIdentificacion();
+            if(!$validador->validarCedula($this->identificacion)){
+                $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
+            }
+            // if(substr_count($this->identificacion, '9')<9){
+            // }
+        });
     }
 }

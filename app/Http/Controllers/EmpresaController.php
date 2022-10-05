@@ -10,6 +10,13 @@ use Src\Shared\Utils;
 class EmpresaController extends Controller
 {
     private $entidad = 'Empresa';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.empresas')->only('index', 'show');
+        $this->middleware('can:puede.crear.empresas')->only('store');
+        $this->middleware('can:puede.editar.empresas')->only('update');
+        $this->middleware('can:puede.eliminar.empresas')->only('destroy');
+    }
 
     /**
      * Listar

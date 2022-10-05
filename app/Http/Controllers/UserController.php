@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -56,28 +57,39 @@ class UserController extends Controller
     public function login(Request $request)
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['mensaje' => 'Usuario o contraseña incorrectos']);
+            return response()->json(['mensaje' => 'Usuario o contraseña incorrectos'], 401);
         }
-        $user = User::where('email', $request['email'])->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer']);
+        
+        $user = User::where('email', $request['email'])->where('status', true)->first();
+        if ($user) {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer'], 200);
+        }
+
+        return response()->json(["mensaje"=>"El usuario no esta activo"], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
     }
 
     public function show(Empleado $empleado)
     {
         $user = User::find($empleado->usuario_id);
-        return response()->json(['modelo'=>new UserResource($user)]);
+        return response()->json(['modelo' => new UserResource($user)]);
     }
 
-    public function update(UserRequest $request, Empleado $empleado){
+    public function update(UserRequest $request, Empleado $empleado)
+    {
         $user = User::find($empleado->usuario_id);
-        try{
+        try {
             $request->validated();
             DB::beginTransaction();
             $user->update([
                 'name' => $request->nombres . ' ' . $request->apellidos,
-                    'email' => $request->email,
-                    'password' => bcrypt($request->password),
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
             ]);
             $user->empleados()->update([
                 'nombres' => $request->nombres,
@@ -90,7 +102,7 @@ class UserController extends Controller
                 'grupo_id' => $request->grupo_id
             ]);
             DB::commit();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e]);
         }

@@ -18,6 +18,7 @@ class CategoriaSeeder extends Seeder
         /*
         Categorias
          */
+        Categoria::create(['nombre'=>'SUMINISTROS']);
         Categoria::create(['nombre'=>'UTILITARIOS']);
         Categoria::create(['nombre'=>'UNIFORMES']);
         Categoria::create(['nombre'=>'EPP']);

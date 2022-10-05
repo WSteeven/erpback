@@ -11,7 +11,13 @@ use Src\Shared\Utils;
 class TipoFibraController extends Controller
 {
     private $entidad = 'Tipo de fibra';
-
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.tipos_fibras')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_fibras')->only('store');
+        $this->middleware('can:puede.editar.tipos_fibras')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_fibras')->only('destroy');
+    }
     /**
      * Listar
      */

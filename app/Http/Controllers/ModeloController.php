@@ -17,7 +17,7 @@ class ModeloController extends Controller
         $this->middleware('can:puede.ver.modelos')->only('index', 'show');
         $this->middleware('can:puede.crear.modelos')->only('store');
         $this->middleware('can:puede.editar.modelos')->only('update');
-        $this->middleware('can:puede.eliminar.modelos')->only('update');
+        $this->middleware('can:puede.eliminar.modelos')->only('destroy');
 
     }
 

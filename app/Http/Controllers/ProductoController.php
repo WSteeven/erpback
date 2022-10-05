@@ -13,7 +13,13 @@ use Src\Shared\Utils;
 class ProductoController extends Controller
 {
     private $entidad = 'Producto';
-
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.productos')->only('index', 'show');
+        $this->middleware('can:puede.crear.productos')->only('store');
+        $this->middleware('can:puede.editar.productos')->only('update');
+        $this->middleware('can:puede.eliminar.productos')->only('destroy');
+    }
     /**
      * Listar
      */

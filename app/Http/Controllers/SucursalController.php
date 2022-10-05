@@ -12,6 +12,13 @@ use Src\Shared\Utils;
 class SucursalController extends Controller
 {
     private $entidad = 'Sucursal';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.sucursales')->only('index', 'show');
+        $this->middleware('can:puede.crear.sucursales')->only('store');
+        $this->middleware('can:puede.editar.sucursales')->only('update');
+        $this->middleware('can:puede.eliminar.sucursales')->only('destroy');
+    }
 
     /**
      * Listar
