@@ -27,13 +27,14 @@ class EmpleadoResource extends JsonResource
             'usuario'=>$this->user->name,
             'sucursal'=>$this->sucursal->lugar,
             'estado'=>$this->estado,
-            'roles'=>$this->user->getRoleNames(),
+            'roles'=>implode(', ',$this->user->getRoleNames()->toArray())
         ];
 
         if($controller_method=='show'){
             $modelo['jefe'] = $this->jefe_id;
             $modelo['usuario'] = $this->usuario_id;
             $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['roles'] = $this->user->getRoleNames();
         }
 
         return $modelo;

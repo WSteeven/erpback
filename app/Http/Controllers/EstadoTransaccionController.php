@@ -12,6 +12,13 @@ use Src\Shared\Utils;
 class EstadoTransaccionController extends Controller
 {
     private $entidad = 'Estado';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.estados_transacciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.estados_transacciones')->only('store');
+        $this->middleware('can:puede.editar.estados_transacciones')->only('update');
+        $this->middleware('can:puede.eliminar.estados_transacciones')->only('destroy');
+    }
 
     /**
      * Listar

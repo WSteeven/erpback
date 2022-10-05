@@ -11,6 +11,13 @@ use Src\Shared\Utils;
 class HiloController extends Controller
 {
     private $entidad = 'Hilo';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.hilos')->only('index', 'show');
+        $this->middleware('can:puede.crear.hilos')->only('store');
+        $this->middleware('can:puede.editar.hilos')->only('update');
+        $this->middleware('can:puede.eliminar.hilos')->only('destroy');
+    }
 
     /**
      * Listar

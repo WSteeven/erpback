@@ -18,7 +18,7 @@ class MarcaController extends Controller
         $this->middleware('can:puede.ver.marcas')->only('index', 'show');
         $this->middleware('can:puede.crear.marcas')->only('store');
         $this->middleware('can:puede.editar.marcas')->only('update');
-        $this->middleware('can:puede.eliminar.marcas')->only('update');
+        $this->middleware('can:puede.eliminar.marcas')->only('destroy');
 
     }
 

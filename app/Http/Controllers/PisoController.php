@@ -12,6 +12,13 @@ use Src\Shared\Utils;
 class PisoController extends Controller
 {
     private $entidad = 'Piso';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.pisos')->only('index', 'show');
+        $this->middleware('can:puede.crear.pisos')->only('store');
+        $this->middleware('can:puede.editar.pisos')->only('update');
+        $this->middleware('can:puede.eliminar.pisos')->only('destroy');
+    }
 
     /**
      * Listar

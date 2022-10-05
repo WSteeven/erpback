@@ -21,8 +21,7 @@ class EmpleadoController extends Controller
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
         $this->middleware('can:puede.editar.empleados')->only('update');
-        $this->middleware('can:puede.eliminar.empleados')->only('update');
-
+        $this->middleware('can:puede.eliminar.empleados')->only('destroy');
     }
     /**
      * Listar
@@ -93,6 +92,7 @@ class EmpleadoController extends Controller
     {
         //Respuesta
         $empleado->update($request->validated());
+        $empleado->user()->update(['status' => $request->estado=='ACTIVO'?true:false]);
         $modelo = new EmpleadoResource($empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

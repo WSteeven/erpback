@@ -11,6 +11,13 @@ use Src\Shared\Utils;
 class SubtipoTransaccionController extends Controller
 {
     private $entidad = 'Subtipo de transaccion';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.subtipos_transacciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.subtipos_transacciones')->only('store');
+        $this->middleware('can:puede.editar.subtipos_transacciones')->only('update');
+        $this->middleware('can:puede.eliminar.subtipos_transacciones')->only('destroy');
+    }
 
     /**
      * Listar todos los subtipos de transacciones

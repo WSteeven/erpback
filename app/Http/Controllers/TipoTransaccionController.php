@@ -13,6 +13,13 @@ use Src\Shared\Utils;
 class TipoTransaccionController extends Controller
 {
     private $entidad = 'Tipo de transaccion';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.tipos_transacciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_transacciones')->only('store');
+        $this->middleware('can:puede.editar.tipos_transacciones')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_transacciones')->only('destroy');
+    }
     /**
      * Listar
      */

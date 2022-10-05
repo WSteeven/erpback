@@ -14,6 +14,13 @@ use Src\Shared\Utils;
 class UbicacionController extends Controller
 {
     private $entidad = 'Ubicacion';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.ubicaciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.ubicaciones')->only('store');
+        $this->middleware('can:puede.editar.ubicaciones')->only('update');
+        $this->middleware('can:puede.eliminar.ubicaciones')->only('destroy');
+    }
 
     /**
      * Listar

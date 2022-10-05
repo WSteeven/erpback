@@ -59,6 +59,7 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
     Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');
     Route::post('login', [UserController::class, 'login']);
+    Route::post('logout', [UserController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show'])->middleware('auth:sanctum');
     Route::put('actualizar/{empleado}', [UserController::class, 'update'])->middleware('auth:sanctum');
 });

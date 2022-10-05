@@ -11,6 +11,13 @@ use Src\Shared\Utils;
 class MovimientoProductoController extends Controller
 {
     private $entidad = 'Movimiento de Producto';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.movimientos_productos')->only('index', 'show');
+        $this->middleware('can:puede.crear.movimientos_productos')->only('store');
+        $this->middleware('can:puede.editar.movimientos_productos')->only('update');
+        $this->middleware('can:puede.eliminar.movimientos_productos')->only('destroy');
+    }
 
     /**
      * Listar

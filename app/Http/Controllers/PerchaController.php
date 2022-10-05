@@ -14,6 +14,14 @@ use Src\Shared\Utils;
 class PerchaController extends Controller
 {
     private $entidad = 'Percha';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.perchas')->only('index', 'show');
+        $this->middleware('can:puede.crear.perchas')->only('store');
+        $this->middleware('can:puede.editar.perchas')->only('update');
+        $this->middleware('can:puede.eliminar.perchas')->only('destroy');
+
+    }
 
     /**
      * Listar

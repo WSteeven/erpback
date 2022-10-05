@@ -11,6 +11,13 @@ use Src\Shared\Utils;
 class ProveedorController extends Controller
 {
     private $entidad = 'Proveedor';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
+        $this->middleware('can:puede.crear.proveedores')->only('store');
+        $this->middleware('can:puede.editar.proveedores')->only('update');
+        $this->middleware('can:puede.eliminar.proveedores')->only('destroy');
+    }
     /**
      * Listar
      */

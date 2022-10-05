@@ -16,11 +16,10 @@ class TransaccionBodegaController extends Controller
     private $entidad = 'Transaccion';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.transaccion')->only('index', 'show');
-        //$this->middleware('can:puede.crear.transaccion')->only('store');
+        $this->middleware('can:puede.ver.transacciones')->only('index', 'show');
         $this->middleware('can:puede.crear.transacciones')->only('store');
-        $this->middleware('can:puede.editar.transaccion')->only('update');
-        $this->middleware('can:puede.autorizar.transaccion')->only('autorizar');
+        $this->middleware('can:puede.editar.transacciones')->only('update');
+        $this->middleware('can:puede.eliminar.transacciones')->only('destroy');
     }
 
     /**
@@ -123,4 +122,5 @@ class TransaccionBodegaController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
 }
