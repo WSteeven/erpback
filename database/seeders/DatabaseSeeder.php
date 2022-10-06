@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ClienteProveedorSeeder::class);
         $this->call(ProductosSeeder::class);
         $this->call(HiloSeeder::class);
+        $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TiposTransaccionSeeder::class);

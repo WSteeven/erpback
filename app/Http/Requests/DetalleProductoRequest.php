@@ -31,11 +31,12 @@ class DetalleProductoRequest extends FormRequest
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
+            'span'=>'nullable|integer|exists:spans,id',
             'tipo_fibra'=>'nullable|integer|exists:tipo_fibras,id',
             'hilos'=>'nullable|integer|exists:hilos,id',
-            'punta_a' => 'nullable|integer',
-            'punta_b' => 'nullable|integer',
-            'punta_corte' => 'nullable|integer',
+            'punta_inicial' => 'nullable|integer',
+            'punta_final' => 'nullable|integer',
+            'custodia' => 'nullable|integer',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){
@@ -61,6 +62,11 @@ class DetalleProductoRequest extends FormRequest
         if(is_null($this->precio_compra)){
             $this->merge([
                 'precio_compra'=>0
+            ]);
+        }
+        if(is_null($this->custodia)){
+            $this->merge([
+                'custodia'=> $this->punta_inicial-$this->punta_final,
             ]);
         }
     }

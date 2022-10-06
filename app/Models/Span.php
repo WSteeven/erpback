@@ -5,17 +5,16 @@ namespace App\Models;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class TipoFibra extends Model implements Auditable
+class Span extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
 
-    protected $table = 'tipo_fibras';
+    protected $table = 'spans';
     protected $fillable = ['nombre'];
-
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -23,10 +22,11 @@ class TipoFibra extends Model implements Auditable
     ];
 
     /**
-     * Relacion uno a uno.
-     * Un tipo de fibra esta en 0 o 1 detalles de producto
+     * Relación uno a uno.
+     * Uno o más detalles de productos que sean fibra tienen un solo span
      */
-    public function detalle(){
-        return $this->hasOne(DetallesProducto::class);
+    public function detalle()
+    {
+        return $this->hasOne(DetalleProducto::class);
     }
 }
