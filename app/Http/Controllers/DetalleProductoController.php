@@ -39,6 +39,7 @@ class DetalleProductoController extends Controller
         $datos = $request->validated();
         $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
         $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+        $datos['span_id'] = $request->safe()->only(['span'])['span'];
         $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
         $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
         Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
@@ -69,6 +70,7 @@ class DetalleProductoController extends Controller
         $datos = $request->validated();
         $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
         $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+        $datos['span_id'] = $request->safe()->only(['span'])['span'];
         $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
         $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
         

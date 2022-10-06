@@ -24,12 +24,14 @@ class DetalleProductoResource extends JsonResource
             'modelo' => $this->modelo->nombre,
             'serial' => $this->serial,
             'precio_compra' => $this->precio_compra,
+            'span'=>$this->span==null?null: $this->span->nombre,
             'tipo_fibra'=>$this->tipo_fibra==null?null: $this->tipo_fibra->nombre,
             'categoria' => $this->producto->categoria->nombre,
             'hilos'=>$this->hilo==null?null: $this->hilo->nombre,
-            'punta_a' => $this->punta_a,
-            'punta_b' => $this->punta_b,
-            'punta_corte' => $this->punta_corte,
+            'punta_inicial' => $this->punta_inicial,
+            'punta_final' => $this->punta_final,
+            'custodia' => $this->custodia,
+            
             //variables auxiliares
             'tiene_serial'=>is_null($this->serial)?false:true,
             'es_fibra'=>$this->comprobarFibra($this->id),
@@ -38,6 +40,7 @@ class DetalleProductoResource extends JsonResource
         if ($controller_method == 'show') {
             $modelo['producto'] = $this->producto_id;
             $modelo['modelo'] = $this->modelo_id;
+            $modelo['span'] = $this->span;
             $modelo['tipo_fibra'] = $this->tipo_fibra_id;
             $modelo['hilos'] = $this->hilo_id;
         }

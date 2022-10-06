@@ -217,5 +217,16 @@
         "jefe_id": 12,
         "sucursal_id": 1,
         "usuario_id": 16
+    },
+    {
+        "_token": "7InswfnagvFYgIdCpeqwPaBoMLX0xao4KELXJajR",
+        "_previous": {
+            "url": "http://localhost:8000/api/tablero"
+        },
+        "_flash": {
+            "old": [],
+            "new": []
+        },
+        "login_web_59ba36addc2b2f9401580f014c7f58ea4e30989d": 3
     }
 ]

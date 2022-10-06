@@ -18,7 +18,7 @@ class ImagenProductoFactory extends Factory
     {
         return [
             'url' => fake()->imageUrl(150,150),
-            'detalle_id' => fake()->numberBetween(1,20)
+            'detalle_id' => fake()->numberBetween(1,18)
         ];
     }
 }

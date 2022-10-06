@@ -89,47 +89,6 @@ class MarcaSeeder extends Seeder
             'nombre'=>'SC/LC',
             'marca_id'=>1
         ]);
-        //16,17
-        Modelo::create([
-            'nombre'=>'DROP',
-            'marca_id'=>16
-        ]);
-        Modelo::create([
-            'nombre'=>'DROP',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'ADSS',
-            'marca_id'=>16
-        ]);
-        Modelo::create([
-            'nombre'=>'ADSS',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'SM',
-            'marca_id'=>16
-        ]);
-        Modelo::create([
-            'nombre'=>'SM',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'F8',
-            'marca_id'=>16
-        ]);
-        Modelo::create([
-            'nombre'=>'F8',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'MM',
-            'marca_id'=>16
-        ]);
-        Modelo::create([
-            'nombre'=>'MM',
-            'marca_id'=>17
-        ]);
         Modelo::create([
             'nombre'=>'STANDARD',
             'marca_id'=>7
@@ -139,19 +98,7 @@ class MarcaSeeder extends Seeder
             'marca_id'=>9
         ]);
         Modelo::create([
-            'nombre'=>'100 MTS',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'150 MTS',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'200 MTS',
-            'marca_id'=>17
-        ]);
-        Modelo::create([
-            'nombre'=>'250 MTS',
+            'nombre'=>'G652D',
             'marca_id'=>17
         ]);
     }

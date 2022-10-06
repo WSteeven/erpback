@@ -16,11 +16,14 @@ class HiloSeeder extends Seeder
      */
     public function run()
     {
-        Hilo::create(['nombre'=>48]);
         Hilo::create(['nombre'=>02]);
+        Hilo::create(['nombre'=>12]);
+        Hilo::create(['nombre'=>24]);
+        Hilo::create(['nombre'=>48]);
+        Hilo::create(['nombre'=>144]);
 
         
-        TipoFibra::create(['nombre'=>'F8']);
         TipoFibra::create(['nombre'=>'ADSS']);
+        TipoFibra::create(['nombre'=>'GYFS']);
     }
 }

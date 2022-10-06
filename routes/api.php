@@ -25,6 +25,7 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\SpanController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\SucursalController;
@@ -59,7 +60,7 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
     Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');
     Route::post('login', [UserController::class, 'login']);
-    Route::post('logout', [UserController::class, 'logout']);
+    Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
     Route::get('ver/{empleado}', [UserController::class, 'show'])->middleware('auth:sanctum');
     Route::put('actualizar/{empleado}', [UserController::class, 'update'])->middleware('auth:sanctum');
 });
@@ -111,6 +112,7 @@ Route::apiResources(
         'proveedores' => ProveedorController::class,
         'roles' => RolController::class,
         'sucursales' => SucursalController::class,
+        'spans' => SpanController::class,
         'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
         'subtipos-transacciones' => SubtipoTransaccionController::class,
