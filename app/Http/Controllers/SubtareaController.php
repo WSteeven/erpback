@@ -23,7 +23,7 @@ class SubtareaController extends Controller
         if ($tarea) {
             $results = SubtareaResource::collection(Subtarea::where('tarea_id', $tarea)->get());
         } else {
-            $results = SubtareaResource::collection(SubtareaResource::all());
+            $results = SubtareaResource::collection(Subtarea::all());
         }
 
         return response()->json(compact('results'));

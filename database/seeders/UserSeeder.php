@@ -156,7 +156,7 @@ class UserSeeder extends Seeder
             'email' => 'pramirez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_TECNICO);
+        ])->assignRole(User::ROL_TECNICO_LIDER);
         $tecnico->empleado()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'RAMIREZ',
