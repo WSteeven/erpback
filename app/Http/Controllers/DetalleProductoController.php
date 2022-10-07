@@ -34,7 +34,7 @@ class DetalleProductoController extends Controller
      */
     public function store(DetalleProductoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         //Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
@@ -42,7 +42,7 @@ class DetalleProductoController extends Controller
         $datos['span_id'] = $request->safe()->only(['span'])['span'];
         $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
         $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
-        Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
+        // Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
         //Respuesta
         $modelo = DetalleProducto::create($datos);
         $modelo = new DetalleProductoResource($modelo);
