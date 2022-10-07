@@ -35,7 +35,7 @@ class Inventario extends Model
      * Muchos inventarios tienen un mismo detalle
      */
     public function detalle(){
-        return $this->belongsTo(DetallesProducto::class);
+        return $this->belongsTo(DetalleProducto::class);
     }
     /**
      * Relacion uno a uno (inversa)

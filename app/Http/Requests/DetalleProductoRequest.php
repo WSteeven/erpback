@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Categoria;
+use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -56,6 +58,20 @@ class DetalleProductoRequest extends FormRequest
             'serial.unique'=>'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
     }
+
+    /* public function withValidator($validator){
+        $validator->after(function ($validator){
+            $producto = Producto::where('id',$this->producto)->get();
+            Log::channel('testing')->info('Log', ['producto', $producto->id]);
+            $categoria = Categoria::where('id', $producto->categoria)->get();
+            Log::channel('testing')->info('Log', ['categoria', $categoria]);
+            // $cat = $producto->categoria;
+            // Log::channel('testing')->info('Log', ['categoria', $cat]);
+            if($producto->categoria()->nombre==='INFORMATICA' || $producto->categoria()->nombre==='EQUIPOS'){
+                $validator->errors()->add('serial', 'Es necesario un numero de serie para categoría EQUIPOS e INFORMÁTICA');
+            }
+        });
+    } */
 
     protected function prepareForValidation()
     {
