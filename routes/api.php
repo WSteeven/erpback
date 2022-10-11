@@ -7,6 +7,7 @@ use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\ControlCambioController;
+use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
@@ -93,6 +94,7 @@ Route::apiResources(
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
+        'control-stocks' => ControlStockController::class,
         'codigos-clientes' => CodigoClienteController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,

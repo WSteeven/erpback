@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class InventarioResource extends JsonResource
+class ControlStockResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,25 +14,22 @@ class InventarioResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
-
-        $modelo =[
+        $modelo = [
             'id'=>$this->id,
             'producto'=>$this->detalle->producto->nombre,
             'detalle_id'=>$this->detalle->descripcion,
-            'cliente_id'=> $this->cliente->empresa->razon_social,
+            'cliente_id'=>$this->cliente->empresa->razon_social,
             'sucursal_id'=>$this->sucursal->lugar,
-            'condicion'=> $this->condicion->nombre,
-            'cantidad'=> $this->cantidad,
-            'prestados'=>$this->prestados,
+            'minimo'=>$this->minimo,
+            'reorden'=>$this->reorden,
             'estado'=>$this->estado,
         ];
+
         if($controller_method=='show'){
-            $modelo['detalle_id']=$this->detalle_id;
             $modelo['sucursal_id']=$this->sucursal_id;
+            $modelo['detalle_id']=$this->detalle_id;
             $modelo['cliente_id']=$this->cliente_id;
-            $modelo['condicion']=$this->condicion_id;
         }
 
         return $modelo;

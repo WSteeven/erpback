@@ -49,4 +49,12 @@ class Cliente extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class);
     }
+
+    /**
+     * Relación uno a muchos.
+     * Un cliente tiene un producto al que se le hace un control de stock para estar pendiente de su reabastecimiento
+     */
+    public function controlStock(){
+        return $this->hasMany(ControlStock::class);
+    }
 }

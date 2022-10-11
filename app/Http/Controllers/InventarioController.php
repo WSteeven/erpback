@@ -34,10 +34,10 @@ class InventarioController extends Controller
     {
         //Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
-        $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
+        // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
+        // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
         $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
-        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
+        // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
         $modelo = Inventario::create($datos);
         $modelo = new InventarioResource($modelo);
@@ -62,10 +62,10 @@ class InventarioController extends Controller
     {
         //Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
-        $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
+        // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
+        // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
         $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
-        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
+        // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
         $inventario->update($datos);
         $modelo = new InventarioResource($inventario->refresh());

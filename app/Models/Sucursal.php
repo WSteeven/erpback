@@ -27,7 +27,7 @@ class Sucursal extends Model implements Auditable
      */
     public function control_stocks()
     {
-        return $this->hasMany(ControlStock::class);
+        return $this->hasOne(ControlStock::class);
     }
 
     /**

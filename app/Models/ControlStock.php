@@ -9,6 +9,14 @@ class ControlStock extends Model
 {
     use HasFactory;
     protected $table = 'control_stocks';
+    protected $fillable = [
+        'detalle_id',
+        'sucursal_id',
+        'cliente_id',
+        'minimo',
+        'reorden',
+        'estado',
+    ];
 
     const SUFICIENTE = "STOCK SUFICIENTE";
     const REORDEN = "PROXIMO A AGOTARSE";
@@ -24,20 +32,41 @@ class ControlStock extends Model
      * Si sumatoria es menor al punto minimo, el estado debe ser @const MINIMO
      */
 
+    public static function controlExistencias($detalle_id, $sucursal_id, $cliente_id)
+    {
+        $cantidad = 0;
+        $elementos = Inventario::where('detalle_id', $detalle_id)
+            ->where('sucursal_id', $sucursal_id)
+            ->where('cliente_id', $cliente_id)->get();
+        foreach ($elementos as $elemento) {
+            $cantidad += $elemento->cantidad;
+        }
+        return $cantidad;
+    }
+
     /**
      * Relacion uno a muchos (inversa)
      * Obtener el detalle de producto al que pertenece el control de stock 
      */
-    public function detalles_producto()
+    public function detalle()
     {
-        return $this->belongsTo(DetallesProducto::class);
+        return $this->belongsTo(DetalleProducto::class);
     }
     /**
      * Relacion uno a muchos (inversa)
      * Obtener la sucursal al que pertenece el control de stock 
      */
-    public function sucursales()
+    public function sucursal()
     {
         return $this->belongsTo(Sucursal::class);
+    }
+
+    /**
+     * Relacion uno a muchos (inversa).
+     * Obtener el cliente al que pertenece el id de detalle que se controla el stock
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
     }
 }
