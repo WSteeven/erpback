@@ -50,9 +50,9 @@ class TransaccionBodega extends Model implements Auditable
     }
 
     //Una transaccion tiene varios productos solicitados
-    public function productos()
+    public function detalles()
     {
-        return $this->belongsToMany(Producto::class, 'detalle_productos_transacciones', 'transaccion_id', 'producto_id')
+        return $this->belongsToMany(DetalleProducto::class, 'detalle_productos_transacciones', 'transaccion_id', 'detalle_id')
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
     }
@@ -121,5 +121,24 @@ class TransaccionBodega extends Model implements Auditable
         $observaciones = TransaccionBodega::find($id)->estados()->get();
         $observacion = $observaciones->first();
         return $observacion;
+    }
+
+    public static function listadoProductos($id){
+        $detalles = TransaccionBodega::find($id)->detalles()->get();
+        $results = [];
+        $id=0;
+        $row=[];
+        foreach($detalles as $detalle){
+            $row['id']=$detalle->id;
+            $row['producto']=$detalle->producto->nombre;
+            $row['descripcion']=$detalle->descripcion;
+            $row['categoria']=$detalle->producto->categoria->nombre;
+            $row['cantidades']=$detalle->pivot->cantidad_inicial;
+            $row['despachado']=$detalle->pivot->cantidad_final;
+            $results[$id]=$row;
+            $id++;
+        }
+
+        return $results;
     }
 }

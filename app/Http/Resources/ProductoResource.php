@@ -24,8 +24,9 @@ class ProductoResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['categoria'] = $this->categoria->nombre;
-            // $modelo['categoria'] = $this->categoria_id;
+            // $modelo['categoria'] = $this->categoria->nombre;
+            $modelo['categoria'] = $this->categoria_id;
+
         }
         
         return $modelo;

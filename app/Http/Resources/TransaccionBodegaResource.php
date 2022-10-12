@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\TransaccionBodega;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class TransaccionBodegaResource extends JsonResource
 {
@@ -18,6 +19,9 @@ class TransaccionBodegaResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $autorizacion = TransaccionBodega::ultimaAutorizacion($this->id);
         $estado = TransaccionBodega::ultimoEstado($this->id);
+        $detalles = TransaccionBodega::listadoProductos($this->id);
+
+        Log::channel('testing')->info('Log', ['detalles recibidos?:', $detalles]);
 
         $modelo = [
             'id'=>$this->id,
@@ -38,12 +42,20 @@ class TransaccionBodegaResource extends JsonResource
         ];
 
         if($controller_method=='show'){
+            // $modelo['autorizacion']=$this->autorizaciones()->first()->nombre;
+            $modelo['autorizacion']=$autorizacion->id;
+            $modelo['obs_autorizacion']=$autorizacion->pivot->observacion;
+            // $modelo['estado']=$this->estados()->first()->nombre;
+            $modelo['estado']=$estado->id;
+            $modelo['obs_estado']=$estado->pivot->observacion;
             $modelo['solicitante_id']=$this->solicitante_id;
-            // $modelo['tipo']=$this->subtipo->tipoTransaccion->id;
+            $modelo['tipo']=$this->subtipo->tipoTransaccion->id;
             $modelo['subtipo']=$this->subtipo_id;
             $modelo['sucursal']=$this->sucursal_id;
             $modelo['per_autoriza_id']=$this->solicitante_id;
             $modelo['per_atiende_id']=$this->solicitante_id;
+            $modelo['created_at']=date('d/m/Y', strtotime($this->created_at));
+            $modelo['listadoProductosSeleccionados']= $detalles;
         }
 
         return $modelo;

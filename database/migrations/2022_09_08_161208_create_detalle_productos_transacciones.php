@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('detalle_productos_transacciones', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('producto_id');
+            $table->unsignedBigInteger('detalle_id');
             $table->unsignedBigInteger('transaccion_id');
             $table->integer('cantidad_inicial')->required(); //la cantidad solicitada/registrada al inicio de la solicitud
-            $table->integer('cantidad final')->default(0)->nullable(); //la cantidad despachada/devuelta
+            $table->integer('cantidad_final')->default(0)->nullable(); //la cantidad despachada/devuelta
             $table->timestamps();
 
-            $table->foreign('producto_id')->references('id')->on('productos');
+            $table->foreign('detalle_id')->references('id')->on('detalles_productos');
             $table->foreign('transaccion_id')->references('id')->on('transacciones_bodega');
         });
     }

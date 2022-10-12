@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('detalles_productos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('producto_id');
-            $table->text('descripcion')->nullable();
+            $table->text('descripcion')->required();
             $table->unsignedBigInteger('modelo_id');
             $table->string('serial')->unique()->nullable();
             $table->double('precio_compra')->default(0);

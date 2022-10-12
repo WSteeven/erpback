@@ -29,16 +29,6 @@ class Producto extends Model implements Auditable
     }
 
     /**
-     * Relacion muchos a muchos.
-     * Uno o varios productos pueden estar en una trasaccion
-     */
-    public function detalleProductoTransaccion(){
-        return $this->belongsToMany(TransaccionBodega::class, 'detalle_productos_transacciones', 'transaccion_id', 'producto_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
-            ->withTimestamps();
-    }
-
-    /**
      * Relacion uno a muchos
      * Un producto tiene varios detalles
      */

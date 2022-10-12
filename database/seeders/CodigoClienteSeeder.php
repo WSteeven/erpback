@@ -189,6 +189,7 @@ class CodigoClienteSeeder extends Seeder
             [171, 1, 171, 'JP-0171', '2022-10-06 22:51:17', '2022-10-06 22:51:17'],
             [172, 1, 172, 'JP-0172', '2022-10-06 22:51:17', '2022-10-06 22:51:17'],
             [173, 1, 173, 'JP-0173', '2022-10-06 22:51:17', '2022-10-06 22:51:17'],
+            [174, 1, 174, 'JP-0174', '2022-10-11 22:42:35', '2022-10-11 22:42:35'],
         ];
         foreach($datos as $fila){
             DB::insert('INSERT INTO `codigo_cliente` (`id`, `cliente_id`, `producto_id`, `codigo`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)', $fila);

@@ -6,6 +6,7 @@ use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
 use App\Models\DetalleProducto;
 use App\Models\DetallesProducto;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
@@ -23,9 +24,18 @@ class DetalleProductoController extends Controller
     /**
      * Listar
      */
-    public function index()
+    
+    public function index(Request $request)
     {
-        $results = DetalleProductoResource::collection(DetalleProducto::all());
+        $search = $request['search'];
+        $results = [];
+        if($search){
+            $detalle = DetalleProducto::select('id')->where('descripcion', 'LIKE', '%'.$search.'%')->first();
+
+            if($detalle) $results = DetalleProductoResource::collection(DetalleProducto::where('id', $detalle->id)->get());
+        }else{
+            $results = DetalleProductoResource::collection(DetalleProducto::all());
+        }
         return response()->json(compact('results'));
     }
 
