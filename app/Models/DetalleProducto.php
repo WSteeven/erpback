@@ -104,6 +104,17 @@ class DetalleProducto extends Model implements Auditable
     }
 
     /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una transacción.
+     */
+    public function detalleProductoTransaccion()
+    {
+        return $this->belongsToMany(TransaccionBodega::class, 'detalle_productos_transacciones', 'transaccion_id', 'detalle_id')
+            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withTimestamps();
+    }
+
+    /**
      * Relacion uno a muchos.
      * Un detalle de producto tiene un control de stock diferente para cada sucursal.
      * Obtener los control de stock para un detalle. 

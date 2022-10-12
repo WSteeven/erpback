@@ -51,22 +51,21 @@ class ControlStockRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        Log::channel('testing')->info('Log', ['entro en el prepare for validation']);
-        Log::channel('testing')->info('Log', ['request recibida', $this->all()]);
-        Log::channel('testing')->info('Log', ['calculo realizado', ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id)]);
-        // if (is_null($this->estado)) {
-            if(ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id)<=$this->minimo){
-                $this->merge(['estado'=>ControlStock::MINIMO]);
-                Log::channel('testing')->info('Log', ['entro en minimo']);
-            }
-            if(ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id)>$this->minimo && ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id)<=$this->reorden){
-                $this->merge(['estado'=>ControlStock::REORDEN]);
-                Log::channel('testing')->info('Log', ['entro en reorden']);
-            }
-            if(ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id)>$this->reorden){
-                $this->merge(['estado'=>ControlStock::SUFICIENTE]);
-                Log::channel('testing')->info('Log', ['entro en suficiente']);
-            }
-        // }
+        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) <= $this->minimo) {
+            $this->merge(['estado' => ControlStock::MINIMO]);
+        }
+        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) > $this->minimo && ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) <= $this->reorden) {
+            $this->merge(['estado' => ControlStock::REORDEN]);
+        }
+        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) > $this->reorden) {
+            $this->merge(['estado' => ControlStock::SUFICIENTE]);
+        }
+    }
+
+    public function messages()
+    {
+        return [
+            'detalle_id.unique'=>'Ya existe un mínimo y reorden para controlar el stock de el ítem seleccionado en la sucursal seleccionada para el cliente seleccionado'
+        ];
     }
 }

@@ -59,10 +59,24 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        if(!is_null($this->fecha_limite)){
+            $this->merge([
+                'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
+            ]);
+        }
         $this->merge([
             'solicitante'=>auth()->user()->empleado->id,
         ]);
-
+        if($this->autorizacion==''){
+            $this->merge([
+                'autorizacion'=>1,
+            ]);
+        }
+        if($this->estado==''){
+            $this->merge([
+                'estado'=>1,
+            ]);
+        }
         if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])){
             $this->merge([
                 'per_autoriza'=>auth()->user()->empleado->id,
