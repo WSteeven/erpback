@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('estado', [Inventario::INVENTARIO, Inventario::TRANSITO, Inventario::SIN_STOCK])->default(Inventario::INVENTARIO);
             $table->timestamps();
 
-            $table->unique(['detalle_id', 'sucursal_id', 'cliente_id']);
+            $table->unique(['detalle_id', 'sucursal_id', 'cliente_id', 'condicion_id'],'detalle_lugar_cliente_condicion_unique');
             $table->foreign('detalle_id')->references('id')->on('detalles_productos');
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
             $table->foreign('cliente_id')->references('id')->on('clientes');

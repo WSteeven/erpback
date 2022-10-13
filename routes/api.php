@@ -24,6 +24,7 @@ use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
@@ -41,6 +42,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Resources\UserResource;
+use App\Models\ProductoEnPercha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -107,6 +109,7 @@ Route::apiResources(
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
         'productos' => ProductoController::class,
+        'productos-perchas' => ProductoEnPerchaController::class,
         'perchas' => PerchaController::class,
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
@@ -135,6 +138,7 @@ Route::apiResources(
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'proveedores' => 'proveedor',
+            'productos-perchas' => 'producto_en_percha',
             'sucursales' => 'sucursal',
             'tipos-transacciones' => 'tipo_transaccion',
             'subtipos-transacciones' => 'subtipo_transaccion',

@@ -13,23 +13,47 @@ class ProductoEnPercha extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     
-    protected $table = "inventarios";
-    const INVENTARIO = "INVENTARIO";
-    const NODISPONIBLE = "NO DISPONIBLE";
-
+    protected $table = "productos_en_perchas";
+    
     protected $fillable=[
-        'producto_id',
-        'condicion_id',
         'ubicacion_id',
-        'propietario_id',
+        'inventario_id',
         'stock',
-        'prestados',
-        'estado',
     ];
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Relación uno a muchos (inversa).
+     * Uno o más productos en percha pertenecen a una ubicación.
+     */
+    public function ubicacion(){
+        return $this->belongsTo(Ubicacion::class);
+    }
+
+    /**
+     * Relación uno a muchos (inversa).
+     * Un producto del inventario puede estar en muchas ubicaciones.
+     */
+    public function inventario(){
+        return $this->belongsTo(Inventario::class);
+    }
+
+    /**
+     * Controlar que la cantidad de los productos en percha no sea superior a la del item del inventario.
+     */
+    public static function controlarCantidadInventario($inventario_id){
+        $cantidad = 0;
+        $productos = ProductoEnPercha::where('inventario_id', $inventario_id)->get();
+
+        if($productos->isEmpty()) return -1;
+        foreach($productos as $producto){
+            $cantidad+=$producto->stock;
+        }
+        return $cantidad;
+    }
 
 }

@@ -23,6 +23,7 @@ return new class extends Migration
 
             $table->timestamps();
 
+            $table->unique(['ubicacion_id', 'inventario_id']);
             $table->foreign('ubicacion_id')->references('id')->on('ubicaciones')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('inventario_id')->references('id')->on('inventarios')->onDelete('cascade')->onUpdate('cascade');
         });

@@ -157,6 +157,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.productos'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.productos'])->assignRole($activos_fijos);
         
+        //Productos en perchas
+        Permission::firstOrCreate(['name' => 'puede.ver.productos_perchas'])->syncRoles([$activos_fijos, $bodega, $tecnico_lider]);
+        Permission::firstOrCreate(['name' => 'puede.crear.productos_perchas'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.editar.productos_perchas'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.productos_perchas'])->assignRole($bodega);
+        
         //Proveedores
         Permission::firstOrCreate(['name' => 'puede.ver.proveedores'])->syncRoles([$jefe_tecnico, $activos_fijos, $coordinador, $bodega, $tecnico_lider]);
         Permission::firstOrCreate(['name' => 'puede.crear.proveedores'])->assignRole($compras);

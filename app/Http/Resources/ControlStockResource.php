@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ControlStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ControlStockResource extends JsonResource
@@ -23,6 +24,7 @@ class ControlStockResource extends JsonResource
             'sucursal_id'=>$this->sucursal->lugar,
             'minimo'=>$this->minimo,
             'reorden'=>$this->reorden,
+            'actual'=>ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id),
             'estado'=>$this->estado,
         ];
 

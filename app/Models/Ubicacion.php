@@ -38,9 +38,13 @@ class Ubicacion extends Model implements Auditable
         return $this->belongsTo(Piso::class);
     }
 
-    public function inventario()
+    /**
+     * Relación uno a muchos.
+     * Una ubicación tiene muchos productos.
+     */
+    public function productosPercha()
     {
-        return $this->hasMany(ProductosEnPercha::class);
+        return $this->hasMany(ProductoEnPercha::class);
     }
 
     /* Metodos */

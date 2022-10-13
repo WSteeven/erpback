@@ -49,23 +49,26 @@ class ControlStockRequest extends FormRequest
         return $rules;
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) < 0) {
+                $validator->errors()->add('detalle_id', 'No existen productos del cliente seleccionado en la sucursal seleccionada');
+            }
+        });
+    }
+
     public function prepareForValidation()
     {
-        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) <= $this->minimo) {
-            $this->merge(['estado' => ControlStock::MINIMO]);
-        }
-        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) > $this->minimo && ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) <= $this->reorden) {
-            $this->merge(['estado' => ControlStock::REORDEN]);
-        }
-        if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) > $this->reorden) {
-            $this->merge(['estado' => ControlStock::SUFICIENTE]);
-        }
+        $this->merge([
+            'estado'=>ControlStock::calcularEstado(ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id), $this->minimo, $this->reorden)
+        ]);
     }
 
     public function messages()
     {
         return [
-            'detalle_id.unique'=>'Ya existe un mínimo y reorden para controlar el stock de el ítem seleccionado en la sucursal seleccionada para el cliente seleccionado'
+            'detalle_id.unique' => 'Ya existe un mínimo y reorden para controlar el stock de el ítem seleccionado en la sucursal seleccionada para el cliente seleccionado'
         ];
     }
 }

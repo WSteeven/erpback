@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+
+use function PHPUnit\Framework\isEmpty;
 
 class ControlStock extends Model
 {
@@ -30,6 +33,8 @@ class ControlStock extends Model
      * Si sumatoria es mayor al valor del punto de reorden , el estado debe ser @const SUFICIENTE
      * Si sumatoria es menor al punto de reorden , el estado debe ser @const REORDEN
      * Si sumatoria es menor al punto minimo, el estado debe ser @const MINIMO
+     * 
+     * @return int $cantidad Cantidad de existencias
      */
 
     public static function controlExistencias($detalle_id, $sucursal_id, $cliente_id)
@@ -38,10 +43,28 @@ class ControlStock extends Model
         $elementos = Inventario::where('detalle_id', $detalle_id)
             ->where('sucursal_id', $sucursal_id)
             ->where('cliente_id', $cliente_id)->get();
+
+        // Log::channel('testing')->info('Log', ['listado de elemento', $elementos->isEmpty()]);
+        if ($elementos->isEmpty()) return -1;
         foreach ($elementos as $elemento) {
             $cantidad += $elemento->cantidad;
         }
         return $cantidad;
+    }
+
+    /**
+     * Método que calcula el estado para asignar
+     */
+    public static function calcularEstado($cantidad, $minimo, $reorden){
+        if ($cantidad <= $minimo) {
+            return ControlStock::MINIMO;
+        }
+        if ($cantidad > $minimo && $cantidad <= $reorden) {
+            return ControlStock::REORDEN;
+        }
+        if ($cantidad > $reorden) {
+            return ControlStock::SUFICIENTE;
+        }
     }
 
     /**

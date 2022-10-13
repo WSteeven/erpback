@@ -38,7 +38,7 @@ class DetalleProductoResource extends JsonResource
             'tiene_precio_compra'=>$this->precio_compra>0?true:false
         ];
         if ($controller_method == 'show') {
-            // $modelo['producto'] = $this->producto_id;
+            $modelo['producto'] = $this->producto_id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['span'] = $this->span;
             $modelo['tipo_fibra'] = $this->tipo_fibra_id;

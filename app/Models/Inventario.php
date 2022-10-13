@@ -58,4 +58,12 @@ class Inventario extends Model
     public function cliente(){
         return $this->belongsTo(Cliente::class);
     }
+
+    /**
+     * Relación uno a muchos.
+     * Un producto del inventario puede estar en muchas ubicaciones.
+     */
+    public function productoPercha(){
+        return $this->hasMany(ProductoEnPercha::class);
+    }
 }

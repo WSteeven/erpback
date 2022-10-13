@@ -204,6 +204,7 @@ class ProductosSeeder extends Seeder
             [172, 'ADAPTADOR DUPLEX', 4, '2022-10-06 22:51:17', '2022-10-06 22:51:17'],
             [173, 'KIT DE NAVAJAS', 4, '2022-10-06 22:51:17', '2022-10-06 22:51:17'],
             [174, 'REGLA', 1, '2022-10-11 22:42:35', '2022-10-11 22:42:35'],
+            [175, 'ZAPATOS DIELECTRICOS', 6, '2022-10-12 22:09:56', '2022-10-12 22:09:56'],
         ];
 
         foreach ($datos as $fila) {
