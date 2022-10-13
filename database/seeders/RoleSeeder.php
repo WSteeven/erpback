@@ -223,6 +223,8 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.trabajo_asignado'])->assignRole($tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.ver.subtarea_asignada'])->assignRole($tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->assignRole($tecnico_lider, $coordinador);
+        Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->assignRole($tecnico_lider, $coordinador);
+        Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->assignRole($coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico, $activos_fijos, $administrativo, $recursos_humanos);
 
         // Tareas
         Permission::firstOrCreate(['name' => 'puede.ver.tareas'])->assignRole($coordinador);
@@ -255,9 +257,9 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico);
         Permission::firstOrCreate(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico);
         // Control de progresivas
-        Permission::firstOrCreate(['name' => 'puede.ver.control_progresivas'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.crear.control_progresivas'])->assignRole($tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.control_progresivas'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.editar.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.eliminar.control_progresivas'])->assignRole($tecnico);
         // Control de cambios
         Permission::firstOrCreate(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico);
