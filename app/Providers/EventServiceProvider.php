@@ -3,8 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Inventario;
+use App\Models\Percha;
+use App\Models\Piso;
 use App\Models\Producto;
 use App\Observers\InventarioObserver;
+use App\Observers\PerchaObserver;
+use App\Observers\PisoObserver;
 use App\Observers\ProductoObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -33,6 +37,8 @@ class EventServiceProvider extends ServiceProvider
     {
         //
         Producto::observe(ProductoObserver::class);
+        Percha::observe(PerchaObserver::class);
+        // Piso::observe(PisoObserver::class);
         Inventario::observe(InventarioObserver::class);
     }
 

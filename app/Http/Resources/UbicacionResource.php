@@ -20,8 +20,9 @@ class UbicacionResource extends JsonResource
         $modelo = [
             'id'=>$this->id,
             'codigo'=>$this->codigo,
-            'percha'=>$this->percha->nombre.' | '.$this->percha->sucursal->lugar,
-            'piso'=>$this->piso->fila.$this->piso->columna,
+            'sucursal'=>$this->percha->sucursal->lugar,
+            'percha'=>$this->percha->nombre,
+            'piso'=>$this->piso?'Fila:'.$this->piso->fila.' Columna:'.$this->piso->columna:'',
         ];
 
         if($controller_method=='show'){

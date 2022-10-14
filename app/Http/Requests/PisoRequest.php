@@ -27,7 +27,7 @@ class PisoRequest extends FormRequest
     {
         return [
             'fila' => 'unique:pisos,fila,NULL,id,columna,' . $this->columna,
-            'columna' => 'sometimes|required|string|unique:pisos,fila'
+            'columna' => 'sometimes|string|nullable|unique:pisos,fila'
         ];
     }
     /**

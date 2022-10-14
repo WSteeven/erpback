@@ -31,9 +31,7 @@ class UbicacionRequest extends FormRequest
 
             'codigo' => 'sometimes|string|unique:ubicaciones,codigo',
             'percha' => 'required|exists:perchas,id',
-            'piso' => 'sometimes|required|exists:pisos,id'
-
-            //$request->validate(['codigo' => 'required|string|unique:ubicaciones,codigo']);
+            'piso' => 'sometimes|nullable|exists:pisos,id'
         ];
     }
 

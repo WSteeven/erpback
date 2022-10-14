@@ -20,8 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('piso_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('percha_id')->references('id')->on('perchas');
-            $table->foreign('piso_id')->references('id')->on('pisos');
+            $table->foreign('percha_id')->references('id')->on('perchas')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('piso_id')->references('id')->on('pisos')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

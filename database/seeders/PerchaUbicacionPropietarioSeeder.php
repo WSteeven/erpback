@@ -55,10 +55,6 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
             "columna"=>'C3'
         ]);
         Piso::create([
-            'fila'=>'F1',
-            "columna"=>'C4'
-        ]);
-        Piso::create([
             'fila'=>'F2',
             "columna"=>'C1'
         ]);
@@ -71,8 +67,16 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
             "columna"=>'C3'
         ]);
         Piso::create([
-            'fila'=>'F2',
-            "columna"=>'C4'
+            'fila'=>'F3',
+            "columna"=>'C1'
+        ]);
+        Piso::create([
+            'fila'=>'F3',
+            "columna"=>'C2'
+        ]);
+        Piso::create([
+            'fila'=>'F3',
+            "columna"=>'C3'
         ]);
 
         //Ubicaciones
@@ -92,7 +96,7 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
             'piso_id'=>3,
         ]);
         Ubicacion::create([
-            'codigo'=>'P001F4',
+            'codigo'=>'P001F2C1',
             'percha_id'=>1,
             'piso_id'=>4,
         ]);
@@ -115,6 +119,11 @@ class PerchaUbicacionPropietarioSeeder extends Seeder
             'codigo'=>'P001F8',
             'percha_id'=>1,
             'piso_id'=>8,
+        ]);
+        Ubicacion::create([
+            'codigo'=>'P001F3C3',
+            'percha_id'=>1,
+            'piso_id'=>9,
         ]);
         Ubicacion::create([
             'codigo'=>'P002F1',
