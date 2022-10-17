@@ -257,10 +257,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico);
         Permission::firstOrCreate(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico);
         // Control de progresivas
-        Permission::firstOrCreate(['name' => 'puede.ver.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.crear.control_progresivas'])->assignRole($tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.control_progresivas'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
+        Permission::firstOrCreate(['name' => 'puede.crear.control_tendidos'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.editar.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.control_tendidos'])->assignRole($tecnico);
         // Control de cambios
         Permission::firstOrCreate(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico);
         Permission::firstOrCreate(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico);
