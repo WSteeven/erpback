@@ -31,6 +31,9 @@ class DatabaseSeeder extends Seeder
         $this->call(ParroquiaSeeder::class);
         $this->call(AutorizacionSeeder::class);
         $this->call(CategoriaSeeder::class);
+        $this->call(DiscoSeeder::class);
+        $this->call(ProcesadorSeeder::class);
+        $this->call(RamSeeder::class);
         $this->call(MarcaSeeder::class);
         $this->call(ClienteProveedorSeeder::class);
         $this->call(ProductosSeeder::class);
@@ -38,6 +41,8 @@ class DatabaseSeeder extends Seeder
         $this->call(HiloSeeder::class);
         $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
+        $this->call(FibraSeeder::class);
+        $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TiposTransaccionSeeder::class);

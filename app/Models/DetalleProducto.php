@@ -30,12 +30,10 @@ class DetalleProducto extends Model implements Auditable
         'modelo_id',
         'serial',
         'precio_compra',
-        'span_id',
-        'tipo_fibra_id',
-        'hilo_id',
-        'punta_inicial',
-        'punta_final',
-        'custodia',
+        'color',
+        'talla',
+        'capacidad',
+        
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -81,26 +79,18 @@ class DetalleProducto extends Model implements Auditable
 
     /**
      * Relacion uno a uno (inversa).
-     * Un detalle de producto tiene 0 o 1 span
+     * Un detalle de producto es 0 o 1 computadora o telefono
      */
-    public function span(){
-        return $this->belongsTo(Span::class);
+    public function computadora(){
+        return $this->hasOne(ComputadoraTelefono::class, 'detalle_id');
     }
-
+    
     /**
      * Relacion uno a uno (inversa).
-     * Un detalle de producto tiene 0 o 1 tipo de fibra
+     * Un detalle de producto es 0 o 1 fibra
      */
-    public function tipo_fibra(){
-        return $this->belongsTo(TipoFibra::class);
-    }
-
-    /**
-     * Relacion uno a uno (inversa).
-     * Un detalle de producto tiene 0 o 1 hilo
-     */
-    public function hilo(){
-        return $this->belongsTo(Hilo::class);
+    public function fibra(){
+        return $this->hasOne(Fibra::class, 'detalle_id');
     }
 
     /**
