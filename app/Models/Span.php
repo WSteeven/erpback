@@ -23,10 +23,10 @@ class Span extends Model implements Auditable
 
     /**
      * Relación uno a uno.
-     * Uno o más detalles de productos que sean fibra tienen un solo span
+     * Un span debe estar en una fibra
      */
-    public function detalle()
+    public function fibra()
     {
-        return $this->hasOne(DetalleProducto::class);
+        return $this->hasOne(Fibra::class);
     }
 }

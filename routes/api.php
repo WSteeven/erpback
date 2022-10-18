@@ -9,6 +9,7 @@ use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\DetalleProductoController;
+use App\Http\Controllers\DiscoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EstadoTransaccionController;
@@ -23,9 +24,11 @@ use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
+use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\SubtareaController;
@@ -98,6 +101,7 @@ Route::apiResources(
         'condiciones' => CondicionController::class,
         'control-stocks' => ControlStockController::class,
         'codigos-clientes' => CodigoClienteController::class,
+        'discos' => DiscoController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
         'estados' => EstadoTransaccionController::class,
@@ -108,6 +112,7 @@ Route::apiResources(
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
+        'procesadores' => ProcesadorController::class,
         'productos' => ProductoController::class,
         'productos-perchas' => ProductoEnPerchaController::class,
         'perchas' => PerchaController::class,
@@ -115,6 +120,7 @@ Route::apiResources(
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
         'proveedores' => ProveedorController::class,
+        'rams' => RamController::class,
         'roles' => RolController::class,
         'sucursales' => SucursalController::class,
         'spans' => SpanController::class,
@@ -137,6 +143,7 @@ Route::apiResources(
             'codigos-clientes'=>'codigo_cliente',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
+            'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
             'sucursales' => 'sucursal',

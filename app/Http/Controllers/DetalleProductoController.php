@@ -6,7 +6,9 @@ use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
 use App\Models\DetalleProducto;
 use App\Models\DetallesProducto;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
@@ -24,16 +26,16 @@ class DetalleProductoController extends Controller
     /**
      * Listar
      */
-    
+
     public function index(Request $request)
     {
         $search = $request['search'];
         $results = [];
-        if($search){
-            $detalle = DetalleProducto::select('id')->where('descripcion', 'LIKE', '%'.$search.'%')->first();
+        if ($search) {
+            $detalle = DetalleProducto::select('id')->where('descripcion', 'LIKE', '%' . $search . '%')->first();
 
-            if($detalle) $results = DetalleProductoResource::collection(DetalleProducto::where('id', $detalle->id)->get());
-        }else{
+            if ($detalle) $results = DetalleProductoResource::collection(DetalleProducto::where('id', $detalle->id)->get());
+        } else {
             $results = DetalleProductoResource::collection(DetalleProducto::all());
         }
         return response()->json(compact('results'));
@@ -44,18 +46,48 @@ class DetalleProductoController extends Controller
      */
     public function store(DetalleProductoRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        //Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
-        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
-        $datos['span_id'] = $request->safe()->only(['span'])['span'];
-        $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
-        $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
-        // Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
-        //Respuesta
-        $modelo = DetalleProducto::create($datos);
-        $modelo = new DetalleProductoResource($modelo);
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        try {
+            $datos = $request->validated();
+            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            DB::beginTransaction();
+            //Adaptacion de foreign keys
+            $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
+            $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+            // $datos['span_id'] = $request->safe()->only(['span'])['span'];
+            // $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
+            // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+            // Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
+            //Respuesta
+            $detalle = DetalleProducto::create($datos);
+            // $modelo = DetalleProducto::create($datos);
+            if ($request->categoria === 'INFORMATICA') {
+                $detalle->computadora()->create([
+                    // 'detalle_id'=>$datos['detalle_id'],
+                    'memoria_id'=>$datos['ram'],
+                    'disco_id'=>$datos['disco'],
+                    'procesador_id'=>$datos['procesador'],
+                ]);
+                DB::commit();
+            }
+            if ($request->es_fibra) {
+                $detalle->fibra()->create([
+                    // 'detalle_id'=>$datos['detalle_id'],
+                    'span_id'=>$datos['span'],
+                    'tipo_fibra_id'=>$datos['tipo_fibra'],
+                    'hilo_id'=>$datos['hilos'],
+                    'punta_inicial'=>$datos['punta_inicial'],
+                    'punta_final'=>$datos['punta_final'],
+                    'custodia'=>$datos['custodia'],
+                ]);
+                DB::commit();
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()],422);
+        }
+        $modelo = new DetalleProductoResource($detalle);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -83,7 +115,7 @@ class DetalleProductoController extends Controller
         $datos['span_id'] = $request->safe()->only(['span'])['span'];
         $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
         $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
-        
+
         //Respuesta
         $detalle->update($datos);
         $modelo = new DetalleProductoResource($detalle->refresh());

@@ -20,19 +20,14 @@ return new class extends Migration
             $table->unsignedBigInteger('modelo_id');
             $table->string('serial')->unique()->nullable();
             $table->double('precio_compra')->default(0);
-            $table->unsignedBigInteger('span_id')->nullable();
-            $table->unsignedBigInteger('tipo_fibra_id')->nullable();
-            $table->unsignedBigInteger('hilo_id')->nullable();
-            $table->integer('punta_inicial')->nullable();
-            $table->integer('punta_final')->nullable();
-            $table->integer('custodia')->nullable();
+            $table->string('color')->nullable();
+            $table->string('talla')->nullable();
+            $table->string('capacidad')->nullable();
+            
             $table->timestamps();
 
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('span_id')->references('id')->on('spans')->onDelete(null)->onUpdate('cascade');
-            $table->foreign('tipo_fibra_id')->references('id')->on('tipo_fibras')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('hilo_id')->references('id')->on('hilos')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

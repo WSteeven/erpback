@@ -24,9 +24,9 @@ class TipoFibra extends Model implements Auditable
 
     /**
      * Relacion uno a uno.
-     * Un tipo de fibra esta en 0 o 1 detalles de producto
+     * Un tipo de fibra esta en 1 fibra
      */
-    public function detalle(){
-        return $this->hasOne(DetallesProducto::class);
+    public function fibra(){
+        return $this->hasOne(Fibra::class);
     }
 }

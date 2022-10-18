@@ -27,15 +27,6 @@ class InventarioObserver
             $control_stock->update([
                 'estado' => ControlStock::calcularEstado(ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id), $control_stock->minimo, $control_stock->reorden)
             ]);
-            /* if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) <= $control_stock->minimo) {
-                $control_stock->update(['estado' => ControlStock::MINIMO]);
-            }
-            if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) > $control_stock->minimo && ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) <= $control_stock->reorden) {
-                $control_stock->update(['estado' => ControlStock::REORDEN]);
-            }
-            if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) > $control_stock->reorden) {
-                $control_stock->update(['estado' => ControlStock::SUFICIENTE]);
-            } */
         }
     }
 
@@ -57,17 +48,6 @@ class InventarioObserver
             $control_stock->update([
                 'estado' => ControlStock::calcularEstado(ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id), $control_stock->minimo, $control_stock->reorden)
             ]);
-            
-
-            /* if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) <= $control_stock->minimo) {
-                $control_stock->update(['estado' => ControlStock::MINIMO]);
-            }
-            if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) > $control_stock->minimo && ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) <= $control_stock->reorden) {
-                $control_stock->update(['estado' => ControlStock::REORDEN]);
-            }
-            if (ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id) > $control_stock->reorden) {
-                $control_stock->update(['estado' => ControlStock::SUFICIENTE]);
-            } */
         }
     }
 

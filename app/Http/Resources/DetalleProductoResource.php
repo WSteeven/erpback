@@ -17,6 +17,8 @@ class DetalleProductoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
 
         $modelo =  [
+            'categoria' => $this->producto->categoria->nombre,
+
             'id' => $this->id,
             'producto' => $this->producto->nombre,
             'descripcion' => $this->descripcion,
@@ -24,25 +26,42 @@ class DetalleProductoResource extends JsonResource
             'modelo' => $this->modelo->nombre,
             'serial' => $this->serial,
             'precio_compra' => $this->precio_compra,
-            'span'=>$this->span==null?null: $this->span->nombre,
-            'tipo_fibra'=>$this->tipo_fibra==null?null: $this->tipo_fibra->nombre,
-            'categoria' => $this->producto->categoria->nombre,
-            'hilos'=>$this->hilo==null?null: $this->hilo->nombre,
-            'punta_inicial' => $this->punta_inicial,
-            'punta_final' => $this->punta_final,
-            'custodia' => $this->custodia,
-            
+
+            // 'computadora'=>$this->computadora,
+
+            'memoria' => $this->computadora ? $this->computadora->memoria->nombre : null,
+            'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
+            'procesador' => $this->computadora ? $this->computadora->procesador->nombre : null,
+
+            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre : null,
+
+            'fibra' => $this->fibra ? 'Span ' . $this->fibra->span->nombre . ', ' . $this->fibra->hilo->nombre . 'H, ' . $this->fibra->tipo_fibra->nombre : null,
+
+            'span' => $this->fibra ? $this->fibra->span->nombre : 'N/A',
+            'tipo_fibra' => $this->fibra ? $this->fibra->tipo_fibra->nombre : null,
+            'hilos' => $this->fibra ?  $this->fibra->hilo->nombre : null,
+            'punta_inicial' => $this->fibra ? $this->fibra->punta_inicial : null,
+            'punta_final' => $this->fibra ? $this->fibra->punta_final : null,
+            'custodia' => $this->fibra ? $this->fibra->custodia: null,
+            'puntas' => $this->fibra ? 'P. Inicial: '.$this->fibra->punta_inicial.',<br> P. Final: '.$this->fibra->punta_final.',<br> Custodia: '.$this->fibra->custodia : null,
+
+
+            'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->capacidad : null,
+
             //variables auxiliares
-            'tiene_serial'=>is_null($this->serial)?false:true,
-            'es_fibra'=>$this->comprobarFibra($this->id),
-            'tiene_precio_compra'=>$this->precio_compra>0?true:false
+            'tiene_serial' => is_null($this->serial) ? false : true,
+
+            'es_computadora' => $this->producto->categoria->nombre == 'INFORMATICA' ? true : false,
+            'es_fibra' => $this->comprobarFibra($this->id),
+            'tiene_precio_compra' => $this->precio_compra > 0 ? true : false,
+            'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
         ];
         if ($controller_method == 'show') {
             $modelo['producto'] = $this->producto_id;
             $modelo['modelo'] = $this->modelo_id;
-            $modelo['span'] = $this->span;
-            $modelo['tipo_fibra'] = $this->tipo_fibra_id;
-            $modelo['hilos'] = $this->hilo_id;
+            $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
+            $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
+            $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;
         }
         return $modelo;
     }

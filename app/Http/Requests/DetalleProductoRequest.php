@@ -39,14 +39,20 @@ class DetalleProductoRequest extends FormRequest
             'punta_inicial' => 'nullable|integer',
             'punta_final' => 'nullable|integer',
             'custodia' => 'nullable|integer',
+
+            'procesador'=>'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
+            'ram'=>'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
+            'disco'=>'nullable|sometimes|exists:discos,id|required_with_all:ram,procesador',
+            
+            'color'=>'sometimes|nullable|string',
+            'talla'=>'sometimes|nullable|string',
+            'capacidad'=>'sometimes|nullable|string',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){
             $detalle = $this->route()->parameter('detalle');
             // Log::channel('testing')->info('Log', ['serial recibido:', $this->route()->parameter('detalle')]);
-            // Log::channel('testing')->info('Log', ['serial encontrado:', $detalle->serial]);
             $rules['serial']=['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle)];
-            //$rules['serial']=['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle['serial'])];
         }
 
         return $rules;
