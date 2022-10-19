@@ -45,6 +45,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Resources\UserResource;
+use App\Models\Contacto;
 use App\Models\ProductoEnPercha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -135,6 +136,7 @@ Route::apiResources(
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
+        'contactos' => Contacto::class,
     ],
     [
         'parameters' => [
