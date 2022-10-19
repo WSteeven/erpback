@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TiposTransaccionSeeder::class);
+        $this->call(GrupoSeeder::class);
         ImagenProducto::factory(10)->create();
 
         // Módulo de Tareas

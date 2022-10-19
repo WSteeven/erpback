@@ -94,7 +94,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.detalles'])->assignRole($bodega);
 
         // Empleados
-        Permission::firstOrCreate(['name' => 'puede.ver.empleados'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.ver.empleados'])->assignRole($recursos_humanos, $coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.empleados'])->assignRole($recursos_humanos);
         Permission::firstOrCreate(['name' => 'puede.editar.empleados'])->assignRole($recursos_humanos);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.empleados'])->assignRole($recursos_humanos);
@@ -257,10 +257,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico);
         Permission::firstOrCreate(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico);
         // Control de progresivas
-        Permission::firstOrCreate(['name' => 'puede.ver.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.crear.control_progresivas'])->assignRole($tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.control_progresivas'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.control_progresivas'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
+        Permission::firstOrCreate(['name' => 'puede.crear.control_tendidos'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.editar.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.control_tendidos'])->assignRole($tecnico);
         // Control de cambios
         Permission::firstOrCreate(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico);
         Permission::firstOrCreate(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico);

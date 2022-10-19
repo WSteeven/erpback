@@ -51,7 +51,7 @@ class GrupoController extends Controller
      */
     public function update(GrupoRequest $request, Grupo  $grupo)
     {
-        //Respuesta
+        // Respuesta
         $grupo->update($request->validated());
         $modelo = new GrupoResource($grupo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

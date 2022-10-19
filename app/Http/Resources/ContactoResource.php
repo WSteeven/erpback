@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GrupoResource extends JsonResource
+class ContactoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,11 +14,6 @@ class GrupoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->id,
-            'nombre' => $this->nombre,
-            'empleado_id' => $this->empleado_id,
-            'estado' => $this->estado,
-        ];
+        return parent::toArray($request);
     }
 }

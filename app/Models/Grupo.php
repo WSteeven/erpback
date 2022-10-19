@@ -13,7 +13,7 @@ class Grupo extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'creador_id'];
+    protected $fillable = ['nombre', 'empleado_id', 'estado'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
