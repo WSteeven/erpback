@@ -33,26 +33,26 @@ class DetalleProductoRequest extends FormRequest
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
-            'span'=>'nullable|integer|exists:spans,id',
-            'tipo_fibra'=>'nullable|integer|exists:tipo_fibras,id',
-            'hilos'=>'nullable|integer|exists:hilos,id',
+            'span' => 'nullable|integer|exists:spans,id',
+            'tipo_fibra' => 'nullable|integer|exists:tipo_fibras,id',
+            'hilos' => 'nullable|integer|exists:hilos,id',
             'punta_inicial' => 'nullable|integer',
             'punta_final' => 'nullable|integer',
             'custodia' => 'nullable|integer',
 
-            'procesador'=>'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
-            'ram'=>'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
-            'disco'=>'nullable|sometimes|exists:discos,id|required_with_all:ram,procesador',
-            
-            'color'=>'sometimes|nullable|string',
-            'talla'=>'sometimes|nullable|string',
-            'capacidad'=>'sometimes|nullable|string',
+            'procesador' => 'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
+            'ram' => 'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
+            'disco' => 'nullable|sometimes|exists:discos,id|required_with_all:ram,procesador',
+
+            'color' => 'sometimes|nullable|string',
+            'talla' => 'sometimes|nullable|string',
+            'capacidad' => 'sometimes|nullable|string',
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $detalle = $this->route()->parameter('detalle');
             // Log::channel('testing')->info('Log', ['serial recibido:', $this->route()->parameter('detalle')]);
-            $rules['serial']=['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle)];
+            $rules['serial'] = ['nullable', 'string', 'sometimes', Rule::unique('detalles_productos')->ignore($detalle)];
         }
 
         return $rules;
@@ -61,7 +61,7 @@ class DetalleProductoRequest extends FormRequest
     public function messages()
     {
         return [
-            'serial.unique'=>'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
+            'serial.unique' => 'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
     }
 
@@ -81,14 +81,19 @@ class DetalleProductoRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if(is_null($this->precio_compra)){
+        if (is_null($this->precio_compra)) {
             $this->merge([
-                'precio_compra'=>0
+                'precio_compra' => 0
             ]);
         }
-        if(is_null($this->custodia)){
+        if (is_null($this->custodia)) {
             $this->merge([
-                'custodia'=> $this->punta_inicial-$this->punta_final,
+                'custodia' => $this->punta_inicial - $this->punta_final,
+            ]);
+        }
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $this->merge([
+                'custodia' => $this->punta_inicial - $this->punta_final,
             ]);
         }
     }

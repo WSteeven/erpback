@@ -64,28 +64,28 @@ class DetalleProductoController extends Controller
             if ($request->categoria === 'INFORMATICA') {
                 $detalle->computadora()->create([
                     // 'detalle_id'=>$datos['detalle_id'],
-                    'memoria_id'=>$datos['ram'],
-                    'disco_id'=>$datos['disco'],
-                    'procesador_id'=>$datos['procesador'],
+                    'memoria_id' => $datos['ram'],
+                    'disco_id' => $datos['disco'],
+                    'procesador_id' => $datos['procesador'],
                 ]);
                 DB::commit();
             }
             if ($request->es_fibra) {
                 $detalle->fibra()->create([
                     // 'detalle_id'=>$datos['detalle_id'],
-                    'span_id'=>$datos['span'],
-                    'tipo_fibra_id'=>$datos['tipo_fibra'],
-                    'hilo_id'=>$datos['hilos'],
-                    'punta_inicial'=>$datos['punta_inicial'],
-                    'punta_final'=>$datos['punta_final'],
-                    'custodia'=>$datos['custodia'],
+                    'span_id' => $datos['span'],
+                    'tipo_fibra_id' => $datos['tipo_fibra'],
+                    'hilo_id' => $datos['hilos'],
+                    'punta_inicial' => $datos['punta_inicial'],
+                    'punta_final' => $datos['punta_final'],
+                    'custodia' => $datos['custodia'],
                 ]);
                 DB::commit();
             }
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()],422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
         }
         $modelo = new DetalleProductoResource($detalle);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -108,18 +108,46 @@ class DetalleProductoController extends Controller
      */
     public function update(DetalleProductoRequest $request, DetalleProducto $detalle)
     {
-        //Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
-        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
-        $datos['span_id'] = $request->safe()->only(['span'])['span'];
-        $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
-        $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
 
-        //Respuesta
-        $detalle->update($datos);
+            //Adaptacion de foreign keys
+            $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
+            $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
+            // $datos['span_id'] = $request->safe()->only(['span'])['span'];
+            // $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
+            // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+
+            //Respuesta
+            $detalle->update($datos);
+            if($request->categoria ==='INFORMATICA'){
+                $detalle->computadora()->update([
+                    'memoria_id' => $datos['ram'],
+                    'disco_id' => $datos['disco'],
+                    'procesador_id' => $datos['procesador'],
+                ]);
+                DB::commit();
+            }
+            if($request->es_fibra){
+                $detalle->fibra()->update([
+                    'span_id' => $datos['span'],
+                    'tipo_fibra_id' => $datos['tipo_fibra'],
+                    'hilo_id' => $datos['hilos'],
+                    'punta_inicial' => $datos['punta_inicial'],
+                    'punta_final' => $datos['punta_final'],
+                    'custodia' => $datos['custodia'], 
+                ]);
+                DB::commit();
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e->getMessage()], 422);
+        }
         $modelo = new DetalleProductoResource($detalle->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        
         return response()->json(compact('mensaje', 'modelo'));
     }
 

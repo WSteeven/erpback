@@ -41,20 +41,6 @@ class DetalleProducto extends Model implements Auditable
     ];
 
     /**
-     * Comprobar si un detalle es fibra
-     * @param $id DetalleProducto
-     * @return boolean
-     */
-    public static function comprobarFibra($id){
-        $detalle = DetalleProducto::find($id);
-        if($detalle->tipo_fibra||$detalle->punta_b){
-            return true;
-        }else{
-            return false;
-        }
-    }
-
-    /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________

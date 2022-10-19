@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -95,6 +96,7 @@ Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
 
 Route::apiResources(
     [
+        'activos_fijos' => ActivoFijoController::class,
         'autorizaciones' => AutorizacionController::class,
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
@@ -138,6 +140,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
+            'activos_fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes'=>'codigo_cliente',

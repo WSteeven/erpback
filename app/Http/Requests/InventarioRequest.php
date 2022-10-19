@@ -61,4 +61,13 @@ class InventarioRequest extends FormRequest
             'detalle_id.unique'=>'Ya existe un producto en el inventario para el mismo propietario y en la misma sucursal'
         ];
     }
+
+    protected function prepareForValidation()
+    {
+        if (is_null($this->prestados)) {
+            $this->merge([
+                'prestados' => 0
+            ]);
+        }
+    }
 }
