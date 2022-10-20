@@ -57,6 +57,15 @@ class Sucursal extends Model implements Auditable
     }
 
     /**
+     * Relación uno a muchos.
+     * Una sucursal tiene uno o muchos activos fijos.
+     */
+    public function activos()
+    {
+        return $this->hasMany(ActivoFijo::class);
+    }
+
+    /**
      * Relacion uno a muchos.
      * En una sucursal se realizan varias transacciones
      */

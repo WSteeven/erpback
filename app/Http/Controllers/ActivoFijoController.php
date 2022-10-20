@@ -11,6 +11,14 @@ use Src\Shared\Utils;
 class ActivoFijoController extends Controller
 {
     private $entidad = 'Activo Fijo';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.activos_fijos')->only('index', 'show');
+        $this->middleware('can:puede.crear.activos_fijos')->only('store');
+        $this->middleware('can:puede.editar.activos_fijos')->only('update');
+        $this->middleware('can:puede.eliminar.activos_fijos')->only('destroy');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,7 +26,7 @@ class ActivoFijoController extends Controller
      */
     public function index()
     {
-        $results = ActivoFijo::all();
+        $results = ActivoFijoResource::collection(ActivoFijo::all());
         return response()->json(compact('results'));
     }
 

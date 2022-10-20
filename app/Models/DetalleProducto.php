@@ -110,6 +110,15 @@ class DetalleProducto extends Model implements Auditable
     }
 
     /**
+     * Relación uno a uno (inversa).
+     * Un detalle es un activo fijo.
+     */
+    public function activo()
+    {
+        return $this->hasOne(ActivoFijo::class);
+    }
+
+    /**
      * Relacion uno a muchos.
      * Un detalle de producto tiene varias imagenes.
      * Generalmente solo dos, pero queda la posibilidad de que sean más en un futuro.

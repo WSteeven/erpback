@@ -41,8 +41,15 @@ class ProductoEnPerchaRequest extends FormRequest
             Log::channel('testing')->info('Log', ['cantidad en el inventario', $inventario->cantidad]);
             if ((ProductoEnPercha::controlarCantidadInventario($this->inventario) + $this->stock) > $inventario->cantidad) {
                 $validator->errors()->add('stock', [
-                    'La cantidad que intentas ingresar no debe superar la cantidad existente en el inventario.', 
-                    'Cantidad de inventario: ' . $inventario->cantidad . '. Cantidad en perchas: ' . ProductoEnPercha::controlarCantidadInventario($this->inventario)]);
+                    'La cantidad que intentas ingresar no debe superar la cantidad existente en el inventario.',
+                    // 'Cantidad de inventario: ' . $inventario->cantidad . '. Cantidad en perchas: ' . ProductoEnPercha::controlarCantidadInventario($this->inventario) < 0 ? 0 : ProductoEnPercha::controlarCantidadInventario($this->inventario)
+                ]);
+                $cantidad = ProductoEnPercha::controlarCantidadInventario($this->inventario);
+                if ($cantidad < 0) {
+                    $validator->errors()->add('stock', 'Cantidad de inventario: ' . $inventario->cantidad . '. Cantidad en perchas: 0');
+                }else{
+                    $validator->errors()->add('stock', 'Cantidad de inventario: ' . $inventario->cantidad . '. Cantidad en perchas: ' .$cantidad);
+                }
             }
         });
     }

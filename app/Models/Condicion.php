@@ -26,4 +26,13 @@ class Condicion extends Model implements Auditable
     {
         return $this->hasOne(Inventario::class);
     }
+    
+    /**
+     * Relación uno a muchos.
+     * Una condicion puede estar en uno o muchos activos fijos.
+     */
+    public function activos()
+    {
+        return $this->hasMany(ActivoFijo::class);
+    }
 }

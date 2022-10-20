@@ -68,6 +68,15 @@ class Empleado extends Model implements Auditable
     }
 
     /**
+     * Relación uno a muchos.
+     * Un empleado tiene uno o muchos activos fijos en custodia.
+     */
+    public function activos()
+    {
+        return $this->hasMany(ActivoFijo::class);
+    }
+
+    /**
      * Relacion uno a muchos
      * Un empleado es solicitante de varias transacciones
      */

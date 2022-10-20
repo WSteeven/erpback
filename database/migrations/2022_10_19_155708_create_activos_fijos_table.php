@@ -16,11 +16,12 @@ return new class extends Migration
     {
         Schema::create('activos_fijos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('cantidad')->default(0);
             $table->date('fecha_desde');
             $table->date('fecha_hasta')->nullable();
             $table->enum('accion', [ActivoFijo::ASIGNACION, ActivoFijo::DEVOLUCION])->required();
             $table->string('observacion')->nullable();
-            $table->string('lugar');
+            // $table->string('lugar');
             $table->unsignedBigInteger('detalle_id');
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('sucursal_id');
