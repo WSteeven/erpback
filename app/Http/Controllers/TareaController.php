@@ -30,6 +30,8 @@ class TareaController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+        $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
         $datos['codigo_tarea_jp'] = 'JP00000' . Tarea::latest('id')->first()->id + 1;
         $datos['coordinador_id'] = Auth::id();
 

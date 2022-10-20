@@ -4,6 +4,7 @@ use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ClienteFinalController;
 use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\CondicionController;
 use App\Http\Controllers\ControlAsistenciaController;
@@ -46,8 +47,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Resources\UserResource;
+use App\Models\Canton;
+use App\Models\ClienteFinal;
 use App\Models\Contacto;
 use App\Models\ProductoEnPercha;
+use App\Models\Provincia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +66,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::get('tablero', [TableroController::class, 'index']);
 // Rutas de user (para pruebas) 
 Route::prefix('usuarios')->group(function () {
@@ -94,6 +99,9 @@ Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $requ
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
+
+Route::get('provincias', fn () => ['results' => Provincia::all()])->middleware('auth:sanctum');
+Route::get('cantones', fn () => ['results' => Canton::all()])->middleware('auth:sanctum');
 
 Route::apiResources(
     [
@@ -138,14 +146,14 @@ Route::apiResources(
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
-        'contactos' => Contacto::class,
+        'clientes-finales' => ClienteFinalController::class,
     ],
     [
         'parameters' => [
             'activos_fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
-            'codigos-clientes'=>'codigo_cliente',
+            'codigos-clientes' => 'codigo_cliente',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'procesadores' => 'procesador',
@@ -158,7 +166,8 @@ Route::apiResources(
             'ubicaciones' => 'ubicacion',
             'tipos-tareas' => 'tipo_tarea',
             'tipos-elementos' => 'tipo_elemento',
-            'tipos-fibras'=>'tipo_fibra',
+            'tipos-fibras' => 'tipo_fibra',
+            'clientes-finales' => 'cliente_final'
         ],
         'middleware' => ['auth:sanctum']
     ]

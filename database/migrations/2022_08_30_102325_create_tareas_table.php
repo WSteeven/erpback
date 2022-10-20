@@ -17,21 +17,20 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_tarea_jp');
             $table->string('codigo_tarea_cliente')->nullable();
-            $table->string('solicitante');
-            $table->string('correo_solicitante')->nullable();
+            $table->string('fecha_solicitud')->nullable();
             $table->string('detalle');
             $table->boolean('es_proyecto')->default(false);
             $table->string('codigo_proyecto')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('cliente_id');
+            $table->unsignedBigInteger('cliente_id'); // cliente principal
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('cliente_final_id');
+            $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');
 
             /* $table->unsignedBigInteger('estado_id');
             $table->foreign('estado_id')->references('id')->on('cambios_estados_tareas')->onDelete('cascade')->onUpdate('cascade');
-
-            $table->unsignedBigInteger('contacto_id');
-            $table->foreign('contacto_id')->references('id')->on('contactos')->onDelete('cascade')->onUpdate('cascade');
 */
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

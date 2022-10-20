@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 
-class Contacto extends Model
+class ClienteFinal extends Model
 {
     use HasFactory, UppercaseValuesTrait;
 
-    protected $table = "contactos";
+    protected $table = "clientes_finales";
     protected $fillable = [
         "nombres", "apellidos",
-        "identificador",
+        "id_cliente",
         "nombres",
         "apellidos",
         "celular",
@@ -24,4 +24,17 @@ class Contacto extends Model
         "referencias",
         "coordenadas",
     ];
+
+    public function provincia() {
+        return $this->belongsTo(Provincia::class);
+    }
+
+    public function canton() {
+        return $this->belongsTo(Canton::class);
+    }
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 }

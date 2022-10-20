@@ -17,16 +17,16 @@ class Tarea extends Model implements Auditable
         'codigo_tarea_jp',
         'codigo_tarea_cliente',
         'fecha_solicitud',
-        'fecha_inicio',
-        'fecha_finalizacion',
-        'solicitante',
-        'correo_solicitante',
-        'detalle',
+        'hora_solicitud',
+        'coordinador_id',
         'es_proyecto',
         'codigo_proyecto',
         'cliente_id',
-        'coordinador_id',
+        'cliente_final_id',
+        'detalle',
+        'estado',
     ];
+
     protected $casts = ['es_proyecto' => 'boolean'];
 
     // Relacion uno a muchos (inversa)

@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
         ImagenProducto::factory(10)->create();
 
         // Módulo de Tareas
+        $this->call(ClienteFinalSeeder::class);
         $this->call(TareaSeeder::class);
         $this->call(TipoTareaSeeder::class);
         $this->call(SubtareaSeeder::class);
