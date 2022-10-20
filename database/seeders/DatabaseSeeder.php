@@ -45,7 +45,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
-        $this->call(TiposTransaccionSeeder::class);
+        $this->call(TipoTransaccionSeeder::class);
         $this->call(GrupoSeeder::class);
         ImagenProducto::factory(10)->create();
 

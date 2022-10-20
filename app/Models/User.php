@@ -22,18 +22,19 @@ class User extends Authenticatable implements Auditable
     use AuditableModel;
     //use UppercaseValuesTrait; // comentar por ahora
 
+    const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
     const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
     const ROL_BODEGA = 'BODEGA';
-    const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_COMPRAS = 'COMPRAS';
+    const ROL_CONTABILIDAD = 'CONTABILIDAD';
+    const ROL_COORDINADOR = 'COORDINADOR';
     const ROL_EMPLEADO = 'EMPLEADO';
-    const ROL_TECNICO = 'TECNICO';
-    const ROL_TECNICO_LIDER = 'TECNICO LIDER';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
-    const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
+    const ROL_TECNICO = 'TECNICO';
+    const ROL_TECNICO_LIDER = 'TECNICO LIDER';
 
     /**
      * The attributes that are mass assignable.

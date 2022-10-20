@@ -45,6 +45,8 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
+use App\Http\Controllers\TransaccionBodegaEgresoController;
+use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Resources\UserResource;
 use App\Models\Contacto;
 use App\Models\ProductoEnPercha;
@@ -131,6 +133,8 @@ Route::apiResources(
         'tipos-transacciones' => TipoTransaccionController::class,
         'subtipos-transacciones' => SubtipoTransaccionController::class,
         'transacciones' => TransaccionBodegaController::class,
+        'transacciones-ingresos' => TransaccionBodegaIngresoController::class,
+        'transacciones-egresos' => TransaccionBodegaEgresoController::class,
         'ubicaciones' => UbicacionController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,

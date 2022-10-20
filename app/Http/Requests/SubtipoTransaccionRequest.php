@@ -24,7 +24,7 @@ class SubtipoTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre'=>'required|string|unique:subtipos_transacciones',
+            'nombre'=>'required|string|unique:subtipos_transacciones,nombre,NULL,id,tipo_transaccion_id,'.$this->tipo_transaccion,
             'tipo_transaccion'=>'required|exists:tipos_transacciones,id'
         ];
     }

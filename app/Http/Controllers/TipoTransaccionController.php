@@ -30,18 +30,31 @@ class TipoTransaccionController extends Controller
         if($tipo){
             $datos = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
             $results= TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+            if(auth()->user()->hasRole(User::ROL_CONTABILIDAD)){
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
+                    ->where('nombre', '=', 'AJUSTE POR REGULARIZACION')
+                    ->get());
+                return response()->json(compact('results'));        
+            }
             if(auth()->user()->hasRole(User::ROL_BODEGA)){
-                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')->get());
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
+                    ->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')
+                    ->where('nombre', '<>', 'AJUSTE POR REGULARIZACION')
+                    ->get());
                 return response()->json(compact('results'));        
             }
             if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
-                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')->get());
+                $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
+                    ->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')
+                    ->where('nombre', '<>', 'AJUSTE POR REGULARIZACION')
+                    ->get());
                 return response()->json(compact('results'));
             }
-            if(!auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])){
+            if(!auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])){
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
                     ->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')
                     ->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')
+                    ->where('nombre', '<>', 'AJUSTE POR REGULARIZACION')
                     ->get());
                 return response()->json(compact('results'));
             }
