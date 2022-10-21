@@ -107,7 +107,7 @@ Route::get('cantones', fn () => ['results' => Canton::all()])->middleware('auth:
 
 Route::apiResources(
     [
-        'activos_fijos' => ActivoFijoController::class,
+        'activos-fijos' => ActivoFijoController::class,
         'autorizaciones' => AutorizacionController::class,
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
@@ -167,6 +167,8 @@ Route::apiResources(
             'tipos-transacciones' => 'tipo_transaccion',
             'subtipos-transacciones' => 'subtipo_transaccion',
             'transacciones' => 'transaccion',
+            'transacciones-ingresos' => 'transaccion',
+            'transacciones-egresos' => 'transaccion',
             'ubicaciones' => 'ubicacion',
             'tipos-tareas' => 'tipo_tarea',
             'tipos-elementos' => 'tipo_elemento',

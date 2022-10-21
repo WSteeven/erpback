@@ -97,7 +97,8 @@ class TransaccionBodegaController extends Controller
                 DB::commit();
             } catch (Exception $e) {
                 DB::rollBack();
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 401);
+                Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage()]);
+                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
 
             return response()->json(compact('mensaje', 'modelo'));
