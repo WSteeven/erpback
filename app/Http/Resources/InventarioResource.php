@@ -29,6 +29,7 @@ class InventarioResource extends JsonResource
             'estado'=>$this->estado,
         ];
         if($controller_method=='show'){
+            $modelo['producto']=$this->detalle->producto_id;
             $modelo['detalle_id']=$this->detalle_id;
             $modelo['sucursal_id']=$this->sucursal_id;
             $modelo['cliente_id']=$this->cliente_id;

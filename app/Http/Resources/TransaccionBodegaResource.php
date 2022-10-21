@@ -21,7 +21,7 @@ class TransaccionBodegaResource extends JsonResource
         $estado = TransaccionBodega::ultimoEstado($this->id);
         $detalles = TransaccionBodega::listadoProductos($this->id);
 
-        Log::channel('testing')->info('Log', ['detalles recibidos?:', $detalles]);
+        // Log::channel('testing')->info('Log', ['detalles recibidos?:', $detalles]);
 
         $modelo = [
             'id'=>$this->id,
@@ -31,7 +31,7 @@ class TransaccionBodegaResource extends JsonResource
             'fecha_limite'=>is_null($this->fecha_limite)?'N/A': $this->fecha_limite,
             'estado'=>is_null($estado)?'N/A':$estado->nombre,
             'obs_estado'=>is_null($estado->pivot->observacion)?'N/A':$estado->pivot->observacion,
-            'solicitante'=>$this->solicitante->nombres.' '.$this->solicitante->apellidos,
+            'solicitante'=>$this->solicitante?$this->solicitante->nombres.' '.$this->solicitante->apellidos:'N/A',
             'tipo'=>$this->subtipo->tipoTransaccion->nombre,
             'subtipo'=>$this->subtipo->nombre,
             'sucursal'=>$this->sucursal->lugar,
