@@ -32,13 +32,14 @@ class TareaController extends Controller
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
         $datos['codigo_tarea_jp'] = 'JP00000' . Tarea::latest('id')->first()->id + 1;
         $datos['coordinador_id'] = Auth::id();
 
         // Respuesta
         $modelo = Tarea::create($datos);
         $modelo = new TareaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -63,7 +64,7 @@ class TareaController extends Controller
         // Respuesta
         $tarea->update($datos);
         $modelo = new TareaResource($tarea->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', false);
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -73,7 +74,7 @@ class TareaController extends Controller
     public function destroy(Tarea $tarea)
     {
         $tarea->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy', false);
         return response()->json(compact('mensaje'));
     }
 }

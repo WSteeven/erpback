@@ -24,6 +24,7 @@ class Subtarea extends Model implements Auditable
         'tipo_instalacion',
         'id_servicio',
         'ticket_phoenix',
+        'grupo',
         'tipo_tarea_id',
         'tarea_id',
     ];

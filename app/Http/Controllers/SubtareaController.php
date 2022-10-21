@@ -36,7 +36,7 @@ class SubtareaController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
 
         // Respuesta
         $modelo = Subtarea::create($datos);

@@ -17,7 +17,15 @@ class TipoTareaController extends Controller
      */
     public function index(Request $request)
     {
-        $results = TipoTareaResource::collection(TipoTarea::all());
+        $cliente = $request['cliente'];
+        $results = [];
+
+        if ($cliente) {
+            $results = TipoTareaResource::collection(TipoTarea::where('cliente_id', $cliente)->get());
+        } else {
+            $results = TipoTareaResource::collection(TipoTarea::all());
+        }
+        //$results = TipoTareaResource::collection(TipoTarea::all());
         return response()->json(compact('results'));
     }
 
@@ -61,7 +69,7 @@ class TipoTareaController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
- 
+
     /**
      * Eliminar
      */

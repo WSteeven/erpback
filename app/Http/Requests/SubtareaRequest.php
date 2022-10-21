@@ -24,18 +24,18 @@ class SubtareaRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo_subtarea' => 'nullable',
+            'codigo_subtarea' => 'nullable|string',
             'detalle' => 'required|string',
-            'actividad_realizada' => 'nullable|string',
+            'grupo_id' => 'required|numeric|integer',
+            'tipo_trabajo_id' => 'required|numeric|integer',
+            /*'actividad_realizada' => 'nullable|string',
             'novedades' => 'nullable|string',
-            'fiscalizador' => 'nullable|string',
             'ing_soporte' => 'nullable|string',
             'ing_instalacion' => 'nullable|string',
             'tipo_instalacion' => 'nullable|string',
             'id_servicio' => 'nullable|string',
             'ticket_phoenix' => 'nullable|string',
-            'tipo_tarea_id' => 'required|numeric|integer',
-            'tarea_id' => 'required|numeric|integer',
+            'tarea_id' => 'required|numeric|integer',*/
         ];
     }
 }
