@@ -158,10 +158,13 @@ class TransaccionBodegaIngresoController extends Controller
                     $transaccion->estados()->attach($datos['estado_id']);
                 }
                 
+
+                //borrar los registros de la tabla intermedia para guardar los modificados
+                $transaccion->detalles()->detach();
+
                 //Guardar los productos seleccionados
                 foreach ($request->listadoProductosSeleccionados as $listado) {
-                    $transaccion->detalles()->updateOrCreate($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
-                    
+                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
                 }
 
 
