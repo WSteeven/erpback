@@ -34,8 +34,8 @@ return new class extends Migration
             $table->unsignedBigInteger('tipo_tarea_id');
             $table->foreign('tipo_tarea_id')->references('id')->on('tipos_tareas')->onDelete('cascade')->onUpdate('cascade');
 
-            /* $table->unsignedBigInteger('grupo_id');
-            $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade'); */
+            $table->unsignedBigInteger('grupo_id');
+            $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tarea_id');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');

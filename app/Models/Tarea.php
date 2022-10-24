@@ -19,6 +19,7 @@ class Tarea extends Model implements Auditable
         'fecha_solicitud',
         'hora_solicitud',
         'coordinador_id',
+        'supervisor_id',
         'es_proyecto',
         'codigo_proyecto',
         'cliente_id',
@@ -34,6 +35,18 @@ class Tarea extends Model implements Auditable
     {
         return $this->belongsTo(Cliente::class);
     }
+
+    // Relacion uno a muchos (inversa)
+    public function supervisor()
+    {
+        return $this->belongsTo(Empleado::class, 'supervisor_id', 'id');
+    }
+
+     // Relacion uno a muchos (inversa)
+     public function clienteFinal()
+     {
+         return $this->belongsTo(ClienteFinal::class);
+     }
 
     // Relacion uno a muchos (inversa)
     public function coordinador()

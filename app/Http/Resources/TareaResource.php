@@ -21,19 +21,20 @@ class TareaResource extends JsonResource
             'codigo_tarea_jp' => $this->codigo_tarea_jp,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'fecha_solicitud' => $this->fecha_solicitud,
-            'fecha_inicio' => $this->fecha_inicio,
-            'fecha_finalizacion' => $this->fecha_finalizacion,
-            'solicitante' => $this->solicitante,
-            'correo_solicitante' => $this->correo_solicitante,
+            'hora_solicitud' => $this->hora_solicitud,
             'detalle' => $this->detalle,
             'es_proyecto' => $this->es_proyecto,
             'codigo_proyecto' => $this->codigo_proyecto,
+            'supervisor' => $this->supervisor->nombres . ' ' . $this->supervisor->apellidos,
             'cliente' => $this->cliente->empresa->razon_social,
-            'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
+            'cliente_final' => $this->clienteFinal->nombres . ' ' . $this->clienteFinal->apellidos,
+            // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
+            $modelo['cliente_final'] = $this->clienteFinal->id;
+            $modelo['supervisor'] = $this->supervisor->id;
         }
 
         return $modelo;

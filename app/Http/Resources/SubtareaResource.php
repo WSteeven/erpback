@@ -34,7 +34,7 @@ class SubtareaResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['cliente'] = $this->cliente_id;
+            $modelo['cliente'] = $this->tarea->cliente_id;
             $modelo['tipo_tarea'] = $this->tipo_tarea_id;
             $modelo['tarea'] = $this->tarea_id;
         }
