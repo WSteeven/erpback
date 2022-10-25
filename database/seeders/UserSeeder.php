@@ -149,23 +149,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-        // Tecnico lider
-        $tecnico = User::create([
-            'name' => 'Pedro Ramirez',
-            'email' => 'pramirez@jp.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_TECNICO_LIDER);
-        $tecnico->empleado()->create([
-            'nombres' => 'PEDRO',
-            'apellidos' => 'RAMIREZ',
-            'identificacion' => '0707415236',
-            'telefono' => '0987456332',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id
-        ]);
-
         // Departamento de compras
         $compras = User::create([
             'name' => 'Ingrid Lima',
@@ -232,6 +215,93 @@ class UserSeeder extends Seeder
             'fecha_nacimiento' => '2000-05-12',
             'jefe_id' => '2',
             'sucursal_id' => $localidad_machala->id
+        ]);
+
+        /** TECNICOS */
+         // Tecnico lider
+         $tecnico = User::create([
+            'name' => 'Pedro Ramirez',
+            'email' => 'pramirez@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO_LIDER);
+        $tecnico->empleado()->create([
+            'nombres' => 'PEDRO',
+            'apellidos' => 'RAMIREZ',
+            'identificacion' => '0707415236',
+            'telefono' => '0987456332',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '3',
+            'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 1,
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'Carlos Fernandez',
+            'email' => 'cfernandez@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO);
+        $tecnico->empleado()->create([
+            'nombres' => 'CARLOS',
+            'apellidos' => 'FERNANDEZ',
+            'identificacion' => '0707415231',
+            'telefono' => '0987456331',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '3',
+            'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 1,
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'Omar Gutierrez',
+            'email' => 'ogutierrez@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO);
+        $tecnico->empleado()->create([
+            'nombres' => 'OMAR',
+            'apellidos' => 'GUTIERREZ',
+            'identificacion' => '0707415232',
+            'telefono' => '0987456332',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '3',
+            'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 1,
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'Leo Armijos',
+            'email' => 'larmijos@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO);
+        $tecnico->empleado()->create([
+            'nombres' => 'LEONARLO',
+            'apellidos' => 'ARMIJOS',
+            'identificacion' => '0707415233',
+            'telefono' => '0987456333',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '3',
+            'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 2,
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'Polo Carrión',
+            'email' => 'pcarrion@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO);
+        $tecnico->empleado()->create([
+            'nombres' => 'POLO',
+            'apellidos' => 'CARRIÓN',
+            'identificacion' => '0707415234',
+            'telefono' => '0987456334',
+            'fecha_nacimiento' => '2019-05-12',
+            'jefe_id' => '3',
+            'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 3,
         ]);
     }
 }

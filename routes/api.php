@@ -52,6 +52,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Canton;
 use App\Models\ClienteFinal;
 use App\Models\Contacto;
+use App\Models\Empleado;
 use App\Models\ProductoEnPercha;
 use App\Models\Provincia;
 use Illuminate\Http\Request;
@@ -178,3 +179,5 @@ Route::apiResources(
         'middleware' => ['auth:sanctum']
     ]
 );
+
+Route::get('empleados/obtenerTecnicos/{grupo_id}', [Empleado::class, 'obtenerTecnicos'])->middleware('auth:sanctum');

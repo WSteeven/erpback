@@ -18,33 +18,35 @@ return new class extends Migration
 
             $table->string('codigo_subtarea');
             $table->text('detalle');
-            $table->timestamp('fecha_solicitud');
-            $table->timestamp('fecha_inicio')->nullable();
-            $table->timestamp('fecha_finalizacion')->nullable();
-            $table->text('actividad_realizada');
-            $table->text('novedades');
-            $table->string('fiscalizador');
-            $table->string('ing_soporte');
-            $table->string('ing_instalacion');
-            $table->string('tipo_instalacion');
-            $table->string('id_servicio');
-            $table->string('ticket_phoenix');
+            $table->string('fecha_hora_creacion');
+            $table->string('fecha_hora_asignacion')->nullable();
+            $table->string('fecha_hora_inicio')->nullable();
+            $table->string('fecha_hora_finalizacion')->nullable();
+            $table->string('cantidad_dias')->nullable();
+            $table->string('fecha_hora_realizado')->nullable();
+            $table->string('fecha_hora_suspendido')->nullable();
+            $table->string('causa_suspencion')->nullable();
+            $table->string('fecha_hora_cancelacion')->nullable();
+            $table->string('causa_cancelacion')->nullable();
+            $table->boolean('es_dependiente')->default(false);
+            $table->string('subtarea_dependiente')->nullable();
+            $table->boolean('es_ventana')->default(false);
+            $table->string('hora_inicio_ventana')->nullable();
+            $table->string('hora_fin_ventana')->nullable();
+            $table->text('descripcion_completa')->nullable();
+            $table->string('tecnicos_grupo_principal'); // historico por si los técnicos se cambian de grupo o se van
+            $table->string('tecnicos_otros_grupos');
+            $table->string('estado');
 
             // Foreign keys
-            $table->unsignedBigInteger('tipo_tarea_id');
-            $table->foreign('tipo_tarea_id')->references('id')->on('tipos_tareas')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('tipo_trabajo_id');
+            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_tareas')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tarea_id');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
-
-            /* $table->unsignedBigInteger('ubicacion_origen_id');
-            $table->foreign('ubicacion_origen_id')->references('id')->on('ubicaciones_subtareas')->onDelete('cascade')->onUpdate('cascade');
-
-            $table->unsignedBigInteger('ubicacion_destino_id');
-            $table->foreign('ubicacion_destino_id')->references('id')->on('ubicaciones_subtareas')->onDelete('cascade')->onUpdate('cascade'); */
 
             $table->timestamps();
         });

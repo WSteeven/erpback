@@ -16,17 +16,28 @@ class Subtarea extends Model implements Auditable
     protected $fillable = [
         'codigo_subtarea',
         'detalle',
-        'actividad_realizada',
-        'novedades',
-        'fiscalizador',
-        'ing_soporte',
-        'ing_instalacion',
-        'tipo_instalacion',
-        'id_servicio',
-        'ticket_phoenix',
-        'grupo',
-        'tipo_tarea_id',
+        'grupo_id',
+        'tipo_trabajo_id',
         'tarea_id',
+        'fecha_hora_creacion',
+        'fecha_hora_asignacion',
+        'fecha_hora_inicio',
+        'fecha_hora_finalizacion',
+        'cantidad_dias',
+        'fecha_hora_realizado',
+        'fecha_hora_suspendido',
+        'causa_suspencion',
+        'fecha_hora_cancelacion',
+        'causa_cancelacion',
+        'es_dependiente',
+        'subtarea_dependiente',
+        'es_ventana',
+        'hora_inicio_ventana',
+        'hora_fin_ventana',
+        'descripcion_completa',
+        'tecnicos_grupo_principal',
+        'tecnicos_otros_grupos',
+        'estado',
     ];
 
     // Relacion uno a muchos (inversa)
@@ -36,7 +47,7 @@ class Subtarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function tipo_tarea()
+    public function tipo_trabajo()
     {
         return $this->belongsTo(TipoTarea::class);
     }

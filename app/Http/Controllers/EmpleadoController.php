@@ -11,11 +11,13 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 use Src\Shared\Utils;
 
 class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
@@ -23,18 +25,33 @@ class EmpleadoController extends Controller
         $this->middleware('can:puede.editar.empleados')->only('update');
         $this->middleware('can:puede.eliminar.empleados')->only('destroy');
     }
+
+    public function list(Request $request)
+    {
+        $rol = $request['rol'];
+
+        if ($rol) {
+            $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
+            $empleados = Empleado::ignoreRequest(['rol'])->filter()->get();
+            return EmpleadoResource::collection($empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten());
+        }
+        return EmpleadoResource::collection(Empleado::filter()->get());
+    }
+
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = EmpleadoResource::collection(Empleado::all()->except(1));
-        return response()->json(compact('results'));
+        /* $results = EmpleadoResource::collection(Empleado::all()->except(1));
+        return response()->json(compact('results')); */
+
+        return response()->json(['results' => $this->list($request)]);
     }
 
-/**
- * Guardar
- */
+    /**
+     * Guardar
+     */
     public function store(EmpleadoRequest $request)
     {
         Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
@@ -42,7 +59,7 @@ class EmpleadoController extends Controller
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        
+
         Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
         try {
@@ -52,7 +69,7 @@ class EmpleadoController extends Controller
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
-            $datos['usuario_id']=$user->id;
+            $datos['usuario_id'] = $user->id;
             Log::channel('testing')->info('Log', ['Datos validados 2:', $datos]);
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
@@ -76,23 +93,23 @@ class EmpleadoController extends Controller
         return response()->json(compact('mensaje'));
     }
 
-/**
- * Consultar
- */
+    /**
+     * Consultar
+     */
     public function show(Empleado $empleado)
     {
         $modelo = new EmpleadoResource($empleado);
         return response()->json(compact('modelo'));
     }
 
-/**
- * Actualizar
- */
+    /**
+     * Actualizar
+     */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
         //Respuesta
         $empleado->update($request->validated());
-        $empleado->user()->update(['status' => $request->estado=='ACTIVO'?true:false]);
+        $empleado->user()->update(['status' => $request->estado == 'ACTIVO' ? true : false]);
         $modelo = new EmpleadoResource($empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
@@ -108,5 +125,19 @@ class EmpleadoController extends Controller
         $empleado->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Listar a los tecnicos filtrados por id de grupo
+     */
+    public function obtenerTecnicos(Request $request)
+    {
+        $grupo_id = $request['grupo'];
+        if (!$grupo_id) {
+            return response()->json(['mensaje' => 'Debe proporcionar un id de grupo']);
+        }
+
+        $results = EmpleadoResource::collection(Empleado::where('grupo_id', $grupo_id)->get());
+        return response()->json(compact('results'));
     }
 }

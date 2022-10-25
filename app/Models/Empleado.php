@@ -7,23 +7,35 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class Empleado extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait;
+    use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
     protected $table = "empleados";
     protected $fillable = [
-		'identificacion',
-		'nombres',
-		'apellidos',
-		'telefono',
-		'fecha_nacimiento',
-		'jefe_id',
-		'sucursal_id',
-		'estado',
-		'rol',
-	];
+        'identificacion',
+        'nombres',
+        'apellidos',
+        'telefono',
+        'fecha_nacimiento',
+        'jefe_id',
+        'sucursal_id',
+        'estado',
+        'grupo_id',
+    ];
+
+    private static $whiteListFilter = [
+        'identificacion',
+        'nombres',
+        'apellidos',
+        'telefono',
+        'fecha_nacimiento',
+        'jefe_id',
+        'sucursal_id',
+        'grupo_id',
+    ];
 
     const ACTIVO = 'ACTIVO';
     const INACTIVO = 'INACTIVO';
@@ -35,8 +47,9 @@ class Empleado extends Model implements Auditable
 
 
     //Relacion uno a muchos polimorfica
-    public function telefonos(){
-        return $this->morphMany('App\Models\Telefono','telefonable');
+    public function telefonos()
+    {
+        return $this->morphMany('App\Models\Telefono', 'telefonable');
     }
 
     /**
@@ -49,8 +62,9 @@ class Empleado extends Model implements Auditable
     }
 
     // Relacion muchos a muchos
-    public function grupos(){
-        return $this->belongsToMany(Grupo::class);
+    public function grupo()
+    {
+        return $this->belongsTo(Grupo::class);
     }
 
     /**
@@ -63,7 +77,8 @@ class Empleado extends Model implements Auditable
     }
 
     // Relacion uno a uno
-    public function jefe() {
+    public function jefe()
+    {
         return $this->belongsTo(Empleado::class, 'jefe_id');
     }
 
@@ -89,7 +104,8 @@ class Empleado extends Model implements Auditable
      * Relacion uno a muchos.
      * Un empleado con rol superior o igual a COORDINADOR puede autorizar todas las transacciones de sus empleados a cargo
      */
-    public function autorizadas(){
+    public function autorizadas()
+    {
         return $this->hasMany(TransaccionBodega::class);
     }
 
@@ -97,8 +113,8 @@ class Empleado extends Model implements Auditable
      * Relacion uno a muchos.
      * Un empleado con rol BODEGA puede entregar cualquier transaccion 
      */
-    public function atendidas(){
+    public function atendidas()
+    {
         return $this->hasMany(TransaccionBodega::class);
     }
 }
-

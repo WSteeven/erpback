@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         // Modulo de Bodega
+        $this->call(GrupoSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(CondicionesProductosFacturasSeeder::class);
@@ -46,7 +47,6 @@ class DatabaseSeeder extends Seeder
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
-        $this->call(GrupoSeeder::class);
         ImagenProducto::factory(10)->create();
 
         // Módulo de Tareas

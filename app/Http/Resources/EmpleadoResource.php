@@ -16,25 +16,28 @@ class EmpleadoResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id'=>$this->id,
-            'identificacion'=>$this->identificacion,
-            'nombres'=>$this->nombres,
-            'apellidos'=>$this->apellidos,
-            'telefono'=>$this->telefono,
-            'fecha_nacimiento'=>$this->fecha_nacimiento,
-            'email'=>$this->user? $this->user->email:'',
-            'jefe'=>$this->jefe? $this->jefe->nombres.' '.$this->jefe->apellidos:'N/A',
-            'usuario'=>$this->user->name,
-            'sucursal'=>$this->sucursal->lugar,
-            'estado'=>$this->estado,
-            'roles'=>implode(', ',$this->user->getRoleNames()->toArray())
+            'id' => $this->id,
+            'identificacion' => $this->identificacion,
+            'nombres' => $this->nombres,
+            'apellidos' => $this->apellidos,
+            'telefono' => $this->telefono,
+            'fecha_nacimiento' => $this->fecha_nacimiento,
+            'email' => $this->user ? $this->user->email : '',
+            'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
+            'usuario' => $this->user->name,
+            'sucursal' => $this->sucursal->lugar,
+            'estado' => $this->estado,
+            'grupo' => $this->grupo->nombre ?? null,
+            'disponible' => $this->disponible,
+            'roles' => implode(', ', $this->user->getRoleNames()->toArray())
         ];
 
-        if($controller_method=='show'){
+        if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
             $modelo['usuario'] = $this->usuario_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['roles'] = $this->user->getRoleNames();
+            $modelo['grupo'] = $this->grupo_id;
         }
 
         return $modelo;

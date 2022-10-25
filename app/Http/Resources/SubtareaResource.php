@@ -28,14 +28,14 @@ class SubtareaResource extends JsonResource
             'tipo_instalacion' => $this->tipo_instalacion,
             'id_servicio' => $this->id_servicio,
             'ticket_phoenix' => $this->ticket_phoenix,
-            'tipo_trabajo' => $this->tipo_tarea->nombre,
+            'tipo_trabajo' => $this->tipo_trabajo->nombre,
             'tarea' => $this->tarea->codigo_tarea_jp,
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->tarea->cliente_id;
-            $modelo['tipo_tarea'] = $this->tipo_tarea_id;
+            $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
         }
 

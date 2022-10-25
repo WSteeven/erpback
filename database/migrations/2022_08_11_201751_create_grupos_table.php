@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('estado');
             $table->timestamps();
 
-            $table->foreign('empleado_id')->references('id')->on('empleados');
+            //$table->foreign('empleado_id')->references('id')->on('empleados');
         });
     }
 
