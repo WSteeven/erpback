@@ -186,6 +186,7 @@ return [
          * Package Service Providers...
          */
         OwenIt\Auditing\AuditingServiceProvider::class,
+        eloquentFilter\ServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -210,6 +211,10 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+
+        'EloquentFilter' => eloquentFilter\Facade\EloquentFilter::class,
+
+        
     ])->toArray(),
 
 ];

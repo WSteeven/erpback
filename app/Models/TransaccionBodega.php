@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class TransaccionBodega extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
+    use Filterable;
 
     public $table = 'transacciones_bodega';
     public $fillable = [
@@ -29,7 +31,7 @@ class TransaccionBodega extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-
+    private static $whiteListFilter = ['*'];
 
     /* Una transaccion tiene varios estados de autorizacion durante su ciclo de vida */
     public function autorizaciones()

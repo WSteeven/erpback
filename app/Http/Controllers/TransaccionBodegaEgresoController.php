@@ -15,12 +15,26 @@ class TransaccionBodegaEgresoController extends Controller
 {
     private $entidad = 'Transacción';
 
+    public function list()
+    {
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])) {
+            return TransaccionBodegaResource::collection(TransaccionBodega::filter()->get());
+        } else {
+            $transacciones = TransaccionBodega::filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
+
+            
+            return  TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO'));
+        }
+    }
+
+
+
     /**
      * Listar
      */
     public function index()
     {
-        $results = [];
+        /* $results = [];
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])) {
             $transacciones = TransaccionBodega::all();
         } else {
@@ -35,7 +49,9 @@ class TransaccionBodegaEgresoController extends Controller
 
         $results = TransaccionBodegaResource::collection($results);
 
-        return response()->json(compact('results'));
+        return response()->json(compact('results')); */
+
+        return response()->json(['results' => $this->list()]);
     }
 
     /**
@@ -155,13 +171,13 @@ class TransaccionBodegaEgresoController extends Controller
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
-                    return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar la autorización'.$e->getMessage()], 422);
+                    return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar la autorización' . $e->getMessage()], 422);
                 }
 
                 $modelo = new TransaccionBodegaResource($transaccion->refresh());
                 $mensaje =  'Autorización actualizada correctamente';
                 return response()->json(compact('mensaje', 'modelo'));
-            }else{
+            } else {
                 if (auth()->user()->hasRole(User::ROL_BODEGA)) {
                     try {
                         DB::beginTransaction();
