@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
+    use HasFactory, AuditableModel, Filterable;
 
     protected $table = "subtareas";
     protected $fillable = [
@@ -38,6 +38,15 @@ class Subtarea extends Model implements Auditable
         'tecnicos_grupo_principal',
         'tecnicos_otros_grupos',
         'estado',
+    ];
+
+    protected $casts = [
+        'es_dependiente' => 'boolean',
+        'es_ventana' => 'boolean',
+    ];
+
+    private static $whiteListFilter = [
+        '*'
     ];
 
     // Relacion uno a muchos (inversa)

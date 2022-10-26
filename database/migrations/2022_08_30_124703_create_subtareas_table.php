@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->string('codigo_subtarea');
             $table->text('detalle');
-            $table->string('fecha_hora_creacion');
+            $table->string('fecha_hora_creacion')->nullable();
             $table->string('fecha_hora_asignacion')->nullable();
             $table->string('fecha_hora_inicio')->nullable();
             $table->string('fecha_hora_finalizacion')->nullable();
@@ -29,13 +29,13 @@ return new class extends Migration
             $table->string('fecha_hora_cancelacion')->nullable();
             $table->string('causa_cancelacion')->nullable();
             $table->boolean('es_dependiente')->default(false);
-            $table->string('subtarea_dependiente')->nullable();
+            $table->integer('subtarea_dependiente')->nullable();
             $table->boolean('es_ventana')->default(false);
             $table->string('hora_inicio_ventana')->nullable();
             $table->string('hora_fin_ventana')->nullable();
             $table->text('descripcion_completa')->nullable();
-            $table->string('tecnicos_grupo_principal'); // historico por si los técnicos se cambian de grupo o se van
-            $table->string('tecnicos_otros_grupos');
+            $table->string('tecnicos_grupo_principal'); // ids historico por si los técnicos se cambian de grupo o se van
+            $table->string('tecnicos_otros_grupos')->nullable();
             $table->string('estado');
 
             // Foreign keys

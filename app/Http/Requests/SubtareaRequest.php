@@ -25,9 +25,9 @@ class SubtareaRequest extends FormRequest
     {
         return [
             'codigo_subtarea' => 'nullable|string',
-            'detalle' => 'nullable|string',
-            'grupo' => 'nullable|numeric|integer',
-            'tipo_trabajo' => 'nullable|string',
+            'detalle' => 'required|string',
+            'grupo' => 'required|numeric|integer',
+            'tipo_trabajo' => 'required|numeric|integer',
             'fecha_hora_creacion' => 'nullable|string',
             'fecha_hora_asignacion' => 'nullable|string',
             'fecha_hora_inicio' => 'nullable|string',
@@ -38,15 +38,16 @@ class SubtareaRequest extends FormRequest
             'causa_suspencion' => 'nullable|string',
             'fecha_hora_cancelacion' => 'nullable|string',
             'causa_cancelacion' => 'nullable|string',
-            'es_dependiente' => 'nullable|boolean',
-            'subtarea_dependiente' => 'nullable|string',
-            'es_ventana' => 'nullable|boolean',
+            'es_dependiente' => 'boolean',
+            'subtarea_dependiente' => 'nullable|numeric|integer',
+            'es_ventana' => 'boolean',
             'hora_inicio_ventana' => 'nullable|string',
             'hora_fin_ventana' => 'nullable|string',
             'descripcion_completa' => 'nullable|string',
-            'tecnicos_grupo_principal' => 'nullable|array',
-            'tecnicos_otros_grupos' => 'nullable|array',
+            'tecnicos_grupo_principal' => 'required|string',
+            'tecnicos_otros_grupos' => 'nullable|string',
             'estado' => 'nullable|string',
+            'tarea_id' => 'required|numeric|integer',
         ];
     }
 }

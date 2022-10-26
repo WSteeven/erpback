@@ -18,7 +18,7 @@ class TareaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'codigo_tarea_jp' => $this->codigo_tarea_jp,
+            'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'fecha_solicitud' => $this->fecha_solicitud,
             'hora_solicitud' => $this->hora_solicitud,
