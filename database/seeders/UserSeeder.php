@@ -70,13 +70,13 @@ class UserSeeder extends Seeder
 
         // RR HH
         $recursos_humanos = User::create([
-            'name' => 'Luis Manuel',
+            'name' => 'LUIS MANUEL PESANTEZ MORA',
             'email' => 'manuel@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_RECURSOS_HUMANOS);
         $recursos_humanos->empleado()->create([
-            'nombres' => 'MANUEL',
-            'apellidos' => 'PESANTEZ',
+            'nombres' => 'LUIS MANUEL',
+            'apellidos' => 'PESANTEZ MORA',
             'identificacion' => '0784956230',
             'telefono' => '0987456747',
             'fecha_nacimiento' => '2019-05-12',
@@ -179,7 +179,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0745963251',
             'telefono' => '0987456235',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => '5',
             'sucursal_id' => $localidad_guayaquil->id
         ]);
 
@@ -233,6 +233,23 @@ class UserSeeder extends Seeder
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
             'sucursal_id' => $localidad_cuenca->id,
+            'grupo_id' => 1,
+        ]);
+
+         $tecnico = User::create([
+            'name' => 'Andres Rogel',
+            'email' => 'andres@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_TECNICO_LIDER);
+        $tecnico->empleado()->create([
+            'nombres' => 'ANDRES',
+            'apellidos' => 'ROGEL',
+            'identificacion' => '0707474236',
+            'telefono' => '0987456332',
+            'fecha_nacimiento' => '2010-05-12',
+            'jefe_id' => '6',
+            'sucursal_id' => $localidad_machala->id,
             'grupo_id' => 1,
         ]);
 

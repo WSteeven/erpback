@@ -9,6 +9,8 @@ use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\Case_;
+use PhpParser\Node\Stmt\Return_;
 use Src\Shared\Utils;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -17,12 +19,49 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function list()
     {
+        // Log::channel('testing')->info('Log', ['request en el metodo list', request('estado')]);
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])) {
-            return TransaccionBodegaResource::collection(TransaccionBodega::filter()->get());
-        } else {
-            $transacciones = TransaccionBodega::filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
+            // return TransaccionBodegaResource::collection(TransaccionBodega::filter()->with('autorizaciones')->get());
+            $transacciones =  TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
+            $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
+            if (request('estado') === 'ESPERA') {
+                // Log::channel('testing')->info('Log', ['filtro', $transacciones->filter(fn($transaccion)=> TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre==='PENDIENTE')]);
+                // $transacciones->filter(fn($transaccion)=> TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre==='PENDIENTE');
+                return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE'));
+            }
+            if (request('estado') === 'PARCIAL') {
+                return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === 'PARCIAL'));
+            }
+            if (request('estado') === 'PENDIENTE') {
+                return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === 'PENDIENTE' && TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'APROBADO'));
+            }
+            if (request('estado') === 'COMPLETA') {
+                return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === 'COMPLETA'));
+            }
+            if (request('estado') === 'TODO') {
+                return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre !== 'CANCELADO'));
+            }
+            // return TransaccionBodegaResource::collection(TransaccionBodega::ignoreRequest(['estado'])->filter()->with('autorizaciones')->get());
 
-            
+            return TransaccionBodegaResource::collection($transacciones);
+        } else {
+            $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
+            $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
+
+            switch (request('estado')) {
+                case 'ESPERA':
+                    return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE'));
+                case 'PARCIAL':
+                    return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === request('estado')));
+                case 'PENDIENTE':
+                    return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === request('estado') && TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'APROBADO'));
+                case 'COMPLETA':
+                    return TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => TransaccionBodega::ultimoEstado($transaccion->id)->nombre === request('estado')));
+                default:
+                    return TransaccionBodegaResource::collection($transacciones);
+            }
+
+
             return  TransaccionBodegaResource::collection($transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO'));
         }
     }
