@@ -18,7 +18,7 @@ class GrupoSeeder extends Seeder
         Grupo::insert([
             [
                 'nombre' => 'MACHALA',
-                'empleado_id' => 1,
+                'empleado_id' => 13,
                 'estado' => 1,
             ],
             [

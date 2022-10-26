@@ -17,7 +17,7 @@ class TareaSeeder extends Seeder
     {
         Tarea::insert([
             [
-                'codigo_tarea_jp' => 'JP000001',
+                'codigo_tarea' => '000000001',
                 'codigo_tarea_cliente' => 'ADD878',
                 'cliente_id' => 1,
                 'coordinador_id' => 3,
@@ -25,6 +25,8 @@ class TareaSeeder extends Seeder
                 'cliente_final_id' => 1,
                 'detalle' => 'RUTA MPLS CIRCULAR PALMALES, HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES',
                 'es_proyecto' => false,
+                'fecha_solicitud' => '20/04/2022',
+                'hora_solicitud' => '12:35:00',
                 /*'estado' => 'FINALIZADO',
                 'provincia' => 'EL ORO',
                 'ciudad' => 'MACHALA',
@@ -35,7 +37,7 @@ class TareaSeeder extends Seeder
                 'georeferencia_y' => '425 785', */
             ],
             [
-                'codigo_tarea_jp' => 'JP000002',
+                'codigo_tarea' => '000000002',
                 'codigo_tarea_cliente' => 'ERHD69',
                 'cliente_id' => 1,
                 'coordinador_id' => 3,
@@ -43,6 +45,8 @@ class TareaSeeder extends Seeder
                 'cliente_final_id' => 1,
                 'detalle' => 'MANGA INTERURBANA -SARACAY / HINCADO DE POSTE EN MANGA INTERURBANA-SARACAY',
                 'es_proyecto' => false,
+                'fecha_solicitud' => '19/04/2022',
+                'hora_solicitud' => '10:14:00',
                 /*'estado' => 'FINALIZADO',
                 'provincia' => 'EL ORO',
                 'ciudad' => 'MACHALA',

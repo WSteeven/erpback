@@ -24,7 +24,7 @@ class TareaRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo_tarea_jp' => 'nullable|string',
+            'codigo_tarea' => 'nullable|string',
             'codigo_tarea_cliente' => 'nullable|string',
             // 'coordinador' => 'nullable|numeric|integer',
             'cliente_final' => 'required|numeric|integer',

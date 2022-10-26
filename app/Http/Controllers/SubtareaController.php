@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Subtarea;
+use App\Models\Tarea;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
@@ -12,12 +14,23 @@ class SubtareaController extends Controller
 {
     private $entidad = 'Subtarea';
 
+    public function list(Request $request)
+    {
+        $estado = $request['estado'];
+
+        if ($estado) {
+            return SubtareaResource::collection(Subtarea::filter()->where('estado', $estado)->get());
+        }
+
+        return SubtareaResource::collection(Subtarea::filter()->get());
+    }
+
     /**
      * Listar
      */
     public function index(Request $request)
     {
-        $tarea = $request['tarea'];
+        /*$tarea = $request['tarea'];
         $results = [];
 
         if ($tarea) {
@@ -26,7 +39,8 @@ class SubtareaController extends Controller
             $results = SubtareaResource::collection(Subtarea::all());
         }
 
-        return response()->json(compact('results'));
+        return response()->json(compact('results')); */
+        return response()->json(['results' => $this->list($request)]);
     }
 
     /**
@@ -34,10 +48,18 @@ class SubtareaController extends Controller
      */
     public function store(SubtareaRequest $request)
     {
+        $tarea_id = $request['tarea_id'];
+
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
+
+        $datos['fecha_hora_creacion'] = Carbon::now();
+        
+        // Calcular estados
+        $datos['estado'] = 'CREADO';
 
         // Respuesta
         $modelo = Subtarea::create($datos);

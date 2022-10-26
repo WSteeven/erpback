@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tareas', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_tarea_jp');
+            $table->string('codigo_tarea');
             $table->string('codigo_tarea_cliente')->nullable();
             $table->string('fecha_solicitud')->nullable();
             $table->string('hora_solicitud')->nullable();

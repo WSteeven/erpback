@@ -14,7 +14,7 @@ class Tarea extends Model implements Auditable
 
     protected $table = "tareas";
     protected $fillable = [
-        'codigo_tarea_jp',
+        'codigo_tarea',
         'codigo_tarea_cliente',
         'fecha_solicitud',
         'hora_solicitud',
