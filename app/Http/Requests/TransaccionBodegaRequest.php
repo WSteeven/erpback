@@ -34,6 +34,7 @@ class TransaccionBodegaRequest extends FormRequest
             'observacion_est'=>'nullable|string|sometimes',
             'solicitante'=>'required|exists:empleados,id',
             'subtipo'=>'required|exists:subtipos_transacciones,id',
+            'subtarea'=>'nullable|exists:subtareas,id',
             'sucursal'=>'required|exists:sucursales,id',
             'per_autoriza'=>'required|exists:empleados,id',
             'per_atiende'=>'sometimes|exists:empleados,id',
@@ -60,11 +61,14 @@ class TransaccionBodegaRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function($validator){
-            if(!is_null($this->fecha_limite)){
-                if(date('Y-m-d',strtotime($this->fecha_limite))<now()){
-                    $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+            if (!in_array($this->method(), ['PUT', 'PATCH'])) {
+                if(!is_null($this->fecha_limite)){
+                    if(date('Y-m-d',strtotime($this->fecha_limite))<now()){
+                        $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+                    }
                 }
             }
+
         });
     }
 

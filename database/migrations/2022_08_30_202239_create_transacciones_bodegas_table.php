@@ -19,12 +19,13 @@ return new class extends Migration
             $table->date('fecha_limite')->nullable();
             $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('subtipo_id');
+            $table->unsignedBigInteger('subtarea_id')->nullable();
             $table->unsignedBigInteger('sucursal_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
             $table->unsignedBigInteger('per_atiende_id')->nullable();
-            $table->string('lugar_destino')->nullable();
             $table->timestamps();
 
+            $table->foreign('subtarea_id')->references('id')->on('subtareas');
             $table->foreign('solicitante_id')->references('id')->on('empleados');
             $table->foreign('per_autoriza_id')->references('id')->on('empleados');
             $table->foreign('per_atiende_id')->references('id')->on('empleados');

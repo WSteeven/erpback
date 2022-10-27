@@ -22,10 +22,10 @@ class TransaccionBodega extends Model implements Auditable
         'fecha_limite',
         'solicitante_id',
         'subtipo_id',
+        'subtarea_id',
         'sucursal_id',
         'per_autoriza_id',
         'per_atiende_id',
-        'lugar_destino',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -57,6 +57,14 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsToMany(DetalleProducto::class, 'detalle_productos_transacciones', 'transaccion_id', 'detalle_id')
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
+    }
+
+    /**
+     * Relación uno a muchos(inversa).
+     * Una transacción pertenece a una sola subtarea
+     */
+    public function subtarea(){
+        return $this->belongsTo(Subtarea::class);
     }
 
     /**
@@ -142,5 +150,27 @@ class TransaccionBodega extends Model implements Auditable
         }
 
         return $results;
+    }
+
+    /**
+     * Filtra las transacciones para enviarlas de acuerdo al estado seleccionado, valor que se recibe desde los tabsOptions del front.
+     * @param Collection $transacciones
+     * @param String $estado
+     * 
+     * @return Collection $transacciones listado de transacciones filtradas
+     */
+    public static function filtrarTransacciones($transacciones, $estado){
+        switch($estado){
+            case 'ESPERA':
+                return $transacciones->filter(fn ($transaccion) => self::ultimaAutorizacion($transaccion->id)->nombre==='PENDIENTE');// TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE');
+            case 'PARCIAL':
+                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado'));
+            case 'PENDIENTE':
+                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado') && self::ultimaAutorizacion($transaccion->id)->nombre === 'APROBADO');
+            case 'COMPLETA':
+                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado'));
+            default:
+                return $transacciones;
+        }
     }
 }

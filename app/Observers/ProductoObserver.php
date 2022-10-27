@@ -28,7 +28,7 @@ class ProductoObserver
     public function created(Producto $producto)
     {
         CodigoCliente::create([
-            'codigo'=>'JP-'.Utils::generarCodigo4Digitos($producto->id),
+            'codigo'=>'JP-'.Utils::generarCodigoConLongitud($producto->id, 6),
             'producto_id'=>$producto->id
         ]);
         /* Log::channel('testing')->info('Log despues de crear', ['producto', $producto->id, 'nombre', $producto->nombre, 'categoria',$producto->categoria_id]); */

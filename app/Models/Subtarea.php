@@ -60,4 +60,12 @@ class Subtarea extends Model implements Auditable
     {
         return $this->belongsTo(TipoTarea::class);
     }
+
+    /**
+     * Relación uno a muchos .
+     * Una subtarea puede tener varias transacciones
+     */
+    public function transaccion(){
+        $this->hasMany(TransaccionBodega::class);
+    }
 }

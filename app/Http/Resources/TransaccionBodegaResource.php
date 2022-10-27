@@ -21,7 +21,7 @@ class TransaccionBodegaResource extends JsonResource
         $estado = TransaccionBodega::ultimoEstado($this->id);
         $detalles = TransaccionBodega::listadoProductos($this->id);
 
-        // Log::channel('testing')->info('Log', ['detalles recibidos?:', $detalles]);
+        // Log::channel('testing')->info('Log', ['AUTORIZACION PIVOT?:', is_null($autorizacion->pivot)?'aacccc':$autorizacion]);
 
         $modelo = [
             'id'=>$this->id,
@@ -34,6 +34,7 @@ class TransaccionBodegaResource extends JsonResource
             'solicitante'=>$this->solicitante?$this->solicitante->nombres.' '.$this->solicitante->apellidos:'N/A',
             'tipo'=>$this->subtipo->tipoTransaccion->nombre,
             'subtipo'=>$this->subtipo->nombre,
+            'subtarea'=>$this->subtarea?$this->subtarea->codigo:null,
             'sucursal'=>$this->sucursal->lugar,
             'autoriza'=>$this->autoriza->nombres.' '.$this->autoriza->apellidos,
             'lugar_destino'=>$this->lugar_destino,
