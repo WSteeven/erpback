@@ -320,5 +320,58 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 3,
         ]);
+
+        /**
+         * -----------
+         * Informatica
+         * -----------
+         * Coordinador
+         */
+        $coordinador = User::create([
+            'name' => 'Yefraina Lovera',
+            'email' => 'ylovera@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COORDINADOR);
+        $coordinador->empleado()->create([
+            'nombres' => 'YEFRAINA',
+            'apellidos' => 'LOVERA',
+            'identificacion' => '0707417879',
+            'telefono' => '0987498564',
+            'fecha_nacimiento' => '2000-05-12',
+            'jefe_id' => '2',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'Wilson Córdova',
+            'email' => 'wcordova@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
+        $tecnico->empleado()->create([
+            'nombres' => 'WILSON',
+            'apellidos' => 'CORDOVA',
+            'identificacion' => '0750360919',
+            'telefono' => '0992200572',
+            'fecha_nacimiento' => '1997-06-29',
+            'jefe_id' => '19',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
+        $tecnico = User::create([
+            'name' => 'Juan Cuesta',
+            'email' => 'jcuesta@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
+        $tecnico->empleado()->create([
+            'nombres' => 'JUAN',
+            'apellidos' => 'CUESTA',
+            'identificacion' => '0701234567',
+            'telefono' => '0998474965',
+            'fecha_nacimiento' => '1996-05-12',
+            'jefe_id' => '19',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
     }
 }

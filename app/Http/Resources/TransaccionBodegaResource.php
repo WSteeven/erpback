@@ -24,39 +24,41 @@ class TransaccionBodegaResource extends JsonResource
         // Log::channel('testing')->info('Log', ['AUTORIZACION PIVOT?:', is_null($autorizacion->pivot)?'aacccc':$autorizacion]);
 
         $modelo = [
-            'id'=>$this->id,
-            'autorizacion'=>is_null($autorizacion)?'N/A':$autorizacion->nombre,
-            'obs_autorizacion'=>is_null($autorizacion->pivot->observacion)?'N/A':$autorizacion->pivot->observacion,
-            'justificacion'=>$this->justificacion,
-            'fecha_limite'=>is_null($this->fecha_limite)?'N/A': $this->fecha_limite,
-            'estado'=>is_null($estado)?'N/A':$estado->nombre,
-            'obs_estado'=>is_null($estado->pivot->observacion)?'N/A':$estado->pivot->observacion,
-            'solicitante'=>$this->solicitante?$this->solicitante->nombres.' '.$this->solicitante->apellidos:'N/A',
-            'tipo'=>$this->subtipo->tipoTransaccion->nombre,
-            'subtipo'=>$this->subtipo->nombre,
-            'subtarea'=>$this->subtarea?$this->subtarea->codigo:null,
-            'sucursal'=>$this->sucursal->lugar,
-            'autoriza'=>$this->autoriza->nombres.' '.$this->autoriza->apellidos,
-            'lugar_destino'=>$this->lugar_destino,
-            'atiende'=>is_null($this->atiende)?'':$this->atiende->nombres.' '.$this->atiende->apellidos,
-            'created_at'=>$this->created_at,
+            'id' => $this->id,
+            'autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->nombre,
+            'obs_autorizacion' => is_null($autorizacion->pivot->observacion) ? 'N/A' : $autorizacion->pivot->observacion,
+            'justificacion' => $this->justificacion,
+            'fecha_limite' => is_null($this->fecha_limite) ? 'N/A' : $this->fecha_limite,
+            'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
+            'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
+            'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
+            'tipo' => $this->subtipo->tipoTransaccion->nombre,
+            'subtipo' => $this->subtipo->nombre,
+            'subtarea' => $this->subtarea ? $this->subtarea->detalle : null,
+            'sucursal' => $this->sucursal->lugar,
+            'autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
+            'lugar_destino' => $this->lugar_destino,
+            'atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
+            'created_at' => $this->created_at,
+            'listadoProductosSeleccionados' => $detalles,
         ];
 
-        if($controller_method=='show'){
+        if ($controller_method == 'show') {
             // $modelo['autorizacion']=$this->autorizaciones()->first()->nombre;
-            $modelo['autorizacion']=$autorizacion->id;
-            $modelo['obs_autorizacion']=$autorizacion->pivot->observacion;
+            $modelo['autorizacion'] = $autorizacion->id;
+            $modelo['obs_autorizacion'] = $autorizacion->pivot->observacion;
             // $modelo['estado']=$this->estados()->first()->nombre;
-            $modelo['estado']=$estado->id;
-            $modelo['obs_estado']=$estado->pivot->observacion;
-            $modelo['solicitante_id']=$this->solicitante_id;
-            $modelo['tipo']=$this->subtipo->tipoTransaccion->id;
-            $modelo['subtipo']=$this->subtipo_id;
-            $modelo['sucursal']=$this->sucursal_id;
-            $modelo['per_autoriza_id']=$this->solicitante_id;
-            $modelo['per_atiende_id']=$this->solicitante_id;
-            $modelo['created_at']=date('d/m/Y', strtotime($this->created_at));
-            $modelo['listadoProductosSeleccionados']= $detalles;
+            $modelo['estado'] = $estado->id;
+            $modelo['obs_estado'] = $estado->pivot->observacion;
+            $modelo['solicitante_id'] = $this->solicitante_id;
+            $modelo['tipo'] = $this->subtipo->tipoTransaccion->id;
+            $modelo['subtipo'] = $this->subtipo_id;
+            $modelo['subtarea'] = $this->subtarea_id;
+            $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['per_autoriza_id'] = $this->solicitante_id;
+            $modelo['per_atiende_id'] = $this->solicitante_id;
+            $modelo['created_at'] = date('d/m/Y', strtotime($this->created_at));
+            $modelo['listadoProductosSeleccionados'] = $detalles;
         }
 
         return $modelo;
