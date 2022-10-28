@@ -48,8 +48,6 @@ class DatabaseSeeder extends Seeder
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
-        $this->call(TransaccionBodegaSeeder::class);
-        ImagenProducto::factory(10)->create();
 
         // Módulo de Tareas
         $this->call(ClienteFinalSeeder::class);
@@ -57,5 +55,8 @@ class DatabaseSeeder extends Seeder
         $this->call(TipoTareaSeeder::class);
         $this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
+
+        $this->call(TransaccionBodegaSeeder::class);
+        ImagenProducto::factory(10)->create();
     }
 }
