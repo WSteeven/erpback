@@ -29,8 +29,14 @@ class TransaccionBodegaController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
+        $idsSeleccionados = $request['ids_seleccionados'];
+
+        if ($idsSeleccionados) {
+            return TransaccionBodegaResource::collection(TransaccionBodega::filter()->whereIn('id', $idsSeleccionados)->get());
+        }
+
         $results = TransaccionBodegaResource::collection(TransaccionBodega::all());
         return response()->json(compact('results'));
     }
@@ -122,16 +128,16 @@ class TransaccionBodegaController extends Controller
     public function update(TransaccionBodegaRequest $request, TransaccionBodega  $transaccion)
     {
         Log::channel('testing')->info('Log', ['Solicitante es:', $transaccion->solicitante->id]);
-        if($transaccion->solicitante->id===auth()->user()->empleado->id){
+        if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
             $transaccion->update($request->validated());
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-    
+
             return response()->json(compact('mensaje', 'modelo'));
         }
         $message = 'No tienes autorización para modificar esta solicitud';
-        $errors=['message'=>$message]; 
-        return response()->json(['errors'=>$errors], 422);
+        $errors = ['message' => $message];
+        return response()->json(['errors' => $errors], 422);
     }
 
     /**

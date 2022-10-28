@@ -168,7 +168,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'PENDIENTE':
                 return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado') && self::ultimaAutorizacion($transaccion->id)->nombre === 'APROBADO');
             case 'COMPLETA':
-                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado'));
+                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === $estado);
             default:
                 return $transacciones;
         }

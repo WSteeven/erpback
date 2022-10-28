@@ -26,15 +26,28 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function list()
     {
+        $idsSeleccionados = request('ids_seleccionados');
+        
+        if (request('subtarea_id')) {
+            if ($idsSeleccionados) {
+                $var = array_map('intval', explode(',', $idsSeleccionados));
+                 Log::channel('testing')->info('Log', ['arrays', $var]);
+                return TransaccionBodegaResource::collection(TransaccionBodega::whereIn('id', $var)->where()->get()); // revisar
+            }
+            $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
+            // return TransaccionBodegaResource::collection($transacciones);
+            return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransacciones($transacciones, 'COMPLETA'));
+        }
+
         // Log::channel('testing')->info('Log', ['request en el metodo list', request('estado')]);
-        if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
+        if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
             $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('per_autoriza_id', auth()->user()->empleado->id)->get();
             return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransacciones($transacciones, request('estado')));
         }
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             $transacciones =  TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
             $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
-            
+
             return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransacciones($transacciones, request('estado')));
         } else {
             $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
@@ -85,7 +98,7 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-            if($request->subtarea){
+            if ($request->subtarea) {
                 $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
             }
             if ($request->per_atiende) {
@@ -152,7 +165,11 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+<<<<<<< HEAD
         if($request->subtarea_id){
+=======
+        if ($datos->subtarea_id) {
+>>>>>>> 3f83e81633b04ecab3c9ef9c6cd62eef4d733ce3
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
         }
         if ($request->per_atiende) {

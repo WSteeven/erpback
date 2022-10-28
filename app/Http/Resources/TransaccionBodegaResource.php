@@ -40,7 +40,6 @@ class TransaccionBodegaResource extends JsonResource
             'lugar_destino' => $this->lugar_destino,
             'atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
             'created_at' => $this->created_at,
-            'listadoProductosSeleccionados' => $detalles,
         ];
 
         if ($controller_method == 'show') {
