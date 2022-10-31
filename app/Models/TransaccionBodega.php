@@ -19,9 +19,11 @@ class TransaccionBodega extends Model implements Auditable
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',
+        'comprobante',
         'fecha_limite',
         'solicitante_id',
         'subtipo_id',
+        'tarea_id',
         'subtarea_id',
         'sucursal_id',
         'per_autoriza_id',
@@ -57,6 +59,14 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsToMany(DetalleProducto::class, 'detalle_productos_transacciones', 'transaccion_id', 'detalle_id')
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
+    }
+
+    /**
+     * Relación uno a muchos(inversa).
+     * Una transacción de ingreso pertenece a una o ninguna tarea
+     */
+    public function tarea(){
+        return $this->belongsTo(Tarea::class);
     }
 
     /**
