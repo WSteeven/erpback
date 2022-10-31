@@ -40,7 +40,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->unsignedBigInteger('tipo_trabajo_id');
-            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_tareas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade');

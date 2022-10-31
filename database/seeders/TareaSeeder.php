@@ -19,7 +19,7 @@ class TareaSeeder extends Seeder
             [
                 'codigo_tarea' => '000000001',
                 'codigo_tarea_cliente' => 'ADD878',
-                'cliente_id' => 1,
+                'cliente_id' => 2,
                 'coordinador_id' => 3,
                 'supervisor_id' => 3,
                 'cliente_final_id' => 1,
@@ -39,7 +39,7 @@ class TareaSeeder extends Seeder
             [
                 'codigo_tarea' => '000000002',
                 'codigo_tarea_cliente' => 'ERHD69',
-                'cliente_id' => 1,
+                'cliente_id' => 3,
                 'coordinador_id' => 3,
                 'supervisor_id' => 3,
                 'cliente_final_id' => 1,

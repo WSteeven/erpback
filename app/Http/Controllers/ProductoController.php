@@ -6,7 +6,7 @@ use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
 use App\Http\Resources\TipoTareaResource;
 use App\Models\Producto;
-use App\Models\TipoTarea;
+use App\Models\TipoTrabajo;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 

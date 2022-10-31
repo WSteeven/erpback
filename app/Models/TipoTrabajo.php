@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class TipoTarea extends Model implements Auditable
+class TipoTrabajo extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
 
-    protected $table = "tipos_tareas";
+    protected $table = "tipos_trabajos";
     protected $fillable = ['nombre', 'cliente_id'];
 
     // Relacion uno a muchos (inversa)

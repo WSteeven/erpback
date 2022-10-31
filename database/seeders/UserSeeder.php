@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
         $admin->empleado()->create([
             'nombres' => 'Superusuario',
             'apellidos' => 'Administrador',
-            'sucursal_id'=>$localidad_machala->id
+            'sucursal_id' => $localidad_machala->id
         ]);
 
 
@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
             'jefe_id' => '2',
             'sucursal_id' => $localidad_machala->id
         ]);
-        
+
         // Coordinador
         $coordinador_sto_domingo = User::create([
             'name' => 'Bryan Chamba',
@@ -218,8 +218,8 @@ class UserSeeder extends Seeder
         ]);
 
         /** TECNICOS */
-         // Tecnico lider
-         $tecnico = User::create([
+        // Tecnico lider
+        $tecnico = User::create([
             'name' => 'Pedro Ramirez',
             'email' => 'pramirez@jp.com',
             'email_verified_at' => date("Y-m-d"),
@@ -236,7 +236,7 @@ class UserSeeder extends Seeder
             'grupo_id' => 1,
         ]);
 
-         $tecnico = User::create([
+        $tecnico = User::create([
             'name' => 'Andres Rogel',
             'email' => 'andres@jp.com',
             'email_verified_at' => date("Y-m-d"),
@@ -373,5 +373,79 @@ class UserSeeder extends Seeder
             'jefe_id' => '19',
             'sucursal_id' => $localidad_machala->id,
         ]);
+
+        //
+
+        // $tecnico = User::create([, 'password' => bcrypt('password')])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        //INSERT INTO usuario (nombre,apellido,correo_electronico) VALUES
+	 /* $usuarios = [
+     ['ANTHONY DANIEL BERSOZA SANCHEZ','abersoza@jeanpazmino.com', date("Y-m-d"),
+	 ['ALBERTO ALFREDO MORENO GARINO','amoreno@jeanpazmino.com', date("Y-m-d")],
+	 ['DIEGO HERNAN INAMAGUA LALA','dinamagua@jeanpazmino.com', date("Y-m-d")],
+	 ['ELVIS AGUSTIN BRICEÑO ARMIJOS','ebriceno@jeanpazmino.com', date("Y-m-d")],
+	 ['EYDER ESTEBAN PEREIRA NAVAS','epereira@jeanpazmino.com', date("Y-m-d")],
+	 ['FREDY GEOVANNY QUITUISACA SANCHEZ','fquituisaca@jeanpazmino.com', date("Y-m-d")],
+	 ['FRANCISCO WLADIMIR SALAZAR SOLORZANO','fsalazar@jeanpazmino.com', date("Y-m-d")],
+	 ['JONATHAN FRANCISCO AGUILAR ALCIVAR','jaguilar@jeanpazmino.com', date("Y-m-d")],
+	 ['JOSEPH CARLOS CHONILLO SARMIENTO','jchonillo@jeanpazmino.com', date("Y-m-d")],
+	 ['JORGE GUILLERMO LEITON RIZZO','jleiton@jeanpazmino.com', date("Y-m-d")],
+	 ['JIMMY JAVIER MACAS CHUCHUCA','jmacas@jeanpazmino.com', date("Y-m-d")],
+	 ['JAIME RENAN MENDOZA ALCIVAR','jmendoza@jeanpazmino.com', date("Y-m-d")],
+	 ['JONNATHAN ISMAEL PACHECO VACA','jpacheco@jeanpazmino.com', date("Y-m-d")],
+	 ['JONATHAN ADRIAN PANCHI DIAZ','jpanchi@jeanpazmino.com', date("Y-m-d")],
+	 ['JONATHAN ANTONIO TENESACA AZOGUE','jtenesaca@jeanpazmino.com', date("Y-m-d")],
+	 ['JACKSON JAVIER VALENCIA ARTURO','jvalencia@jeanpazmino.com', date("Y-m-d")],
+	 ['ANGEL GEOVANNY CHAMBA ENRIQUEZ','ACHAMBA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['LUIS  ALBERTO GONZABAY PEÑFIEL','lgonzabay@jeanpazmino.com', date("Y-m-d")],
+	 ['DANIEL PATRICK APOLO RAMIREZ','papolo@jeanpazmino.com', date("Y-m-d")],
+	 ['PETER ANTONIO FIGUEROA CASTRO','pfigueroa@jeanpazmino.com', date("Y-m-d")],
+	 ['STIVEN JEFFERSON BONE MOTTA','sbone@jeanpazmino.com', date("Y-m-d")],
+	 ['SIMON GABRIEL CARBO PACHECO','scarbo@jeanpazmino.com', date("Y-m-d")],
+	 ['SANTIAGO ALEJANDRO GRANDA GRANDA','sgranda@jeanpazmino.com', date("Y-m-d")],
+	 ['VICTOR HUGO RIERA GAVILANEZ','vriera@jeanpazmino.com', date("Y-m-d")],
+	 ['WILSON RODRIGO GRANDA FAJARDO','wgranda@jeanpazmino.com', date("Y-m-d")],
+	 ['WILMER FABIAN LEMA','wlema@jeanpazmino.com', date("Y-m-d")],
+	 ['XAVIER FERNANDO SIRANAULA JIMENEZ','xsiranaula@jeanpazmino.com', date("Y-m-d")],
+	 ['JEFFERSON RAFAEL ABAD ZUMBA','JABAD@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['CHRISTIAN PAUL TAPIA IDROVO','CTAPIA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JORDAN DAVID CEDEÑO VERGARA','JCEDENO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JEISON ENRIQUE SATAMA GARZON','JSATAMA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['SALLY ANDREA CAICEDO PARRA','SCAICEDO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['DARWIN JOSE MERO CASTILLO','DMERO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['BRYAN STEVEN LOPEZ ORMAZA','BLOPEZ@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JOSE NIBALDO MOREIRA GONZALES','JMOREIRA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JONATHAN AURELIO JORDAN HIDALGO','JJORDAN@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['LEONARDO ENRIQUE BAZURTO BRAVO','LBAZURTO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['LUIS MANUEL PESANTEZ MORA','LPESANTEZ@JENAPAZMINO.COM', date("Y-m-d")],
+	 ['LUIS FERNANDO BAJAÑA CHONILLO','LBAJANA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['MIGUEL FERNANDO LINO QUIMIS','MLINO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['MIGUEL ANGEL ENGRACIA GARCIA','MENGRACIA@JENAPAZMINO.COM', date("Y-m-d")],
+	 ['RONALD DAVID VIVANCO CARPIO','RVIVANCO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['DAVID IVAN CHAMBA MORA','DCHAMBA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['EDISON MARTIN PALMA','EPALMA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JOSE LUIS ANTEPARA CARDENAS','JANTEPARA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['OSWALDO INA CEDEÑO','OMOLINA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JORGE LEONARDO MEDINA SOLEDISPA','JMEDINA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['DIEGO HERNAN CRUZ ESPINOZA','DCRUZ@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JHON EDUARDO SAETAMA SANMARTIN','JSAETAMA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['ANGEL DARIO CEDEÑO BRAVO','ACEDENO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['ALBERTO DANIEL SALAS REINA','ASALAS@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['ALEXANDER LEONEL TOAPANTA ARROYO','ATOAPANTA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['FIDEL ANTONIO CORTEZ CASTRO','FCASTRO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JOSE JACINTO PALMA CHOEZ','JPALMA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['JIMMY MARCOS BAQUE PIN','JBAQUE@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['WILLIAM SANTIAGO ALDAS OCHOA','WALDAS', date("Y-m-d")],
+	 ['ALEXANDER LORENZO TIGUA PILLASAGUA','ATIGUA@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['RONALD MAURICIO ALCOCER PIN','RALCOCER@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['ANGELO ENEZ','AJIMENEZ@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['ANGEL CIRINO MERELLO SANCHEZ','AMERELLO@JEANPAZMINO.COM', date("Y-m-d")],
+	 ['LEIVER JOAO CELI GONZALEZ', 'LCELI', date("Y-m-d")]];
+
+        
+        //
+
+        foreach ($datos as $fila) {
+            DB::insert('INSERT INTO usuario (name, email, email_verified_at) VALUES(?,?,?)', $fila);
+        }*/
     }
 }

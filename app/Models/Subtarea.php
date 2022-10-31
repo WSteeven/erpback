@@ -58,7 +58,7 @@ class Subtarea extends Model implements Auditable
     // Relacion uno a muchos (inversa)
     public function tipo_trabajo()
     {
-        return $this->belongsTo(TipoTarea::class);
+        return $this->belongsTo(TipoTrabajo::class);
     }
 
     /**

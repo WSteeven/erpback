@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TipoTareaRequest;
 use App\Http\Resources\TipoTareaResource;
-use App\Models\TipoTarea;
+use App\Models\TipoTrabajo;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
@@ -21,11 +21,11 @@ class TipoTareaController extends Controller
         $results = [];
 
         if ($cliente) {
-            $results = TipoTareaResource::collection(TipoTarea::where('cliente_id', $cliente)->get());
+            $results = TipoTareaResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {
-            $results = TipoTareaResource::collection(TipoTarea::all());
+            $results = TipoTareaResource::collection(TipoTrabajo::all());
         }
-        //$results = TipoTareaResource::collection(TipoTarea::all());
+        //$results = TipoTareaResource::collection(TipoTrabajo::all());
         return response()->json(compact('results'));
     }
 
@@ -39,7 +39,7 @@ class TipoTareaController extends Controller
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
-        $modelo = TipoTarea::create($datos);
+        $modelo = TipoTrabajo::create($datos);
         $modelo = new TipoTareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -48,7 +48,7 @@ class TipoTareaController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoTarea $tipo_tarea)
+    public function show(TipoTrabajo $tipo_tarea)
     {
         $modelo = new TipoTareaResource($tipo_tarea);
         return response()->json(compact('modelo'));
@@ -57,7 +57,7 @@ class TipoTareaController extends Controller
     /**
      * Actualizar
      */
-    public function update(TipoTareaRequest $request, TipoTarea $tipo_tarea)
+    public function update(TipoTareaRequest $request, TipoTrabajo $tipo_tarea)
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
@@ -73,7 +73,7 @@ class TipoTareaController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(TipoTarea $tipo_tarea)
+    public function destroy(TipoTrabajo $tipo_tarea)
     {
         $tipo_tarea->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
