@@ -25,22 +25,30 @@ class TransaccionBodegaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        Log::channel('testing')->info('Log', ['Datos recibidos', $this->route()->uri()]);
+        $rules = [
             'autorizacion'=>'required|exists:autorizaciones,id',
             'observacion_aut'=>'nullable|string|sometimes',
             'justificacion'=>'required|string',
+            'comprobante'=>'sometimes|string|nullable',
             'fecha_limite'=>'nullable|string',
             'estado'=>'required|exists:estados_transacciones_bodega,id',
             'observacion_est'=>'nullable|string|sometimes',
             'solicitante'=>'required|exists:empleados,id',
             'subtipo'=>'required|exists:subtipos_transacciones,id',
-            'subtarea'=>'nullable|exists:subtareas,id',
+            'tarea'=>'sometimes|nullable|exists:tareas,id',
+            'subtarea'=>'sometimes|nullable|exists:subtareas,id',
             'sucursal'=>'required|exists:sucursales,id',
             'per_autoriza'=>'required|exists:empleados,id',
             'per_atiende'=>'sometimes|exists:empleados,id',
             'lugar_destino'=>'nullable|string',
             'listadoProductosSeleccionados.*.cantidades'=>'required'
         ];
+        if($this->route()->uri()==='api/transacciones-ingresos'){
+            $rules['autorizacion'] ='nullable';
+        }
+
+        return $rules;
     }
 
     public function attributes()
@@ -82,14 +90,22 @@ class TransaccionBodegaRequest extends FormRequest
         $this->merge([
             'solicitante'=>auth()->user()->empleado->id,
         ]);
-        if($this->autorizacion==''){
-            $this->merge([
-                'autorizacion'=>1,
-            ]);
+        if($this->route()->uri()!=='api/transacciones-ingresos'){
+            if($this->autorizacion==''){
+                $this->merge([
+                    'autorizacion'=>1,
+                ]);
+            }
         }
         if($this->estado==''){
             $this->merge([
                 'estado'=>1,
+            ]);
+        }
+
+        if($this->estado===2){
+            $this->merge([
+                'per_atiende'=>auth()->user()->empleado->id
             ]);
         }
         if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])){

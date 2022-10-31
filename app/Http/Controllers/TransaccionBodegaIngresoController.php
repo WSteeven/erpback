@@ -24,6 +24,15 @@ class TransaccionBodegaIngresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_ingresos')->only('destroy');
     }
 
+    public function list(){
+        if(auth()->user()->hasRole(User::ROL_BODEGA)){
+            $transacciones = TransaccionBodega::all();
+            $transacciones = $transacciones->filter(fn($transaccion)=>$transaccion->subtipo->tipoTransaccion->tipo==='INGRESO');
+
+            return TransaccionBodegaResource::collection($transacciones);
+        }
+    }
+
     /**
      * Listar
      */
@@ -42,17 +51,7 @@ class TransaccionBodegaIngresoController extends Controller
                 )
             )"
         ); */
-        $results = [];
-        $transacciones = TransaccionBodega::all();
-        foreach ($transacciones as $transaccion) {
-            if ($transaccion->subtipo->tipoTransaccion->tipo === 'INGRESO') {
-                array_push($results, $transaccion);
-            }
-        }
-
-        $results = TransaccionBodegaResource::collection($results);
-
-        return response()->json(compact('results'));
+        return response()->json(['results'=>$this->list()]);
     }
 
     /**
@@ -63,6 +62,7 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
             try {
                 $datos = $request->validated();
+                // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
                 DB::beginTransaction();
                 $datos['subtipo_id'] = $request->safe()->only(['subtipo'])['subtipo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
@@ -72,19 +72,27 @@ class TransaccionBodegaIngresoController extends Controller
                     $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 }
                 //datos de las relaciones muchos a muchos
-                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+                // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+
+                //Comprobar si hay tarea
+                if($request->tarea){
+                    $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+                }
+                if($request->subtarea){
+                    $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+                }
 
                 //Creacion de la transaccion
                 $transaccion = TransaccionBodega::create($datos);
 
 
                 //Guardar la autorizacion con su observacion
-                if ($request->observacion_aut) {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
-                } else {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-                }
+                // if ($request->observacion_aut) {
+                //     $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
+                // } else {
+                //     $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
+                // }
 
                 //Guardar el estado con su observacion
                 if ($request->observacion_est) {
@@ -137,6 +145,15 @@ class TransaccionBodegaIngresoController extends Controller
         //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+
+        //Comprobar si hay tarea
+        if($request->tarea){
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+        }
+        //Comprobar si hay subtarea
+        if($request->subtarea){
+            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        }
 
         if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
             try{

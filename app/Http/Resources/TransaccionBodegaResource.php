@@ -26,14 +26,16 @@ class TransaccionBodegaResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->nombre,
-            'obs_autorizacion' => is_null($autorizacion->pivot->observacion) ? 'N/A' : $autorizacion->pivot->observacion,
+            'obs_autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->pivot->observacion,
             'justificacion' => $this->justificacion,
+            'comprobante' => $this->comprobante,
             'fecha_limite' => is_null($this->fecha_limite) ? 'N/A' : $this->fecha_limite,
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
             'tipo' => $this->subtipo->tipoTransaccion->nombre,
             'subtipo' => $this->subtipo->nombre,
+            'tarea' => $this->tarea ? $this->tarea->detalle : null,
             'subtarea' => $this->subtarea ? $this->subtarea->detalle : null,
             'sucursal' => $this->sucursal->lugar,
             'autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
@@ -52,6 +54,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['tipo'] = $this->subtipo->tipoTransaccion->id;
             $modelo['subtipo'] = $this->subtipo_id;
+            $modelo['tarea'] = $this->tarea_id;
             $modelo['subtarea'] = $this->subtarea_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['per_autoriza_id'] = $this->solicitante_id;
