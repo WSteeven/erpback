@@ -9,9 +9,14 @@ trait UppercaseValuesTrait
     {
         parent::setAttribute($key, $value);
 
-        if (is_string($value))
-            $this->attributes[$key] = trim(strtoupper($value));
-    }
+        if ($key !== 'password') {
+            if (is_string($value))
+                $this->attributes[$key] = trim(strtoupper($value));
+        }
 
-    
+        if ($key === 'email') {
+            if (is_string($value))
+                $this->attributes[$key] = trim(strtolower($value));
+        }
+    }
 }

@@ -27,7 +27,7 @@ class TareaRequest extends FormRequest
             'codigo_tarea' => 'nullable|string',
             'codigo_tarea_cliente' => 'nullable|string',
             // 'coordinador' => 'nullable|numeric|integer',
-            'cliente_final' => 'required|numeric|integer',
+            'cliente_final' => 'nullable|numeric|integer',
             'cliente' => 'required|numeric|integer',
             'fecha_solicitud' => 'nullable|string',
             'supervisor' => 'nullable|string',
@@ -36,6 +36,14 @@ class TareaRequest extends FormRequest
             'supervisor' => 'nullable|numeric|integer',
             'es_proyecto' => 'boolean',
             'codigo_proyecto' => 'nullable|string',
+            //
+            'celular' => 'nullable|string',
+            'parroquia' => 'nullable|string',
+            'direccion' => 'nullable|string',
+            'referencias' => 'nullable|string',
+            'coordenadas' => 'nullable|string',
+            'provincia' => 'nullable|numeric|integer',
+            'canton' => 'nullable|numeric|integer',
         ];
     }
 }
