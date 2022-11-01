@@ -27,6 +27,7 @@ class Empleado extends Model implements Auditable
     ];
 
     private static $whiteListFilter = [
+        'id',
         'identificacion',
         'nombres',
         'apellidos',

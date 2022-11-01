@@ -21,11 +21,15 @@ class PrestamoTemporal extends Model implements Auditable
         'solicitante_id',
         'per_entrega_id',
         'per_recibe_id',
+        'estado',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    const PENDIENTE = 'PENDIENTE';
+    const DEVUELTO = 'DEVUELTO';
 
     /**
      * Relación muchos a muchos 
