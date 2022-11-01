@@ -165,11 +165,7 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-<<<<<<< HEAD
         if($request->subtarea_id){
-=======
-        if ($datos->subtarea_id) {
->>>>>>> 3f83e81633b04ecab3c9ef9c6cd62eef4d733ce3
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
         }
         if ($request->per_atiende) {

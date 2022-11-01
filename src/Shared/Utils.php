@@ -85,4 +85,17 @@ class Utils
         $codigo .= strval($id);
         return $codigo;
     }
+
+    /**
+     * Función para validar una dirección de correo.
+     * Esta función solo comprueba que la dirección de correo tenga la estructura <identificador@dominio.com/ec/org, etc>.
+     * Para una validación más completa se debe usar expresiones regulares. 
+     * 
+     */
+    public static function validarEmail(String $email){ //Aún no está probada
+        if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+            return true;
+        }
+        return false;
+    }
 }

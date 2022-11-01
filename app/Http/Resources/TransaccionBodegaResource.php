@@ -46,8 +46,8 @@ class TransaccionBodegaResource extends JsonResource
 
         if ($controller_method == 'show') {
             // $modelo['autorizacion']=$this->autorizaciones()->first()->nombre;
-            $modelo['autorizacion'] = $autorizacion->id;
-            $modelo['obs_autorizacion'] = $autorizacion->pivot->observacion;
+            $modelo['autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->id;
+            $modelo['obs_autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->pivot->observacion;
             // $modelo['estado']=$this->estados()->first()->nombre;
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;

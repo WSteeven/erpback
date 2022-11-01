@@ -66,4 +66,14 @@ class Inventario extends Model
     public function productoPercha(){
         return $this->hasMany(ProductoEnPercha::class);
     }
+
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios items del inventario estan en un prestamo temporal
+     */
+    public function detallesPrestamoInventario(){
+        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_detalles', 'prestamo_id', 'inventario_id')
+            ->withPivot('cantidad')
+            ->withTimestamps();
+    }
 }
