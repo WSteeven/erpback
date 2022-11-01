@@ -20,7 +20,7 @@ class User extends Authenticatable implements Auditable
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
     use AuditableModel;
-    //use UppercaseValuesTrait; // comentar por ahora
+    use UppercaseValuesTrait; // comentar por ahora
 
     const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';

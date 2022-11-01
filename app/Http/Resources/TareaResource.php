@@ -2,7 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Canton;
+use App\Models\Provincia;
+use App\Models\UbicacionTarea;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class TareaResource extends JsonResource
 {
@@ -25,16 +29,17 @@ class TareaResource extends JsonResource
             'detalle' => $this->detalle,
             'es_proyecto' => $this->es_proyecto,
             'codigo_proyecto' => $this->codigo_proyecto,
-            'supervisor' => $this->supervisor->nombres . ' ' . $this->supervisor->apellidos,
+            'supervisor' => $this->supervisor?->nombres . ' ' . $this->supervisor?->apellidos,
             'cliente' => $this->cliente->empresa->razon_social,
-            'cliente_final' => $this->clienteFinal->nombres . ' ' . $this->clienteFinal->apellidos,
+            'cliente_final' => $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos,
+            'ubicacion_tarea' => $this->ubicacionesTareas ? new UbicacionTareaResource($this->ubicacionesTareas) : null,
             // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
-            $modelo['cliente_final'] = $this->clienteFinal->id;
-            $modelo['supervisor'] = $this->supervisor->id;
+            $modelo['cliente_final'] = $this->clienteFinal?->id;
+            $modelo['supervisor'] = $this->supervisor?->id;
         }
 
         return $modelo;
