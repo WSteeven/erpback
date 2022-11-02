@@ -32,12 +32,18 @@ class PrestamoTemporal extends Model implements Auditable
     const DEVUELTO = 'DEVUELTO';
 
     /**
+     * **********************************************
+     * RELACIONES
+     * **********************************************
+     */
+    /**
      * Relación muchos a muchos 
      */
     public function detalles(){
         return $this->belongsToMany(Inventario::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
             ->withPivot('cantidad')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->using(InventarioPrestamoTemporal::class);
     }
 
     /**
@@ -64,4 +70,32 @@ class PrestamoTemporal extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_recibe_id', 'id');
     }
 
+    /**********************************
+     * MÉTODOS
+     **********************************
+     */
+    /**
+     * Obtener el listado de la tabla intermedia para mostrar en el resource.
+     */
+    public static function listadoProductos($id){
+        $items = PrestamoTemporal::find($id)->detalles()->get();
+        $results =[];
+        $id=0;
+        $row=[];
+        foreach($items as $item){
+            $row['id']=$item->id;
+            $row['producto']=$item->detalle->producto->nombre;
+            $row['detalle_id']=$item->detalle->descripcion;
+            $row['cliente_id']=$item->cliente->empresa->razon_social;
+            $row['sucursal_id']=$item->sucursal->lugar;
+            $row['cantidad']=$item->cantidad;
+            $row['prestados']=$item->prestados;
+            $row['condicion']=$item->condicion->nombre;
+            $row['estado']=$item->estado;
+            $row['cantidades']=$item->pivot->cantidad;
+            $results[$id]=$row;
+            $id++;
+        }
+        return $results;
+    }
 }

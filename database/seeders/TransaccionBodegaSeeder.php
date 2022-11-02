@@ -35,7 +35,7 @@ class TransaccionBodegaSeeder extends Seeder
             [6, 1, 1, 1, 0, '2022-10-27 16:24:28', '2022-10-27 16:24:28'],
         ];
         foreach ($datos as $fila) {
-            DB::insert('INSERT INTO `detalle_productos_transacciones` (`id`, `detalle_id`, `transaccion_id`, `cantidad_inicial`, `cantidad_final`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?)', $fila);
+            DB::insert('INSERT INTO `detalle_producto_transaccion` (`id`, `detalle_id`, `transaccion_id`, `cantidad_inicial`, `cantidad_final`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?)', $fila);
         }
 
         //tiempos autorizaciones

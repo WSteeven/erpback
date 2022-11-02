@@ -3,12 +3,16 @@
 namespace App\Providers;
 
 use App\Models\Inventario;
+use App\Models\InventarioPrestamoTemporal;
 use App\Models\Percha;
 use App\Models\Piso;
+use App\Models\PrestamoTemporal;
 use App\Models\Producto;
 use App\Observers\InventarioObserver;
+use App\Observers\InventarioPrestamoTemporalObserver;
 use App\Observers\PerchaObserver;
 use App\Observers\PisoObserver;
+use App\Observers\PrestamoTemporalObserver;
 use App\Observers\ProductoObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -40,6 +44,8 @@ class EventServiceProvider extends ServiceProvider
         Percha::observe(PerchaObserver::class);
         // Piso::observe(PisoObserver::class);
         Inventario::observe(InventarioObserver::class);
+        InventarioPrestamoTemporal::observe(InventarioPrestamoTemporalObserver::class);
+        PrestamoTemporal::observe(PrestamoTemporalObserver::class);
     }
 
     /**

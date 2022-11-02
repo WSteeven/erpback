@@ -126,7 +126,10 @@ class TransaccionBodega extends Model implements Auditable
 
 
     
-    /* Funciones */
+    /****************************************
+     * Funciones
+     ****************************************
+     */
     /**
      * Obtener la ultima autorizacion de una transaccion 
      */
