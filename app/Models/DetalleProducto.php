@@ -126,4 +126,15 @@ class DetalleProducto extends Model implements Auditable
     public function imagenes(){
         return $this->hasMany(ImagenProducto::class);
     }
+
+    /**
+     * _______________________________
+     * MÉTODOS
+     * _______________________________
+     */
+
+
+
+     
+
 }

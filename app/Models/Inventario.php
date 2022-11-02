@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class Inventario extends Model
 {
@@ -23,6 +24,11 @@ class Inventario extends Model
     const TRANSITO = "TRANSITO";
     const SIN_STOCK = "SIN STOCK";
     
+
+    /*****************************
+     * RELACIONES
+     * ***************************
+     */
     /**
      * Obtener los movimientos para el id de inventario
      */
@@ -74,6 +80,13 @@ class Inventario extends Model
     public function detallesPrestamoInventario(){
         return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
             ->withPivot('cantidad')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->using(InventarioPrestamoTemporal::class);
     }
+
+    /******************
+     * METODOS
+     * ****************
+     */
+    
 }

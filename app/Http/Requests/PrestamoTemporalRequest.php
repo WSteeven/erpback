@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Inventario;
 use App\Models\PrestamoTemporal;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule as ValidationRule;
 
 class PrestamoTemporalRequest extends FormRequest
@@ -27,44 +29,71 @@ class PrestamoTemporalRequest extends FormRequest
     public function rules()
     {
         return [
-            'fecha_salida'=>'required|string',
-            'fecha_devolucion'=>'nullable|string',
-            'observacion'=>'nullable|string|sometimes',
-            'solicitante'=>'required|exists:empleados,id',
-            'per_entrega'=>'required|exists:empleados,id',
-            'per_recibe'=>'nullable|sometimes|exists:empleados,id',
-            'listadoProductos.*.cantidad'=>'required',
-            'estado'=>['required', Rule::in([PrestamoTemporal::PENDIENTE, PrestamoTemporal::DEVUELTO])],
+            'fecha_salida' => 'required|string',
+            'fecha_devolucion' => 'nullable|string',
+            'observacion' => 'nullable|string|sometimes',
+            'solicitante' => 'required|exists:empleados,id',
+            'per_entrega' => 'required|exists:empleados,id',
+            'per_recibe' => 'nullable|sometimes|exists:empleados,id',
+            'listadoProductos.*.cantidades' => 'required',
+            'estado' => ['required', Rule::in([PrestamoTemporal::PENDIENTE, PrestamoTemporal::DEVUELTO])],
         ];
     }
 
     public function attributes()
     {
         return [
-            'listadoProductos.*.cantidad'=>'listado',
+            'listadoProductos.*.cantidad' => 'listado',
         ];
     }
     public function messages()
     {
         return [
-            'listadoProductos.*.cantidad'=>'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductos.*.cantidad' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            Log::channel('testing')->info('Log', ['Listado en el prestamorequest:', $this->listadoProductos]);
+            foreach ($this->listadoProductos as $listado) {
+                // Log::channel('testing')->info('Log', ['Listado en el foreach del prestamorequest:', $listado['id'], $listado['cantidades']]);
+                $item = Inventario::find($listado['id']);
+                Log::channel('testing')->info('Log', ['Cantidad encontrada:', $item]);
+
+                if ($listado['cantidades'] < 1) {
+                    $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada debe ser mínimo 1');
+                } else {
+                    if (in_array($this->method(), ['POST'])) {
+                        if ($item->cantidad < $listado['cantidades']) {
+                            $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada no debe ser mayor a la existente en el inventario');
+                        }
+                    }
+                }
+            }
+        });
     }
 
     protected function prepareForValidation()
     {
-        if(!is_null($this->fecha_salida)){
+        if (!is_null($this->fecha_salida)) {
             $this->merge([
-                'fecha_salida'=>date('Y-m-d', strtotime($this->fecha_salida)),
+                'fecha_salida' => date('Y-m-d', strtotime($this->fecha_salida)),
             ]);
         }
-        if(!is_null($this->fecha_devolucion)){
+        if (!is_null($this->fecha_devolucion)) {
             $this->merge([
-                'fecha_devolucion'=>date('Y-m-d', strtotime($this->fecha_devolucion)),
+                'fecha_devolucion' => date('Y-m-d', strtotime($this->fecha_devolucion)),
             ]);
         }
         $this->merge([
-            'per_entrega'=>auth()->user()->empleado->id
+            'per_entrega' => auth()->user()->empleado->id
         ]);
+        if ($this->estado === PrestamoTemporal::DEVUELTO) {
+            $this->merge([
+                'per_recibe' => auth()->user()->empleado->id
+            ]);
+        }
     }
 }

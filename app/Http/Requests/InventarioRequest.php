@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\DetalleProducto;
+use App\Models\Inventario;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -27,29 +29,35 @@ class InventarioRequest extends FormRequest
     {
         $request = $this;
         $rules = [
-            'condicion'=>'required|integer|exists:condiciones_de_productos,id',
-            'cantidad'=>'required|integer',
+            'condicion' => 'required|integer|exists:condiciones_de_productos,id',
+            'cantidad' => 'required|integer',
             // 'detalle'=>['required|integer|exists:detalles_productos,id|unique:inventarios,detalle_id,NULL,sucursal_id'.$this->sucursal,
-            'detalle_id'=>['required', Rule::unique('inventarios')->where(function($query) use ($request){
+            'detalle_id' => ['required', Rule::unique('inventarios')->where(function ($query) use ($request) {
                 return $query->where('sucursal_id', $request->sucursal_id)
-                ->where('cliente_id', $request->cliente_id)
-                ->where('condicion_id', $request->condicion);
+                    ->where('cliente_id', $request->cliente_id)
+                    ->where('condicion_id', $request->condicion);
             })],
-            'sucursal_id'=>'required|integer|exists:sucursales,id|unique:inventarios,detalle_id',
-            'cliente_id'=>'required|integer|exists:clientes,id|unique:inventarios,detalle_id',
-            'prestados'=>'sometimes|integer',
+            'sucursal_id' => 'required|integer|exists:sucursales,id', //|unique:inventarios,detalle_id',
+            'cliente_id' => 'required|integer|exists:clientes,id', //|unique:inventarios,detalle_id',
+            'prestados' => 'sometimes|integer',
             //'estado'=>'required|integer',
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $inventario = $this->route()->parameter('inventario');
             //Log::channel('testing')->info('Log', ['inventario recibido', $inventario]);
 
-            $rules['detalle_id'] = ['required', Rule::unique('inventarios')->ignore($inventario)->where(function($query) use ($request){
+            $rules['detalle_id'] = ['required', Rule::unique('inventarios')->ignore($inventario)->where(function ($query) use ($request) {
                 return $query->where('sucursal_id', $request->sucursal_id)
-                ->where('cliente_id', $request->cliente_id)
-                ->where('condicion_id', $request->condicion);
+                    ->where('cliente_id', $request->cliente_id)
+                    ->where('condicion_id', $request->condicion);
             })];
+            /* 
+            $rules['sucursal_id']=['required', Rule::unique('inventarios')->ignore(($inventario)->where(function($query) use ($request){
+                return $query->where('detalle_id', $request->detalle_id)
+                    ->where('cliente_id', $request->cliente_id)
+                    ->where('condicion_id', $request->condicion);
+            }))]; */
         }
 
         return $rules;
@@ -58,8 +66,29 @@ class InventarioRequest extends FormRequest
     public function messages()
     {
         return [
-            'detalle_id.unique'=>'Ya existe un producto en el inventario para el mismo propietario y en la misma sucursal'
+            'detalle_id.unique' => 'Ya existe un producto en el inventario para el mismo propietario y en la misma sucursal'
         ];
+    }
+
+    public function withValidator($validator)
+    {
+
+        $validator->after(function ($validator) {
+            $detalle = DetalleProducto::find($this->detalle_id);
+            if ($detalle->serial) {
+                if ($this->cantidad > 1) {
+                    $validator->errors()->add('detalle_id', 'Este producto es único, no se puede registrar más de una unidad');
+                }
+
+                $inventario = Inventario::where('detalle_id', $this->detalle_id)->get();
+                Log::channel('testing')->info('Log', ['Detalle', $this->detalle_id, 'inventario', $inventario]);
+                if (!$inventario->isEmpty()) {
+                    if (in_array($this->method(), ['POST'])) {
+                        $validator->errors()->add('detalle_id', 'Este producto ya consta en el sistema. Si desea actualizar la condición por favor modifique el producto');
+                    }
+                }
+            }
+        });
     }
 
     protected function prepareForValidation()
