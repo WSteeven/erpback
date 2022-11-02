@@ -72,7 +72,7 @@ class Inventario extends Model
      * Uno o varios items del inventario estan en un prestamo temporal
      */
     public function detallesPrestamoInventario(){
-        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_detalles', 'prestamo_id', 'inventario_id')
+        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
             ->withPivot('cantidad')
             ->withTimestamps();
     }

@@ -35,7 +35,7 @@ class PrestamoTemporal extends Model implements Auditable
      * Relación muchos a muchos 
      */
     public function detalles(){
-        return $this->belongsToMany(Inventario::class, 'inventario_prestamo_detalles', 'prestamo_id', 'inventario_id')
+        return $this->belongsToMany(Inventario::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
             ->withPivot('cantidad')
             ->withTimestamps();
     }

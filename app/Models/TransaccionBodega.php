@@ -56,7 +56,7 @@ class TransaccionBodega extends Model implements Auditable
     //Una transaccion tiene varios productos solicitados
     public function detalles()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'detalle_productos_transacciones', 'transaccion_id', 'detalle_id')
+        return $this->belongsToMany(DetalleProducto::class, 'detalle_producto_transaccion', 'transaccion_id', 'detalle_id')
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
     }

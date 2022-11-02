@@ -57,16 +57,18 @@ class PrestamoTemporalController extends Controller
 
                 foreach ($request->listadoProductos as $listado) {
                     Log::channel('testing')->info('Log', ['Listado recibido en el foreach:', $listado]);
-                    // Log::channel('testing')->info('Log', ['Producto y cantidad inicial:', $listado['descripcion'], $listado['cantidades']]);
-                    $prestamo->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
+                    Log::channel('testing')->info('Log', ['Producto y cantidad:', $listado['detalle'], $listado['cantidades']]);
+                    $prestamo->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidades']]);
                 }
                 DB::commit();
+
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
-        }
+            return response()->json(compact('mensaje', 'modelo'));
+        }else return response()->json(compact('Este usuario no puede realizar préstamo de materiales'), 421);
     }
 
 
