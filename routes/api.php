@@ -182,4 +182,5 @@ Route::apiResources(
     ]
 );
 
+
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [Empleado::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
