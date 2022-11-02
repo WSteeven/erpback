@@ -30,16 +30,6 @@ class SubtareaController extends Controller
      */
     public function index(Request $request)
     {
-        /*$tarea = $request['tarea'];
-        $results = [];
-
-        if ($tarea) {
-            $results = SubtareaResource::collection(Subtarea::where('tarea_id', $tarea)->get());
-        } else {
-            $results = SubtareaResource::collection(Subtarea::all());
-        }
-
-        return response()->json(compact('results')); */
         return response()->json(['results' => $this->list($request)]);
     }
 
@@ -57,9 +47,9 @@ class SubtareaController extends Controller
         $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
 
         $datos['fecha_hora_creacion'] = Carbon::now();
-        
+
         // Calcular estados
-        $datos['estado'] = 'CREADO';
+        $datos['estado'] = Subtarea::CREADO;
 
         // Respuesta
         $modelo = Subtarea::create($datos);
@@ -101,5 +91,19 @@ class SubtareaController extends Controller
         $subtarea->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    public function asignar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::ASIGNADO;
+        $subtarea->fecha_hora_asignacion = Carbon::now();
+        $subtarea->save();
+    }
+
+    public function realizar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::REALIZADO;
+        $subtarea->fecha_hora_realizado = Carbon::now();
+        $subtarea->save();
     }
 }

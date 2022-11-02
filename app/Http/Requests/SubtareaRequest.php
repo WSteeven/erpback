@@ -46,7 +46,7 @@ class SubtareaRequest extends FormRequest
             'descripcion_completa' => 'nullable|string',
             'tecnicos_grupo_principal' => 'required|string',
             'tecnicos_otros_grupos' => 'nullable|string',
-            'estado' => 'nullable|string',
+            'estado' => 'nullable|numeric|integer',
             'tarea_id' => 'required|numeric|integer',
         ];
     }

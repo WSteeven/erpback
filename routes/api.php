@@ -183,4 +183,6 @@ Route::apiResources(
 );
 
 
-Route::get('empleados/obtenerTecnicos/{grupo_id}', [Empleado::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
+Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
+Route::post('subtareas/asignar/{subtarea}', [SubtareaController::class, 'asignar'])->middleware('auth:sanctum');
+Route::post('subtareas/realizar/{subtarea}', [SubtareaController::class, 'realizar'])->middleware('auth:sanctum');

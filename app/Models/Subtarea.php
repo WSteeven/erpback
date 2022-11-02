@@ -12,6 +12,14 @@ class Subtarea extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable;
 
+    const CREADO = 'CREADO';
+    const ASIGNADO = 'ASIGNADO';
+    const EJECUTANDO = 'EJECUTANDO';
+    const PAUSADO = 'PAUSADO';
+    const SUSPENDIDO = 'SUSPENDIDO';
+    const CANCELADO = 'CANCELADO';
+    const REALIZADO = 'REALIZADO';
+
     protected $table = "subtareas";
     protected $fillable = [
         'codigo_subtarea',
@@ -65,7 +73,8 @@ class Subtarea extends Model implements Auditable
      * Relación uno a muchos .
      * Una subtarea puede tener varias transacciones
      */
-    public function transacciones(){
+    public function transacciones()
+    {
         $this->hasMany(TransaccionBodega::class);
     }
 }

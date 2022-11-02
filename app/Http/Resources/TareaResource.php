@@ -32,7 +32,8 @@ class TareaResource extends JsonResource
             'supervisor' => $this->supervisor?->nombres . ' ' . $this->supervisor?->apellidos,
             'cliente' => $this->cliente->empresa->razon_social,
             'cliente_final' => $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos,
-            'ubicacion_tarea' => $this->ubicacionesTareas ? new UbicacionTareaResource($this->ubicacionesTareas) : null,
+            'ubicacion_tarea' => $this->ubicacionesTareas ? new UbicacionTareaResource($this->ubicacionesTareas) : [],
+            'estado' => $this->estado,
             // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 
