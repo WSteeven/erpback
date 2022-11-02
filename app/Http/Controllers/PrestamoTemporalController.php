@@ -6,6 +6,7 @@ use App\Http\Requests\PrestamoTemporalRequest;
 use App\Http\Resources\PrestamoTemporalResource;
 use App\Models\PrestamoTemporal;
 use App\Models\User;
+use Dflydev\DotAccessData\Util;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -86,11 +87,8 @@ class PrestamoTemporalController extends Controller
     {
         Log::channel('testing')->info('Log', ['Solicitante es:', $prestamo->solicitante->id]);
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            $prestamo->update(($request->validated()))
-        }
-        if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
-            $transaccion->update($request->validated());
-            $modelo = new TransaccionBodegaResource($transaccion->refresh());
+            $prestamo->update(($request->validated()));
+            $modelo = new PrestamoTemporalResource($prestamo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -103,9 +101,9 @@ class PrestamoTemporalController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(TransaccionBodega $transaccion)
+    public function destroy(PrestamoTemporal $prestamo)
     {
-        $transaccion->delete();
+        $prestamo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

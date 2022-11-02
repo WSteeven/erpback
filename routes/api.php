@@ -26,6 +26,7 @@ use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\PisoController;
+use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProductoEnPerchaController;
@@ -127,6 +128,7 @@ Route::apiResources(
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
         'procesadores' => ProcesadorController::class,
+        'prestamos' => PrestamoTemporalController::class,
         'productos' => ProductoController::class,
         'productos-perchas' => ProductoEnPerchaController::class,
         'perchas' => PerchaController::class,
@@ -179,5 +181,6 @@ Route::apiResources(
         'middleware' => ['auth:sanctum']
     ]
 );
+
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [Empleado::class, 'obtenerTecnicos'])->middleware('auth:sanctum');

@@ -26,16 +26,14 @@ class EmpleadoController extends Controller
         $this->middleware('can:puede.eliminar.empleados')->only('destroy');
     }
 
-    public function list(Request $request)
+    public function list()
     {
-        $rol = $request['rol'];
-
-        if ($rol) {
-            $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
+        if (request(['rol'])) {
+            $users_ids = User::select('id')->role(request(['rol']))->get()->map(fn ($id) => $id->id)->toArray();
             $empleados = Empleado::ignoreRequest(['rol'])->filter()->get();
             return EmpleadoResource::collection($empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten());
         }
-        return EmpleadoResource::collection(Empleado::filter()->get());
+        return EmpleadoResource::collection(Empleado::filter()->where('id', '<>',1)->get());
     }
 
     /**

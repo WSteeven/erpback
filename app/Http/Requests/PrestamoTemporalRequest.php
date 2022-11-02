@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\PrestamoTemporal;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule as ValidationRule;
 
 class PrestamoTemporalRequest extends FormRequest
 {
@@ -30,7 +33,8 @@ class PrestamoTemporalRequest extends FormRequest
             'solicitante'=>'required|exists:empleados,id',
             'per_entrega'=>'required|exists:empleados,id',
             'per_recibe'=>'nullable|sometimes|exists:empleados,id',
-            'listadoProductos.*.cantidad'=>'required'
+            'listadoProductos.*.cantidad'=>'required',
+            'estado'=>['required', Rule::in([PrestamoTemporal::PENDIENTE, PrestamoTemporal::DEVUELTO])],
         ];
     }
 
@@ -49,6 +53,16 @@ class PrestamoTemporalRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        if(!is_null($this->fecha_salida)){
+            $this->merge([
+                'fecha_salida'=>date('Y-m-d', strtotime($this->fecha_salida)),
+            ]);
+        }
+        if(!is_null($this->fecha_devolucion)){
+            $this->merge([
+                'fecha_devolucion'=>date('Y-m-d', strtotime($this->fecha_devolucion)),
+            ]);
+        }
         $this->merge([
             'per_entrega'=>auth()->user()->empleado->id
         ]);
