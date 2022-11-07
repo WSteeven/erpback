@@ -33,7 +33,7 @@ class SubtareaResource extends JsonResource
             'tipo_trabajo' => $this->tipo_trabajo->nombre,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
-            'grupo' => $this->grupo_id,
+            'grupo' => $this->grupo->nombre,
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
@@ -48,6 +48,7 @@ class SubtareaResource extends JsonResource
             $modelo['cliente'] = $this->tarea->cliente_id;
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
+            $modelo['grupo'] = $this->grupo_id;
         }
 
         return $modelo;
