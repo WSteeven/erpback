@@ -6,6 +6,7 @@ use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Models\Inventario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class InventarioController extends Controller
@@ -21,10 +22,24 @@ class InventarioController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = InventarioResource::collection(Inventario::all());
+        // Log::channel('testing')->info('Log', ['request recibida', request('per_page')]);
+        // Log::channel('testing')->info('Log', ['request recibida', $results]);
+        // Log::channel('testing')->info('Log', ['request modificada por el resource', $results]);
+        $items = Inventario::all();
+        $results = InventarioResource::collection($items);
+        // $results = InventarioResource::collection(Inventario::all());
+
         return response()->json(compact('results'));
+        return response()->json(['results'=>$results, 'paginate'=>[
+            'total'=>$items->total(),
+            'current_page'=>$items->currentPage(),
+            'per_page'=>$items->perPage(),
+            'last_page'=>$items->lastPage(),
+            'from'=>$items->firstItem(),
+            'to'=>$items->lastPage(),
+        ]]);
     }
 
     /**
@@ -36,7 +51,7 @@ class InventarioController extends Controller
         $datos = $request->validated();
         // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
         // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
-        $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
+        $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
         // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
         $modelo = Inventario::create($datos);
@@ -64,7 +79,7 @@ class InventarioController extends Controller
         $datos = $request->validated();
         // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
         // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
-        $datos['condicion_id']=$request->safe()->only(['condicion'])['condicion'];
+        $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
         // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
         $inventario->update($datos);

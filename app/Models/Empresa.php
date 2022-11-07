@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -12,6 +13,7 @@ class Empresa extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
+    use Filterable;
     
     protected $table = 'empresas';
     protected $fillable = ['identificacion', 'tipo_contribuyente', 'razon_social', 'nombre_comercial', 'correo', 'direccion'];
@@ -20,6 +22,8 @@ class Empresa extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    private static $whiteListFilter = ['*'];
+    
     const NATURAL = 'NATURAL'; //persona natural
     const PRIVADA = 'PRIVADA'; //sociedad privada
     const PUBLICA = 'PUBLICA'; //sociedad publica

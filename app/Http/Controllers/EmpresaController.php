@@ -18,13 +18,18 @@ class EmpresaController extends Controller
         $this->middleware('can:puede.eliminar.empresas')->only('destroy');
     }
 
+    public function list(){
+        $results = Empresa::filter()->get();
+        return EmpresaResource::collection($results);
+    }
     /**
      * Listar
      */
     public function index()
     {
-        $results = EmpresaResource::collection(Empresa::all());
-        return response()->json(compact('results'));
+        // $results = EmpresaResource::collection(Empresa::all());
+        // return response()->json(compact('results'));
+        return response()->json(['results' => $this->list()]);
     }
 
 

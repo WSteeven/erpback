@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class InventarioResource extends JsonResource
 {
@@ -14,8 +15,10 @@ class InventarioResource extends JsonResource
      */
     public function toArray($request)
     {
-        //return parent::toArray($request);
+        // Log::channel('testing')->info('Log', ['inventario resource', $request]);
+        // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
+
 
         $modelo =[
             'id'=>$this->id,
