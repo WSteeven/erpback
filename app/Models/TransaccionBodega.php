@@ -60,12 +60,20 @@ class TransaccionBodega extends Model implements Auditable
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
     }
-
+    /**
+     * Relación uno a muchos.
+     * Una transaccion tiene varios detalle_producto_transaccion.
+     */
+    public function detalleTransaccion()
+    {
+        return $this->hasMany(DetalleProductoTransaccion::class);
+    }
     /**
      * Relación uno a muchos(inversa).
      * Una transacción de ingreso pertenece a una o ninguna tarea
      */
-    public function tarea(){
+    public function tarea()
+    {
         return $this->belongsTo(Tarea::class);
     }
 
@@ -73,7 +81,8 @@ class TransaccionBodega extends Model implements Auditable
      * Relación uno a muchos(inversa).
      * Una transacción pertenece a una sola subtarea
      */
-    public function subtarea(){
+    public function subtarea()
+    {
         return $this->belongsTo(Subtarea::class);
     }
 
@@ -93,7 +102,7 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_autoriza_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Una y solo una persona puede autorizar la transaccion
@@ -120,12 +129,13 @@ class TransaccionBodega extends Model implements Auditable
      * Relacion uno a uno(inversa)
      * Una o varias transacciones pertenecen a una sucursal
      */
-    public function sucursal(){
+    public function sucursal()
+    {
         return $this->belongsTo(Sucursal::class);
     }
 
 
-    
+
     /****************************************
      * Funciones
      ****************************************
@@ -146,19 +156,20 @@ class TransaccionBodega extends Model implements Auditable
         return $observacion;
     }
 
-    public static function listadoProductos($id){
+    public static function listadoProductos($id)
+    {
         $detalles = TransaccionBodega::find($id)->detalles()->get();
         $results = [];
-        $id=0;
-        $row=[];
-        foreach($detalles as $detalle){
-            $row['id']=$detalle->id;
-            $row['producto']=$detalle->producto->nombre;
-            $row['descripcion']=$detalle->descripcion;
-            $row['categoria']=$detalle->producto->categoria->nombre;
-            $row['cantidades']=$detalle->pivot->cantidad_inicial;
-            $row['despachado']=$detalle->pivot->cantidad_final;
-            $results[$id]=$row;
+        $id = 0;
+        $row = [];
+        foreach ($detalles as $detalle) {
+            $row['id'] = $detalle->id;
+            $row['producto'] = $detalle->producto->nombre;
+            $row['descripcion'] = $detalle->descripcion;
+            $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['cantidades'] = $detalle->pivot->cantidad_inicial;
+            $row['despachado'] = $detalle->pivot->cantidad_final;
+            $results[$id] = $row;
             $id++;
         }
 
@@ -172,10 +183,11 @@ class TransaccionBodega extends Model implements Auditable
      * 
      * @return Collection $transacciones listado de transacciones filtradas
      */
-    public static function filtrarTransacciones($transacciones, $estado){
-        switch($estado){
+    public static function filtrarTransacciones($transacciones, $estado)
+    {
+        switch ($estado) {
             case 'ESPERA':
-                return $transacciones->filter(fn ($transaccion) => self::ultimaAutorizacion($transaccion->id)->nombre==='PENDIENTE');// TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE');
+                return $transacciones->filter(fn ($transaccion) => self::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE'); // TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE');
             case 'PARCIAL':
                 return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado'));
             case 'PENDIENTE':

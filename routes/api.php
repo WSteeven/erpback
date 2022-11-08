@@ -11,6 +11,7 @@ use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\DetalleProductoController;
+use App\Http\Controllers\DetalleProductoTransaccionController;
 use App\Http\Controllers\DiscoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
@@ -117,6 +118,7 @@ Route::apiResources(
         'control-stocks' => ControlStockController::class,
         'codigos-clientes' => CodigoClienteController::class,
         'discos' => DiscoController::class,
+        'detalles-productos-transacciones'=>DetalleProductoTransaccionController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
         'estados' => EstadoTransaccionController::class,
