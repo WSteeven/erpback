@@ -13,7 +13,7 @@ class DetalleProducto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
-    
+
     protected $table = "detalles_productos";
     // estado
     const ACTIVO = "ACTIVO";
@@ -34,7 +34,7 @@ class DetalleProducto extends Model implements Auditable
         'color',
         'talla',
         'capacidad',
-        
+
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -58,6 +58,14 @@ class DetalleProducto extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class);
     }
+    /**
+     * Relación uno a muchos.
+     * Un detalle de producto esta en varios detalle_producto_transaccion.
+     */
+    public function detalleTransaccion()
+    {
+        return $this->hasMany(DetalleProductoTransaccion::class);
+    }
 
     /**
      * Relacion uno a muchos (inversa).
@@ -72,15 +80,17 @@ class DetalleProducto extends Model implements Auditable
      * Relacion uno a uno (inversa).
      * Un detalle de producto es 0 o 1 computadora o telefono
      */
-    public function computadora(){
+    public function computadora()
+    {
         return $this->hasOne(ComputadoraTelefono::class, 'detalle_id');
     }
-    
+
     /**
      * Relacion uno a uno (inversa).
      * Un detalle de producto es 0 o 1 fibra
      */
-    public function fibra(){
+    public function fibra()
+    {
         return $this->hasOne(Fibra::class, 'detalle_id');
     }
 
@@ -128,7 +138,8 @@ class DetalleProducto extends Model implements Auditable
      * Un detalle de producto tiene varias imagenes.
      * Generalmente solo dos, pero queda la posibilidad de que sean más en un futuro.
      */
-    public function imagenes(){
+    public function imagenes()
+    {
         return $this->hasMany(ImagenProducto::class);
     }
 
@@ -137,9 +148,4 @@ class DetalleProducto extends Model implements Auditable
      * MÉTODOS
      * _______________________________
      */
-
-
-
-     
-
 }
