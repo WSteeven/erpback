@@ -27,9 +27,19 @@ class DetalleProductoController extends Controller
      * Listar
      */
 
-    public function index()
+    public function index(Request $request)
     {
-        $results = DetalleProductoResource::collection(DetalleProducto::all());
+        // $results = DetalleProductoResource::collection(DetalleProducto::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = DetalleProducto::simplePaginate($request['offset']);
+            DetalleProductoResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = DetalleProducto::filter()->get();
+        }
         return response()->json(compact('results'));
     }
 

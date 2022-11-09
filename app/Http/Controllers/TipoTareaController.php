@@ -18,13 +18,20 @@ class TipoTareaController extends Controller
     public function index(Request $request)
     {
         $cliente = $request['cliente'];
+        $page = $request['page'];
         $results = [];
 
-        if ($cliente) {
+        if ($page) {
+            $results = TipoTrabajo::simplePaginate($request['offset']);
+            TipoTareaResource::collection($results);
+        } else if ($cliente) {
             $results = TipoTareaResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {
-            $results = TipoTareaResource::collection(TipoTrabajo::all());
+            $results = TipoTareaResource::collection(TipoTrabajo::filter()->get());
         }
+
+
+
         //$results = TipoTareaResource::collection(TipoTrabajo::all());
         return response()->json(compact('results'));
     }

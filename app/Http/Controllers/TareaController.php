@@ -19,7 +19,17 @@ class TareaController extends Controller
      */
     public function index(Request $request)
     {
-        $results = TareaResource::collection(Tarea::all());
+        /*$results = TareaResource::collection(Tarea::all());
+        return response()->json(compact('results'));*/
+        $page = $request['page'];
+
+        if ($page) {
+            $results = Tarea::simplePaginate($request['offset']);
+            TareaResource::collection($results);
+        } else {
+            $results = TareaResource::collection(Tarea::filter()->get());
+        }
+
         return response()->json(compact('results'));
     }
 

@@ -42,6 +42,7 @@ class SubtareaResource extends JsonResource
             'fecha_hora_realizado' => $this->fecha_hora_realizado,
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
             'estado' => $this->estado,
+            'tecnicos_grupo_principal' => $this->tecnicosPrincipales(explode(',', $this->tecnicos_grupo_principal)),
         ];
 
         if ($controller_method == 'show') {

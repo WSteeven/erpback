@@ -27,19 +27,22 @@ class InventarioController extends Controller
         // Log::channel('testing')->info('Log', ['request recibida', request('per_page')]);
         // Log::channel('testing')->info('Log', ['request recibida', $results]);
         // Log::channel('testing')->info('Log', ['request modificada por el resource', $results]);
-        $items = Inventario::all();
-        $results = InventarioResource::collection($items);
+        // $items->withPath('/offset=' . $request['offset']);
+        // $results = InventarioResource::collection($items);
         // $results = InventarioResource::collection(Inventario::all());
-
-        return response()->json(compact('results'));
-        return response()->json(['results'=>$results, 'paginate'=>[
+        
+        $items = Inventario::simplePaginate($request['offset']);
+        InventarioResource::collection($items);
+        $items->appends(['offset' => $request['offset']]);
+        return response()->json(compact('items'));
+        /* return response()->json(['results'=>$results, 'paginate'=>[
             'total'=>$items->total(),
             'current_page'=>$items->currentPage(),
             'per_page'=>$items->perPage(),
             'last_page'=>$items->lastPage(),
             'from'=>$items->firstItem(),
             'to'=>$items->lastPage(),
-        ]]);
+        ]]); */
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\EmpleadoResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -82,5 +83,10 @@ class Subtarea extends Model implements Auditable
     public function transacciones()
     {
         $this->hasMany(TransaccionBodega::class);
+    }
+
+    public function tecnicosPrincipales(array $ids)
+    {
+        return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
     }
 }
