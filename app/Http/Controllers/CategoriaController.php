@@ -20,7 +20,6 @@ class CategoriaController extends Controller
         $this->middleware('can:puede.crear.categorias')->only('store');
         $this->middleware('can:puede.editar.categorias')->only('update');
         $this->middleware('can:puede.eliminar.categorias')->only('update');
-
     }
 
     /**
@@ -28,18 +27,17 @@ class CategoriaController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request['search'];
+        $page = $request['page'];
         $results = [];
-        if($search){
-            $categoria = Categoria::select('id')->where('nombre', 'LIKE', '%'.$search.'%')->first();
 
-            if($categoria) $results = CategoriaResource::collection(Categoria::where('id', $categoria->id)->get());
-        }else{
-            $results = CategoriaResource::collection(Categoria::all());
+        if ($page) {
+            $results = Categoria::simplePaginate($request['offset']);
+            CategoriaResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Categoria::filter()->get();
+            CategoriaResource::collection($results);
         }
-
-        // event(new NewMessagePruebaEvent("Evento con el Listado de todas las categorias"));
-
         return response()->json(compact('results'));
     }
 

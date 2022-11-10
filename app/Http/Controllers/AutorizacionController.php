@@ -22,9 +22,19 @@ class AutorizacionController extends Controller
     /**
      * Listar 
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results =AutorizacionResource::collection(Autorizacion::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Autorizacion::simplePaginate($request['offset']);
+            AutorizacionResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Autorizacion::filter()->get();
+            AutorizacionResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

@@ -17,15 +17,23 @@ class CodigoClienteController extends Controller
         $this->middleware('can:puede.crear.codigos_clientes')->only('store');
         $this->middleware('can:puede.editar.codigos_clientes')->only('update');
         $this->middleware('can:puede.eliminar.codigos_clientes')->only('update');
-
     }
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = CodigoClienteResource::collection(CodigoCliente::all());
+        $page = $request['page'];
+        $results = [];
 
+        if ($page) {
+            $results = CodigoCliente::simplePaginate($request['offset']);
+            CodigoClienteResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = CodigoCliente::filter()->get();
+            CodigoClienteResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 
@@ -37,8 +45,8 @@ class CodigoClienteController extends Controller
     {
         //Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
-        $datos['producto_id']=$request->safe()->only(['producto'])['producto'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
 
         //Respuesta
         $modelo = CodigoCliente::create($datos);
@@ -63,8 +71,8 @@ class CodigoClienteController extends Controller
     {
         //Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
-        $datos['producto_id']=$request->safe()->only(['producto'])['producto'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
 
         //Respuesta
         $codigo_cliente->update($datos);

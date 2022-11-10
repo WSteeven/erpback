@@ -8,6 +8,7 @@ use App\Http\Resources\TipoTareaResource;
 use App\Models\Producto;
 use App\Models\TipoTrabajo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ProductoController extends Controller
@@ -25,14 +26,18 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request['search'];
+        $page = $request['page'];
         $results = [];
-        if($search){
-            $producto = Producto::select('id')->where('nombre', 'LIKE', '%'.$search.'%')->first();
-
-            if($producto) $results = ProductoResource::collection(Producto::where('id', $producto->id)->get());
-        }else{
-            $results = ProductoResource::collection(Producto::all());
+        
+        if ($page) {
+            $results = Producto::simplePaginate($request['offset']);
+            ProductoResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Producto::all();
+            // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
+            $results = ProductoResource::collection($results);
+            // Log::channel('testing')->info('Log', ['Listado solicitado pasado por el resource', $results]);
         }
         return response()->json(compact('results'));
     }
