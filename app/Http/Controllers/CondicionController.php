@@ -19,9 +19,19 @@ class CondicionController extends Controller
         $this->middleware('can:puede.eliminar.condiciones')->only('update');
     }
     /** Listar*/
-    public function index()
+    public function index(Request $request)
     {
-        $results = CondicionResource::collection(Condicion::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Condicion::simplePaginate($request['offset']);
+            CondicionResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Condicion::filter()->get();
+            CondicionResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

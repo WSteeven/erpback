@@ -46,7 +46,6 @@ class Empleado extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-
     //Relacion uno a muchos polimorfica
     public function telefonos()
     {

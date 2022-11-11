@@ -39,6 +39,7 @@ class DetalleProductoController extends Controller
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = DetalleProducto::filter()->get();
+            $results = DetalleProductoResource::collection($results);
         }
         return response()->json(compact('results'));
     }

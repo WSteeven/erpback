@@ -28,12 +28,31 @@ class EmpleadoController extends Controller
 
     public function list()
     {
-        if (request(['rol'])) {
-            $users_ids = User::select('id')->role(request(['rol']))->get()->map(fn ($id) => $id->id)->toArray();
-            $empleados = Empleado::ignoreRequest(['rol'])->filter()->get();
-            return EmpleadoResource::collection($empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten());
+        $page = request('page');
+        $rol = request('rol');
+        $offset = request('offset');
+        $results = [];
+        Log::channel('testing')->info('Log', ['Metodo list de empleado: ', $page, $rol, $offset]);
+        if($page){
+            if($offset){
+                $results = Empleado::simplePaginate($offset);
+            }else{
+                $results = Empleado::simplePaginate();
+            }
+            EmpleadoResource::collection($results);
+            $results->appends(['offset' => $offset]);
+        }else{
+            $results = Empleado::filter()->where('id', '<>',1)->get();
+            EmpleadoResource::collection($results);
         }
-        return EmpleadoResource::collection(Empleado::filter()->where('id', '<>',1)->get());
+        /* if ($rol) {
+            $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
+            $empleados = Empleado::ignoreRequest($rol)->filter()->get();
+            $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
+            EmpleadoResource::collection($results);
+        } */
+        Log::channel('testing')->info('Log', ['Resultados: ', $results]);
+        return $results;
     }
 
     /**
@@ -41,10 +60,7 @@ class EmpleadoController extends Controller
      */
     public function index(Request $request)
     {
-        /* $results = EmpleadoResource::collection(Empleado::all()->except(1));
-        return response()->json(compact('results')); */
-
-        return response()->json(['results' => $this->list($request)]);
+        return response()->json(['results' => $this->list()]);
     }
 
     /**

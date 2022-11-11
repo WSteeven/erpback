@@ -24,25 +24,17 @@ class InventarioController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['request recibida', request('per_page')]);
-        // Log::channel('testing')->info('Log', ['request recibida', $results]);
-        // Log::channel('testing')->info('Log', ['request modificada por el resource', $results]);
-        // $items->withPath('/offset=' . $request['offset']);
-        // $results = InventarioResource::collection($items);
-        // $results = InventarioResource::collection(Inventario::all());
-        
-        $items = Inventario::simplePaginate($request['offset']);
-        InventarioResource::collection($items);
-        $items->appends(['offset' => $request['offset']]);
-        return response()->json(compact('items'));
-        /* return response()->json(['results'=>$results, 'paginate'=>[
-            'total'=>$items->total(),
-            'current_page'=>$items->currentPage(),
-            'per_page'=>$items->perPage(),
-            'last_page'=>$items->lastPage(),
-            'from'=>$items->firstItem(),
-            'to'=>$items->lastPage(),
-        ]]); */
+        $page = $request['page'];
+        $results = [];
+        if ($page) {
+            $results = Inventario::simplePaginate($request['offset']);
+            InventarioResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Inventario::filter()->get();
+            InventarioResource::collection($results);
+        }
+        return response()->json(compact('results'));
     }
 
     /**

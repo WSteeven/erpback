@@ -24,9 +24,19 @@ class ActivoFijoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = ActivoFijoResource::collection(ActivoFijo::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = ActivoFijo::simplePaginate($request['offset']);
+            ActivoFijoResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = ActivoFijo::filter()->get();
+            ActivoFijoResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 
