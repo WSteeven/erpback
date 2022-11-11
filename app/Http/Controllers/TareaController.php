@@ -8,7 +8,9 @@ use App\Models\Tarea;
 use App\Models\UbicacionTarea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
+use stdClass;
 
 class TareaController extends Controller
 {
@@ -51,7 +53,8 @@ class TareaController extends Controller
         $modelo = Tarea::create($datos);
 
         // Ubicacion tarea
-        $ubicacionTarea = $request['ubicacion_tarea'];
+        $ubicacionTarea = json_decode($request['ubicacion_tarea'], true);
+        Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
         $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
         $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
         $modelo->ubicacionesTareas()->create($ubicacionTarea);
@@ -80,6 +83,25 @@ class TareaController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+
+        // Ubicacion tarea manual
+        if (!$datos['cliente_final_id']) {
+            $ubicacionTarea = json_decode($request['ubicacion_tarea'], true);
+            // $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
+            // $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
+
+            $ubicacion = [
+                'provincia_id' => $ubicacionTarea['provincia'],
+                'canton_id' => $ubicacionTarea['canton']
+            ];
+            // Log::channel('testing')->info('Log', ['Ubicacion', 'SIN cliente final update']);
+            // Log::channel('testing')->info('Log', ['Ubicacion tarea update', $ubicacionTarea]);
+            $tarea->ubicacionesTareas()->update($ubicacion);
+        } else {
+            $tarea->ubicacionesTareas()->delete();
+        }
+
 
         // Respuesta
         $tarea->update($datos);

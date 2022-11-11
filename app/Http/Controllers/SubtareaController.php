@@ -8,6 +8,7 @@ use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class SubtareaController extends Controller
@@ -17,9 +18,10 @@ class SubtareaController extends Controller
     public function list(Request $request)
     {
         $estado = $request['estado'];
+        $grupo = Auth::user()->empleado->grupo_id;
 
         if ($estado) {
-            return SubtareaResource::collection(Subtarea::filter()->where('estado', $estado)->get());
+            return SubtareaResource::collection(Subtarea::filter()->where('estado', $estado)->where('grupo_id', $grupo)->get());
         }
 
         return SubtareaResource::collection(Subtarea::filter()->get());
