@@ -19,7 +19,6 @@ class MarcaController extends Controller
         $this->middleware('can:puede.crear.marcas')->only('store');
         $this->middleware('can:puede.editar.marcas')->only('update');
         $this->middleware('can:puede.eliminar.marcas')->only('destroy');
-
     }
 
     /**
@@ -27,15 +26,21 @@ class MarcaController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request['page'];
         $search = $request['search'];
         $results = [];
-        //Log::channel('testing')->info('Log', ['search', $search]);
+
+        if ($page) {
+            $results = Marca::simplePaginate($request['offset']);
+            MarcaResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Marca::all();
+            MarcaResource::collection($results);
+        }
         if ($search) {
             $marca = Marca::select('id')->where('nombre', 'LIKE', '%' . $search . '%')->first();
-            //Log::channel('testing')->info('Log', ['marca', $marca->id]);
             if ($marca) $results = MarcaResource::collection(Marca::where('id', $marca->id)->get());
-        } else {
-            $results = MarcaResource::collection(Marca::all());
         }
 
         return response()->json(compact('results'));

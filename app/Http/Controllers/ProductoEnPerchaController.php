@@ -23,9 +23,19 @@ class ProductoEnPerchaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = ProductoEnPerchaResource::collection(ProductoEnPercha::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = ProductoEnPercha::simplePaginate($request['offset']);
+            ProductoEnPercha::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = ProductoEnPercha::all();
+            ProductoEnPerchaResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

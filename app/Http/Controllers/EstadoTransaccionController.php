@@ -23,9 +23,22 @@ class EstadoTransaccionController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
         $results = EstadoTransaccionResource::collection(EstadoTransaccion::all());
+        return response()->json(compact('results'));
+
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = EstadoTransaccion::simplePaginate($request['offset']);
+            EstadoTransaccionResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = EstadoTransaccion::all();
+            EstadoTransaccionResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

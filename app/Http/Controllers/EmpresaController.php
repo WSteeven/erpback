@@ -19,8 +19,19 @@ class EmpresaController extends Controller
     }
 
     public function list(){
-        $results = Empresa::filter()->get();
-        return EmpresaResource::collection($results);
+        $page = request('page');
+        $offset = request('offset');
+        $results = [];
+        
+        if ($page) {
+            $results = Empresa::simplePaginate($offset);
+            EmpresaResource::collection($results);
+            $results->appends(['offset' => $offset]);
+        } else {
+            $results = Empresa::filter()->get();
+            EmpresaResource::collection($results);
+        }
+        return response()->json(compact('results'));
     }
     /**
      * Listar

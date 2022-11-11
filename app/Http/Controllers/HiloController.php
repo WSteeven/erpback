@@ -22,9 +22,19 @@ class HiloController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = HiloResource::collection(Hilo::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Hilo::simplePaginate($request['offset']);
+            HiloResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results =Hilo::all();
+            HiloResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

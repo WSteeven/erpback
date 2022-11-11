@@ -26,10 +26,8 @@ class DetalleProductoController extends Controller
     /**
      * Listar
      */
-
     public function index(Request $request)
     {
-        // $results = DetalleProductoResource::collection(DetalleProducto::all());
         $page = $request['page'];
         $results = [];
         

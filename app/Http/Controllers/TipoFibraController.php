@@ -21,9 +21,19 @@ class TipoFibraController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = TipoFibraResource::collection(TipoFibra::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = TipoFibra::simplePaginate($request['offset']);
+            TipoFibra::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results =TipoFibra::all();
+            TipoFibraResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

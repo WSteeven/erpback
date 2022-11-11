@@ -7,6 +7,7 @@ use App\Models\Span;
 use App\Http\Requests\StoreSpanRequest;
 use App\Http\Requests\UpdateSpanRequest;
 use App\Http\Resources\SpanResource;
+use DragonCode\Contracts\Cashier\Http\Request;
 use Src\Shared\Utils;
 
 class SpanController extends Controller
@@ -19,9 +20,19 @@ class SpanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = SpanResource::collection(Span::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Span::simplePaginate($request['offset']);
+            SpanResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Span::all();
+            SpanResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

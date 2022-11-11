@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PrestamoTemporalRequest;
 use App\Http\Resources\PrestamoTemporalResource;
 use App\Models\PrestamoTemporal;
-use App\Models\User;
-use Dflydev\DotAccessData\Util;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,9 +25,19 @@ class PrestamoTemporalController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = PrestamoTemporalResource::collection(PrestamoTemporal::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = PrestamoTemporal::simplePaginate($request['offset']);
+            PrestamoTemporalResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = PrestamoTemporal::all();
+            PrestamoTemporalResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

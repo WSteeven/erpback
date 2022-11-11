@@ -81,7 +81,8 @@ class TransaccionBodegaEgresoController extends Controller
 
         return response()->json(compact('results')); */
 
-        return response()->json(['results' => $this->list()]);
+        // return response()->json(['results' => $this->list()]);
+        
     }
 
     /**

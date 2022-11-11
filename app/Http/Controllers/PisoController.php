@@ -23,9 +23,19 @@ class PisoController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = PisoResource::collection(Piso::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Piso::simplePaginate($request['offset']);
+            PisoResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Piso::all();
+            PisoResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

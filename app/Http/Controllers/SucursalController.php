@@ -25,14 +25,22 @@ class SucursalController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request['page'];
         $search = $request['search'];
         $results = [];
+        
+        if ($page) {
+            $results = Sucursal::simplePaginate($request['offset']);
+            SucursalResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Sucursal::all();
+            SucursalResource::collection($results);
+        }
         if($search){
             $sucursal = Sucursal::select('id')->where('lugar', 'LIKE', '%'.$search.'%')->first();
-
+ 
             if($sucursal) $results = SucursalResource::collection(Sucursal::where('id', $sucursal->id)->get());
-        }else{
-            $results = SucursalResource::collection(Sucursal::all());
         }
         return response()->json(compact('results'));
     }

@@ -35,6 +35,11 @@ class TransaccionBodega extends Model implements Auditable
     ];
     private static $whiteListFilter = ['*'];
 
+
+    /*************************************
+     * RELACIONES
+     * ***********************************
+     */
     /* Una transaccion tiene varios estados de autorizacion durante su ciclo de vida */
     public function autorizaciones()
     {
@@ -198,4 +203,11 @@ class TransaccionBodega extends Model implements Auditable
                 return $transacciones;
         }
     }
+
+    /**
+     * Función para obtener todas las columnas de la tabla.
+     */
+    /* public function getTableColumns() {
+        return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
+    } */
 }

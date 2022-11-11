@@ -24,9 +24,19 @@ class ModeloController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = ModeloResource::collection(Modelo::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Modelo::simplePaginate($request['offset']);
+            ModeloResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Modelo::all();
+            ModeloResource::collection($results);
+        }
         return response()->json(compact('results'));
     }
 

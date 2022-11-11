@@ -2251,6 +2251,41 @@ class CantonSeeder extends Seeder
     		'provincia_id'=>25,
 
     	] );
+    	Canton::create( [
+    		'id'=>225,
+    		'canton'=>'ARCHIDONA',
+    		'cod_canton'=>'9005',
+    		'provincia_id'=>15,
+
+    	] );
+    	Canton::create( [
+    		'id'=>226,
+    		'canton'=>'CARLOS JULIO AROSEMENA',
+    		'cod_canton'=>'9006',
+    		'provincia_id'=>15,
+
+    	] );
+    	Canton::create( [
+    		'id'=>227,
+    		'canton'=>'EL CHACO',
+    		'cod_canton'=>'9007',
+    		'provincia_id'=>15,
+
+    	] );
+    	Canton::create( [
+    		'id'=>228,
+    		'canton'=>'QUIJOS',
+    		'cod_canton'=>'9008',
+    		'provincia_id'=>15,
+
+    	] );
+    	Canton::create( [
+    		'id'=>229,
+    		'canton'=>'TENA',
+    		'cod_canton'=>'9009',
+    		'provincia_id'=>15,
+
+    	] );
 
     }
 }

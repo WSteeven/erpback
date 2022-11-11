@@ -26,11 +26,21 @@ class PerchaController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = PerchaResource::collection(Percha::all());
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = Percha::simplePaginate($request['offset']);
+            PerchaResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = Percha::all();
+            PerchaResource::collection($results);
+        }
         return response()->json(compact('results'));
-    }
+}
 
 
     /**

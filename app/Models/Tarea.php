@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -10,6 +11,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 class Tarea extends Model implements Auditable
 {
     use HasFactory;
+    use Filterable;
     use AuditableModel;
 
     protected $table = "tareas";
@@ -29,6 +31,10 @@ class Tarea extends Model implements Auditable
     ];
 
     protected $casts = ['es_proyecto' => 'boolean'];
+    
+    private static $whiteListFilter = [
+        '*',
+    ];
 
     // Relacion uno a muchos (inversa)
     public function cliente()

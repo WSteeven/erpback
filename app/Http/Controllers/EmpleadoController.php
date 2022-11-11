@@ -35,9 +35,9 @@ class EmpleadoController extends Controller
         Log::channel('testing')->info('Log', ['Metodo list de empleado: ', $page, $rol, $offset]);
         if($page){
             if($offset){
-                $results = Empleado::simplePaginate($offset);
+                $results = Empleado::where('id', '<>',1)->simplePaginate($offset);
             }else{
-                $results = Empleado::simplePaginate();
+                $results = Empleado::where('id', '<>',1)->simplePaginate();
             }
             EmpleadoResource::collection($results);
             $results->appends(['offset' => $offset]);
@@ -45,12 +45,12 @@ class EmpleadoController extends Controller
             $results = Empleado::filter()->where('id', '<>',1)->get();
             EmpleadoResource::collection($results);
         }
-        /* if ($rol) {
+        if ($rol) {
             $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
             $empleados = Empleado::ignoreRequest($rol)->filter()->get();
             $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
             EmpleadoResource::collection($results);
-        } */
+        }
         Log::channel('testing')->info('Log', ['Resultados: ', $results]);
         return $results;
     }

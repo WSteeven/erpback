@@ -24,10 +24,20 @@ class SubtipoTransaccionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = SubtipoTransaccionResource::collection(SubtipoTransaccion::all());
-        return response()->json(compact('results'));        
+        $page = $request['page'];
+        $results = [];
+        
+        if ($page) {
+            $results = SubtipoTransaccion::simplePaginate($request['offset']);
+            SubtipoTransaccionResource::collection($results);
+            $results->appends(['offset' => $request['offset']]);
+        } else {
+            $results = SubtipoTransaccion::all();
+            SubtipoTransaccionResource::collection($results);
+        }
+        return response()->json(compact('results'));
     }
 
     /**
