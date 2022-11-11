@@ -36,14 +36,15 @@ class TareaRequest extends FormRequest
             'supervisor' => 'nullable|numeric|integer',
             'es_proyecto' => 'boolean',
             'codigo_proyecto' => 'nullable|string',
+            'ubicacion_tarea' => 'nullable|json',
             //
-            'celular' => 'nullable|string',
+            /* 'celular' => 'nullable|string',
             'parroquia' => 'nullable|string',
             'direccion' => 'nullable|string',
             'referencias' => 'nullable|string',
             'coordenadas' => 'nullable|string',
             'provincia' => 'nullable|numeric|integer',
-            'canton' => 'nullable|numeric|integer',
+            'canton' => 'nullable|numeric|integer', */
         ];
     }
 }

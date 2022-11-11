@@ -29,10 +29,7 @@ class TipoTareaController extends Controller
         } else {
             $results = TipoTareaResource::collection(TipoTrabajo::filter()->get());
         }
-
-
-
-        //$results = TipoTareaResource::collection(TipoTrabajo::all());
+        
         return response()->json(compact('results'));
     }
 

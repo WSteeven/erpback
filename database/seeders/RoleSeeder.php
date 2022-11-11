@@ -25,7 +25,7 @@ class RoleSeeder extends Seeder
         $administrativo = Role::firstOrCreate(['name' => User::ROL_ADMINISTRATIVO]);
         $bodega = Role::firstOrCreate(['name' => User::ROL_BODEGA]);
         $compras = Role::firstOrCreate(['name' => User::ROL_COMPRAS]);
-        $contabilidad = Role::firstOrCreate(['name'=>User::ROL_CONTABILIDAD]);
+        $contabilidad = Role::firstOrCreate(['name' => User::ROL_CONTABILIDAD]);
         $coordinador = Role::firstOrCreate(['name' => User::ROL_COORDINADOR]);
         $empleado = Role::firstOrCreate(['name' => User::ROL_EMPLEADO]);
         $gerente = Role::firstOrCreate(['name' => User::ROL_GERENTE]);
@@ -91,7 +91,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.condiciones'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.condiciones'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.condiciones'])->assignRole($activos_fijos);
-        
+
         //Condiciones
         Permission::firstOrCreate(['name' => 'puede.ver.control_stock'])->syncRoles([$activos_fijos, $bodega]);
         Permission::firstOrCreate(['name' => 'puede.crear.control_stock'])->assignRole($bodega);
@@ -115,7 +115,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.empresas'])->assignRole($jefe_tecnico);
         Permission::firstOrCreate(['name' => 'puede.editar.empresas'])->assignRole($jefe_tecnico);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.empresas'])->assignRole($jefe_tecnico);
-       
+
         //Estados de transacciones
         Permission::firstOrCreate(['name' => 'puede.ver.estados_transacciones'])->syncRoles([$activos_fijos, $bodega, $contabilidad, $coordinador, $administrativo]);
         Permission::firstOrCreate(['name' => 'puede.crear.estados_transacciones'])->assignRole($activos_fijos);
@@ -161,9 +161,9 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.pisos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.pisos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.eliminar.pisos'])->assignRole($bodega);
-        
+
         //Prestamos
-        Permission::firstOrCreate(['name' => 'puede.ver.prestamos'])->assignRole( $bodega);
+        Permission::firstOrCreate(['name' => 'puede.ver.prestamos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.crear.prestamos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.prestamos'])->assignRole($bodega);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.prestamos'])->assignRole($bodega);
@@ -173,13 +173,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.productos'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.productos'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.productos'])->assignRole($activos_fijos);
-        
+
         //Productos en perchas
         Permission::firstOrCreate(['name' => 'puede.ver.productos_perchas'])->syncRoles([$activos_fijos, $bodega]);
         Permission::firstOrCreate(['name' => 'puede.crear.productos_perchas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.productos_perchas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.eliminar.productos_perchas'])->assignRole($bodega);
-        
+
         //Proveedores
         Permission::firstOrCreate(['name' => 'puede.ver.proveedores'])->syncRoles([$jefe_tecnico, $activos_fijos, $coordinador, $bodega, $tecnico_lider]);
         Permission::firstOrCreate(['name' => 'puede.crear.proveedores'])->assignRole($compras);
@@ -190,13 +190,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.subtipos_transacciones'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.subtipos_transacciones'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.subtipos_transacciones'])->assignRole($activos_fijos);
-        
+
         //Sucursales
         Permission::firstOrCreate(['name' => 'puede.ver.sucursales'])->syncRoles([$activos_fijos, $bodega, $recursos_humanos, $tecnico_lider, $contabilidad, $coordinador, $administrativo]);
         Permission::firstOrCreate(['name' => 'puede.crear.sucursales'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.sucursales'])->assignRole($activos_fijos);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.sucursales'])->assignRole($activos_fijos);
-        
+
         //Tipos de fibras
         Permission::firstOrCreate(['name' => 'puede.ver.tipos_fibras'])->syncRoles([$coordinador, $bodega]);
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_fibras'])->syncRoles([$coordinador, $bodega]);
@@ -217,13 +217,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.transacciones_ingresos'])->syncRoles([$bodega]);
         Permission::firstOrCreate(['name' => 'puede.editar.transacciones_ingresos'])->syncRoles([$bodega, $coordinador]);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.transacciones_ingresos'])->syncRoles([$bodega]);
-        
+
         Permission::firstOrCreate(['name' => 'puede.ver.transacciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.crear.transacciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $administrativo, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.editar.transacciones'])->syncRoles([$bodega, $tecnico_lider]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.transacciones']);//->syncRoles([$coordinador, $gerente, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.transacciones']); //->syncRoles([$coordinador, $gerente, $jefe_tecnico]);
         // Permission::firstOrCreate(['name' => 'puede.autorizar.transacciones'])->syncRoles([$coordinador, $gerente, $jefe_tecnico]);
-        
+
         //Ubicaciones
         Permission::firstOrCreate(['name' => 'puede.ver.ubicaciones'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.crear.ubicaciones'])->assignRole($bodega);
@@ -286,5 +286,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico);
         Permission::firstOrCreate(['name' => 'puede.editar.control_cambios'])->assignRole($coordinador, $tecnico);
         Permission::firstOrCreate(['name' => 'puede.eliminar.control_cambios'])->assignRole($coordinador, $tecnico);
+        // Solicitud de materiales a bodega
+        Permission::firstOrCreate(['name' => 'puede.ver.solicitud_materiales'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.crear.solicitud_materiales'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.editar.solicitud_materiales'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.solicitud_materiales'])->assignRole($coordinador, $tecnico);
     }
 }
