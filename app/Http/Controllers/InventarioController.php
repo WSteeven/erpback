@@ -25,14 +25,20 @@ class InventarioController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $sucursal = $request['sucursal'];
         $results = [];
         if ($page) {
             $results = Inventario::simplePaginate($request['offset']);
             InventarioResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Inventario::filter()->get();
-            InventarioResource::collection($results);
+            $results = Inventario::all();
+            // $results = Inventario::filter()->get();
+            $results = InventarioResource::collection($results);
+        }
+        if($sucursal){
+            $results = Inventario::where('sucursal_id', $sucursal)->get();
+            $results = InventarioResource::collection($results);
         }
         return response()->json(compact('results'));
     }

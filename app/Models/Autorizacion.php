@@ -20,9 +20,15 @@ class Autorizacion extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+    
+    const PENDIENTE='PENDIENTE';
+    const APROBADO='APROBADO';
+    const CANCELADO='CANCELADO';
+    
     private static $whiteListFilter = [
-        '*',
+    '*',
     ];
+
 
     /**
      * Relacion muchos a muchos

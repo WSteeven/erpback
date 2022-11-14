@@ -30,7 +30,7 @@ class ProductoEnPerchaController extends Controller
         
         if ($page) {
             $results = ProductoEnPercha::simplePaginate($request['offset']);
-            ProductoEnPercha::collection($results);
+            ProductoEnPerchaResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = ProductoEnPercha::all();

@@ -7,10 +7,9 @@ use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Case_;
-use PhpParser\Node\Stmt\Return_;
 use Src\Shared\Utils;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -27,11 +26,11 @@ class TransaccionBodegaEgresoController extends Controller
     public function list()
     {
         $idsSeleccionados = request('ids_seleccionados');
-        
+
         if (request('subtarea_id')) {
             if ($idsSeleccionados) {
                 $var = array_map('intval', explode(',', $idsSeleccionados));
-                 Log::channel('testing')->info('Log', ['arrays', $var]);
+                Log::channel('testing')->info('Log', ['arrays', $var]);
                 return TransaccionBodegaResource::collection(TransaccionBodega::whereIn('id', $var)->where()->get()); // revisar
             }
             $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
@@ -62,27 +61,78 @@ class TransaccionBodegaEgresoController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        /* $results = [];
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA])) {
-            $transacciones = TransaccionBodega::all();
+        $page = $request['page'];
+        $estado = $request['estado'];
+        $results = [];
+        if ($page) {
+            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+                    ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')
+                    ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+                    ->where('estados_transacciones_bodega.nombre', $estado)
+                    ->simplePaginate($request['offset']);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            }
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')
+                    ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+                    ->where('estados_transacciones_bodega.nombre', $estado)
+                    ->simplePaginate($request['offset']);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            } else {
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+                    ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')
+                    ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+                    ->where('estados_transacciones_bodega.nombre', $estado)
+                    ->simplePaginate($request['offset']);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            }
         } else {
-            $transacciones = TransaccionBodega::where('solicitante_id', auth()->user()->empleado->id)->get();
-        }
+            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+                    ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')->filter()->get();
+            }
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')
+                    ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+                    ->where('estados_transacciones_bodega.nombre', $estado)
+                    ->ignoreRequest(['estado'])->filter()->get();
+                    $results = TransaccionBodegaResource::collection($results);
+            } else {
+                $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
+                $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
 
-        foreach ($transacciones as $transaccion) {
-            if ($transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO') {
-                array_push($results, $transaccion);
+                return  TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransacciones($transacciones, request('estado')));
             }
         }
 
-        $results = TransaccionBodegaResource::collection($results);
-
-        return response()->json(compact('results')); */
-
-        // return response()->json(['results' => $this->list()]);
-        
+        return response()->json(compact('results'));
     }
 
     /**
@@ -166,7 +216,7 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if($request->subtarea_id){
+        if ($request->subtarea_id) {
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
         }
         if ($request->per_atiende) {

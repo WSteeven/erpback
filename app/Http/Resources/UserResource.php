@@ -29,7 +29,7 @@ class UserResource extends JsonResource
             'usuario_id' => $this->id,
             'sucursal_id' => $this->empleado->sucursal_id,
             'grupo_id' => $this->empleado->grupo_id,
-            'grupo' => $this->empleado->grupo->nombre,
+            'grupo' => $this->empleado->grupo?->nombre,
             'rol'=>$this->getRoleNames(),
             'estado' => $this->empleado->estado,
         ];

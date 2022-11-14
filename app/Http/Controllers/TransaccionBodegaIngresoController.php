@@ -105,9 +105,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $results = TransaccionBodegaResource::collection($results);
             }
         }
-        // $results = TransaccionBodegaResource::collection($transacciones);
         return response()->json(compact('results'));
-        // return response()->json(['results'=>TransaccionBodegaResource::collection($results)]);
     }
 
     /**

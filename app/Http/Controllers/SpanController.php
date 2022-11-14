@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SpanRequest;
 use App\Models\Span;
-use App\Http\Requests\StoreSpanRequest;
-use App\Http\Requests\UpdateSpanRequest;
 use App\Http\Resources\SpanResource;
-use DragonCode\Contracts\Cashier\Http\Request;
+use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
 class SpanController extends Controller

@@ -28,6 +28,7 @@ class UbicacionController extends Controller
     public function index(Request $request)
     {
         $search = $request['search'];
+        $sucursal=$request['sucursal'];
         $results = [];
         if ($search) {
             $ubicacion = Ubicacion::select('id')->where('codigo', 'LIKE', '%' . $search . '%')->first();
@@ -35,6 +36,13 @@ class UbicacionController extends Controller
             if ($ubicacion) $results = UbicacionResource::collection(Ubicacion::where('id', $ubicacion->id)->get());
         } else {
             $results = UbicacionResource::collection(Ubicacion::all());
+        }
+        if($sucursal){
+            Log::channel('testing')->info('Log', ['Sucursal recibida:', $request['sucursal']]);
+            $results = Ubicacion::select(["ubicaciones.id", "codigo", "percha_id", "piso_id",])
+                ->join('perchas', 'percha_id', '=', 'perchas.id')
+                ->where('perchas.sucursal_id', $sucursal)->get();
+            $results = UbicacionResource::collection($results);
         }
         return response()->json(compact('results'));
     }

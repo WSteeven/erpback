@@ -20,6 +20,9 @@ class EstadoTransaccion extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+    const PENDIENTE ='PENDIENTE';
+    const COMPLETA ='COMPLETA';
+    const PARCIAL ='PARCIAL';
     
     private static $whiteListFilter = [
         '*',
