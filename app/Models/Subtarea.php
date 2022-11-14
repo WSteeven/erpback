@@ -87,6 +87,22 @@ class Subtarea extends Model implements Auditable
 
     public function tecnicosPrincipales(array $ids)
     {
-        return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
+        // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
+        return Empleado::whereIn('id', $ids)->get()->map(fn($item) => [
+            'id' => $item->id,
+            'identificacion' => $item->identificacion,
+            'nombres' => $item->nombres,
+            'apellidos' => $item->apellidos,
+            'telefono' => $item->telefono,
+            'fecha_nacimiento' => $item->fecha_nacimiento,
+            'email' => $item->user ? $item->user->email : '',
+            'jefe' => $item->jefe ? $item->jefe->nombres . ' ' . $item->jefe->apellidos : 'N/A',
+            'usuario' => $item->user->name,
+            'sucursal' => $item->sucursal->lugar,
+            'estado' => $item->estado,
+            'grupo' => $item->grupo?->nombre,
+            'disponible' => $item->disponible,
+            'roles' => implode(', ', $item->user->getRoleNames()->toArray()),
+        ]);
     }
 }

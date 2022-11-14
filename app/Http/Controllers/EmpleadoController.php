@@ -11,15 +11,17 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role;
+use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 
 class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
+    private EmpleadoService $servicio;
 
     public function __construct()
     {
+        $this->servicio = new EmpleadoService();
         /*$this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
         $this->middleware('can:puede.editar.empleados')->only('update');
@@ -28,39 +30,24 @@ class EmpleadoController extends Controller
 
     public function list()
     {
+        // Obtener parametros
         $page = request('page');
-        $rol = request('rol');
         $offset = request('offset');
-        $results = [];
-        Log::channel('testing')->info('Log', ['Metodo list de empleado: ', $page, $rol, $offset]);
-        if($page){
-            if($offset){
-                $results = Empleado::where('id', '<>',1)->simplePaginate($offset);
-            }else{
-                $results = Empleado::where('id', '<>',1)->simplePaginate();
-            }
-            EmpleadoResource::collection($results);
-            $results->appends(['offset' => $offset]);
-        }else{
-            $results = Empleado::filter()->where('id', '<>',1)->get();
-            EmpleadoResource::collection($results);
-        }
-        if ($rol) {
-            $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
-            $empleados = Empleado::ignoreRequest($rol)->filter()->get();
-            $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
-            EmpleadoResource::collection($results);
-        }
-        Log::channel('testing')->info('Log', ['Resultados: ', $results]);
-        return $results;
+        $rol = request('rol');
+
+        // Procesar
+        if ($page) return $this->servicio->obtenerPaginacion($offset);
+        if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
+        return $this->servicio->obtenerTodos();
     }
 
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
-        return response()->json(['results' => $this->list()]);
+        $results = $this->list();
+        return response()->json(compact('results'));
     }
 
     /**
@@ -146,12 +133,10 @@ class EmpleadoController extends Controller
      */
     public function obtenerTecnicos(Request $request)
     {
-        $grupo_id = $request['grupo'];
-        if (!$grupo_id) {
-            return response()->json(['mensaje' => 'Debe proporcionar un id de grupo']);
-        }
+        $request->validate(['grupo' => 'required|numeric|integer']);
+        $grupo = $request['grupo'];
 
-        $results = EmpleadoResource::collection(Empleado::where('grupo_id', $grupo_id)->get());
+        $results = $this->servicio->obtenerTecnicosPorGrupo($grupo);
         return response()->json(compact('results'));
     }
 }
