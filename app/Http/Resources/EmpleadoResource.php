@@ -27,9 +27,9 @@ class EmpleadoResource extends JsonResource
             'usuario' => $this->user->name,
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado,
-            'grupo' => $this->grupo->nombre ?? null,
+            'grupo' => $this->grupo?->nombre,
             'disponible' => $this->disponible,
-            'roles' => implode(', ', $this->user->getRoleNames()->toArray())
+            'roles' => implode(', ', $this->user->getRoleNames()->toArray()),
         ];
 
         if ($controller_method == 'show') {

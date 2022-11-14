@@ -15,24 +15,20 @@ class SubtareaController extends Controller
 {
     private $entidad = 'Subtarea';
 
-    public function list(Request $request)
+    public function list()
     {
-        $estado = $request['estado'];
-        $grupo = Auth::user()->empleado->grupo_id;
-
-        if ($estado) {
-            return SubtareaResource::collection(Subtarea::filter()->where('estado', $estado)->where('grupo_id', $grupo)->get());
-        }
-
-        return SubtareaResource::collection(Subtarea::filter()->get());
+        $filter = Subtarea::filter()->simplePaginate();
+        SubtareaResource::collection($filter);
+        return $filter;
     }
 
     /**
      * Listar
      */
-    public function index(Request $request)
+    public function index()
     {
-        return response()->json(['results' => $this->list($request)]);
+        $results = $this->list();
+        return response()->json(compact('results'));
     }
 
     /**
@@ -76,7 +72,9 @@ class SubtareaController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        // -- $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
         $subtarea->update($datos);

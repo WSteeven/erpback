@@ -35,6 +35,7 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
+use App\Http\Controllers\SubtareaAsignadaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\SucursalController;
@@ -118,7 +119,7 @@ Route::apiResources(
         'control-stocks' => ControlStockController::class,
         'codigos-clientes' => CodigoClienteController::class,
         'discos' => DiscoController::class,
-        'detalles-productos-transacciones'=>DetalleProductoTransaccionController::class,
+        'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
         'estados' => EstadoTransaccionController::class,
@@ -188,3 +189,4 @@ Route::apiResources(
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 Route::post('subtareas/asignar/{subtarea}', [SubtareaController::class, 'asignar'])->middleware('auth:sanctum');
 Route::post('subtareas/realizar/{subtarea}', [SubtareaController::class, 'realizar'])->middleware('auth:sanctum');
+Route::get('subtareas-asignadas', [SubtareaAsignadaController::class, 'index'])->middleware('auth:sanctum');
