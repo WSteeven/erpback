@@ -40,4 +40,9 @@ class EmpleadoService
     {
         return EmpleadoResource::collection(Empleado::where('grupo_id', $grupo)->get());
     }
+
+    public function search(string $search)
+    {
+        return Empleado::search($search)->get();
+    }
 }

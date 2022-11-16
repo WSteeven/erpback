@@ -4,22 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
+use App\Models\Empleado;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Src\App\SubtareaService;
 use Src\Shared\Utils;
 
 class SubtareaController extends Controller
 {
     private $entidad = 'Subtarea';
+    private SubtareaService $servicio;
+
+    public function __construct()
+    {
+        $this->servicio = new SubtareaService();
+    }
 
     public function list()
     {
-        $filter = Subtarea::filter()->simplePaginate();
+        // Obtener parametros
+        $page = request('page');
+        $offset = request('offset');
+
+        // Procesar
+        if ($page) return $this->servicio->obtenerPaginacion($offset);
+        return $this->servicio->obtenerTodos();
+
+        /*$filter = Subtarea::filter()->simplePaginate();
         SubtareaResource::collection($filter);
         return $filter;
+        return SubtareaResource::collection(Empleado::filter()->get());*/
     }
 
     /**

@@ -46,8 +46,15 @@ class SubtareaRequest extends FormRequest
             'descripcion_completa' => 'nullable|string',
             'tecnicos_grupo_principal' => 'required|string',
             'tecnicos_otros_grupos' => 'nullable|string',
-            // 'estado' => 'nullable|numeric|integer',
             'tarea_id' => 'required|numeric|integer',
+            // 'estado' => 'nullable|numeric|integer',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'tecnicos_grupo_principal.required'=> 'Debe asignar al menos un técnico del grupo asignado.'
         ];
     }
 }

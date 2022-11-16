@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
-use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use OwenIt\Auditing\Contracts\Auditable;
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\UppercaseValuesTrait;
+use Laravel\Scout\Searchable;
 
 class Empleado extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable;
-    use AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel, Searchable;
+
     protected $table = "empleados";
     protected $fillable = [
         'identificacion',
@@ -45,6 +46,14 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'nombres' => $this->nombres,
+            'apellidos' => $this->apellidos,
+        ];
+    }
 
     //Relacion uno a muchos polimorfica
     public function telefonos()

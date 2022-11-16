@@ -34,8 +34,10 @@ class EmpleadoController extends Controller
         $page = request('page');
         $offset = request('offset');
         $rol = request('rol');
+        $search = request('search');
 
         // Procesar
+        if ($search) return $this->servicio->search($search);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         return $this->servicio->obtenerTodos();
@@ -55,8 +57,8 @@ class EmpleadoController extends Controller
      */
     public function store(EmpleadoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
-        //adaptacion de foreign keys
+        // Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
+        // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
