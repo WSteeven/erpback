@@ -43,13 +43,13 @@ class PrestamoTemporalRequest extends FormRequest
     public function attributes()
     {
         return [
-            'listadoProductos.*.cantidad' => 'listado',
+            'listadoProductos.*.cantidades' => 'listado',
         ];
     }
     public function messages()
     {
         return [
-            'listadoProductos.*.cantidad' => 'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductos.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
 
@@ -61,13 +61,17 @@ class PrestamoTemporalRequest extends FormRequest
                 // Log::channel('testing')->info('Log', ['Listado en el foreach del prestamorequest:', $listado['id'], $listado['cantidades']]);
                 $item = Inventario::find($listado['id']);
                 Log::channel('testing')->info('Log', ['Cantidad encontrada:', $item]);
-
-                if ($listado['cantidades'] < 1) {
-                    $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada debe ser mínimo 1');
-                } else {
-                    if (in_array($this->method(), ['POST'])) {
-                        if ($item->cantidad < $listado['cantidades']) {
-                            $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada no debe ser mayor a la existente en el inventario');
+                Log::channel('testing')->info('Log', ['Listado:', $listado['cantidad']]);
+                
+                if(array_key_exists('cantidades', $listado)){
+                    Log::channel('testing')->info('Log', ['Listado:', $listado['cantidades']]);
+                    if ($listado['cantidades'] < 1) {
+                        $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada debe ser mínimo 1');
+                    } else {
+                        if (in_array($this->method(), ['POST'])) {
+                            if ($item->cantidad < $listado['cantidades']) {
+                                $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad ingresada no debe ser mayor a la existente en el inventario');
+                            }
                         }
                     }
                 }
