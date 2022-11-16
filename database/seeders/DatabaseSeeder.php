@@ -56,7 +56,7 @@ class DatabaseSeeder extends Seeder
         $this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
 
-        $this->call(TransaccionBodegaSeeder::class);
+        // $this->call(TransaccionBodegaSeeder::class);
         ImagenProducto::factory(10)->create();
     }
 }

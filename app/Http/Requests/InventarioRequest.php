@@ -31,12 +31,12 @@ class InventarioRequest extends FormRequest
         $rules = [
             'condicion' => 'required|integer|exists:condiciones_de_productos,id',
             'cantidad' => 'required|integer',
-            // 'detalle'=>['required|integer|exists:detalles_productos,id|unique:inventarios,detalle_id,NULL,sucursal_id'.$this->sucursal,
-            'detalle_id' => ['required', Rule::unique('inventarios')->where(function ($query) use ($request) {
+            'detalle_id'=>'required|integer|exists:detalles_productos,id',//|unique:inventarios,detalle_id,NULL,sucursal_id'.$this->sucursal,
+            /* 'detalle_id' => ['required', Rule::unique('inventarios')->where(function ($query) use ($request) {
                 return $query->where('sucursal_id', $request->sucursal_id)
                     ->where('cliente_id', $request->cliente_id)
                     ->where('condicion_id', $request->condicion);
-            })],
+            })], */
             'sucursal_id' => 'required|integer|exists:sucursales,id', //|unique:inventarios,detalle_id',
             'cliente_id' => 'required|integer|exists:clientes,id', //|unique:inventarios,detalle_id',
             'prestados' => 'sometimes|integer',
@@ -45,7 +45,7 @@ class InventarioRequest extends FormRequest
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $inventario = $this->route()->parameter('inventario');
-            //Log::channel('testing')->info('Log', ['inventario recibido', $inventario]);
+            Log::channel('testing')->info('Log', ['inventario recibido', $inventario]);
 
             $rules['detalle_id'] = ['required', Rule::unique('inventarios')->ignore($inventario)->where(function ($query) use ($request) {
                 return $query->where('sucursal_id', $request->sucursal_id)

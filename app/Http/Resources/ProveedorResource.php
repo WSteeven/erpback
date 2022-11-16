@@ -14,6 +14,14 @@ class ProveedorResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        // return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        return $modelo = [
+            'id'=>$this->id,
+            'empresa'=>$this->empresa_id,
+            'razon_social'=>$this->empresa->razon_social,
+            'estado'=>$this->estado,
+
+        ];
     }
 }

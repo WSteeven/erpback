@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DetalleProductoTransaccionRequest;
+use App\Http\Resources\DetalleProductoTransaccionResource;
 use App\Models\DetalleProductoTransaccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class DetalleProductoTransaccionController extends Controller
 {
@@ -18,10 +21,14 @@ class DetalleProductoTransaccionController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['id', $request['transaccion_id']]);
-        if($request['transaccion_id']){
+        Log::channel('testing')->info('Log', ['id', $request['transaccion_id']]);
+        Log::channel('testing')->info('Log', ['id', $request['detalle_id']]);
+        if ($request['transaccion_id']) {
             $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->get();
-        }else{
+            if ($request['detalle_id']) {
+                $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->where('detalle_id', $request['detalle_id'])->get();
+            }
+        } else {
             $results = DetalleProductoTransaccion::all();
         }
         // Log::channel('testing')->info('Log', ['Datos obtenidos:', $results, 'transaccion_id', $request['transaccion_id']]);
@@ -34,7 +41,7 @@ class DetalleProductoTransaccionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DetalleProductoTransaccionRequest $request)
     {
         //
     }
@@ -45,20 +52,10 @@ class DetalleProductoTransaccionController extends Controller
      * @param  \App\Models\DetalleProductoTransaccion  $detalleProductoTransaccion
      * @return \Illuminate\Http\Response
      */
-    public function show(DetalleProductoTransaccion $detalleProductoTransaccion)
+    public function show(DetalleProductoTransaccion $detalle)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\DetalleProductoTransaccion  $detalleProductoTransaccion
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(DetalleProductoTransaccion $detalleProductoTransaccion)
-    {
-        //
+        $modelo = new DetalleProductoTransaccionResource($detalle);
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -68,9 +65,14 @@ class DetalleProductoTransaccionController extends Controller
      * @param  \App\Models\DetalleProductoTransaccion  $detalleProductoTransaccion
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, DetalleProductoTransaccion $detalleProductoTransaccion)
+    public function update(DetalleProductoTransaccionRequest $request, DetalleProductoTransaccion $detalle)
     {
-        //
+        $datos = $request->validated();
+        $detalle->update($datos);
+        $modelo = new DetalleProductoTransaccionResource($detalle->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -79,8 +81,10 @@ class DetalleProductoTransaccionController extends Controller
      * @param  \App\Models\DetalleProductoTransaccion  $detalleProductoTransaccion
      * @return \Illuminate\Http\Response
      */
-    public function destroy(DetalleProductoTransaccion $detalleProductoTransaccion)
+    public function destroy(DetalleProductoTransaccion $detalle)
     {
-        //
+        $detalle->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

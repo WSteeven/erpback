@@ -55,7 +55,20 @@ class InventarioController extends Controller
         $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
         // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
-        $modelo = Inventario::create($datos);
+        Log::channel('testing')->info('Log', ['listado', $request->all()]);
+        $item = Inventario::where('detalle_id', $request->detalle_id)
+            ->where('sucursal_id', $request->sucursal_id)
+            ->where('cliente_id', $request->cliente_id)
+            ->where('condicion_id', $request->condicion)
+            ->first();
+        Log::channel('testing')->info('Log', ['item encontrado', $item]);
+        if($item){
+            $datos['cantidad']=$request->cantidad+$item->cantidad;
+            $item->update($datos);
+            $modelo=$item->refresh();
+        }else{
+            $modelo = Inventario::create($datos);
+        }
         $modelo = new InventarioResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

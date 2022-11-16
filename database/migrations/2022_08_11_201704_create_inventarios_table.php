@@ -20,6 +20,8 @@ return new class extends Migration
             $table->unsignedBigInteger('sucursal_id');
             $table->unsignedBigInteger('cliente_id');
             $table->integer('cantidad')->default(0);
+            $table->integer('por_recibir')->default(0);
+            $table->integer('por_entregar')->default(0);
             $table->integer('prestados')->default(0);
             $table->unsignedBigInteger('condicion_id');
             $table->enum('estado', [Inventario::INVENTARIO, Inventario::TRANSITO, Inventario::SIN_STOCK])->default(Inventario::INVENTARIO);

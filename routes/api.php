@@ -164,6 +164,7 @@ Route::apiResources(
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
+            'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
             'procesadores' => 'procesador',
