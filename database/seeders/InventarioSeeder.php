@@ -175,6 +175,8 @@ class InventarioSeeder extends Seeder
             [158, 177, 1, 1, 1, 0, 1, 'INVENTARIO', '2022-10-11 14:44:02', '2022-10-11 14:44:02'],
             [159, 180, 1, 1, 1, 0, 1, 'INVENTARIO', '2022-10-11 14:44:17', '2022-10-11 14:44:17'],
             [160, 179, 1, 1, 1, 0, 1, 'INVENTARIO', '2022-10-11 14:44:36', '2022-10-11 14:44:36'],
+            [161, 8, 2, 1, 1, 0, 1, 'INVENTARIO', '2022-11-15 22:42:47', '2022-11-15 22:42:47'],
+            [162, 3, 2, 1, 1, 0, 1, 'INVENTARIO', '2022-11-15 22:43:55', '2022-11-15 22:43:55'],
         ];
         foreach($datos as $fila){
             DB::insert('INSERT INTO `inventarios` (`id`, `detalle_id`, `sucursal_id`, `cliente_id`, `cantidad`, `prestados`, `condicion_id`, `estado`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?,?)',$fila);
