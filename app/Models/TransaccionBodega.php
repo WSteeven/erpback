@@ -154,6 +154,9 @@ class TransaccionBodega extends Model implements Auditable
         $autorizacion = $autorizaciones->first();
         return $autorizacion;
     }
+    /**
+     * Obtener el ultimo estado de una transaccion 
+     */
     public static function ultimoEstado($id)
     {
         $observaciones = TransaccionBodega::find($id)->estados()->get();
@@ -161,6 +164,9 @@ class TransaccionBodega extends Model implements Auditable
         return $observacion;
     }
 
+    /**
+     * Obtener el listado de productos de una transaccion
+     */
     public static function listadoProductos($id)
     {
         $detalles = TransaccionBodega::find($id)->detalles()->get();
@@ -203,6 +209,8 @@ class TransaccionBodega extends Model implements Auditable
                 return $transacciones;
         }
     }
+
+    
 
     /**
      * Función para obtener todas las columnas de la tabla.
