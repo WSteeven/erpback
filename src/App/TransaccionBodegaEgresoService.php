@@ -12,6 +12,29 @@ class TransaccionBodegaEgresoService
 
     public function obtenerTransaccionesDeEgresosConPaginacion(int $page, int $offset)
     {
+        $queryCoordinador = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+            ->where('solicitante_id', auth()->user()->empleado->id)
+            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+            ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+            ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+            ->where('tipos_transacciones.tipo', '=', 'EGRESO');
+        $queryEmpleado = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+            ->where('solicitante_id', auth()->user()->empleado->id)
+            ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
+            ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+            ->where('tipos_transacciones.tipo', '=', 'EGRESO');
+        $joinPendiente = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+            ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+            ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+            ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PENDIENTE);
+        $joinAutorizacionPendiente = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+            ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
+            ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
+            ->where('autorizaciones.nombre', Autorizacion::PENDIENTE);
+        $joinAutorizacionAprobada = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
+            ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
+            ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
+            ->where('autorizaciones.nombre', Autorizacion::APROBADO);
     }
     public function obtenerTransaccionesDeEgresosSinPaginacion(String $estado)
     {

@@ -68,127 +68,34 @@ class TransaccionBodegaEgresoController extends Controller
         $offset = $request['offset'];
         $estado = $request['estado'];
         $results = [];
-        $queryCoordinador = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-            ->where('solicitante_id', auth()->user()->empleado->id)
-            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-            ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
-            ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-            ->where('tipos_transacciones.tipo', '=', 'EGRESO');
-        $queryEmpleado = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-            ->where('solicitante_id', auth()->user()->empleado->id)
-            ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
-            ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-            ->where('tipos_transacciones.tipo', '=', 'EGRESO');
-        $joinPendiente = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-            ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-            ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-            ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PENDIENTE);
-        $joinAutorizacionPendiente = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-            ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-            ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-            ->where('autorizaciones.nombre', Autorizacion::PENDIENTE);
-        $joinAutorizacionAprobada = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-            ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-            ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-            ->where('autorizaciones.nombre', Autorizacion::APROBADO);
         if ($page) {
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
-                switch ($estado) {
-                    case 'TODO':
-                        $results = $queryCoordinador->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    case 'ESPERA':
-                        $results = $queryCoordinador
-                            ->union($joinPendiente)
-                            ->union($joinAutorizacionPendiente)
-                            ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    case 'PENDIENTE':
-                        Log::channel('testing')->info('Log', ['entro al PENDIENTE', $estado]);
-                        $results = $queryCoordinador
-                            ->union($joinPendiente)
-                            ->union($joinAutorizacionAprobada)
-                            ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    default:
-                        $results = $queryCoordinador
-                            ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                            ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                            ->where('estados_transacciones_bodega.nombre', $estado)
-                            ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                }
+                $results = TransaccionBodega::filtrarTransaccionesCoordinadorConPaginacion($estado, $offset);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
             } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
-                //
+                $results = TransaccionBodega::filtrarTransaccionesBodegueroConPaginacion($estado, $offset);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
             } else { //cualquier otro
-                switch ($estado) {
-                    case 'TODO':
-                        Log::channel('testing')->info('Log', ['entro al TODO de la 142', $estado]);
-                        $results = $queryEmpleado->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    case 'ESPERA':
-                        Log::channel('testing')->info('Log', ['entro al ESPERA', $estado]);
-                        $results = $queryEmpleado
-                            ->union($joinPendiente)
-                            ->union($joinAutorizacionPendiente)
-                            ->simplePaginate($request['offset']);
-                        // joinSub($joinPendiente, 'joinPendiente', function($join){
-                        //     $join->on('transacciones_bodega.id', '=', 'joinPendiente.id');
-                        // })->simplePaginate($request['offset']);
-                        // })->joinSub($joinAutorizacion, 'joinAutorizacion', function($join){
-                        //     $join->on('transacciones_bodega.id', '=', 'joinAutorizacion.id');
-                        // })->simplePaginate($request['offset']);
-                        // ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                        // ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                        // ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PENDIENTE)
-                        // ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-                        // ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-                        // ->where('autorizaciones.nombre', Autorizacion::PENDIENTE)
-                        // ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    case 'PENDIENTE':
-                        Log::channel('testing')->info('Log', ['entro al PENDIENTE', $estado]);
-                        $results = $queryEmpleado
-                            ->union($joinPendiente)
-                            ->union($joinAutorizacionAprobada)
-                            ->simplePaginate($request['offset']);
-                        // $results = $queryEmpleado
-                        //     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                        //     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                        //     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PENDIENTE)
-                        //     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-                        //     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-                        //     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                        //     ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                        break;
-                    default:
-                        Log::channel('testing')->info('Log', ['entro al DEFAULT', $estado]);
-                        $results = $queryEmpleado
-                            ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                            ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                            ->where('estados_transacciones_bodega.nombre', $estado)
-                            ->simplePaginate($request['offset']);
-                        TransaccionBodegaResource::collection($results);
-                        $results->appends(['offset' => $request['offset']]);
-                }
+                $results = TransaccionBodega::filtrarTransaccionesEmpleadoConPaginacion($estado, $offset);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
             }
         } else { //si no hay paginacion
-            //si es coordinador
-            //si es bodeguero
-            //cualquier otro
+            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
+                $results = TransaccionBodega::filtrarTransaccionesCoordinadorSinPaginacion($estado);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
+                $results = TransaccionBodega::filtrarTransaccionesBodegueroSinPaginacion($estado);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            } else { //cualquier otro
+                $results = TransaccionBodega::filtrarTransaccionesEmpleadoSinPaginacion($estado);
+                TransaccionBodegaResource::collection($results);
+                $results->appends(['offset' => $request['offset']]);
+            }
         }
         return response()->json(compact('results'));
     }

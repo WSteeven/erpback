@@ -117,6 +117,11 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_autoriza'=>auth()->user()->empleado->jefe_id,
             ]);
         }
+        if(auth()->user()->hasRole([User::ROL_BODEGA])){
+            $this->merge([
+                'autorizacion'=>2
+            ]);
+        }
         //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);
     }
 }
