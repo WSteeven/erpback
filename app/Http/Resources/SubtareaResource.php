@@ -43,6 +43,7 @@ class SubtareaResource extends JsonResource
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
             'estado' => $this->estado,
             'tecnicos_grupo_principal' => $this->tecnicosPrincipales(explode(',', $this->tecnicos_grupo_principal)),
+            'cliente_final' => $this->tarea->cliente_final,
         ];
 
         if ($controller_method == 'show') {
@@ -50,6 +51,7 @@ class SubtareaResource extends JsonResource
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['grupo'] = $this->grupo_id;
+            $modelo['cliente_final'] = $this->tarea->cliente_final_id;
         }
 
         return $modelo;

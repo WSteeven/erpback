@@ -52,14 +52,14 @@ class TareaController extends Controller
         // Respuesta
         $modelo = Tarea::create($datos);
 
-        // Ubicacion tarea
-        $ubicacionTarea = json_decode($request['ubicacion_tarea'], true);
-        Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
-        $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
-        $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
-        $modelo->ubicacionesTareas()->create($ubicacionTarea);
-        /* $datos['provincia_id'] = $request->safe()->only(['provincia'])['provincia'];
-        $datos['canton_id'] = $request->safe()->only(['canton'])['canton']; */
+        // Ubicacion tarea manual
+        $ubicacionTarea = $request['ubicacion_tarea']; //json_decode($request['ubicacion_tarea'], true);
+        if ($ubicacionTarea) {
+            // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
+            $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
+            $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
+            $modelo->ubicacionTarea()->create($ubicacionTarea);
+        }
 
         $modelo = new TareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
@@ -86,18 +86,13 @@ class TareaController extends Controller
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
 
         // Ubicacion tarea manual
-        if (!$datos['cliente_final_id']) {
-            $ubicacionTarea = json_decode($request['ubicacion_tarea'], true);
-            // $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
-            // $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
+        $ubicacionTarea = $request['ubicacion_tarea']; //json_decode($request['ubicacion_tarea'], true);
+        if ($ubicacionTarea && !$datos['cliente_final_id']) {
 
-            $ubicacion = [
-                'provincia_id' => $ubicacionTarea['provincia'],
-                'canton_id' => $ubicacionTarea['canton']
-            ];
-            // Log::channel('testing')->info('Log', ['Ubicacion', 'SIN cliente final update']);
-            // Log::channel('testing')->info('Log', ['Ubicacion tarea update', $ubicacionTarea]);
-            $tarea->ubicacionesTareas()->update($ubicacion);
+            $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
+            $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
+
+            $tarea->ubicacionTarea()->update($ubicacionTarea);
         } else {
             $tarea->ubicacionesTareas()->delete();
         }

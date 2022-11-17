@@ -36,7 +36,7 @@ class TareaRequest extends FormRequest
             'supervisor' => 'nullable|numeric|integer',
             'es_proyecto' => 'boolean',
             'codigo_proyecto' => 'nullable|string',
-            'ubicacion_tarea' => 'nullable|json',
+            'ubicacion_tarea' => 'nullable', //|json',
             //
             /* 'celular' => 'nullable|string',
             'parroquia' => 'nullable|string',

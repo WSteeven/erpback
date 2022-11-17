@@ -32,6 +32,7 @@ class UserResource extends JsonResource
             'grupo' => $this->empleado->grupo?->nombre,
             'rol'=>$this->getRoleNames(),
             'estado' => $this->empleado->estado,
+            'es_lider' => $this->esTecnicoLider(),
         ];
     }
 }
