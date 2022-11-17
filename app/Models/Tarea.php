@@ -49,12 +49,6 @@ class Tarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function clienteFinal()
-    {
-        return $this->belongsTo(ClienteFinal::class);
-    }
-
-    // Relacion uno a muchos (inversa)
     public function coordinador()
     {
         return $this->belongsTo(Empleado::class);
@@ -69,8 +63,14 @@ class Tarea extends Model implements Auditable
         return $this->hasMany(TransaccionBodega::class);
     }
 
-    public function ubicacionesTareas()
+    public function ubicacionTarea()
     {
         return $this->hasOne(UbicacionTarea::class);
+    }
+
+    // Relacion uno a muchos (inversa)
+    public function clienteFinal()
+    {
+        return $this->hasOne(ClienteFinal::class);
     }
 }

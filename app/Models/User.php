@@ -97,4 +97,9 @@ class User extends Authenticatable implements Auditable
         }
         return $permissions;
     }
+
+    public function esTecnicoLider()
+    {
+        return $this->hasRole(User::ROL_TECNICO_LIDER);
+    }
 }
