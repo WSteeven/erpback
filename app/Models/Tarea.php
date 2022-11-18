@@ -19,7 +19,6 @@ class Tarea extends Model implements Auditable
         'codigo_tarea',
         'codigo_tarea_cliente',
         'fecha_solicitud',
-        'hora_solicitud',
         'coordinador_id',
         'supervisor_id',
         'es_proyecto',
@@ -28,13 +27,12 @@ class Tarea extends Model implements Auditable
         'cliente_final_id',
         'detalle',
         'estado',
+        'ubicacion_tarea_id',
     ];
 
     protected $casts = ['es_proyecto' => 'boolean'];
     
-    private static $whiteListFilter = [
-        '*',
-    ];
+    private static $whiteListFilter = ['*'];
 
     // Relacion uno a muchos (inversa)
     public function cliente()
@@ -63,14 +61,16 @@ class Tarea extends Model implements Auditable
         return $this->hasMany(TransaccionBodega::class);
     }
 
+    // Relacion uno a uno (inversa)
     public function ubicacionTarea()
     {
+        // return $this->belongsTo(UbicacionTarea::class);
         return $this->hasOne(UbicacionTarea::class);
     }
 
-    // Relacion uno a muchos (inversa)
+    // Relacion uno a uno (inversa)
     public function clienteFinal()
     {
-        return $this->hasOne(ClienteFinal::class);
+        return $this->belongsTo(ClienteFinal::class);
     }
 }

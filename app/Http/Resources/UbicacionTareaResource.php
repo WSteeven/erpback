@@ -27,7 +27,7 @@ class UbicacionTareaResource extends JsonResource
             'coordenadas' => $this->coordenadas,
             'provincia' => $this->provincia->provincia, //->provincia,
             'canton' => $this->canton->canton,
-            'tarea' => $this->tarea_id,
+            // 'tarea' => $this->tarea_id,
         ];
 
         if ($controller_method == 'show') {
