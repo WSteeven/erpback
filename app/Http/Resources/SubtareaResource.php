@@ -43,6 +43,7 @@ class SubtareaResource extends JsonResource
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
             'estado' => $this->estado,
             'tecnicos_grupo_principal' => $this->tecnicosPrincipales(explode(',', $this->tecnicos_grupo_principal)),
+            'tecnicos_otros_grupos' => $this->tecnicosPrincipales(explode(',', $this->tecnicos_otros_grupos)),
             'cliente_final' => $this->tarea->cliente_final,
         ];
 
