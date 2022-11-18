@@ -41,6 +41,7 @@ class TransaccionBodegaRequest extends FormRequest
             'sucursal'=>'required|exists:sucursales,id',
             'per_autoriza'=>'required|exists:empleados,id',
             'per_atiende'=>'sometimes|exists:empleados,id',
+            'per_retira'=>'sometimes|exists:empleados,id',
             'lugar_destino'=>'nullable|string',
             'listadoProductosSeleccionados.*.cantidades'=>'required'
         ];
@@ -120,6 +121,11 @@ class TransaccionBodegaRequest extends FormRequest
         if(auth()->user()->hasRole([User::ROL_BODEGA])){
             $this->merge([
                 'autorizacion'=>2
+            ]);
+        }
+        if(is_null($this->per_retira)){
+            $this->merge([
+                'per_retira'=>auth()->user()->empleado->id,
             ]);
         }
         //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);
