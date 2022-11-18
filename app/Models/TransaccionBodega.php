@@ -29,6 +29,7 @@ class TransaccionBodega extends Model implements Auditable
         'sucursal_id',
         'per_autoriza_id',
         'per_atiende_id',
+        'per_retira_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -118,6 +119,15 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_atiende_id', 'id');
     }
 
+    /**
+     * Relacion uno a muchos (inversa).
+     * Una y solo una persona puede autorizar la transaccion
+     */
+    public function retira()
+    {
+        return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
+    }
+
     /* Una o varias transacciones tienen un solo tipo de transaccion*/
     public function subtipo()
     {
@@ -189,6 +199,7 @@ class TransaccionBodega extends Model implements Auditable
     }
 
     /**
+     * Esta función esta en "DESUSO"
      * Filtra las transacciones para enviarlas de acuerdo al estado seleccionado, valor que se recibe desde los tabsOptions del front.
      * @param Collection $transacciones
      * @param String $estado
@@ -220,6 +231,8 @@ class TransaccionBodega extends Model implements Auditable
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     } */
 
+    
+    /* Filtros con paginación */
     public static function filtrarTransaccionesEmpleadoConPaginacion($estado, $offset)
     {
         $results = [];
@@ -227,6 +240,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'ESPERA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -242,6 +256,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -260,6 +275,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -283,6 +299,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -297,6 +314,7 @@ class TransaccionBodega extends Model implements Auditable
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -312,6 +330,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -328,6 +347,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -347,22 +367,11 @@ class TransaccionBodega extends Model implements Auditable
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
                     ->simplePaginate($offset);
                 return $results;
-                /* $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-                    ->where('solicitante_id', auth()->user()->empleado->id)
-                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-                    ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
-                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.tipo', '=', 'EGRESO')
-                    ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                    ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PARCIAL)
-                    ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-                    ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-                    ->where('autorizaciones.nombre', Autorizacion::APROBADO) */
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -386,6 +395,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -422,6 +432,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -512,7 +523,7 @@ class TransaccionBodega extends Model implements Auditable
                 return $results;
         }
     }
-    /* ----- */
+    /* Filtros sin paginación */
     public static function filtrarTransaccionesEmpleadoSinPaginacion($estado)
     {
         $results = [];
@@ -520,6 +531,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'ESPERA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -535,6 +547,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -549,6 +562,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -572,6 +586,7 @@ class TransaccionBodega extends Model implements Auditable
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -586,6 +601,7 @@ class TransaccionBodega extends Model implements Auditable
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -601,6 +617,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -617,6 +634,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -632,6 +650,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -655,6 +674,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')
@@ -670,6 +690,7 @@ class TransaccionBodega extends Model implements Auditable
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.tipo', '=', 'EGRESO')

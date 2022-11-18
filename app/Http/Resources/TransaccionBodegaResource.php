@@ -41,14 +41,13 @@ class TransaccionBodegaResource extends JsonResource
             'autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'lugar_destino' => $this->lugar_destino,
             'atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
+            'retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,
             'created_at' => $this->created_at,
         ];
 
         if ($controller_method == 'show') {
-            // $modelo['autorizacion']=$this->autorizaciones()->first()->nombre;
             $modelo['autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->id;
             $modelo['obs_autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->pivot->observacion;
-            // $modelo['estado']=$this->estados()->first()->nombre;
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;
             $modelo['solicitante_id'] = $this->solicitante_id;
@@ -59,6 +58,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['per_autoriza_id'] = $this->per_autoriza_id;
             $modelo['per_atiende_id'] = $this->per_atiende_id;
+            $modelo['per_retira'] = $this->per_retira_id;
             $modelo['created_at'] = date('d/m/Y', strtotime($this->created_at));
             $modelo['listadoProductosSeleccionados'] = $detalles;
         }

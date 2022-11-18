@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('sucursal_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
             $table->unsignedBigInteger('per_atiende_id')->nullable();
+            $table->unsignedBigInteger('per_retira_id')->nullable();
             $table->timestamps();
 
             $table->foreign('tarea_id')->references('id')->on('subtareas');
@@ -32,6 +33,7 @@ return new class extends Migration
             $table->foreign('solicitante_id')->references('id')->on('empleados');
             $table->foreign('per_autoriza_id')->references('id')->on('empleados');
             $table->foreign('per_atiende_id')->references('id')->on('empleados');
+            $table->foreign('per_retira_id')->references('id')->on('empleados');
             $table->foreign('subtipo_id')->references('id')->on('subtipos_transacciones');
             $table->foreign('sucursal_id')->references('id')->on('sucursales');
         });
