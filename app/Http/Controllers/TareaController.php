@@ -57,7 +57,7 @@ class TareaController extends Controller
             $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
             $modelo->ubicacionTarea()->create($ubicacionTarea);
         }
-        
+
         $modelo = new TareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
         return response()->json(compact('mensaje', 'modelo'));
@@ -94,7 +94,10 @@ class TareaController extends Controller
             $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
             $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
             unset($ubicacionTarea['canton'], $ubicacionTarea['provincia']);
-            $tarea->ubicacionTarea()->update($ubicacionTarea);
+            if ($tarea->ubicacionTarea)
+                $tarea->ubicacionTarea()->update($ubicacionTarea);
+            else
+                $tarea->ubicacionTarea()->create($ubicacionTarea);
         } else {
             $tarea->ubicacionTarea()->delete();
         }
