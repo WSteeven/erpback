@@ -375,6 +375,22 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id,
         ]);
 
+        $tecnico = User::create([
+            'name' => 'Joao Leiver',
+            'email' => 'leiver@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_FISCALIZADOR);
+        $tecnico->empleado()->create([
+            'nombres' => 'JOAO',
+            'apellidos' => 'LEIVER',
+            'identificacion' => '0701234568',
+            'telefono' => '0998474966',
+            'fecha_nacimiento' => '1995-05-12',
+            'jefe_id' => '19',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
+
         //
 
         // $tecnico = User::create([, 'password' => bcrypt('password')])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);

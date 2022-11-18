@@ -16,7 +16,6 @@ class UbicacionTarea extends Model
         'coordenadas',
         'provincia_id',
         'canton_id',
-        'tarea_id',
     ];
 
     public function provincia()
@@ -27,5 +26,10 @@ class UbicacionTarea extends Model
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+
+    public function tarea()
+    {
+        return $this->hasOne(UbicacionTarea::class);
     }
 }

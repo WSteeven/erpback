@@ -35,6 +35,7 @@ class User extends Authenticatable implements Auditable
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_TECNICO = 'TECNICO';
     const ROL_TECNICO_LIDER = 'TECNICO LIDER';
+    const ROL_FISCALIZADOR = 'FISCALIZADOR';
 
     /**
      * The attributes that are mass assignable.

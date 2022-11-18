@@ -33,6 +33,7 @@ class RoleSeeder extends Seeder
         $recursos_humanos = Role::firstOrCreate(['name' => User::ROL_RECURSOS_HUMANOS]);
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER]);
+        $fiscalizador = Role::firstOrCreate(['name' => User::ROL_FISCALIZADOR]);
 
         // -----------------
         // Modulo de Sistema

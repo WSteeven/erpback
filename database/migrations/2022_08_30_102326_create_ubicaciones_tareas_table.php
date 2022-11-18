@@ -27,8 +27,8 @@ return new class extends Migration
             $table->unsignedBigInteger('canton_id');
             $table->foreign('canton_id')->references('id')->on('cantones');
 
-            // $table->unsignedBigInteger('tarea_id')->unique();
-            // $table->foreign('tarea_id')->references('id')->on('tareas');
+            $table->unsignedBigInteger('tarea_id')->unique();
+            $table->foreign('tarea_id')->references('id')->on('tareas');
 
             $table->timestamps();
         });

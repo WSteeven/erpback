@@ -31,8 +31,8 @@ class TareaResource extends JsonResource
             'codigo_proyecto' => $this->codigo_proyecto,
             'supervisor' => $this->supervisor?->nombres . ' ' . $this->supervisor?->apellidos,
             'cliente' => $this->cliente->empresa->razon_social,
-            'cliente_final' => $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos,
-            'ubicacion_tarea' => $this->ubicacionesTareas ? json_encode(new UbicacionTareaResource($this->ubicacionesTareas)) : null,
+            'cliente_final' => $this->cliente_final ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
+            'ubicacion_tarea' => $this->ubicacionTarea ? new UbicacionTareaResource($this->ubicacionTarea) : null,
             'estado' => $this->estado,
             // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];

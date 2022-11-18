@@ -36,35 +36,33 @@ class TareaController extends Controller
     }
 
     /**
-     * Guardar
+     * Guardar - Coordinador
      */
     public function store(TareaRequest $request)
     {
         // Adaptacion de foreign keys
-        // $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
-        $datos['codigo_tarea'] = Tarea::latest('id')->first()->id + 1;
         $datos['coordinador_id'] = Auth::id();
+        $datos['codigo_tarea'] = Tarea::latest('id')->first()->id + 1;
 
-        // Respuesta
         $modelo = Tarea::create($datos);
 
         // Ubicacion tarea manual
-        $ubicacionTarea = $request['ubicacion_tarea']; //json_decode($request['ubicacion_tarea'], true);
-        if ($ubicacionTarea) {
-            // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
+        $ubicacionTarea = $request['ubicacion_tarea'];
+        if ($ubicacionTarea && !$datos['cliente_final_id']) {
             $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
             $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
             $modelo->ubicacionTarea()->create($ubicacionTarea);
         }
-
+        
         $modelo = new TareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
         return response()->json(compact('mensaje', 'modelo'));
     }
+    // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
 
     /**
      * Consultar
@@ -84,22 +82,24 @@ class TareaController extends Controller
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
+        $datos['coordinador_id'] = Auth::id();
+
+        unset($datos['codigo_tarea']);
+        $tarea->update($datos);
 
         // Ubicacion tarea manual
-        $ubicacionTarea = $request['ubicacion_tarea']; //json_decode($request['ubicacion_tarea'], true);
+        $ubicacionTarea = $request['ubicacion_tarea'];
         if ($ubicacionTarea && !$datos['cliente_final_id']) {
-
             $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
             $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
-
+            unset($ubicacionTarea['canton'], $ubicacionTarea['provincia']);
             $tarea->ubicacionTarea()->update($ubicacionTarea);
         } else {
-            $tarea->ubicacionesTareas()->delete();
+            $tarea->ubicacionTarea()->delete();
         }
 
-
         // Respuesta
-        $tarea->update($datos);
         $modelo = new TareaResource($tarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update', false);
         return response()->json(compact('modelo', 'mensaje'));
