@@ -14,9 +14,11 @@ class Subtarea extends Model implements Auditable
     use HasFactory, AuditableModel, Filterable;
 
     const CREADO = 'CREADO';
+    
     const ASIGNADO = 'ASIGNADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
+    
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';

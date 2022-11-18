@@ -27,14 +27,22 @@ class ProductoController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
+        Log::channel('testing')->info('Log', ['Variable campos', $request['campos']]);
+        Log::channel('testing')->info('Log', ['Variable campos dividida',  $campos]);
         $results = [];
-        
+        Log::channel('testing')->info('Log', ['Variable campos vacia?',  $campos]);
+        if ($request['campos']) {
+            $results = Producto::all($campos);
+            $results = $results;
+            // return $results;
+        } else
         if ($page) {
             $results = Producto::simplePaginate($request['offset']);
             ProductoResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Producto::all();
+            $results = Producto::filter()->get();
             // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
             $results = ProductoResource::collection($results);
             // Log::channel('testing')->info('Log', ['Listado solicitado pasado por el resource', $results]);
@@ -81,7 +89,7 @@ class ProductoController extends Controller
         $modelo = new ProductoResource($producto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
-    } 
+    }
 
     /**
      * Eliminar

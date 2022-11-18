@@ -24,6 +24,12 @@ class TareaController extends Controller
         /*$results = TareaResource::collection(Tarea::all());
         return response()->json(compact('results'));*/
         $page = $request['page'];
+        $campos = explode(',',$request['campos']);
+        if ($request['campos']) {
+            $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
+            // $results = $results;
+            // return $results;
+        } else
 
         if ($page) {
             $results = Tarea::simplePaginate($request['offset']);

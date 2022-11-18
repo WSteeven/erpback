@@ -10,6 +10,7 @@ use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\App\SubtareaService;
 use Src\Shared\Utils;
 
@@ -44,6 +45,7 @@ class SubtareaController extends Controller
      */
     public function index()
     {
+        Log::channel('testing')->info('Log', ['REQUEST RECIBIDA', request()]);
         $results = $this->list();
         return response()->json(compact('results'));
     }

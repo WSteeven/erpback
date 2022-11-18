@@ -33,7 +33,7 @@ class CategoriaController extends Controller
         if ($page) {
             $results = Categoria::simplePaginate($request['offset']);
             CategoriaResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Categoria::filter()->get();
             CategoriaResource::collection($results);

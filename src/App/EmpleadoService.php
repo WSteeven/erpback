@@ -14,7 +14,7 @@ class EmpleadoService
 
     public function obtenerEmpleadosPorRol(string $rol)
     {
-        $users_ids = User::select('id')->where('estado', Empleado::ACTIVO)->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
+        $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
         $empleados = Empleado::ignoreRequest(['rol'])->filter()->where('estado', Empleado::ACTIVO)->get();
         $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
         EmpleadoResource::collection($results);

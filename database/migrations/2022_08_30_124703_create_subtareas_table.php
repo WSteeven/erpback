@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Subtarea;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -36,7 +37,7 @@ return new class extends Migration
             $table->text('descripcion_completa')->nullable();
             $table->string('tecnicos_grupo_principal'); // ids historico por si los técnicos se cambian de grupo o se van
             $table->string('tecnicos_otros_grupos')->nullable();
-            $table->string('estado');
+            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
 
             // Foreign keys
             $table->unsignedBigInteger('tipo_trabajo_id');
