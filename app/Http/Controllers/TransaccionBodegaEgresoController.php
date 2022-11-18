@@ -86,15 +86,14 @@ class TransaccionBodegaEgresoController extends Controller
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
                 $results = TransaccionBodega::filtrarTransaccionesCoordinadorSinPaginacion($estado);
                 TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
+                
             } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
                 $results = TransaccionBodega::filtrarTransaccionesBodegueroSinPaginacion($estado);
                 TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
+                
             } else { //cualquier otro
                 $results = TransaccionBodega::filtrarTransaccionesEmpleadoSinPaginacion($estado);
                 TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
             }
         }
         return response()->json(compact('results'));

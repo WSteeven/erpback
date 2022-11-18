@@ -57,8 +57,8 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['subtarea'] = $this->subtarea_id;
             $modelo['sucursal'] = $this->sucursal_id;
-            $modelo['per_autoriza_id'] = $this->solicitante_id;
-            $modelo['per_atiende_id'] = $this->solicitante_id;
+            $modelo['per_autoriza_id'] = $this->per_autoriza_id;
+            $modelo['per_atiende_id'] = $this->per_atiende_id;
             $modelo['created_at'] = date('d/m/Y', strtotime($this->created_at));
             $modelo['listadoProductosSeleccionados'] = $detalles;
         }
