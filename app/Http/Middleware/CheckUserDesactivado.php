@@ -21,7 +21,7 @@ class CheckUserDesactivado
      */
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check() && (!auth()->user()->status)) {
+        if (auth()->check() && (!auth()->user()->empleado->estado)) {
             $request->session()->invalidate();
 
             $request->session()->regenerateToken();

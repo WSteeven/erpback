@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmpleadoResource extends JsonResource
@@ -26,7 +27,7 @@ class EmpleadoResource extends JsonResource
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'usuario' => $this->user->name,
             'sucursal' => $this->sucursal->lugar,
-            'estado' => $this->estado,
+            'estado' => $this->estado,//?Empleado::ACTIVO:Empleado::INACTIVO,
             'grupo' => $this->grupo?->nombre,
             'disponible' => $this->disponible,
             'roles' => implode(', ', $this->user->getRoleNames()->toArray()),
