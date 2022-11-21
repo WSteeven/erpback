@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
+use App\Models\PausaSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
@@ -112,6 +113,7 @@ class SubtareaController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+    // Estados de las subtareas
     public function asignar(Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::ASIGNADO;
@@ -124,5 +126,36 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
         $subtarea->save();
+    }
+
+    public function pausar(Request $request, Subtarea $subtarea)
+    {
+        $motivo = $request['motivo'];
+        $subtarea->estado = Subtarea::PAUSADO;
+        $subtarea->save();
+        //$subtarea->fecha_hora_pa = Carbon::now();
+
+        $subtarea->pausasSubtarea()->create([
+            'fecha_hora_pausa' => Carbon::now(),
+            'motivo' => $motivo,
+        ]);
+    }
+
+    public function ejecutar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::EJECUTANDO;
+        $subtarea->fecha_hora_ejecucion = Carbon::now();
+        $subtarea->save();
+    }
+
+    public function reanudar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::EJECUTANDO;
+        // $subtarea->fecha_hora_pa = Carbon::now();
+        $subtarea->save();
+
+        $subtarea->pausasSubtarea()->update([
+            'fecha_hora_retorno' => Carbon::now(),
+        ]);
     }
 }

@@ -37,10 +37,10 @@ class EmpleadoController extends Controller
         $search = request('search');
 
         // Procesar
-        if(auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)){
+        if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
-        }else{
+        } else {
             if ($page) return $this->servicio->obtenerPaginacion($offset);
         }
         if ($search) return $this->servicio->search($search);

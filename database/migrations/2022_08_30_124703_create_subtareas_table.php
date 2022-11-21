@@ -21,7 +21,8 @@ return new class extends Migration
             $table->text('detalle');
             $table->string('fecha_hora_creacion')->nullable();
             $table->string('fecha_hora_asignacion')->nullable();
-            $table->string('fecha_hora_inicio')->nullable();
+            $table->string('fecha_hora_ejecucion')->nullable();
+            $table->string('fecha_ventana')->nullable();
             $table->string('fecha_hora_finalizacion')->nullable();
             $table->string('cantidad_dias')->nullable();
             $table->string('fecha_hora_realizado')->nullable();

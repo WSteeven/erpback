@@ -24,10 +24,11 @@ class SubtareaResource extends JsonResource
             'actividad_realizada' => $this->actividad_realizada,
             'es_dependiente' => $this->es_dependiente,
             'fiscalizador' => $this->fiscalizador,
-            'es_ventana' => $this->es_ventana,
             'subtarea_dependiente' => $this->subtarea_dependiente,
             'tipo_instalacion' => $this->tipo_instalacion,
             'id_servicio' => $this->id_servicio,
+            'es_ventana' => $this->es_ventana,
+            'fecha_ventana' => $this->fecha_ventana,
             'hora_inicio_ventana' => $this->hora_inicio_ventana,
             'hora_fin_ventana' => $this->hora_fin_ventana,
             'tipo_trabajo' => $this->tipo_trabajo->nombre,
@@ -37,7 +38,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
-            'fecha_hora_inicio' => $this->fecha_hora_inicio,
+            'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
             'fecha_hora_finalizacion' => $this->fecha_hora_finalizacion,
             'fecha_hora_realizado' => $this->fecha_hora_realizado,
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
@@ -53,6 +54,7 @@ class SubtareaResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
+            $modelo['ubicacion_tarea'] = $this->tarea->ubicacionTarea ? new UbicacionTareaResource($this->tarea->ubicacionTarea) : null;
         }
 
         return $modelo;

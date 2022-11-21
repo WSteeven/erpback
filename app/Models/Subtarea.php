@@ -32,7 +32,7 @@ class Subtarea extends Model implements Auditable
         'tarea_id',
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
-        'fecha_hora_inicio',
+        'fecha_hora_ejecucion',
         'fecha_hora_finalizacion',
         'cantidad_dias',
         'fecha_hora_realizado',
@@ -40,7 +40,7 @@ class Subtarea extends Model implements Auditable
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
-        'es_dependiente',
+        'es_dependiente',   
         'subtarea_dependiente',
         'es_ventana',
         'hora_inicio_ventana',
@@ -49,6 +49,7 @@ class Subtarea extends Model implements Auditable
         'tecnicos_grupo_principal',
         'tecnicos_otros_grupos',
         'estado',
+        'fecha_ventana',
     ];
 
     protected $casts = [
@@ -84,7 +85,11 @@ class Subtarea extends Model implements Auditable
      */
     public function transacciones()
     {
-        $this->hasMany(TransaccionBodega::class);
+        return $this->hasMany(TransaccionBodega::class);
+    }
+
+    public function pausasSubtarea() {
+        return $this->hasMany(PausaSubtarea::class);
     }
 
     public function tecnicosPrincipales(array $ids)

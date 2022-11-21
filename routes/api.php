@@ -190,6 +190,11 @@ Route::apiResources(
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
+
+// Estados de las subtareas
 Route::post('subtareas/asignar/{subtarea}', [SubtareaController::class, 'asignar'])->middleware('auth:sanctum');
+Route::post('subtareas/ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar'])->middleware('auth:sanctum');
 Route::post('subtareas/realizar/{subtarea}', [SubtareaController::class, 'realizar'])->middleware('auth:sanctum');
+Route::post('subtareas/pausar/{subtarea}', [SubtareaController::class, 'pausar'])->middleware('auth:sanctum');
+Route::post('subtareas/reanudar/{subtarea}', [SubtareaController::class, 'reanudar'])->middleware('auth:sanctum');
 Route::get('subtareas-asignadas', [SubtareaAsignadaController::class, 'index'])->middleware('auth:sanctum');
