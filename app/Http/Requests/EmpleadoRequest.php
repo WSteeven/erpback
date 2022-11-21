@@ -38,7 +38,7 @@ class EmpleadoRequest extends FormRequest
             'jefe'=>'required|exists:empleados,id',
             'sucursal'=>'required|exists:sucursales,id',
             'roles'=>'required|exists:roles,name',
-            'estado'=>['sometimes', Rule::in([Empleado::ACTIVO, Empleado::INACTIVO])],
+            'estado'=>'sometimes|boolean',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){

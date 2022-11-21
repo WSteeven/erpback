@@ -60,8 +60,9 @@ class UserController extends Controller
             return response()->json(['mensaje' => 'Usuario o contraseña incorrectos'], 401);
         }
 
-        $user = User::where('email', $request['email'])->where('status', true)->first();
-        if ($user) {
+        // $user = User::where('email', $request['email'])->where('status', true)->first();
+        $user = User::where('email', $request['email'])->first();
+        if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer'], 200);
         }

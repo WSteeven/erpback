@@ -112,4 +112,19 @@ class InventarioController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
+    /**
+     * Buscar las coincidencias de productos segun el propietario y la sucursal
+     */
+    public function buscar(Request $request){
+        Log::channel('testing')->info('Log', ['request recibida', $request->all()]);
+        $results =Inventario::all();
+        // $cliente = $request['cliente'];
+        // $sucursal = $request['sucursal'];
+        // $detalle = $request['detalle'];
+
+        $results = InventarioResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
 }

@@ -42,6 +42,7 @@ class EmpleadoController extends Controller
             return $this->servicio->obtenerTodosSinEstado();
         }else{
             if ($page) return $this->servicio->obtenerPaginacion($offset);
+            return $this->servicio->obtenerTodosSinEstado();
         }
         if ($search) return $this->servicio->search($search);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
@@ -115,9 +116,10 @@ class EmpleadoController extends Controller
      */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
+        // Log::channel('testing')->info('Log', ['request recibida para update', $request]);
         //Respuesta
         $empleado->update($request->validated());
-        $empleado->user()->update(['status' => $request->estado == 'ACTIVO' ? true : false]);
+        // $empleado->user()->update(['status' => $request->estado === 'ACTIVO' ? true : false]);
         $modelo = new EmpleadoResource($empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
