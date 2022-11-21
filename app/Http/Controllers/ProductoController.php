@@ -34,7 +34,7 @@ class ProductoController extends Controller
         Log::channel('testing')->info('Log', ['Variable campos vacia?',  $campos]);
         if ($request['campos']) {
             $results = Producto::all($campos);
-            $results = $results;
+            $results = ProductoResource::collection($results);
             // return $results;
         } else
         if ($page) {
@@ -42,7 +42,7 @@ class ProductoController extends Controller
             ProductoResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Producto::filter()->get();
+            $results = Producto::ignoreRequest(['campos'])->filter()->get();
             // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
             $results = ProductoResource::collection($results);
             // Log::channel('testing')->info('Log', ['Listado solicitado pasado por el resource', $results]);

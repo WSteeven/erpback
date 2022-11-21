@@ -17,7 +17,20 @@ class DiscoController extends Controller
      */
     public function index(Request $request)
     {
-        $results = Disco::all();
+        $page = $request['page'];
+        $campos = explode(',', $request['campos']);
+        $results = [];
+
+        if ($request['campos']) {
+            $results = Disco::all($campos);
+        } else
+        if ($page) {
+            $results = Disco::simplePaginate($request['offset']);
+        } else {
+            $results = Disco::all();
+        }
+
+        DiscoResource::collection($results);
         return response()->json(compact('results'));
     }
 

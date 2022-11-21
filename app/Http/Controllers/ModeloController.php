@@ -27,7 +27,11 @@ class ModeloController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
+        if ($request['campos']) {
+            $results = Modelo::all($campos);
+        } else
         
         if ($page) {
             $results = Modelo::simplePaginate($request['offset']);

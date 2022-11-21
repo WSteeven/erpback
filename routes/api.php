@@ -56,6 +56,7 @@ use App\Models\Canton;
 use App\Models\ClienteFinal;
 use App\Models\Contacto;
 use App\Models\Empleado;
+use App\Models\PrestamoTemporal;
 use App\Models\ProductoEnPercha;
 use App\Models\Provincia;
 use Illuminate\Http\Request;
@@ -186,6 +187,7 @@ Route::apiResources(
     ]
 );
 
+Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 Route::post('subtareas/asignar/{subtarea}', [SubtareaController::class, 'asignar'])->middleware('auth:sanctum');

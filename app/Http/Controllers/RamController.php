@@ -18,16 +18,19 @@ class RamController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if ($request['campos']) {
+            $results = Ram::all($campos);
+        } else
         if ($page) {
             $results = Ram::simplePaginate($request['offset']);
-            RamResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // RamResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Ram::all();
-            RamResource::collection($results);
         }
+        RamResource::collection($results);
         return response()->json(compact('results'));
     }
 

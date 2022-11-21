@@ -517,6 +517,9 @@
 
                         <div class="ml-12">
                             <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                                Texto de prueba para imprimir <a
+                                    href="{{route('imprimir', 1)}}" class="underline">Imprimir PDF</a></div>
+                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
                                 Laravel's robust library of first-party tools and libraries, such as <a
                                     href="https://forge.laravel.com" class="underline">Forge</a>, <a
                                     href="https://vapor.laravel.com" class="underline">Vapor</a>, <a

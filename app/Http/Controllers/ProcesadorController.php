@@ -18,16 +18,24 @@ class ProcesadorController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
+        
+        if ($request['campos']) {
+            $results = Procesador::all($campos);
+            // $results = ProcesadorResource::collection($results);
+            // return $results;
+        } else
         
         if ($page) {
             $results = Procesador::simplePaginate($request['offset']);
-            ProcesadorResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // ProcesadorResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Procesador::all();
-            ProcesadorResource::collection($results);
+            // ProcesadorResource::collection($results);
         }
+        ProcesadorResource::collection($results);
         return response()->json(compact('results'));
     }
 

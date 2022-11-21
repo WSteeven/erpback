@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PrestamoTemporalController extends Controller
 {
@@ -86,6 +87,17 @@ class PrestamoTemporalController extends Controller
     {
         $modelo = new PrestamoTemporalResource($prestamo);
         return response()->json(compact('modelo'));
+    }
+    /**
+     * Imprimir
+     */
+    public function print(PrestamoTemporal $prestamo){
+        // $this->imprimirSingle($prestamo->toArray());
+        $dato = $prestamo->toArray();
+        // dd($dato);
+        $pdf = Pdf::loadView('ejemplo_pdf', compact('dato'));
+        return $pdf->download('singlepdf.pdf');
+        // return response()->json(compact($dato));
     }
 
 

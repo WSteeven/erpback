@@ -21,6 +21,7 @@ class ProductoResource extends JsonResource
             'cantidad'=>$this->cantidadDetalles($this->id),
             'nombre' => $this->nombre,
             'categoria' => $this->categoria->nombre,
+            // 'categoria' => $this->categoria->nombre,
         ];
 
         if ($controller_method == 'show') {

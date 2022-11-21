@@ -27,9 +27,13 @@ class MarcaController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $search = $request['search'];
         $results = [];
-
+        if ($request['campos']) {
+            $results = Marca::all($campos);
+        } else
+        
         if ($page) {
             $results = Marca::simplePaginate($request['offset']);
             MarcaResource::collection($results);

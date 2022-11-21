@@ -21,16 +21,19 @@ class SpanController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if ($request['campos']) {
+            $results = Span::all($campos);
+        } else
         if ($page) {
             $results = Span::simplePaginate($request['offset']);
-            SpanResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // SpanResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Span::all();
-            SpanResource::collection($results);
         }
+        SpanResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -71,12 +74,12 @@ class SpanController extends Controller
      */
     public function update(SpanRequest $request, Span $span)
     {
-         //Respuesta
-         $span->update($request->validated());
-         $modelo = new SpanResource($span->refresh());
-         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
- 
-         return response()->json(compact('modelo', 'mensaje'));
+        //Respuesta
+        $span->update($request->validated());
+        $modelo = new SpanResource($span->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**

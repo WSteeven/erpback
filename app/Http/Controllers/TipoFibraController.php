@@ -24,8 +24,11 @@ class TipoFibraController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if ($request['campos']) {
+            $results = TipoFibra::all($campos);
+        } else
         if ($page) {
             $results = TipoFibra::simplePaginate($request['offset']);
             TipoFibra::collection($results);
