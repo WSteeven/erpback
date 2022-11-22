@@ -13,7 +13,7 @@ class SubtareaService
 
     public function obtenerPaginacion($offset)
     {
-        $filter = Subtarea::ignoreRequest(['offset'])->filter()->simplePaginate($offset);
+        $filter = Subtarea::ignoreRequest(['offset'])->filter()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
         SubtareaResource::collection($filter);
         return $filter;
     }

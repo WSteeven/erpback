@@ -198,4 +198,6 @@ Route::post('subtareas/ejecutar/{subtarea}', [SubtareaController::class, 'ejecut
 Route::post('subtareas/realizar/{subtarea}', [SubtareaController::class, 'realizar'])->middleware('auth:sanctum');
 Route::post('subtareas/pausar/{subtarea}', [SubtareaController::class, 'pausar'])->middleware('auth:sanctum');
 Route::post('subtareas/reanudar/{subtarea}', [SubtareaController::class, 'reanudar'])->middleware('auth:sanctum');
+Route::post('subtareas/suspender/{subtarea}', [SubtareaController::class, 'suspender'])->middleware('auth:sanctum');
+Route::get('subtareas/pausas/{subtarea}', [SubtareaController::class, 'pausas'])->middleware('auth:sanctum');
 Route::get('subtareas-asignadas', [SubtareaAsignadaController::class, 'index'])->middleware('auth:sanctum');
