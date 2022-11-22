@@ -118,11 +118,12 @@ class InventarioController extends Controller
      */
     public function buscar(Request $request){
         Log::channel('testing')->info('Log', ['request recibida', $request->all()]);
-        $results =Inventario::all();
-        // $cliente = $request['cliente'];
-        // $sucursal = $request['sucursal'];
-        // $detalle = $request['detalle'];
+        $results =[];
+        $cliente = $request['cliente_id'];
+        $sucursal = $request['sucursal_id'];
+        $detalle = $request['detalle_id'];
 
+        $results = Inventario::where('detalle_id', $detalle)->where('sucursal_id', $sucursal)->where('cliente_id', $cliente)->get();
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));

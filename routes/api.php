@@ -188,7 +188,7 @@ Route::apiResources(
 );
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
-Route::get('inventarios/buscar', [InventarioController::class, 'buscar']);
+Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
