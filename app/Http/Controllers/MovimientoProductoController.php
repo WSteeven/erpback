@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MovimientoProductoRequest;
 use App\Http\Resources\MovimientoProductoResource;
+use App\Models\Inventario;
 use App\Models\MovimientoProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,8 +36,27 @@ class MovimientoProductoController extends Controller
     public function store(Request $request)
     {
         Log::channel('testing')->info('Log', ['Request recibida en movimientos', $request->all()]);
+        $item = Inventario::findOrFail($request->inventario_id);
+        
         //Respuesta
-        $modelo = MovimientoProducto::create($request->validated());
+        /* $modelo = MovimientoProducto::create([
+            'inventario_id'=> $request->id,
+            'transaccion_id'=>
+            'cantidad'=>
+            'precio_unitario'=>
+            'saldo'=>
+        ]); */
+        // Log::channel('testing')->info('Log', ['Item encontrado en movimientos', $item]);
+
+        $modelo = MovimientoProducto::create([
+            'inventario_id'=> $item->id,
+            'transaccion_id'=>$request->transaccion_id,
+            'cantidad'=>$request->cantidad,
+            'precio_unitario'=>$item->detalle->precio_compra,
+            'saldo'=>$item->cantidad-$request->cantidad
+            // $request->all()
+        ]);
+        Log::channel('testing')->info('Log', ['Modelo creado?', $modelo]);
         $modelo = new MovimientoProductoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

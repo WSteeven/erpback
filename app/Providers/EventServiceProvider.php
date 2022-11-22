@@ -2,14 +2,18 @@
 
 namespace App\Providers;
 
+use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
 use App\Models\InventarioPrestamoTemporal;
+use App\Models\MovimientoProducto;
 use App\Models\Percha;
 use App\Models\Piso;
 use App\Models\PrestamoTemporal;
 use App\Models\Producto;
+use App\Observers\DetalleProductoTransaccionObserver;
 use App\Observers\InventarioObserver;
 use App\Observers\InventarioPrestamoTemporalObserver;
+use App\Observers\MovimientoProductoObserver;
 use App\Observers\PerchaObserver;
 use App\Observers\PisoObserver;
 use App\Observers\PrestamoTemporalObserver;
@@ -46,6 +50,8 @@ class EventServiceProvider extends ServiceProvider
         Inventario::observe(InventarioObserver::class);
         InventarioPrestamoTemporal::observe(InventarioPrestamoTemporalObserver::class);
         PrestamoTemporal::observe(PrestamoTemporalObserver::class);
+        MovimientoProducto::observe(MovimientoProductoObserver::class);
+        DetalleProductoTransaccion::observe(DetalleProductoTransaccionObserver::class);
     }
 
     /**

@@ -9,6 +9,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Termwind\Components\Raw;
 
 class TransaccionBodega extends Model implements Auditable
@@ -231,7 +232,7 @@ class TransaccionBodega extends Model implements Auditable
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     } */
 
-    
+
     /* Filtros con paginación */
     public static function filtrarTransaccionesEmpleadoConPaginacion($estado, $offset)
     {
@@ -764,6 +765,7 @@ class TransaccionBodega extends Model implements Auditable
                     ->filter()->get();
                 return $results;
             default:
+                // Log::channel('testing')->info('Log', ['Estoy en el default y el estado es', $estado]);
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
                     ->join('subtipos_transacciones', 'transacciones_bodega.subtipo_id', '=', 'subtipos_transacciones.id')
                     ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')

@@ -63,7 +63,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function index(Request $request)
     {
-
         $page = $request['page'];
         $offset = $request['offset'];
         $estado = $request['estado'];
@@ -87,7 +86,7 @@ class TransaccionBodegaEgresoController extends Controller
                 $results = TransaccionBodega::filtrarTransaccionesCoordinadorSinPaginacion($estado);
                 TransaccionBodegaResource::collection($results);
                 
-            } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
+            } elseif (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
                 $results = TransaccionBodega::filtrarTransaccionesBodegueroSinPaginacion($estado);
                 TransaccionBodegaResource::collection($results);
                 
