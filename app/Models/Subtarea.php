@@ -33,7 +33,6 @@ class Subtarea extends Model implements Auditable
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
-        'fecha_hora_finalizacion',
         'cantidad_dias',
         'fecha_hora_realizado',
         'fecha_hora_suspendido',

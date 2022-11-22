@@ -5,6 +5,7 @@ namespace App\Models;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -31,7 +32,7 @@ class Tarea extends Model implements Auditable
     ];
 
     protected $casts = ['es_proyecto' => 'boolean'];
-    
+
     private static $whiteListFilter = ['*'];
 
     // Relacion uno a muchos (inversa)
@@ -72,5 +73,16 @@ class Tarea extends Model implements Auditable
     public function clienteFinal()
     {
         return $this->belongsTo(ClienteFinal::class);
+    }
+
+    public function subtareas()
+    {
+        return $this->hasMany(Subtarea::class);
+    }
+
+    public function esPrimeraAsignacion($subtarea_id)
+    {
+        $subtareaEncontrada = $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
+        return $subtareaEncontrada?->id == $subtarea_id;
     }
 }

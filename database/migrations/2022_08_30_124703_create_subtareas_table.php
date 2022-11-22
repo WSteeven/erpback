@@ -19,26 +19,29 @@ return new class extends Migration
 
             $table->string('codigo_subtarea');
             $table->text('detalle');
-            $table->string('fecha_hora_creacion')->nullable();
-            $table->string('fecha_hora_asignacion')->nullable();
-            $table->string('fecha_hora_ejecucion')->nullable();
-            $table->string('fecha_ventana')->nullable();
-            $table->string('fecha_hora_finalizacion')->nullable();
-            $table->string('cantidad_dias')->nullable();
-            $table->string('fecha_hora_realizado')->nullable();
-            $table->string('fecha_hora_suspendido')->nullable();
+            $table->timestamp('fecha_hora_creacion')->nullable();
+            $table->timestamp('fecha_hora_asignacion')->nullable();
+            $table->timestamp('fecha_hora_ejecucion')->nullable();
+            // $table->timestamp('fecha_hora_finalizacion')->nullable();
+            $table->integer('cantidad_dias')->nullable();
+            $table->timestamp('fecha_hora_realizado')->nullable();
+            $table->timestamp('fecha_hora_suspendido')->nullable();
             $table->string('causa_suspencion')->nullable();
-            $table->string('fecha_hora_cancelacion')->nullable();
+            $table->timestamp('fecha_hora_cancelacion')->nullable();
             $table->string('causa_cancelacion')->nullable();
             $table->boolean('es_dependiente')->default(false);
-            $table->integer('subtarea_dependiente')->nullable();
+            
             $table->boolean('es_ventana')->default(false);
+            $table->date('fecha_ventana')->nullable();
             $table->string('hora_inicio_ventana')->nullable();
             $table->string('hora_fin_ventana')->nullable();
+            
             $table->text('descripcion_completa')->nullable();
             $table->string('tecnicos_grupo_principal'); // ids historico por si los técnicos se cambian de grupo o se van
             $table->string('tecnicos_otros_grupos')->nullable();
             $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
+            
+            $table->unsignedBigInteger('subtarea_dependiente')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('tipo_trabajo_id');

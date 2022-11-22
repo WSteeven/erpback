@@ -46,7 +46,7 @@ class SubtareaController extends Controller
      */
     public function index()
     {
-        Log::channel('testing')->info('Log', ['REQUEST RECIBIDA', request()]);
+        // Log::channel('testing')->info('Log', ['REQUEST RECIBIDA', request()]);
         $results = $this->list();
         return response()->json(compact('results'));
     }
@@ -151,11 +151,25 @@ class SubtareaController extends Controller
     public function reanudar(Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::EJECUTANDO;
-        // $subtarea->fecha_hora_pa = Carbon::now();
         $subtarea->save();
 
         $subtarea->pausasSubtarea()->update([
             'fecha_hora_retorno' => Carbon::now(),
         ]);
+    }
+
+    public function suspender(Request $request, Subtarea $subtarea)
+    {
+        $motivo = $request['motivo'];
+
+        $subtarea->estado = Subtarea::SUSPENDIDO;
+        $subtarea->fecha_hora_suspendido = Carbon::now();
+        $subtarea->causa_suspencion = $motivo;
+        $subtarea->save();
+    }
+
+    public function pausas(Subtarea $subtarea)
+    {
+        return response()->json(['results' => $subtarea->pausasSubtarea]);
     }
 }
