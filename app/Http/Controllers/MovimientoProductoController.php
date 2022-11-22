@@ -6,6 +6,7 @@ use App\Http\Requests\MovimientoProductoRequest;
 use App\Http\Resources\MovimientoProductoResource;
 use App\Models\MovimientoProducto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class MovimientoProductoController extends Controller
@@ -33,6 +34,7 @@ class MovimientoProductoController extends Controller
      */
     public function store(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Request recibida en movimientos', $request->all()]);
         //Respuesta
         $modelo = MovimientoProducto::create($request->validated());
         $modelo = new MovimientoProductoResource($modelo);

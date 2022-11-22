@@ -43,7 +43,7 @@ class InventarioRequest extends FormRequest
             'prestados' => 'sometimes|integer',
             'por_recibir' => 'sometimes|integer',
             'por_entregar' => 'sometimes|integer',
-            'estado' => ['sometimes', Rule::in([Inventario::INVENTARIO, Inventario::SIN_STOCK, Inventario::TRANSITO])],
+            // 'estado' => Rule::in([Inventario::INVENTARIO, Inventario::SIN_STOCK, Inventario::TRANSITO]),
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -94,5 +94,6 @@ class InventarioRequest extends FormRequest
 
         is_null($this->por_recibir) ?? $this->merge(['por_recibir' => 0]);
         is_null($this->por_entregar) ?? $this->merge(['por_entregar' => 0]);
+        is_null($this->estado) ?? $this->merge(['estado' =>Inventario::INVENTARIO]);
     }
 }
