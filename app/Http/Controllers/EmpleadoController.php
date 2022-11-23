@@ -69,12 +69,12 @@ class EmpleadoController extends Controller
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
 
-        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+        // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
         try {
             DB::beginTransaction();
             $user = User::create([
-                'name' => $datos['nombres'] . ' ' . $datos['apellidos'],
+                'name' => $datos['usuario'],
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
@@ -116,9 +116,20 @@ class EmpleadoController extends Controller
      */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
-        // Log::channel('testing')->info('Log', ['request recibida para update', $request]);
+        Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
+
         $empleado->update($request->validated());
+
+        if (!is_null($request->password)) {
+            Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
+            $empleado->user()->update([
+                'name' => $request->usuario,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+            ]);
+        }
+
         // $empleado->user()->update(['status' => $request->estado === 'ACTIVO' ? true : false]);
         $modelo = new EmpleadoResource($empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

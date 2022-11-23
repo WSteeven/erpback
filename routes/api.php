@@ -56,6 +56,7 @@ use App\Models\Canton;
 use App\Models\ClienteFinal;
 use App\Models\Contacto;
 use App\Models\Empleado;
+use App\Models\Inventario;
 use App\Models\PrestamoTemporal;
 use App\Models\ProductoEnPercha;
 use App\Models\Provincia;
@@ -189,6 +190,8 @@ Route::apiResources(
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
+
+Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 

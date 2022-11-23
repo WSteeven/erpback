@@ -232,7 +232,7 @@ class DetalleProductoSeeder extends Seeder
         ];
 
         foreach ($datos as $fila) {
-            DB::insert('INSERT INTO `detalles_productos` (`id`, `producto_id`, `descripcion`, `modelo_id`, `serial`, `precio_compra`, `color`, `talla`, `capacidad`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?,?,?)', $fila);
+            DB::insert('INSERT INTO `detalles_productos` (`id`, `producto_id`, `descripcion`, `modelo_id`, `serial`, `precio_compra`, `color`, `talla`, `tipo`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?,?,?)', $fila);
         }
 
         /* DetalleProducto::create([

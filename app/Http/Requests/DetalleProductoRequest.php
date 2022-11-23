@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Categoria;
+use App\Models\DetalleProducto;
 use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -46,7 +47,7 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
-            'capacidad' => 'sometimes|nullable|string',
+            'tipo' => ['sometimes', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -64,20 +65,6 @@ class DetalleProductoRequest extends FormRequest
             'serial.unique' => 'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
     }
-
-    /* public function withValidator($validator){
-        $validator->after(function ($validator){
-            $producto = Producto::where('id',$this->producto)->get();
-            Log::channel('testing')->info('Log', ['producto', $producto->id]);
-            $categoria = Categoria::where('id', $producto->categoria)->get();
-            Log::channel('testing')->info('Log', ['categoria', $categoria]);
-            // $cat = $producto->categoria;
-            // Log::channel('testing')->info('Log', ['categoria', $cat]);
-            if($producto->categoria()->nombre==='INFORMATICA' || $producto->categoria()->nombre==='EQUIPOS'){
-                $validator->errors()->add('serial', 'Es necesario un numero de serie para categoría EQUIPOS e INFORMÁTICA');
-            }
-        });
-    } */
 
     protected function prepareForValidation()
     {

@@ -56,12 +56,13 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        Log::channel('testing')->info('Log', ['REQUEST RECIBIDA EN LOGIN', $request->all()]);
+        if (!Auth::attempt($request->only('name', 'password'))) {
             return response()->json(['mensaje' => 'Usuario o contraseña incorrectos'], 401);
         }
 
         // $user = User::where('email', $request['email'])->where('status', true)->first();
-        $user = User::where('email', $request['email'])->first();
+        $user = User::where('name', $request['name'])->first();
         if ($user->empleado->estado) {
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json(['mensaje' => 'Usuario autenticado con éxito', 'access_token' => $token, 'token_type' => 'Bearer'], 200);

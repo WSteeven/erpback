@@ -16,8 +16,12 @@ class DetalleProducto extends Model implements Auditable
 
     protected $table = "detalles_productos";
     // estado
-    const ACTIVO = "ACTIVO";
-    const INACTIVO = "INACTIVO";
+    // const ACTIVO = "ACTIVO";
+    // const INACTIVO = "INACTIVO";
+
+    //TIPO
+    const HOMBRE = 'HOMBRE';
+    const MUJER = 'MUJER';
 
 
     /**

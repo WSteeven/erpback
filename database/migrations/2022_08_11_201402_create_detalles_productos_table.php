@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DetalleProducto;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,8 +23,8 @@ return new class extends Migration
             $table->double('precio_compra')->default(0);
             $table->string('color')->nullable();
             $table->string('talla')->nullable();
-            $table->string('capacidad')->nullable();
-            
+            $table->enum('tipo', [DetalleProducto::HOMBRE, DetalleProducto::MUJER])->nullable();
+           
             $table->timestamps();
 
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');

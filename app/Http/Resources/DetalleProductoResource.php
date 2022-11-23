@@ -49,7 +49,7 @@ class DetalleProductoResource extends JsonResource
 
             'color'=>$this->color,
             'talla'=>$this->talla,
-            'capacidad'=>$this->capacidad,
+            'tipo'=>$this->tipo,
 
             //variables auxiliares
             'tiene_serial' => is_null($this->serial) ? false : true,

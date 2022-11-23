@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
+use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\Inventario;
+use App\Models\VistaInventarioPercha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -126,6 +128,12 @@ class InventarioController extends Controller
         $results = Inventario::where('detalle_id', $detalle)->where('sucursal_id', $sucursal)->where('cliente_id', $cliente)->get();
         $results = InventarioResource::collection($results);
 
+        return response()->json(compact('results'));
+    }
+
+    public function vista(){
+        $results = VistaInventarioPercha::consultarItemsInventarioPercha();
+        $results = VistaInventarioPerchaResource::collection($results);
         return response()->json(compact('results'));
     }
 }

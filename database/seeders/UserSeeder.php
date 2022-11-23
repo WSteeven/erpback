@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
 
         // SuperAdministrador
         $admin = User::create([
-            'name' => 'Superusuario Administrador',
+            'name' => 'ADMINISTRADOR',
             'email' => 'admin@admin.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_ADMINISTRADOR);
@@ -37,7 +37,7 @@ class UserSeeder extends Seeder
 
         // Gerente
         $gerente = User::create([
-            'name' => 'Patricio Pazmiño',
+            'name' => 'PPAZMINO',
             'email' => 'gerente@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_GERENTE);
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
 
         // Coordinador
         $coordinador = User::create([
-            'name' => 'MARILÚ',
+            'name' => 'MJARAMILLO',
             'email' => 'mjaramillo@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -71,7 +71,7 @@ class UserSeeder extends Seeder
 
         // RR HH
         $recursos_humanos = User::create([
-            'name' => 'LUIS MANUEL PESANTEZ MORA',
+            'name' => 'LPESANTES',
             'email' => 'manuel@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_RECURSOS_HUMANOS);
@@ -87,7 +87,7 @@ class UserSeeder extends Seeder
 
         // Coordinador
         $coordinador_sto_domingo = User::create([
-            'name' => 'Bryan Chamba',
+            'name' => 'BCHAMBA',
             'email' => 'bchamba@jp.com',
             'password' => bcrypt('password'),
         ])->syncRoles(User::ROL_COORDINADOR, User::ROL_BODEGA);
@@ -103,7 +103,7 @@ class UserSeeder extends Seeder
 
         // Coordinador
         $coordinador_telconet = User::create([
-            'name' => 'Dario Loja',
+            'name' => 'DLOJA',
             'email' => 'dloja@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR);
@@ -119,7 +119,7 @@ class UserSeeder extends Seeder
 
         // Asistente de bodega 1
         $bodeguero1 = User::create([
-            'name' => 'Cristian Albarracin',
+            'name' => 'CALBARRACIN',
             'email' => 'asistentebodega1@jp.com',
             'password' => bcrypt('password'),
         ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
@@ -135,7 +135,7 @@ class UserSeeder extends Seeder
 
         // Asistente de bodega 2
         $bodeguero2 = User::create([
-            'name' => 'Juan Jose Torres',
+            'name' => 'JTORRES',
             'email' => 'asistentebodega2@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -152,7 +152,7 @@ class UserSeeder extends Seeder
 
         // Departamento de compras
         $compras = User::create([
-            'name' => 'Ingrid Lima',
+            'name' => 'ILIMA',
             'email' => 'asistentecompras@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -169,7 +169,7 @@ class UserSeeder extends Seeder
 
         // Personal administrativo
         $administrativo = User::create([
-            'name' => 'Santiago Sarmiento',
+            'name' => 'SSARMIENTO',
             'email' => 'santiago@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -187,7 +187,7 @@ class UserSeeder extends Seeder
 
         // Activos fijos
         $activos_fijos = User::create([
-            'name' => 'Pedro Aguilar',
+            'name' => 'PAGUILAR',
             'email' => 'pedro@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -204,7 +204,7 @@ class UserSeeder extends Seeder
 
         // Contabilidad
         $contabilidad = User::create([
-            'name' => 'Isabel Valarezo',
+            'name' => 'IVALAREZO',
             'email' => 'isa@jp.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_CONTABILIDAD);
@@ -221,7 +221,7 @@ class UserSeeder extends Seeder
         /** TECNICOS */
         // Tecnico lider
         $tecnico = User::create([
-            'name' => 'Pedro Ramirez',
+            'name' => 'PRAMIREZ',
             'email' => 'pramirez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -238,7 +238,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Andres Rogel',
+            'name' => 'AROGEL',
             'email' => 'andres@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -255,7 +255,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Carlos Fernandez',
+            'name' => 'CFERNANDEZ',
             'email' => 'cfernandez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -272,7 +272,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Omar Gutierrez',
+            'name' => 'OGUTIERREZ',
             'email' => 'ogutierrez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -289,7 +289,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Leo Armijos',
+            'name' => 'LARMIJOS',
             'email' => 'larmijos@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -306,7 +306,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Polo Carrión',
+            'name' => 'PCARRION',
             'email' => 'pcarrion@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -329,7 +329,7 @@ class UserSeeder extends Seeder
          * Coordinador
          */
         $coordinador = User::create([
-            'name' => 'Yefraina Lovera',
+            'name' => 'YLOVERA',
             'email' => 'ylovera@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -345,7 +345,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Wilson Córdova',
+            'name' => 'WCORDOVA',
             'email' => 'wcordova@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -360,7 +360,7 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id,
         ]);
         $tecnico = User::create([
-            'name' => 'Juan Cuesta',
+            'name' => 'JCUESTA',
             'email' => 'jcuesta@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
@@ -376,7 +376,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'Joao Leiver',
+            'name' => 'JLEIVER',
             'email' => 'leiver@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),

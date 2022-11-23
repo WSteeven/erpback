@@ -34,6 +34,7 @@ class EmpleadoRequest extends FormRequest
             'telefono'=>'required|min:7|max:13',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'usuario' => 'required|string',
             'fecha_nacimiento'=>'required|date',
             'jefe'=>'required|exists:empleados,id',
             'sucursal'=>'required|exists:sucursales,id',
