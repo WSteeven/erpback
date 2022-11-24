@@ -33,12 +33,16 @@ class PerchaController extends Controller
         
         if ($page) {
             $results = Percha::simplePaginate($request['offset']);
-            PerchaResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // PerchaResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
+            Log::channel('testing')->info('Log', ['entro en el if', $results]);
         } else {
             $results = Percha::all();
-            PerchaResource::collection($results);
+            $results = PerchaResource::collection($results);
+            Log::channel('testing')->info('Log', ['entro en el else', $results]);
         }
+        PerchaResource::collection($results);
+        Log::channel('testing')->info('Log', ['pasó luego del resource', $results]);
         return response()->json(compact('results'));
 }
 

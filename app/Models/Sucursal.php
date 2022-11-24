@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -13,6 +14,7 @@ class Sucursal extends Model implements Auditable
     use HasFactory;
     //use UppercaseValuesTrait;
     use AuditableModel;
+    use Filterable;
 
     protected $table = "sucursales";
     protected $fillable = ['lugar', 'telefono', 'correo'];
@@ -20,6 +22,8 @@ class Sucursal extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    private static $whiteListFilter=['*'];
 
     /**
      * Relacion uno a muchos

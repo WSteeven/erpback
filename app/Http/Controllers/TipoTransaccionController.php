@@ -25,6 +25,7 @@ class TipoTransaccionController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request['page'];
         $tipo = $request['tipo'];
         $results = [];
         if($tipo){
@@ -58,10 +59,13 @@ class TipoTransaccionController extends Controller
                     ->get());
                 return response()->json(compact('results'));
             }
+        }else if($page){
+            $results = TipoTransaccion::simplePaginate($request['offset']);
         }else{
-            $results = TipoTransaccionResource::collection(TipoTransaccion::all());
-            return response()->json(compact('results'));
+            $results = TipoTransaccion::all();
         }
+        TipoTransaccionResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**

@@ -31,12 +31,12 @@ class TipoFibraController extends Controller
         } else
         if ($page) {
             $results = TipoFibra::simplePaginate($request['offset']);
-            TipoFibra::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // TipoFibraResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results =TipoFibra::all();
-            TipoFibraResource::collection($results);
         }
+        TipoFibraResource::collection($results);
         return response()->json(compact('results'));
     }
 

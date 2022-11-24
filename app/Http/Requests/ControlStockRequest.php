@@ -53,7 +53,7 @@ class ControlStockRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if (ControlStock::controlExistencias($this->detalle_id, $this->sucursal_id, $this->cliente_id) < 0) {
-                $validator->errors()->add('detalle_id', 'No existen productos del cliente seleccionado en la sucursal seleccionada');
+                $validator->errors()->add('detalle_id', 'No existen productos del cliente seleccionado en el inventario de la sucursal seleccionada');
             }
         });
     }

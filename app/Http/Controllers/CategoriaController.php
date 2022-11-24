@@ -28,16 +28,18 @@ class CategoriaController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-
+        if ($request['campos']) {
+            $results = Categoria::ignoreRequest(['campos'])->filter()->get($campos);
+            return response()->json(compact('results'));
+        } else 
         if ($page) {
             $results = Categoria::simplePaginate($request['offset']);
-            CategoriaResource::collection($results);
-            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Categoria::filter()->get();
-            CategoriaResource::collection($results);
         }
+        CategoriaResource::collection($results);
         return response()->json(compact('results'));
     }
 

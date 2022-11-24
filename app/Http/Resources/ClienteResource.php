@@ -20,7 +20,7 @@ class ClienteResource extends JsonResource
             'id' => $this->id,
             'empresa' => $this->empresa_id,
             'razon_social' => $this->empresa->razon_social,
-            'parroquia' => $this->parroquia->parroquia,
+            'parroquia' => $this->parroquia?->parroquia,
             'requiere_bodega' => $this->requiere_bodega,
             'estado' => $this->estado
         ];

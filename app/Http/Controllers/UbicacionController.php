@@ -27,6 +27,7 @@ class UbicacionController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request['page'];
         $search = $request['search'];
         $sucursal=$request['sucursal'];
         $results = [];
@@ -34,7 +35,9 @@ class UbicacionController extends Controller
             $ubicacion = Ubicacion::select('id')->where('codigo', 'LIKE', '%' . $search . '%')->first();
 
             if ($ubicacion) $results = UbicacionResource::collection(Ubicacion::where('id', $ubicacion->id)->get());
-        } else {
+        } else if($page){
+            $results = Ubicacion::simplePaginate($request['offset']);
+        } else{
             $results = UbicacionResource::collection(Ubicacion::all());
         }
         if($sucursal){
@@ -42,8 +45,9 @@ class UbicacionController extends Controller
             $results = Ubicacion::select(["ubicaciones.id", "codigo", "percha_id", "piso_id",])
                 ->join('perchas', 'percha_id', '=', 'perchas.id')
                 ->where('perchas.sucursal_id', $sucursal)->get();
-            $results = UbicacionResource::collection($results);
+        
         }
+        UbicacionResource::collection($results);
         return response()->json(compact('results'));
     }
 

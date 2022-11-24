@@ -32,21 +32,21 @@ class MarcaController extends Controller
         $results = [];
         if ($request['campos']) {
             $results = Marca::all($campos);
-        } else
-        
-        if ($page) {
+            return response()->json(compact('results'));
+        } else if ($page) {
             $results = Marca::simplePaginate($request['offset']);
-            MarcaResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // MarcaResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Marca::all();
-            MarcaResource::collection($results);
+            // MarcaResource::collection($results);
         }
         if ($search) {
             $marca = Marca::select('id')->where('nombre', 'LIKE', '%' . $search . '%')->first();
             if ($marca) $results = MarcaResource::collection(Marca::where('id', $marca->id)->get());
         }
 
+        MarcaResource::collection($results);
         return response()->json(compact('results'));
     }
 

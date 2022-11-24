@@ -21,7 +21,7 @@ class PerchaResource extends JsonResource
             'sucursal' => $this->sucursal->lugar,
         ];
 
-        if ($controller_method == 'show') {
+        if ($controller_method === 'show') {
             $modelo['sucursal'] = $this->sucursal_id;
         }
         

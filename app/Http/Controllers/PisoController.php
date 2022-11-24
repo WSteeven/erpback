@@ -26,16 +26,20 @@ class PisoController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if ($request['campos']) {
+            $results = Piso::ignoreRequest(['campos'])->filter()->get($campos);
+            return response()->json(compact('results'));
+        } else 
         if ($page) {
             $results = Piso::simplePaginate($request['offset']);
-            PisoResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // PisoResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Piso::all();
-            PisoResource::collection($results);
         }
+        PisoResource::collection($results);
         return response()->json(compact('results'));
     }
 

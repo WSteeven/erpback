@@ -27,17 +27,22 @@ class ClienteController extends Controller
     public function index(Request $request)
     {
         $search = $request['search'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-
-        if ($search) {
+        if ($request['campos']) {
+            $results = Cliente::ignoreRequest(['campos'])->filter()->get($campos);
+            // return response()->json(compact('results'));
+        } else if ($search) {
             $empresa = Empresa::select('id')->where('razon_social', 'LIKE', '%' . $search . '%')->first();
             // Log::channel('testing')->info('Log', ['empresa', $empresa->id]);
 
             if ($empresa) $results = ClienteResource::collection(Cliente::where('empresa_id', $empresa->id)->get());
         } else {
-            $results = ClienteResource::collection(Cliente::all());
+            $results = Cliente::all();
+            Log::channel('testing')->info('Log', ['entro en el else grande', $results]);
         }
-
+        
+        $results = ClienteResource::collection($results);
         return response()->json(compact('results'));
     }
     /**

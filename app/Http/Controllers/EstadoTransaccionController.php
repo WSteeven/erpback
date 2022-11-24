@@ -25,20 +25,20 @@ class EstadoTransaccionController extends Controller
      */
     public function index(Request $request)
     {
-        $results = EstadoTransaccionResource::collection(EstadoTransaccion::all());
-        return response()->json(compact('results'));
+        // $results = EstadoTransaccionResource::collection(EstadoTransaccion::all());
+        // return response()->json(compact('results'));
 
         $page = $request['page'];
         $results = [];
         
         if ($page) {
             $results = EstadoTransaccion::simplePaginate($request['offset']);
-            EstadoTransaccionResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = EstadoTransaccion::all();
-            EstadoTransaccionResource::collection($results);
+            // EstadoTransaccionResource::collection($results);
         }
+        EstadoTransaccionResource::collection($results);
         return response()->json(compact('results'));
     }
 

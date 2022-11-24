@@ -29,16 +29,19 @@ class DetalleProductoController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
-        if ($page) {
+        if($request['campos']){
+            $results = DetalleProducto::ignoreRequest(['campos'])->filter()->get($campos);
+            // return response()->json(compact('results'));
+        }else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
-            DetalleProductoResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
+            // DetalleProductoResource::collection($results);
+            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = DetalleProducto::filter()->get();
-            $results = DetalleProductoResource::collection($results);
         }
+        DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
 

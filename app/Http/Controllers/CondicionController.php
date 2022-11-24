@@ -22,9 +22,12 @@ class CondicionController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
-        if ($page) {
+        if($request['campos']){
+            $results =Condicion::ignoreRequest(['campos'])->filter()->get($campos);
+            return response()->json(compact('results'));
+        }else if ($page) {
             $results = Condicion::simplePaginate($request['offset']);
             CondicionResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
