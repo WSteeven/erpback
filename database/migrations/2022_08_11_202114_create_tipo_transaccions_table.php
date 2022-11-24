@@ -16,11 +16,9 @@ return new class extends Migration
     {
         Schema::create('tipos_transacciones', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->enum('tipo',[TipoTransaccion::INGRESO, TipoTransaccion::EGRESO]);
+            // $table->string('nombre');
+            $table->string('nombre');//,[TipoTransaccion::INGRESO, TipoTransaccion::EGRESO]);
             $table->timestamps();
-
-            $table->unique(['nombre', 'tipo']);
         });
     }
 

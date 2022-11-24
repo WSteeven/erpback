@@ -58,4 +58,13 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
     {
         return $this->belongsTo(TransaccionBodega::class);
     }
+
+    /**
+     * Relación uno a muchos.
+     * Un detalle_producto_transaccion tiene varios movimientos
+     */
+    public function movimientos(){
+        return $this->hasMany(MovimientoProducto::class);
+    }
+
 }

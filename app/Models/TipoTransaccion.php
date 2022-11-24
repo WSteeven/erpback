@@ -14,10 +14,11 @@ class TipoTransaccion extends Model implements Auditable
     use AuditableModel;
     
     protected $table="tipos_transacciones";
-    protected $fillable = ['nombre','tipo'];
+    protected $fillable = ['nombre'];
     
     const INGRESO = 'INGRESO';
     const EGRESO = 'EGRESO';
+    const TRANSFERENCIA = 'TRANSFERENCIA';
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

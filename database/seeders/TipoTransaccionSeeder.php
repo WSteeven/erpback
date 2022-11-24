@@ -57,54 +57,54 @@ class TipoTransaccionSeeder extends Seeder
         SubtipoTransaccion::create(['nombre'=>'LIQUIDACION DE MATERIALES','tipo_transaccion_id'=>14]); */
 
         $datos = [
-            [1, 'COMPRA A PROVEEDOR', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [2, 'MERCADERIA DE CLIENTE', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [3, 'DEVOLUCION DEL PERSONAL', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [4, 'DEVOLUCION DE TAREA', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [5, 'STOCK INICIAL', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [6, 'DESPACHO', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [7, 'DESPACHO DE TAREA', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [8, 'DEVOLUCION A PROVEEDOR', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [9, 'REPOSICION', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [10, 'VENTA', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [11, 'TRANSFERENCIA ENTRE BODEGAS', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [12, 'TRANSFERENCIA ENTRE BODEGAS', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [13, 'LIQUIDACION DE MATERIALES', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [14, 'LIQUIDACION DE MATERIALES', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [15, 'AJUSTE POR REGULARIZACION', 'INGRESO', '2022-10-20 21:45:27', '2022-10-20 21:45:27'],
-            [16, 'AJUSTE POR REGULARIZACION', 'EGRESO', '2022-10-20 21:45:38', '2022-10-20 21:45:38'],
+            [1, 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            [2, 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            [3, 'TRANSFERENCIA', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [4, 'DEVOLUCION DE TAREA', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [5, 'STOCK INICIAL', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [6, 'DESPACHO', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [7, 'DESPACHO DE TAREA', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [8, 'DEVOLUCION A PROVEEDOR', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [9, 'REPOSICION', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [10, 'VENTA', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [11, 'TRANSFERENCIA ENTRE BODEGAS', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [12, 'TRANSFERENCIA ENTRE BODEGAS', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [13, 'LIQUIDACION DE MATERIALES', 'INGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [14, 'LIQUIDACION DE MATERIALES', 'EGRESO', '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+            // [15, 'AJUSTE POR REGULARIZACION', 'INGRESO', '2022-10-20 21:45:27', '2022-10-20 21:45:27'],
+            // [16, 'AJUSTE POR REGULARIZACION', 'EGRESO', '2022-10-20 21:45:38', '2022-10-20 21:45:38'],
         ];
         foreach($datos as $fila){
-            DB::insert('INSERT INTO `tipos_transacciones` (`id`, `nombre`, `tipo`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)',$fila);
+            DB::insert('INSERT INTO `tipos_transacciones` (`id`, `nombre`, `created_at`, `updated_at`) VALUES(?,?,?,?)',$fila);
         }
 
 
-        $datos = [
-            [1, 'COMPRA A PROVEEDOR', 1, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [2, 'ABASTECIMIENTO DE STOCK', 2, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [3, 'MATERIALES PARA TAREAS', 2, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [4, 'FINALIZACION LABORAL', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [5, 'GARANTIA', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [6, 'REPOSICION', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [7, 'DAÑO', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [8, 'FINALIZACION DE TAREA', 4, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [9, 'STOCK INICIAL', 5, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [10, 'DESPACHO', 6, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [11, 'DESPACHO DE TAREA', 7, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [12, 'DEVOLUCION A PROVEEDOR', 8, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [13, 'REPOSICION', 9, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [14, 'VENTA', 10, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [15, 'TRANSFERENCIA ENTRE BODEGAS', 11, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [16, 'TRANSFERENCIA ENTRE BODEGAS', 12, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [17, 'LIQUIDACION DE MATERIALES', 13, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [18, 'LIQUIDACION DE MATERIALES', 14, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-            [19, 'AJUSTE DE INVENTARIO', 15, '2022-10-20 21:48:17', '2022-10-20 21:48:17'],
-            [20, 'AJUSTE DE INVENTARIO', 16, '2022-10-20 21:51:17', '2022-10-20 21:51:17'],
-            [21, 'GARANTIA', 6, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
-        ];
-        foreach($datos as $fila){
-            DB::insert('INSERT INTO `subtipos_transacciones` (`id`, `nombre`, `tipo_transaccion_id`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)',$fila);
-        }
+        // $datos = [
+        //     [1, 'COMPRA A PROVEEDOR', 1, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [2, 'ABASTECIMIENTO DE STOCK', 2, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [3, 'MATERIALES PARA TAREAS', 2, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [4, 'FINALIZACION LABORAL', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [5, 'GARANTIA', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [6, 'REPOSICION', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [7, 'DAÑO', 3, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [8, 'FINALIZACION DE TAREA', 4, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [9, 'STOCK INICIAL', 5, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [10, 'DESPACHO', 6, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [11, 'DESPACHO DE TAREA', 7, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [12, 'DEVOLUCION A PROVEEDOR', 8, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [13, 'REPOSICION', 9, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [14, 'VENTA', 10, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [15, 'TRANSFERENCIA ENTRE BODEGAS', 11, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [16, 'TRANSFERENCIA ENTRE BODEGAS', 12, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [17, 'LIQUIDACION DE MATERIALES', 13, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [18, 'LIQUIDACION DE MATERIALES', 14, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        //     [19, 'AJUSTE DE INVENTARIO', 15, '2022-10-20 21:48:17', '2022-10-20 21:48:17'],
+        //     [20, 'AJUSTE DE INVENTARIO', 16, '2022-10-20 21:51:17', '2022-10-20 21:51:17'],
+        //     [21, 'GARANTIA', 6, '2022-10-20 21:43:27', '2022-10-20 21:43:27'],
+        // ];
+        // foreach($datos as $fila){
+        //     DB::insert('INSERT INTO `subtipos_transacciones` (`id`, `nombre`, `tipo_transaccion_id`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)',$fila);
+        // }
 
 
     }

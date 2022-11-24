@@ -22,6 +22,7 @@ use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\ModeloController;
+use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\PermisoController;
@@ -132,6 +133,7 @@ Route::apiResources(
         'marcas' => MarcaController::class,
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
+        'motivos' => MotivoController::class,
         'procesadores' => ProcesadorController::class,
         'prestamos' => PrestamoTemporalController::class,
         'productos' => ProductoController::class,

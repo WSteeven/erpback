@@ -40,7 +40,7 @@ class InventarioRequest extends FormRequest
             })], */
             'sucursal_id' => 'required|integer|exists:sucursales,id', //|unique:inventarios,detalle_id',
             'cliente_id' => 'required|integer|exists:clientes,id', //|unique:inventarios,detalle_id',
-            'prestados' => 'sometimes|integer',
+            // 'prestados' => 'sometimes|integer',
             'por_recibir' => 'sometimes|integer',
             'por_entregar' => 'sometimes|integer',
             // 'estado' => Rule::in([Inventario::INVENTARIO, Inventario::SIN_STOCK, Inventario::TRANSITO]),
@@ -90,7 +90,7 @@ class InventarioRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if (is_null($this->prestados)) $this->merge(['prestados' => 0]);
+        // if (is_null($this->prestados)) $this->merge(['prestados' => 0]);
 
         is_null($this->por_recibir) ?? $this->merge(['por_recibir' => 0]);
         is_null($this->por_entregar) ?? $this->merge(['por_entregar' => 0]);

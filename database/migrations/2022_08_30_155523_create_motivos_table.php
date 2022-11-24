@@ -13,7 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        //
+        Schema::create('motivos', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->unsignedBigInteger('tipo_transaccion_id');
+            $table->timestamps();
+
+            $table->foreign('tipo_transaccion_id')->references('id')->on('tipos_transacciones');
+        });
     }
 
     /**
@@ -23,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('motivos');
     }
 };

@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('por_recibir')->default(0);
             $table->integer('cantidad')->default(0);
             $table->integer('por_entregar')->default(0);
-            $table->integer('prestados')->default(0);
             $table->unsignedBigInteger('condicion_id');
             $table->enum('estado', [Inventario::INVENTARIO, Inventario::TRANSITO, Inventario::SIN_STOCK])->default(Inventario::INVENTARIO);
             $table->timestamps();

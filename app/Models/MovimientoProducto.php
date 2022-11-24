@@ -16,7 +16,7 @@ class MovimientoProducto extends Model implements Auditable
     protected $table = "movimientos_productos";
     protected $fillable=[
         'inventario_id',
-        'transaccion_id',
+        'detalle_producto_transaccion_id',
         'cantidad',
         'precio_unitario',
         'saldo',
@@ -27,6 +27,11 @@ class MovimientoProducto extends Model implements Auditable
     ];
 
     /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    /**
      * Obtener el id en el inventario al que pertenecen los movimientos 
      */
     public function inventarios()
@@ -34,10 +39,25 @@ class MovimientoProducto extends Model implements Auditable
         return $this->belongsTo(Inventario::class);
     }
 
+
+    /**
+     * Relación uno a muchos (inversa).
+     * Uno o varios movimientos pertenecen a un detalle
+     */
+    public function detalle(){
+        return $this->belongsTo(DetalleProductoTransaccion::class);
+    }
+
     /**
      * Obtener la transaccion a la que pertenecen los movimientos
      */
-    public function transacciones(){
+    /* public function transacciones(){
         return $this->belongsTo(TransaccionBodega::class);
-    }
+    } */
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
 }

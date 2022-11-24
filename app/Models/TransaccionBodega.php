@@ -24,10 +24,11 @@ class TransaccionBodega extends Model implements Auditable
         'comprobante',
         'fecha_limite',
         'solicitante_id',
-        'subtipo_id',
+        'motivo_id',
         'tarea_id',
-        'subtarea_id',
+        'tipo_id',
         'sucursal_id',
+        'cliente_id',
         'per_autoriza_id',
         'per_atiende_id',
         'per_retira_id',
@@ -39,9 +40,10 @@ class TransaccionBodega extends Model implements Auditable
     private static $whiteListFilter = ['*'];
 
 
-    /*************************************
-     * RELACIONES
-     * ***********************************
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
      */
     /* Una transaccion tiene varios estados de autorizacion durante su ciclo de vida */
     public function autorizaciones()
@@ -76,6 +78,11 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->hasMany(DetalleProductoTransaccion::class);
     }
+    /* Una o varias transacciones tienen un solo motivo*/
+    public function motivo()
+    {
+        return $this->belongsTo(Motivo::class);
+    }
     /**
      * Relación uno a muchos(inversa).
      * Una transacción de ingreso pertenece a una o ninguna tarea
@@ -84,16 +91,33 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Tarea::class);
     }
-
+    
     /**
      * Relación uno a muchos(inversa).
-     * Una transacción pertenece a una sola subtarea
+     * Una transacción pertenece a un solo tipo
      */
-    public function subtarea()
+    public function tipo()
     {
-        return $this->belongsTo(Subtarea::class);
+        return $this->belongsTo(TipoTransaccion::class);
     }
-
+    /**
+     * Relacion uno a uno(inversa)
+     * Una o varias transacciones pertenecen a una sucursal
+     */
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class);
+    }
+    
+    /**
+     * Relacion uno a uno(inversa)
+     * Una o varias transacciones pertenecen a un cliente
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
+    
     /**
      * Relacion uno a muchos (inversa).
      * Una o varias transacciones pertenece a un solicitante 
@@ -129,33 +153,11 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
 
-    /* Una o varias transacciones tienen un solo tipo de transaccion*/
-    public function subtipo()
-    {
-        return $this->belongsTo(SubtipoTransaccion::class);
-    }
-    /**
-     * Obtener los movimientos para la transaccion
-     */
-    public function movimientos()
-    {
-        return $this->hasMany(MovimientoProducto::class);
-    }
 
     /**
-     * Relacion uno a uno(inversa)
-     * Una o varias transacciones pertenecen a una sucursal
-     */
-    public function sucursal()
-    {
-        return $this->belongsTo(Sucursal::class);
-    }
-
-
-
-    /****************************************
-     * Funciones
-     ****************************************
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
      */
     /**
      * Obtener la ultima autorizacion de una transaccion 

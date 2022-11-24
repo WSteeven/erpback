@@ -15,8 +15,9 @@ class Inventario extends Model
         'sucursal_id',
         'cliente_id',
         'condicion_id',
+        'por_recibir',
         'cantidad',
-        'prestados',
+        'por_entregar',
         'estado',
     ];
 

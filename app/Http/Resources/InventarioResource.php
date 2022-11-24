@@ -30,7 +30,7 @@ class InventarioResource extends JsonResource
             'cantidad'=> $this->cantidad,
             'por_recibir'=> $this->por_recibir,
             'por_entregar'=> $this->por_entregar,
-            'prestados'=>$this->prestados,
+            // 'prestados'=>$this->prestados,
             'estado'=>$this->estado,
         ];
         if($controller_method=='show'){

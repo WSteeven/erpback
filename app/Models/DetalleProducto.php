@@ -37,7 +37,8 @@ class DetalleProducto extends Model implements Auditable
         'precio_compra',
         'color',
         'talla',
-        'capacidad',
+        'tipo',
+        'url_imagen',
 
     ];
     protected $casts = [
@@ -149,7 +150,7 @@ class DetalleProducto extends Model implements Auditable
 
     /**
      * _______________________________
-     * MÉTODOS
+     * FUNCIONES   
      * _______________________________
      */
 }

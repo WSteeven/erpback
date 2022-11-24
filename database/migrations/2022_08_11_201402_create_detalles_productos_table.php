@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('color')->nullable();
             $table->string('talla')->nullable();
             $table->enum('tipo', [DetalleProducto::HOMBRE, DetalleProducto::MUJER])->nullable();
+            $table->string('url_imagen')->nullable();
            
             $table->timestamps();
 
