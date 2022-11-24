@@ -30,8 +30,12 @@ class SubtareaController extends Controller
         // Obtener parametros
         $page = request('page');
         $offset = request('offset');
+        $estados = request('estados');
+        $campos = explode(',', request('campos'));
 
         // Procesar
+        if($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
+        elseif($estados) return $this->servicio->obtenerFiltradosEstados($estados);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         return $this->servicio->obtenerTodos();
 

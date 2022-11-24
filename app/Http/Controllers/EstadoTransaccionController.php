@@ -29,8 +29,12 @@ class EstadoTransaccionController extends Controller
         // return response()->json(compact('results'));
 
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if($request['campos']){
+            $results = EstadoTransaccion::all($campos);
+            return response()->json(compact('results'));
+        }else
         if ($page) {
             $results = EstadoTransaccion::simplePaginate($request['offset']);
             // $results->appends(['offset' => $request['offset']]);

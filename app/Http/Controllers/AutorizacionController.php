@@ -25,16 +25,20 @@ class AutorizacionController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $campos = explode(',', $request['campos']);
         $results = [];
-        
+        if($request['campos']){
+            $results = Autorizacion::ignoreRequest(['campos'])->filter()->get($campos);
+            return response()->json(compact('results'));    
+        }else 
         if ($page) {
             $results = Autorizacion::simplePaginate($request['offset']);
             AutorizacionResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Autorizacion::filter()->get();
-            AutorizacionResource::collection($results);
         }
+        AutorizacionResource::collection($results);
         return response()->json(compact('results'));
     }
 

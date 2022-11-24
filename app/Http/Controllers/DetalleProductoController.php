@@ -37,12 +37,14 @@ class DetalleProductoController extends Controller
             // return response()->json(compact('results'));
         }else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
-            // DetalleProductoResource::collection($results);
+            DetalleProductoResource::collection($results);
             // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = DetalleProducto::filter()->get();
+            $results = DetalleProductoResource::collection($results);
+            Log::channel('testing')->info('Log', ['Entró en el else de detalleController:']);
         }
-        DetalleProductoResource::collection($results);
+        // DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
 
