@@ -33,6 +33,7 @@ class DetalleProductoController extends Controller
         $results = [];
         if($request['campos']){
             $results = DetalleProducto::ignoreRequest(['campos'])->filter()->get($campos);
+            $results=DetalleProductoResource::collection($results);
             // return response()->json(compact('results'));
         }else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);

@@ -19,9 +19,15 @@ class RolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = RolResource::collection(Role::all());
+        $campos = explode(',', $request['campos']);
+        $results = [];
+        /* if($request['campos']){
+            $results = Role::
+        }else{ */
+        $results = RolResource::collection(Role::all($campos));
+        // }
         return response()->json(compact('results'));
     }
 

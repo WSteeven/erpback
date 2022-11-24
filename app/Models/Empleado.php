@@ -37,6 +37,7 @@ class Empleado extends Model implements Auditable
         'jefe_id',
         'sucursal_id',
         'grupo_id',
+        'estado',
     ];
 
     const ACTIVO = 'ACTIVO';

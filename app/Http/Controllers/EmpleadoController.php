@@ -35,8 +35,12 @@ class EmpleadoController extends Controller
         $offset = request('offset');
         $rol = request('rol');
         $search = request('search');
+        $campos = explode(',', request('campos'));
 
         // Procesar
+        if (request('campos')) {
+            return $this->servicio->obtenerTodosCiertasColumnas($campos);
+        } else
         if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
