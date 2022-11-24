@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TipoTareaRequest;
-use App\Http\Resources\TipoTareaResource;
+use App\Http\Requests\TipoTrabajoRequest;
+use App\Http\Resources\TipoTrabajoResource;
 use App\Models\TipoTrabajo;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 
-class TipoTareaController extends Controller
+class TipoTrabajoController extends Controller
 {
-    private $entidad = 'Tipo de tarea';
+    private $entidad = 'Tipo de trabajo';
 
     /**
      * Listar
@@ -23,20 +23,20 @@ class TipoTareaController extends Controller
 
         if ($page) {
             $results = TipoTrabajo::simplePaginate($request['offset']);
-            TipoTareaResource::collection($results);
+            TipoTrabajoResource::collection($results);
         } else if ($cliente) {
-            $results = TipoTareaResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
+            $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {
-            $results = TipoTareaResource::collection(TipoTrabajo::filter()->get());
+            $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
         }
-        
+
         return response()->json(compact('results'));
     }
 
     /**
      * Guardar
      */
-    public function store(TipoTareaRequest $request)
+    public function store(TipoTrabajoRequest $request)
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
@@ -44,7 +44,7 @@ class TipoTareaController extends Controller
 
         // Respuesta
         $modelo = TipoTrabajo::create($datos);
-        $modelo = new TipoTareaResource($modelo);
+        $modelo = new TipoTrabajoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -52,24 +52,24 @@ class TipoTareaController extends Controller
     /**
      * Consultar
      */
-    public function show(TipoTrabajo $tipo_tarea)
+    public function show(TipoTrabajo $tipo_trabajo)
     {
-        $modelo = new TipoTareaResource($tipo_tarea);
+        $modelo = new TipoTrabajoResource($tipo_trabajo);
         return response()->json(compact('modelo'));
     }
 
     /**
      * Actualizar
      */
-    public function update(TipoTareaRequest $request, TipoTrabajo $tipo_tarea)
+    public function update(TipoTrabajoRequest $request, TipoTrabajo $tipo_trabajo)
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
-        $tipo_tarea->update($datos);
-        $modelo = new TipoTareaResource($tipo_tarea->refresh());
+        $tipo_trabajo->update($datos);
+        $modelo = new TipoTrabajoResource($tipo_trabajo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -77,9 +77,9 @@ class TipoTareaController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(TipoTrabajo $tipo_tarea)
+    public function destroy(TipoTrabajo $tipo_trabajo)
     {
-        $tipo_tarea->delete();
+        $tipo_trabajo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }

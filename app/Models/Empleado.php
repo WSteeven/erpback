@@ -12,7 +12,7 @@ use Laravel\Scout\Searchable;
 
 class Empleado extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel, Searchable;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, Searchable;
 
     protected $table = "empleados";
     protected $fillable = [

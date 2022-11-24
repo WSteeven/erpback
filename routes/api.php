@@ -42,7 +42,7 @@ use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\TipoFibraController;
-use App\Http\Controllers\TipoTareaController;
+use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\UbicacionController;
@@ -154,7 +154,7 @@ Route::apiResources(
         'ubicaciones' => UbicacionController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
-        'tipos-tareas' => TipoTareaController::class,
+        'tipos-trabajos' => TipoTrabajoController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
@@ -179,7 +179,7 @@ Route::apiResources(
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
             'ubicaciones' => 'ubicacion',
-            'tipos-tareas' => 'tipo_tarea',
+            'tipos-trabajos' => 'tipo_trabajo',
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final'
@@ -203,4 +203,4 @@ Route::post('subtareas/pausar/{subtarea}', [SubtareaController::class, 'pausar']
 Route::post('subtareas/reanudar/{subtarea}', [SubtareaController::class, 'reanudar'])->middleware('auth:sanctum');
 Route::post('subtareas/suspender/{subtarea}', [SubtareaController::class, 'suspender'])->middleware('auth:sanctum');
 Route::get('subtareas/pausas/{subtarea}', [SubtareaController::class, 'pausas'])->middleware('auth:sanctum');
-Route::get('subtareas-asignadas', [SubtareaAsignadaController::class, 'index'])->middleware('auth:sanctum');
+Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas'])->middleware('auth:sanctum');

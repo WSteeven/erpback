@@ -41,6 +41,17 @@ class SubtareaController extends Controller
         return SubtareaResource::collection(Empleado::filter()->get());*/
     }
 
+    public function subtareasAsignadas()
+    {
+        // Obtener parametros
+        $page = request('page');
+        $offset = request('offset');
+
+        // Procesar
+        if ($page) return response()->json(['results' =>  $this->servicio->obtenerAsignadasPaginacion($offset)]);
+        return response()->json(['results' => $this->servicio->obtenerAsignadasTodos()]);
+    }
+
     /**
      * Listar
      */
@@ -162,10 +173,17 @@ class SubtareaController extends Controller
     {
         $motivo = $request['motivo'];
 
-        $subtarea->estado = Subtarea::SUSPENDIDO;
+        /* $subtarea->estado = Subtarea::SUSPENDIDO;
         $subtarea->fecha_hora_suspendido = Carbon::now();
         $subtarea->causa_suspencion = $motivo;
-        $subtarea->save();
+        $subtarea->save(); */
+
+        $tarea = $subtarea->tarea;
+        $tarea->subtareas()->update([
+            'fecha_hora_suspendido' => Carbon::now(),
+            'causa_suspencion' => $motivo,
+            'estado' => Subtarea::SUSPENDIDO,
+        ]);
     }
 
     public function pausas(Subtarea $subtarea)

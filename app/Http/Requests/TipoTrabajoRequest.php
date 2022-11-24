@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TipoTareaRequest extends FormRequest
+class TipoTrabajoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,6 +26,8 @@ class TipoTareaRequest extends FormRequest
         return [
             'cliente' => 'required',
             'nombre' => 'required|string',
+            'imagenes_adicionales' => 'nullable|string',
+            'campos_adicionales' => 'nullable|string',
         ];
     }
 }
