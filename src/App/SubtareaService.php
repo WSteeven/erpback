@@ -27,7 +27,7 @@ class SubtareaService
         // Log::channel('testing')->info('Log', ['estados recibidos', $estados]);
         $estados = explode(',', $estados);
         // Log::channel('testing')->info('Log', ['estados en array', $estados]);
-        $results = Subtarea::ignoreRequest(['estados','campos'])->filter()->whereIn('estado', $estados)->get();
+        $results = Subtarea::ignoreRequest(['estados','campos'])->filter()->whereIn('estado', $estados)->orderBy('fecha_hora_asignacion', 'asc')->get();
         Log::channel('testing')->info('Log', ['subtareas filtradas por estado', $results]);
         // SubtareaResource::collection($results);
         return $results;

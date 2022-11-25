@@ -33,7 +33,8 @@ class TareaResource extends JsonResource
             'cliente' => $this->cliente->empresa->razon_social,
             'cliente_final' => $this->cliente_final ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             'ubicacion_tarea' => $this->ubicacionTarea ? new UbicacionTareaResource($this->ubicacionTarea) : null,
-            'estado' => $this->estado,
+            'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
+
             // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 

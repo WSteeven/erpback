@@ -34,8 +34,8 @@ class SubtareaController extends Controller
         $campos = explode(',', request('campos'));
 
         // Procesar
-        if($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
-        elseif($estados) return $this->servicio->obtenerFiltradosEstados($estados);
+        if ($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
+        elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         return $this->servicio->obtenerTodos();
 
@@ -85,6 +85,18 @@ class SubtareaController extends Controller
         $datos['estado'] = Subtarea::CREADO;
 
         // Respuesta
+
+        $subtareaEncontrada = Tarea::find($tarea_id)->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
+        Log::channel('testing')->info('Log', ['SUBTAREA ENCONTRADA', $subtareaEncontrada]);
+        if ($subtareaEncontrada && $subtareaEncontrada->estado === Subtarea::SUSPENDIDO) {
+            return response()->json(['errors' => ['suspendido' => 'No se pueden agregar porque la subtarea principal está suspendida.']], 422);
+        }
+
+        if ($subtareaEncontrada && $subtareaEncontrada->estado === Subtarea::CANCELADO) {
+            return response()->json(['errors' => ['cancelada' => 'No se pueden agregar porque la subtarea principal está cancelada.']], 422);
+            // return response()->json(['mensaje' => 'No se pueden agregar porque la subtarea principal está cancelada.'], 422);
+        }
+
         $modelo = Subtarea::create($datos);
         $modelo = new SubtareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -193,5 +205,14 @@ class SubtareaController extends Controller
     public function pausas(Subtarea $subtarea)
     {
         return response()->json(['results' => $subtarea->pausasSubtarea]);
+    }
+
+    public function cancelar(Subtarea $subtarea)
+    {
+        $tarea = $subtarea->tarea;
+
+        $tarea->subtareas()->update(['estado' => Subtarea::CANCELADO]);
+
+        return response()->json(['mensaje' => 'Cancelado exitosamente!']);
     }
 }
