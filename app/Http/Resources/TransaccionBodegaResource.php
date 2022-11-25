@@ -33,8 +33,8 @@ class TransaccionBodegaResource extends JsonResource
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
-            'tipo' => $this->subtipo->tipoTransaccion->nombre,
-            'subtipo' => $this->subtipo->nombre,
+            'tipo' => $this->tipo?->nombre,
+            'motivo' => $this->motivo?->nombre,
             'tarea' => $this->tarea ? $this->tarea->detalle : null,
             'subtarea' => $this->subtarea ? $this->subtarea->detalle : null,
             'sucursal' => $this->sucursal->lugar,
@@ -51,7 +51,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;
             $modelo['solicitante_id'] = $this->solicitante_id;
-            $modelo['tipo'] = $this->subtipo->tipoTransaccion->id;
+            $modelo['tipo'] = $this->tipo_id;
             $modelo['subtipo'] = $this->subtipo_id;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['subtarea'] = $this->subtarea_id;

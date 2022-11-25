@@ -45,7 +45,7 @@ class DetalleProductoResource extends JsonResource
             'puntas' => $this->fibra ? 'P. Inicial: ' . $this->fibra->punta_inicial . ', P. Final: ' . $this->fibra->punta_final . ', Custodia: ' . $this->fibra->custodia : null,
 
 
-            'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->capacidad : null,
+            'adicionales' => $this->color || $this->talla || $this->capacidad ? $this->color . ', ' . $this->talla . ',  ' . $this->tipo : null,
 
             'color'=>$this->color,
             'talla'=>$this->talla,

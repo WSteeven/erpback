@@ -29,6 +29,7 @@ class MotivoController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        // $tipo = $request['tipo'];
         $campos = explode(',', $request['campos']);
         $results = [];
         if($request['campos']){
@@ -40,7 +41,7 @@ class MotivoController extends Controller
             // SubtipoTransaccionResource::collection($results);
             // $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Motivo::all();
+            $results = Motivo::ignoreRequest(['campos'])->filter()->get();
         }
         MotivoResource::collection($results);
         return response()->json(compact('results'));

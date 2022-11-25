@@ -34,7 +34,8 @@ class ProductoController extends Controller
         // Log::channel('testing')->info('Log', ['Variable campos vacia?',  $campos]);
         if ($request['campos']) {
             $results = Producto::all($campos);
-            // return response()->json(compact('results'));
+            $results =ProductoResource::collection($results);
+            return response()->json(compact('results'));
         } else
         if ($page) {
             $results = Producto::simplePaginate($request['offset']);

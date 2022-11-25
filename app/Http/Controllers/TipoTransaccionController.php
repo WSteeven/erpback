@@ -34,6 +34,8 @@ class TipoTransaccionController extends Controller
                 $results = TipoTransaccion::all();
             else
                 $results = TipoTransaccion::where('nombre','<>', 'TRANSFERENCIA')->get();
+                // $results2 = $results->map(fn($item)=>return $item->nombre==='INGRESO'?'devolucion':'na');
+                Log::channel('testing')->info('Log', ['listado']);
         }
         TipoTransaccionResource::collection($results);
         return response()->json(compact('results'));

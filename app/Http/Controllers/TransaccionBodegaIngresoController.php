@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\TransaccionBodegaIngresoService;
 use Src\Shared\Utils;
 
 class TransaccionBodegaIngresoController extends Controller
@@ -19,6 +20,7 @@ class TransaccionBodegaIngresoController extends Controller
     private $entidad = 'Transacción';
     public function __construct()
     {
+        $this->servicio = new TransaccionBodegaIngresoService();
         $this->middleware('can:puede.ver.transacciones_ingresos')->only('index', 'show');
         $this->middleware('can:puede.crear.transacciones_ingresos')->only('store');
         $this->middleware('can:puede.editar.transacciones_ingresos')->only('update');
@@ -80,23 +82,27 @@ class TransaccionBodegaIngresoController extends Controller
             ->get();
         */
         $page = $request['page'];
+        $offset = $request['offset'];
+        $estado = $request['estado'];
+        $tipo= 'INGRESO';
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             if ($page) {
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id"])
+                $results=$this->servicio->filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset);
+                /* $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id"])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', 'INGRESO')
-                    ->simplePaginate($request['offset']);
+                    ->simplePaginate($request['offset']); */
                 TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
             } else {
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
+               /*  $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', 'INGRESO')
-                    ->filter()->get();
-                $results = TransaccionBodegaResource::collection($results);
+                    ->filter()->get(); */
+                TransaccionBodegaResource::collection($results);
             }
         }
         return response()->json(compact('results'));
@@ -110,9 +116,10 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
             try {
                 $datos = $request->validated();
-                // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+                Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
-                $datos['subtipo_id'] = $request->safe()->only(['subtipo'])['subtipo'];
+                $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+                $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
@@ -183,7 +190,8 @@ class TransaccionBodegaIngresoController extends Controller
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
         $datos = $request->validated();
-        $datos['subtipo_id'] = $request->safe()->only(['subtipo'])['subtipo'];
+        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];

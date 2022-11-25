@@ -21,8 +21,8 @@ return new class extends Migration
             $table->integer('cantidad_final')->default(0)->nullable(); //la cantidad despachada/devuelta
             $table->timestamps();
 
-            $table->foreign('detalle_id')->references('id')->on('detalles_productos');
-            $table->foreign('transaccion_id')->references('id')->on('transacciones_bodega');
+            $table->foreign('detalle_id')->references('id')->on('detalles_productos')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('transaccion_id')->references('id')->on('transacciones_bodega')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

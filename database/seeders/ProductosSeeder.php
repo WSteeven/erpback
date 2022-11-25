@@ -204,9 +204,13 @@ class ProductosSeeder extends Seeder
             [173, 'KIT DE NAVAJAS', 5, '2022-10-07 03:51:17', '2022-10-07 03:51:17'],
             [174, 'REGLA', 8, '2022-10-12 03:42:35', '2022-10-12 03:42:35'],
             [175, 'ZAPATOS DIELECTRICOS', 2, '2022-10-13 03:09:56', '2022-10-13 03:09:56'],
-            [176, 'MOUSE CABLEADO', 1, '2022-11-09 20:24:44', '2022-11-09 20:24:44'],   
-            [177, 'MOUSE INALAMBRICO', 1, '2022-11-09 20:24:53', '2022-11-09 20:24:53'],    
-    ];
+            [176, 'MOUSE CABLEADO', 1, '2022-11-09 20:24:44', '2022-11-09 20:24:44'],
+            [177, 'MOUSE INALAMBRICO', 1, '2022-11-09 20:24:53', '2022-11-09 20:24:53'],
+            [178, 'UNIFORMES', 2, '2022-11-25 13:57:29', '2022-11-25 13:57:29'],
+            [179, 'CAMISA CUELLO', 2, '2022-11-25 13:57:53', '2022-11-25 13:57:53'],
+            [180, 'BUSO MANGA LARGA', 2, '2022-11-25 13:58:02', '2022-11-25 13:58:02'],
+            [181, 'PANTALON JEAN CINTA REFLECTIVA', 2, '2022-11-25 13:58:29', '2022-11-25 13:58:29'],
+        ];
 
         foreach ($datos as $fila) {
             DB::insert('INSERT INTO productos (id, nombre, categoria_id, created_at, updated_at) VALUES(?,?,?,?,?)', $fila);

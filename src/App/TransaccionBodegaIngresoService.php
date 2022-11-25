@@ -4,18 +4,18 @@ namespace Src\App;
 
 use App\Models\Autorizacion;
 use App\Models\EstadoTransaccion;
+use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class TransaccionBodegaEgresoService
+class TransaccionBodegaIngresoService
 {
     public function __construct()
     {
     }
 
     /* Filtros con paginación */
-    public static function filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesIngresoEmpleadoConPaginacion($tipo, $estado, $offset)
     {
         $results = [];
         switch ($estado) {
@@ -113,7 +113,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesIngresoCoordinadorConPaginacion($tipo, $estado, $offset)
     {
         $results = [];
         switch ($estado) {
@@ -226,14 +226,14 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoBodegueroConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset)
     {
+        $tipoTransaccion = TipoTransaccion::where('nombre', $tipo)->first();
         $results = [];
         switch ($estado) {
             case 'ESPERA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -250,8 +250,7 @@ class TransaccionBodegaEgresoService
                 return $results;
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -266,8 +265,7 @@ class TransaccionBodegaEgresoService
                 return $results;
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -286,8 +284,7 @@ class TransaccionBodegaEgresoService
                 return $results;
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
@@ -298,14 +295,13 @@ class TransaccionBodegaEgresoService
                 return $results;
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
                     ->simplePaginate($offset);
                 return $results;
         }
     }
     /* Filtros sin paginación */
-    public static function filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesIngresoEmpleadoSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {
@@ -390,7 +386,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesIngresoCoordinadorSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {
@@ -479,7 +475,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {
