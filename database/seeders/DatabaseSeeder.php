@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
+        $this->call(MotivoSeeder::class);
 
         // Módulo de Tareas
         $this->call(ClienteFinalSeeder::class);

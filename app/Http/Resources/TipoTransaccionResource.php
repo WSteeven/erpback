@@ -19,7 +19,7 @@ class TipoTransaccionResource extends JsonResource
         return [
             'id'=>$this->id,
             'nombre'=>$this->nombre,
-            'tipo'=>$this->tipo,
+            // 'tipo'=>$this->tipo,
         ];
     }
 }

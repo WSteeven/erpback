@@ -42,7 +42,7 @@ class MotivoController extends Controller
         } else {
             $results = Motivo::all();
         }
-        $results = MotivoResource::collection($results);
+        MotivoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -53,7 +53,7 @@ class MotivoController extends Controller
      * @param  \App\Http\Requests\StoreMotivoRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreMotivoRequest $request)
+    public function store(MotivoRequest $request)
     {
         //adaptacion de foreign keys
         $datos = $request->validated();
