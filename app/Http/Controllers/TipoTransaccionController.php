@@ -26,32 +26,47 @@ class TipoTransaccionController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $results = [];
+        if ($page) {
+            $results = TipoTransaccion::simplePaginate($request['offset']);
+        } else {
+            if (auth()->user()->hasRole(User::ROL_BODEGA))
+                $results = TipoTransaccion::all();
+            else
+                $results = TipoTransaccion::where('nombre','<>', 'TRANSFERENCIA')->get();
+        }
+        TipoTransaccionResource::collection($results);
+        return response()->json(compact('results'));
+    }
+    public function index2(Request $request)
+    {
+        $page = $request['page'];
         $tipo = $request['tipo'];
         $results = [];
-        if($tipo){
+        if ($tipo) {
             $datos = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
-            $results= TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
-            if(auth()->user()->hasRole(User::ROL_CONTABILIDAD)){
+            $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)->get());
+            if (auth()->user()->hasRole(User::ROL_CONTABILIDAD)) {
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
                     ->where('nombre', '=', 'AJUSTE POR REGULARIZACION')
                     ->get());
-                return response()->json(compact('results'));        
+                return response()->json(compact('results'));
             }
-            if(auth()->user()->hasRole(User::ROL_BODEGA)){
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
                     ->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')
                     ->where('nombre', '<>', 'AJUSTE POR REGULARIZACION')
                     ->get());
-                return response()->json(compact('results'));        
+                return response()->json(compact('results'));
             }
-            if(auth()->user()->hasRole(User::ROL_COORDINADOR)){
+            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
                     ->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')
                     ->where('nombre', '<>', 'AJUSTE POR REGULARIZACION')
                     ->get());
                 return response()->json(compact('results'));
             }
-            if(!auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])){
+            if (!auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
                 $results = TipoTransaccionResource::collection(TipoTransaccion::where('tipo', $tipo)
                     ->where('nombre', '<>', 'TRANSFERENCIA ENTRE BODEGAS')
                     ->where('nombre', '<>', 'LIQUIDACION DE MATERIALES')
@@ -59,9 +74,9 @@ class TipoTransaccionController extends Controller
                     ->get());
                 return response()->json(compact('results'));
             }
-        }else if($page){
+        } else if ($page) {
             $results = TipoTransaccion::simplePaginate($request['offset']);
-        }else{
+        } else {
             $results = TipoTransaccion::all();
         }
         TipoTransaccionResource::collection($results);
@@ -95,7 +110,7 @@ class TipoTransaccionController extends Controller
      */
     public function update(TipoTransaccionRequest $request, TipoTransaccion  $tipo_transaccion)
     {
-        
+
         $tipo_transaccion->update($request->all());
 
         return response()->json(['mensaje' => 'El tipo ha sido actualizado con éxito', 'modelo' => $tipo_transaccion]);

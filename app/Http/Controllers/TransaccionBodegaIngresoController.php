@@ -25,6 +25,7 @@ class TransaccionBodegaIngresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_ingresos')->only('destroy');
     }
 
+    /* DESUSO*/
     public function list()
     {
         $page = request('page');
@@ -32,15 +33,8 @@ class TransaccionBodegaIngresoController extends Controller
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             if ($page) {
-                if ($offset) {
-                    $results = TransaccionBodega::simplePaginate($offset);
-                    Log::channel('testing')->info('Log', ['Resultados en el if del offset: ', $results]);
-                } else {
-                    $results = TransaccionBodega::simplePaginate();
-                    Log::channel('testing')->info('Log', ['Resultados en el else del offset: ', $results]);
-                }
-
-                $results->appends(['offset' => $offset]);
+                $results = TransaccionBodega::simplePaginate($offset);
+                Log::channel('testing')->info('Log', ['Resultados en el if del offset: ', $results]);
             } else {
                 $transacciones = TransaccionBodega::all();
                 Log::channel('testing')->info('Log', ['Resultados en el else general antes de filtrar el tipo: ', $transacciones]);
@@ -89,18 +83,18 @@ class TransaccionBodegaIngresoController extends Controller
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             if ($page) {
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
-                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.tipo', '=', 'INGRESO')
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id"])
+                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.nombre', '=', 'INGRESO')
                     ->simplePaginate($request['offset']);
                 TransaccionBodegaResource::collection($results);
                 $results->appends(['offset' => $request['offset']]);
             } else {
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id",])
-                    ->join('subtipos_transacciones', 'subtipo_id', '=', 'subtipos_transacciones.id')
-                    ->join('tipos_transacciones', 'subtipos_transacciones.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.tipo', '=', 'INGRESO')
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    ->where('tipos_transacciones.nombre', '=', 'INGRESO')
                     ->filter()->get();
                 $results = TransaccionBodegaResource::collection($results);
             }

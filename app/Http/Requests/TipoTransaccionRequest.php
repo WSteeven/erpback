@@ -26,15 +26,15 @@ class TipoTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|unique:tipos_transacciones,nombre,NULL,id,tipo,'.$this->tipo, 
-            'tipo'=>['required',Rule::in(TipoTransaccion::INGRESO, TipoTransaccion::EGRESO)],
+            'nombre' => 'required|string|unique:tipos_transacciones,nombre', 
+            // 'tipo'=>['required',Rule::in(TipoTransaccion::INGRESO, TipoTransaccion::EGRESO)],
         ];
     }
 
     public function messages()
     {
         return [
-            'tipo.in'=> 'El campo :attribute solo acepta uno de los siguientes valores: INGRESO, EGRESO'
+            // 'tipo.in'=> 'El campo :attribute solo acepta uno de los siguientes valores: INGRESO, EGRESO'
         ];
     }
 }
