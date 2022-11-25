@@ -198,11 +198,15 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
 // Estados de las subtareas
-Route::post('subtareas/asignar/{subtarea}', [SubtareaController::class, 'asignar'])->middleware('auth:sanctum');
-Route::post('subtareas/ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar'])->middleware('auth:sanctum');
-Route::post('subtareas/realizar/{subtarea}', [SubtareaController::class, 'realizar'])->middleware('auth:sanctum');
-Route::post('subtareas/pausar/{subtarea}', [SubtareaController::class, 'pausar'])->middleware('auth:sanctum');
-Route::post('subtareas/reanudar/{subtarea}', [SubtareaController::class, 'reanudar'])->middleware('auth:sanctum');
-Route::post('subtareas/suspender/{subtarea}', [SubtareaController::class, 'suspender'])->middleware('auth:sanctum');
-Route::get('subtareas/pausas/{subtarea}', [SubtareaController::class, 'pausas'])->middleware('auth:sanctum');
+Route::group(['prefix' => '/subtareas'], function () {
+    Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
+    Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
+    Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
+    Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
+    Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
+    Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
+    Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
+    Route::get('pausas/{subtarea}', [SubtareaController::class, 'pausas']);
+})->middleware('auth:sanctum');
+
 Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas'])->middleware('auth:sanctum');
