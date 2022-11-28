@@ -21,7 +21,7 @@ class TransaccionBodegaResource extends JsonResource
         $estado = TransaccionBodega::ultimoEstado($this->id);
         $detalles = TransaccionBodega::listadoProductos($this->id);
 
-        // Log::channel('testing')->info('Log', ['AUTORIZACION PIVOT?:', is_null($autorizacion->pivot)?'aacccc':$autorizacion]);
+        Log::channel('testing')->info('Log', ['controller method?:', $controller_method]);
 
         $modelo = [
             'id' => $this->id,
@@ -29,20 +29,24 @@ class TransaccionBodegaResource extends JsonResource
             'obs_autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->pivot->observacion,
             'justificacion' => $this->justificacion,
             'comprobante' => $this->comprobante,
-            'fecha_limite' => is_null($this->fecha_limite) ? 'N/A' : $this->fecha_limite,
+            'fecha_limite' => !is_null($this->fecha_limite) ?? $this->fecha_limite,
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
+            'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
             'tarea' => $this->tarea ? $this->tarea->detalle : null,
-            'subtarea' => $this->subtarea ? $this->subtarea->detalle : null,
+            'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'sucursal' => $this->sucursal->lugar,
             'autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'lugar_destino' => $this->lugar_destino,
             'atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
             'retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,
-            'created_at' => $this->created_at,
+            'listadoProductosSeleccionados' => $detalles,
+            'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            //variables auxiliares
+            'es_tarea'=>$this->tarea?true:false,
         ];
 
         if ($controller_method == 'show') {
@@ -50,11 +54,12 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['obs_autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->pivot->observacion;
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;
+            $modelo['solicitante'] = $this->solicitante_id;
             $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
             $modelo['tarea'] = $this->tarea_id;
-            $modelo['subtarea'] = $this->subtarea_id;
+            $modelo['cliente'] = $this->cliente_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['per_autoriza_id'] = $this->per_autoriza_id;
             $modelo['per_atiende_id'] = $this->per_atiende_id;

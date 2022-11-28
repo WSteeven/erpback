@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Motivo;
+use App\Models\Tarea;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,6 @@ class TransaccionBodegaRequest extends FormRequest
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
             'motivo' => 'sometimes|nullable|exists:motivos,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
-            'subtarea' => 'sometimes|nullable|exists:subtareas,id',
             'sucursal' => 'required|exists:sucursales,id',
             'per_autoriza' => 'required|exists:empleados,id',
             'per_atiende' => 'sometimes|exists:empleados,id',
@@ -102,16 +102,16 @@ class TransaccionBodegaRequest extends FormRequest
                     'tipo' => 1,
                 ]);
             }
-            if($this->ingreso_masivo){
+            if ($this->ingreso_masivo) {
                 $this->merge([
-                    'estado'=>2
+                    'estado' => 2
                 ]);
-            }else{
+            } else {
                 $this->merge([
-                    'estado'=>1
+                    'estado' => 1
                 ]);
             }
-            if(is_null($this->solicitante)||$this->solicitante===''){
+            if (is_null($this->solicitante) || $this->solicitante === '') {
                 $this->merge([
                     'solicitante' => auth()->user()->empleado->id,
                 ]);
@@ -123,12 +123,25 @@ class TransaccionBodegaRequest extends FormRequest
                     'autorizacion' => 1,
                 ]);
             }
-            
+
             $this->merge([
                 'solicitante' => auth()->user()->empleado->id,
             ]);
+
+            if ($this->tarea) {
+                $tarea = Tarea::find($this->tarea);
+                // Log::channel('testing')->info('Log', ['tarea recibida', $this->tarea, 'tarea encontrada',$tarea, 'cliente es', $tarea->cliente_id]);
+                $this->merge([
+                    'cliente' => $tarea->cliente_id,
+                ]);
+            }
+            if($this->fecha_limite==="N/A"||is_null($this->fecha_limite)){
+                $this->merge([
+                    'fecha_limite'=>''
+                ]);
+            }
         }
-        if ($this->cliente == ''||is_null($this->cliente)) {
+        if ($this->cliente == '' || is_null($this->cliente)) {
             $this->merge([
                 'cliente' => 1,
             ]);

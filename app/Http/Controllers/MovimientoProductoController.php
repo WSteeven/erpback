@@ -50,7 +50,7 @@ class MovimientoProductoController extends Controller
 
         $modelo = MovimientoProducto::create([
             'inventario_id'=> $item->id,
-            'transaccion_id'=>$request->transaccion_id,
+            'detalle_producto_transaccion_id'=>$request->detalle_producto_transaccion_id,
             'cantidad'=>$request->cantidad,
             'precio_unitario'=>$item->detalle->precio_compra,
             'saldo'=>$item->cantidad-$request->cantidad

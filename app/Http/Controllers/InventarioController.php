@@ -120,7 +120,7 @@ class InventarioController extends Controller
      */
     public function buscar(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request recibida', $request->all()]);
+        Log::channel('testing')->info('Log', ['request recibida en buscar de inventario', $request->all()]);
         $results = [];
         $cliente = $request['cliente_id'];
         $sucursal = $request['sucursal_id'];

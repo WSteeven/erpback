@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -11,6 +12,7 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
 {
     use HasFactory;
     use AuditableModel;
+    use Filterable;
     protected $table = 'detalle_producto_transaccion';
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -35,6 +37,8 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    private static $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________

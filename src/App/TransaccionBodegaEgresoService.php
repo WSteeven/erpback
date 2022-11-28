@@ -15,7 +15,7 @@ class TransaccionBodegaEgresoService
     }
 
     /* Filtros con paginación */
-    public static function filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo, $estado, $offset)
     {
         $results = [];
         switch ($estado) {
@@ -95,25 +95,21 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    /* ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                    ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                    ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
-                    ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
-                    ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
-                    ->where('autorizaciones.nombre', Autorizacion::APROBADO) */
                     ->simplePaginate($offset);
                 return $results;
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->join('tipos_transacciones', function ($join) {
+                        $join->on('transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
+                            ->where('tipos_transacciones.nombre', '=', 'EGRESO');
+                    })
                     ->simplePaginate($offset);
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo, $estado, $offset)
     {
         $results = [];
         switch ($estado) {
@@ -226,7 +222,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoBodegueroConPaginacion($tipo,$estado, $offset)
+    public static function filtrarTransaccionesEgresoBodegueroConPaginacion($tipo, $estado, $offset)
     {
         $results = [];
         switch ($estado) {
@@ -305,7 +301,7 @@ class TransaccionBodegaEgresoService
         }
     }
     /* Filtros sin paginación */
-    public static function filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {
@@ -390,7 +386,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {
@@ -479,7 +475,7 @@ class TransaccionBodegaEgresoService
                 return $results;
         }
     }
-    public static function filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo,$estado)
+    public static function filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo, $estado)
     {
         $results = [];
         switch ($estado) {

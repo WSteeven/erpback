@@ -116,6 +116,8 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             if ($request->subtarea) {
                 $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
             }
@@ -182,6 +184,7 @@ class TransaccionBodegaEgresoController extends Controller
         !is_null($request->motivo) ?? $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
         if ($request->subtarea_id) {
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
@@ -192,6 +195,8 @@ class TransaccionBodegaEgresoController extends Controller
         //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+        
+        $transaccion->update($datos); //actualizar la transaccion
 
         /* if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
             Log::channel('testing')->info('Log', ['entró en el if?', true]);
@@ -271,5 +276,16 @@ class TransaccionBodegaEgresoController extends Controller
         $transaccion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+    
+    /**
+     * Consultar datos sin metodo show
+     */
+    public function showPreview(TransaccionBodega $transaccion){
+        $estado = TransaccionBodega::ultimoEstado($transaccion->id);
+        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
+        $modelo = new TransaccionBodegaResource($transaccion);
+
+        return response()->json(compact('modelo'), 200);
     }
 }

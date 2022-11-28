@@ -254,25 +254,16 @@ class TransaccionBodegaIngresoController extends Controller
     }
 
     /**
-     * Imprimir una transaccion
+     * Consultar datos sin metodo show
      */
-    public function imprimir(TransaccionBodega $transaccion){
-        Log::channel('testing')->info('Log', ['Entró en imprimir de transacion ingreso:', $transaccion]);
-        return view('transaccion_ingreso', ['transaccion'=>$transaccion]);
-        /* try{
-            // $transaccion = $transaccion->toArray();
-            $tr = TransaccionBodega::find($transaccion->id);
-            // dd(new TransaccionBodegaResource($transaccion));
-            // $pdf = Pdf::loadView('transaccion_ingreso', ['transaccion'=>$tr]);
-            
-            // $headers = [
-            //     'Content-Type'=>'application/pdf',
-            // ];
-            return view('imprimir', $transaccion);
-            // return $pdf->download('transaccion_ingreso.pdf');
-            // return response()->download($pdf, 'test.pdf', $headers);
-        }catch(Exception $e){
-            return response()->json(['Ha ocurrido un error para descargar el archivo', $e->getMessage(), $e->getLine()],500);
-        } */
+    public function showPreview(TransaccionBodega $transaccion){
+        $estado = TransaccionBodega::ultimoEstado($transaccion->id);
+        $detalles = TransaccionBodega::listadoProductos($transaccion->id);
+
+        $modelo = new TransaccionBodegaResource($transaccion);
+
+        return response()->json(compact('modelo'), 200);
     }
+
+    
 }
