@@ -21,8 +21,8 @@ class DetalleProductoTransaccionController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['id', $request['transaccion_id']]);
-        Log::channel('testing')->info('Log', ['id', $request['detalle_id']]);
+        // Log::channel('testing')->info('Log', ['id', $request['transaccion_id']]);
+        // Log::channel('testing')->info('Log', ['id', $request['detalle_id']]);
         if ($request['transaccion_id']) {
             $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->get();
             if ($request['detalle_id']) {

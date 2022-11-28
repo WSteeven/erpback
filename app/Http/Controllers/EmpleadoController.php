@@ -37,7 +37,7 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = explode(',', request('campos'));
 
-        Log::channel('testing')->info('Log', ['Dentro de list: ', request()->all()]);
+        // Log::channel('testing')->info('Log', ['Dentro de list: ', request()->all()]);
 
         // Procesar
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);

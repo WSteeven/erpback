@@ -56,7 +56,7 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
      */
     public function transaccion()
     {
-        return $this->belongsTo(TransaccionBodega::class);
+        return $this->belongsTo(TransaccionBodega::class, 'transaccion_id', 'id');
     }
 
     /**

@@ -15,7 +15,6 @@ class EmpleadoService
 
     public function obtenerEmpleadosPorRol(string $rol)
     {
-        Log::channel('testing')->info('Log', ['Obtener empleados por rol en empleado service: ']);
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
         $empleados = Empleado::ignoreRequest(['rol'])->filter()->where('estado', true)->get();
         $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
@@ -25,16 +24,13 @@ class EmpleadoService
 
     public function obtenerPaginacion($offset)
     {
-        Log::channel('testing')->info('Log', ['obtenerpaginacion en empleado service: ']);
         $results = Empleado::where('id', '<>', 1)->where('estado', true)->simplePaginate($offset);
-        Log::channel('testing')->info('Log', ['resultados encontrados: ', $results]);
         EmpleadoResource::collection($results);
         return $results;
     }
 
     public function obtenerPaginacionTodos($offset)
     {
-        Log::channel('testing')->info('Log', ['obtenerpaginaciontodos en empleado service: ']);
         $results = Empleado::where('id', '<>', 1)->simplePaginate($offset);
         EmpleadoResource::collection($results);
         return $results;
@@ -42,14 +38,12 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        Log::channel('testing')->info('Log', ['obtener todos en empleado service: ']);
         $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '<>', 1)->where('estado', true)->get();
         return EmpleadoResource::collection($results);
     }
 
     public function obtenerTodosCiertasColumnas($campos)
     {
-        Log::channel('testing')->info('Log', ['obtener todos ciertas columnas en empleado service: ']);
         $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
         // return EmpleadoResource::collection($results);
         return $results;
@@ -57,7 +51,6 @@ class EmpleadoService
 
     public function obtenerTodosSinEstado()
     {
-        Log::channel('testing')->info('Log', ['obtener todos sin estado en empleado service: ']);
         $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '<>', 1)->get();
         return EmpleadoResource::collection($results);
     }
@@ -67,13 +60,11 @@ class EmpleadoService
      */
     public function obtenerTecnicosPorGrupo(int $grupo)
     {
-        Log::channel('testing')->info('Log', ['obtener tecnicos por grupo en empleado service: ']);
         return EmpleadoResource::collection(Empleado::where('grupo_id', $grupo)->where('estado', true)->get());
     }
 
     public function search(string $search)
     {
-        Log::channel('testing')->info('Log', ['Search en empleado service: ']);
         return Empleado::search($search)->where('estado', true)->get();
     }
 }

@@ -77,13 +77,13 @@ class InventarioRequest extends FormRequest
                     $validator->errors()->add('detalle_id', 'Este producto es único, no se puede registrar más de una unidad');
                 }
 
-                $inventario = Inventario::where('detalle_id', $this->detalle_id)->get();
+                /* $inventario = Inventario::where('detalle_id', $this->detalle_id)->get();
                 Log::channel('testing')->info('Log', ['Detalle', $this->detalle_id, 'inventario', $inventario]);
                 if (!$inventario->isEmpty()) {
                     if (in_array($this->method(), ['POST'])) {
                         $validator->errors()->add('detalle_id', 'Este producto ya consta en el sistema. Si desea actualizar la condición por favor modifique el producto');
                     }
-                }
+                } */
             }
         });
     }

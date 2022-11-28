@@ -190,6 +190,8 @@ Route::apiResources(
     ]
 );
 
+Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir-transaccion');
+
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 

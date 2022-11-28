@@ -67,7 +67,7 @@ class DetalleProducto extends Model implements Auditable
      * Relación uno a muchos.
      * Un detalle de producto esta en varios detalle_producto_transaccion.
      */
-    public function detalleTransaccion()
+    public function detallesTransaccion()
     {
         return $this->hasMany(DetalleProductoTransaccion::class);
     }

@@ -74,9 +74,9 @@ class TransaccionBodega extends Model implements Auditable
      * Relación uno a muchos.
      * Una transaccion tiene varios detalle_producto_transaccion.
      */
-    public function detalleTransaccion()
+    public function detallesTransaccion()
     {
-        return $this->hasMany(DetalleProductoTransaccion::class);
+        return $this->hasMany(DetalleProductoTransaccion::class, 'id');
     }
     /* Una o varias transacciones tienen un solo motivo*/
     public function motivo()

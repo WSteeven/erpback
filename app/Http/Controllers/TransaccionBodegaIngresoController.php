@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\Inventario;
 use App\Models\SubtipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -27,33 +29,7 @@ class TransaccionBodegaIngresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_ingresos')->only('destroy');
     }
 
-    /* DESUSO*/
-    public function list()
-    {
-        $page = request('page');
-        $offset = request('offset');
-        $results = [];
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            if ($page) {
-                $results = TransaccionBodega::simplePaginate($offset);
-                Log::channel('testing')->info('Log', ['Resultados en el if del offset: ', $results]);
-            } else {
-                $transacciones = TransaccionBodega::all();
-                Log::channel('testing')->info('Log', ['Resultados en el else general antes de filtrar el tipo: ', $transacciones]);
-                $results = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'INGRESO');
-                Log::channel('testing')->info('Log', ['Resultados en el else general: ', $results]);
-            }
-            // TransaccionBodegaResource::collection($results);
-            // Log::channel('testing')->info('Log', ['Resultados línea 47: ', $results]);
-            // Log::channel('testing')->info('Log', ['Resultados línea 48: ', $results->filter(fn($transaccion)=>$transaccion->subtipo->tipoTransaccion->tipo==='INGRESO')]);
-            // $transacciones = TransaccionBodega::all();
-            // $results = $results->filter(fn($transaccion)=>$transaccion->subtipo->tipoTransaccion->tipo==='INGRESO');
-            Log::channel('testing')->info('Log', ['Resultados línea 50 filtrados: ', $results]);
-        }
-        return TransaccionBodegaResource::collection($results);
-        // return $results;
-    }
-
+    
     /**
      * Listar
      */
@@ -84,24 +60,14 @@ class TransaccionBodegaIngresoController extends Controller
         $page = $request['page'];
         $offset = $request['offset'];
         $estado = $request['estado'];
-        $tipo= 'INGRESO';
+        $tipo = 'INGRESO';
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             if ($page) {
-                $results=$this->servicio->filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset);
-                /* $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id"])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', 'INGRESO')
-                    ->simplePaginate($request['offset']); */
+                $results = $this->servicio->filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset);
                 TransaccionBodegaResource::collection($results);
             } else {
                 $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
-               /*  $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', 'INGRESO')
-                    ->filter()->get(); */
                 TransaccionBodegaResource::collection($results);
             }
         }
@@ -116,6 +82,7 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
             try {
                 $datos = $request->validated();
+                Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
                 Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
                 $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
@@ -123,6 +90,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+                $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
                 if ($request->per_atiende) {
                     $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 }
@@ -140,7 +108,7 @@ class TransaccionBodegaIngresoController extends Controller
 
                 //Creacion de la transaccion
                 $transaccion = TransaccionBodega::create($datos);
-
+                Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
                 //Guardar la autorizacion con su observacion
                 // if ($request->observacion_aut) {
@@ -155,9 +123,24 @@ class TransaccionBodegaIngresoController extends Controller
                 } else {
                     $transaccion->estados()->attach($datos['estado_id']);
                 }
-                //Guardar los productos seleccionados
-                foreach ($request->listadoProductosSeleccionados as $listado) {
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+
+                if ($request->ingreso_masivo) {
+                    //Guardar los productos seleccionados en el detalle 
+                    foreach ($request->listadoProductosSeleccionados as $listado) {
+                        $transaccion->detalles()->attach(
+                            $listado['id'],
+                            [
+                                'cantidad_inicial' => $listado['cantidades'],
+                                'cantidad_final' => $listado['cantidades']
+                            ]
+                        );
+                    }
+                    //Llamamos a la funcion de insertar cada elemento en el inventario
+                    Inventario::ingresoMasivo($transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosSeleccionados);
+                } else {
+                    foreach ($request->listadoProductosSeleccionados as $listado) {
+                        $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+                    }
                 }
 
                 DB::commit(); //Se registra la transaccion y sus detalles exitosamente
@@ -166,7 +149,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage()]);
+                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
 
@@ -268,5 +251,28 @@ class TransaccionBodegaIngresoController extends Controller
         $transaccion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Imprimir una transaccion
+     */
+    public function imprimir(TransaccionBodega $transaccion){
+        Log::channel('testing')->info('Log', ['Entró en imprimir de transacion ingreso:', $transaccion]);
+        return view('transaccion_ingreso', ['transaccion'=>$transaccion]);
+        /* try{
+            // $transaccion = $transaccion->toArray();
+            $tr = TransaccionBodega::find($transaccion->id);
+            // dd(new TransaccionBodegaResource($transaccion));
+            // $pdf = Pdf::loadView('transaccion_ingreso', ['transaccion'=>$tr]);
+            
+            // $headers = [
+            //     'Content-Type'=>'application/pdf',
+            // ];
+            return view('imprimir', $transaccion);
+            // return $pdf->download('transaccion_ingreso.pdf');
+            // return response()->download($pdf, 'test.pdf', $headers);
+        }catch(Exception $e){
+            return response()->json(['Ha ocurrido un error para descargar el archivo', $e->getMessage(), $e->getLine()],500);
+        } */
     }
 }

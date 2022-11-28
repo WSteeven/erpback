@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PrestamoTemporalController;
+use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Models\PrestamoTemporal;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,5 @@ Route::get('/', function () {
 });
 
 // Route::name('imprimir')->get('/imprimir-pdf', [Controller::class, 'imprimir']);
-Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);
+Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
+// Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);

@@ -38,7 +38,7 @@ class InventarioController extends Controller
             // $results = Inventario::filter()->get();
             $results = InventarioResource::collection($results);
         }
-        if($sucursal){
+        if ($sucursal) {
             $results = Inventario::where('sucursal_id', $sucursal)->get();
             $results = InventarioResource::collection($results);
         }
@@ -57,18 +57,18 @@ class InventarioController extends Controller
         $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
         // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
-        Log::channel('testing')->info('Log', ['listado', $request->all()]);
+        Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
         $item = Inventario::where('detalle_id', $request->detalle_id)
             ->where('sucursal_id', $request->sucursal_id)
             ->where('cliente_id', $request->cliente_id)
             ->where('condicion_id', $request->condicion)
             ->first();
-        Log::channel('testing')->info('Log', ['item encontrado', $item]);
-        if($item){
-            $datos['cantidad']=$request->cantidad+$item->cantidad;
+        if ($item) {
+            Log::channel('testing')->info('Log', ['item encontrado', $item]);
+            $datos['cantidad'] = $request->cantidad + $item->cantidad;
             $item->update($datos);
-            $modelo=$item->refresh();
-        }else{
+            $modelo = $item->refresh();
+        } else {
             $modelo = Inventario::create($datos);
         }
         $modelo = new InventarioResource($modelo);
@@ -118,9 +118,10 @@ class InventarioController extends Controller
     /**
      * Buscar las coincidencias de productos segun el propietario y la sucursal
      */
-    public function buscar(Request $request){
+    public function buscar(Request $request)
+    {
         Log::channel('testing')->info('Log', ['request recibida', $request->all()]);
-        $results =[];
+        $results = [];
         $cliente = $request['cliente_id'];
         $sucursal = $request['sucursal_id'];
         $detalle = $request['detalle_id'];
@@ -131,7 +132,8 @@ class InventarioController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function vista(){
+    public function vista()
+    {
         $results = VistaInventarioPercha::consultarItemsInventarioPercha();
         $results = VistaInventarioPerchaResource::collection($results);
         return response()->json(compact('results'));

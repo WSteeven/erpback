@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\DetalleProductoTransaccion;
+use App\Models\Inventario;
+use App\Models\MovimientoProducto;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
 
@@ -29,7 +31,28 @@ class DetalleProductoTransaccionObserver
     public function updated(DetalleProductoTransaccion $detalleProductoTransaccion)
     {
         Log::channel('testing')->info('Log', ['metodo updated del observer DetalleProductoTransaccionObserver', $detalleProductoTransaccion]);
-        // $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id)->get();
+        
+        /* MovimientoProducto::create([
+            'inventario_id'=> $item->id,
+            'transaccion_id'=>$request->transaccion_id,
+            'cantidad'=>$request->cantidad,
+            'precio_unitario'=>$item->detalle->precio_compra,
+            'saldo'=>$item->cantidad-$request->cantidad
+        ]); */
+        //Se debe llamar al store de movimiento desde el front
+        $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
+        Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
+        $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+        $esParcial = false;
+        foreach($detallesTransaccion as $detalle){
+            if($detalle->cantidad_inicial!==$detalle->cantidad_final){
+                $esParcial=true;
+            }
+            // Log::channel('testing')->info('Log', ['foreach del observer DetalleProductoTransaccionObserver', $detalle, $detalle->cantidad_final]);
+        }
+        if($esParcial){
+            $transaccion->estados()->attach(3);
+        }
 
     }
 

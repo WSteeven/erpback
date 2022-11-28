@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
+use function PHPUnit\Framework\throwException;
 
 class Inventario extends Model
 {
@@ -24,7 +28,7 @@ class Inventario extends Model
     const INVENTARIO = "INVENTARIO";
     const TRANSITO = "TRANSITO";
     const SIN_STOCK = "SIN STOCK";
-    
+
 
     /*****************************
      * RELACIONES
@@ -41,28 +45,32 @@ class Inventario extends Model
      * Relacion uno a muchos (inversa)
      * Muchos inventarios tienen un mismo detalle
      */
-    public function detalle(){
+    public function detalle()
+    {
         return $this->belongsTo(DetalleProducto::class);
     }
     /**
      * Relacion uno a uno (inversa)
      * Muchos inventarios tienen una sucursal
      */
-    public function sucursal(){
+    public function sucursal()
+    {
         return $this->belongsTo(Sucursal::class);
     }
     /**
      * Relacion uno a uno (inversa)
      * Muchos inventarios tienen una sucursal
      */
-    public function condicion(){
+    public function condicion()
+    {
         return $this->belongsTo(Condicion::class);
-    }    
+    }
     /**
      * Relacion uno a uno (inversa)
      * Un item del inventario pertenece a un cliente
      */
-    public function cliente(){
+    public function cliente()
+    {
         return $this->belongsTo(Cliente::class);
     }
 
@@ -70,7 +78,8 @@ class Inventario extends Model
      * Relación uno a muchos.
      * Un producto del inventario puede estar en muchas ubicaciones.
      */
-    public function productoPercha(){
+    public function productoPercha()
+    {
         return $this->hasMany(ProductoEnPercha::class);
     }
 
@@ -78,7 +87,8 @@ class Inventario extends Model
      * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un prestamo temporal
      */
-    public function detallesPrestamoInventario(){
+    public function detallesPrestamoInventario()
+    {
         return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
             ->withPivot('cantidad')
             ->withTimestamps()
@@ -89,5 +99,48 @@ class Inventario extends Model
      * METODOS
      * ****************
      */
-    
+
+    /**
+     * Función para hacer ingreso masivo de elementos al inventario
+     * @param int $sucursal_id as $sucursal
+     * @param int $cliente_id as $cliente
+     * @param int $condicion_id as $condicion
+     * @param DetalleProducto[] $elementos 
+     */
+    public static function ingresoMasivo(int $sucursal, int $cliente, int $condicion, array $elementos)
+    {
+        try {
+            DB::beginTransaction();
+            Log::channel('testing')->info('Log', ['Elementos recibidos en el metodo de ingreso masivo', $elementos]);
+            foreach ($elementos as $elemento) {
+                $item = Inventario::where('detalle_id', $elemento['id'])
+                    ->where('sucursal_id', $sucursal)
+                    ->where('cliente_id', $cliente)
+                    ->where('condicion_id', $condicion)
+                    ->first();
+                if ($item) {
+                    Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
+                    $cantidad = $elemento['cantidades'] + $item->cantidad;
+                    $item->cantidad = $cantidad;
+                    $item->save();
+                } else {
+                    $datos = [
+                        'detalle_id' => $elemento['id'],
+                        'sucursal_id' => $sucursal,
+                        'cliente_id' => $cliente,
+                        'condicion_id' => $condicion,
+                        'cantidad' => $elemento['cantidades'],
+                    ];
+                    Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
+                    Inventario::create($datos);
+                }
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error en el ingreso masivo', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            // throwException($e);
+        }
+    }
 }

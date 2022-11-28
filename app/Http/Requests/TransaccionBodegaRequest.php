@@ -26,7 +26,7 @@ class TransaccionBodegaRequest extends FormRequest
      */
     public function rules()
     {
-        Log::channel('testing')->info('Log', ['Datos recibidos', $this->route()->uri()]);
+        // Log::channel('testing')->info('Log', ['Datos recibidos', $this->route()->uri()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
             'observacion_aut' => 'nullable|string|sometimes',
@@ -91,9 +91,6 @@ class TransaccionBodegaRequest extends FormRequest
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
             ]);
         }
-        $this->merge([
-            'solicitante' => auth()->user()->empleado->id,
-        ]);
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             if ($this->autorizacion == '') {
                 $this->merge([
@@ -105,6 +102,31 @@ class TransaccionBodegaRequest extends FormRequest
                     'tipo' => 1,
                 ]);
             }
+            if($this->ingreso_masivo){
+                $this->merge([
+                    'estado'=>2
+                ]);
+            }else{
+                $this->merge([
+                    'estado'=>1
+                ]);
+            }
+            if(is_null($this->solicitante)||$this->solicitante===''){
+                $this->merge([
+                    'solicitante' => auth()->user()->empleado->id,
+                ]);
+            }
+        }
+        if ($this->route()->uri() === 'api/transacciones-egresos') {
+            if ($this->autorizacion == '') {
+                $this->merge([
+                    'autorizacion' => 1,
+                ]);
+            }
+            
+            $this->merge([
+                'solicitante' => auth()->user()->empleado->id,
+            ]);
         }
         if ($this->cliente == ''||is_null($this->cliente)) {
             $this->merge([
