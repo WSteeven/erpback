@@ -77,7 +77,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
-// Rutas de user (para pruebas) 
+// Rutas de user (para pruebas)
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
     Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');
@@ -190,8 +190,8 @@ Route::apiResources(
     ]
 );
 
-Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);//->name('imprimir-transaccion');
-Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);//->name('imprimir-transaccion');
+Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
+Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
@@ -213,3 +213,5 @@ Route::group(['prefix' => '/subtareas'], function () {
 })->middleware('auth:sanctum');
 
 Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas'])->middleware('auth:sanctum');
+
+Route::get('transacciones-egresos/materiales/{tarea}', [TransaccionBodegaEgresoController::class, 'obtenerTransaccionPorTarea'])->middleware('auth:sanctum');

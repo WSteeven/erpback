@@ -29,7 +29,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function list()
     {
-        $idsSeleccionados = request('ids_seleccionados');
+        /* $idsSeleccionados = request('ids_seleccionados');
 
         if (request('subtarea_id')) {
             if ($idsSeleccionados) {
@@ -40,13 +40,14 @@ class TransaccionBodegaEgresoController extends Controller
             $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
             // return TransaccionBodegaResource::collection($transacciones);
             return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, 'COMPLETA'));
-        }
+        } */
 
         // Log::channel('testing')->info('Log', ['request en el metodo list', request('estado')]);
         if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
             $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('per_autoriza_id', auth()->user()->empleado->id)->get();
             return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, request('estado')));
         }
+
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             $transacciones =  TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
             $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
@@ -195,7 +196,7 @@ class TransaccionBodegaEgresoController extends Controller
         //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-        
+
         $transaccion->update($datos); //actualizar la transaccion
 
         /* if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
@@ -277,15 +278,24 @@ class TransaccionBodegaEgresoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
-    
+
     /**
      * Consultar datos sin metodo show
      */
-    public function showPreview(TransaccionBodega $transaccion){
+    public function showPreview(TransaccionBodega $transaccion)
+    {
         $estado = TransaccionBodega::ultimoEstado($transaccion->id);
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
         $modelo = new TransaccionBodegaResource($transaccion);
 
         return response()->json(compact('modelo'), 200);
+    }
+
+    public function obtenerTransaccionPorTarea(int $tarea_id)
+    {
+        //$tarea_id = $request['tarea'];
+        $modelo = TransaccionBodega::where('tarea_id', $tarea_id)->first();
+        $modelo = new TransaccionBodegaResource($modelo);
+        return response()->json(compact('modelo'));
     }
 }

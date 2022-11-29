@@ -30,17 +30,17 @@ return new class extends Migration
             $table->timestamp('fecha_hora_cancelacion')->nullable();
             $table->string('causa_cancelacion')->nullable();
             $table->boolean('es_dependiente')->default(false);
-            
+
             $table->boolean('es_ventana')->default(false);
             $table->date('fecha_ventana')->nullable();
             $table->string('hora_inicio_ventana')->nullable();
             $table->string('hora_fin_ventana')->nullable();
-            
+
             $table->text('descripcion_completa')->nullable();
             $table->string('tecnicos_grupo_principal'); // ids historico por si los técnicos se cambian de grupo o se van
             $table->string('tecnicos_otros_grupos')->nullable();
             $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
-            
+
             $table->unsignedBigInteger('subtarea_dependiente')->nullable();
 
             // Foreign keys

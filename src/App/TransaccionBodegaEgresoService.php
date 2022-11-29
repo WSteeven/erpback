@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\EstadoTransaccion;
 use App\Models\TransaccionBodega;
