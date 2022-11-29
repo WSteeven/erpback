@@ -136,4 +136,13 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(TransaccionBodega::class);
     }
+
+    /**
+     * Relacion uno a muchos.
+     * Un empleado puede hacer muchas devoluciones de materiales
+     */
+    public function devoluciones()
+    {
+        return $this->hasMany(Devolucion::class);
+    }
 }

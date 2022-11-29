@@ -222,6 +222,7 @@ class TransaccionBodegaEgresoController extends Controller
         } else { */
         //Aquí el coordinador o jefe inmediato autoriza la transaccion de sus subordinados y modifica los datos del listado
         if ($transaccion->per_autoriza_id === auth()->user()->empleado->id) {
+            Log::channel('testing')->info('Log', ['La persona que autoriza es igual al empleado actual?', true]);
             try {
                 DB::beginTransaction();
                 if ($request->observacion_aut) {
@@ -244,6 +245,7 @@ class TransaccionBodegaEgresoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } else {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
                 try {
                     DB::beginTransaction();
                     if ($request->observacion_est) {

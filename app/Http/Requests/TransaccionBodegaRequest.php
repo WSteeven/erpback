@@ -30,23 +30,22 @@ class TransaccionBodegaRequest extends FormRequest
         // Log::channel('testing')->info('Log', ['Datos recibidos', $this->route()->uri()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
-            'observacion_aut' => 'nullable|string|sometimes',
+            'obs_autorizacion' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
-            'observacion_est' => 'nullable|string|sometimes',
+            'obs_estado' => 'nullable|string|sometimes',
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
             'motivo' => 'sometimes|nullable|exists:motivos,id',
-            'tarea' => 'sometimes|nullable|exists:tareas,id',
             'sucursal' => 'required|exists:sucursales,id',
             'per_autoriza' => 'required|exists:empleados,id',
             'per_atiende' => 'sometimes|exists:empleados,id',
             'per_retira' => 'sometimes|exists:empleados,id',
+            'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
-            'lugar_destino' => 'nullable|string',
-            'listadoProductosSeleccionados.*.cantidades' => 'required'
+            'listadoProductosTransaccion.*.cantidades' => 'required'
         ];
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             $rules['autorizacion'] = 'nullable';
@@ -76,6 +75,7 @@ class TransaccionBodegaRequest extends FormRequest
         $validator->after(function ($validator) {
             if (!in_array($this->method(), ['PUT', 'PATCH'])) {
                 if (!is_null($this->fecha_limite)) {
+                    // Log::channel('testing')->info('Log', ['Datos recibidos', $this->fecha_limite]);
                     if (date('Y-m-d', strtotime($this->fecha_limite)) < now()) {
                         $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
                     }
@@ -129,19 +129,19 @@ class TransaccionBodegaRequest extends FormRequest
             ]);
 
             if ($this->tarea) {
-                $tarea = Tarea::find($this->tarea);
+                // $tarea = Tarea::find($this->tarea);
                 // Log::channel('testing')->info('Log', ['tarea recibida', $this->tarea, 'tarea encontrada',$tarea, 'cliente es', $tarea->cliente_id]);
-                $this->merge([
+                /* $this->merge([
                     'cliente' => $tarea->cliente_id,
-                ]);
+                ]); */
             }
             if($this->fecha_limite==="N/A"||is_null($this->fecha_limite)){
                 $this->merge([
-                    'fecha_limite'=>''
+                    'fecha_limite'=>null
                 ]);
             }
         }
-        if ($this->cliente == '' || is_null($this->cliente)) {
+        if ($this->cliente === '' || is_null($this->cliente)) {
             $this->merge([
                 'cliente' => 1,
             ]);
@@ -162,14 +162,17 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
-            $this->merge([
-                'per_autoriza' => auth()->user()->empleado->id,
-            ]);
-        } else {
-            $this->merge([
-                'per_autoriza' => auth()->user()->empleado->jefe_id,
-            ]);
+
+        $this->merge([
+            'per_autoriza' => auth()->user()->empleado->jefe_id,
+        ]);
+
+        if(is_null($this->per_autoriza)){
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
+                $this->merge([
+                    'per_autoriza' => auth()->user()->empleado->id,
+                ]);
+            }
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA])) {
             $this->merge([

@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\DB;
 
 class TransaccionBodegaIngresoService
 {
-    public function __construct()
-    {
-    }
 
     /* Filtros con paginación */
     public static function filtrarTransaccionesIngresoEmpleadoConPaginacion($tipo, $estado, $offset)

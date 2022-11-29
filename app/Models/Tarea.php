@@ -61,6 +61,17 @@ class Tarea extends Model implements Auditable
     {
         return $this->hasMany(TransaccionBodega::class);
     }
+    
+    /**
+     * Relación uno a muchos .
+     * Una tarea puede una o varias devoluciones
+     */
+    public function devoluciones()
+    {
+        return $this->hasMany(Devolucion::class);
+    }
+
+
 
     // Relacion uno a uno (inversa)
     public function ubicacionTarea()

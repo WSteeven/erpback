@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class TransaccionBodegaEgresoService
 {
-    public function __construct()
-    {
-    }
 
     /* Filtros con paginación */
     public static function filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo, $estado, $offset)

@@ -29,15 +29,15 @@ return new class extends Migration
             $table->unsignedBigInteger('per_retira_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('solicitante_id')->references('id')->on('empleados');
-            $table->foreign('motivo_id')->references('id')->on('motivos');
-            $table->foreign('tarea_id')->references('id')->on('subtareas');
-            $table->foreign('tipo_id')->references('id')->on('tipos_transacciones');
-            $table->foreign('sucursal_id')->references('id')->on('sucursales');
-            $table->foreign('cliente_id')->references('id')->on('clientes');
-            $table->foreign('per_autoriza_id')->references('id')->on('empleados');
-            $table->foreign('per_atiende_id')->references('id')->on('empleados');
-            $table->foreign('per_retira_id')->references('id')->on('empleados');
+            $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('motivo_id')->references('id')->on('motivos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('tipo_id')->references('id')->on('tipos_transacciones')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('sucursal_id')->references('id')->on('sucursales')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('per_autoriza_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('per_atiende_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('per_retira_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
