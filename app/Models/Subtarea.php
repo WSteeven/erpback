@@ -49,6 +49,7 @@ class Subtarea extends Model implements Auditable
         'tecnicos_otros_grupos',
         'estado',
         'fecha_ventana',
+        'coordinador_id'
     ];
 
     protected $casts = [

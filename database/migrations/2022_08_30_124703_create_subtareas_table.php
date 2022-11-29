@@ -53,6 +53,9 @@ return new class extends Migration
             $table->unsignedBigInteger('tarea_id');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
 
+            $table->unsignedBigInteger('coordinador_id');
+            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }
