@@ -41,6 +41,7 @@ class SubtareaSeeder extends Seeder
                 'tipo_trabajo_id' => 1,
                 'tarea_id' => 1,
                 'grupo_id' => 1,
+                'coordinador_id' => 3,
             ],
             [
                 'codigo_subtarea' => '1-2',
@@ -67,6 +68,7 @@ class SubtareaSeeder extends Seeder
                 'tipo_trabajo_id' => 2,
                 'tarea_id' => 1,
                 'grupo_id' => 1,
+                'coordinador_id' => 3,
             ],
             [
                 'codigo_subtarea' => '2-1',
@@ -93,6 +95,7 @@ class SubtareaSeeder extends Seeder
                 'tipo_trabajo_id' => 1,
                 'tarea_id' => 2,
                 'grupo_id' => 2,
+                'coordinador_id' => 5,
             ]
         ]);
     }

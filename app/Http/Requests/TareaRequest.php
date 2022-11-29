@@ -25,7 +25,7 @@ class TareaRequest extends FormRequest
     {
         return [
             'codigo_tarea' => 'nullable|string',
-            'codigo_tarea_cliente' => 'nullable|string',
+            'codigo_tarea_cliente' => 'required|string',
             // 'coordinador' => 'nullable|numeric|integer',
             'cliente_final' => 'nullable|numeric|integer',
             'cliente' => 'required|numeric|integer',
