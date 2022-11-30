@@ -12,6 +12,7 @@ use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\DetalleProductoTransaccionController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\DiscoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
@@ -56,6 +57,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Canton;
 use App\Models\ClienteFinal;
 use App\Models\Contacto;
+use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\Inventario;
 use App\Models\PrestamoTemporal;
@@ -121,8 +123,9 @@ Route::apiResources(
         'condiciones' => CondicionController::class,
         'control-stocks' => ControlStockController::class,
         'codigos-clientes' => CodigoClienteController::class,
-        'discos' => DiscoController::class,
+        'devoluciones' => DevolucionController::class,
         'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
+        'discos' => DiscoController::class,
         'empleados' => EmpleadoController::class,
         'empresas' => EmpresaController::class,
         'estados' => EstadoTransaccionController::class,
@@ -168,6 +171,7 @@ Route::apiResources(
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',
+            'devoluciones' => 'devolucion',
             'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
@@ -190,6 +194,7 @@ Route::apiResources(
     ]
 );
 
+Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 

@@ -23,11 +23,32 @@ class DevolucionRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules =  [
             'justificacion'=>'required|string',
-            'solicitante_id'=>'required|exists:empleados,id',
-            'tarea_id'=>'',
-            'sucursal_id'=>'',
+            'solicitante'=>'required|exists:empleados,id',
+            'tarea'=>'sometimes|nullable|exists:tareas,id',
+            'sucursal'=>'sometimes|nullable|exists:sucursales,id',
+            'listadoProductos.*.cantidad'=>'required',
         ];
+
+        return $rules;
+    }
+    public function attributes()
+    {
+        return [
+            'listadoProductos.*.cantidad'=>'listado',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'listadoProductos.*.cantidad'=>'Debes seleccionar una cantidad para el producto del :attribute',
+        ];
+    }
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'solicitante'=>auth()->user()->empleado->id
+        ]);
     }
 }

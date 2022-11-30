@@ -63,6 +63,7 @@ class DetalleProducto extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class);
     }
+
     /**
      * Relación uno a muchos.
      * Un detalle de producto esta en varios detalle_producto_transaccion.
@@ -97,6 +98,16 @@ class DetalleProducto extends Model implements Auditable
     public function fibra()
     {
         return $this->hasOne(Fibra::class, 'detalle_id');
+    }
+
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una devolución.
+     */
+    public function detalleProductoDevolucion()
+    {
+        return $this->belongsToMany(Devolucion::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
+            ->withPivot('cantidad')->withTimestamps();
     }
 
     /**

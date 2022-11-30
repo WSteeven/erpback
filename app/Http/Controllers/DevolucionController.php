@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Devolucion;
+use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class DevolucionController extends Controller
@@ -25,16 +29,24 @@ class DevolucionController extends Controller
     public function index(Request $request)
     {
         $page = $request['page'];
+        $offset = $request['offset'];
+        $estado = $request['estado'];
         $campos = explode(',', $request['page']);
         $results = [];
 
         if ($request['campos']) {
-            $results = Devolucion::all($campos);
+            $results = Devolucion::where('estado', Devolucion::CREADA)->get($campos);
             $results = DevolucionResource::collection($results);
             return response()->json(compact('results'));
         } else 
         if ($page) {
-            $results = Devolucion::simplePaginate($request['offset']);
+            if(auth()->user()->hasRole(User::ROL_BODEGA)){
+                $results = Devolucion::filtrarDevolucionesBodegueroConPaginacion($estado,$offset);
+                DevolucionResource::collection($results);
+            }else{
+                $results = Devolucion::filtrarDevolucionesEmpleadoConPaginacion($estado, $offset);
+                DevolucionResource::collection($results);
+            }
         } else {
             $results = Devolucion::ignoreRequest(['campos'])->filter()->get();
         }
@@ -49,16 +61,29 @@ class DevolucionController extends Controller
      */
     public function store(DevolucionRequest $request)
     {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        Log::channel('testing')->info('Log', ['Request recibida en devolucion:', $request->all()]);
+        try{
+            DB::beginTransaction();
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+    
+            // Respuesta
+            $devolucion = Devolucion::create($datos);
+            $modelo = new DevolucionResource($devolucion);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        // Respuesta
-        $modelo = Devolucion::create($datos);
-        $modelo = new DevolucionResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            foreach($request->listadoProductos as $listado){
+                $devolucion->detalles()->attach($listado['id'], ['cantidad'=>$listado['cantidad']]);
+            }
+            DB::commit();
+        }catch(Exception $e){
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -98,4 +123,14 @@ class DevolucionController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+
+    /**
+     * Anular una devolución
+     */
+    public function anular(Devolucion $devolucion)
+    {
+        $devolucion->estado = Devolucion::ANULADA;
+        $devolucion->save();
+    }
 }
+ 

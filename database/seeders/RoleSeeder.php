@@ -104,6 +104,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.detalles'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.detalles'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.eliminar.detalles'])->assignRole($bodega);
+        
+        // Devolución
+        Permission::firstOrCreate(['name' => 'puede.ver.devoluciones'])->syncRoles([$empleado, $coordinador, $activos_fijos, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.devoluciones'])->syncRoles([$bodega, $empleado]);
+        // Permission::firstOrCreate(['name' => 'puede.editar.devoluciones'])->syncRoles([$bodega, $empleado]);
+        // Permission::firstOrCreate(['name' => 'puede.eliminar.devoluciones'])->assignRole($bodega);
 
         // Empleados
         Permission::firstOrCreate(['name' => 'puede.ver.empleados'])->syncRoles([$recursos_humanos, $coordinador, $activos_fijos, $bodega]);

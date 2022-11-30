@@ -33,7 +33,7 @@ class TransaccionBodegaResource extends JsonResource
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
-            // 'solicitante_id' => $this->solicitante_id,
+            'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
             'sucursal' => $this->sucursal->lugar,
@@ -46,8 +46,8 @@ class TransaccionBodegaResource extends JsonResource
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
             //variables auxiliares
-            'tiene_obs_autorizacion'=>is_null($autorizacion->pivot->observacion)?false:true,
-            'tiene_obs_estado'=>is_null($estado->pivot->observacion)?false:true,
+            'tiene_obs_autorizacion'=>is_null($autorizacion)?false:true,
+            'tiene_obs_estado'=>is_null($estado)?false:true,
             // 'retira_tercero'=>$this->tarea?true:false,
             'es_tarea'=>$this->tarea?true:false,
         ];
@@ -58,7 +58,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;
             $modelo['solicitante'] = $this->solicitante_id;
-            // $modelo['solicitante_id'] = $this->solicitante_id;
+            $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
             $modelo['tarea'] = $this->tarea_id;

@@ -201,30 +201,7 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
-    /**
-     * Esta función esta en "DESUSO"
-     * Filtra las transacciones para enviarlas de acuerdo al estado seleccionado, valor que se recibe desde los tabsOptions del front.
-     * @param Collection $transacciones
-     * @param String $estado
-     * 
-     * @return Collection $transacciones listado de transacciones filtradas
-     */
-    public static function filtrarTransacciones($transacciones, $estado)
-    {
-        switch ($estado) {
-            case 'ESPERA':
-                return $transacciones->filter(fn ($transaccion) => self::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE'); // TransaccionBodega::ultimaAutorizacion($transaccion->id)->nombre === 'PENDIENTE');
-            case 'PARCIAL':
-                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado'));
-            case 'PENDIENTE':
-                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === request('estado') && self::ultimaAutorizacion($transaccion->id)->nombre === 'APROBADO');
-            case 'COMPLETA':
-                return $transacciones->filter(fn ($transaccion) => self::ultimoEstado($transaccion->id)->nombre === $estado);
-            default:
-                return $transacciones;
-        }
-    }
-
+    
 
 
     /**

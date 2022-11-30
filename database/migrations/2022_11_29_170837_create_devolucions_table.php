@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Devolucion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,9 @@ return new class extends Migration
             $table->id();
             $table->text('justificacion');
             $table->unsignedBigInteger('solicitante_id');
-            $table->unsignedBigInteger('tarea_id');
+            $table->unsignedBigInteger('tarea_id')->nullable();
             $table->unsignedBigInteger('sucursal_id');
+            $table->enum('estado', [Devolucion::CREADA, Devolucion::ANULADA])->default(Devolucion::CREADA);
 
             $table->timestamps();
 
