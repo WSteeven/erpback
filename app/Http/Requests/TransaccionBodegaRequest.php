@@ -27,7 +27,7 @@ class TransaccionBodegaRequest extends FormRequest
      */
     public function rules()
     {
-        // Log::channel('testing')->info('Log', ['Datos recibidos', $this->route()->uri()]);
+        Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
             'obs_autorizacion' => 'nullable|string|sometimes',
@@ -41,7 +41,7 @@ class TransaccionBodegaRequest extends FormRequest
             'motivo' => 'sometimes|nullable|exists:motivos,id',
             'sucursal' => 'required|exists:sucursales,id',
             'per_autoriza' => 'required|exists:empleados,id',
-            'per_atiende' => 'sometimes|exists:empleados,id',
+            'per_atiende' => 'sometimes|nullable|exists:empleados,id',
             'per_retira' => 'sometimes|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
@@ -58,7 +58,7 @@ class TransaccionBodegaRequest extends FormRequest
     public function attributes()
     {
         return [
-            'listadoProductosSeleccionados.*.cantidades' => 'listado',
+            'listadoProductosTransaccion.*.cantidades' => 'listado',
         ];
     }
 
@@ -66,7 +66,7 @@ class TransaccionBodegaRequest extends FormRequest
     public function messages()
     {
         return [
-            'listadoProductosSeleccionados.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductosTransaccion.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
 
@@ -116,6 +116,10 @@ class TransaccionBodegaRequest extends FormRequest
                     'solicitante' => auth()->user()->empleado->id,
                 ]);
             }
+
+            $this->merge([
+                'per_atiende' => auth()->user()->empleado->id
+            ]);
         }
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             if ($this->autorizacion == '') {
@@ -135,9 +139,9 @@ class TransaccionBodegaRequest extends FormRequest
                     'cliente' => $tarea->cliente_id,
                 ]); */
             }
-            if($this->fecha_limite==="N/A"||is_null($this->fecha_limite)){
+            if ($this->fecha_limite === "N/A" || is_null($this->fecha_limite)) {
                 $this->merge([
-                    'fecha_limite'=>null
+                    'fecha_limite' => null
                 ]);
             }
         }
@@ -146,7 +150,7 @@ class TransaccionBodegaRequest extends FormRequest
                 'cliente' => 1,
             ]);
         }
-        if ($this->estado == '') {
+        if ($this->estado === '' || is_null($this->estado)) {
             $this->merge([
                 'estado' => 1,
             ]);
@@ -162,12 +166,13 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
+        if (is_null($this->per_autoriza)) {
+            $this->merge([
+                'per_autoriza' => auth()->user()->empleado->jefe_id,
+            ]);
+        }
 
-        $this->merge([
-            'per_autoriza' => auth()->user()->empleado->jefe_id,
-        ]);
-
-        if(is_null($this->per_autoriza)){
+        if (is_null($this->per_autoriza)) {
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,

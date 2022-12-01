@@ -126,7 +126,7 @@ class TransaccionBodegaIngresoController extends Controller
 
                 if ($request->ingreso_masivo) {
                     //Guardar los productos seleccionados en el detalle 
-                    foreach ($request->listadoProductosSeleccionados as $listado) {
+                    foreach ($request->listadoProductosTransaccion as $listado) {
                         $transaccion->detalles()->attach(
                             $listado['id'],
                             [
@@ -136,9 +136,9 @@ class TransaccionBodegaIngresoController extends Controller
                         );
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario
-                    Inventario::ingresoMasivo($transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosSeleccionados);
+                    Inventario::ingresoMasivo($transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosTransaccion);
                 } else {
-                    foreach ($request->listadoProductosSeleccionados as $listado) {
+                    foreach ($request->listadoProductosTransaccion as $listado) {
                         $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
                     }
                 }

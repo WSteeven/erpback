@@ -189,6 +189,7 @@ class TransaccionBodega extends Model implements Auditable
         $row = [];
         foreach ($detalles as $detalle) {
             $row['id'] = $detalle->id;
+            $row['detalle_id'] = $detalle->pivot->detalle_id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
             $row['categoria'] = $detalle->producto->categoria->nombre;

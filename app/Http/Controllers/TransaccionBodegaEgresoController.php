@@ -136,20 +136,20 @@ class TransaccionBodegaEgresoController extends Controller
 
 
             //Guardar la autorizacion con su observacion
-            if ($request->observacion_aut) {
-                $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
+            if ($request->obs_autorizacion) {
+                $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['obs_autorizacion']]);
             } else {
                 $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
             }
 
             //Guardar el estado con su observacion
-            if ($request->observacion_est) {
-                $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['observacion_est']]);
+            if ($request->obs_estado) {
+                $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
             } else {
                 $transaccion->estados()->attach($datos['estado_id']);
             }
             //Guardar los productos seleccionados
-            foreach ($request->listadoProductosSeleccionados as $listado) {
+            foreach ($request->listadoProductosTransaccion as $listado) {
                 $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
             }
 
@@ -225,13 +225,13 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['La persona que autoriza es igual al empleado actual?', true]);
             try {
                 DB::beginTransaction();
-                if ($request->observacion_aut) {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
+                if ($request->obs_autorizacion) {
+                    $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['obs_autorizacion']]);
                 } else {
                     $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
                 }
                 $transaccion->detalles()->detach(); //borra el listado anterior
-                foreach ($request->listadoProductosSeleccionados as $listado) { //Guarda los productos seleccionados en un nuevo listado
+                foreach ($request->listadoProductosTransaccion as $listado) { //Guarda los productos seleccionados en un nuevo listado
                     $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
                 }
                 DB::commit();
@@ -248,8 +248,8 @@ class TransaccionBodegaEgresoController extends Controller
                 Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
                 try {
                     DB::beginTransaction();
-                    if ($request->observacion_est) {
-                        $transaccion->estados()->attach($datos['estado'], ['observacion' => $datos['observacion_est']]);
+                    if ($request->obs_estado) {
+                        $transaccion->estados()->attach($datos['estado'], ['observacion' => $datos['obs_estado']]);
                     } else {
                         $transaccion->estados()->attach($datos['estado_id']);
                     }

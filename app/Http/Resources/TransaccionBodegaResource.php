@@ -58,7 +58,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['estado'] = $estado->id;
             $modelo['obs_estado'] = $estado->pivot->observacion;
             $modelo['solicitante'] = $this->solicitante_id;
-            $modelo['solicitante_id'] = $this->solicitante_id;
+            // $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
             $modelo['tarea'] = $this->tarea_id;
