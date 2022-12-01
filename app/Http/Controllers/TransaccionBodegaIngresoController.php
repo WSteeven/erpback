@@ -118,8 +118,8 @@ class TransaccionBodegaIngresoController extends Controller
                 // }
 
                 //Guardar el estado con su observacion
-                if ($request->observacion_est) {
-                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['observacion_est']]);
+                if ($request->obs_estado) {
+                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
                 } else {
                     $transaccion->estados()->attach($datos['estado_id']);
                 }
@@ -208,8 +208,8 @@ class TransaccionBodegaIngresoController extends Controller
                 }
 
                 //Guardar el estado con su observacion
-                if ($request->observacion_est) {
-                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['observacion_est']]);
+                if ($request->obs_estado) {
+                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
                 } else {
                     $transaccion->estados()->attach($datos['estado_id']);
                 }

@@ -124,6 +124,16 @@ class DevolucionController extends Controller
         return response()->json(compact('mensaje'));
     }
 
+
+    /**
+     * Consultar datos sin el método show.
+     */
+    public function showPreview(Devolucion $devolucion){
+        $modelo = new DevolucionResource($devolucion);
+
+        return response()->json(compact('modelo'), 200);
+    }
+
     /**
      * Anular una devolución
      */

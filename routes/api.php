@@ -195,6 +195,7 @@ Route::apiResources(
 );
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
+Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 

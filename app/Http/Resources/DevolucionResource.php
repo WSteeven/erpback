@@ -27,6 +27,7 @@ class DevolucionResource extends JsonResource
             'sucursal'=>$this->sucursal->lugar,
             'estado'=>$this->estado,
             'listadoProductos'=>$detalles,
+            'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
             'es_tarea'=>$this->tarea?true:false,
         ];
