@@ -85,7 +85,7 @@ class TransaccionBodegaIngresoController extends Controller
                 Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
                 Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
-                $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+                // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
@@ -173,7 +173,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function update(TransaccionBodegaRequest $request, TransaccionBodega $transaccion)
     {
         $datos = $request->validated();
-        $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+        // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];

@@ -17,7 +17,7 @@ class TransaccionBodegaIngresoService
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
@@ -32,7 +32,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
@@ -50,7 +50,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
@@ -73,7 +73,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
@@ -95,7 +95,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             default:
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('tipos_transacciones', 'transacciones_bodega.tipo_id', '=', 'tipos_transacciones.id')
@@ -109,7 +109,7 @@ class TransaccionBodegaIngresoService
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -125,7 +125,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -148,7 +148,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -171,7 +171,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -194,7 +194,7 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             default:
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -210,8 +210,9 @@ class TransaccionBodegaIngresoService
         $results = [];
         switch ($estado) {
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->join('motivos', 'transacciones_bodega.motivo_id', 'motivos.id')
+                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -222,8 +223,9 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->join('motivos', 'transacciones_bodega.motivo_id', 'motivos.id')
+                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -234,16 +236,18 @@ class TransaccionBodegaIngresoService
                     ->simplePaginate($offset);
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->join('motivos', 'transacciones_bodega.motivo_id', 'motivos.id')
+                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
                     ->simplePaginate($offset);
                 return $results;
             default:
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->where('transacciones_bodega.tipo_id', '=', $tipoTransaccion->id)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->join('motivos', 'transacciones_bodega.motivo_id', 'motivos.id')
+                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
                     ->simplePaginate($offset);
                 return $results;
         }
@@ -270,7 +274,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
@@ -285,7 +289,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
@@ -309,7 +313,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
@@ -324,7 +328,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             default:
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
@@ -356,7 +360,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -372,7 +376,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -396,7 +400,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -412,7 +416,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             default:
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
@@ -442,7 +446,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -455,7 +459,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -476,7 +480,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -490,7 +494,7 @@ class TransaccionBodegaIngresoService
                 return $results;
             default:
                 // Log::channel('testing')->info('Log', ['Estoy en el default y el estado es', $estado]);
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id", "tipo_id", "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)

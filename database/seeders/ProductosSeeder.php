@@ -210,6 +210,7 @@ class ProductosSeeder extends Seeder
             [179, 'CAMISA CUELLO', 2, '2022-11-25 13:57:53', '2022-11-25 13:57:53'],
             [180, 'BUSO MANGA LARGA', 2, '2022-11-25 13:58:02', '2022-11-25 13:58:02'],
             [181, 'PANTALON JEAN CINTA REFLECTIVA', 2, '2022-11-25 13:58:29', '2022-11-25 13:58:29'],
+            [182, 'CASCO DE SEGURIDAD', 2, '2022-11-25 13:58:29', '2022-11-25 13:58:29'],
         ];
 
         foreach ($datos as $fila) {

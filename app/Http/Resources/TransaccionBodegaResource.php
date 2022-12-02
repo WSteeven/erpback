@@ -21,7 +21,7 @@ class TransaccionBodegaResource extends JsonResource
         $estado = TransaccionBodega::ultimoEstado($this->id);
         $detalles = TransaccionBodega::listadoProductos($this->id);
 
-        Log::channel('testing')->info('Log', ['controller method?:', $controller_method]);
+        // Log::channel('testing')->info('Log', ['controller method?:', $controller_method]);
 
         $modelo = [
             'id' => $this->id,

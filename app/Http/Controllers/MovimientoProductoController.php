@@ -54,7 +54,6 @@ class MovimientoProductoController extends Controller
             'cantidad'=>$request->cantidad,
             'precio_unitario'=>$item->detalle->precio_compra,
             'saldo'=>$item->cantidad-$request->cantidad
-            // $request->all()
         ]);
         Log::channel('testing')->info('Log', ['Modelo creado?', $modelo]);
         $modelo = new MovimientoProductoResource($modelo);
