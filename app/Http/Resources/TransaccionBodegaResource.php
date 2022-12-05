@@ -33,6 +33,7 @@ class TransaccionBodegaResource extends JsonResource
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
+            'devolucion' => $this->devolucion_id,
             'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,

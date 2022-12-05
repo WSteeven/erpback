@@ -120,7 +120,7 @@ class Inventario extends Model
                     ->first();
                 if ($item) {
                     Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
-                    $cantidad = $elemento['cantidades'] + $item->cantidad;
+                    $cantidad = $elemento['cantidad'] + $item->cantidad;
                     $item->cantidad = $cantidad;
                     $item->save();
                 } else {
@@ -129,7 +129,7 @@ class Inventario extends Model
                         'sucursal_id' => $sucursal,
                         'cliente_id' => $cliente,
                         'condicion_id' => $condicion,
-                        'cantidad' => $elemento['cantidades'],
+                        'cantidad' => $elemento['cantidad'],
                     ];
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
                     Inventario::create($datos);

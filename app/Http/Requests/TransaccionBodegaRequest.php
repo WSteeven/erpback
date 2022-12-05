@@ -36,6 +36,7 @@ class TransaccionBodegaRequest extends FormRequest
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'obs_estado' => 'nullable|string|sometimes',
+            'devolucion' => 'sometimes|nullable|exists:devoluciones,id|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
             'motivo' => 'sometimes|nullable|exists:motivos,id',
@@ -45,7 +46,7 @@ class TransaccionBodegaRequest extends FormRequest
             'per_retira' => 'sometimes|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
-            'listadoProductosTransaccion.*.cantidades' => 'required'
+            'listadoProductosTransaccion.*.cantidad' => 'required'
         ];
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             $rules['autorizacion'] = 'nullable';
@@ -58,7 +59,7 @@ class TransaccionBodegaRequest extends FormRequest
     public function attributes()
     {
         return [
-            'listadoProductosTransaccion.*.cantidades' => 'listado',
+            'listadoProductosTransaccion.*.cantidad' => 'listado',
         ];
     }
 
@@ -66,7 +67,7 @@ class TransaccionBodegaRequest extends FormRequest
     public function messages()
     {
         return [
-            'listadoProductosTransaccion.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductosTransaccion.*.cantidad' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
 

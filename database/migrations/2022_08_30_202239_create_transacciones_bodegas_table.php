@@ -29,6 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('per_retira_id')->nullable();
             $table->timestamps();
 
+            $table->unique(['id','devolucion_id']);
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('motivo_id')->references('id')->on('motivos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');

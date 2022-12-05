@@ -150,7 +150,7 @@ class TransaccionBodegaEgresoController extends Controller
             }
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
-                $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+                $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
             }
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
@@ -187,12 +187,15 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if ($request->subtarea_id) {
+        !is_null($request->subtarea_id)??$datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        
+        /* if ($request->subtarea_id) {
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
         }
         if ($request->per_atiende) {
             $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        }
+        } */
         //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
@@ -232,12 +235,12 @@ class TransaccionBodegaEgresoController extends Controller
                 }
                 $transaccion->detalles()->detach(); //borra el listado anterior
                 foreach ($request->listadoProductosTransaccion as $listado) { //Guarda los productos seleccionados en un nuevo listado
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
                 }
                 DB::commit();
             } catch (Exception $e) {
                 DB::rollBack();
-                return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar la autorización' . $e->getMessage()], 422);
+                return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar la autorización. ' . $e->getMessage()], 422);
             }
 
             $modelo = new TransaccionBodegaResource($transaccion->refresh());

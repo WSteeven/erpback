@@ -86,27 +86,30 @@ class TransaccionBodegaIngresoController extends Controller
                 Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
                 // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+                $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-                if ($request->per_atiende) {
+                !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                /* if ($request->per_atiende) {
                     $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-                }
+                } */
                 //datos de las relaciones muchos a muchos
                 // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
                 //Comprobar si hay tarea
-                if ($request->tarea) {
+                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+                
+                /* if ($request->tarea) {
                     $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-                }
-                if ($request->subtarea) {
-                    $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-                }
+                } */
 
                 //Creacion de la transaccion
+                Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
+                
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
@@ -130,8 +133,8 @@ class TransaccionBodegaIngresoController extends Controller
                         $transaccion->detalles()->attach(
                             $listado['id'],
                             [
-                                'cantidad_inicial' => $listado['cantidades'],
-                                'cantidad_final' => $listado['cantidades']
+                                'cantidad_inicial' => $listado['cantidad'],
+                                'cantidad_final' => $listado['cantidad']
                             ]
                         );
                     }
@@ -139,7 +142,7 @@ class TransaccionBodegaIngresoController extends Controller
                     Inventario::ingresoMasivo($transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosTransaccion);
                 } else {
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+                        $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
                     }
                 }
 
@@ -174,6 +177,7 @@ class TransaccionBodegaIngresoController extends Controller
     {
         $datos = $request->validated();
         // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+        $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
@@ -220,7 +224,7 @@ class TransaccionBodegaIngresoController extends Controller
 
                 //Guardar los productos seleccionados
                 foreach ($request->listadoProductosSeleccionados as $listado) {
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
+                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
                 }
 
 
