@@ -34,6 +34,7 @@ use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
@@ -164,6 +165,7 @@ Route::apiResources(
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
         'clientes-finales' => ClienteFinalController::class,
+        'proyectos' => ProyectoController::class,
     ],
     [
         'parameters' => [

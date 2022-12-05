@@ -259,6 +259,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->assignRole($coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico, $activos_fijos, $administrativo, $recursos_humanos);
 
         // Tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.proyectos'])->assignRole($coordinador, $jefe_tecnico);
+        Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->assignRole($coordinador, $jefe_tecnico);
+        Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->assignRole($coordinador, $jefe_tecnico);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->assignRole($coordinador, $jefe_tecnico);
+
         Permission::firstOrCreate(['name' => 'puede.ver.tareas'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.tareas'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.editar.tareas'])->assignRole($coordinador);
