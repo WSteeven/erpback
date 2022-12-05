@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProyectoResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
+    public function toArray($request)
+    {
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo = [
+            'id' => $this->id,
+            'codigo_proyecto' => $this->codigo_proyecto,
+            'nombre' => $this->nombre,
+            'fecha_inicio' => $this->fecha_inicio,
+            'fecha_fin' => $this->fecha_fin,
+            'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
+            'cliente' => $this->cliente->empresa->razon_social,
+            'canton' => $this->canton->canton,
+            'costo' => $this->costo,
+        ];
+
+        if ($controller_method == 'show') {
+            $modelo['cliente'] = $this->cliente_id;
+            $modelo['coordinador'] = $this->coordinador_id;
+            $modelo['canton'] = $this->canton_id;
+        }
+
+        return $modelo;
+    }
+}
