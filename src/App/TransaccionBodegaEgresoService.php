@@ -23,8 +23,7 @@ class TransaccionBodegaEgresoService
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'transacciones_bodega.motivo_id', '=', 'motivos.id')
-                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
+                    ->orWhereNull('transacciones_bodega.motivo_id')
                     ->join('tiempo_autorizacion_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_autorizacion_transaccion.transaccion_id')
                             ->where('tiempo_autorizacion_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_autorizacion_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -269,7 +268,9 @@ class TransaccionBodegaEgresoService
                 return $results;
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->orWhereNull('transacciones_bodega.motivo_id')
+                    // ->orWhereNull('transacciones_bodega.motivo_id')
+                    ->join('motivos', 'transacciones_bodega.motivo_id', '=', 'motivos.id')
+                    ->where('motivos.tipo_transaccion_id', '=', $tipoTransaccion->id)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)

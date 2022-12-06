@@ -47,7 +47,7 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
-            'tipo' => ['sometimes', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
+            'tipo' => ['sometimes','nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

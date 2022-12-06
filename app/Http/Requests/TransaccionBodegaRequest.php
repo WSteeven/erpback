@@ -36,7 +36,7 @@ class TransaccionBodegaRequest extends FormRequest
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'obs_estado' => 'nullable|string|sometimes',
-            'devolucion' => 'sometimes|nullable|exists:devoluciones,id|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'devolucion' => 'sometimes|nullable|exists:devoluciones,id',//|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
             'motivo' => 'sometimes|nullable|exists:motivos,id',

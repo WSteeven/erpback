@@ -85,7 +85,7 @@ class TransaccionBodegaIngresoController extends Controller
                 Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
                 Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
-                // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
+                
                 $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
@@ -93,15 +93,15 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
                 !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+                //Comprobar si hay tarea
+                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
                 /* if ($request->per_atiende) {
                     $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 } */
                 //datos de las relaciones muchos a muchos
                 // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-                $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-                //Comprobar si hay tarea
-                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
                 
                 /* if ($request->tarea) {
                     $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
