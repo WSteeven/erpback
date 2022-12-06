@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
-use App\Models\Empleado;
-use App\Models\PausaSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
@@ -38,11 +36,6 @@ class SubtareaController extends Controller
         elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         return $this->servicio->obtenerTodos();
-
-        /*$filter = Subtarea::filter()->simplePaginate();
-        SubtareaResource::collection($filter);
-        return $filter;
-        return SubtareaResource::collection(Empleado::filter()->get());*/
     }
 
     public function subtareasAsignadas()
@@ -86,20 +79,18 @@ class SubtareaController extends Controller
         $datos['estado'] = Subtarea::CREADO;
 
         // Respuesta
-
-        $subtareaEncontrada = Tarea::find($tarea_id)->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
-        Log::channel('testing')->info('Log', ['SUBTAREA ENCONTRADA', $subtareaEncontrada]);
+        Log::channel('testing')->info('Log', ['Datos', $request->all()]);
+        /* $subtareaEncontrada = Tarea::find($tarea_id)->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
         if ($subtareaEncontrada && $subtareaEncontrada->estado === Subtarea::SUSPENDIDO) {
             return response()->json(['errors' => ['suspendido' => 'No se pueden agregar porque la subtarea principal está suspendida.']], 422);
         }
 
         if ($subtareaEncontrada && $subtareaEncontrada->estado === Subtarea::CANCELADO) {
             return response()->json(['errors' => ['cancelada' => 'No se pueden agregar porque la subtarea principal está cancelada.']], 422);
-            // return response()->json(['mensaje' => 'No se pueden agregar porque la subtarea principal está cancelada.'], 422);
-        }
+        } */
 
         $modelo = Subtarea::create($datos);
-        $modelo = new SubtareaResource($modelo);
+        $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -147,6 +138,8 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::ASIGNADO;
         $subtarea->fecha_hora_asignacion = Carbon::now();
         $subtarea->save();
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
     public function realizar(Subtarea $subtarea)
@@ -174,6 +167,8 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::EJECUTANDO;
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
     public function reanudar(Subtarea $subtarea)
@@ -190,17 +185,12 @@ class SubtareaController extends Controller
     {
         $motivo = $request['motivo'];
 
-        /* $subtarea->estado = Subtarea::SUSPENDIDO;
+        $subtarea->estado = Subtarea::SUSPENDIDO;
         $subtarea->fecha_hora_suspendido = Carbon::now();
         $subtarea->causa_suspencion = $motivo;
-        $subtarea->save(); */
+        $subtarea->save();
 
-        $tarea = $subtarea->tarea;
-        $tarea->subtareas()->update([
-            'fecha_hora_suspendido' => Carbon::now(),
-            'causa_suspencion' => $motivo,
-            'estado' => Subtarea::SUSPENDIDO,
-        ]);
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
     public function pausas(Subtarea $subtarea)
@@ -210,10 +200,9 @@ class SubtareaController extends Controller
 
     public function cancelar(Subtarea $subtarea)
     {
-        $tarea = $subtarea->tarea;
-
-        $tarea->subtareas()->update(['estado' => Subtarea::CANCELADO]);
-
-        return response()->json(['mensaje' => 'Cancelado exitosamente!']);
+        $subtarea->estado = Subtarea::CANCELADO;
+        $subtarea->fecha_hora_cancelacion = Carbon::now();
+        $subtarea->save();
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 }

@@ -29,9 +29,7 @@ class TareaController extends Controller
             $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
             // $results = $results;
             // return $results;
-        } else
-
-        if ($page) {
+        } else if ($page) {
             $results = Tarea::simplePaginate($request['offset']);
             TareaResource::collection($results);
         } else {
@@ -57,12 +55,12 @@ class TareaController extends Controller
         $modelo = Tarea::create($datos);
 
         // Ubicacion tarea manual
-        $ubicacionTarea = $request['ubicacion_tarea'];
+        /*$ubicacionTarea = $request['ubicacion_tarea'];
         if ($ubicacionTarea && !$datos['cliente_final_id']) {
             $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
             $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
             $modelo->ubicacionTarea()->create($ubicacionTarea);
-        }
+        }*/
 
         $modelo = new TareaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
