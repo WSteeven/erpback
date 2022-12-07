@@ -67,7 +67,7 @@ class DevolucionController extends Controller
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
     
             // Respuesta
