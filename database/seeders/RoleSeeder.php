@@ -31,21 +31,26 @@ class RoleSeeder extends Seeder
         $gerente = Role::firstOrCreate(['name' => User::ROL_GERENTE]);
         $jefe_tecnico = Role::firstOrCreate(['name' => User::ROL_JEFE_TECNICO]);
         $recursos_humanos = Role::firstOrCreate(['name' => User::ROL_RECURSOS_HUMANOS]);
-        $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
-        $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER]);
         $fiscalizador = Role::firstOrCreate(['name' => User::ROL_FISCALIZADOR]);
+        
+        // Roles de cuadrillas
+        $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER]);
+        $tecnico_cablista = Role::firstOrCreate(['name' => User::ROL_TECNICO_CABLISTA]);
+        $tecnico_secretario = Role::firstOrCreate(['name' => User::ROL_TECNICO_SECRETARIO]);
+        $tecnico_ayudante = Role::firstOrCreate(['name' => User::ROL_TECNICO_AYUDANTE]);
+        $tecnico_fusionador = Role::firstOrCreate(['name' => User::ROL_TECNICO_FUSIONADOR]);
 
         // -----------------
         // Modulo de Sistema
         // -----------------
         // Tablero
-        Permission::firstOrCreate(['name' => 'puede.ver.tablero'])->syncRoles([$coordinador, $contabilidad, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos, $recursos_humanos, $tecnico_lider]);
+        Permission::firstOrCreate(['name' => 'puede.ver.tablero'])->syncRoles([$coordinador, $contabilidad, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico_secretario, $activos_fijos, $recursos_humanos, $tecnico_lider]);
         // Perfil
-        Permission::firstOrCreate(['name' => 'puede.ver.perfil'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos]);
+        Permission::firstOrCreate(['name' => 'puede.ver.perfil'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico_secretario, $activos_fijos]);
         // Administración
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_administracion'])->syncRoles([$bodega, $activos_fijos]);
         // Configuracion
-        Permission::firstOrCreate(['name' => 'puede.ver.configuracion'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico, $activos_fijos]);
+        Permission::firstOrCreate(['name' => 'puede.ver.configuracion'])->syncRoles([$coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico_secretario, $activos_fijos]);
 
 
         // -----------------------
@@ -262,7 +267,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.subtarea_asignada'])->assignRole($tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->assignRole($tecnico_lider, $coordinador);
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->assignRole($tecnico_lider, $coordinador);
-        Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->assignRole($coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico, $activos_fijos, $administrativo, $recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->assignRole($coordinador, $bodega, $empleado, $jefe_tecnico, $gerente, $compras, $tecnico_lider, $tecnico_lider, $tecnico_secretario, $activos_fijos, $administrativo, $recursos_humanos);
 
         // Tareas
         Permission::firstOrCreate(['name' => 'puede.ver.proyectos'])->assignRole($coordinador, $jefe_tecnico);
@@ -295,24 +300,24 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_elementos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_elementos'])->assignRole($coordinador);
         // Control de asistencia
-        Permission::firstOrCreate(['name' => 'puede.ver.control_asistencia'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.crear.control_asistencia'])->assignRole($tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_asistencia'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.crear.control_asistencia'])->assignRole($tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.editar.control_asistencia'])->assignRole($tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.control_asistencia'])->assignRole($tecnico_lider, $tecnico_secretario);
         // Control de progresivas
         Permission::firstOrCreate(['name' => 'puede.ver.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.crear.control_tendidos'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.crear.control_tendidos'])->assignRole($tecnico_lider, $tecnico_secretario);
         Permission::firstOrCreate(['name' => 'puede.editar.control_tendidos'])->assignRole($coordinador, $tecnico_lider);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.control_tendidos'])->assignRole($tecnico);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.control_tendidos'])->assignRole($tecnico_lider, $tecnico_secretario);
         // Control de cambios
-        Permission::firstOrCreate(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.control_cambios'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.control_cambios'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_cambios'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.crear.control_cambios'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.editar.control_cambios'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.control_cambios'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
         // Solicitud de materiales a bodega
-        Permission::firstOrCreate(['name' => 'puede.ver.solicitud_materiales'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.crear.solicitud_materiales'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.solicitud_materiales'])->assignRole($coordinador, $tecnico);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.solicitud_materiales'])->assignRole($coordinador, $tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.solicitud_materiales'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.crear.solicitud_materiales'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.editar.solicitud_materiales'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.solicitud_materiales'])->assignRole($coordinador, $tecnico_lider, $tecnico_secretario);
     }
 }
