@@ -251,7 +251,7 @@ class UserSeeder extends Seeder
             'fecha_nacimiento' => '2010-05-12',
             'jefe_id' => '6',
             'sucursal_id' => $localidad_machala->id,
-            'grupo_id' => 1,
+            'grupo_id' => 2,
         ]);
 
         $tecnico = User::create([
@@ -259,7 +259,7 @@ class UserSeeder extends Seeder
             'email' => 'cfernandez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_LIDER);
         $tecnico->empleado()->create([
             'nombres' => 'CARLOS',
             'apellidos' => 'FERNANDEZ',
@@ -268,7 +268,7 @@ class UserSeeder extends Seeder
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
             'sucursal_id' => $localidad_cuenca->id,
-            'grupo_id' => 1,
+            'grupo_id' => 3,
         ]);
 
         $tecnico = User::create([
@@ -276,7 +276,7 @@ class UserSeeder extends Seeder
             'email' => 'ogutierrez@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
         $tecnico->empleado()->create([
             'nombres' => 'OMAR',
             'apellidos' => 'GUTIERREZ',
@@ -293,7 +293,7 @@ class UserSeeder extends Seeder
             'email' => 'larmijos@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
         $tecnico->empleado()->create([
             'nombres' => 'LEONARLO',
             'apellidos' => 'ARMIJOS',
@@ -310,7 +310,7 @@ class UserSeeder extends Seeder
             'email' => 'pcarrion@jp.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
         $tecnico->empleado()->create([
             'nombres' => 'POLO',
             'apellidos' => 'CARRIÓN',
@@ -390,122 +390,5 @@ class UserSeeder extends Seeder
             'jefe_id' => '19',
             'sucursal_id' => $localidad_machala->id,
         ]);
-
-        //
-
-        // $tecnico = User::create([, 'password' => bcrypt('password')])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
-        //INSERT INTO usuario (nombre,apellido,correo_electronico) VALUES
-
-        /* $usuarios = [
-            ['ADMINISTRADOR NEW ADMINISTRADOR', 'ylovera@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['ANTHONY DANIEL BERSOZA SANCHEZ', 'abersoza@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['ALBERTO ALFREDO MORENO GARINO', 'amoreno@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['BRYAN LEONARDO CHAMBA MONTES', 'bchamba@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['DIEGO HERNAN INAMAGUA LALA', 'dinamagua@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['RUBEN DARIO LOJA TORRES', 'dloja@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['ELVIS AGUSTIN BRICEÑO ARMIJOS', 'ebriceno@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['EYDER ESTEBAN PEREIRA NAVAS', 'epereira@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['FREDY GEOVANNY QUITUISACA SANCHEZ', 'fquituisaca@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['FRANCISCO WLADIMIR SALAZAR SOLORZANO', 'fsalazar@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['ILIANA ESTEFANIA PALADINEZ HEREDIA', 'ipaladinez@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JONATHAN FRANCISCO AGUILAR ALCIVAR', 'jaguilar@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JOSEPH CARLOS CHONILLO SARMIENTO', 'jchonillo@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JORGE GUILLERMO LEITON RIZZO', 'jleiton@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JIMMY JAVIER MACAS CHUCHUCA', 'jmacas@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JAIME RENAN MENDOZA ALCIVAR', 'jmendoza@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JONNATHAN ISMAEL PACHECO VACA', 'jpacheco@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JONATHAN ADRIAN PANCHI DIAZ', 'jpanchi@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JEAN PATRICIO PAZMIÑO BARROS', 'jpazmino@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JONATHAN ANTONIO TENESACA AZOGUE', 'jtenesaca@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JACKSON JAVIER VALENCIA ARTURO', 'jvalencia@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['KATHERINE ESTEFANIA SEGARRA ORTIZ', 'ksegarra@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['ANGEL GEOVANNY CHAMBA ENRIQUEZ', 'ACHAMBA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['LUIS  ALBERTO GONZABAY PEÑFIEL', 'lgonzabay@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['AIDE MARILU JARAMILLO TORO', 'mjaramillo@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['NICOLAS EDUARDO PAZMINO BARROS', 'npazmino@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['DANIEL PATRICK APOLO RAMIREZ', 'papolo@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['PETER ANTONIO FIGUEROA CASTRO', 'pfigueroa@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['RAUL MAURICIO MUÑOZ', 'rmunoz@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['STIVEN JEFFERSON BONE MOTTA', 'sbone@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['SIMON GABRIEL CARBO PACHECO', 'scarbo@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['SANTIAGO ALEJANDRO GRANDA GRANDA', 'sgranda@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['YANINA VANESSA LOJA TORRES', 'ASISTENTE_ADMINISTRATIVO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['VICTOR HUGO RIERA GAVILANEZ', 'vriera@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['WILSON RODRIGO GRANDA FAJARDO', 'wgranda@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['WILMER FABIAN LEMA', 'wlema@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['XAVIER FERNANDO SIRANAULA JIMENEZ', 'xsiranaula@jeanpazmino.com', 0, date("Y-m-d"), bcrypt('password')],
-            ['JEFFERSON RAFAEL ABAD ZUMBA', 'JABAD@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['CHRISTIAN PAUL TAPIA IDROVO', 'CTAPIA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['JONNATHAN ADRIAN VEINTIMILLA SEGARRA', 'jveintimilla@jeanpazmino.com', 1, date("Y-m-d"), bcrypt('password')],
-            ['JORDAN DAVID CEDEÑO VERGARA', 'JCEDENO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['CESAR ANTONIO VILLACIS ROMERO', 'CVILLACIS@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['PATRICIO RODRIGO MENDEZ', 'PMENDEZ@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['PATRICIA MOROCHO', 'PMROCHO@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['INGRID GEANELLA LIMA AGUIRRE', 'ILIMA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['ISIDRO FRANCISCO VILLEGAS CANAVICHE', 'IVILLEGAS@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['JEISON ENRIQUE SATAMA GARZON', 'JSATAMA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['SALLY ANDREA CAICEDO PARRA', 'SCAICEDO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['DARWIN JOSE MERO CASTILLO', 'DMERO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['PABLO SEBASTIAN QUIZHPI MOLINA', 'PQUIZHPI@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['DOLORES DEL ROSARIO VIZUETE SALAZAR', 'DVIZUETE@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['BRYAN STEVEN LOPEZ ORMAZA', 'BLOPEZ@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            // ['JOSE NIBALDO MOREIRA GONZALES', '', 0, date("Y-m-d"), bcrypt('password')],
-            ['JONATHAN AURELIO JORDAN HIDALGO', 'JJORDAN@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            // ['LEONARDO ENRIQUE BAZURTO BRAVO', '', 1, date("Y-m-d"), bcrypt('password')],
-            ['MARIA FERNANDA TORRES ABAD', 'MA.FERNANDATORRESA@GMAIL.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['PEDRO JOEL BUSTOS MOREIRA', 'PBUSTOS@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['LUIS MANUEL PESANTEZ MORA', 'LPESANTEZ@JENAPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['LUIS FERNANDO BAJAÑA CHONILLO', 'LBAJANA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['MIGUEL FERNANDO LINO QUIMIS', 'MLINO@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['MIGUEL ANGEL ENGRACIA GARCIA', 'MENGRACIA@JENAPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['JUAN JOSE TORRES QUEZADA', 'JTORRES@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['RONALD DAVID VIVANCO CARPIO', 'RVIVANCO@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['PEDRO MORONI AGUILAR FERNANDEZ', 'PAGUILAR@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['DAVID IVAN CHAMBA MORA', 'DCHAMBA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['EDISON MARTIN PALMA', 'EPALMA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JOSE LUIS ANTEPARA CARDENAS', 'JANTEPARA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['OSWALDO MOLINA CEDEÑO', 'OMOLINA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['CRISTHIAN ANDRES ALBARRACIN VILAGRAN', 'CALBARRACIN@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['CONSULTA CONSULTA', 'CONSULTA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['MARIUXI ISABEL VALAREZO ARMIJOS', 'MVALAREZO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['CRISTIAN RAUL LAAZ HIDROVO', 'CLAAZ@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ANGEL FERNANDO ARMIJOS RIOS', 'FARMIJOS@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JORGE LEONARDO MEDINA SOLEDISPA', 'JMEDINA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            ['DIEGO HERNAN CRUZ ESPINOZA', 'DCRUZ@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JHON EDUARDO SAETAMA SANMARTIN', 'JSAETAMA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['WILSON STEEVEN CORDOVA ERAS', 'WCORDOVA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ANGEL DARIO CEDEÑO BRAVO', 'ACEDENO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ALBERTO DANIEL SALAS REINA', 'ASALAS@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ALEXANDER LEONEL TOAPANTA ARROYO', 'ATOAPANTA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['KRISTEL PAULETTE ASTUDILLO YEPEZ', 'KASTUDILLO@JEAMPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JUAN BRYAN CUESTA VERA', 'JCUESTA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['FIDEL ANTONIO CORTEZ CASTRO', 'FCASTRO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JOSE JACINTO PALMA CHOEZ', 'JPALMA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['JIMMY MARCOS BAQUE PIN', 'JBAQUE@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['KLEBER ENRIQUE GUERRA CHAPIRO', 'KGUERRA@JEANPAZMINO.COM', 0, date("Y-m-d"), bcrypt('password')],
-            // ['WILLIAM SANTIAGO ALDAS OCHOA', '', 0, date("Y-m-d"), bcrypt('password')],
-            ['ARNALDO JOSE SERRANO COELLO', 'ASERRANO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ALEXANDER LORENZO TIGUA PILLASAGUA', 'ATIGUA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['RONALD MAURICIO ALCOCER PIN', 'RALCOCER@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ANGELO JIMENEZ', 'AJIMENEZ@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            ['ANGEL CIRINO MERELLO SANCHEZ', 'AMERELLO@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-            // ['LEIVER JOAO CELI GONZALEZ', '', 1, date("Y-m-d"), bcrypt('password')],
-            ['ASHLEY MILENA ORELLANA FERNANDEZ', 'AORELLANA@JEANPAZMINO.COM', 1, date("Y-m-d"), bcrypt('password')],
-        ];
-
-        foreach ($usuarios as $fila) {
-            $usuario = DB::insert('INSERT INTO users (name, email, status, email_verified_at, password) VALUES(?,?,?, ?, ?)', $fila);
-
-        } */
-
-        /* $gerente->empleado()->create([
-            'nombres' => 'PATRICIO',
-            'apellidos' => 'PAZMIÑO',
-            'identificacion' => '0702875618001',
-            'telefono' => '0987456748',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
-        ]); */
     }
 }
