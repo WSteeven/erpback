@@ -55,6 +55,7 @@ use App\Http\Controllers\TableroController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransferenciaController;
+use App\Http\Controllers\TraspasoController;
 use App\Http\Resources\UserResource;
 use App\Models\Canton;
 use App\Models\ClienteFinal;
@@ -159,6 +160,7 @@ Route::apiResources(
         'transacciones-ingresos' => TransaccionBodegaIngresoController::class,
         'transacciones-egresos' => TransaccionBodegaEgresoController::class,
         'transferencias' => TransferenciaController::class,
+        'traspasos' => TraspasoController::class,
         'ubicaciones' => UbicacionController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,

@@ -35,4 +35,12 @@ class EstadoTransaccion extends Model implements Auditable
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
     }
+
+    /**
+     * Relacion uno a muchos.
+     * Un estado esta en varios traspasos
+     */
+    public function traspasos(){
+        return $this->hasMany(Traspaso::class);
+    }
 }

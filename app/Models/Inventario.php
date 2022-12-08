@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-use function PHPUnit\Framework\throwException;
 
-class Inventario extends Model
+class Inventario extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
+    use Filterable;
+
+
     protected $table = "inventarios";
     protected $fillable = [
         'detalle_id',
@@ -28,12 +34,28 @@ class Inventario extends Model
     const INVENTARIO = "INVENTARIO";
     const TRANSITO = "TRANSITO";
     const SIN_STOCK = "SIN STOCK";
+    
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
 
+    private static $whiteListFilter = ['*'];
 
-    /*****************************
-     * RELACIONES
-     * ***************************
+     /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
      */
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios items del inventario estan en un traspaso.
+     */
+    public function detalleInvetarioTraspaso()
+    {
+        return $this->belongsToMany(Traspaso::class, 'detalle_inventario_traspaso', 'traspaso_id', 'inventario_id')
+            ->withPivot('cantidad')->withTimestamps();
+    }
     /**
      * Obtener los movimientos para el id de inventario
      */
@@ -95,11 +117,12 @@ class Inventario extends Model
             ->using(InventarioPrestamoTemporal::class);
     }
 
-    /******************
-     * METODOS
-     * ****************
+     /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
      */
-
+    
     /**
      * Función para hacer ingreso masivo de elementos al inventario
      * @param int $sucursal_id as $sucursal

@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Models;
+
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+
+class DetalleInventarioTraspaso extends Pivot implements Auditable
+{
+    use HasFactory;
+    use AuditableModel;
+    use Filterable;
+    protected $table='detalle_inventario_traspaso';
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
+    protected $fillable = [
+        'traspaso_id',
+        'inventario_id',
+        'cantidad',
+    ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
+    private static $whiteListFilter = ['*'];
+
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    
+}

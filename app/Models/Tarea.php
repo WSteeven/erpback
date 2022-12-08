@@ -70,7 +70,15 @@ class Tarea extends Model implements Auditable
     {
         return $this->hasMany(Devolucion::class);
     }
-
+    
+    /**
+     * Relación uno a muchos .
+     * Una tarea puede uno o varios traspasos
+     */
+    public function traspasos()
+    {
+        return $this->hasMany(Traspaso::class);
+    }
 
 
     // Relacion uno a uno (inversa)
