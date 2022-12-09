@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Http\Resources\SubtareaResource;
+use App\Models\Empleado;
 use App\Models\Subtarea;
 use Illuminate\Support\Facades\Log;
 
@@ -12,38 +13,30 @@ class SubtareaService
     {
     }
 
-    public function obtenerFiltradosEstadosCampos($estados,$campos)
+    public function obtenerFiltradosEstadosCampos($estados, $campos)
     {
-        // Log::channel('testing')->info('Log', ['estados recibidos', $estados]);
         $estados = explode(',', $estados);
-        // Log::channel('testing')->info('Log', ['estados en array', $estados]);
-        $results = Subtarea::ignoreRequest(['estados','campos'])->filter()->whereIn('estado', $estados)->get($campos);
+        $results = Subtarea::ignoreRequest(['estados', 'campos'])->filter()->whereIn('estado', $estados)->get($campos);
         Log::channel('testing')->info('Log', ['subtareas filtradas por estado', $results]);
-        // SubtareaResource::collection($results);
         return $results;
     }
     public function obtenerFiltradosEstados($estados)
     {
-        // Log::channel('testing')->info('Log', ['estados recibidos', $estados]);
         $estados = explode(',', $estados);
-        // Log::channel('testing')->info('Log', ['estados en array', $estados]);
-        $results = Subtarea::ignoreRequest(['estados','campos'])->filter()->whereIn('estado', $estados)->orderBy('fecha_hora_asignacion', 'asc')->get();
-        Log::channel('testing')->info('Log', ['subtareas filtradas por estado', $results]);
-        // SubtareaResource::collection($results);
+        $results = Subtarea::ignoreRequest(['estados', 'campos'])->filter()->whereIn('estado', $estados)->orderBy('fecha_hora_asignacion', 'asc')->get();
         return $results;
     }
 
     public function obtenerPaginacion($offset)
     {
-        //$filter = Subtarea::ignoreRequest(['offset'])->filter()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
         $filter = Subtarea::ignoreRequest(['offset'])->filter()->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
         SubtareaResource::collection($filter);
         return $filter;
     }
 
-    public function obtenerAsignadasPaginacion($offset)
+    public function obtenerAsignadasPaginacion(Empleado $empleado, $offset)
     {
-        $filter = Subtarea::ignoreRequest(['offset'])->filter()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
+        $filter = $empleado->subtareas()->ignoreRequest(['offset'])->filter()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
         SubtareaResource::collection($filter);
         return $filter;
     }

@@ -37,18 +37,17 @@ return new class extends Migration
             $table->string('hora_fin_ventana')->nullable();
 
             $table->text('descripcion_completa')->nullable();
-            $table->string('tecnicos_grupo_principal'); // ids historico por si los técnicos se cambian de grupo o se van
-            $table->string('tecnicos_otros_grupos')->nullable();
             $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
-
-            $table->unsignedBigInteger('subtarea_dependiente')->nullable();
+            $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO_TECNICO, Subtarea::POR_EMPLEADO]);
 
             // Foreign keys
+            $table->unsignedBigInteger('subtarea_dependiente')->nullable();
+
             $table->unsignedBigInteger('tipo_trabajo_id');
             $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('grupo_id');
-            $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('grupo_id')->nullable();
+            $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tarea_id');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');

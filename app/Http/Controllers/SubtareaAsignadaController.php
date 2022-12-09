@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class SubtareaAsignadaController extends Controller
 {
-    // Trabajo asignado
+    // Trabajo asignado - REVISAR SI SE USA
     public function trabajoAsignado()
     {
         // $estado = request('estado');
