@@ -116,10 +116,11 @@ class Traspaso extends Model implements Auditable
         foreach ($items as $item) {
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
-            $row['descripcion'] = $item->detalle->descripcion;
-            $row['propietario'] = $item->cliente->empresa->razon_social;
+            $row['detalle_id'] = $item->detalle->descripcion;
+            $row['cliente_id'] = $item->cliente->empresa->razon_social;
+            $row['condicion'] = $item->condicion->nombre;
             // $row['categoria'] = $item->detalle->producto->categoria->nombre;
-            $row['cantidad'] = $item->pivot->cantidad;
+            $row['cantidades'] = $item->pivot->cantidad;
             $results[$id] = $row;
             $id++;
         }

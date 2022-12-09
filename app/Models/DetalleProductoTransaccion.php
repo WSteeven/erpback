@@ -67,8 +67,17 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
      * Relación uno a muchos.
      * Un detalle_producto_transaccion tiene varios movimientos
      */
+    // public function movimientos(){
+    //     return $this->hasMany(MovimientoProducto::class);
+    // }
+
+    /**
+     * Relacion uno a muchos polimorfica
+     */
     public function movimientos(){
-        return $this->hasMany(MovimientoProducto::class);
+        // return $this->morphMany('App\Models\MovimientoProducto', 'movimientable');
+        return $this->morphMany(MovimientoProducto::class, 'movimientable');
     }
+
 
 }

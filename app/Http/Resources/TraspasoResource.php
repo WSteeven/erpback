@@ -28,7 +28,7 @@ class TraspasoResource extends JsonResource
             'tarea' => $this->tarea?->detalle,
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado->nombre,
-            'listadoProductos.*.cantidades' => $detalles,
+            'listadoProductos' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
             'es_tarea'=>$this->tarea?true:false,
