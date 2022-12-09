@@ -49,14 +49,22 @@ class TraspasoRequest extends FormRequest
             'listadoProductos.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
-    /* protected function withValidator($validator)
+    protected function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->desde_cliente === $this->hasta_cliente) {
-                $validator->errors()->add('hasta_cliente', 'No se puede hacer traspaso al mismo cliente.');
+            if (!in_array($this->method(), ['PUT', 'PATCH'])) {
+                foreach ($this->listadoProductos as $listado) {
+                    if ($listado['cantidades'] > $listado['cantidad']) {
+                        $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad del item ' . $listado['producto'] . ' no puede ser mayor a la existente en el inventario.');
+                        $validator->errors()->add('listadoProductos.*.cantidades', 'En inventario:' . $listado['cantidad']);
+                    }
+                }
             }
+            /* if ($this->desde_cliente === $this->hasta_cliente) {
+                $validator->errors()->add('hasta_cliente', 'No se puede hacer traspaso al mismo cliente.');
+            } */
         });
-    } */
+    }
 
 
     protected function prepareForValidation()
@@ -66,5 +74,22 @@ class TraspasoRequest extends FormRequest
             'devuelta' => false,
             'estado' => 1
         ]);
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            // $completa = false;
+            foreach ($this->listadoProductos as $listado) {
+                $completa = $listado['cantidades'] == $listado['devolver'] ? true : false;
+            }
+            if ($completa) {
+                $this->merge([
+                    'estado' => 2,
+                    'devuelta' => true,
+                ]);
+            } else {
+                $this->merge([
+                    'estado' => 3,
+                ]);
+            }
+        }
     }
 }

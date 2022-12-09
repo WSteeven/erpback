@@ -4,7 +4,6 @@ namespace App\Models;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -32,6 +31,7 @@ class DetalleInventarioTraspaso extends Pivot implements Auditable
         'traspaso_id',
         'inventario_id',
         'cantidad',
+        'devolucion',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -45,5 +45,13 @@ class DetalleInventarioTraspaso extends Pivot implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+     /**
+     * Relacion uno a muchos polimorfica
+     */
+    public function movimientos(){
+        return $this->morphMany('App\Models\MovimientoProducto', 'movimientable');
+    }
+
     
 }

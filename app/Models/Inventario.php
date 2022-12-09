@@ -34,7 +34,7 @@ class Inventario extends Model implements Auditable
     const INVENTARIO = "INVENTARIO";
     const TRANSITO = "TRANSITO";
     const SIN_STOCK = "SIN STOCK";
-    
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -42,7 +42,7 @@ class Inventario extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
-     /**
+    /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
@@ -117,12 +117,27 @@ class Inventario extends Model implements Auditable
             ->using(InventarioPrestamoTemporal::class);
     }
 
-     /**
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES
      * ______________________________________________________________________________________
      */
-    
+    /**
+     * Función para crear la estructura del array de datos para el ingreso de un item del inventario.
+     */
+    public static function crearItem($detalle_id, $sucursal_id, $cliente_id, $condicion_id, $cantidad)
+    {
+        $datos = [
+            'detalle_id' => $detalle_id,
+            'sucursal_id' => $sucursal_id,
+            'cliente_id' => $cliente_id,
+            'condicion_id' => $condicion_id,
+            'cantidad' => $cantidad
+        ];
+        return $datos;
+    }
+
+
     /**
      * Función para hacer ingreso masivo de elementos al inventario
      * @param int $sucursal_id as $sucursal
@@ -141,19 +156,15 @@ class Inventario extends Model implements Auditable
                     ->where('cliente_id', $cliente)
                     ->where('condicion_id', $condicion)
                     ->first();
+
                 if ($item) {
+
                     Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
                     $cantidad = $elemento['cantidad'] + $item->cantidad;
                     $item->cantidad = $cantidad;
                     $item->save();
                 } else {
-                    $datos = [
-                        'detalle_id' => $elemento['id'],
-                        'sucursal_id' => $sucursal,
-                        'cliente_id' => $cliente,
-                        'condicion_id' => $condicion,
-                        'cantidad' => $elemento['cantidad'],
-                    ];
+                    $datos = self::crearItem($elemento['id'], $sucursal, $cliente, $condicion, $elemento['cantidad']);
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
                     Inventario::create($datos);
                 }
@@ -164,6 +175,96 @@ class Inventario extends Model implements Auditable
             Log::channel('testing')->info('Log', ['Ha ocurrido un error en el ingreso masivo', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
             // throwException($e);
+        }
+    }
+
+
+    public static function devolverProductos(int $sucursal, int $cliente_devuelve, array $elementos)
+    {
+        try {
+            DB::beginTransaction();
+            foreach ($elementos as $elemento) {
+                $itemRecibe = Inventario::find($elemento['id']);
+                $detalle = DetalleProducto::find($itemRecibe->detalle_id);
+
+                $itemDevuelve = Inventario::where('detalle_id', $detalle->id)
+                    ->where('cliente_id', $cliente_devuelve)
+                    ->where('sucursal_id', $sucursal)
+                    ->where('condicion_id', $itemRecibe->condicion_id)->first();
+
+                $itemDevuelve->por_entregar -= $elemento['devolver'];
+                $itemDevuelve->cantidad -= $elemento['devolver'];
+                $itemDevuelve->save();
+
+                $itemRecibe->por_recibir -= $elemento['devolver'];
+                $itemRecibe->cantidad += $elemento['devolver'];
+                $itemRecibe->save();
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    public static function traspasarProductos(int $sucursal, int $desde_cliente, Traspaso $traspaso, $hasta_cliente, array $elementos)
+    {
+        try {
+            DB::beginTransaction();
+
+            //primero restar productos de un cliente
+            foreach ($elementos as $elemento) {
+                $item = Inventario::find($elemento['id']);
+                $detalle = DetalleProducto::find($item->detalle_id);
+                Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
+                $item->cantidad -= $elemento['cantidades'];
+                if ($item->por_entregar) {
+                    $item->por_entregar -= $elemento['cantidades'];
+                } else {
+                    $item->por_recibir += $elemento['cantidades'];
+                }
+                $item->save();
+
+                // $traspaso->items()->movimientos();
+
+
+                //luego insertar productos en otro cliente
+                $item = Inventario::where('detalle_id', $detalle->id)->where('cliente_id', $hasta_cliente)->first();
+                Log::channel('testing')->info('Log', ['El item encontrado es', $item]);
+                if ($item) {
+                    $item->por_entregar += $elemento['cantidades'];
+                    $item->cantidad += $elemento['cantidades'];
+                    /* if($item->por_recibir){
+                        $item->por_recibir += $elemento['cantidades'];
+                    }else{
+                        $item->por_entregar -= $elemento['cantidades'];
+                    } */
+                    $item->save();
+                } else {
+                    $datos = self::crearItem($detalle->id, $sucursal, $hasta_cliente, 1, $elemento['cantidades']);
+                    Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
+                    $itemCreado = Inventario::create($datos);
+                    Log::channel('testing')->info('Log', ['El item creado es', $itemCreado]);
+                    $itemCreado->por_entregar += $elemento['cantidades'];
+                    $itemCreado->save();
+                }
+            }
+
+            //luego insertar productos en otro cliente
+            /* foreach ($elementos as $elemento) {
+                $item = Inventario::where('id', $elemento['id'])->where('cliente_id', $hasta_cliente)->first();
+                $item->cantidad+=$elemento['cantidad'];
+                $item->save();
+            } */
+
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error traspasando productos', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            throw $e;
         }
     }
 }
