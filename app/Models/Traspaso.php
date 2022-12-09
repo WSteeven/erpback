@@ -5,6 +5,7 @@ namespace App\Models;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -39,14 +40,14 @@ class Traspaso extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     /**
+    /**
      * Relación muchos a muchos(inversa).
      * Un traspaso tiene varios items del inventario
      */
     public function items()
     {
         return $this->belongsToMany(Inventario::class, 'detalle_inventario_traspaso', 'traspaso_id', 'inventario_id')
-            ->withPivot('cantidad')->withTimestamps();
+            ->withPivot(['cantidad'])->withTimestamps();
     }
     /**
      * Relación uno a muchos(inversa).
@@ -72,7 +73,7 @@ class Traspaso extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
-    
+
     /**
      * Relacion uno a uno(inversa)
      * Uno o varios traspasos se hacen desde un cliente
@@ -81,7 +82,7 @@ class Traspaso extends Model implements Auditable
     {
         return $this->belongsTo(Cliente::class, 'desde_cliente_id', 'id');
     }
-    
+
     /**
      * Relacion uno a uno(inversa)
      * Uno o varios traspasos se hacen hasta un cliente
@@ -107,22 +108,35 @@ class Traspaso extends Model implements Auditable
     /**
      * Obtener el listados de productos de un traspaso
      */
-    public static function listadoProductos(int $id)
+    public static function listadoProductos(int $id, string $controller_method)
     {
         $items = Traspaso::find($id)->items()->get();
         $results = [];
         $id = 0;
         $row = [];
         foreach ($items as $item) {
+            // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);    
+            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->descripcion;
             $row['cliente_id'] = $item->cliente->empresa->razon_social;
             $row['condicion'] = $item->condicion->nombre;
-            // $row['categoria'] = $item->detalle->producto->categoria->nombre;
             $row['cantidades'] = $item->pivot->cantidad;
+            $row['devolucion'] = null;
+            $row['devuelto'] = $detalle->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;
+
+            // $row['categoria'] = $item->detalle->producto->categoria->nombre;
+            /* if ($controller_method === 'show') {
+                $row['cantidades'] = $item->pivot->cantidad - $item->pivot->devolucion;
+            } */
+            // $detalle = DetalleInventarioTraspaso::where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+            // $x = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->find($detalle->id);
+            
+            //     Log::channel('testing')->info('Log', ['aqui habia un foreach...:', $detalle]);        
+            // Log::channel('testing')->info('Log', ['Devoluciones realizadas:', $detalle->devoluciones]);    
         }
 
         return $results;

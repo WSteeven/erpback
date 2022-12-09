@@ -17,7 +17,7 @@ class TraspasoResource extends JsonResource
     {
         // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
-        $detalles = Traspaso::listadoProductos($this->id);
+        $detalles = Traspaso::listadoProductos($this->id, $controller_method);
         $modelo = [
             'id'=>$this->id,
             'justificacion' => $this->justificacion,

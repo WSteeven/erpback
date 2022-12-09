@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TraspasoRequest;
 use App\Http\Resources\TraspasoResource;
+use App\Models\DetalleInventarioTraspaso;
+use App\Models\DevolucionTraspaso;
 use App\Models\Inventario;
 use App\Models\Traspaso;
 use App\Models\User;
@@ -120,7 +122,21 @@ class TraspasoController extends Controller
 
             $completa = false;
             foreach ($request->listadoProductos as $listado) {
-                $completa = $listado['cantidades'] == $listado['devolver'] ? true : false;
+                $completa = $listado['cantidades'] == $listado['devolucion'] ? true : false;
+
+                // $traspaso->items()->updateExistingPivot($listado['id'], ['devolucion' => $listado['devolucion']]);
+
+                //guardar las devoluciones
+                // $traspaso->items()->devoluciones->save($listado['devolucion']);
+                foreach($traspaso->items as $item){
+                    Log::channel('testing')->info('Log', ['Entró al foreach:', $item->pivot]);    
+                    $detalle = DetalleInventarioTraspaso::where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+                    $devolucion = new DevolucionTraspaso(['cantidad'=>$listado['devolucion']]);
+                    Log::channel('testing')->info('Log', ['Detalle?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);    
+                    $r = $detalle->devoluciones()->save($devolucion);
+                    Log::channel('testing')->info('Log', ['Se guardó?:', $r]);    
+                    // $item->pivot->devoluciones()->save($listado['devolucion']);
+                }
             }
             if ($completa) {
                 Log::channel('testing')->info('Log', ['Entró al if:', $request->all()]);
@@ -138,7 +154,7 @@ class TraspasoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro '.$e->getLine()], 422);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

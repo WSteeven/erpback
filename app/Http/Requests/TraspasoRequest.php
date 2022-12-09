@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\DetalleInventarioTraspaso;
 use App\Models\EstadoTransaccion;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -24,7 +25,7 @@ class TraspasoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'justificacion' => 'string|sometimes|nullable',
             'devuelta' => 'sometimes|boolean',
             'solicitante' => 'required|exists:empleados,id',
@@ -35,30 +36,37 @@ class TraspasoRequest extends FormRequest
             'estado' => 'sometimes|nullable|exists:estados_transacciones_bodega,id',
             'listadoProductos.*.cantidades' => 'required',
         ];
+        // if (in_array($this->method(), ['PUT', 'PATCH'])) {
+        //     $rules['listadoProductos.*.devolucion'] ='required';
+        // }
+
+        return $rules;
     }
 
     public function attributes()
     {
         return [
-            'listadoProductos.*.cantidades' => 'listado',
+            'listadoProductos.*.cantidades' => 'cantidad',
+            // 'listadoProductos.*.devolucion' => 'devolucion',
         ];
     }
     public function messages()
     {
         return [
-            'listadoProductos.*.cantidades' => 'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductos.*.cantidades' => 'Debes seleccionar una cantidad para el producto del listado',
+            // 'listadoProductos.*.devolucion' => 'Debes seleccionar una cantidad de devolucion para el producto del listado',
         ];
     }
     protected function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if (!in_array($this->method(), ['PUT', 'PATCH'])) {
+            // if (!in_array($this->method(), ['PUT', 'PATCH'])) {
                 foreach ($this->listadoProductos as $listado) {
-                    if ($listado['cantidades'] > $listado['cantidad']) {
+                    if (($listado['devolucion'] + $listado['devuelto']) > $listado['cantidad']) {
                         $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad del item ' . $listado['producto'] . ' no puede ser mayor a la existente en el inventario.');
                         $validator->errors()->add('listadoProductos.*.cantidades', 'En inventario:' . $listado['cantidad']);
                     }
-                }
+                // }
             }
             /* if ($this->desde_cliente === $this->hasta_cliente) {
                 $validator->errors()->add('hasta_cliente', 'No se puede hacer traspaso al mismo cliente.');
@@ -78,7 +86,8 @@ class TraspasoRequest extends FormRequest
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             // $completa = false;
             foreach ($this->listadoProductos as $listado) {
-                $completa = $listado['cantidades'] == $listado['devolver'] ? true : false;
+                // $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+                $completa = $listado['cantidades'] == ($listado['devolucion'] + $listado['devuelto']) ? true : false;
             }
             if ($completa) {
                 $this->merge([

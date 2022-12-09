@@ -51,10 +51,10 @@ class Inventario extends Model implements Auditable
      * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un traspaso.
      */
-    public function detalleInvetarioTraspaso()
+    public function detalleInventarioTraspaso()
     {
         return $this->belongsToMany(Traspaso::class, 'detalle_inventario_traspaso', 'traspaso_id', 'inventario_id')
-            ->withPivot('cantidad')->withTimestamps();
+            ->withPivot(['cantidad'])->withTimestamps();
     }
     /**
      * Obtener los movimientos para el id de inventario
@@ -192,12 +192,12 @@ class Inventario extends Model implements Auditable
                     ->where('sucursal_id', $sucursal)
                     ->where('condicion_id', $itemRecibe->condicion_id)->first();
 
-                $itemDevuelve->por_entregar -= $elemento['devolver'];
-                $itemDevuelve->cantidad -= $elemento['devolver'];
+                $itemDevuelve->por_entregar -= $elemento['devolucion'];
+                $itemDevuelve->cantidad -= $elemento['devolucion'];
                 $itemDevuelve->save();
 
-                $itemRecibe->por_recibir -= $elemento['devolver'];
-                $itemRecibe->cantidad += $elemento['devolver'];
+                $itemRecibe->por_recibir -= $elemento['devolucion'];
+                $itemRecibe->cantidad += $elemento['devolucion'];
                 $itemRecibe->save();
             }
 

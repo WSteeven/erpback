@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('traspaso_id');
             $table->unsignedBigInteger('inventario_id');
             $table->integer('cantidad');
-            $table->integer('devolucion');
+            // $table->integer('devolucion')->default(0);
             $table->timestamps();
 
             $table->foreign('traspaso_id')->references('id')->on('traspasos')->onUpdate('cascade')->onDelete('cascade');
