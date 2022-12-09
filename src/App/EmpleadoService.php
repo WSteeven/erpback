@@ -65,6 +65,6 @@ class EmpleadoService
 
     public function search(string $search)
     {
-        return Empleado::search($search)->where('estado', true)->get();
+        return EmpleadoResource::collection(Empleado::search($search)->where('estado', true)->get());
     }
 }

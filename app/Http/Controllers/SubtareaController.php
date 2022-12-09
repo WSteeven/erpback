@@ -6,6 +6,7 @@ use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +46,9 @@ class SubtareaController extends Controller
         $offset = request('offset');
 
         // Procesar
-        if ($page) return response()->json(['results' =>  $this->servicio->obtenerAsignadasPaginacion($offset)]);
+        $empleado = User::find(Auth::id())->empleado;
+
+        if ($page) return response()->json(['results' =>  $this->servicio->obtenerAsignadasPaginacion($empleado, $offset)]);
         return response()->json(['results' => $this->servicio->obtenerAsignadasTodos()]);
     }
 
@@ -78,8 +81,10 @@ class SubtareaController extends Controller
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
 
+
+
         // Respuesta
-        Log::channel('testing')->info('Log', ['Datos', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Datos', $request->all()]);
         /* $subtareaEncontrada = Tarea::find($tarea_id)->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
         if ($subtareaEncontrada && $subtareaEncontrada->estado === Subtarea::SUSPENDIDO) {
             return response()->json(['errors' => ['suspendido' => 'No se pueden agregar porque la subtarea principal está suspendida.']], 422);
@@ -90,6 +95,30 @@ class SubtareaController extends Controller
         } */
 
         $modelo = Subtarea::create($datos);
+
+        $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
+        if ($tecnicosGrupoPrincipal) {
+            $tecnicosGrupoPrincipal = str_replace(', ', '', $tecnicosGrupoPrincipal);
+            $tecnicosGrupoPrincipal = explode(',', $tecnicosGrupoPrincipal);
+
+            // Guardar id de tecnicos
+            Log::channel('testing')->info('Log', ['Principal grupo', $tecnicosGrupoPrincipal]);
+            Log::channel('testing')->info('Log', ['Principal grupo count', count($tecnicosGrupoPrincipal)]);
+
+            if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->attach($tecnicosGrupoPrincipal);
+        }
+
+        /* $tecnicosOtrosGrupos = $request->safe()->only(['tecnicos_otros_grupos'])['tecnicos_otros_grupos'];
+        if ($tecnicosOtrosGrupos) {
+            $tecnicosOtrosGrupos = str_replace(', ', '', $tecnicosOtrosGrupos);
+            $tecnicosOtrosGrupos = explode(',', $tecnicosOtrosGrupos);
+
+            Log::channel('testing')->info('Log', ['Otro grupo', $tecnicosOtrosGrupos]);
+            Log::channel('testing')->info('Log', ['Otro grupo count', count($tecnicosOtrosGrupos)]);
+
+            if (count($tecnicosOtrosGrupos)) $modelo->empleados()->attach($tecnicosOtrosGrupos);
+        } */
+
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -147,6 +176,8 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
         $subtarea->save();
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
     public function pausar(Request $request, Subtarea $subtarea)

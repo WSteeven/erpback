@@ -26,7 +26,7 @@ class SubtareaRequest extends FormRequest
         return [
             'codigo_subtarea' => 'nullable|string',
             'detalle' => 'required|string',
-            'grupo' => 'required|numeric|integer',
+            'grupo' => 'nullable|numeric|integer',
             'tipo_trabajo' => 'required|numeric|integer',
             'fecha_hora_creacion' => 'nullable|string',
             'fecha_hora_asignacion' => 'nullable|string',
@@ -45,17 +45,17 @@ class SubtareaRequest extends FormRequest
             'hora_inicio_ventana' => 'nullable|string',
             'hora_fin_ventana' => 'nullable|string',
             'descripcion_completa' => 'nullable|string',
-            'tecnicos_grupo_principal' => 'required|string',
-            'tecnicos_otros_grupos' => 'nullable|string',
+            'tecnicos_grupo_principal' => 'nullable|string',
+            //'tecnicos_otros_grupos' => 'nullable|string',
             'tarea_id' => 'required|numeric|integer',
             // 'estado' => 'nullable|numeric|integer',
         ];
     }
 
-    public function messages()
+    /*public function messages()
     {
         return [
             'tecnicos_grupo_principal.required'=> 'Debe asignar al menos un técnico del grupo asignado.'
         ];
-    }
+    }*/
 }

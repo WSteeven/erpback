@@ -14,14 +14,18 @@ class Subtarea extends Model implements Auditable
     use HasFactory, AuditableModel, Filterable;
 
     const CREADO = 'CREADO';
-    
+
     const ASIGNADO = 'ASIGNADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
-    
+
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';
+
+    // Modo de asignacion de trabajo
+    const POR_GRUPO_TECNICO = 'POR_GRUPO_TECNICO';
+    const POR_EMPLEADO = 'POR_EMPLEADO';
 
     protected $table = "subtareas";
     protected $fillable = [
@@ -39,14 +43,15 @@ class Subtarea extends Model implements Auditable
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
-        'es_dependiente',   
+        'es_dependiente',
         'subtarea_dependiente',
         'es_ventana',
         'hora_inicio_ventana',
         'hora_fin_ventana',
         'descripcion_completa',
-        'tecnicos_grupo_principal',
-        'tecnicos_otros_grupos',
+        'modo_asignacion_trabajo',
+        /*'tecnicos_grupo_principal',
+        'tecnicos_otros_grupos',*/
         'estado',
         'fecha_ventana',
         'coordinador_id'
@@ -88,14 +93,17 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(TransaccionBodega::class);
     }
 
-    public function pausasSubtarea() {
+    public function pausasSubtarea()
+    {
         return $this->hasMany(PausaSubtarea::class);
     }
 
-    public function tecnicosPrincipales(array $ids)
+    public function tecnicosPrincipales($empleados)
     {
         // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
-        return Empleado::whereIn('id', $ids)->get()->map(fn($item) => [
+        // return Empleado::whereIn('id', $ids)->get()->map(fn ($item) => [
+
+        return $empleados->map(fn ($item) => [
             'id' => $item->id,
             'identificacion' => $item->identificacion,
             'nombres' => $item->nombres,
@@ -111,5 +119,31 @@ class Subtarea extends Model implements Auditable
             'disponible' => $item->disponible,
             'roles' => implode(', ', $item->user->getRoleNames()->toArray()),
         ]);
+    }
+
+    public function otrosTecnicos($empleados)
+    {
+        //$empleados->filter(fn($item) => $item->);
+        return $empleados->map(fn ($item) => [
+            'id' => $item->id,
+            'identificacion' => $item->identificacion,
+            'nombres' => $item->nombres,
+            'apellidos' => $item->apellidos,
+            'telefono' => $item->telefono,
+            'fecha_nacimiento' => $item->fecha_nacimiento,
+            'email' => $item->user ? $item->user->email : '',
+            'jefe' => $item->jefe ? $item->jefe->nombres . ' ' . $item->jefe->apellidos : 'N/A',
+            'usuario' => $item->user->name,
+            'sucursal' => $item->sucursal->lugar,
+            'estado' => $item->estado,
+            'grupo' => $item->grupo?->nombre,
+            'disponible' => $item->disponible,
+            'roles' => implode(', ', $item->user->getRoleNames()->toArray()),
+        ]);
+    }
+
+    public function empleados()
+    {
+        return $this->belongsToMany(Empleado::class);
     }
 }

@@ -263,7 +263,7 @@ class RoleSeeder extends Seeder
         // Modulo de Tareas
         // -----------------
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_tareas'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_asignado'])->assignRole($tecnico_lider);
+        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_asignado'])->assignRole($tecnico_lider, $tecnico_secretario, $coordinador, $administrativo);
         Permission::firstOrCreate(['name' => 'puede.ver.subtarea_asignada'])->assignRole($tecnico_lider);
         Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->assignRole($tecnico_lider, $coordinador);
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->assignRole($tecnico_lider, $coordinador);
