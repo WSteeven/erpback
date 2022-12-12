@@ -119,23 +119,21 @@ class TraspasoController extends Controller
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             !is_null($datos['tarea']) ?? $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
+            Log::channel('testing')->info('Log', ['Datos validados en el update:', $request->validated()]);    
 
             $completa = false;
             foreach ($request->listadoProductos as $listado) {
                 $completa = $listado['cantidades'] == $listado['devolucion'] ? true : false;
+                Log::channel('testing')->info('Log', ['Entró al primer foreach:', $listado, 'variable completa:', $completa]);
 
-                // $traspaso->items()->updateExistingPivot($listado['id'], ['devolucion' => $listado['devolucion']]);
-
-                //guardar las devoluciones
-                // $traspaso->items()->devoluciones->save($listado['devolucion']);
-                foreach($traspaso->items as $item){
-                    Log::channel('testing')->info('Log', ['Entró al foreach:', $item->pivot]);    
-                    $detalle = DetalleInventarioTraspaso::where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
-                    $devolucion = new DevolucionTraspaso(['cantidad'=>$listado['devolucion']]);
-                    Log::channel('testing')->info('Log', ['Detalle?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);    
-                    $r = $detalle->devoluciones()->save($devolucion);
-                    Log::channel('testing')->info('Log', ['Se guardó?:', $r]);    
-                    // $item->pivot->devoluciones()->save($listado['devolucion']);
+                if (!is_null($listado['devolucion'])) {
+                    // foreach ($traspaso->items as $item) {
+                        Log::channel('testing')->info('Log', ['Entró al segundo foreach:', $listado]);
+                        $detalle = DetalleInventarioTraspaso::where('traspaso_id', $traspaso->id)->where('inventario_id', $listado['id'])->first();
+                        $devolucion = new DevolucionTraspaso(['cantidad' => $listado['devolucion']]);
+                        Log::channel('testing')->info('Log', ['Detalle y devoluciones?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);
+                        $r = $detalle->devoluciones()->save($devolucion);
+                    // }
                 }
             }
             if ($completa) {
@@ -143,6 +141,7 @@ class TraspasoController extends Controller
                 Inventario::devolverProductos($request->sucursal, $request->hasta_cliente, $request->listadoProductos);
             } else {
                 Log::channel('testing')->info('Log', ['Entró al else:', $request->all()]);
+                Inventario::devolverProductosParcial($request->sucursal, $request->hasta_cliente, $request->listadoProductos);
             }
 
             //Respuesta
@@ -154,7 +153,7 @@ class TraspasoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro '.$e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro ' . $e->getLine()], 422);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

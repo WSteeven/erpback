@@ -209,6 +209,37 @@ class Inventario extends Model implements Auditable
         }
     }
 
+    public static function devolverProductosParcial(int $sucursal, int $cliente_devuelve, array $elementos)
+    {
+        try {
+            DB::beginTransaction();
+            foreach ($elementos as $elemento) {
+                $itemRecibe = Inventario::find($elemento['id']);
+                $detalle = DetalleProducto::find($itemRecibe->detalle_id);
+
+                $itemDevuelve = Inventario::where('detalle_id', $detalle->id)
+                    ->where('cliente_id', $cliente_devuelve)
+                    ->where('sucursal_id', $sucursal)
+                    ->where('condicion_id', $itemRecibe->condicion_id)->first();
+
+                $itemDevuelve->por_entregar -= $elemento['devolucion'];
+                $itemDevuelve->cantidad -= $elemento['devolucion'];
+                $itemDevuelve->save();
+
+                $itemRecibe->por_recibir -= $elemento['devolucion'];
+                $itemRecibe->cantidad += $elemento['devolucion'];
+                $itemRecibe->save();
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos parciales', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    
     public static function traspasarProductos(int $sucursal, int $desde_cliente, Traspaso $traspaso, $hasta_cliente, array $elementos)
     {
         try {

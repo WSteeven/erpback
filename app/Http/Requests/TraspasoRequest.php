@@ -37,7 +37,7 @@ class TraspasoRequest extends FormRequest
             'listadoProductos.*.cantidades' => 'required',
         ];
         // if (in_array($this->method(), ['PUT', 'PATCH'])) {
-        //     $rules['listadoProductos.*.devolucion'] ='required';
+        //     $rules['listadoProductos.*.devolucion'] = 'required';
         // }
 
         return $rules;
@@ -60,13 +60,17 @@ class TraspasoRequest extends FormRequest
     protected function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // if (!in_array($this->method(), ['PUT', 'PATCH'])) {
-                foreach ($this->listadoProductos as $listado) {
-                    if (($listado['devolucion'] + $listado['devuelto']) > $listado['cantidad']) {
-                        $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad del item ' . $listado['producto'] . ' no puede ser mayor a la existente en el inventario.');
+            foreach ($this->listadoProductos as $listado) {
+                if (in_array($this->method(), ['PUT', 'PATCH'])) {
+                    if (($listado['devolucion'] + $listado['devuelto']) > $listado['cantidades']) {
+                        $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad de devolución del item ' . $listado['producto'] . ' no puede ser mayor a la cantidad prestada.');
+                    }
+                } else {
+                    if ($listado['cantidades'] > $listado['cantidad']) {
+                        $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad del item ' . $listado['producto'] . ' no puede ser mayor a la cantidad del inventario.');
                         $validator->errors()->add('listadoProductos.*.cantidades', 'En inventario:' . $listado['cantidad']);
                     }
-                // }
+                }
             }
             /* if ($this->desde_cliente === $this->hasta_cliente) {
                 $validator->errors()->add('hasta_cliente', 'No se puede hacer traspaso al mismo cliente.');
@@ -88,6 +92,11 @@ class TraspasoRequest extends FormRequest
             foreach ($this->listadoProductos as $listado) {
                 // $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
                 $completa = $listado['cantidades'] == ($listado['devolucion'] + $listado['devuelto']) ? true : false;
+                if (is_null($listado['devolucion'])) {
+                    $this->merge([
+                        $listado['devolucion'] => 0
+                    ]);
+                }
             }
             if ($completa) {
                 $this->merge([
