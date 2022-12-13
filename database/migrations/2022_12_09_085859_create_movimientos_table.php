@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('precio_unitario');
             $table->integer('saldo');
             $table->unsignedBigInteger('bodeguero_id');
+            $table->unsignedBigInteger('inventario_id');
             
             $table->unsignedBigInteger('movimientable_id');
             $table->string('movimientable_type');

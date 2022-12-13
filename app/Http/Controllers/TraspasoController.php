@@ -7,6 +7,7 @@ use App\Http\Resources\TraspasoResource;
 use App\Models\DetalleInventarioTraspaso;
 use App\Models\DevolucionTraspaso;
 use App\Models\Inventario;
+use App\Models\MovimientoProducto;
 use App\Models\Traspaso;
 use App\Models\User;
 use Dflydev\DotAccessData\Util;
@@ -66,7 +67,7 @@ class TraspasoController extends Controller
             $datos['hasta_cliente_id'] = $request->safe()->only(['hasta_cliente'])['hasta_cliente'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            !is_null($datos['tarea']) ?? $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             //Respuesta
             $traspaso = Traspaso::create($datos);
@@ -75,12 +76,9 @@ class TraspasoController extends Controller
 
             //Guardamos los productos seleccionados en el detalle
             foreach ($request->listadoProductos as $listado) {
-                // Log::channel('testing')->info('Log', ['Listado recibido en el foreach:', $listado]);
-                // Log::channel('testing')->info('Log', ['Producto y cantidad:', $listado['detalle_id'], $listado['cantidades']]);
                 $traspaso->items()->attach($listado['id'], ['cantidad' => $listado['cantidades']]);
             }
 
-            // Log::channel('testing')->info('Log', ['Listado de productos es: ', $request->listadoProductos]);
             Inventario::traspasarProductos($request->sucursal, $request->desde_cliente, $traspaso, $request->hasta_cliente, $request->listadoProductos);
             DB::commit();
         } catch (Exception $e) {
@@ -117,32 +115,33 @@ class TraspasoController extends Controller
             $datos['hasta_cliente_id'] = $request->safe()->only(['hasta_cliente'])['hasta_cliente'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            !is_null($datos['tarea']) ?? $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            Log::channel('testing')->info('Log', ['Datos validados en el update:', $request->validated()]);    
+            Log::channel('testing')->info('Log', ['Datos validados en el update:', $request->validated()]);
 
             $completa = false;
             foreach ($request->listadoProductos as $listado) {
-                $completa = $listado['cantidades'] == $listado['devolucion'] ? true : false;
-                Log::channel('testing')->info('Log', ['Entró al primer foreach:', $listado, 'variable completa:', $completa]);
+                // Log::channel('testing')->info('Log', ['Entró al primer foreach traspaso items:', $traspaso->items,$traspaso->items->cantidad]);
 
                 if (!is_null($listado['devolucion'])) {
-                    // foreach ($traspaso->items as $item) {
-                        Log::channel('testing')->info('Log', ['Entró al segundo foreach:', $listado]);
-                        $detalle = DetalleInventarioTraspaso::where('traspaso_id', $traspaso->id)->where('inventario_id', $listado['id'])->first();
-                        $devolucion = new DevolucionTraspaso(['cantidad' => $listado['devolucion']]);
-                        Log::channel('testing')->info('Log', ['Detalle y devoluciones?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);
-                        $r = $detalle->devoluciones()->save($devolucion);
-                    // }
+                    Log::channel('testing')->info('Log', ['Entró al segundo foreach:', $listado]);
+                    $item = Inventario::where('id', $listado['id'])->first();
+                    Log::channel('testing')->info('Log', ['Entró al item:', $item]);
+                    $detalle = DetalleInventarioTraspaso::where('traspaso_id', $traspaso->id)->where('inventario_id', $listado['id'])->first();
+                    $devolucion = new DevolucionTraspaso(['cantidad' => $listado['devolucion']]);
+                    $movimiento = new MovimientoProducto([
+                        'cantidad' => $listado['devolucion'],
+                        'precio_unitario' => is_null($detalle->precio_compra) ? 0 : $detalle->precio_compra,
+                        'saldo' => $item->cantidad - $listado['devolucion'],
+                        'bodeguero_id' => auth()->user()->empleado->id,
+                    ]);
+                    $detalle->movimientos()->save($movimiento);
+                    Log::channel('testing')->info('Log', ['Detalle y devoluciones?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);
+                    $detalle->devoluciones()->save($devolucion);
                 }
             }
-            if ($completa) {
-                Log::channel('testing')->info('Log', ['Entró al if:', $request->all()]);
-                Inventario::devolverProductos($request->sucursal, $request->hasta_cliente, $request->listadoProductos);
-            } else {
-                Log::channel('testing')->info('Log', ['Entró al else:', $request->all()]);
-                Inventario::devolverProductosParcial($request->sucursal, $request->hasta_cliente, $request->listadoProductos);
-            }
+
+            Inventario::devolverProductos($request->sucursal, $request->hasta_cliente, $request->listadoProductos);
 
             //Respuesta
             $traspaso->update($datos);
@@ -152,8 +151,8 @@ class TraspasoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro ' . $e->getLine()], 422);
+            Log::channel('testing')->info('Log', ['ERROR del catch en traspaso update', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro ' . $e->getLine()], 422);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

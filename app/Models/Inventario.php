@@ -145,7 +145,7 @@ class Inventario extends Model implements Auditable
      * @param int $condicion_id as $condicion
      * @param DetalleProducto[] $elementos 
      */
-    public static function ingresoMasivo(int $sucursal, int $cliente, int $condicion, array $elementos)
+    public static function ingresoMasivo(int $transaccion_id, int $sucursal, int $cliente, int $condicion, array $elementos)
     {
         try {
             DB::beginTransaction();
@@ -158,7 +158,6 @@ class Inventario extends Model implements Auditable
                     ->first();
 
                 if ($item) {
-
                     Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
                     $cantidad = $elemento['cantidad'] + $item->cantidad;
                     $item->cantidad = $cantidad;
@@ -166,8 +165,19 @@ class Inventario extends Model implements Auditable
                 } else {
                     $datos = self::crearItem($elemento['id'], $sucursal, $cliente, $condicion, $elemento['cantidad']);
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
-                    Inventario::create($datos);
+                    $item = Inventario::create($datos);
                 }
+                //Se crea la lista de movimientos
+                $detalleTransaccion = DetalleProductoTransaccion::where('detalle_id', $elemento['id'])->where('transaccion_id', $transaccion_id)->first();
+
+                //Aqui va el registro de movimientos
+                /* $movimiento = MovimientoProducto::create([
+                        'inventario_id'=> $item->id,
+                        'detalle_producto_transaccion_id'=>$request->detalle_producto_transaccion_id,
+                        'cantidad'=>$request->cantidad,
+                        'precio_unitario'=>$item->detalle->precio_compra,
+                        'saldo'=>$item->cantidad-$request->cantidad
+                    ]); */ 
             }
 
             DB::commit();
@@ -203,13 +213,13 @@ class Inventario extends Model implements Auditable
 
             DB::commit();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error devolviendo productos', $e->getMessage(), $e->getLine()]);
             throw $e;
         }
     }
 
-    public static function devolverProductosParcial(int $sucursal, int $cliente_devuelve, array $elementos)
+    /* public static function devolverProductosParcial(int $sucursal, int $cliente_devuelve, array $elementos)
     {
         try {
             DB::beginTransaction();
@@ -237,7 +247,7 @@ class Inventario extends Model implements Auditable
             DB::rollBack();
             throw $e;
         }
-    }
+    } */
 
     
     public static function traspasarProductos(int $sucursal, int $desde_cliente, Traspaso $traspaso, $hasta_cliente, array $elementos)

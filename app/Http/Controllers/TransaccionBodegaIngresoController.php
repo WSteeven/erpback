@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Inventario;
-use App\Models\SubtipoTransaccion;
+use App\Models\MovimientoProducto;
 use App\Models\TransaccionBodega;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -94,31 +93,13 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
                 !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-                //Comprobar si hay tarea
-                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-                /* if ($request->per_atiende) {
-                    $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-                } */
-                //datos de las relaciones muchos a muchos
-                // $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-
+                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];//Comprobar si hay tarea
                 
-                /* if ($request->tarea) {
-                    $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-                } */
-
                 //Creacion de la transaccion
                 Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
                 
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
-
-                //Guardar la autorizacion con su observacion
-                // if ($request->observacion_aut) {
-                //     $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
-                // } else {
-                //     $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-                // }
 
                 //Guardar el estado con su observacion
                 if ($request->obs_estado) {
@@ -139,7 +120,16 @@ class TransaccionBodegaIngresoController extends Controller
                         );
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario
-                    Inventario::ingresoMasivo($transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosTransaccion);
+                    Inventario::ingresoMasivo($transaccion->id, $transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosTransaccion);
+
+                    /* //aqui va el registro de movimientos
+                    $movimiento = MovimientoProducto::create([
+                        'inventario_id'=> $item->id,
+                        'detalle_producto_transaccion_id'=>$request->detalle_producto_transaccion_id,
+                        'cantidad'=>$request->cantidad,
+                        'precio_unitario'=>$item->detalle->precio_compra,
+                        'saldo'=>$item->cantidad-$request->cantidad
+                    ]); */
                 } else {
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);

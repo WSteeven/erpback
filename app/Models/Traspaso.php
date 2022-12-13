@@ -108,7 +108,7 @@ class Traspaso extends Model implements Auditable
     /**
      * Obtener el listados de productos de un traspaso
      */
-    public static function listadoProductos(int $id, string $controller_method)
+    public static function listadoProductos(int $id)
     {
         $items = Traspaso::find($id)->items()->get();
         $results = [];
@@ -116,7 +116,7 @@ class Traspaso extends Model implements Auditable
         $row = [];
         foreach ($items as $item) {
             // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);    
-            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->descripcion;
@@ -127,17 +127,28 @@ class Traspaso extends Model implements Auditable
             $row['devuelto'] = $detalle->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;
-
-            // $row['categoria'] = $item->detalle->producto->categoria->nombre;
-            /* if ($controller_method === 'show') {
-                $row['cantidades'] = $item->pivot->cantidad - $item->pivot->devolucion;
-            } */
-            // $detalle = DetalleInventarioTraspaso::where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
-            // $x = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->find($detalle->id);
-            
-            //     Log::channel('testing')->info('Log', ['aqui habia un foreach...:', $detalle]);        
-            // Log::channel('testing')->info('Log', ['Devoluciones realizadas:', $detalle->devoluciones]);    
         }
+        // Log::channel('testing')->info('Log', ['Foreach de movimientos de devoluciones del  traspaso:', $devoluciones]);
+        return $results;
+    }
+
+    public static function devolucionesRealizadas(int $id)
+    {
+        $items = Traspaso::find($id)->items()->get();
+        $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($items as $item) {
+            $detalleTraspaso = DetalleInventarioTraspaso::with('devoluciones')->where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+            Log::channel('testing')->info('Log', ['devoluciones que detalleTraspaso:', $detalleTraspaso->devoluciones]);
+            $row['id'] = $item->id;
+            $row['detalle_id'] = $item->detalle->descripcion;
+            $row['cantidades'] = $item->pivot->cantidad;
+            $row['devoluciones'] = $detalleTraspaso->devoluciones;
+            $results[$id] = $row;
+            $id++;
+        }
+        Log::channel('testing')->info('Log', ['devoluciones que se envian :', $results]);
 
         return $results;
     }
