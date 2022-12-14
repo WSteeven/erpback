@@ -27,7 +27,7 @@ class TransaccionBodegaRequest extends FormRequest
      */
     public function rules()
     {
-        Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
+        // Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
             'obs_autorizacion' => 'nullable|string|sometimes',

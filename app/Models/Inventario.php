@@ -125,7 +125,7 @@ class Inventario extends Model implements Auditable
     /**
      * Función para crear la estructura del array de datos para el ingreso de un item del inventario.
      */
-    public static function crearItem($detalle_id, $sucursal_id, $cliente_id, $condicion_id, $cantidad)
+    public static function estructurarItem($detalle_id, $sucursal_id, $cliente_id, $condicion_id, $cantidad)
     {
         $datos = [
             'detalle_id' => $detalle_id,
@@ -133,6 +133,19 @@ class Inventario extends Model implements Auditable
             'cliente_id' => $cliente_id,
             'condicion_id' => $condicion_id,
             'cantidad' => $cantidad
+        ];
+        return $datos;
+    }
+
+    public static function estructurarMovimiento($inventario_id, $detalle_producto_transaccion_id, $cantidad, $precio_unitario, $saldo, $tipo)
+    {
+        $datos = [
+            'inventario_id' => $inventario_id,
+            'detalle_producto_transaccion_id' => $detalle_producto_transaccion_id,
+            'cantidad' => $cantidad,
+            'precio_unitario' => $precio_unitario,
+            'saldo' => $saldo,
+            'tipo' => $tipo
         ];
         return $datos;
     }
@@ -145,39 +158,45 @@ class Inventario extends Model implements Auditable
      * @param int $condicion_id as $condicion
      * @param DetalleProducto[] $elementos 
      */
-    public static function ingresoMasivo(int $transaccion_id, int $sucursal, int $cliente, int $condicion, array $elementos)
+    public static function ingresoMasivo(TransaccionBodega $transaccion, int $condicion, array $elementos)
     {
         try {
             DB::beginTransaction();
             Log::channel('testing')->info('Log', ['Elementos recibidos en el metodo de ingreso masivo', $elementos]);
             foreach ($elementos as $elemento) {
+                Log::channel('testing')->info('Log', ['Elemento dentro del foreach', $elemento]);
+                $detalleTransaccion = DetalleProductoTransaccion::where('detalle_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
                 $item = Inventario::where('detalle_id', $elemento['id'])
-                    ->where('sucursal_id', $sucursal)
-                    ->where('cliente_id', $cliente)
+                    ->where('sucursal_id', $transaccion->sucursal_id)
+                    ->where('cliente_id', $transaccion->cliente_id)
                     ->where('condicion_id', $condicion)
                     ->first();
-
                 if ($item) {
                     Log::channel('testing')->info('Log', ['item encontrado en el inventario', $item]);
                     $cantidad = $elemento['cantidad'] + $item->cantidad;
                     $item->cantidad = $cantidad;
                     $item->save();
+
+                    //Aqui va el registro de movimientos
+                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'],$elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
+                    $movimiento = MovimientoProducto::create($datos);
                 } else {
-                    $datos = self::crearItem($elemento['id'], $sucursal, $cliente, $condicion, $elemento['cantidad']);
+                    $datos = self::estructurarItem($elemento['id'], $transaccion->sucursal_id, $transaccion->cliente_id, $condicion, $elemento['cantidad']);
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
                     $item = Inventario::create($datos);
+                    Log::channel('testing')->info('Log', ['item creado es ', $item]);
+
+                    //Aqui va el registro de movimientos
+                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'],$elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
+                    $movimiento = MovimientoProducto::create($datos);
+                    
                 }
                 //Se crea la lista de movimientos
-                $detalleTransaccion = DetalleProductoTransaccion::where('detalle_id', $elemento['id'])->where('transaccion_id', $transaccion_id)->first();
 
-                //Aqui va el registro de movimientos
-                /* $movimiento = MovimientoProducto::create([
-                        'inventario_id'=> $item->id,
-                        'detalle_producto_transaccion_id'=>$request->detalle_producto_transaccion_id,
-                        'cantidad'=>$request->cantidad,
-                        'precio_unitario'=>$item->detalle->precio_compra,
-                        'saldo'=>$item->cantidad-$request->cantidad
-                    ]); */ 
+
+
+
+                Log::channel('testing')->info('Log', ['Se creó el movimiento', $movimiento]);
             }
 
             DB::commit();
@@ -249,7 +268,7 @@ class Inventario extends Model implements Auditable
         }
     } */
 
-    
+
     public static function traspasarProductos(int $sucursal, int $desde_cliente, Traspaso $traspaso, $hasta_cliente, array $elementos)
     {
         try {
@@ -284,7 +303,7 @@ class Inventario extends Model implements Auditable
                     } */
                     $item->save();
                 } else {
-                    $datos = self::crearItem($detalle->id, $sucursal, $hasta_cliente, 1, $elemento['cantidades']);
+                    $datos = self::estructurarItem($detalle->id, $sucursal, $hasta_cliente, 1, $elemento['cantidades']);
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
                     $itemCreado = Inventario::create($datos);
                     Log::channel('testing')->info('Log', ['El item creado es', $itemCreado]);

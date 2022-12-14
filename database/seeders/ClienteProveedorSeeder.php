@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Cliente;
 use App\Models\Empresa;
 use App\Models\Proveedor;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ClienteProveedorSeeder extends Seeder
@@ -51,10 +50,20 @@ class ClienteProveedorSeeder extends Seeder
             'direccion' => 'CUENCA, RICARDO DURAN Y CAMINO VIEJO A BAÑOS'
         ]);
 
+        Empresa::create([
+
+            'identificacion' => '0993375739001',
+            'tipo_contribuyente' => Empresa::PRIVADA,
+            'razon_social' => 'JP CONSTRUCRED C.LTDA.',
+            'correo' => 'informacion@jpconstrucred.com',
+            'direccion' => 'MACHALA, NAPOLEON MERA Y 8AVA NORTE'
+        ]);
+
         Cliente::create(['empresa_id' => 1, 'parroquia_id' => 338, 'requiere_bodega' => true]);
         Cliente::create(['empresa_id' => 2, 'parroquia_id' => 338, 'requiere_bodega' => true]);
         Cliente::create(['empresa_id' => 3, 'parroquia_id' => 525, 'requiere_bodega' => true]);
         Cliente::create(['empresa_id' => 4, 'parroquia_id' => 17, 'requiere_bodega' => true]);
+        Cliente::create(['empresa_id' => 5, 'parroquia_id' => 17, 'requiere_bodega' => true]);
 
         // PROVEEDORES
         Empresa::create([

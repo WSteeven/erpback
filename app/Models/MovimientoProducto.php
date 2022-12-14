@@ -24,6 +24,7 @@ class MovimientoProducto extends Model implements Auditable
         'saldo',
         'detalle_producto_transaccion_id',
         'inventario_id',
+        'tipo',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

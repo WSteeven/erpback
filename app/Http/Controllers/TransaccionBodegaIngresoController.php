@@ -28,7 +28,7 @@ class TransaccionBodegaIngresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_ingresos')->only('destroy');
     }
 
-    
+
     /**
      * Listar
      */
@@ -81,23 +81,23 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
             try {
                 $datos = $request->validated();
-                Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
-                Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
+                // Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
+                // Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
-                
+
                 $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-                !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-                !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];//Comprobar si hay tarea
-                
+                !is_null($request->tarea) ?? $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
+
                 //Creacion de la transaccion
                 Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
-                
+
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
@@ -120,16 +120,8 @@ class TransaccionBodegaIngresoController extends Controller
                         );
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario
-                    Inventario::ingresoMasivo($transaccion->id, $transaccion->sucursal_id, $transaccion->cliente_id,$request->condicion, $request->listadoProductosTransaccion);
+                    Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
 
-                    /* //aqui va el registro de movimientos
-                    $movimiento = MovimientoProducto::create([
-                        'inventario_id'=> $item->id,
-                        'detalle_producto_transaccion_id'=>$request->detalle_producto_transaccion_id,
-                        'cantidad'=>$request->cantidad,
-                        'precio_unitario'=>$item->detalle->precio_compra,
-                        'saldo'=>$item->cantidad-$request->cantidad
-                    ]); */
                 } else {
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
@@ -213,7 +205,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion->detalles()->detach();
 
                 //Guardar los productos seleccionados
-                foreach ($request->listadoProductosSeleccionados as $listado) {
+                foreach ($request->listadoProductosTransaccion as $listado) {
                     $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
                 }
 
@@ -223,7 +215,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             } catch (Exception $e) {
                 DB::rollBack();
-                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage()]);
+                Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
             }
 
@@ -250,7 +242,8 @@ class TransaccionBodegaIngresoController extends Controller
     /**
      * Consultar datos sin metodo show
      */
-    public function showPreview(TransaccionBodega $transaccion){
+    public function showPreview(TransaccionBodega $transaccion)
+    {
         $estado = TransaccionBodega::ultimoEstado($transaccion->id);
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
 
@@ -258,6 +251,4 @@ class TransaccionBodegaIngresoController extends Controller
 
         return response()->json(compact('modelo'), 200);
     }
-
-    
 }

@@ -42,7 +42,7 @@ class DetalleProductoController extends Controller
         } else {
             $results = DetalleProducto::filter()->get();
             $results = DetalleProductoResource::collection($results);
-            Log::channel('testing')->info('Log', ['Entró en el else de detalleController:']);
+            // Log::channel('testing')->info('Log', ['Entró en el else de detalleController:']);
         }
         // DetalleProductoResource::collection($results);
         return response()->json(compact('results'));

@@ -129,13 +129,13 @@ class TraspasoController extends Controller
                     Log::channel('testing')->info('Log', ['Entró al item:', $item]);
                     $detalle = DetalleInventarioTraspaso::where('traspaso_id', $traspaso->id)->where('inventario_id', $listado['id'])->first();
                     $devolucion = new DevolucionTraspaso(['cantidad' => $listado['devolucion']]);
-                    $movimiento = new MovimientoProducto([
-                        'cantidad' => $listado['devolucion'],
-                        'precio_unitario' => is_null($detalle->precio_compra) ? 0 : $detalle->precio_compra,
-                        'saldo' => $item->cantidad - $listado['devolucion'],
-                        'bodeguero_id' => auth()->user()->empleado->id,
-                    ]);
-                    $detalle->movimientos()->save($movimiento);
+                    // $movimiento = new MovimientoProducto([
+                    //     'cantidad' => $listado['devolucion'],
+                    //     'precio_unitario' => is_null($detalle->precio_compra) ? 0 : $detalle->precio_compra,
+                    //     'saldo' => $item->cantidad - $listado['devolucion'],
+                    //     'bodeguero_id' => auth()->user()->empleado->id,
+                    // ]);
+                    // $detalle->movimientos()->save($movimiento);
                     Log::channel('testing')->info('Log', ['Detalle y devoluciones?:', $detalle, $detalle->devoluciones(), $detalle->devoluciones]);
                     $detalle->devoluciones()->save($devolucion);
                 }
