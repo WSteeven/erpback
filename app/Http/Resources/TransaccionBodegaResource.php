@@ -43,6 +43,7 @@ class TransaccionBodegaResource extends JsonResource
             'per_retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,
             'tarea' => $this->tarea ? $this->tarea->detalle : null,
             'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
+            'cliente_id' => $this->cliente_id,
             'listadoProductosTransaccion' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 

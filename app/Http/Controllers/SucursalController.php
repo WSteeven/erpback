@@ -37,7 +37,7 @@ class SucursalController extends Controller
             // SucursalResource::collection($results);
             // $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Sucursal::all();
+            $results = Sucursal::filter()->get();
             // SucursalResource::collection($results);
         }
         if($search){
