@@ -116,7 +116,9 @@ class Traspaso extends Model implements Auditable
         $row = [];
         foreach ($items as $item) {
             // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);    
-            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')
+            ->where('traspaso_id', $item->pivot->traspaso_id)
+            ->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->descripcion;

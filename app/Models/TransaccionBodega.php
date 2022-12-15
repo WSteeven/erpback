@@ -188,6 +188,8 @@ class TransaccionBodega extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
+            Log::channel('testing')->info('Log', ['Foreach de movimientos de devoluciones del  traspaso:', $detalle]);
+            $detalleProductoTransaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')->where('transaccion_id', $detalle->pivot->transaccion_id)->where('detalle_id', $detalle->id)->first();
             $row['id'] = $detalle->id;
             $row['detalle_id'] = $detalle->pivot->detalle_id;
             $row['producto'] = $detalle->producto->nombre;
@@ -195,6 +197,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad_inicial;
             $row['despachado'] = $detalle->pivot->cantidad_final;
+            $row['devuelto']=$detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;
         }
@@ -202,7 +205,7 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
-    
+
 
 
     /**
@@ -211,5 +214,4 @@ class TransaccionBodega extends Model implements Auditable
     /* public function getTableColumns() {
         return $this->getConnection()->getSchemaBuilder()->getColumnListing($this->getTable());
     } */
-    
 }

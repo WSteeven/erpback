@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DetalleProductoTransaccionRequest;
 use App\Http\Resources\DetalleProductoTransaccionResource;
 use App\Models\DetalleProductoTransaccion;
+use App\Models\DevolucionTransaccion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -68,11 +69,14 @@ class DetalleProductoTransaccionController extends Controller
      */
     public function update(DetalleProductoTransaccionRequest $request, DetalleProductoTransaccion $detalle)
     {
+        Log::channel('testing')->info('Log', ['metodo update del controlador DetalleProductoTransaccionController', $request->all()]);
         $datos = $request->validated();
+        //Se crea la devolucion
+        $devolucion = new DevolucionTransaccion(['cantidad'=>$request->cantidad_final]);
+        $detalle->devoluciones()->save($devolucion);
         $detalle->update($datos);
         $modelo = new DetalleProductoTransaccionResource($detalle->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-
         return response()->json(compact('mensaje', 'modelo'));
     }
 

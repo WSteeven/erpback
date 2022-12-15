@@ -4,11 +4,12 @@ namespace App\Models;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class DetalleProductoTransaccion extends Pivot implements Auditable
+class DetalleProductoTransaccion extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
@@ -78,6 +79,13 @@ class DetalleProductoTransaccion extends Pivot implements Auditable
     //     // return $this->morphMany('App\Models\MovimientoProducto', 'movimientable');
     //     return $this->morphMany(MovimientoProducto::class, 'movimientable');
     // }
+    /**
+     * Relación uno a muchos.
+     * Un detalle de una transaccion tiene una o varias devoluciones parciales
+     */
+    public function devoluciones(){
+        return $this->hasMany(DevolucionTransaccion::class);
+    }
 
 
 }

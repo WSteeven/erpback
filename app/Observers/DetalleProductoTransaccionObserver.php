@@ -19,7 +19,6 @@ class DetalleProductoTransaccionObserver
     public function created(DetalleProductoTransaccion $detalleProductoTransaccion)
     {
         Log::channel('testing')->info('Log', ['metodo created del observer DetalleProductoTransaccionObserver', $detalleProductoTransaccion]);
-        
     }
 
     /**
@@ -31,7 +30,7 @@ class DetalleProductoTransaccionObserver
     public function updated(DetalleProductoTransaccion $detalleProductoTransaccion)
     {
         Log::channel('testing')->info('Log', ['metodo updated del observer DetalleProductoTransaccionObserver', $detalleProductoTransaccion]);
-        
+
         /* MovimientoProducto::create([
             'inventario_id'=> $item->id,
             'transaccion_id'=>$request->transaccion_id,
@@ -44,16 +43,17 @@ class DetalleProductoTransaccionObserver
         Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
         $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
         $esParcial = false;
-        foreach($detallesTransaccion as $detalle){
-            if($detalle->cantidad_inicial!==$detalle->cantidad_final){
-                $esParcial=true;
+        foreach ($detallesTransaccion as $detalle) {
+            if ($detalle->cantidad_inicial !== $detalle->cantidad_final) {
+                $esParcial = true;
             }
             // Log::channel('testing')->info('Log', ['foreach del observer DetalleProductoTransaccionObserver', $detalle, $detalle->cantidad_final]);
         }
-        if($esParcial){
+        if ($esParcial) {
             $transaccion->estados()->attach(3);
+        } else {
+            $transaccion->estados()->attach(2);
         }
-
     }
 
     /**
