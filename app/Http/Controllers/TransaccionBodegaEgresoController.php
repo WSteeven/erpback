@@ -97,6 +97,7 @@ class TransaccionBodegaEgresoController extends Controller
                 TransaccionBodegaResource::collection($results);
             }
         }
+        $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }
 

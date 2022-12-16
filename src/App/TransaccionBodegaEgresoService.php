@@ -5,10 +5,12 @@ namespace Src\App;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\EstadoTransaccion;
+use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TransaccionBodegaEgresoService
 {
@@ -289,15 +291,17 @@ class TransaccionBodegaEgresoService
     /* Filtros sin paginación */
     public static function filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo, $estado)
     {
+        $tipoTransaccion = TipoTransaccion::where('nombre', $tipo)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        Log::channel('testing')->info('Log', ['array de motivos', $motivos]);
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "tarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
                     ->join('tiempo_autorizacion_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_autorizacion_transaccion.transaccion_id')
                             ->where('tiempo_autorizacion_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_autorizacion_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -305,7 +309,7 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::PENDIENTE)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
@@ -320,7 +324,7 @@ class TransaccionBodegaEgresoService
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
@@ -329,7 +333,6 @@ class TransaccionBodegaEgresoService
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
-                    // ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -344,46 +347,52 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
-                    ->filter()->get();
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    ->get();
+
                 return $results;
         }
     }
     public static function filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo, $estado)
     {
+        $tipoTransaccion = TipoTransaccion::where('nombre', $tipo)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id",  "tarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_autorizacion_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_autorizacion_transaccion.transaccion_id')
                             ->where('tiempo_autorizacion_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_autorizacion_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -391,32 +400,36 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::PENDIENTE)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PARCIAL)
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -431,45 +444,53 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             default:
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->where('solicitante_id', auth()->user()->empleado->id)
                     ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->orWhere('per_retira_id', auth()->user()->empleado->id)
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
-                    ->filter()->get();
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->get();
                 return $results;
         }
     }
     public static function filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo, $estado)
     {
+        $tipoTransaccion = TipoTransaccion::where('nombre', $tipo)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id"])
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_autorizacion_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_autorizacion_transaccion.transaccion_id')
                             ->where('tiempo_autorizacion_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_autorizacion_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -477,26 +498,30 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::PENDIENTE)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PARCIAL)
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'PENDIENTE':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -511,28 +536,29 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             case 'COMPLETA':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
+                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
+                    // ->where('tipos_transacciones.nombre', '=', $tipo)
                     ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                     ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
                     ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
-                    ->filter()->get();
+                    ->get();
                 return $results;
             default:
                 // Log::channel('testing')->info('Log', ['Estoy en el default y el estado es', $estado]);
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
-                    ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    ->where('tipos_transacciones.nombre', '=', $tipo)
-                    ->filter()->get();
+                    ->whereIn('motivo_id', $motivos)
+                    ->orWhereNull('motivo_id')
+                    ->get();
                 return $results;
         }
     }

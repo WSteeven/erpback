@@ -87,11 +87,11 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if (!is_null($this->fecha_limite)) {
+        /* if (!is_null($this->fecha_limite)) {
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
             ]);
-        }
+        } */
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             if ($this->autorizacion == '') {
                 $this->merge([
