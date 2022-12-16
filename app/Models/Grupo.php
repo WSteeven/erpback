@@ -19,11 +19,9 @@ class Grupo extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-
-
     public function empleados()
     {
-        return $this->belongsToMany(Empleado::class);
+        return $this->hasMany(Empleado::class);
     }
 
     public function tareas(){

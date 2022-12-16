@@ -17,9 +17,10 @@ class SubtareaService
     {
         $estados = explode(',', $estados);
         $results = Subtarea::ignoreRequest(['estados', 'campos'])->filter()->whereIn('estado', $estados)->get($campos);
-        Log::channel('testing')->info('Log', ['subtareas filtradas por estado', $results]);
+        // Log::channel('testing')->info('Log', ['subtareas filtradas por estado', $results]);
         return $results;
     }
+
     public function obtenerFiltradosEstados($estados)
     {
         $estados = explode(',', $estados);
@@ -29,7 +30,7 @@ class SubtareaService
 
     public function obtenerPaginacion($offset)
     {
-        $filter = Subtarea::ignoreRequest(['offset'])->filter()->orderBy('fecha_hora_asignacion', 'asc')->simplePaginate($offset);
+        $filter = Subtarea::ignoreRequest(['offset'])->filter()->orderBy('fecha_hora_creacion', 'desc')->simplePaginate($offset);
         SubtareaResource::collection($filter);
         return $filter;
     }
@@ -43,7 +44,7 @@ class SubtareaService
 
     public function obtenerTodos()
     {
-        $results = Subtarea::ignoreRequest(['estados'])->filter()->get();
+        $results = Subtarea::ignoreRequest(['estados'])->filter()->orderBy('fecha_hora_creacion', 'desc')->get();
         return SubtareaResource::collection($results);
     }
 

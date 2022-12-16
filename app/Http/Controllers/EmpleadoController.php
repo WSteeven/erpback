@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
+use App\Models\Grupo;
 use App\Models\User;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 
@@ -42,13 +44,14 @@ class EmpleadoController extends Controller
         // Procesar
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
 
-        if (auth()->user()->hasRole(User::ROL_RECURSOS_HUMANOS)) {
+        $user = User::find(auth()->id());
+        if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
 
         // return $this->servicio->obtenerTodosSinEstado();
-        
+
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
@@ -122,13 +125,13 @@ class EmpleadoController extends Controller
      */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
-        Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
 
         $empleado->update($request->validated());
 
         if (!is_null($request->password)) {
-            Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
+            // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
             $empleado->user()->update([
                 'name' => $request->usuario,
                 'email' => $request->email,
@@ -164,5 +167,97 @@ class EmpleadoController extends Controller
 
         $results = $this->servicio->obtenerTecnicosPorGrupo($grupo);
         return response()->json(compact('results'));
+    }
+
+
+    public function intercambiarJefeCuadrilla(Request $request)
+    {
+        $request->validate([
+            'grupo' => 'required|numeric|integer',
+            'nuevo_jefe' => 'required|numeric|integer',
+        ]);
+
+        // Empleados
+        $empleados = Grupo::find($request['grupo'])->empleados;
+        $jefeActual = null;
+
+        // Buscar lider de cuadrilla actual
+        foreach ($empleados as $empleado) {
+            $es_lider = in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
+
+            if ($es_lider) $jefeActual = $empleado->user;
+        }
+
+        $nuevoJefe = User::find(Empleado::find($request['nuevo_jefe'])->usuario_id);
+
+        if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
+            throw ValidationException::withMessages([
+                'error_grupo' => ['Este empleado no pertenece al grupo seleccionado. Asígnelo y vuelva a intentar.'],
+            ]);
+        }
+
+        // Validar que nuevo jefe no sea secretario
+        if (in_array(User::ROL_TECNICO_SECRETARIO, $nuevoJefe->getRoleNames()->toArray())) {
+            throw ValidationException::withMessages([
+                'secretario' => ['Este empleado tiene rol de Secretario de cuadrilla. Cámbielo y vuelva a intentar.'],
+            ]);
+        }
+
+        // Quitar rol de jefe al actual
+        $nuevosRolesAnteriorJefe = $jefeActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_JEFE_CUADRILLA);
+        $jefeActual->syncRoles($nuevosRolesAnteriorJefe);
+
+        // Agregar rol de jefe a nuevo jefed
+        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_JEFE_CUADRILLA);
+        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
+
+        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
+    }
+
+    public function intercambiarSecretarioCuadrilla(Request $request)
+    {
+        $request->validate([
+            'grupo' => 'required|numeric|integer',
+            'nuevo_jefe' => 'required|numeric|integer',
+        ]);
+
+        // Empleados
+        $empleados = Grupo::find($request['grupo'])->empleados;
+        $secretarioActual = null;
+
+        // Buscar secretario actual
+        foreach ($empleados as $empleado) {
+            $es_secretario = in_array(User::ROL_TECNICO_SECRETARIO, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
+            if ($es_secretario) $secretarioActual = $empleado->user;
+        }
+
+        $nuevoJefe = User::find(Empleado::find($request['nuevo_jefe'])->usuario_id);
+
+        Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
+        Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
+        
+        // Validar que el empleado pertenezca al grupo seleccionado
+        if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
+            throw ValidationException::withMessages([
+                'error_grupo' => ['Este empleado no pertenece al grupo seleccionado. Asígnelo y vuelva a intentar.'],
+            ]);
+        }
+
+        // Validar que nuevo jefe no sea secretario
+        if (in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $nuevoJefe->getRoleNames()->toArray())) {
+            throw ValidationException::withMessages([
+                'jefe_cuadrilla' => ['Este empleado tiene rol de Jefe de cuadrilla. Cámbielo y vuelva a intentar.'],
+            ]);
+        }
+
+        // Quitar rol de secretario al actual
+        $nuevosRolesAnteriorJefe = $secretarioActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_SECRETARIO);
+        $secretarioActual->syncRoles($nuevosRolesAnteriorJefe);
+
+        // Agregar rol de secretario a nuevo secretario
+        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
+        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
+
+        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']);
     }
 }

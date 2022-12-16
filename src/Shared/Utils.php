@@ -92,10 +92,21 @@ class Utils
      * Para una validación más completa se debe usar expresiones regulares. 
      * 
      */
-    public static function validarEmail(String $email){ //Aún no está probada
-        if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+    public static function validarEmail(String $email)
+    { //Aún no está probada
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return true;
         }
         return false;
+    }
+
+    public static function quitarEspaciosComasString(string $cadena)
+    {
+        return str_replace(', ', '', $cadena);
+    }
+
+    public static function convertirStringComasArray(string $cadena)
+    {
+        return explode(',', $cadena);
     }
 }

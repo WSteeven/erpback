@@ -32,7 +32,7 @@ return new class extends Migration
             $table->boolean('es_dependiente')->default(false);
 
             $table->boolean('es_ventana')->default(false);
-            $table->date('fecha_ventana')->nullable();
+            $table->string('fecha_ventana')->nullable();
             $table->string('hora_inicio_ventana')->nullable();
             $table->string('hora_fin_ventana')->nullable();
 

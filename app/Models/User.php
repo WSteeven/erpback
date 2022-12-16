@@ -36,11 +36,12 @@ class User extends Authenticatable implements Auditable
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
     
     // Roles de cuadrillas
-    const ROL_TECNICO_LIDER = 'TECNICO LIDER';
+    const ROL_TECNICO_JEFE_CUADRILLA = 'TECNICO JEFE CUADRILLA';
     const ROL_TECNICO_CABLISTA = 'TECNICO CABLISTA';
     const ROL_TECNICO_SECRETARIO = 'TECNICO SECRETARIO';
     const ROL_TECNICO_AYUDANTE = 'TECNICO AYUDANTE';
     const ROL_TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
+    const ROL_CHOFER = 'CHOFER';
 
     /**
      * The attributes that are mass assignable.
@@ -106,6 +107,6 @@ class User extends Authenticatable implements Auditable
 
     public function esTecnicoLider()
     {
-        return $this->hasRole(User::ROL_TECNICO_LIDER);
+        return $this->hasRole(User::ROL_TECNICO_JEFE_CUADRILLA);
     }
 }

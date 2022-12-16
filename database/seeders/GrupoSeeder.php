@@ -17,6 +17,11 @@ class GrupoSeeder extends Seeder
     {
         Grupo::insert([
             [
+                'nombre' => 'JAIME PILAY',
+                'empleado_id' => 3,
+                'estado' => 1,
+            ],
+            [
                 'nombre' => 'ACCESSNET 1',
                 'empleado_id' => 13,
                 'estado' => 1,
@@ -25,7 +30,7 @@ class GrupoSeeder extends Seeder
                 'nombre' => 'ACCESSNET 2',
                 'empleado_id' => 2,
                 'estado' => 1,
-            ],[
+            ], [
                 'nombre' => 'AMBATO',
                 'empleado_id' => 2,
                 'estado' => 1,
@@ -92,11 +97,6 @@ class GrupoSeeder extends Seeder
             ],
             [
                 'nombre' => 'GUAYAQUIL',
-                'empleado_id' => 3,
-                'estado' => 1,
-            ],
-            [
-                'nombre' => 'JAIME PILAY',
                 'empleado_id' => 3,
                 'estado' => 1,
             ],

@@ -62,7 +62,7 @@ class TareaController extends Controller
             $modelo->ubicacionTarea()->create($ubicacionTarea);
         }*/
 
-        $modelo = new TareaResource($modelo);
+        $modelo = new TareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
         return response()->json(compact('mensaje', 'modelo'));
     }

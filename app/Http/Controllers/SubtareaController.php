@@ -98,14 +98,11 @@ class SubtareaController extends Controller
 
         $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
         if ($tecnicosGrupoPrincipal) {
-            $tecnicosGrupoPrincipal = str_replace(', ', '', $tecnicosGrupoPrincipal);
-            $tecnicosGrupoPrincipal = explode(',', $tecnicosGrupoPrincipal);
+            $tecnicosGrupoPrincipal = Utils::quitarEspaciosComasString($tecnicosGrupoPrincipal);
+            $tecnicosGrupoPrincipal = Utils::convertirStringComasArray($tecnicosGrupoPrincipal);
 
             // Guardar id de tecnicos
-            Log::channel('testing')->info('Log', ['Principal grupo', $tecnicosGrupoPrincipal]);
-            Log::channel('testing')->info('Log', ['Principal grupo count', count($tecnicosGrupoPrincipal)]);
-
-            if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->attach($tecnicosGrupoPrincipal);
+            if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->sync($tecnicosGrupoPrincipal);
         }
 
         /* $tecnicosOtrosGrupos = $request->safe()->only(['tecnicos_otros_grupos'])['tecnicos_otros_grupos'];
@@ -148,6 +145,18 @@ class SubtareaController extends Controller
         $subtarea->update($datos);
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
+        if ($tecnicosGrupoPrincipal) {
+            $tecnicosGrupoPrincipal = Utils::quitarEspaciosComasString($tecnicosGrupoPrincipal);
+            $tecnicosGrupoPrincipal = Utils::convertirStringComasArray($tecnicosGrupoPrincipal);
+
+            // Guardar id de tecnicos
+            if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->sync($tecnicosGrupoPrincipal);
+        } else {
+            $modelo->empleados()->sync([]);
+        }
+
         return response()->json(compact('modelo', 'mensaje'));
     }
 

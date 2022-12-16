@@ -31,6 +31,7 @@ class EmpleadoResource extends JsonResource
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado,//?Empleado::ACTIVO:Empleado::INACTIVO,
             'grupo' => $this->grupo?->nombre,
+            'grupo_id' => $this->grupo_id,
             'disponible' => $this->disponible,
             'roles' => implode(', ', $this->user->getRoleNames()->toArray()),
             // 'es_lider' => $this->esTecnicoLider(),
