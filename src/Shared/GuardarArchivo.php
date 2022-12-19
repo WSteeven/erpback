@@ -11,32 +11,32 @@ use Src\Config\RutasStorage;
 
 class GuardarArchivo
 {
-	// private Model $model;
-	private Request $request;
-	private RutasStorage $ruta;
+    private Model $modelo;
+    private Request $request;
+    private RutasStorage $ruta;
 
-	public function __construct(Request $request, RutasStorage $ruta)
-	{
-		// $this->model = $model;
-		$this->request = $request;
-		$this->ruta = $ruta;
-	}
+    public function __construct(Model $modelo, Request $request, RutasStorage $ruta)
+    {
+        $this->modelo = $modelo;
+        $this->request = $request;
+        $this->ruta = $ruta;
+    }
 
-	public function execute()
-	{
-		$archivo = $this->request->file('file');
-		$carpeta = $this->request['carpeta'];
-		$carpeta = Carpeta::find($carpeta);
+    public function execute()
+    {
+        $archivo = $this->request->file('file');
+        // $carpeta = $this->request['carpeta'];
+        // $carpeta = Carpeta::find($carpeta);
 
-		$path = $archivo->store($this->ruta->value);
-		$ruta_relativa = Utils::obtenerRutaRelativaImagen($path);
-		$carpeta->archivos()->create([
-			'nombre' => $archivo->getClientOriginalName(),
-			'ruta' => $ruta_relativa,
-			'tamanio_bytes' => filesize($archivo)
-		]);
+        $path = $archivo->store($this->ruta->value);
+        $ruta_relativa = Utils::obtenerRutaRelativaImagen($path);
+        $this->modelo->archivos()->create([
+            'nombre' => $archivo->getClientOriginalName(),
+            'ruta' => $ruta_relativa,
+            'tamanio_bytes' => filesize($archivo)
+        ]);
 
 
-		return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
-	}
+        //return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
+    }
 }

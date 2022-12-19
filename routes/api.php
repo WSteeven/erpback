@@ -222,13 +222,12 @@ Route::group(['prefix' => '/subtareas'], function () {
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'pausas']);
+    Route::post('subir-archivo', [SubtareaController::class, 'subirArchivo']);
 })->middleware('auth:sanctum');
 
 Route::group([], function () {
     Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas']);
-
     Route::get('transacciones-egresos/materiales/{tarea}', [TransaccionBodegaEgresoController::class, 'obtenerTransaccionPorTarea']);
-
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
 })->middleware('auth:sanctum');

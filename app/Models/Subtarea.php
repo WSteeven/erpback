@@ -50,8 +50,6 @@ class Subtarea extends Model implements Auditable
         'hora_fin_ventana',
         'descripcion_completa',
         'modo_asignacion_trabajo',
-        /*'tecnicos_grupo_principal',
-        'tecnicos_otros_grupos',*/
         'estado',
         'fecha_ventana',
         'coordinador_id'
@@ -91,6 +89,12 @@ class Subtarea extends Model implements Auditable
     public function transacciones()
     {
         return $this->hasMany(TransaccionBodega::class);
+    }
+
+    // Relacion uno a muchos
+    public function archivos()
+    {
+        return $this->hasMany(ArchivoSubtarea::class);
     }
 
     public function pausasSubtarea()

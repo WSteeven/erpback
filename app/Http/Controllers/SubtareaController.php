@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\SubtareaService;
+use Src\Config\RutasStorage;
+use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
 class SubtareaController extends Controller
@@ -244,5 +246,21 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_cancelacion = Carbon::now();
         $subtarea->save();
         return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
+    public function subirArchivo(Request $request)
+    {
+        // Guardar archivo
+        $subtarea = Subtarea::find($request['subtarea']);
+
+        if ($subtarea && $request->hasFile('file')) {
+
+            $guardarArchivo = new GuardarArchivo($subtarea, $request, RutasStorage::SUBTAREAS);
+            $guardarArchivo->execute();
+
+            return response()->json(['mensaje' => 'Subido exitosamente!']);
+        }
+
+        return response()->json(['mensaje' => 'No se pudo subir!']);
     }
 }
