@@ -12,8 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\SubtareaService;
-use Src\Config\RutasStorage;
-use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
 class SubtareaController extends Controller
@@ -75,7 +73,7 @@ class SubtareaController extends Controller
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
+        $datos['codigo_subtarea'] = 'T' . Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['coordinador_id'] = Auth::id();
 
         $datos['fecha_hora_creacion'] = Carbon::now();
@@ -246,21 +244,5 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_cancelacion = Carbon::now();
         $subtarea->save();
         return response()->json(['modelo' => $subtarea->refresh()]);
-    }
-
-    public function subirArchivo(Request $request)
-    {
-        // Guardar archivo
-        $subtarea = Subtarea::find($request['subtarea']);
-
-        if ($subtarea && $request->hasFile('file')) {
-
-            $guardarArchivo = new GuardarArchivo($subtarea, $request, RutasStorage::SUBTAREAS);
-            $guardarArchivo->execute();
-
-            return response()->json(['mensaje' => 'Subido exitosamente!']);
-        }
-
-        return response()->json(['mensaje' => 'No se pudo subir!']);
     }
 }

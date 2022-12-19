@@ -6,9 +6,9 @@ enum RutasStorage: string
 {
 		// Private
 	case GESTOR_ARCHIVOS = 'private/GestorArchivos';
-	case COMPROBANTES = 'private/comprobantes/';
+	case COMPROBANTES = 'private/comprobantes';
 		// Public
-	case SERVICIOS = 'public/servicios/';
-	case POPUP = 'public/popup/';
-	case SUBTAREAS = 'public/subtareas/';
+	case SERVICIOS = 'public/servicios';
+	case POPUP = 'public/popup';
+	case SUBTAREAS = 'public/subtareas';
 }

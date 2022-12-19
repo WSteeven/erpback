@@ -17,7 +17,7 @@ class TareaSeeder extends Seeder
     {
         Tarea::insert([
             [
-                'codigo_tarea' => '1',
+                'codigo_tarea' => 'T1',
                 'codigo_tarea_cliente' => 'ADD878',
                 'cliente_id' => 2,
                 'coordinador_id' => 3,
@@ -36,7 +36,7 @@ class TareaSeeder extends Seeder
                 'georeferencia_y' => '425 785', */
             ],
             [
-                'codigo_tarea' => '2',
+                'codigo_tarea' => 'T2',
                 'codigo_tarea_cliente' => 'ERHD69',
                 'cliente_id' => 3,
                 'coordinador_id' => 3,

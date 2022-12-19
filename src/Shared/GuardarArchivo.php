@@ -30,7 +30,7 @@ class GuardarArchivo
 
         $path = $archivo->store($this->ruta->value);
         $ruta_relativa = Utils::obtenerRutaRelativaImagen($path);
-        $this->modelo->archivos()->create([
+        return $this->modelo->archivos()->create([
             'nombre' => $archivo->getClientOriginalName(),
             'ruta' => $ruta_relativa,
             'tamanio_bytes' => filesize($archivo)

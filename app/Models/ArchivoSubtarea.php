@@ -9,5 +9,5 @@ class ArchivoSubtarea extends Model
 {
     use HasFactory;
     protected $table = 'archivos_subtareas';
-    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'subtarea_id'];
+    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'comentario', 'subtarea_id'];
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivoFijoController;
+use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\AutorizacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -170,6 +171,7 @@ Route::apiResources(
         'tipos-elementos' => TipoElementoController::class,
         'clientes-finales' => ClienteFinalController::class,
         'proyectos' => ProyectoController::class,
+        'archivos-subtareas' => ArchivoSubtareaController::class,
     ],
     [
         'parameters' => [
@@ -194,7 +196,8 @@ Route::apiResources(
             'tipos-trabajos' => 'tipo_trabajo',
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
-            'clientes-finales' => 'cliente_final'
+            'clientes-finales' => 'cliente_final',
+            'archivos-subtareas' => 'archivo-subtarea',
         ],
         'middleware' => ['auth:sanctum']
     ]
@@ -222,7 +225,6 @@ Route::group(['prefix' => '/subtareas'], function () {
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'pausas']);
-    Route::post('subir-archivo', [SubtareaController::class, 'subirArchivo']);
 })->middleware('auth:sanctum');
 
 Route::group([], function () {
