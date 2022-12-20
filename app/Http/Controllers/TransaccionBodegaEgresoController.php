@@ -74,27 +74,27 @@ class TransaccionBodegaEgresoController extends Controller
         if ($page) {
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
                 $results = $this->servicio->filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo, $estado, $offset);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
                 $results->appends(['offset' => $request['offset']]);
             } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
                 $results = $this->servicio->filtrarTransaccionesEgresoBodegueroConPaginacion($tipo, $estado, $offset);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
                 $results->appends(['offset' => $request['offset']]);
             } else { //cualquier otro
                 $results = $this->servicio->filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo, $estado, $offset);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
                 $results->appends(['offset' => $request['offset']]);
             }
         } else { //si no hay paginacion
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
                 $results = $this->servicio->filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo, $estado);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
             } elseif (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
                 $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo, $estado);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
             } else { //cualquier otro
                 $results = $this->servicio->filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo, $estado);
-                TransaccionBodegaResource::collection($results);
+                // TransaccionBodegaResource::collection($results);
             }
         }
         $results = TransaccionBodegaResource::collection($results);

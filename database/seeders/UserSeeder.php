@@ -16,11 +16,6 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        //Localidad
-        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jp.com']);
-        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jp.com']);
-        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com']);
-        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com']);
 
         // SuperAdministrador
         $admin = User::create([
@@ -28,6 +23,61 @@ class UserSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_ADMINISTRADOR);
+        // Gerente
+        $gerente = User::create([
+            'name' => 'PPAZMINO',
+            'email' => 'gerente@jp.com',
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_GERENTE, User::ROL_EMPLEADO);
+        // Coordinador
+        $coordinador = User::create([
+            'name' => 'MJARAMILLO',
+            'email' => 'mjaramillo@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
+        // RR HH
+        $recursos_humanos = User::create([
+            'name' => 'LPESANTES',
+            'email' => 'manuel@jp.com',
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
+        // Coordinador
+        $coordinador_sto_domingo = User::create([
+            'name' => 'BCHAMBA',
+            'email' => 'bchamba@jp.com',
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COORDINADOR, User::ROL_BODEGA);
+        // Coordinador
+        $coordinador_telconet = User::create([
+            'name' => 'DLOJA',
+            'email' => 'dloja@jp.com',
+            'password' => bcrypt('password'),
+        ])->assignRole(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
+        // Asistente de bodega 1
+        $bodeguero1 = User::create([
+            'name' => 'CALBARRACIN',
+            'email' => 'asistentebodega1@jp.com',
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
+        // Asistente de bodega 2
+        $bodeguero2 = User::create([
+            'name' => 'JTORRES',
+            'email' => 'asistentebodega2@jp.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_BODEGA);
+
+        
+
+        //Localidad
+        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jp.com', 'administrador_id' => 7]);
+        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jp.com', 'administrador_id' => 5]);
+        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jp.com', 'administrador_id' => 8]);
+        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jp.com', 'administrador_id' => 1]);
+
+
+
         $admin->empleado()->create([
             'nombres' => 'Superusuario',
             'apellidos' => 'Administrador',
@@ -35,12 +85,6 @@ class UserSeeder extends Seeder
         ]);
 
 
-        // Gerente
-        $gerente = User::create([
-            'name' => 'PPAZMINO',
-            'email' => 'gerente@jp.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_GERENTE, User::ROL_EMPLEADO);
         $gerente->empleado()->create([
             'nombres' => 'PATRICIO',
             'apellidos' => 'PAZMIÑO',
@@ -52,13 +96,6 @@ class UserSeeder extends Seeder
         ]);
 
 
-        // Coordinador
-        $coordinador = User::create([
-            'name' => 'MJARAMILLO',
-            'email' => 'mjaramillo@jp.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
         $coordinador->empleado()->create([
             'nombres' => 'MARILÚ',
             'apellidos' => 'JARAMILLO',
@@ -69,12 +106,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-        // RR HH
-        $recursos_humanos = User::create([
-            'name' => 'LPESANTES',
-            'email' => 'manuel@jp.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
         $recursos_humanos->empleado()->create([
             'nombres' => 'LUIS MANUEL',
             'apellidos' => 'PESANTEZ MORA',
@@ -85,12 +116,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-        // Coordinador
-        $coordinador_sto_domingo = User::create([
-            'name' => 'BCHAMBA',
-            'email' => 'bchamba@jp.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COORDINADOR, User::ROL_BODEGA);
         $coordinador_sto_domingo->empleado()->create([
             'nombres' => 'BRYAN',
             'apellidos' => 'CHAMBA',
@@ -101,12 +126,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_sto_domingo->id
         ]);
 
-        // Coordinador
-        $coordinador_telconet = User::create([
-            'name' => 'DLOJA',
-            'email' => 'dloja@jp.com',
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
         $coordinador_telconet->empleado()->create([
             'nombres' => 'DARIO',
             'apellidos' => 'LOJA',
@@ -117,12 +136,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-        // Asistente de bodega 1
-        $bodeguero1 = User::create([
-            'name' => 'CALBARRACIN',
-            'email' => 'asistentebodega1@jp.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
         $bodeguero1->empleado()->create([
             'nombres' => 'CRISTIAN',
             'apellidos' => 'ALBARRACIN',
@@ -133,13 +146,6 @@ class UserSeeder extends Seeder
             'sucursal_id' => $localidad_machala->id
         ]);
 
-        // Asistente de bodega 2
-        $bodeguero2 = User::create([
-            'name' => 'JTORRES',
-            'email' => 'asistentebodega2@jp.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_BODEGA);
         $bodeguero2->empleado()->create([
             'nombres' => 'JUAN JOSE',
             'apellidos' => 'TORRES',

@@ -51,7 +51,7 @@ class DevolucionController extends Controller
             $results = Devolucion::ignoreRequest(['campos'])->filter()->get();
         }
 
-        DevolucionResource::collection($results);
+        $results = DevolucionResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -67,7 +67,7 @@ class DevolucionController extends Controller
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            !is_null($request->tarea)??$datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
     
             // Respuesta
