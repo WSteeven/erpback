@@ -203,6 +203,8 @@ Route::apiResources(
     ]
 );
 
+Route::get('transacciones-egresos/prueba/{id}', [TransaccionBodegaEgresoController::class, 'prueba']);
+
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');

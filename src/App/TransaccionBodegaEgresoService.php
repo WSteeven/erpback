@@ -11,6 +11,7 @@ use App\Models\TransaccionBodega;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\Type\Integer;
 
 class TransaccionBodegaEgresoService
 {
@@ -561,5 +562,21 @@ class TransaccionBodegaEgresoService
                     ->get();
                 return $results;
         }
+    }
+
+    public static function obtenerTransaccionesPorTarea($tarea_id)
+    {
+        $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+            ->where('tarea_id', '=', $tarea_id)
+            ->join('tiempo_estado_transaccion', function ($join) {
+                $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
+                    ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
+                    ->where('tiempo_estado_transaccion.estado_id', DB::raw('(select id from estados_transacciones_bodega where estados_transacciones_bodega.nombre ="COMPLETA")'));
+            })
+            ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
+            ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
+            ->get();
+
+        return $results;
     }
 }

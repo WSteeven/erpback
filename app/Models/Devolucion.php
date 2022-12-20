@@ -21,6 +21,7 @@ class Devolucion extends Model implements Auditable
         'solicitante_id',
         'tarea_id',
         'sucursal_id',
+        'causa_anulacion',
     ];
 
     protected $casts = [
