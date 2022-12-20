@@ -27,38 +27,14 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    public function list()
-    {
-        /* $idsSeleccionados = request('ids_seleccionados');
+    
+    public function prueba($id){
+        Log::channel('testing')->info('Log', ['Dato recibido en prueba', $id]);
+        $results = $this->servicio->obtenerTransaccionesPorTarea($id);
 
-        if (request('subtarea_id')) {
-            if ($idsSeleccionados) {
-                $var = array_map('intval', explode(',', $idsSeleccionados));
-                Log::channel('testing')->info('Log', ['arrays', $var]);
-                return TransaccionBodegaResource::collection(TransaccionBodega::whereIn('id', $var)->where()->get()); // revisar
-            }
-            $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
-            // return TransaccionBodegaResource::collection($transacciones);
-            return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, 'COMPLETA'));
-        } */
+        $results = TransaccionBodegaResource::collection($results);
 
-        // Log::channel('testing')->info('Log', ['request en el metodo list', request('estado')]);
-        if (auth()->user()->hasRole(User::ROL_COORDINADOR)) {
-            $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('per_autoriza_id', auth()->user()->empleado->id)->get();
-            return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, request('estado')));
-        }
-
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            $transacciones =  TransaccionBodega::ignoreRequest(['estado'])->filter()->get();
-            $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
-
-            return TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, request('estado')));
-        } else {
-            $transacciones = TransaccionBodega::ignoreRequest(['estado'])->filter()->orWhere('solicitante_id', auth()->user()->empleado->id)->get();
-            $transacciones = $transacciones->filter(fn ($transaccion) => $transaccion->subtipo->tipoTransaccion->tipo === 'EGRESO');
-
-            return  TransaccionBodegaResource::collection(TransaccionBodega::filtrarTransaccionesEgreso($transacciones, request('estado')));
-        }
+        return response()->json(compact('results'));
     }
 
     /**
@@ -75,15 +51,15 @@ class TransaccionBodegaEgresoController extends Controller
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
                 $results = $this->servicio->filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo, $estado, $offset);
                 // TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
+                // $results->appends(['offset' => $request['offset']]);
             } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
                 $results = $this->servicio->filtrarTransaccionesEgresoBodegueroConPaginacion($tipo, $estado, $offset);
                 // TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
+                // $results->appends(['offset' => $request['offset']]);
             } else { //cualquier otro
                 $results = $this->servicio->filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo, $estado, $offset);
                 // TransaccionBodegaResource::collection($results);
-                $results->appends(['offset' => $request['offset']]);
+                // $results->appends(['offset' => $request['offset']]);
             }
         } else { //si no hay paginacion
             if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador

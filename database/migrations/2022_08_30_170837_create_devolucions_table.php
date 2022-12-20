@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('tarea_id')->nullable();
             $table->unsignedBigInteger('sucursal_id');
+            $table->text('causa_anulacion')->nullable();
             $table->enum('estado', [Devolucion::CREADA, Devolucion::ANULADA])->default(Devolucion::CREADA);
 
             $table->timestamps();

@@ -40,10 +40,10 @@ class DevolucionController extends Controller
             return response()->json(compact('results'));
         } else 
         if ($page) {
-            if(auth()->user()->hasRole(User::ROL_BODEGA)){
-                $results = Devolucion::filtrarDevolucionesBodegueroConPaginacion($estado,$offset);
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = Devolucion::filtrarDevolucionesBodegueroConPaginacion($estado, $offset);
                 DevolucionResource::collection($results);
-            }else{
+            } else {
                 $results = Devolucion::filtrarDevolucionesEmpleadoConPaginacion($estado, $offset);
                 DevolucionResource::collection($results);
             }
@@ -62,24 +62,24 @@ class DevolucionController extends Controller
     public function store(DevolucionRequest $request)
     {
         Log::channel('testing')->info('Log', ['Request recibida en devolucion:', $request->all()]);
-        try{
+        try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-    
+
             // Respuesta
             $devolucion = Devolucion::create($datos);
             $modelo = new DevolucionResource($devolucion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-            foreach($request->listadoProductos as $listado){
-                $devolucion->detalles()->attach($listado['id'], ['cantidad'=>$listado['cantidad']]);
+            foreach ($request->listadoProductos as $listado) {
+                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
@@ -128,7 +128,8 @@ class DevolucionController extends Controller
     /**
      * Consultar datos sin el método show.
      */
-    public function showPreview(Devolucion $devolucion){
+    public function showPreview(Devolucion $devolucion)
+    {
         $modelo = new DevolucionResource($devolucion);
 
         return response()->json(compact('modelo'), 200);
@@ -137,10 +138,11 @@ class DevolucionController extends Controller
     /**
      * Anular una devolución
      */
-    public function anular(Devolucion $devolucion)
+    public function anular(Request $request, Devolucion $devolucion)
     {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $devolucion->causa_anulacion = $request['motivo'];
         $devolucion->estado = Devolucion::ANULADA;
         $devolucion->save();
     }
 }
- 
