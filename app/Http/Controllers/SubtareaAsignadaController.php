@@ -16,7 +16,7 @@ class SubtareaAsignadaController extends Controller
         // $estado = request('estado');
         $grupo = Auth::user()->empleado->grupo_id;
 
-        return SubtareaResource::collection(Subtarea::filter()->where('grupo_id', $grupo)->simplePaginate());
+        return SubtareaResource::collection(Subtarea::filter()->where('grupo_id', $grupo)); //->simplePaginate());
 
         /*$filter = Subtarea::filter()->get();
         SubtareaResource::collection($filter);*/

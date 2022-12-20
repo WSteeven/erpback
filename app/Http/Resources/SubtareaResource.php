@@ -45,7 +45,7 @@ class SubtareaResource extends JsonResource
             'estado' => $this->estado,
             'causa_suspencion' => $this->causa_suspencion,
             'tecnicos_grupo_principal' => $this->tecnicosPrincipales($this->empleados),//$this->tecnicosPrincipales(explode(',', $this->tecnicos_grupo_principal)),
-            'tecnicos_otros_grupos' => $this->tecnicosPrincipales($this->empleados), //$this->tecnicosPrincipales(explode(',', $this->tecnicos_otros_grupos)),
+            // 'tecnicos_otros_grupos' => $this->tecnicosPrincipales($this->empleados), //$this->tecnicosPrincipales(explode(',', $this->tecnicos_otros_grupos)),
             'cliente_final' => $this->tarea->cliente_final,
             'es_primera_asignacion' => $this->tarea->esPrimeraAsignacion($this->id),
         ];

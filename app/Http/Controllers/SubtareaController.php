@@ -73,7 +73,7 @@ class SubtareaController extends Controller
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['codigo_subtarea'] = 'T' . Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
+        $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['coordinador_id'] = Auth::id();
 
         $datos['fecha_hora_creacion'] = Carbon::now();
