@@ -35,6 +35,12 @@ class Tarea extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+
     // Relacion uno a muchos (inversa)
     public function cliente()
     {
@@ -103,5 +109,15 @@ class Tarea extends Model implements Auditable
     {
         $subtareaEncontrada = $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first();
         return $subtareaEncontrada?->id == $subtarea_id;
+    }
+
+
+    /**
+     * Relación uno a muchos .
+     * Una tarea puede uno o varios pedidos
+     */
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
     }
 }

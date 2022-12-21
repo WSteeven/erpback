@@ -26,6 +26,12 @@ class Sucursal extends Model implements Auditable
     private static $whiteListFilter=['*'];
 
     /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+
+    /**
      * Relacion uno a muchos
      * Obtener los control de stock para una sucursal 
      */
@@ -90,5 +96,14 @@ class Sucursal extends Model implements Auditable
      */
     public function traspasos(){
         return $this->hasMany(Traspaso::class);
+    }
+
+    /**
+     * Relación uno a muchos .
+     * Una sucursal puede uno o varios pedidos
+     */
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use DragonCode\Contracts\Cashier\Config\Payments\Statuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -205,6 +206,18 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
+    public static function listadoProductosTarea($results){
+        $listado = [];
+        $id = 0;
+        $row=[];
+        foreach($results as $result){
+            foreach($result->detalles as $detalle){
+                
+            }
+        }
+
+        return $listado;
+    }
 
 
 

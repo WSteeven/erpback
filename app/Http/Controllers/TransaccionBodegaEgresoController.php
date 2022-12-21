@@ -27,10 +27,17 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
+    public function prueba2($id){
+        $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
+        return response()->json(compact('results'));
+    }
     
     public function prueba($id){
         Log::channel('testing')->info('Log', ['Dato recibido en prueba', $id]);
         $results = $this->servicio->obtenerTransaccionesPorTarea($id);
+
+        Log::channel('testing')->info('Log', ['Longitud es', count($results)]);
+        $resultado = TransaccionBodega::listadoProductosTarea($results);
 
         $results = TransaccionBodegaResource::collection($results);
 

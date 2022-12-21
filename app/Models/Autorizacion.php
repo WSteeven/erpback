@@ -20,15 +20,20 @@ class Autorizacion extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
-    
-    const PENDIENTE='PENDIENTE';
-    const APROBADO='APROBADO';
-    const CANCELADO='CANCELADO';
-    
-    private static $whiteListFilter = [
-    '*',
-    ];
 
+    const PENDIENTE = 'PENDIENTE';
+    const APROBADO = 'APROBADO';
+    const CANCELADO = 'CANCELADO';
+
+    private static $whiteListFilter = [
+        '*',
+    ];
+    
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
 
     /**
      * Relacion muchos a muchos
@@ -40,5 +45,14 @@ class Autorizacion extends Model implements Auditable
             ->withPivot('observacion')
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
+    }
+
+    /**
+     * Relación uno a uno.
+     * Un estado puede estar en un pedido a la vez.
+     */
+    public function pedido()
+    {
+        return $this->hasOne(Pedido::class);
     }
 }

@@ -579,4 +579,18 @@ class TransaccionBodegaEgresoService
 
         return $results;
     }
+
+
+    public function obtenerListadoMaterialesPorTarea($tarea_id)
+    {
+        // Log::channel('testing')->info('Log', ['resultados de obtener listado materiales por tarea', $results]);
+        $results = DB::table('detalle_producto_transaccion')
+            ->select(DB::raw('sum(cantidad_inicial) as cantidad', 'detalle_id'), 'detalle_id')
+            ->join('transacciones_bodega', 'detalle_producto_transaccion.transaccion_id', '=', 'transacciones_bodega.id')
+            ->where('transacciones_bodega.tarea_id', '=', $tarea_id)
+            ->groupBy('detalle_id')
+            ->get();
+
+        return $results;
+    }
 }

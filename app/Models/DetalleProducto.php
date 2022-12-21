@@ -109,6 +109,16 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(Devolucion::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
+    
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una devolución.
+     */
+    public function detalleProductoPedido()
+    {
+        return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
+            ->withPivot('cantidad')->withTimestamps();
+    }
 
     /**
      * Relación muchos a muchos.

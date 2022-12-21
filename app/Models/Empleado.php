@@ -56,6 +56,12 @@ class Empleado extends Model implements Auditable
         ];
     }
 
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+
     //Relacion uno a muchos polimorfica
     public function telefonos()
     {
@@ -158,4 +164,14 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(MovimientoProducto::class);
     }
+
+    /**
+     * Relacion uno a muchos
+     * Un empleado es solicitante de varios pedidos
+     */
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+    
 }

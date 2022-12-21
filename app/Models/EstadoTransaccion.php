@@ -27,7 +27,13 @@ class EstadoTransaccion extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
-
+    
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    
     public function transacciones()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'tiempo_estado_transaccion','transaccion_id', 'estado_id')
@@ -36,6 +42,7 @@ class EstadoTransaccion extends Model implements Auditable
             ->orderByPivot('created_at', 'desc');
     }
 
+
     /**
      * Relacion uno a muchos.
      * Un estado esta en varios traspasos
@@ -43,4 +50,16 @@ class EstadoTransaccion extends Model implements Auditable
     public function traspasos(){
         return $this->hasMany(Traspaso::class);
     }
+
+    /**
+     * Relación uno a uno.
+     * Un estado puede estar en un pedido a la vez.
+     */
+    public function pedido(){
+        return $this->hasOne(Pedido::class);
+    }
+
+
+
+    
 }
