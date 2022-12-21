@@ -31,11 +31,11 @@ class TransaccionBodegaController extends Controller
      */
     public function index(Request $request)
     {
-        $idsSeleccionados = $request['ids_seleccionados'];
+        /*$idsSeleccionados = $request['ids_seleccionados'];
 
         if ($idsSeleccionados) {
             return TransaccionBodegaResource::collection(TransaccionBodega::filter()->whereIn('id', $idsSeleccionados)->get());
-        }
+        }*/
 
         $results = TransaccionBodegaResource::collection(TransaccionBodega::all());
         return response()->json(compact('results'));
