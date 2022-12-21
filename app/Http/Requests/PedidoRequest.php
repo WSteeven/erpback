@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PedidoRequest extends FormRequest
@@ -52,7 +53,17 @@ class PedidoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'solicitante' => auth()->user()->empleado->id
+            'solicitante' => auth()->user()->empleado->id,
+            'per_autoriza'=>auth()->user()->empleado->jefe_id,
+            'autorizacion'=>1,
+            'estado'=>1,
         ]);
+
+        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE, User::ROL_ACTIVOS_FIJOS])){
+            $this->merge([
+                'autorizacion'=>2,
+                'per_autoriza'=>auth()->user()->empleado->id,
+            ]);
+        }
     }
 }
