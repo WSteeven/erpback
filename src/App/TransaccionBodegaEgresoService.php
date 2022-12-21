@@ -577,6 +577,10 @@ class TransaccionBodegaEgresoService
             ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
             ->get();
 
+        /* forarch($transaccion) {
+
+        } */
+
         return $results;
     }
 
