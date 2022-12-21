@@ -18,6 +18,7 @@ use Src\Shared\Utils;
 class TransaccionBodegaEgresoController extends Controller
 {
     private $entidad = 'Transacción';
+
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaEgresoService();
@@ -171,9 +172,9 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        !is_null($request->subtarea_id)??$datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        !is_null($request->per_atiende)??$datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        
+        !is_null($request->subtarea_id) ?? $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+
         /* if ($request->subtarea_id) {
             $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
         }

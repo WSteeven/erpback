@@ -205,13 +205,16 @@ Route::apiResources(
     ]
 );
 
-Route::get('transacciones-egresos/prueba2/{id}', [TransaccionBodegaEgresoController::class, 'prueba2']);
-Route::get('transacciones-egresos/prueba/{id}', [TransaccionBodegaEgresoController::class, 'prueba']);
+Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
+    Route::get('prueba/{tarea}', 'prueba');
+    Route::get('prueba2/{tarea}', 'prueba2');
+    Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
+    Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
+});
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
-Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
@@ -234,7 +237,6 @@ Route::group(['prefix' => '/subtareas'], function () {
 
 Route::group([], function () {
     Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas']);
-    Route::get('transacciones-egresos/materiales/{tarea}', [TransaccionBodegaEgresoController::class, 'obtenerTransaccionPorTarea']);
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
 })->middleware('auth:sanctum');
