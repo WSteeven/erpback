@@ -35,7 +35,7 @@ class PedidoController extends Controller
             $results = Pedido::all();
             PedidoResource::collection($results);
         } else {
-            $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)->where()->get();
+            $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)->where('per_autoriza_id', auth()->user()->empleado->id)->get();
             PedidoResource::collection($results);
         }
 

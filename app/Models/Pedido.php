@@ -105,5 +105,77 @@ class Pedido extends Model implements Auditable
         return $this->belongsTo(EstadoTransaccion::class);
     }
 
-    
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    /**
+     * Obtener el listados de productos de una devolucion
+     */
+    public static function listadoProductos(int $id)
+    {
+        $detalles = Devolucion::find($id)->detalles()->get();
+        $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($detalles as $detalle) {
+            $row['id'] = $detalle->id;
+            $row['producto'] = $detalle->producto->nombre;
+            $row['descripcion'] = $detalle->descripcion;
+            $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['cantidad'] = $detalle->pivot->cantidad;
+            $results[$id] = $row;
+            $id++;
+        }
+
+        return $results;
+    }
+
+    public static function filtrarPedidosEmpleado($estado)
+    {
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $results = [];
+        switch ($estado) {
+            case Autorizacion::PENDIENTE:
+                $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
+                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+            case Autorizacion::CANCELADO:
+                $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
+                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+            case Autorizacion::APROBADO:
+                $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
+                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+            default:
+                $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
+                    ->where('per_autoriza_id', auth()->user()->empleado->id)->get();
+                return $results;
+        }
+    }
+    public static function filtrarPedidosBodeguero($estado)
+    {
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $results = [];
+        switch ($estado) {
+            case Autorizacion::PENDIENTE:
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+
+            case Autorizacion::CANCELADO:
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+            case Autorizacion::APROBADO:
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+                return $results;
+            default:
+                $results = Pedido::all();
+                return $results;
+        }
+    }
 }
