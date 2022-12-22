@@ -597,4 +597,43 @@ class TransaccionBodegaEgresoService
 
         return $results;
     }
+
+
+    public function obtenerListadoMaterialesPorTareaSinBobina($tarea_id)
+    {
+        /* select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=2) and
+	dpt.detalle_id in(select id from detalles_productos dp where id not in(select detalle_id from fibras f))
+	group by detalle_id
+ */
+        $results = DB::select('select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=' . $tarea_id . ') and dpt.detalle_id in(select id from detalles_productos dp where id not in(select detalle_id from fibras f)) group by detalle_id');
+
+        // $results = DB::table('detalle_producto_transaccion')
+        //     ->select(DB::raw('sum(cantidad_inicial) as cantidad'), 'detalle_id')
+        //     ->join('transacciones_bodega', 'detalle_producto_transaccion.transaccion_id', '=', 'transacciones_bodega.id')
+        //     ->where('transacciones_bodega.tarea_id', '=', $tarea_id)
+        //     ->join('detalles_productos', 'detalle_id', '=', 'detalles_productos.id')
+        //     ->join('fibras', 'detalles_productos.id', '=', 'fibras.id')
+        //     ->whereNot('detalles_productos.id', '=', 'fibras.detalle_id')
+        //     ->groupBy('detalle_id')
+        //     ->get();
+
+        return $results;
+    }
+
+    public function obtenerListadoMaterialesPorTareaConBobina($tarea_id)
+    {
+        // Log::channel('testing')->info('Log', ['resultados de obtener listado materiales por tarea', $results]);
+        // $results = DB::table('detalle_producto_transaccion')
+        //     ->select(DB::raw('sum(cantidad_inicial) as cantidad', 'detalle_id'), 'detalle_id')
+        //     ->join('transacciones_bodega', 'detalle_producto_transaccion.transaccion_id', '=', 'transacciones_bodega.id')
+        //     ->where('transacciones_bodega.tarea_id', '=', $tarea_id)
+        //     ->join('detalles_productos', 'detalle_producto_transaccion.detalle_id', '=', 'detalles_productos.id')
+        //     ->join('fibras', 'detalles_productos.id', '=', 'fibras.id')
+        //     ->where('detalles_productos.id', '=', 'fibras.detalle_id')
+        //     ->groupBy('detalle_id')
+        //     ->get();
+
+        $results = DB::select('select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=' . $tarea_id . ') and dpt.detalle_id in(select id from detalles_productos dp where id in(select detalle_id from fibras f)) group by detalle_id');
+        return $results;
+    }
 }

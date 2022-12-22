@@ -28,6 +28,14 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
+    public function prueba4($id){
+        $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
+        return response()->json(compact('results'));
+    }
+    public function prueba3($id){
+        $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
+        return response()->json(compact('results'));
+    }
     public function prueba2($id){
         $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
         return response()->json(compact('results'));
