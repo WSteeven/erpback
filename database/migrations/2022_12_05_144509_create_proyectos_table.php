@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->string('codigo_proyecto')->unique();
             $table->string('nombre')->unique();
+            $table->string('nodo_interconexion');
             $table->string('fecha_inicio');
             $table->string('fecha_fin');
             $table->double('costo');

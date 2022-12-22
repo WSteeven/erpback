@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
         $this->call(MotivoSeeder::class);
 
         // Módulo de Tareas
+        $this->call(ProyectoSeeder::class);
         $this->call(ClienteFinalSeeder::class);
         $this->call(TareaSeeder::class);
         $this->call(TipoTareaSeeder::class);

@@ -4,6 +4,7 @@ namespace Src\App;
 
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
+use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
@@ -595,6 +596,11 @@ class TransaccionBodegaEgresoService
             ->groupBy('detalle_id')
             ->get();
 
+        $results  = $results->map(fn ($items) => [
+            'cantidad_despachada' => intval($items->cantidad),
+            'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
+        ]);
+
         return $results;
     }
 
@@ -616,7 +622,10 @@ class TransaccionBodegaEgresoService
         //     ->whereNot('detalles_productos.id', '=', 'fibras.detalle_id')
         //     ->groupBy('detalle_id')
         //     ->get();
-
+        $results = collect($results)->map(fn ($items) => [
+            'cantidad_despachada' => intval($items->cantidad),
+            'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
+        ]);
         return $results;
     }
 
@@ -634,6 +643,10 @@ class TransaccionBodegaEgresoService
         //     ->get();
 
         $results = DB::select('select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=' . $tarea_id . ') and dpt.detalle_id in(select id from detalles_productos dp where id in(select detalle_id from fibras f)) group by detalle_id');
+        $results = collect($results)->map(fn ($items) => [
+            'cantidad_despachada' => intval($items->cantidad),
+            'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
+        ]);
         return $results;
     }
 }

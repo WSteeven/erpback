@@ -208,8 +208,9 @@ Route::apiResources(
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
     Route::get('prueba/{tarea}', 'prueba');
     Route::get('prueba2/{tarea}', 'prueba2');
-    Route::get('sinbobina/{tarea}', 'prueba3');
-    Route::get('conbobina/{tarea}', 'prueba4');
+    Route::get('materiales-despachados-sin-bobina/{tarea}', 'materialesDespachadosSinBobina');
+    Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
+    Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
 });

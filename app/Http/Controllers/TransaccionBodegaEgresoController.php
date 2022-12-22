@@ -28,28 +28,32 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    public function prueba4($id){
+    public function materialesDespachadosConBobina($id)
+    {
         $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
         return response()->json(compact('results'));
     }
-    public function prueba3($id){
+
+    public function materialesDespachadosSinBobina($id)
+    {
         $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
         return response()->json(compact('results'));
     }
-    public function prueba2($id){
+
+    //public function prueba2($id){
+    public function materialesDespachados($id)
+    {
         $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
         return response()->json(compact('results'));
     }
-    
-    public function prueba($id){
-        Log::channel('testing')->info('Log', ['Dato recibido en prueba', $id]);
+
+    public function prueba($id)
+    {
+        // Log::channel('testing')->info('Log', ['Dato recibido en prueba', $id]);
         $results = $this->servicio->obtenerTransaccionesPorTarea($id);
-
-        Log::channel('testing')->info('Log', ['Longitud es', count($results)]);
+        // Log::channel('testing')->info('Log', ['Longitud es', count($results)]);
         $resultado = TransaccionBodega::listadoProductosTarea($results);
-
         $results = TransaccionBodegaResource::collection($results);
-
         return response()->json(compact('results'));
     }
 
