@@ -13,7 +13,7 @@ class Producto extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
-    
+
     protected $table = "productos";
 
     protected $fillable = ["nombre", "categoria_id"];
@@ -26,7 +26,8 @@ class Producto extends Model implements Auditable
         '*',
     ];
 
-    public static function cantidadDetalles($id){
+    public static function cantidadDetalles($id)
+    {
         $detalles = DetalleProducto::where('producto_id', $id)->get();
         $result = count($detalles);
         return $result;
@@ -51,7 +52,8 @@ class Producto extends Model implements Auditable
     /**
      * Uno o varios productos pertenecen a una categoría
      */
-    public function categoria(){
+    public function categoria()
+    {
         return $this->belongsTo(Categoria::class);
     }
 
@@ -60,14 +62,16 @@ class Producto extends Model implements Auditable
      * Un producto tiene varios codigos.
      * Para obtener todos los codigos de cliente de un producto.
      */
-    public function codigos(){
+    public function codigos()
+    {
         return $this->hasMany(CodigoCliente::class);
     }
     /**
      * Relacion uno a uno.
      * Para obtener los codigos de producto de JP.
      */
-    public function codigoJP(){
+    public function codigoJP()
+    {
         return $this->hasOne(CodigoCliente::class);
     }
 }

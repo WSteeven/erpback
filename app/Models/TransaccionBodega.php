@@ -26,6 +26,8 @@ class TransaccionBodega extends Model implements Auditable
         'fecha_limite',
         'solicitante_id',
         'motivo_id',
+        'devolucion_id',
+        'pedido_id',
         'tarea_id',
         'tipo_id',
         'sucursal_id',

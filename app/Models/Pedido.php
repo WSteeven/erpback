@@ -5,6 +5,7 @@ namespace App\Models;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -111,11 +112,11 @@ class Pedido extends Model implements Auditable
      * ______________________________________________________________________________________
      */
     /**
-     * Obtener el listados de productos de una devolucion
+     * Obtener el listados de productos de un pedido
      */
     public static function listadoProductos(int $id)
     {
-        $detalles = Devolucion::find($id)->detalles()->get();
+        $detalles = Pedido::find($id)->detalles()->get();
         $results = [];
         $id = 0;
         $row = [];
@@ -135,26 +136,28 @@ class Pedido extends Model implements Auditable
     public static function filtrarPedidosEmpleado($estado)
     {
         $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        Log::channel('testing')->info('Log', ['Hay autorizacion:', $autorizacion]);
         $results = [];
         switch ($estado) {
             case Autorizacion::PENDIENTE:
+                Log::channel('testing')->info('Log', ['Entró en pendiente:', $autorizacion]);
                 $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
-                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->where('autorizacion_id', $autorizacion->id)->get();
                 return $results;
             case Autorizacion::CANCELADO:
                 $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
-                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->where('autorizacion_id', $autorizacion->id)->get();
                 return $results;
             case Autorizacion::APROBADO:
                 $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
-                    ->where('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                     ->where('autorizacion_id', $autorizacion->id)->get();
                 return $results;
             default:
                 $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
-                    ->where('per_autoriza_id', auth()->user()->empleado->id)->get();
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)->get();
                 return $results;
         }
     }
