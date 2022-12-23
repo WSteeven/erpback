@@ -32,11 +32,11 @@ class PedidoController extends Controller
         $results = [];
 
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            $results = Pedido::all();
-            PedidoResource::collection($results);
+            // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
+            $results = Pedido::filtrarPedidosBodeguero($estado);
         } else {
-            $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)->where('per_autoriza_id', auth()->user()->empleado->id)->get();
-            PedidoResource::collection($results);
+            // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
+            $results = Pedido::filtrarPedidosEmpleado($estado);
         }
 
 

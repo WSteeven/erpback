@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
             $table->text('justificacion');
-            $table->date('fecha_limite');
-            $table->text('observacion_aut');
-            $table->text('observacion_est');
+            $table->date('fecha_limite')->nullable();
+            $table->text('observacion_aut')->nullable();
+            $table->text('observacion_est')->nullable();
             $table->unsignedBigInteger('solicitante_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();

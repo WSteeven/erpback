@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 
 class DetalleProducto extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable;
+    use HasFactory, UppercaseValuesTrait, Filterable, Searchable;
     use AuditableModel;
 
     protected $table = "detalles_productos";
@@ -49,6 +51,16 @@ class DetalleProducto extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
+    public function toSearchableArray()
+    {        
+        return [
+            'descripcion' => $this->descripcion,
+            'serial' => $this->serial,
+            'color' => $this->color,
+            'talla' => $this->talla,
+            'tipo' => $this->tipo,
+        ];
+    }
 
     /**
      * ______________________________________________________________________________________
@@ -109,7 +121,7 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(Devolucion::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
-    
+
     /**
      * Relación muchos a muchos.
      * Uno o varios detalles de producto estan en una devolución.

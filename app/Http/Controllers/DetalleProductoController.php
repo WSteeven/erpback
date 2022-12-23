@@ -28,23 +28,25 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request['search'];
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $results = [];
-        if($request['campos']){
-            $results = DetalleProducto::ignoreRequest(['campos'])->filter()->get($campos);
-            $results=DetalleProductoResource::collection($results);
+        if ($request['campos']) {
+            $results = DetalleProducto::ignoreRequest(['campos', 'search'])->filter()->get($campos);
+            // $results = DetalleProductoResource::collection($results);
             // return response()->json(compact('results'));
-        }else if ($page) {
+        } else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
-            DetalleProductoResource::collection($results);
+            // DetalleProductoResource::collection($results);
             // $results->appends(['offset' => $request['offset']]);
+        } else if ($search) {
+            $results = DetalleProducto::search($search)->get();
         } else {
-            $results = DetalleProducto::filter()->get();
-            $results = DetalleProductoResource::collection($results);
-            // Log::channel('testing')->info('Log', ['Entró en el else de detalleController:']);
+            $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
+            // $results = DetalleProductoResource::collection($results);
         }
-        // DetalleProductoResource::collection($results);
+        $results = DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -128,7 +130,7 @@ class DetalleProductoController extends Controller
 
             //Respuesta
             $detalle->update($datos);
-            if($request->categoria ==='INFORMATICA'){
+            if ($request->categoria === 'INFORMATICA') {
                 $detalle->computadora()->update([
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],
@@ -136,14 +138,14 @@ class DetalleProductoController extends Controller
                 ]);
                 DB::commit();
             }
-            if($request->es_fibra){
+            if ($request->es_fibra) {
                 $detalle->fibra()->update([
                     'span_id' => $datos['span'],
                     'tipo_fibra_id' => $datos['tipo_fibra'],
                     'hilo_id' => $datos['hilos'],
                     'punta_inicial' => $datos['punta_inicial'],
                     'punta_final' => $datos['punta_final'],
-                    'custodia' => $datos['custodia'], 
+                    'custodia' => $datos['custodia'],
                 ]);
                 DB::commit();
             }
@@ -154,7 +156,7 @@ class DetalleProductoController extends Controller
         }
         $modelo = new DetalleProductoResource($detalle->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        
+
         return response()->json(compact('mensaje', 'modelo'));
     }
 

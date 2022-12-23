@@ -26,9 +26,9 @@ class PedidoRequest extends FormRequest
     {
         return [
             'justificacion' => 'required|string',
-            'fecha_limite' => 'required|string',
-            'observacion_aut' => 'required|string',
-            'observacion_est' => 'required|string',
+            'fecha_limite' => 'nullable|string',
+            'observacion_aut' => 'nullable|string',
+            'observacion_est' => 'nullable|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'per_autoriza' => 'required|numeric|exists:empleados,id',
@@ -52,17 +52,23 @@ class PedidoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $this->merge([
-            'solicitante' => auth()->user()->empleado->id,
-            'per_autoriza'=>auth()->user()->empleado->jefe_id,
-            'autorizacion'=>1,
-            'estado'=>1,
-        ]);
+        if (is_null($this->solicitante) || $this->solicitante === '') {
+            $this->merge(['solicitante' => auth()->user()->empleado->id]);
+        }
+        if (is_null($this->per_autoriza) || $this->per_autoriza === '') {
+            $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
+        }
+        if (is_null($this->autorizacion) || $this->autorizacion === '') {
+            $this->merge(['autorizacion' => 1]);
+        }
+        if (is_null($this->estado) || $this->estado === '') {
+            $this->merge(['estado' => 1]);
+        }
 
-        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE, User::ROL_ACTIVOS_FIJOS])){
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE, User::ROL_ACTIVOS_FIJOS])) {
             $this->merge([
-                'autorizacion'=>2,
-                'per_autoriza'=>auth()->user()->empleado->id,
+                // 'autorizacion' => 2,
+                'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
     }

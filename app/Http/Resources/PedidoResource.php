@@ -26,14 +26,18 @@ class PedidoResource extends JsonResource
             'fecha_limite' => $this->fecha_limite,
             'observacion_aut' => $this->observacion_aut,
             'observacion_est' => $this->observacion_est,
-            'solicitante' => $this->solicitante->nombres.' '. $this->solicitante->apellidos,
+            'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'autorizacion' => $this->autorizacion->nombre,
-            'per_autoriza' => $this->autoriza->nombres.' '.$this->autoriza->apellidos,
+            'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'tarea' => $this->tarea?->detalle,
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado->nombre,
             'listadoProductos' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
+
+            'es_tarea' => $this->tarea ? true : false,
+            'tiene_observacion_aut' => $this->observacion_aut ? true : false,
+            'tiene_observacion_est' => $this->observacion_est ? true : false,
         ];
 
         if ($controller_method == 'show') {
