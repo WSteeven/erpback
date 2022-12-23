@@ -39,19 +39,17 @@ class EmpleadoController extends Controller
         $search = request('search');
         $campos = explode(',', request('campos'));
 
-        // Log::channel('testing')->info('Log', ['Dentro de list: ', request()->all()]);
-
-        // Procesar
-        if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-
+        
         $user = User::find(auth()->id());
         if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
-
+        
         // return $this->servicio->obtenerTodosSinEstado();
-
+        
+        // Procesar respuesta
+        if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
