@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
+use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
+use App\Models\MaterialGrupoTarea;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\TransaccionBodegaEgresoService;
@@ -28,13 +31,28 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    public function materialesDespachadosConBobina($id)
+    public function materialesDespachadosConBobina()
     {
-        $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
+        // $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
+        $results = [];//DB::select('select * from detalles_productos dp where id in(select detalle_id from fibras');
         return response()->json(compact('results'));
     }
 
     public function materialesDespachadosSinBobina($id)
+    {
+        $grupo_id = Auth::user()->empleado->grupo_id;
+        // Log::channel('testing')->info('Log', ['Grupo: ', $grupo_id]);
+
+        $results = MaterialGrupoTarea::where('grupo_id', $grupo_id)->get();
+        $results = collect($results)->map(fn ($items) => [
+            'cantidad_despachada' => intval($items->cantidad_stock),
+            'detalle' => DetalleProducto::find($items->detalle_producto_id)->descripcion,
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+    public function materialesDespachadosSinBobinaRespaldo($id)
     {
         $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
         return response()->json(compact('results'));

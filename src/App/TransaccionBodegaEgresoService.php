@@ -643,6 +643,7 @@ class TransaccionBodegaEgresoService
         //     ->get();
 
         $results = DB::select('select sum(cantidad_inicial) as cantidad, detalle_id from detalle_producto_transaccion dpt where dpt.transaccion_id in(select id from transacciones_bodega tb where tb.tarea_id=' . $tarea_id . ') and dpt.detalle_id in(select id from detalles_productos dp where id in(select detalle_id from fibras f)) group by detalle_id');
+
         $results = collect($results)->map(fn ($items) => [
             'cantidad_despachada' => intval($items->cantidad),
             'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,

@@ -54,6 +54,7 @@ use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
+use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransferenciaController;
@@ -68,6 +69,7 @@ use App\Models\Inventario;
 use App\Models\PrestamoTemporal;
 use App\Models\ProductoEnPercha;
 use App\Models\Provincia;
+use App\Models\Tendido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -209,7 +211,8 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
     Route::get('prueba/{tarea}', 'prueba');
     Route::get('prueba2/{tarea}', 'prueba2');
     Route::get('materiales-despachados-sin-bobina/{tarea}', 'materialesDespachadosSinBobina');
-    Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
+    Route::get('materiales-despachados-con-bobina', 'materialesDespachadosConBobina');
+    // Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
     Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
@@ -243,3 +246,7 @@ Route::group([], function () {
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
 })->middleware('auth:sanctum');
+
+// Tendidos
+Route::apiResource('tendidos', TendidoController::class)->except('show');
+Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
