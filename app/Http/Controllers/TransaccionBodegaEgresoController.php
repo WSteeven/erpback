@@ -31,10 +31,15 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    public function materialesDespachadosConBobina()
+    public function obtenerBobinas()
     {
-        // $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
-        $results = [];//DB::select('select * from detalles_productos dp where id in(select detalle_id from fibras');
+        $results = DB::select('select * from detalles_productos dp where id in(select detalle_id from fibras)');
+        return response()->json(compact('results'));
+    }
+
+    public function materialesDespachadosConBobina($id)
+    {
+        $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
         return response()->json(compact('results'));
     }
 

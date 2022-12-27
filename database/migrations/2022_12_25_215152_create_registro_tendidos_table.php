@@ -24,24 +24,29 @@ return new class extends Migration
             $table->integer('progresiva_salida');
             $table->double('coordenada_del_elemento_latitud');
             $table->double('coordenada_del_elemento_longitud');
-            $table->double('coordenada_cruce_americano_longitud');
-            $table->double('coordenada_cruce_americano_latitud');
-            $table->double('coordenada_poste_anclaje1_longitud');
-            $table->double('coordenada_poste_anclaje1_latitud');
-            $table->double('coordenada_poste_anclaje2_longitud');
-            $table->double('coordenada_poste_anclaje2_latitud');
+            $table->double('coordenada_cruce_americano_longitud')->nullable();
+            $table->double('coordenada_cruce_americano_latitud')->nullable();
+            $table->double('coordenada_poste_anclaje1_longitud')->nullable();
+            $table->double('coordenada_poste_anclaje1_latitud')->nullable();
+            $table->double('coordenada_poste_anclaje2_longitud')->nullable();
+            $table->double('coordenada_poste_anclaje2_latitud')->nullable();
             $table->string('estado_elemento');
             $table->boolean('tiene_transformador')->default(false);
-            $table->integer('cantidad_transformadores');
+            $table->integer('cantidad_transformadores')->nullable();
             $table->boolean('tiene_americano')->default(false);
             $table->boolean('tiene_retenidas')->default(false);
-            $table->integer('cantidad_retenidas');
+            $table->integer('cantidad_retenidas')->nullable();
             $table->boolean('instalo_manga')->default(false);
             $table->boolean('instalo_reserva')->default(false);
-            $table->integer('cantidad_reservas');
-            $table->text('observaciones');
-            $table->string('imagen');
+            $table->integer('cantidad_reserva')->nullable();
+            $table->string('tension')->nullable();
+            $table->text('observaciones')->nullable();
+            $table->string('imagen')->nullable();
             // $table->string('listadoProductosSeleccionados');
+
+            // Foreign key
+            $table->unsignedBigInteger('tendido_id');
+            $table->foreign('tendido_id')->references('id')->on('tendidos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

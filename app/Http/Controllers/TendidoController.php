@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\TendidoResource;
 use App\Models\Tendido;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Src\Shared\Utils;
 
 class TendidoController extends Controller
 {
-    // private $entidad = '';
-
     public function index()
     {
         $results = Tendido::all();
@@ -19,16 +17,17 @@ class TendidoController extends Controller
 
     public function store(Request $request)
     {
-        $datos = $request->all(); //validated();
+        $datos = $request->all();
         $datos['bobina_id'] = $request['bobina'];
         $datos['subtarea_id'] = $request['subtarea'];
 
         $modelo = Tendido::create($datos);
-        $mensaje = 'Iniciado exitosamente!'; //Utils::obtenerMensaje($this->entidad, 'store', false);
+        $mensaje = 'Iniciado exitosamente!';
         return response(compact('modelo', 'mensaje'));
     }
 
-    public function show($subtarea) {
+    public function show($subtarea)
+    {
         $modelo = Tendido::where('subtarea_id', $subtarea)->first();
 
         if (!$modelo) {
@@ -37,6 +36,7 @@ class TendidoController extends Controller
             ]);
         }
 
+        $modelo = new TendidoResource($modelo);
         return response()->json(compact('modelo'));
     }
 }

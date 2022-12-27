@@ -32,8 +32,10 @@ class RegistroTendido extends Model
         'cantidad_retenidas',
         'instalo_manga',
         'instalo_reserva',
-        'cantidad_reservas',
+        'cantidad_reserva',
         'observaciones',
         'imagen',
+        'tension',
+        'tendido_id'
     ];
 }

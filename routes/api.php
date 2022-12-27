@@ -38,6 +38,7 @@ use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RamController;
+use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\SubtareaAsignadaController;
@@ -176,6 +177,7 @@ Route::apiResources(
         'clientes-finales' => ClienteFinalController::class,
         'proyectos' => ProyectoController::class,
         'archivos-subtareas' => ArchivoSubtareaController::class,
+        'registros-tendidos' => RegistroTendidoController::class,
     ],
     [
         'parameters' => [
@@ -207,12 +209,13 @@ Route::apiResources(
     ]
 );
 
+// Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
+Route::get('bobinas-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
     Route::get('prueba/{tarea}', 'prueba');
     Route::get('prueba2/{tarea}', 'prueba2');
     Route::get('materiales-despachados-sin-bobina/{tarea}', 'materialesDespachadosSinBobina');
-    Route::get('materiales-despachados-con-bobina', 'materialesDespachadosConBobina');
-    // Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
+    // Route::get('materiales-despachados-con-bobina', 'materialesDespachadosConBobina');
     Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');

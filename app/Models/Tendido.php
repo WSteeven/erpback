@@ -15,4 +15,19 @@ class Tendido extends Model
         'subtarea_id',
         'bobina_id',
     ];
+
+    public function registrosTendidos()
+    {
+        return $this->hasMany(RegistroTendido::class);
+    }
+
+    public function subtarea()
+    {
+        return $this->belongsTo(Subtarea::class);
+    }
+
+    public function bobina()
+    {
+        return $this->hasOne(Fibra::class);
+    }
 }

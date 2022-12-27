@@ -16,12 +16,15 @@ return new class extends Migration
         Schema::create('control_materiales_subtareas', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('cantidad_actual');
+            $table->integer('stock_actual');
             $table->integer('cantidad_usada');
 
             // Foreign key
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('detalle_producto_id');
+            $table->foreign('detalle_producto_id')->references('id')->on('detalles_productos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });
