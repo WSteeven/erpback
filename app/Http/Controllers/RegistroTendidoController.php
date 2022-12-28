@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\RegistroTendido;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class RegistroTendidoController extends Controller
 {
+    private $entidad = 'Registro tendido';
+
     public function index()
     {
         $results = RegistroTendido::all();
@@ -20,5 +23,19 @@ class RegistroTendidoController extends Controller
 
         $modelo = RegistroTendido::create($datos);
         return response()->json(compact('modelo'));
+    }
+
+    public function show(RegistroTendido $registroTendido)
+    {
+        $modelo = $registroTendido;
+        return response()->json(compact('modelo'));
+    }
+
+    public function update(Request $request, RegistroTendido $registroTendido)
+    {
+        $registroTendido->update($request->all());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        $modelo = $registroTendido;
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

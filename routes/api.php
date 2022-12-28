@@ -204,6 +204,7 @@ Route::apiResources(
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo-subtarea',
+            'registros-tendidos' => 'registro-tendido'
         ],
         'middleware' => ['auth:sanctum']
     ]

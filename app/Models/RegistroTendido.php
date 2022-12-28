@@ -38,4 +38,14 @@ class RegistroTendido extends Model
         'tension',
         'tendido_id'
     ];
+
+    protected $casts = [
+        'tiene_transformador' => 'boolean',
+        'tiene_americano' => 'boolean',
+        'tiene_retenidas' => 'boolean',
+        'instalo_manga' => 'boolean',
+        'instalo_reserva' =>'boolean',
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
 }
