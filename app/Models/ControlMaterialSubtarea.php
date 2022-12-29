@@ -11,7 +11,7 @@ class ControlMaterialSubtarea extends Model
     protected $table = 'control_materiales_subtareas';
     protected $fillable = [
         'stock_actual',
-        'cantidad_usada',
+        'cantidad_utilizada',
         'subtarea_id',
         'detalle_producto_id',
     ];

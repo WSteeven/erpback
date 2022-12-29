@@ -36,7 +36,7 @@ class RegistroTendido extends Model
         'observaciones',
         'imagen',
         'tension',
-        'tendido_id'
+        'tendido_id',
     ];
 
     protected $casts = [

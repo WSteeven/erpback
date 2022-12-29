@@ -17,7 +17,6 @@ class GrupoResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'empleado_id' => $this->empleado_id,
             'estado' => $this->estado,
         ];
     }

@@ -12,12 +12,23 @@ class GrupoController extends Controller
 {
     private $entidad = 'Grupo';
 
+    public function listar()
+    {
+        $campos = explode(',', request('campos'));
+
+        if (request('campos')) {
+            return Grupo::ignoreRequest(['campos'])->filter()->get($campos);
+        } else {
+            return GrupoResource::collection(Grupo::filter()->get());
+        }
+    }
+
     /**
      * Listar
      */
     public function index()
     {
-        $results = GrupoResource::collection(Grupo::all());
+        $results = $this->listar();
         return response()->json(compact('results'));
     }
 

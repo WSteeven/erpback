@@ -43,6 +43,8 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
+
+    // pendientre filtrar por tarea
     public function materialesDespachadosSinBobina($id)
     {
         $grupo_id = Auth::user()->empleado->grupo_id;
@@ -50,7 +52,8 @@ class TransaccionBodegaEgresoController extends Controller
 
         $results = MaterialGrupoTarea::where('grupo_id', $grupo_id)->get();
         $results = collect($results)->map(fn ($items) => [
-            'cantidad_despachada' => intval($items->cantidad_stock),
+            'detalle_producto_id' => intval($items->detalle_producto_id),
+            'stock_actual' => intval($items->cantidad_stock),
             'detalle' => DetalleProducto::find($items->detalle_producto_id)->descripcion,
         ]);
 

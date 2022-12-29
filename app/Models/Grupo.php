@@ -7,25 +7,33 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class Grupo extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait;
-    use AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
+
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'empleado_id', 'estado'];
+    protected $fillable = ['nombre', 'estado'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'estado' => 'boolean',
     ];
 
-    public function empleados()
-    {
-        return $this->hasMany(Empleado::class);
-    }
+    private static $whiteListFilter = [
+        'nombre',
+        'estado',
+    ];
 
-    public function tareas(){
+    public function tareas()
+    {
         return $this->belongsToMany(Tarea::class);
     }
 
+
+    public function controlMaterialesSubtareas()
+    {
+        return $this->hasMany(ControlMaterialSubtarea::class);
+    }
 }

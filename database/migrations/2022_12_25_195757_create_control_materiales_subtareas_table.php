@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->integer('stock_actual');
-            $table->integer('cantidad_usada');
+            $table->integer('cantidad_utilizada');
 
             // Foreign key
             $table->unsignedBigInteger('subtarea_id');

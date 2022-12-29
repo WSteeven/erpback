@@ -16,11 +16,8 @@ return new class extends Migration
         Schema::create('grupos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->unsignedBigInteger('empleado_id'); // tecnico responsable
             $table->boolean('estado');
             $table->timestamps();
-
-            //$table->foreign('empleado_id')->references('id')->on('empleados');
         });
     }
 
