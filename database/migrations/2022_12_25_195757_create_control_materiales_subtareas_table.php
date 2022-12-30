@@ -18,10 +18,17 @@ return new class extends Migration
 
             $table->integer('stock_actual');
             $table->integer('cantidad_utilizada');
+            $table->string('fecha');
 
             // Foreign key
+            $table->unsignedBigInteger('tarea_id');
+            $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
+
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('grupo_id');
+            $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('detalle_producto_id');
             $table->foreign('detalle_producto_id')->references('id')->on('detalles_productos')->onDelete('cascade')->onUpdate('cascade');

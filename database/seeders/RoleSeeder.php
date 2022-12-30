@@ -58,6 +58,7 @@ class RoleSeeder extends Seeder
         // Modulo de Activos Fijos
         // -----------------------
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_activos_fijos'])->syncRoles([$activos_fijos]);
+
         //Activos fijos
         Permission::firstOrCreate(['name' => 'puede.ver.activos_fijos'])->syncRoles([$activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.crear.activos_fijos'])->assignRole($activos_fijos);
@@ -307,11 +308,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_trabajos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_trabajos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_trabajos'])->assignRole($coordinador);
-        // Progresivas
-        Permission::firstOrCreate(['name' => 'puede.ver.progresivas'])->assignRole($coordinador);
+        // Tendidos
+        /* Permission::firstOrCreate(['name' => 'puede.ver.progresivas'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.progresivas'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.editar.progresivas'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.progresivas'])->assignRole($coordinador);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.progresivas'])->assignRole($coordinador); */
         // Tipos elementos
         Permission::firstOrCreate(['name' => 'puede.ver.tipos_elementos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_elementos'])->assignRole($coordinador);
@@ -337,5 +338,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.solicitud_materiales'])->syncRoles([$coordinador, $tecnico_lider, $tecnico_secretario]);
         Permission::firstOrCreate(['name' => 'puede.editar.solicitud_materiales'])->syncRoles([$coordinador, $tecnico_lider, $tecnico_secretario]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.solicitud_materiales'])->syncRoles([$coordinador, $tecnico_lider, $tecnico_secretario]);
+        // Reportes control de materiales
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
     }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\ControlMaterialSubtarea;
 use App\Models\MaterialGrupoTarea;
 use App\Models\RegistroTendido;
+use App\Models\Subtarea;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Src\App\ControlMaterialSubtareaService;
 use Src\Shared\Utils;
@@ -44,7 +46,12 @@ class RegistroTendidoController extends Controller
 
         // Las cantidades se validaron y se puede proceder al registro de materiales
         foreach ($materialesOcupados as $material) {
+            $subtarea = Subtarea::find($datos['subtarea_id']);
+
             $material['subtarea_id'] = $datos['subtarea_id'];
+            $material['tarea_id'] = $subtarea->tarea->id;
+            $material['grupo_id'] = $subtarea->grupo->id;
+            $material['fecha'] = Carbon::now()->format('d-m-Y');
             ControlMaterialSubtarea::create($material);
         }
 

@@ -39,6 +39,7 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RegistroTendidoController;
+use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\SubtareaAsignadaController;
@@ -254,3 +255,6 @@ Route::group([], function () {
 // Tendidos
 Route::apiResource('tendidos', TendidoController::class)->except('show');
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
+
+// Reportes de material
+Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
