@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
+use App\Models\MaterialGrupoTarea;
 use App\Models\MovimientoProducto;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
@@ -36,6 +37,29 @@ class MovimientoProductoObserver
                     'cantidad'=>$itemInventario->cantidad-$movimientoProducto->cantidad
                 ]); */
                 $transaccion->estados()->attach(2);
+
+                // Cuando un material es despachado para una tarea éste se agrega a la tabla de de control de materiales para tarea en donde se asigna a un grupo
+                $tarea_id = $transaccion->tarea_id;
+                $grupo_id = $transaccion->solicitante->grupo_id;
+
+                if ($tarea_id) {
+                    $detalle_existente = MaterialGrupoTarea::where('detalle_producto_id', $itemDetalleProductoTransaccion->detalle_id)->where('tarea_id', $tarea_id)->where('grupo_id', $grupo_id)->first();
+                    if (!$detalle_existente) {
+                        MaterialGrupoTarea::create([
+                            'detalle_tarea_id' => $detalle_existente->detalle_producto_id,
+                            'cantidad_stock' => $movimientoProducto->cantidad,
+                            'tarea_id' => $tarea_id,
+                            'grupo_id' => $transaccion->solicitante_id,
+                        ]);
+                    } else {
+                        $detalle_existente->update([
+                            'detalle_tarea_id' => $detalle_existente->detalle_producto_id,
+                            'cantidad_stock' => $detalle_existente->cantidad_stock + $movimientoProducto->cantidad,
+                            'tarea_id' => $tarea_id,
+                            'grupo_id' => $transaccion->solicitante_id,
+                        ]);
+                    }
+                }
             }
         }
     }

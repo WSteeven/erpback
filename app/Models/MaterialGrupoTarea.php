@@ -13,6 +13,7 @@ class MaterialGrupoTarea extends Model
 
     protected $fillable = [
         'cantidad_stock',
+        'es_fibra',
         'tarea_id',
         'grupo_id',
         'detalle_producto_id',

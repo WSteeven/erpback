@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->integer('cantidad_stock'); // Cantidad de material que tiene el grupo a su disposición
+            $table->boolean('es_fibra')->default(false);
 
             // Foreign key
             $table->unsignedBigInteger('tarea_id');

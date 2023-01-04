@@ -211,13 +211,11 @@ Route::apiResources(
     ]
 );
 
-// Route::get('materiales-despachados-con-bobina/{tarea}', 'materialesDespachadosConBobina');
 Route::get('bobinas-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
+Route::get('materiales-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
+
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
-    Route::get('prueba/{tarea}', 'prueba');
-    Route::get('prueba2/{tarea}', 'prueba2');
-    Route::get('materiales-despachados-sin-bobina/{tarea}', 'materialesDespachadosSinBobina');
-    // Route::get('materiales-despachados-con-bobina', 'materialesDespachadosConBobina');
+    // Route::get('materiales-grupo-tarea', 'obtenerMateriales');
     Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');

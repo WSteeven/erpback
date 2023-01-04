@@ -7,6 +7,7 @@ use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
+use App\Models\Fibra;
 use App\Models\MaterialGrupoTarea;
 use App\Models\TransaccionBodega;
 use App\Models\User;
@@ -31,26 +32,35 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    public function obtenerBobinas()
-    {
-        $results = DB::select('select * from detalles_productos dp where id in(select detalle_id from fibras)');
-        return response()->json(compact('results'));
-    }
-
-    public function materialesDespachadosConBobina($id)
+    /* public function materialesDespachadosConBobina($id)
     {
         $results = $this->servicio->obtenerListadoMaterialesPorTareaConBobina($id);
         return response()->json(compact('results'));
+    } */
+
+    // Obtener materiales para tarea grupo
+    public function obtenerBobinas(Request $request)
+    {
+        $tarea = $request['tarea'];
+        $grupo = $request['grupo'];
+
+        $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $results = $results->map(fn ($item) => [
+            'id' => $item->detalle_producto_id,
+            'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
+            'cantidad_hilos' => Fibra::where('detalle_id', $item->detalle_producto_id)->first()->hilo->nombre,
+        ]);
+
+        return response()->json(compact('results'));
     }
 
-
-    // pendientre filtrar por tarea
-    public function materialesDespachadosSinBobina($id)
+    // Obtener materiales para tarea grupo
+    public function obtenerMateriales(Request $request)
     {
-        $grupo_id = Auth::user()->empleado->grupo_id;
-        // Log::channel('testing')->info('Log', ['Grupo: ', $grupo_id]);
+        $tarea = $request['tarea'];
+        $grupo = $request['grupo'];
 
-        $results = MaterialGrupoTarea::where('grupo_id', $grupo_id)->get();
+        $results = MaterialGrupoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = collect($results)->map(fn ($items) => [
             'detalle_producto_id' => intval($items->detalle_producto_id),
             'stock_actual' => intval($items->cantidad_stock),
