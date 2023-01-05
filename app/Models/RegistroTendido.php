@@ -36,6 +36,7 @@ class RegistroTendido extends Model
         'observaciones',
         'imagen',
         'tension',
+        'materiales_ocupados',
         'tendido_id',
     ];
 
@@ -44,7 +45,8 @@ class RegistroTendido extends Model
         'tiene_americano' => 'boolean',
         'tiene_retenidas' => 'boolean',
         'instalo_manga' => 'boolean',
-        'instalo_reserva' =>'boolean',
+        'instalo_reserva' => 'boolean',
+        'materiales_ocupados' => 'json',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];

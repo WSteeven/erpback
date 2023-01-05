@@ -55,7 +55,10 @@ class RegistroTendidoController extends Controller
             ControlMaterialSubtarea::create($material);
         }
 
+        $datos['materiales_ocupados'] = $datos['materiales_ocupados'];
+
         $modelo = RegistroTendido::create($datos);
+
         return response()->json(compact('modelo'));
     }
 
