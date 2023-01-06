@@ -42,7 +42,7 @@ return new class extends Migration
             $table->string('tension')->nullable();
             $table->text('observaciones')->nullable();
             $table->string('imagen')->nullable();
-            // $table->string('listadoProductosSeleccionados');
+            $table->json('materiales_ocupados');
 
             // Foreign key
             $table->unsignedBigInteger('tendido_id');

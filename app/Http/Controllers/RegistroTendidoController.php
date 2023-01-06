@@ -56,6 +56,7 @@ class RegistroTendidoController extends Controller
         }
 
         $modelo = RegistroTendido::create($datos);
+
         return response()->json(compact('modelo'));
     }
 
