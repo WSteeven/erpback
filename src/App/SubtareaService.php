@@ -48,9 +48,9 @@ class SubtareaService
         return SubtareaResource::collection($results);
     }
 
-    public function obtenerAsignadasTodos()
+    public function obtenerTrabajoAsignado(int $grupo)
     {
-        $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->get();
+        $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('grupo_id', $grupo)->get();
         return SubtareaResource::collection($results);
     }
 }

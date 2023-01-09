@@ -91,7 +91,7 @@ class SubtareaSeeder extends Seeder
                 'cantidad_dias' => 2,
                 'tipo_trabajo_id' => 1,
                 'tarea_id' => 2,
-                'grupo_id' => 2,
+                'grupo_id' => 1,
                 'coordinador_id' => 5,
             ]
         ]);

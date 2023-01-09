@@ -41,15 +41,8 @@ class SubtareaController extends Controller
 
     public function subtareasAsignadas()
     {
-        // Obtener parametros
-        $page = request('page');
-        $offset = request('offset');
-
-        // Procesar
-        $empleado = User::find(Auth::id())->empleado;
-
-        if ($page) return response()->json(['results' =>  $this->servicio->obtenerAsignadasPaginacion($empleado, $offset)]);
-        return response()->json(['results' => $this->servicio->obtenerAsignadasTodos()]);
+        $grupo_id = User::find(Auth::id())->empleado->grupo_id;
+        return response()->json(['results' => $this->servicio->obtenerTrabajoAsignado($grupo_id)]);
     }
 
     /**

@@ -26,7 +26,9 @@ class RegistroTendidoController extends Controller
      */
     public function index()
     {
-        $results = RegistroTendido::all();
+        $tendido = request('tendido');
+
+        $results = RegistroTendido::where('tendido_id', $tendido)->get();
         return response()->json(compact('results'));
     }
 

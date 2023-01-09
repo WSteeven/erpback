@@ -73,6 +73,36 @@ class MaterialGrupoTareaSeeder extends Seeder
                 'detalle_producto_id' => 17,
                 'es_fibra' => true,
             ],
+            // Tarea 1
+            [
+                'cantidad_stock' => 100,
+                'tarea_id' => 1,
+                'grupo_id' => 1,
+                'detalle_producto_id' => 37,
+                'es_fibra' => false,
+            ],
+            [
+                'cantidad_stock' => 80,
+                'tarea_id' => 1,
+                'grupo_id' => 1,
+                'detalle_producto_id' => 45,
+                'es_fibra' => false,
+            ],
+            [
+                'cantidad_stock' => 74,
+                'tarea_id' => 1,
+                'grupo_id' => 1,
+                'detalle_producto_id' => 31,
+                'es_fibra' => false,
+            ],
+            // fibras
+            [
+                'cantidad_stock' => 1,
+                'tarea_id' => 1,
+                'grupo_id' => 1,
+                'detalle_producto_id' => 16,
+                'es_fibra' => true,
+            ],
         ]);
     }
 }
