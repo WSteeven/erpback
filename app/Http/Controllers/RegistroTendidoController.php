@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\RegistroTendidoResource;
 use App\Models\ControlMaterialSubtarea;
 use App\Models\MaterialGrupoTarea;
 use App\Models\RegistroTendido;
 use App\Models\Subtarea;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\App\ControlMaterialSubtareaService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class RegistroTendidoController extends Controller
@@ -57,6 +61,19 @@ class RegistroTendidoController extends Controller
             ControlMaterialSubtarea::create($material);
         }
 
+        // Guardar imagenes        
+        $datos['imagen_elemento'] = (new GuardarImagenIndividual($datos['imagen'], RutasStorage::REGISTROS_TENDIDOS))->execute();
+
+        // Log::channel('testing')->info('Log', ['Existe imahgen de cruce americano', $request['imagen_cruce_americano']]);
+        if ($datos['imagen_cruce_americano'])
+            $datos['imagen_cruce_americano'] = (new GuardarImagenIndividual($datos['imagen_cruce_americano'], RutasStorage::REGISTROS_TENDIDOS))->execute();    
+
+        if ($datos['imagen_poste_anclaje1'])
+            $datos['imagen_poste_anclaje1'] = (new GuardarImagenIndividual($datos['imagen_poste_anclaje1'], RutasStorage::REGISTROS_TENDIDOS))->execute();
+
+        if ($datos['imagen_poste_anclaje2'])
+            $datos['imagen_poste_anclaje2'] = (new GuardarImagenIndividual($datos['imagen_poste_anclaje2'], RutasStorage::REGISTROS_TENDIDOS))->execute();
+
         $modelo = RegistroTendido::create($datos);
 
         return response()->json(compact('modelo'));
@@ -67,7 +84,7 @@ class RegistroTendidoController extends Controller
      */
     public function show(RegistroTendido $registroTendido)
     {
-        $modelo = $registroTendido;
+        $modelo = new RegistroTendidoResource($registroTendido);
         return response()->json(compact('modelo'));
     }
 

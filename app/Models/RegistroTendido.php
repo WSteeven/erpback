@@ -34,10 +34,13 @@ class RegistroTendido extends Model
         'instalo_reserva',
         'cantidad_reserva',
         'observaciones',
-        'imagen',
         'tension',
         'materiales_ocupados',
         'tendido_id',
+        'imagen_elemento',
+        'imagen_cruce_americano',
+        'imagen_poste_anclaje1',
+        'imagen_poste_anclaje2',
     ];
 
     protected $casts = [
