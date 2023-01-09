@@ -41,8 +41,12 @@ return new class extends Migration
             $table->integer('cantidad_reserva')->nullable();
             $table->string('tension')->nullable();
             $table->text('observaciones')->nullable();
-            $table->string('imagen')->nullable();
             $table->json('materiales_ocupados');
+            
+            $table->string('imagen_elemento');
+            $table->string('imagen_cruce_americano')->nullable();
+            $table->string('imagen_poste_anclaje1')->nullable();
+            $table->string('imagen_poste_anclaje2')->nullable();
 
             // Foreign key
             $table->unsignedBigInteger('tendido_id');

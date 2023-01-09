@@ -50,7 +50,7 @@ class Utils
 
     public static function obtenerRutaAbsolutaImagen(string $ruta_imagen_en_public, string $nombre_archivo): string
     {
-        return storage_path() . '/app/' . $ruta_imagen_en_public . $nombre_archivo;
+        return storage_path() . '/app/' . $ruta_imagen_en_public . '/' . $nombre_archivo; // aqui cambie
     }
 
     public static function obtenerRutaRelativaImagen(string $ruta, string $nombre_archivo = ""): string

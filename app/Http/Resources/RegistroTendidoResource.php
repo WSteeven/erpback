@@ -39,10 +39,13 @@ class RegistroTendidoResource extends JsonResource
             'instalo_reserva' => $this->instalo_reserva,
             'cantidad_reserva' => $this->cantidad_reserva,
             'observaciones' => $this->observaciones,
-            'imagen' => $this->imagen,
             'tension' => $this->tension,
             'tendido_id' => $this->tendido_id,
-            'materiales_ocupados' => $this->materiales_ocupados,// true),
+            'materiales_ocupados' => $this->materiales_ocupados,
+            'imagen' => $this->imagen_elemento ? url($this->imagen_elemento) : null,
+            'imagen_cruce_americano' => $this->imagen_cruce_americano ? url($this->imagen_cruce_americano) : null,
+            'imagen_poste_anclaje1' => $this->imagen_poste_anclaje1 ? url($this->imagen_poste_anclaje1) : null,
+            'imagen_poste_anclaje2' => $this->imagen_poste_anclaje2 ? url($this->imagen_poste_anclaje2) : null,
         ];
     }
 }
