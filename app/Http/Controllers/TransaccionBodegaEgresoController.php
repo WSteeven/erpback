@@ -22,7 +22,7 @@ use Src\Shared\Utils;
 class TransaccionBodegaEgresoController extends Controller
 {
     private $entidad = 'Transacción';
-
+    private $servicio;
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaEgresoService();
@@ -145,8 +145,8 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
             // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            !is_null($request->motivo) ?? $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+            $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];

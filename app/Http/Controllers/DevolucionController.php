@@ -90,14 +90,8 @@ class DevolucionController extends Controller
     /**
      * Consultar
      */
-    public function show(Request $request, Devolucion $devolucion)
+    public function show(Devolucion $devolucion)
     {
-        Log::channel('testing')->info('Log', ['SHOW de devolucion es', $devolucion, $request->all()]);
-        if($request->estado){
-            $devolucion = Devolucion::where('id', $devolucion['id'])->where('estado', $request->estado)->get();
-            Log::channel('testing')->info('Log', ['Devolucion', $devolucion,]);
-        }else{
-        }
         $modelo = new DevolucionResource($devolucion);
         return response()->json(compact('modelo'));
     }

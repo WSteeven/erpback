@@ -19,6 +19,7 @@ use Src\Shared\Utils;
 class TransaccionBodegaIngresoController extends Controller
 {
     private $entidad = 'Transacción';
+    private $servicio;
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaIngresoService();
@@ -49,13 +50,6 @@ class TransaccionBodegaIngresoController extends Controller
         }
         $results = TransaccionBodega::whereIn('id', $ids)->get(); */
 
-        /* 
-        $users = DB::table('users')
-            ->join('contacts', 'users.id', '=', 'contacts.user_id')
-            ->join('orders', 'users.id', '=', 'orders.user_id')
-            ->select('users.*', 'contacts.phone', 'orders.price')
-            ->get();
-        */
         $page = $request['page'];
         $offset = $request['offset'];
         $estado = $request['estado'];
@@ -64,12 +58,11 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             if ($page) {
                 $results = $this->servicio->filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset);
-                TransaccionBodegaResource::collection($results);
             } else {
                 $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
-                TransaccionBodegaResource::collection($results);
             }
         }
+        $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -85,6 +78,7 @@ class TransaccionBodegaIngresoController extends Controller
                 // Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
 
+                $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
                 $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
                 $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
@@ -93,7 +87,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
                 !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-                !is_null($request->tarea) ?? $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
+                $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 //Creacion de la transaccion
                 Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
@@ -101,6 +95,12 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
+                //Guardar la autorización con su observación
+                if($request->obs_autorizacion){
+                    $transaccion->autorizaciones()->attach($datos['autorizacion_id'], ['observacion'=>$datos['obs_autorizacion']]);
+                }else{
+                    $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
+                }
                 //Guardar el estado con su observacion
                 if ($request->obs_estado) {
                     $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
