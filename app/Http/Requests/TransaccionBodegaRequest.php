@@ -36,8 +36,8 @@ class TransaccionBodegaRequest extends FormRequest
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'obs_estado' => 'nullable|string|sometimes',
-            'devolucion' => 'sometimes|nullable|exists:devoluciones,id',//|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
-            'pedido' => 'sometimes|nullable|exists:pedidos,id',//|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'devolucion' => 'sometimes|nullable|exists:devoluciones,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
+            'pedido' => 'sometimes|nullable|exists:pedidos,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
             'motivo' => 'sometimes|nullable|exists:motivos,id',
@@ -50,7 +50,7 @@ class TransaccionBodegaRequest extends FormRequest
             'listadoProductosTransaccion.*.cantidad' => 'required'
         ];
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
-            $rules['autorizacion'] = 'nullable';
+            // $rules['autorizacion'] = 'nullable';
             $rules['motivo'] = 'required|exists:motivos,id';
         }
 
@@ -94,7 +94,8 @@ class TransaccionBodegaRequest extends FormRequest
             ]);
         }
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
-            if ($this->autorizacion == '') {
+            if (is_null($this->autorizacion) || $this->autorizacion == '') {
+                Log::channel('testing')->info('Log', ['autorizacion', $this->autorizacion]);
                 $this->merge([
                     'autorizacion' => 2,
                 ]);
@@ -168,18 +169,19 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
-        if (is_null($this->per_autoriza)) {
-            $this->merge([
-                'per_autoriza' => auth()->user()->empleado->jefe_id,
-            ]);
-        }
-
+        
         if (is_null($this->per_autoriza)) {
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,
                 ]);
             }
+        }
+        
+        if (is_null($this->per_autoriza)) {
+            $this->merge([
+                'per_autoriza' => auth()->user()->empleado->jefe_id,
+            ]);
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA])) {
             $this->merge([

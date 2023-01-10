@@ -29,7 +29,7 @@ class TransaccionBodegaResource extends JsonResource
             'obs_autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->pivot->observacion,
             'justificacion' => $this->justificacion,
             'comprobante' => $this->comprobante,
-            'fecha_limite' => !is_null($this->fecha_limite) ?? $this->fecha_limite,
+            'fecha_limite' => $this->fecha_lximite,
             'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
             'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',

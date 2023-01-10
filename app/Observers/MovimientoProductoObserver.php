@@ -36,7 +36,6 @@ class MovimientoProductoObserver
                 /* $itemInventario->update([
                     'cantidad'=>$itemInventario->cantidad-$movimientoProducto->cantidad
                 ]); */
-                $transaccion->estados()->attach(2);
 
                 // Cuando un material es despachado para una tarea éste se agrega a la tabla de de control de materiales para tarea en donde se asigna a un grupo
                 $tarea_id = $transaccion->tarea_id;
