@@ -17,6 +17,7 @@
         "laravel/sanctum": "^3.0",
         "laravel/scout": "^9.4",
         "laravel/tinker": "^2.7",
+        "maatwebsite/excel": "^3.1",
         "mehdi-fathi/eloquent-filter": "^2.6",
         "owen-it/laravel-auditing": "^13.0",
         "pusher/pusher-php-server": "^7.0",

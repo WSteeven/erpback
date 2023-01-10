@@ -56,7 +56,13 @@ class Utils
     public static function obtenerRutaRelativaImagen(string $ruta, string $nombre_archivo = ""): string
     {
         $ruta = str_replace('public/', '', $ruta);
-        return '/storage/' . $ruta . $nombre_archivo;
+        return '/storage/' . $ruta . '/' .$nombre_archivo;
+    }
+
+    public static function obtenerRutaRelativaArchivo(string $ruta): string
+    {
+        $ruta = str_replace('public/', '', $ruta);
+        return '/storage/' . $ruta;
     }
 
     public static function obtenerMensaje(string $entidad, string $metodo, string $genero = 'M')

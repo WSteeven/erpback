@@ -24,7 +24,7 @@ class SubtareaResource extends JsonResource
             'actividad_realizada' => $this->actividad_realizada,
             'es_dependiente' => $this->es_dependiente,
             'fiscalizador' => $this->fiscalizador,
-            'subtarea_dependiente' => $this->subtarea_dependiente,
+            'subtarea_dependiente' => $this->subtarea?->codigo_subtarea,
             'tipo_instalacion' => $this->tipo_instalacion,
             'id_servicio' => $this->id_servicio,
             'es_ventana' => $this->es_ventana,

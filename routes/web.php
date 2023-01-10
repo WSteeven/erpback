@@ -1,10 +1,12 @@
 <?php
 
+use App\Exports\RegistroTendidoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Models\PrestamoTemporal;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,3 +26,6 @@ Route::get('/', function () {
 // Route::name('imprimir')->get('/imprimir-pdf', [Controller::class, 'imprimir']);
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
 // Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);
+
+Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php
+Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));

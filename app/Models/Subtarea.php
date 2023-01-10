@@ -102,6 +102,11 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(PausaSubtarea::class);
     }
 
+    public function subtarea()
+    {
+        return $this->hasOne(Subtarea::class, 'id', 'subtarea_dependiente');
+    }
+
     public function tecnicosPrincipales($empleados)
     {
         // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());

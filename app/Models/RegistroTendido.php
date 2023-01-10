@@ -12,6 +12,7 @@ class RegistroTendido extends Model
     protected $fillable = [
         'tipo_elemento',
         'propietario_elemento',
+        'propietario_americano',
         'numero_elemento',
         'codigo_elemento',
         'progresiva_entrada',

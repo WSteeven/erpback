@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->string('tipo_elemento');
             $table->string('propietario_elemento');
+            $table->string('propietario_americano')->nullable();
             $table->integer('numero_elemento');
             $table->string('codigo_elemento');
             $table->integer('progresiva_entrada');

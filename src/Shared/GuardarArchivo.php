@@ -29,7 +29,7 @@ class GuardarArchivo
         // $carpeta = Carpeta::find($carpeta);
 
         $path = $archivo->store($this->ruta->value);
-        $ruta_relativa = Utils::obtenerRutaRelativaImagen($path);
+        $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
         return $this->modelo->archivos()->create([
             'nombre' => $archivo->getClientOriginalName(),
             'ruta' => $ruta_relativa,

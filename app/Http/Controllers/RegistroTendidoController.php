@@ -32,7 +32,7 @@ class RegistroTendidoController extends Controller
     {
         $tendido = request('tendido');
 
-        $results = RegistroTendido::where('tendido_id', $tendido)->get();
+        $results = RegistroTendidoResource::collection(RegistroTendido::where('tendido_id', $tendido)->get());
         return response()->json(compact('results'));
     }
 
@@ -62,7 +62,7 @@ class RegistroTendidoController extends Controller
         }
 
         // Guardar imagenes        
-        $datos['imagen_elemento'] = (new GuardarImagenIndividual($datos['imagen'], RutasStorage::REGISTROS_TENDIDOS))->execute();
+        $datos['imagen_elemento'] = (new GuardarImagenIndividual($datos['imagen_elemento'], RutasStorage::REGISTROS_TENDIDOS))->execute();
 
         // Log::channel('testing')->info('Log', ['Existe imahgen de cruce americano', $request['imagen_cruce_americano']]);
         if ($datos['imagen_cruce_americano'])
@@ -74,8 +74,7 @@ class RegistroTendidoController extends Controller
         if ($datos['imagen_poste_anclaje2'])
             $datos['imagen_poste_anclaje2'] = (new GuardarImagenIndividual($datos['imagen_poste_anclaje2'], RutasStorage::REGISTROS_TENDIDOS))->execute();
 
-        $modelo = RegistroTendido::create($datos);
-
+        $modelo = new RegistroTendidoResource(RegistroTendido::create($datos)); 
         return response()->json(compact('modelo'));
     }
 

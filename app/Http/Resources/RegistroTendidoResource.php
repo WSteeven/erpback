@@ -15,6 +15,7 @@ class RegistroTendidoResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'tipo_elemento' => $this->tipo_elemento,
             'propietario_elemento' => $this->propietario_elemento,
             'numero_elemento' => $this->numero_elemento,
@@ -42,7 +43,7 @@ class RegistroTendidoResource extends JsonResource
             'tension' => $this->tension,
             'tendido_id' => $this->tendido_id,
             'materiales_ocupados' => $this->materiales_ocupados,
-            'imagen' => $this->imagen_elemento ? url($this->imagen_elemento) : null,
+            'imagen_elemento' => $this->imagen_elemento ? url($this->imagen_elemento) : null,
             'imagen_cruce_americano' => $this->imagen_cruce_americano ? url($this->imagen_cruce_americano) : null,
             'imagen_poste_anclaje1' => $this->imagen_poste_anclaje1 ? url($this->imagen_poste_anclaje1) : null,
             'imagen_poste_anclaje2' => $this->imagen_poste_anclaje2 ? url($this->imagen_poste_anclaje2) : null,
