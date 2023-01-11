@@ -31,7 +31,7 @@ class ProyectoRequest extends FormRequest
             'coordinador' => 'required|numeric|integer',
             'fecha_inicio' => 'required|string',
             'fecha_fin' => 'required|string',
-            'costo' => 'required|numeric|',
+            // 'costo' => 'required|numeric|',
         ];
     }
 }

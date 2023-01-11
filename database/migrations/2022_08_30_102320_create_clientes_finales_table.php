@@ -16,14 +16,15 @@ return new class extends Migration
         Schema::create('clientes_finales', function (Blueprint $table) {
             $table->id();
 
-            $table->string('id_cliente');
+            $table->string('id_cliente_final');
             $table->string('nombres');
             $table->string('apellidos');
             $table->string('celular');
             $table->string('parroquia');
             $table->string('direccion');
-            $table->string('referencias');
-            $table->string('coordenadas');
+            $table->string('referencia');
+            $table->string('coordenada_latitud')->nullable();
+            $table->string('coordenada_longitud')->nullable();
             
             $table->unsignedBigInteger('provincia_id');
             $table->foreign('provincia_id')->references('id')->on('provincias');

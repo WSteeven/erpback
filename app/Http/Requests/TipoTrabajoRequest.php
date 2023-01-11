@@ -26,8 +26,8 @@ class TipoTrabajoRequest extends FormRequest
         return [
             'cliente' => 'required',
             'nombre' => 'required|string',
-            'imagenes_adicionales' => 'nullable|string',
-            'campos_adicionales' => 'nullable|string',
+            // 'imagenes_adicionales' => 'nullable|string',
+            // 'campos_adicionales' => 'nullable|string',
         ];
     }
 }

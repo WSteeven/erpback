@@ -31,13 +31,10 @@ class Subtarea extends Model implements Auditable
     protected $fillable = [
         'codigo_subtarea',
         'detalle',
-        'grupo_id',
-        'tipo_trabajo_id',
-        'tarea_id',
+        'descripcion_completa',
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
-        'cantidad_dias',
         'fecha_hora_realizado',
         'fecha_hora_suspendido',
         'causa_suspencion',
@@ -46,13 +43,15 @@ class Subtarea extends Model implements Auditable
         'es_dependiente',
         'subtarea_dependiente',
         'es_ventana',
+        'fecha_ventana',
         'hora_inicio_ventana',
         'hora_fin_ventana',
-        'descripcion_completa',
-        'modo_asignacion_trabajo',
         'estado',
-        'fecha_ventana',
-        'coordinador_id'
+        'modo_asignacion_trabajo',
+        'grupo_id',
+        'tipo_trabajo_id',
+        'tarea_id',
+        // 'coordinador_id',
     ];
 
     protected $casts = [

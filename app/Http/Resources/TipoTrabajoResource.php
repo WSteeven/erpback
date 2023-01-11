@@ -24,8 +24,8 @@ class TipoTrabajoResource extends JsonResource
         
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
-            $modelo['imagenes_adicionales'] = $this->imagenes_adicionales;
-            $modelo['campos_adicionales'] = $this->campos_adicionales;
+            // $modelo['imagenes_adicionales'] = $this->imagenes_adicionales;
+            // $modelo['campos_adicionales'] = $this->campos_adicionales;
         }
 
         return $modelo;

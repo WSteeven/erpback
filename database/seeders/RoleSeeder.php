@@ -167,9 +167,9 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.motivos'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.motivos'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.motivos'])->assignRole($activos_fijos);
-        
+
         //Pedidos
-        Permission::firstOrCreate(['name' => 'puede.ver.pedidos'])->syncRoles([$empleado,$activos_fijos, $bodega, $tecnico_lider, $tecnico_secretario, $coordinador, $administrativo, $contabilidad, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.pedidos'])->syncRoles([$empleado, $activos_fijos, $bodega, $tecnico_lider, $tecnico_secretario, $coordinador, $administrativo, $contabilidad, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.pedidos'])->assignRole($empleado);
         Permission::firstOrCreate(['name' => 'puede.editar.pedidos'])->assignRole($empleado);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.pedidos'])->assignRole($empleado);
@@ -343,5 +343,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
         Permission::firstOrCreate(['name' => 'puede.editar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
+        // Clientes finales
+        Permission::firstOrCreate(['name' => 'puede.ver.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
     }
 }

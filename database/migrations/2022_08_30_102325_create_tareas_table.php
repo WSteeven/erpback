@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Subtarea;
+use App\Models\Tarea;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,8 +21,8 @@ return new class extends Migration
             $table->string('codigo_tarea_cliente');
             $table->string('fecha_solicitud')->nullable();
             $table->string('detalle');
-            $table->boolean('es_proyecto')->default(false);
-            $table->string('codigo_proyecto')->nullable();
+            $table->enum('destino', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
+            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
 
             // Foreign keys
             $table->unsignedBigInteger('cliente_id'); // cliente principal
@@ -29,14 +31,14 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_final_id')->nullable();
             $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');
 
-            /*$table->unsignedBigInteger('ubicacion_tarea_id')->nullable();
-            $table->foreign('ubicacion_tarea_id')->references('id')->on('ubicaciones_tareas')->onDelete('cascade')->onUpdate('cascade');*/
-
             $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->foreign('supervisor_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('proyecto_id')->nullable();
+            $table->foreign('proyecto_id')->references('id')->on('proyectos')->onDelete('set null')->onUpdate('cascade');
 
             $table->timestamps();
         });
