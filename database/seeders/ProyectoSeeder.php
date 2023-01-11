@@ -22,7 +22,7 @@ class ProyectoSeeder extends Seeder
                 'nodo_interconexion' => 'CUE01-1SEG01',
                 'fecha_inicio' => '01/12/2022',
                 'fecha_fin' => '31/12/2022',
-                'costo' => '2000',
+                // 'costo' => '2000',
                 'canton_id' => 1,
                 'cliente_id' => 3,
                 'coordinador_id' => 3,

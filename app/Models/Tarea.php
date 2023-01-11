@@ -15,23 +15,25 @@ class Tarea extends Model implements Auditable
     use Filterable;
     use AuditableModel;
 
+    const PARA_PROYECTO = 'PARA_PROYECTO';
+    const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
+
     protected $table = "tareas";
     protected $fillable = [
         'codigo_tarea',
         'codigo_tarea_cliente',
         'fecha_solicitud',
-        'coordinador_id',
-        'supervisor_id',
-        'es_proyecto',
-        'codigo_proyecto',
-        'cliente_id',
-        'cliente_final_id',
         'detalle',
         'estado',
-        'ubicacion_tarea_id',
+        'destino',
+        'proyecto_id',
+        'coordinador_id',
+        'supervisor_id',
+        'cliente_id',
+        'cliente_final_id',
     ];
 
-    protected $casts = ['es_proyecto' => 'boolean'];
+    // protected $casts = ['es_proyecto' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 

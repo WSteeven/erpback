@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('nodo_interconexion');
             $table->string('fecha_inicio');
             $table->string('fecha_fin');
-            $table->double('costo');
+            // $table->double('costo');
 
             // Foreign key
             $table->unsignedBigInteger('coordinador_id');

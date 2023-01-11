@@ -12,17 +12,20 @@ class ClienteFinal extends Model
 
     protected $table = "clientes_finales";
     protected $fillable = [
-        "nombres", "apellidos",
-        "id_cliente",
+        "id_cliente_final",
+        "nombres",
+        "apellidos",
         "nombres",
         "apellidos",
         "celular",
-        "provincia",
-        "ciudad",
         "parroquia",
         "direccion",
-        "referencias",
-        "coordenadas",
+        "referencia",
+        "coordenada_latitud",
+        'coordenada_longitud',
+        "provincia_id",
+        "canton_id",
+        'cliente_id',
     ];
 
     public function provincia() {
