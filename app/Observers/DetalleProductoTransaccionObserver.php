@@ -38,6 +38,7 @@ class DetalleProductoTransaccionObserver
             'precio_unitario'=>$item->detalle->precio_compra,
             'saldo'=>$item->cantidad-$request->cantidad
         ]); */
+        
         //Se debe llamar al store de movimiento desde el front
         $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
         Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);

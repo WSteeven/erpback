@@ -95,7 +95,7 @@ class TransaccionBodegaRequest extends FormRequest
         }
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             if (is_null($this->autorizacion) || $this->autorizacion == '') {
-                Log::channel('testing')->info('Log', ['autorizacion', $this->autorizacion]);
+                // Log::channel('testing')->info('Log', ['autorizacion', $this->autorizacion]);
                 $this->merge([
                     'autorizacion' => 2,
                 ]);

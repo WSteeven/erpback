@@ -20,25 +20,25 @@ class MovimientoProductoObserver
      */
     public function created(MovimientoProducto $movimientoProducto)
     {
-        Log::channel('testing')->info('Log', ['Observer de created del movimiento', $movimientoProducto]);
-        $itemInventario = Inventario::findOrFail($movimientoProducto->inventario_id);
-        // Log::channel('testing')->info('Log', ['item del inventario es', $itemInventario]);
-        $itemDetalleProductoTransaccion = DetalleProductoTransaccion::findOrFail($movimientoProducto->detalle_producto_transaccion_id);
-        // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion es', $itemDetalleProductoTransaccion]);
-        $transaccion = TransaccionBodega::findOrFail($itemDetalleProductoTransaccion->transaccion_id);
-        $detalleProductos = [];
-        if ($itemInventario) {
-            if ($itemDetalleProductoTransaccion) {
-                $itemDetalleProductoTransaccion->update([
-                    'cantidad_final' => $movimientoProducto->cantidad
-                ]);
+        // Log::channel('testing')->info('Log', ['Observer de created del movimiento', $movimientoProducto]);
+        // $itemInventario = Inventario::findOrFail($movimientoProducto->inventario_id);
+        // // Log::channel('testing')->info('Log', ['item del inventario es', $itemInventario]);
+        // $itemDetalleProductoTransaccion = DetalleProductoTransaccion::findOrFail($movimientoProducto->detalle_producto_transaccion_id);
+        // // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion es', $itemDetalleProductoTransaccion]);
+        // $transaccion = TransaccionBodega::findOrFail($itemDetalleProductoTransaccion->transaccion_id);
+        // $detalleProductos = [];
+        // if ($itemInventario) {
+        //     if ($itemDetalleProductoTransaccion) {
+        //         $itemDetalleProductoTransaccion->update([
+        //             'cantidad_final' => $movimientoProducto->cantidad
+        //         ]);
                 // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion actualizado']);
                 /* $itemInventario->update([
                     'cantidad'=>$itemInventario->cantidad-$movimientoProducto->cantidad
                 ]); */
 
                 // Cuando un material es despachado para una tarea éste se agrega a la tabla de de control de materiales para tarea en donde se asigna a un grupo
-                $tarea_id = $transaccion->tarea_id;
+                /* $tarea_id = $transaccion->tarea_id;
                 $grupo_id = $transaccion->solicitante->grupo_id;
 
                 if ($tarea_id) {
@@ -58,9 +58,9 @@ class MovimientoProductoObserver
                             'grupo_id' => $transaccion->solicitante_id,
                         ]);
                     }
-                }
-            }
-        }
+                } */
+            // }
+        // }
     }
 
     /**

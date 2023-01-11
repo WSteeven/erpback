@@ -27,6 +27,6 @@ class DevolucionTransaccion extends Model
      */
     public function detalleProductoTransaccion()
     {
-        return $this->belongsTo(detalleProductoTransaccion::class);
+        return $this->belongsTo(DetalleProductoTransaccion::class);
     }
 }

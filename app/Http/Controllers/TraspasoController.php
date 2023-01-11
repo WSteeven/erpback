@@ -33,18 +33,14 @@ class TraspasoController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
+        // $page = $request['page'];
         $estado = $request['estado'];
         $results = [];
 
-        if ($page) {
-            $results = Traspaso::where('devuelta', $estado)->simplePaginate($request['offset']);
-            TraspasoResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
-        } else {
-            $results = Traspaso::all();
-            TraspasoResource::collection($results);
-        }
+        // if ($page) {
+        $results = Traspaso::where('devuelta', $estado)->get();
+
+        $results = TraspasoResource::collection($results);
         return response()->json(compact('results'));
     }
     /**

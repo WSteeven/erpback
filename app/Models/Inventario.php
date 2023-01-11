@@ -192,16 +192,12 @@ class Inventario extends Model implements Auditable
                     
                 }
                 //Se crea la lista de movimientos
-
-
-
-
                 Log::channel('testing')->info('Log', ['Se creó el movimiento', $movimiento]);
             }
 
             DB::commit();
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['Ha ocurrido un error en el ingreso masivo', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['[Inventario] Ha ocurrido un error', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
             // throwException($e);
         }

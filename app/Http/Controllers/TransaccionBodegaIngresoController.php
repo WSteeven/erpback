@@ -74,8 +74,6 @@ class TransaccionBodegaIngresoController extends Controller
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_CONTABILIDAD])) {
             try {
                 $datos = $request->validated();
-                // Log::channel('testing')->info('Log', ['variable $request recibida', $request->all()]);
-                // Log::channel('testing')->info('Log', ['Datos validados en el store de transacciones ingresos', $datos]);
                 DB::beginTransaction();
 
                 $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
@@ -115,7 +113,7 @@ class TransaccionBodegaIngresoController extends Controller
                             $listado['id'],
                             [
                                 'cantidad_inicial' => $listado['cantidad'],
-                                'cantidad_final' => $listado['cantidad']
+                                // 'cantidad_final' => $listado['cantidad']
                             ]
                         );
                     }
