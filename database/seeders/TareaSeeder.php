@@ -19,7 +19,7 @@ class TareaSeeder extends Seeder
         Tarea::insert([
             [
                 'codigo_tarea' => 'T1',
-                'codigo_tarea_cliente' => 'ADD878',
+                'codigo_tarea_cliente' => null,
                 'fecha_solicitud' => '20/04/2022',
                 'detalle' => 'RUTA MPLS CIRCULAR PALMALES, HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES',
                 'estado' => Subtarea::ASIGNADO,
@@ -27,7 +27,7 @@ class TareaSeeder extends Seeder
                 'proyecto_id' => 1,
                 'coordinador_id' => 3,
                 'supervisor_id' => 24,
-                'cliente_id' => 2,
+                'cliente_id' => null,
                 'cliente_final_id' => 1,
             ],
             [
@@ -41,7 +41,7 @@ class TareaSeeder extends Seeder
                 'coordinador_id' => 3,
                 'supervisor_id' => 24,
                 'cliente_id' => 3,
-                'cliente_final_id' => 1,
+                'cliente_final_id' => 3,
             ],
         ]);
     }

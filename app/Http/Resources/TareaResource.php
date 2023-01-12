@@ -25,25 +25,34 @@ class TareaResource extends JsonResource
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'fecha_solicitud' => $this->fecha_solicitud,
-            'hora_solicitud' => $this->hora_solicitud,
             'detalle' => $this->detalle,
-            'es_proyecto' => $this->es_proyecto,
-            'codigo_proyecto' => $this->codigo_proyecto,
+            'destino' => $this->destino,
+            'cliente' => $this->cliente?->id,
+            'proyecto' => $this->proyecto?->codigo_proyecto,
             'supervisor' => $this->supervisor?->nombres . ' ' . $this->supervisor?->apellidos,
-            'cliente' => $this->cliente->empresa->razon_social,
+            'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
+            'cliente' => $this->obtenerCliente(),//$this->cliente?->empresa?->razon_social,
             'cliente_final' => $this->cliente_final ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
-            'ubicacion_tarea' => $this->ubicacionTarea ? new UbicacionTareaResource($this->ubicacionTarea) : null,
             'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
-
-            // 'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
-            $modelo['cliente_final'] = $this->clienteFinal?->id;
-            $modelo['supervisor'] = $this->supervisor?->id;
+            $modelo['cliente_final'] = $this->cliente_final_id;
+            $modelo['coordinador'] = $this->coordinador_id;
+            $modelo['supervisor'] = $this->supervisor_id;
+            $modelo['proyecto'] = $this->proyecto_id;
         }
 
         return $modelo;
+    }
+
+    private function obtenerCliente()
+    {
+        if ($this->proyecto) {
+            return $this->proyecto->cliente?->empresa?->razon_social;
+        } else {
+            return $this->cliente?->empresa?->razon_social;
+        }
     }
 }
