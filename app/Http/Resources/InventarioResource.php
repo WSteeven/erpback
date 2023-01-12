@@ -23,8 +23,11 @@ class InventarioResource extends JsonResource
         $modelo =[
             'id'=>$this->id,
             'producto'=>$this->detalle->producto->nombre,
+            'detalle'=>$this->detalle_id,
             'detalle_id'=>$this->detalle->descripcion.' | '.$this->detalle->modelo->marca->nombre.' | '.$this->detalle->modelo->nombre.' | '.$this->detalle->serial,
+            'cliente'=>$this->cliente_id,
             'cliente_id'=> $this->cliente->empresa->razon_social,
+            'sucursal'=>$this->sucursal_id,
             'sucursal_id'=>$this->sucursal->lugar,
             'condicion'=> $this->condicion->nombre,
             'cantidad'=> $this->cantidad,

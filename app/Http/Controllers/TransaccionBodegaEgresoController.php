@@ -145,7 +145,7 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
             // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            !is_null($request->pedido)??$datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
@@ -194,7 +194,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));

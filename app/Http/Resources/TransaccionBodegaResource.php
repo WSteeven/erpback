@@ -38,6 +38,7 @@ class TransaccionBodegaResource extends JsonResource
             'tipo' => $this->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
             'sucursal' => $this->sucursal->lugar,
+            'sucursal_id' => $this->sucursal_id,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'per_atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
             'per_retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,

@@ -20,7 +20,7 @@ class MovimientoProductoObserver
      */
     public function created(MovimientoProducto $movimientoProducto)
     {
-        // Log::channel('testing')->info('Log', ['Observer de created del movimiento', $movimientoProducto]);
+        Log::channel('testing')->info('Log', ['Observer de created del movimiento', $movimientoProducto]);
         // $itemInventario = Inventario::findOrFail($movimientoProducto->inventario_id);
         // // Log::channel('testing')->info('Log', ['item del inventario es', $itemInventario]);
         // $itemDetalleProductoTransaccion = DetalleProductoTransaccion::findOrFail($movimientoProducto->detalle_producto_transaccion_id);
