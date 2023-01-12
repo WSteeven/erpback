@@ -82,7 +82,7 @@ class DetalleProductoTransaccionController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
-
+    
     /**
      * Remove the specified resource from storage.
      *
