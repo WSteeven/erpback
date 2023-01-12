@@ -24,18 +24,17 @@ class TareaRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo_tarea' => 'nullable|string',
-            'codigo_tarea_cliente' => 'required|string',
+            // 'codigo_tarea' => 'nullable|string',
+            'codigo_tarea_cliente' => 'nullable|string',
             'cliente_final' => 'nullable|numeric|integer',
-            'cliente' => 'required|numeric|integer',
             'fecha_solicitud' => 'nullable|string',
+            'coordinador' => 'nullable|numeric|integer',
             'supervisor' => 'nullable|string',
-            'hora_solicitud' => 'nullable|string',
             'detalle' => 'required|string',
-            'supervisor' => 'nullable|numeric|integer',
-            'es_proyecto' => 'boolean',
-            'codigo_proyecto' => 'nullable|numeric|integer',
-            'ubicacion_tarea' => 'nullable',
+            'cliente' => 'nullable|numeric|integer',
+            'destino' => 'required|string',
+            'proyecto' => 'nullable|numeric|integer',
+            'destino' => 'required|string',
         ];
     }
 }

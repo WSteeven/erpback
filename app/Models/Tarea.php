@@ -8,17 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use App\Traits\UppercaseValuesTrait;
 
 class Tarea extends Model implements Auditable
 {
-    use HasFactory;
-    use Filterable;
-    use AuditableModel;
+    use HasFactory, Filterable, AuditableModel, UppercaseValuesTrait;
 
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
 
-    protected $table = "tareas";
+    protected $table = 'tareas';
     protected $fillable = [
         'codigo_tarea',
         'codigo_tarea_cliente',
@@ -69,7 +68,7 @@ class Tarea extends Model implements Auditable
     {
         return $this->hasMany(TransaccionBodega::class);
     }
-    
+
     /**
      * Relación uno a muchos .
      * Una tarea puede una o varias devoluciones
@@ -78,7 +77,7 @@ class Tarea extends Model implements Auditable
     {
         return $this->hasMany(Devolucion::class);
     }
-    
+
     /**
      * Relación uno a muchos .
      * Una tarea puede uno o varios traspasos
@@ -86,6 +85,11 @@ class Tarea extends Model implements Auditable
     public function traspasos()
     {
         return $this->hasMany(Traspaso::class);
+    }
+
+    public function proyecto()
+    {
+        return $this->belongsTo(Proyecto::class);
     }
 
 

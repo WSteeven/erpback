@@ -23,6 +23,7 @@ class TendidoResource extends JsonResource
             'marca_final' => $this->marca_final,
             'fecha' => Carbon::parse($this->created_at)->format('d-m-Y  H:i:s'),
             'subtarea' => $this->subtarea->codigo_subtarea,
+            'tarea' => $this->subtarea->tarea_id,
             // 'bobina' => $this->bobina->descripcion,
         ];
 

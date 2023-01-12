@@ -43,6 +43,20 @@ class ClienteFinalSeeder extends Seeder
                 'provincia_id' => 2,
                 'canton_id' => 3,
                 'cliente_id' => 2,
+            ],
+            [
+                'id_cliente_final' => 'JGFU876',
+                'nombres' => 'EVELYN',
+                'apellidos' => 'DUARTE',
+                'celular' => '0874564874',
+                'parroquia' => 'JAMBELÍ 45',
+                'direccion' => 'CALLE ARIZAGA',
+                'referencia' => 'REFERENCIA A TIENDA JAIMITO',
+                'coordenada_latitud' => '-79,4532',
+                'coordenada_longitud' => '-15,8957',
+                'provincia_id' => 2,
+                'canton_id' => 3,
+                'cliente_id' => 3,
             ]
         ]);
     }
