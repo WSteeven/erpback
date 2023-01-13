@@ -64,18 +64,23 @@ class TransferenciaRequest extends FormRequest
     } */
     public function prepareForValidation()
     {
-        $this->merge([
-            'autorizacion' => 1,//pendiente
-            'solicitante' => auth()->user()->empleado->id,
-            'estado' => Transferencia::PENDIENTE,
-            'per_autoriza' => 11,//autoriza el de activos fijos
-
-        ]);
-
-        if($this->autorizacion==2){
+        if (!in_array($this->method(), ['PUT', 'PATCH'])) {
             $this->merge([
-                'estado'=>Transferencia::TRANSITO
+                'autorizacion' => 1, //pendiente
+                'solicitante' => auth()->user()->empleado->id,
+                'estado' => Transferencia::PENDIENTE,
+                'per_autoriza' => 11, //autoriza el de activos fijos
+
             ]);
+        }
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            // $rules['estado'] = '';
+            if ($this->autorizacion == 2) {
+                $this->merge([
+                    'estado' => Transferencia::TRANSITO
+                ]);
+            }
         }
     }
 }
