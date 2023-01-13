@@ -137,6 +137,15 @@ class Inventario extends Model implements Auditable
         return $datos;
     }
 
+    /**
+     * Función para formar la estructura de datos de un registro de movimiento
+     * @param $inventario_id Id del ítem del inventario
+     * @param $detalle_producto_transaccion_id Id del DetalleProductoTransaccion
+     * @param $cantidad Cantidad que se esta registrando
+     * @param $precio_unitario Precio unitario del ítem
+     * @param $saldo La cantidad de existencias ahora del item en inventario
+     * @param $inventario_id Id del ítem del inventario
+     */
     public static function estructurarMovimiento($inventario_id, $detalle_producto_transaccion_id, $cantidad, $precio_unitario, $saldo, $tipo)
     {
         $datos = [

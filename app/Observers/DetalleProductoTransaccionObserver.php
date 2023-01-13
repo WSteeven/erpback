@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
 use App\Models\MovimientoProducto;
+use App\Models\Pedido;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
 
@@ -38,9 +39,14 @@ class DetalleProductoTransaccionObserver
             'precio_unitario'=>$item->detalle->precio_compra,
             'saldo'=>$item->cantidad-$request->cantidad
         ]); */
-        
+
         //Se debe llamar al store de movimiento desde el front
         $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
+        Log::channel('testing')->info('Log', ['Hubo transaccion?', $transaccion]);
+        if ($transaccion->pedido_id) {
+            $pedido = Pedido::find($transaccion->pedido_id);
+            Log::channel('testing')->info('Log', ['Hubo pedido?', $pedido]);
+        }
         Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
         $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
         $esParcial = false;
@@ -52,8 +58,10 @@ class DetalleProductoTransaccionObserver
         }
         if ($esParcial) {
             $transaccion->estados()->attach(3);
+            if ($pedido) $pedido->update(['estado_id' => 3]);
         } else {
             $transaccion->estados()->attach(2);
+            if ($pedido) $pedido->update(['estado_id' => 2]);
         }
     }
 
