@@ -225,6 +225,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.traspasos'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.traspasos'])->assignRole($bodega);
         // Permission::firstOrCreate(['name' => 'puede.eliminar.traspasos'])->assignRole($bodega);
+        
+        //Transferencias
+        Permission::firstOrCreate(['name' => 'puede.ver.transferencias'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.crear.transferencias'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.editar.transferencias'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.transferencias'])->assignRole($bodega);
 
         //Tipos de fibras
         Permission::firstOrCreate(['name' => 'puede.ver.tipos_fibras'])->syncRoles([$coordinador, $bodega]);

@@ -106,4 +106,13 @@ class Sucursal extends Model implements Auditable
     {
         return $this->hasMany(Pedido::class);
     }
+    
+    /**
+     * Relación uno a muchos .
+     * Una sucursal puede tener una o varias transferencias
+     */
+    public function transferencias()
+    {
+        return $this->hasMany(Transferencia::class);
+    }
 }

@@ -4,14 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransferenciaRequest;
 use App\Http\Resources\TransferenciaResource;
-use App\Models\Inventario;
 use App\Models\Transferencia;
 use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransferenciaService;
 use Src\Shared\Utils;
 
@@ -35,6 +30,9 @@ class TransferenciaController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request['page'];
+        $offset = $request['offset'];
+        $estado = $request['estado'];
         $tipo = 'TRANSFERENCIA';
         $results = [];
 
@@ -53,38 +51,14 @@ class TransferenciaController extends Controller
      */
     public function store(TransferenciaRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida en TRANSFERENCIA:', $request->all()]);
-        try {
-            DB::beginTransaction();
-            $datos = $request->validated();
-
-            //Adaptación de foreing keys
-            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            $datos['sucursal_salida_id'] = $request->safe()->only(['sucursal_salida'])['sucursal_salida'];
-            $datos['sucursal_destino_id'] = $request->safe()->only(['sucursal_destino'])['sucursal_destino'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-
-            //Respuesta
-            $transferencia = Transferencia::create($datos);
-            $modelo = new TransferenciaResource($transferencia);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
-            //Guardamos el listado de productos en el detalle
-            foreach($request->listadoProductos as $listado){
-                $transferencia->items()->attach($listado['id'], ['cantidad'=>$listado['cantidades']]);
-            }
-            //metodo para transferir productos de una bodega a otra.
-            Inventario::transferirProductos();
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro,'.$e->getLine()], 422);
-        }
-        return response()->json(compact('mensaje', 'modelo'));
+        $datos = $request->validated();
+        !is_null($request->motivo) ?? $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        !is_null($request->subtarea_id) ?? $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
     }
 
     /**
