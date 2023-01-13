@@ -3,8 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Transferencia;
-use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TransferenciaRequest extends FormRequest
 {
@@ -26,21 +26,21 @@ class TransferenciaRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'justificacion'=>'required|string',
-            'sucursal_salida'=>'required|exists:sucursales,id',
-            'sucursal_destino'=>'required|exists:sucursales,id',
-            'cliente'=>'required|exists:clientes,id',
-            'solicitante'=>'required|exists:empleados,id',
-            'autorizacion'=>'required|exists:autorizaciones,id',
-            'per_autoriza'=>'required|exists:empleados,id',
-            'recibida'=>'sometimes|boolean',
-            'estado'=>['required', Rule::in([Transferencia::PENDIENTE, Transferencia::TRANSITO, Transferencia::COMPLETADO])],
-            'observacion_aut'=>'sometimes|string',
-            'observacion_est'=>'sometimes|string',
-            'listadoProductos.*.cantidades'=>'required',
+            'justificacion' => 'required|string',
+            'sucursal_salida' => 'required|exists:sucursales,id',
+            'sucursal_destino' => 'required|exists:sucursales,id',
+            'cliente' => 'required|exists:clientes,id',
+            'solicitante' => 'required|exists:empleados,id',
+            'autorizacion' => 'required|exists:autorizaciones,id',
+            'per_autoriza' => 'required|exists:empleados,id',
+            'recibida' => 'sometimes|boolean',
+            'estado' => ['required', Rule::in([Transferencia::PENDIENTE, Transferencia::TRANSITO, Transferencia::COMPLETADO])],
+            'observacion_aut' => 'sometimes|string',
+            'observacion_est' => 'sometimes|string',
+            'listadoProductos.*.cantidades' => 'required',
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             // $rules['estado'] = '';
         }
 
@@ -62,7 +62,20 @@ class TransferenciaRequest extends FormRequest
     /* public function withValidator($validator){
 
     } */
-    /* public function prepareForValidation(){
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'autorizacion' => 1,//pendiente
+            'solicitante' => auth()->user()->empleado->id,
+            'estado' => Transferencia::PENDIENTE,
+            'per_autoriza' => 11,//autoriza el de activos fijos
 
-    } */
+        ]);
+
+        if($this->autorizacion==2){
+            $this->merge([
+                'estado'=>Transferencia::TRANSITO
+            ]);
+        }
+    }
 }

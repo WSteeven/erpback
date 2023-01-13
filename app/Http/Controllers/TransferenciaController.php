@@ -22,10 +22,10 @@ class TransferenciaController extends Controller
     public function __construct()
     {
         $this->servicio = new TransferenciaService();
-        $this->middleware('can:puede.ver.transacciones_egresos')->only('index', 'show');
-        $this->middleware('can:puede.crear.transacciones_egresos')->only('store');
-        $this->middleware('can:puede.editar.transacciones_egresos')->only('update');
-        $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
+        $this->middleware('can:puede.ver.transferencias')->only('index', 'show');
+        $this->middleware('can:puede.crear.transferencias')->only('store');
+        $this->middleware('can:puede.editar.transferencias')->only('update');
+        $this->middleware('can:puede.eliminar.transferencias')->only('destroy');
     }
 
     /**
@@ -36,11 +36,14 @@ class TransferenciaController extends Controller
     public function index(Request $request)
     {
         $tipo = 'TRANSFERENCIA';
+        $estado = $request['estado'];
         $results = [];
 
+
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            $results = Transferencia::all();
+            $results = Transferencia::filter()->get();
         }
+        $results = TransferenciaResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -76,7 +79,7 @@ class TransferenciaController extends Controller
                 $transferencia->items()->attach($listado['id'], ['cantidad'=>$listado['cantidades']]);
             }
             //metodo para transferir productos de una bodega a otra.
-            Inventario::transferirProductos();
+            //Inventario::transferirProductos();
 
             DB::commit();
         } catch (Exception $e) {
@@ -109,7 +112,38 @@ class TransferenciaController extends Controller
      */
     public function update(TransferenciaRequest $request, Transferencia $transferencia)
     {
-        //
+        Log::channel('testing')->info('Log', ['Request recibida en TRANSFERENCIA:', $request->all()]);
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+
+            //Adaptación de foreing keys
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['sucursal_salida_id'] = $request->safe()->only(['sucursal_salida'])['sucursal_salida'];
+            $datos['sucursal_destino_id'] = $request->safe()->only(['sucursal_destino'])['sucursal_destino'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+
+            //Borramos el listado anterior e ingresamos el nuevo
+            //Guardamos el listado de productos en el detalle
+            foreach($request->listadoProductos as $listado){
+                $transferencia->items()->sync($listado['id'], ['cantidad'=>$listado['cantidades']]);
+            }
+            //metodo para transferir productos de una bodega a otra.
+            //Inventario::transferirProductos();
+            //Respuesta
+            $transferencia->update($datos);
+            $modelo = new TransferenciaResource($transferencia->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro,'.$e->getLine()], 422);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
