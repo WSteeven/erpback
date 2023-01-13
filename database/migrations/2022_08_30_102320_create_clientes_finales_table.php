@@ -23,8 +23,8 @@ return new class extends Migration
             $table->string('parroquia');
             $table->string('direccion');
             $table->string('referencia');
-            $table->string('coordenada_latitud')->nullable();
-            $table->string('coordenada_longitud')->nullable();
+            $table->integer('coordenada_latitud')->nullable();
+            $table->integer('coordenada_longitud')->nullable();
             
             $table->unsignedBigInteger('provincia_id');
             $table->foreign('provincia_id')->references('id')->on('provincias');

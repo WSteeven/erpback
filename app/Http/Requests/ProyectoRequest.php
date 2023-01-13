@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProyectoRequest extends FormRequest
 {
@@ -23,15 +24,24 @@ class ProyectoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'nombre' => 'required|string|unique:proyectos',
-            'codigo_proyecto' => 'required|string',
+            'codigo_proyecto' => 'required|string|unique:proyectos',
             'cliente' => 'required|numeric|integer',
             'canton' => 'required|numeric|integer',
             'coordinador' => 'required|numeric|integer',
             'fecha_inicio' => 'required|string',
             'fecha_fin' => 'required|string',
-            // 'costo' => 'required|numeric|',
         ];
+
+        if(in_array($this->method(), ['PUT', 'PATCH'])){
+            $nombre = $this->route()->parameter('nombre');
+            $rules['nombre'] = ['required', 'string', Rule::unique('proyectos')->ignore($this->id)];
+
+            $codigo_proyecto = $this->route()->parameter('codigo_proyecto');
+            $rules['codigo_proyecto'] = ['required', 'string', Rule::unique('proyectos')->ignore($this->id)];
+        }
+
+        return $rules;
     }
 }

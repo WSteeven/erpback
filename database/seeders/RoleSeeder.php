@@ -339,10 +339,15 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.solicitud_materiales'])->syncRoles([$coordinador, $tecnico_lider, $tecnico_secretario]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.solicitud_materiales'])->syncRoles([$coordinador, $tecnico_lider, $tecnico_secretario]);
         // Reportes control de materiales
-        Permission::firstOrCreate(['name' => 'puede.ver.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
-        Permission::firstOrCreate(['name' => 'puede.crear.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
-        Permission::firstOrCreate(['name' => 'puede.editar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_control_materiales'])->syncRoles([$tecnico_secretario]);
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_control_materiales'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_control_materiales'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_control_materiales'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_control_materiales'])->syncRoles([$tecnico_secretario, $coordinador]);
+        // Reportes control tendidos
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_control_tendidos'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_control_tendidos'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_control_tendidos'])->syncRoles([$tecnico_secretario, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_control_tendidos'])->syncRoles([$tecnico_secretario, $coordinador]);
         // Clientes finales
         Permission::firstOrCreate(['name' => 'puede.ver.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
