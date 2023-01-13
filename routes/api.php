@@ -216,6 +216,7 @@ Route::get('materiales-grupo-tarea', [TransaccionBodegaEgresoController::class, 
 
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
     // Route::get('materiales-grupo-tarea', 'obtenerMateriales');
+    Route::get('prueba/{tarea}', 'prueba');
     Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');

@@ -35,7 +35,7 @@ class SubtareaController extends Controller
         // Procesar
         if ($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
         elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
-        if ($page) return $this->servicio->obtenerPaginacion($offset);
+        // if ($page) return $this->servicio->obtenerPaginacion($offset);
         return $this->servicio->obtenerTodos();
     }
 

@@ -19,7 +19,9 @@ class ClienteFinalController extends Controller
     {
         $cliente = $request['cliente'];
 
-        $results = ClienteFinalResource::collection(ClienteFinal::where('cliente_id', $cliente)->get());
+        if ($cliente) $results = ClienteFinalResource::collection(ClienteFinal::where('cliente_id', $cliente)->get());
+        else $results = ClienteFinalResource::collection(ClienteFinal::all());
+        
         return response()->json(compact('results'));
     }
 
