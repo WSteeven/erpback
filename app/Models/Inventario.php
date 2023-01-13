@@ -57,6 +57,15 @@ class Inventario extends Model implements Auditable
             ->withPivot(['cantidad'])->withTimestamps();
     }
     /**
+     * Relación muchos a muchos.
+     * Uno o varios items del inventarion estan en una transferencia
+     */
+    public function detalleInventarioTransferencia()
+    {
+        return $this->belongsToMany(Transferencia::class, 'detalle_inventario_transferencia', 'transferencia_id', 'inventario_id')
+            ->withPivot(['cantidad'])->withTimestamps();
+    }
+    /**
      * Obtener los movimientos para el id de inventario
      */
     public function movimientos()

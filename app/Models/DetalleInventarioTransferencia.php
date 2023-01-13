@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Models;
+
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+
+class DetalleInventarioTransferencia extends Model implements Auditable
+{
+    use HasFactory;
+    use AuditableModel;
+    use Filterable;
+
+    protected $table = 'detalle_inventario_transferencia';
+
+    protected $fillable = [
+        'transferencia_id',
+        'inventario_id',
+        'cantidad',
+    ];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
+    private static $whiteListFilter = ['*'];
+
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+
+
+}

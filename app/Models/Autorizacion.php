@@ -49,10 +49,18 @@ class Autorizacion extends Model implements Auditable
 
     /**
      * Relación uno a uno.
-     * Un estado puede estar en un pedido a la vez.
+     * Una autorización puede estar en un pedido a la vez.
      */
     public function pedido()
     {
         return $this->hasOne(Pedido::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Una autorizacion puede estar en una transferencia a la vez.
+     */
+    public function transferencia()
+    {
+        return $this->hasOne(Transferencia::class);
     }
 }

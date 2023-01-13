@@ -173,5 +173,14 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(Pedido::class);
     }
+
+    /**
+     * Relacion uno a muchos
+     * Un empleado es solicitante de varias transferencias
+     */
+    public function transferencias()
+    {
+        return $this->hasMany(Transferencia::class);
+    }
     
 }
