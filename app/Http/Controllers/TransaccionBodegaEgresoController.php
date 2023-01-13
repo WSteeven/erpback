@@ -145,7 +145,7 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
             // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            !is_null($request->pedido)??$datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            if($request->pedido)$datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
