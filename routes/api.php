@@ -5,34 +5,47 @@ use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\MovimientoProductoController;
+use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\ControlAsistenciaController;
+use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\RegistroTendidoController;
+use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\CodigoClienteController;
 use App\Http\Controllers\ControlCambioController;
+use App\Http\Controllers\ValidarCedulaController;
+use App\Http\Controllers\TransferenciaController;
 use App\Http\Controllers\AutorizacionController;
+use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
 use App\Http\Controllers\ControlStockController;
+use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PermisoRolController;
 use App\Http\Controllers\CondicionController;
+use App\Http\Controllers\UbicacionController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\TraspasoController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PermisoController;
+use App\Http\Controllers\TableroController;
+use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
@@ -41,31 +54,19 @@ use App\Http\Controllers\DiscoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\TareaController;
+use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Controllers\SpanController;
-use App\Http\Controllers\SubtipoTransaccionController;
-use App\Http\Controllers\TipoElementoController;
-use App\Http\Controllers\SucursalController;
-use App\Http\Controllers\TareaController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\TipoFibraController;
-use App\Http\Controllers\TipoTrabajoController;
-use App\Http\Controllers\TipoTransaccionController;
-use App\Http\Controllers\TransaccionBodegaController;
-use App\Http\Controllers\UbicacionController;
-use App\Http\Controllers\ValidarCedulaController;
-use App\Http\Controllers\TableroController;
-use App\Http\Controllers\TendidoController;
-use App\Http\Controllers\TransferenciaController;
-use App\Http\Controllers\TraspasoController;
-use App\Http\Resources\UserInfoResource;
-use App\Models\Canton;
-use App\Models\Provincia;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use App\Models\Provincia;
+use App\Models\Canton;
+use Carbon\Carbon;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,12 +104,8 @@ Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new Use
     return $request->user()->allPermissions;
 }); */
 
-
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
-
-Route::get('provincias', fn () => ['results' => Provincia::all()])->middleware('auth:sanctum');
-Route::get('cantones', fn () => ['results' => Canton::all()])->middleware('auth:sanctum');
 
 Route::apiResources(
     [
@@ -222,7 +219,7 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
 // Estados de las subtareas
-Route::group(['prefix' => '/subtareas'], function () {
+Route::group(['prefix' => 'subtareas'], function () {
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
@@ -234,9 +231,15 @@ Route::group(['prefix' => '/subtareas'], function () {
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
+    // Subtareas
     Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas']);
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
+    // Fecha y hora del sistema
+    Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
+    Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
+    Route::get('provincias', fn () => ['results' => Provincia::all()]);
+    Route::get('cantones', fn () => ['results' => Canton::all()]);
 });
 
 // Tendidos

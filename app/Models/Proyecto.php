@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\UppercaseValuesTrait;
 
 class Proyecto extends Model
 {
-    use HasFactory, Filterable;
+    use HasFactory, Filterable, UppercaseValuesTrait;
     protected $table = "proyectos";
 
     protected $fillable = [

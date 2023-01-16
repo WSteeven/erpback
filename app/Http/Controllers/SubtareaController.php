@@ -27,15 +27,13 @@ class SubtareaController extends Controller
     public function list()
     {
         // Obtener parametros
-        $page = request('page');
-        $offset = request('offset');
         $estados = request('estados');
         $campos = explode(',', request('campos'));
 
         // Procesar
         if ($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
         elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
-        // if ($page) return $this->servicio->obtenerPaginacion($offset);
+
         return $this->servicio->obtenerTodos();
     }
 
@@ -231,10 +229,13 @@ class SubtareaController extends Controller
         return response()->json(['results' => $subtarea->pausasSubtarea]);
     }
 
-    public function cancelar(Subtarea $subtarea)
+    public function cancelar(Request $request, Subtarea $subtarea)
     {
+        $motivo = $request['motivo'];
+
         $subtarea->estado = Subtarea::CANCELADO;
         $subtarea->fecha_hora_cancelacion = Carbon::now();
+        $subtarea->causa_cancelacion = $motivo;
         $subtarea->save();
         return response()->json(['modelo' => $subtarea->refresh()]);
     }

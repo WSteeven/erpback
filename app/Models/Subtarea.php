@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use App\Traits\UppercaseValuesTrait;
 
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
     const CREADO = 'CREADO';
 
@@ -36,6 +37,7 @@ class Subtarea extends Model implements Auditable
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
         'fecha_hora_realizado',
+        'fecha_hora_finalizacion',
         'fecha_hora_suspendido',
         'causa_suspencion',
         'fecha_hora_cancelacion',

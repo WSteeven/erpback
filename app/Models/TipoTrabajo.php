@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use App\Traits\UppercaseValuesTrait;
 
 class TipoTrabajo extends Model implements Auditable
 {
     use HasFactory;
-    use AuditableModel, Filterable;
+    use AuditableModel, Filterable, UppercaseValuesTrait;
 
     protected $table = "tipos_trabajos";
     protected $fillable = [
