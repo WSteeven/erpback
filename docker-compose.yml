@@ -12,6 +12,7 @@ services:
       - "3306:3306"
   myapp:
     image: docker.io/bitnami/laravel:9
+      #command: composer install
     ports:
       - '8000:8000'
     environment:

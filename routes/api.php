@@ -1,79 +1,70 @@
 <?php
 
-use App\Http\Controllers\ActivoFijoController;
-use App\Http\Controllers\ArchivoSubtareaController;
-use App\Http\Controllers\AutorizacionController;
-use App\Http\Controllers\CategoriaController;
-use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\ClienteFinalController;
-use App\Http\Controllers\CodigoClienteController;
-use App\Http\Controllers\CondicionController;
-use App\Http\Controllers\ControlAsistenciaController;
-use App\Http\Controllers\ControlCambioController;
-use App\Http\Controllers\ControlStockController;
-use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\DetalleProductoTransaccionController;
-use App\Http\Controllers\DevolucionController;
-use App\Http\Controllers\DiscoController;
-use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\TransaccionBodegaIngresoController;
+use App\Http\Controllers\TransaccionBodegaEgresoController;
+use App\Http\Controllers\ReporteControlMaterialController;
+use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\EstadoTransaccionController;
-use App\Http\Controllers\GrupoController;
-use App\Http\Controllers\HiloController;
+use App\Http\Controllers\ControlAsistenciaController;
+use App\Http\Controllers\PrestamoTemporalController;
+use App\Http\Controllers\ProductoEnPerchaController;
+use App\Http\Controllers\ArchivoSubtareaController;
+use App\Http\Controllers\DetalleProductoController;
+use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\ImagenProductoController;
+use App\Http\Controllers\CodigoClienteController;
+use App\Http\Controllers\ControlCambioController;
+use App\Http\Controllers\AutorizacionController;
+use App\Http\Controllers\ClienteFinalController;
+use App\Http\Controllers\ControlStockController;
+use App\Http\Controllers\ProcesadorController;
+use App\Http\Controllers\ActivoFijoController;
+use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
-use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\PermisoRolController;
+use App\Http\Controllers\CondicionController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\SubtareaController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\ModeloController;
 use App\Http\Controllers\MotivoController;
-use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
-use App\Http\Controllers\PermisoController;
-use App\Http\Controllers\PermisoRolController;
+use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\MarcaController;
+use App\Http\Controllers\HiloController;
 use App\Http\Controllers\PisoController;
-use App\Http\Controllers\PrestamoTemporalController;
-use App\Http\Controllers\ProcesadorController;
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\ProductoEnPerchaController;
-use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RamController;
-use App\Http\Controllers\RegistroTendidoController;
-use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\SpanController;
-use App\Http\Controllers\SubtareaAsignadaController;
-use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\SubtipoTransaccionController;
+use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\TareaController;
-use App\Http\Controllers\TipoElementoController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\TipoFibraController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\TipoTransaccionController;
 use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\UbicacionController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Controllers\TendidoController;
-use App\Http\Controllers\TransaccionBodegaEgresoController;
-use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransferenciaController;
 use App\Http\Controllers\TraspasoController;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\UserInfoResource;
 use App\Models\Canton;
-use App\Models\ClienteFinal;
-use App\Models\Contacto;
-use App\Models\Devolucion;
-use App\Models\Empleado;
-use App\Models\Inventario;
-use App\Models\PrestamoTemporal;
-use App\Models\ProductoEnPercha;
 use App\Models\Provincia;
-use App\Models\Tendido;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -88,14 +79,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
-// Rutas de user (para pruebas)
-Route::prefix('usuarios')->group(function () {
-    Route::get('/', [UserController::class, 'index'])->middleware('auth:sanctum');
-    Route::post('registrar', [UserController::class, 'store'])->middleware('auth:sanctum');
-    Route::post('login', [UserController::class, 'login']);
-    Route::post('logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
-    Route::get('ver/{empleado}', [UserController::class, 'show'])->middleware('auth:sanctum');
-    Route::put('actualizar/{empleado}', [UserController::class, 'update'])->middleware('auth:sanctum');
+
+Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::post('registrar', [UserController::class, 'store']);
+    Route::post('logout', [LoginController::class, 'logout']);
+    Route::get('ver/{empleado}', [UserController::class, 'show']);
+    Route::put('actualizar/{empleado}', [UserController::class, 'update']);
 });
 
 Route::group(['prefix' => '/permisos'], function () {
@@ -104,17 +95,13 @@ Route::group(['prefix' => '/permisos'], function () {
 });
 
 // El frontend usa esta ruta para verificar si está autenticado
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return new UserResource($request->user());
-});
+Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new UserInfoResource($request->user()));
 
 // El frontend usa esta ruta para obtener los roles y permisos del usuario autenticado
-Route::middleware('auth:sanctum')->get('/user/roles', function (Request $request) {
-    return $request->user()->getRoleNames();
-});
-Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
+// Route::middleware('auth:sanctum')->get('/user/roles', fn (Request $request) => $request->user()->getRoleNames());
+/* Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
     return $request->user()->allPermissions;
-});
+}); */
 
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
@@ -246,11 +233,11 @@ Route::group(['prefix' => '/subtareas'], function () {
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'pausas']);
 })->middleware('auth:sanctum');
 
-Route::group([], function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::get('subtareas-asignadas', [SubtareaController::class, 'subtareasAsignadas']);
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
-})->middleware('auth:sanctum');
+});
 
 // Tendidos
 Route::apiResource('tendidos', TendidoController::class)->except('show');

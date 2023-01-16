@@ -34,7 +34,7 @@ class User extends Authenticatable implements Auditable
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
-    
+
     // Roles de cuadrillas
     const ROL_TECNICO_JEFE_CUADRILLA = 'TECNICO JEFE CUADRILLA';
     const ROL_TECNICO_CABLISTA = 'TECNICO CABLISTA';
@@ -84,7 +84,7 @@ class User extends Authenticatable implements Auditable
     {
         return $this->hasMany(TransaccionesBodega::class, 'solicitante_id');
     } */
-    
+
     // Relacion uno a uno
     public function empleado()
     {
@@ -104,6 +104,19 @@ class User extends Authenticatable implements Auditable
         }
         return $permissions;
     }
+
+    public function obtenerPermisos($user_id)
+	{
+		$permissions = [];
+		$user = User::find($user_id);
+
+		foreach (Permission::all() as $permission) {
+			if ($user->can($permission->name)) {
+				$permissions[] = $permission->name;
+			}
+		}
+		return $permissions;
+	}
 
     public function esTecnicoLider()
     {
