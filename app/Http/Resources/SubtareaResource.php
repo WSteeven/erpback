@@ -51,6 +51,7 @@ class SubtareaResource extends JsonResource
             // 'tecnicos_otros_grupos' => $this->tecnicosPrincipales($this->empleados), //$this->tecnicosPrincipales(explode(',', $this->tecnicos_otros_grupos)),
             'cliente_final' => $this->tarea->cliente_final,
             'es_primera_asignacion' => $this->tarea->esPrimeraAsignacion($this->id),
+            'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,    
         ];
 
         if ($controller_method == 'show') {

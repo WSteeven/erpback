@@ -43,6 +43,19 @@ class TareaSeeder extends Seeder
                 'cliente_id' => 3,
                 'cliente_final_id' => 3,
             ],
+            [
+                'codigo_tarea' => 'T3',
+                'codigo_tarea_cliente' => 'ERH147',
+                'fecha_solicitud' => '19/04/2022',
+                'detalle' => 'Se necesita personal en el nodo PORTOVELO y en el Cliente para proceder con el cambio de SPFs y CPE en Ventana programada. Se puede proceder con el cambio de SFPs de manera simultanea, cliente tiene una única UM.',
+                'estado' => Subtarea::CREADO,
+                'destino' => Tarea::PARA_CLIENTE_FINAL,
+                'proyecto_id' => null,
+                'coordinador_id' => 3,
+                'supervisor_id' => 24,
+                'cliente_id' => 3,
+                'cliente_final_id' => 4,
+            ],
         ]);
     }
 }

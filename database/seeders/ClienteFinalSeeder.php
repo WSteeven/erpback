@@ -57,7 +57,21 @@ class ClienteFinalSeeder extends Seeder
                 'provincia_id' => 2,
                 'canton_id' => 3,
                 'cliente_id' => 3,
-            ]
+            ],
+            [
+                'id_cliente_final' => 'ZAR_JCCAJAMARCA - ECECFRE10001557I',
+                'nombres' => 'Francisco',
+                'apellidos' => 'Valarezo',
+                'celular' => '0999289722',
+                'parroquia' => 'JAMBELÍ 45',
+                'direccion' => 'CALLE ARIZAGA',
+                'referencia' => 'REFERENCIA A TIENDA JAIMITO',
+                'coordenada_latitud' => "79°36'41.2''W",
+                'coordenada_longitud' => "3°41'48.1''S",
+                'provincia_id' => 2,
+                'canton_id' => 3,
+                'cliente_id' => 3,
+            ],
         ]);
     }
 }

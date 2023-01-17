@@ -51,6 +51,7 @@ class Subtarea extends Model implements Auditable
         'estado',
         'modo_asignacion_trabajo',
         'grupo_id',
+        'empleado_id',
         'tipo_trabajo_id',
         'tarea_id',
         // 'coordinador_id',

@@ -408,7 +408,7 @@ class UserSeeder extends Seeder
         $tecnico->empleado()->create([
             'nombres' => 'JUAN',
             'apellidos' => 'CUESTA',
-            'identificacion' => '0701234567',
+            'identificacion' => '0705570679',
             'telefono' => '0998474965',
             'fecha_nacimiento' => '1996-05-12',
             'jefe_id' => '21',

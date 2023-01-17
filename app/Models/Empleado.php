@@ -53,6 +53,7 @@ class Empleado extends Model implements Auditable
         return [
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
+            'identificacion' => $this->identificacion,
         ];
     }
 

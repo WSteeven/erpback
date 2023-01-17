@@ -27,6 +27,7 @@ class SubtareaRequest extends FormRequest
             'codigo_subtarea' => 'nullable|string',
             'detalle' => 'required|string',
             'grupo' => 'nullable|numeric|integer',
+            'empleado' => 'nullable|numeric|integer',
             'tipo_trabajo' => 'required|numeric|integer',
             'fecha_hora_creacion' => 'nullable|string',
             'fecha_hora_asignacion' => 'nullable|string',

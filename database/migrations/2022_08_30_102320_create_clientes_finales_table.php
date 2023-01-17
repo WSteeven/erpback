@@ -20,17 +20,17 @@ return new class extends Migration
             $table->string('nombres');
             $table->string('apellidos');
             $table->string('celular');
-            $table->string('parroquia');
-            $table->string('direccion');
-            $table->string('referencia');
+            $table->string('parroquia')->nullable();
+            $table->string('direccion')->nullable();
+            $table->string('referencia')->nullable();
             $table->integer('coordenada_latitud')->nullable();
             $table->integer('coordenada_longitud')->nullable();
-            
-            $table->unsignedBigInteger('provincia_id');
-            $table->foreign('provincia_id')->references('id')->on('provincias');
-            
-            $table->unsignedBigInteger('canton_id');
-            $table->foreign('canton_id')->references('id')->on('cantones');
+
+            $table->unsignedBigInteger('provincia_id')->nullable();
+            $table->foreign('provincia_id')->references('id')->on('provincias')->onUpdate('set null')->onDelete('cascade');
+
+            $table->unsignedBigInteger('canton_id')->nullable();
+            $table->foreign('canton_id')->references('id')->on('cantones')->onUpdate('set null')->onDelete('cascade');
 
             $table->unsignedBigInteger('cliente_id');
             $table->foreign('cliente_id')->references('id')->on('clientes');

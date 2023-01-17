@@ -39,8 +39,14 @@ class SubtareaController extends Controller
 
     public function subtareasAsignadas()
     {
-        $grupo_id = User::find(Auth::id())->empleado->grupo_id;
-        return response()->json(['results' => $this->servicio->obtenerTrabajoAsignado($grupo_id)]);
+        $empleado = User::find(Auth::id())->empleado;
+        $grupo_id = $empleado->grupo_id;
+
+        if ($grupo_id) {
+            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoGrupo($grupo_id)]);
+        } else {
+            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoEmpleado($empleado->id)]);
+        }
     }
 
     /**
@@ -48,7 +54,6 @@ class SubtareaController extends Controller
      */
     public function index()
     {
-        // Log::channel('testing')->info('Log', ['REQUEST RECIBIDA', request()]);
         $results = $this->list();
         return response()->json(compact('results'));
     }
@@ -62,12 +67,19 @@ class SubtareaController extends Controller
 
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['coordinador_id'] = Auth::id();
-
         $datos['fecha_hora_creacion'] = Carbon::now();
+
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+
+        /* if ($datos['grupo_id']) {
+            $datos['empleado_id'] = null;
+        } else {
+            $datos['grupo_id'] = null;
+        } */
 
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
@@ -236,6 +248,16 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::CANCELADO;
         $subtarea->fecha_hora_cancelacion = Carbon::now();
         $subtarea->causa_cancelacion = $motivo;
+        $subtarea->save();
+        return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
+    public function reagendar(Request $request, Subtarea $subtarea)
+    {
+        $nuevaFecha = $request['nueva_fecha'];
+
+        $subtarea->estado = Subtarea::CREADO;
+        $subtarea->fecha_hora_creacion = Carbon::now();
         $subtarea->save();
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
