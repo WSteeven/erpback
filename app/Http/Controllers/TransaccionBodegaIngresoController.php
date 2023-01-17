@@ -88,6 +88,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 //Creacion de la transaccion
+                Log::channel('testing')->info('Log', ['Datos recibidos del front', $request->all()]);
                 Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
 
                 $transaccion = TransaccionBodega::create($datos);

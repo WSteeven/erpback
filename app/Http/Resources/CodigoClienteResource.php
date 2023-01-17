@@ -19,7 +19,8 @@ class CodigoClienteResource extends JsonResource
             'id' => $this->id,
             'codigo' => $this->codigo,
             'cliente' => $this->cliente->empresa->razon_social,
-            'producto' => $this->producto->nombre,
+            'producto' => $this->detalle->descripcion,
+            'nombre_cliente'=>$this->nombre_cliente,
         ];
 
         if ($controller_method == 'show') {

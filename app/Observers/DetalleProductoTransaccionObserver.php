@@ -39,7 +39,7 @@ class DetalleProductoTransaccionObserver
             'precio_unitario'=>$item->detalle->precio_compra,
             'saldo'=>$item->cantidad-$request->cantidad
         ]); */
-
+        $pedido=null;
         //Se debe llamar al store de movimiento desde el front
         $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
         Log::channel('testing')->info('Log', ['Hubo transaccion?', $transaccion]);
@@ -58,10 +58,10 @@ class DetalleProductoTransaccionObserver
         }
         if ($esParcial) {
             $transaccion->estados()->attach(3);
-            if ($pedido) $pedido->update(['estado_id' => 3]);
+            if (!is_null($pedido)) $pedido->update(['estado_id' => 3]);
         } else {
             $transaccion->estados()->attach(2);
-            if ($pedido) $pedido->update(['estado_id' => 2]);
+            if (!is_null($pedido)) $pedido->update(['estado_id' => 2]);
         }
     }
 

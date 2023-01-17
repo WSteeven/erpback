@@ -46,7 +46,7 @@ class ProductoController extends Controller
             // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
             // Log::channel('testing')->info('Log', ['Listado solicitado pasado por el resource', $results]);
         }
-        ProductoResource::collection($results);
+        $results = ProductoResource::collection($results);
         return response()->json(compact('results'));
     }
 

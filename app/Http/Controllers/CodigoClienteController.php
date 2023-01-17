@@ -26,14 +26,15 @@ class CodigoClienteController extends Controller
         $page = $request['page'];
         $results = [];
 
-        if ($page) {
+        /* if ($page) {
             $results = CodigoCliente::simplePaginate($request['offset']);
             CodigoClienteResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = CodigoCliente::filter()->get();
             CodigoClienteResource::collection($results);
-        }
+        } */
+        $results = CodigoClienteResource::collection(CodigoCliente::all());
         return response()->json(compact('results'));
     }
 

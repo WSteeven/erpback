@@ -30,6 +30,7 @@ class CodigoClienteRequest extends FormRequest
             'codigo'=>'required|string|unique:codigo_cliente,codigo',
             'producto'=>'required|exists:productos,id',
             'cliente'=>'required|exists:clientes,id',
+            'nombre_cliente'=>'sometimes|string|nullable',
         ];
         if(in_array($this->method(), ['PUT', 'PATCH'])){
             $codigo = $this->route()->parameter('codigo');
