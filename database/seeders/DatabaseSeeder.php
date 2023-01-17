@@ -39,10 +39,10 @@ class DatabaseSeeder extends Seeder
         $this->call(MarcaSeeder::class);
         $this->call(ClienteProveedorSeeder::class);
         $this->call(ProductosSeeder::class);
-        $this->call(CodigoClienteSeeder::class);
         $this->call(HiloSeeder::class);
         $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
+        $this->call(CodigoClienteSeeder::class);
         $this->call(FibraSeeder::class);
         $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);

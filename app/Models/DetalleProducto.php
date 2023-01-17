@@ -67,6 +67,15 @@ class DetalleProducto extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+     /**
+     * Relacion uno a muchos.
+     * Un detalle tiene un codigo a la vez.
+     */
+    public function codigo()
+    {
+        return $this->hasOne(CodigoCliente::class);
+    }
+
     /**
      * Relacion uno a muchos.
      * Un detalle de producto puede estar en muchos inventarios.

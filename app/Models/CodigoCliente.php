@@ -15,7 +15,7 @@ class CodigoCliente extends Model implements Auditable
     use AuditableModel;
 
     protected $table = "codigo_cliente";
-    protected $fillable = ['cliente_id', 'producto_id', 'codigo'];
+    protected $fillable = ['nombre_cliente','cliente_id', 'detalle_id', 'codigo'];
     
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -28,10 +28,10 @@ class CodigoCliente extends Model implements Auditable
     
     /**
      * Relacion uno a muchos (inversa)
-     * Un producto tiene varios codigos
+     * Un codigo pertenece a un detalle
      */
-    public function producto(){
-        return $this->belongsTo(Producto::class);
+    public function detalle(){
+        return $this->belongsTo(DetalleProducto::class);
     }
     /**
      * Relacion uno a muchos (inversa)

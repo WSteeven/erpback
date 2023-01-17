@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
 use App\Models\InventarioPrestamoTemporal;
@@ -10,6 +11,7 @@ use App\Models\Percha;
 use App\Models\Piso;
 use App\Models\PrestamoTemporal;
 use App\Models\Producto;
+use App\Observers\DetalleObserver;
 use App\Observers\DetalleProductoTransaccionObserver;
 use App\Observers\InventarioObserver;
 use App\Observers\InventarioPrestamoTemporalObserver;
@@ -44,7 +46,8 @@ class EventServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        Producto::observe(ProductoObserver::class);
+        // Producto::observe(ProductoObserver::class);
+        DetalleProducto::observe(DetalleObserver::class);
         Percha::observe(PerchaObserver::class);
         // Piso::observe(PisoObserver::class);
         Inventario::observe(InventarioObserver::class);
