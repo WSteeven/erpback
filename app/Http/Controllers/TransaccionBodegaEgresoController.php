@@ -57,6 +57,11 @@ class TransaccionBodegaEgresoController extends Controller
     // Obtener materiales para tarea grupo
     public function obtenerMateriales(Request $request)
     {
+        $request->validate([
+            'tarea' => 'required|numeric|integer',
+            'grupo' => 'required|numeric|integer'
+        ]);
+        
         $tarea = $request['tarea'];
         $grupo = $request['grupo'];
 

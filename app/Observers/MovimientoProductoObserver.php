@@ -61,6 +61,9 @@ class MovimientoProductoObserver
                 } */
             // }
         // }
+
+        // Esto se recibe
+        // {"inventario_id":1,"detalle_producto_transaccion_id":2,"precio_unitario":null,"tipo":"EGRESO"}
     }
 
     /**
