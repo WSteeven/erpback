@@ -58,6 +58,7 @@ class ProductoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['categoria_id'] = $request->safe()->only(['categoria'])['categoria'];
+        $datos['unidad_medida_id'] = $request->safe()->only(['unidad_medida'])['unidad_medida'];
 
         // Respuesta
         $modelo = Producto::create($datos);
@@ -83,6 +84,7 @@ class ProductoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['categoria_id'] = $request->safe()->only(['categoria'])['categoria'];
+        $datos['unidad_medida_id'] = $request->safe()->only(['unidad_medida'])['unidad_medida'];
 
         // Respuesta
         $producto->update($datos);

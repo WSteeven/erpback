@@ -16,7 +16,7 @@ class Producto extends Model implements Auditable
 
     protected $table = "productos";
 
-    protected $fillable = ["nombre", "categoria_id"];
+    protected $fillable = ["nombre", "categoria_id", "unidad_medida_id"];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -55,6 +55,14 @@ class Producto extends Model implements Auditable
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
+    }
+    
+    /**
+     * Uno o varios productos pertenecen a una categoría
+     */
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class);
     }
 
 }

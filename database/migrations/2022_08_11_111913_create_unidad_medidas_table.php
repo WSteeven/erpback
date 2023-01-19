@@ -13,15 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('productos', function (Blueprint $table) {
+        Schema::create('unidades_medidas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre')->unique();
-            $table->unsignedBigInteger('categoria_id');
-            $table->unsignedBigInteger('unidad_medida_id');
+            $table->string('simbolo')->unique();
             $table->timestamps();
-
-            $table->foreign('categoria_id')->references('id')->on('categorias')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('unidad_medida_id')->references('id')->on('unidades_medidas')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
@@ -32,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('productos');
+        Schema::dropIfExists('unidades_medidas');
     }
 };

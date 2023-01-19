@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RamSeeder::class);
         $this->call(MarcaSeeder::class);
         $this->call(ClienteProveedorSeeder::class);
+        $this->call(UnidadMedidaSeeder::class);
         $this->call(ProductosSeeder::class);
         $this->call(HiloSeeder::class);
         $this->call(SpanSeeder::class);

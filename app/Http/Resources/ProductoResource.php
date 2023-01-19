@@ -20,6 +20,7 @@ class ProductoResource extends JsonResource
             'cantidad'=>$this->cantidadDetalles($this->id),
             'nombre' => $this->nombre,
             'categoria' => $this->categoria?->nombre,
+            'unidad_medida' => $this->unidadMedida?->simbolo,
             // 'categoria' => $this->categoria->nombre,
         ];
 

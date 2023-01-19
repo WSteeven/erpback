@@ -26,7 +26,8 @@ class ProductoRequest extends FormRequest
     {
         $rules = [
             'nombre' => 'required|string|unique:productos',
-            'categoria' => 'required|exists:categorias,id'
+            'categoria' => 'required|exists:categorias,id',
+            'unidad_medida' => 'required|exists:unidades_medidas,id'
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){
