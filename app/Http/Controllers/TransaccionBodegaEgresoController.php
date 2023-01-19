@@ -70,6 +70,7 @@ class TransaccionBodegaEgresoController extends Controller
             'detalle_producto_id' => intval($items->detalle_producto_id),
             'stock_actual' => intval($items->cantidad_stock),
             'detalle' => DetalleProducto::find($items->detalle_producto_id)->descripcion,
+            'medida' => 'm',
         ]);
 
         return response()->json(compact('results'));
