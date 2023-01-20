@@ -17,7 +17,7 @@ class SubtareaSeeder extends Seeder
     {
         Subtarea::insert([
             [
-                'codigo_subtarea' => 'T1-1',
+                'codigo_subtarea' => 'TAREA1-1',
                 'detalle' => 'HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES',
                 'descripcion_completa' => 'HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES dfgfd fdg  dfg gdfg df gdfg d',
                 'fecha_hora_creacion' => '2022/08/30 00:00:00',
@@ -42,7 +42,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 3,
             ],
             [
-                'codigo_subtarea' => 'T1-2',
+                'codigo_subtarea' => 'TAREA1-2',
                 'detalle' => 'TENDIDO FTTH EN RUTA MPLS CIRCULAR PALMALES',
                 'descripcion_completa' => 'TENDIDO FTTH EN RUTA MPLS CIRCULAR PALMALES FDG FDG DF GDFG FD GFD GD',
                 'fecha_hora_creacion' => '2022/09/3 00:00:00',
@@ -67,7 +67,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 3,
             ],
             [
-                'codigo_subtarea' => 'T2-1',
+                'codigo_subtarea' => 'TAREA2-1',
                 'detalle' => 'MANGA INTERURBANA -SARACAY',
                 'descripcion_completa' => 'MANGA INTERURBANA - SARACAY',
                 'fecha_hora_creacion' => '2022/09/3 00:00:00',
@@ -92,7 +92,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 5,
             ],
             [
-                'codigo_subtarea' => 'T3-1',
+                'codigo_subtarea' => 'TAREA3-1',
                 'detalle' => 'PROGRAMADA: MIGRACIÓN A 10G - ZAR_JCCAJAMARCA - ECECFRE10001557I',
                 'descripcion_completa' => 'Ventana de trabajo de Cambio de CPE y SPFs en Nodos',
                 'fecha_hora_creacion' => '2023/01/13 00:08:14',

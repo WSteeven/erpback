@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('fecha_solicitud')->nullable();
             $table->enum('destino', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
             $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
+            $table->text('observacion')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principal

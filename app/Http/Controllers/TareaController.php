@@ -44,7 +44,7 @@ class TareaController extends Controller
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
         $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
         $datos['coordinador_id'] = Auth::id();
-        $datos['codigo_tarea'] = 'TAREA' . Tarea::latest('id')->first()->id + 1;
+        $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
 
         $modelo = Tarea::create($datos);
 

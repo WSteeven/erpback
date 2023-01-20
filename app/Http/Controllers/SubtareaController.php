@@ -236,9 +236,16 @@ class SubtareaController extends Controller
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
-    public function pausas(Subtarea $subtarea)
+    public function obtenerPausas(Subtarea $subtarea)
     {
-        return response()->json(['results' => $subtarea->pausasSubtarea]);
+        $results = $subtarea->pausasSubtarea->map(fn ($item) => [
+            'fecha_hora_pausa' => $item->fecha_hora_pausa,
+            'fecha_hora_retorno' => $item->fecha_hora_retorno,
+            'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurrido(Carbon::parse($item->fecha_hora_retorno)->diffInMinutes(Carbon::parse($item->fecha_hora_pausa)), '') : null,
+            'motivo' => $item->motivo,
+        ]);
+
+        return response()->json(compact('results'));
     }
 
     public function cancelar(Request $request, Subtarea $subtarea)
