@@ -28,6 +28,7 @@ class AutorizacionSeeder extends Seeder
         EstadoTransaccion::create(['nombre'=>'PENDIENTE']);
         EstadoTransaccion::create(['nombre'=>'COMPLETA']);
         EstadoTransaccion::create(['nombre'=>'PARCIAL']);
+        EstadoTransaccion::create(['nombre'=>'NO REALIZADA']);
 
     }
 }

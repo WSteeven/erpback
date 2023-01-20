@@ -127,6 +127,18 @@ class InventarioController extends Controller
 
         return response()->json(compact('results'));
     }
+    /**
+     * Buscar las coincidencias de productos segun el propietario y la sucursal
+     */
+    public function buscarProductos(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
+        $results = [];
+        $results = Inventario::whereIn('detalle_id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->get();
+        $results = InventarioResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
 
     public function vista()
     {

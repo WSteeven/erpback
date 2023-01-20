@@ -32,7 +32,7 @@ class PedidoRequest extends FormRequest
             'solicitante' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'per_autoriza' => 'required|numeric|exists:empleados,id',
-            'tarea' => 'required|numeric|exists:tareas,id',
+            'tarea' => 'sometimes|nullable|numeric|exists:tareas,id',
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'listadoProductos.*.cantidad' => 'required',
@@ -69,6 +69,12 @@ class PedidoRequest extends FormRequest
             $this->merge([
                 // 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,
+            ]);
+        }
+        if($this->autorizacion===3){
+            $this->merge([
+                'estado'=>4,
+                'observacion_est'=>'NO REALIZADO'
             ]);
         }
     }

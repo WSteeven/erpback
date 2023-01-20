@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\DetalleProducto;
 use App\Models\Inventario;
 use App\Models\MovimientoProducto;
+use App\Models\Producto;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use DragonCode\Contracts\Cashier\Config\Details;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -122,8 +125,11 @@ class TransaccionBodegaIngresoController extends Controller
                     Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
 
                 } else {
+                    Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);    
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
+                        $producto = Producto::where('nombre', $listado['producto'])->first();
+                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        $transaccion->detalles()->attach($detalle->id, ['cantidad_inicial' => $listado['cantidad']]);
                     }
                 }
 
