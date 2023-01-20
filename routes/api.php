@@ -228,7 +228,7 @@ Route::group(['prefix' => 'subtareas'], function () {
     Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
-    Route::get('pausas/{subtarea}', [SubtareaController::class, 'pausas']);
+    Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
 })->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {

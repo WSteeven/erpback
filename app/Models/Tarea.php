@@ -25,6 +25,7 @@ class Tarea extends Model implements Auditable
         'detalle',
         'estado',
         'destino',
+        'observacion',
         'proyecto_id',
         'coordinador_id',
         'supervisor_id',
