@@ -18,7 +18,7 @@ class TipoTrabajoResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'nombre' => $this->nombre,
+            'descripcion' => $this->descripcion,
             'cliente' => $this->cliente->empresa->razon_social,
         ];
         
