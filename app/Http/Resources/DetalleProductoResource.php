@@ -60,6 +60,7 @@ class DetalleProductoResource extends JsonResource
         ];
         if ($controller_method == 'show') {
             $modelo['producto'] = $this->producto_id;
+            $modelo['marca'] = $this->modelo->marca_id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
             $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
