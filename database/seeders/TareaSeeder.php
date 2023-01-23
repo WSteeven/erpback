@@ -27,8 +27,9 @@ class TareaSeeder extends Seeder
                 'proyecto_id' => 1,
                 'coordinador_id' => 3,
                 'supervisor_id' => 24,
-                'cliente_id' => 2,
-                'cliente_final_id' => 1,
+                'cliente_id' => null,
+                'cliente_final_id' => null,
+                'observacion' => null,
             ],
             [
                 'codigo_tarea' => 'TR2',
@@ -42,6 +43,7 @@ class TareaSeeder extends Seeder
                 'supervisor_id' => 24,
                 'cliente_id' => 3,
                 'cliente_final_id' => 3,
+                'observacion' => null,
             ],
             [
                 'codigo_tarea' => 'TR3',
@@ -55,6 +57,7 @@ class TareaSeeder extends Seeder
                 'supervisor_id' => 24,
                 'cliente_id' => 3,
                 'cliente_final_id' => 4,
+                'observacion' => null,
             ],
             [
                 'codigo_tarea' => 'TR4',
@@ -69,6 +72,7 @@ class TareaSeeder extends Seeder
                 'supervisor_id' => 24,
                 'cliente_id' => 3,
                 'cliente_final_id' => 4,
+                'observacion' => null,
             ],
         ]);
     }

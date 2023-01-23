@@ -17,107 +17,107 @@ class TipoTrabajoSeeder extends Seeder
     {
         TipoTrabajo::insert([
             [
-                'nombre' => 'TENDIDO',
+                'descripcion' => 'TENDIDO',
                 'cliente_id' => 2
             ],
             [
-                'nombre' => 'DESMONTAJE',
+                'descripcion' => 'DESMONTAJE',
                 'cliente_id' => 2
             ],
             [
-                'nombre' => 'HINCADO',
+                'descripcion' => 'HINCADO',
                 'cliente_id' => 2
             ],
             [
-                'nombre' => 'RETIRO',
+                'descripcion' => 'RETIRO',
                 'cliente_id' => 2
             ],
             [
-                'nombre' => 'DESMONTAJE (M)',
+                'descripcion' => 'DESMONTAJE (M)',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'INSTALACION',
+                'descripcion' => 'INSTALACION',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'CABLEADO',
+                'descripcion' => 'CABLEADO',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'ASISTENCIA NODO NEDETEL',
+                'descripcion' => 'ASISTENCIA NODO NEDETEL',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'ASISTENCIA NODO CLIENTE',
+                'descripcion' => 'ASISTENCIA NODO CLIENTE',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'MIGRACIÓN',
+                'descripcion' => 'MIGRACIÓN',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'EMERGENCIA',
+                'descripcion' => 'EMERGENCIA',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'RECORRIDO',
+                'descripcion' => 'RECORRIDO',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'FACTIBILIDAD',
+                'descripcion' => 'FACTIBILIDAD',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'AUDITORÍA',
+                'descripcion' => 'AUDITORÍA',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'LEVANTAMIENTO DE INFORMACIÓN',
+                'descripcion' => 'LEVANTAMIENTO DE INFORMACIÓN',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'LOGÍSTICA',
+                'descripcion' => 'LOGÍSTICA',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'DESINSTALACIÓN',
+                'descripcion' => 'DESINSTALACIÓN',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'RETIRO DE EQUIPOS',
+                'descripcion' => 'RETIRO DE EQUIPOS',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'DESMONTAJE',
+                'descripcion' => 'DESMONTAJE',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'CERTIFICACIÓN',
+                'descripcion' => 'CERTIFICACIÓN',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'ENVÍO DE INFORMACIÓN',
+                'descripcion' => 'ENVÍO DE INFORMACIÓN',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'TRASLADO',
+                'descripcion' => 'TRASLADO',
                 'cliente_id' => 3
             ],
             [
-                'nombre' => 'ALIMENTACIÓN',
+                'descripcion' => 'ALIMENTACIÓN',
                 'cliente_id' => 1,
             ],
             [
-                'nombre' => 'ALIMENTACIÓN',
+                'descripcion' => 'ALIMENTACIÓN',
                 'cliente_id' => 2,
             ],
             [
-                'nombre' => 'ALIMENTACIÓN',
+                'descripcion' => 'ALIMENTACIÓN',
                 'cliente_id' => 3,
             ],
             [
-                'nombre' => 'ALIMENTACIÓN',
+                'descripcion' => 'ALIMENTACIÓN',
                 'cliente_id' => 4,
             ],
         ]);
