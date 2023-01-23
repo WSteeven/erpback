@@ -55,9 +55,10 @@ class DatabaseSeeder extends Seeder
         $this->call(ProyectoSeeder::class);
         $this->call(ClienteFinalSeeder::class);
         $this->call(TareaSeeder::class);
-        $this->call(TipoTareaSeeder::class);
+        $this->call(TipoTrabajoSeeder::class);
         $this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
+        $this->call(PropietarioElementoSeeder::class);
         $this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 

@@ -11,12 +11,11 @@ use App\Traits\UppercaseValuesTrait;
 
 class TipoTrabajo extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel, Filterable, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
     protected $table = "tipos_trabajos";
     protected $fillable = [
-        'nombre',
+        'descripcion',
         'cliente_id',
         // 'imagenes_adicionales',
         //'campos_adicionales'

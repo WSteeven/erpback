@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Propietario extends Model implements Auditable
+class PropietarioElemento extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait;
-    use AuditableModel;
-    
-    protected $table = "propietarios";
+    use HasFactory, UppercaseValuesTrait, AuditableModel;
+
+    protected $table = "propietarios_elementos";
+
+    protected $fillable = ['descripcion'];
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

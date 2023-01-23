@@ -23,8 +23,8 @@ return new class extends Migration
             $table->timestamp('fecha_hora_creacion')->nullable();
             $table->timestamp('fecha_hora_asignacion')->nullable();
             $table->timestamp('fecha_hora_ejecucion')->nullable();
-            $table->timestamp('fecha_hora_finalizacion')->nullable();
-            $table->timestamp('fecha_hora_realizado')->nullable();
+            $table->timestamp('fecha_hora_realizado')->nullable(); // tecnico
+            $table->timestamp('fecha_hora_finalizacion')->nullable(); // coordinador
             $table->timestamp('fecha_hora_suspendido')->nullable();
             $table->string('causa_suspencion')->nullable();
             $table->timestamp('fecha_hora_cancelacion')->nullable();

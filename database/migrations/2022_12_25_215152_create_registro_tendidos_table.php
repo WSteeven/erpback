@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('registro_tendidos', function (Blueprint $table) {
             $table->id();
 
-            $table->string('tipo_elemento');
-            $table->string('propietario_elemento');
+            // $table->string('tipo_elemento');
+            // $table->string('propietario_elemento');
             $table->string('propietario_americano')->nullable();
             $table->integer('numero_elemento');
             $table->string('codigo_elemento');
@@ -32,18 +32,18 @@ return new class extends Migration
             $table->double('coordenada_poste_anclaje2_longitud')->nullable();
             $table->double('coordenada_poste_anclaje2_latitud')->nullable();
             $table->string('estado_elemento');
-            $table->boolean('tiene_transformador')->default(false);
+            // $table->boolean('tiene_transformador')->default(false);
             $table->integer('cantidad_transformadores')->nullable();
             $table->boolean('tiene_americano')->default(false);
-            $table->boolean('tiene_retenidas')->default(false);
+            // $table->boolean('tiene_retenidas')->default(false);
             $table->integer('cantidad_retenidas')->nullable();
             $table->boolean('instalo_manga')->default(false);
-            $table->boolean('instalo_reserva')->default(false);
+            // $table->boolean('instalo_reserva')->default(false);
             $table->integer('cantidad_reserva')->nullable();
             $table->string('tension')->nullable();
             $table->text('observaciones')->nullable();
             $table->json('materiales_ocupados');
-            
+
             $table->string('imagen_elemento');
             $table->string('imagen_cruce_americano')->nullable();
             $table->string('imagen_poste_anclaje1')->nullable();
@@ -52,6 +52,12 @@ return new class extends Migration
             // Foreign key
             $table->unsignedBigInteger('tendido_id');
             $table->foreign('tendido_id')->references('id')->on('tendidos')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('tipo_elemento_id');
+            $table->foreign('tipo_elemento_id')->references('id')->on('tipos_elementos')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('propietario_elemento_id');
+            $table->foreign('propietario_elemento_id')->references('id')->on('propietarios_elementos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

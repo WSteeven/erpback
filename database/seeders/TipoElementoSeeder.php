@@ -16,11 +16,11 @@ class TipoElementoSeeder extends Seeder
     public function run()
     {
         TipoElemento::insert([
-            ['nombre' => 'POSTE'],
-            ['nombre' => 'CAJA'],
-            ['nombre' => 'AMERICANO'],
-            ['nombre' => 'RADIO BASE'],
-            ['nombre' => 'NODO'],
+            ['descripcionti' => 'CAJA'],
+            ['descripcion' => 'POSTE'],
+            ['descripcion' => 'AMERICANO'],
+            ['descripcion' => 'RADIO BASE'],
+            ['descripcion' => 'NODO'],
         ]);
     }
 }

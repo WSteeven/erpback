@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('propietarios', function (Blueprint $table) {
+        Schema::create('propietarios_elementos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre')->unique();
+            $table->string('descripcion')->unique();
             $table->timestamps();
 
         });
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('propietarios');
+        Schema::dropIfExists('propietarios_elementos');
     }
 };

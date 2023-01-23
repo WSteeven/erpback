@@ -6,7 +6,7 @@ use App\Models\TipoTrabajo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class TipoTareaSeeder extends Seeder
+class TipoTrabajoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
