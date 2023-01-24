@@ -505,14 +505,6 @@ class TransaccionBodegaEgresoService
             case 'PARCIAL':
                 $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->whereIn('motivo_id', $motivos)
-                    ->orWhereNull('motivo_id')
-                    // ->join('motivos', 'motivo_id', '=', 'motivos.id')
-                    // ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
-                    // ->where('tipos_transacciones.nombre', '=', $tipo)
-                    // ->join('tiempo_estado_transaccion', 'transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
-                    // ->join('estados_transacciones_bodega', 'tiempo_estado_transaccion.estado_id', '=', 'estados_transacciones_bodega.id')
-                    // ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PARCIAL)
-                    // ->join('tiempo_autorizacion_transaccion', 'transacciones_bodega.id', 'tiempo_autorizacion_transaccion.transaccion_id')
                     ->join('tiempo_estado_transaccion', function ($join) {
                         $join->on('transacciones_bodega.id', '=', 'tiempo_estado_transaccion.transaccion_id')
                             ->where('tiempo_estado_transaccion.updated_at', DB::raw('(select max(updated_at ) from tiempo_estado_transaccion where transaccion_id = transacciones_bodega.id)'))
@@ -527,6 +519,7 @@ class TransaccionBodegaEgresoService
                     })
                     ->join('autorizaciones', 'tiempo_autorizacion_transaccion.autorizacion_id', 'autorizaciones.id')
                     ->where('autorizaciones.nombre', Autorizacion::APROBADO)
+                    ->limit(1)
                     ->get();
                 return $results;
             case 'PENDIENTE':

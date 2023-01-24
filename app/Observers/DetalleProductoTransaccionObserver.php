@@ -6,6 +6,7 @@ use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
 use App\Models\MovimientoProducto;
 use App\Models\Pedido;
+use App\Models\DetallePedidoProducto;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
 
@@ -46,6 +47,8 @@ class DetalleProductoTransaccionObserver
         if ($transaccion->pedido_id) {
             $pedido = Pedido::find($transaccion->pedido_id);
             Log::channel('testing')->info('Log', ['Hubo pedido?', $pedido]);
+            $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $detalleProductoTransaccion->detalle_id)->first();
+            $detallePedido->update(['despachado'=>$detalleProductoTransaccion->cantidad_final]);
         }
         Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
         $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();

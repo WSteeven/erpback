@@ -50,7 +50,7 @@ class Pedido extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
-            ->withPivot('cantidad')->withTimestamps();
+            ->withPivot('cantidad', 'despachado')->withTimestamps();
     }
 
 
@@ -74,7 +74,7 @@ class Pedido extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
-     * Uno o varios pedidos pertenece a un solicitante 
+     * Uno o varios pedidos pertenece a un solicitante
      */
     public function solicitante()
     {
@@ -83,7 +83,7 @@ class Pedido extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
-     * Uno o varios pedidos son autorizados por una persona 
+     * Uno o varios pedidos son autorizados por una persona
      */
     public function autoriza()
     {
@@ -128,6 +128,7 @@ class Pedido extends Model implements Auditable
             $row['descripcion'] = $detalle->descripcion;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
+            $row['despachado'] = $detalle->pivot->despachado;
             $results[$id] = $row;
             $id++;
         }
@@ -137,7 +138,7 @@ class Pedido extends Model implements Auditable
 
     /**
      * Filtrar todos los pedidos de un empleado o coordinador de acuerdo al estado de una autorizacion.
-     * @param string $estado 
+     * @param string $estado
      * @return array $results Resultados filtrados
      */
     public static function filtrarPedidosEmpleado($estado)
@@ -194,7 +195,7 @@ class Pedido extends Model implements Auditable
     } */
     /**
      * Filtrar todos los pedidos para el bodeguero, de acuerdo al estado de una autorizacion.
-     * @param string $estado 
+     * @param string $estado
      * @return array $results Resultados filtrados
      */
     public static function filtrarPedidosBodeguero($estado)

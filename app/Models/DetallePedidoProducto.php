@@ -14,12 +14,12 @@ class DetallePedidoProducto extends Pivot implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-
     protected $table = 'detalle_pedido_producto';
     protected $fillable = [
         'detalle_id',
         'pedido_id',
         'cantidad',
+        'despachado',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

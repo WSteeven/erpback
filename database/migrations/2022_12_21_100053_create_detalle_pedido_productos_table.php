@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('detalle_id');
             $table->unsignedBigInteger('pedido_id');
             $table->integer('cantidad');
+            $table->integer('despachado');
             $table->timestamps();
 
             $table->foreign('detalle_id')->references('id')->on('detalles_productos')->onUpdate('cascade')->onDelete('cascade');

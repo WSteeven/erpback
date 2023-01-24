@@ -21,17 +21,10 @@ class MovimientoProductoObserver
     public function created(MovimientoProducto $movimientoProducto)
     {
         Log::channel('testing')->info('Log', ['Observer de created del movimiento', $movimientoProducto]);
-        // $itemInventario = Inventario::findOrFail($movimientoProducto->inventario_id);
-        // // Log::channel('testing')->info('Log', ['item del inventario es', $itemInventario]);
-        // $itemDetalleProductoTransaccion = DetalleProductoTransaccion::findOrFail($movimientoProducto->detalle_producto_transaccion_id);
-        // // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion es', $itemDetalleProductoTransaccion]);
-        // $transaccion = TransaccionBodega::findOrFail($itemDetalleProductoTransaccion->transaccion_id);
-        // $detalleProductos = [];
-        // if ($itemInventario) {
-        //     if ($itemDetalleProductoTransaccion) {
-        //         $itemDetalleProductoTransaccion->update([
-        //             'cantidad_final' => $movimientoProducto->cantidad
-        //         ]);
+        $itemInventario = Inventario::findOrFail($movimientoProducto->inventario_id);
+        // Log::channel('testing')->info('Log', ['item del inventario es', $itemInventario]);
+        $itemInventario->update(['cantidad'=>$itemInventario->cantidad-$movimientoProducto->cantidad]);
+        // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion es', $itemDetalleProductoTransaccion]);
                 // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion actualizado']);
                 /* $itemInventario->update([
                     'cantidad'=>$itemInventario->cantidad-$movimientoProducto->cantidad
@@ -59,8 +52,7 @@ class MovimientoProductoObserver
                         ]);
                     }
                 } */
-            // }
-        // }
+            
 
         // Esto se recibe
         // {"inventario_id":1,"detalle_producto_transaccion_id":2,"precio_unitario":null,"tipo":"EGRESO"}
