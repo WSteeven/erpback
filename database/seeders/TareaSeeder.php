@@ -74,6 +74,21 @@ class TareaSeeder extends Seeder
                 'cliente_final_id' => 4,
                 'observacion' => null,
             ],
+            [
+                'codigo_tarea' => 'TR5',
+                'codigo_tarea_cliente' => 'ERH188',
+                'fecha_solicitud' => '24/01/2023',
+                'detalle' => 'Asistencia para la revisión de la UM bakcup del servicio ECECBEE10096683I, se encuentra down y no se recibe potencia en ninguno de los extremos.',
+                'observacion' => null,
+                'estado' => Subtarea::CREADO,
+                'destino' => Tarea::PARA_CLIENTE_FINAL,
+                'proyecto_id' => null,
+                'coordinador_id' => 3,
+                'supervisor_id' => 24,
+                'cliente_id' => 3,
+                'cliente_final_id' => 4,
+                'observacion' => null,
+            ],
         ]);
     }
 }

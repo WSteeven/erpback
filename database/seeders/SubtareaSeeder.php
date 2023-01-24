@@ -17,7 +17,7 @@ class SubtareaSeeder extends Seeder
     {
         Subtarea::insert([
             [
-                'codigo_subtarea' => 'TAREA1-1',
+                'codigo_subtarea' => 'TR-1',
                 'detalle' => 'HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES',
                 'descripcion_completa' => 'HINCADO DE POSTE EN RUTA MPLS CIRCULAR PALMALES dfgfd fdg  dfg gdfg df gdfg d',
                 'fecha_hora_creacion' => '2022/08/30 00:00:00',
@@ -42,7 +42,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 3,
             ],
             [
-                'codigo_subtarea' => 'TAREA1-2',
+                'codigo_subtarea' => 'TR1-2',
                 'detalle' => 'TENDIDO FTTH EN RUTA MPLS CIRCULAR PALMALES',
                 'descripcion_completa' => 'TENDIDO FTTH EN RUTA MPLS CIRCULAR PALMALES FDG FDG DF GDFG FD GFD GD',
                 'fecha_hora_creacion' => '2022/09/3 00:00:00',
@@ -67,7 +67,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 3,
             ],
             [
-                'codigo_subtarea' => 'TAREA2-1',
+                'codigo_subtarea' => 'TR2-1',
                 'detalle' => 'MANGA INTERURBANA -SARACAY',
                 'descripcion_completa' => 'MANGA INTERURBANA - SARACAY',
                 'fecha_hora_creacion' => '2022/09/3 00:00:00',
@@ -92,7 +92,7 @@ class SubtareaSeeder extends Seeder
                 // 'coordinador_id' => 5,
             ],
             [
-                'codigo_subtarea' => 'TAREA3-1',
+                'codigo_subtarea' => 'TR3-1',
                 'detalle' => 'PROGRAMADA: MIGRACIÓN A 10G - ZAR_JCCAJAMARCA - ECECFRE10001557I',
                 'descripcion_completa' => 'Ventana de trabajo de Cambio de CPE y SPFs en Nodos',
                 'fecha_hora_creacion' => '2023/01/13 00:08:14',
@@ -113,6 +113,31 @@ class SubtareaSeeder extends Seeder
                 'estado' => Subtarea::REALIZADO,
                 'tipo_trabajo_id' => 1,
                 'tarea_id' => 3,
+                'grupo_id' => 1,
+                // 'coordinador_id' => 5,
+            ],
+            [
+                'codigo_subtarea' => 'TR5-1',
+                'detalle' => 'REVISIÓN DEL ESTADO DEL SERVICIO EN EL CLIENTE',
+                'descripcion_completa' => null,
+                'fecha_hora_creacion' => '2023/01/24 00:08:14',
+                'fecha_hora_asignacion' => '2023/01/24 00:09:00',
+                'fecha_hora_ejecucion' => '2023/01/24 02:03:14',
+                'fecha_hora_realizado' => '2023/01/24 02:47:07',
+                'fecha_hora_suspendido' => null,
+                'causa_suspencion' => null,
+                'fecha_hora_cancelacion' => null,
+                'causa_cancelacion' => null,
+                'es_dependiente' => false,
+                'subtarea_dependiente' => null,
+                'es_ventana' => false,
+                'fecha_ventana' => null,
+                'hora_inicio_ventana' => null,
+                'hora_fin_ventana' => null,
+                'modo_asignacion_trabajo' => Subtarea::POR_GRUPO_TECNICO,
+                'estado' => Subtarea::EJECUTANDO,
+                'tipo_trabajo_id' => 11,
+                'tarea_id' => 5,
                 'grupo_id' => 1,
                 // 'coordinador_id' => 5,
             ]

@@ -32,7 +32,7 @@ class SubtareaResource extends JsonResource
             'fecha_ventana' => $this->fecha_ventana,
             'hora_inicio_ventana' => $this->hora_inicio_ventana,
             'hora_fin_ventana' => $this->hora_fin_ventana,
-            'tipo_trabajo' => $this->tipo_trabajo->nombre,
+            'tipo_trabajo' => $this->tipo_trabajo->descripcion,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
             'grupo' => $this->grupo?->nombre,
