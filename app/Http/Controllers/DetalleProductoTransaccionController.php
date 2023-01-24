@@ -24,11 +24,11 @@ class DetalleProductoTransaccionController extends Controller
     {
         Log::channel('testing')->info('Log', ['id', $request->all()]);
         Log::channel('testing')->info('Log', ['transaccion_id', $request['transaccion_id']]);
-        Log::channel('testing')->info('Log', ['detalle_id', $request['detalle_id']]);
+        Log::channel('testing')->info('Log', ['inventario_id', $request['inventario_id']]);
         if ($request['transaccion_id']) {
             $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->get();
-            if ($request['detalle_id']) {
-                $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->where('detalle_id', $request['detalle_id'])->get();
+            if ($request['inventario_id']) {
+                $results = DetalleProductoTransaccion::where('transaccion_id', $request['transaccion_id'])->where('inventario_id', $request['inventario_id'])->get();
             }
         } else {
             $results = DetalleProductoTransaccion::all();

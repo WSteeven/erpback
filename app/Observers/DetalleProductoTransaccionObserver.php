@@ -43,11 +43,14 @@ class DetalleProductoTransaccionObserver
         $pedido=null;
         //Se debe llamar al store de movimiento desde el front
         $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
+        $itemInventario = Inventario::where('id',$detalleProductoTransaccion->inventario_id)->first();
         Log::channel('testing')->info('Log', ['Hubo transaccion?', $transaccion]);
         if ($transaccion->pedido_id) {
             $pedido = Pedido::find($transaccion->pedido_id);
             Log::channel('testing')->info('Log', ['Hubo pedido?', $pedido]);
-            $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $detalleProductoTransaccion->detalle_id)->first();
+            Log::channel('testing')->info('Log', ['Hubo item inventario?', $itemInventario]);
+            $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+            Log::channel('testing')->info('Log', ['Hubo detallePedido?', $detallePedido]);
             $detallePedido->update(['despachado'=>$detalleProductoTransaccion->cantidad_final]);
         }
         Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);

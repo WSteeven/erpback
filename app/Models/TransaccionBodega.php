@@ -28,6 +28,7 @@ class TransaccionBodega extends Model implements Auditable
         'motivo_id',
         'devolucion_id',
         'pedido_id',
+        'transferencia_id',
         'tarea_id',
         'tipo_id',
         'sucursal_id',
@@ -67,9 +68,9 @@ class TransaccionBodega extends Model implements Auditable
     }
 
     //Una transaccion tiene varios productos solicitados
-    public function detalles()
+    public function items()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'detalle_producto_transaccion', 'transaccion_id', 'detalle_id')
+        return $this->belongsToMany(Inventario::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
             ->withPivot(['cantidad_inicial', 'cantidad_final'])
             ->withTimestamps();
     }
@@ -186,21 +187,23 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function listadoProductos($id)
     {
-        $detalles = TransaccionBodega::find($id)->detalles()->get();
+        $items= TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
         $row = [];
-        foreach ($detalles as $detalle) {
+        foreach ($items as $item) {
             // Log::channel('testing')->info('Log', ['Foreach de movimientos de devoluciones del  traspaso:', $detalle]);
-            $detalleProductoTransaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')->where('transaccion_id', $detalle->pivot->transaccion_id)->where('detalle_id', $detalle->id)->first();
-            $row['id'] = $detalle->id;
-            $row['detalle_id'] = $detalle->pivot->detalle_id;
-            $row['producto'] = $detalle->producto->nombre;
-            $row['descripcion'] = $detalle->descripcion;
-            $row['categoria'] = $detalle->producto->categoria->nombre;
-            $row['condiciones'] = $detalle->producto->categoria->nombre;
-            $row['cantidad'] = $detalle->pivot->cantidad_inicial;
-            $row['despachado'] = $detalle->pivot->cantidad_final;
+            $detalleProductoTransaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')
+            ->where('transaccion_id', $item->pivot->transaccion_id)
+            ->where('inventario_id', $item->pivot->inventario_id)->first();
+            $row['id'] = $item->id;
+            $row['producto'] = $item->detalle->producto->nombre;
+            $row['detalle_id'] = $item->detalle->id;
+            $row['descripcion'] = $item->detalle->descripcion;
+            $row['categoria'] = $item->detalle->producto->categoria->nombre;
+            $row['condiciones'] = $item->detalle->producto->categoria->nombre;
+            $row['cantidad'] = $item->pivot->cantidad_inicial;
+            $row['despachado'] = $item->pivot->cantidad_final;
             $row['devuelto']=$detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;

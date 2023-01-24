@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('tarea_id')->nullable();
             $table->unsignedBigInteger('devolucion_id')->nullable();
             $table->unsignedBigInteger('pedido_id')->nullable();
+            $table->unsignedBigInteger('transferencia_id')->nullable();
             $table->unsignedBigInteger('sucursal_id')->nullable();
             $table->unsignedBigInteger('cliente_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
@@ -36,6 +37,7 @@ return new class extends Migration
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('devolucion_id')->references('id')->on('devoluciones')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('pedido_id')->references('id')->on('pedidos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('transferencia_id')->references('id')->on('transferencias')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('sucursal_id')->references('id')->on('sucursales')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('per_autoriza_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

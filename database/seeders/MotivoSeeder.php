@@ -27,7 +27,8 @@ class MotivoSeeder extends Seeder
             ['DEVOLUCION A BODEGA', 1, '2022-11-25 01:59:06', '2022-11-25 01:59:06'],
             ['DEVOLUCION AL PROVEEDOR', 2, '2022-11-25 01:59:06', '2022-11-25 01:59:06'],
             ['REPOSICION', 2, '2022-11-25 01:59:19', '2022-11-25 01:59:19'],
-            ['TRANSFERENCIA ENTRE BODEGAS', 3, '2022-11-25 01:59:43', '2022-11-25 01:59:43'],
+            ['INGRESO TRANSFERENCIA ENTRE BODEGAS', 1, '2022-11-25 01:59:43', '2022-11-25 01:59:43'],
+            ['EGRESO TRANSFERENCIA ENTRE BODEGAS', 2, '2022-11-25 01:59:43', '2022-11-25 01:59:43'],
             ['INGRESO POR LIQUIDACION DE MATERIALES', 1, '2022-11-25 02:00:34', '2022-11-25 02:00:34'],
             ['EGRESO POR LIQUIDACION DE MATERIALES', 2, '2022-11-25 02:00:56', '2022-11-25 02:00:56'],
             ['AJUSTE DE INGRESO POR REGULARIZACION', 1, '2022-11-25 02:02:19', '2022-11-25 02:02:19'],
@@ -38,8 +39,8 @@ class MotivoSeeder extends Seeder
             ['DESPACHO POR GARANTIA', 2, '2022-11-25 02:12:19', '2022-11-25 02:12:19'],
         ];
 
-        foreach($datos as $fila){
-            DB::insert('INSERT INTO `motivos` (`nombre`, `tipo_transaccion_id`, `created_at`, `updated_at`) VALUES(?,?,?,?)',$fila);
+        foreach ($datos as $fila) {
+            DB::insert('INSERT INTO `motivos` (`nombre`, `tipo_transaccion_id`, `created_at`, `updated_at`) VALUES(?,?,?,?)', $fila);
         }
     }
 }
