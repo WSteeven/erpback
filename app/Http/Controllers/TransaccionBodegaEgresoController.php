@@ -8,6 +8,7 @@ use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
+use App\Models\Inventario;
 use App\Models\MaterialGrupoTarea;
 use App\Models\TransaccionBodega;
 use App\Models\User;
@@ -152,6 +153,7 @@ class TransaccionBodegaEgresoController extends Controller
             DB::beginTransaction();
             // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
             if($request->pedido)$datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            if($request->transferencia)$datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
             $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
@@ -190,7 +192,8 @@ class TransaccionBodegaEgresoController extends Controller
             }
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
-                $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidad']]);
+                $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
+                $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
             }
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
@@ -200,7 +203,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getMessage().$e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -223,6 +226,7 @@ class TransaccionBodegaEgresoController extends Controller
     {
         $datos = $request->validated();
         !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+        if($request->transferencia)$datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
         !is_null($request->motivo) ?? $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];

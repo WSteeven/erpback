@@ -49,6 +49,16 @@ class Inventario extends Model implements Auditable
      */
     /**
      * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una transacción.
+     */
+    public function detalleProductoTransaccion()
+    {
+        return $this->belongsToMany(TransaccionBodega::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
+            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withTimestamps();
+    }
+    /**
+     * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un traspaso.
      */
     public function detalleInventarioTraspaso()
@@ -181,9 +191,10 @@ class Inventario extends Model implements Auditable
         try {
             DB::beginTransaction();
             Log::channel('testing')->info('Log', ['Elementos recibidos en el metodo de ingreso masivo', $elementos]);
+            $elementos = $transaccion->items();
             foreach ($elementos as $elemento) {
                 Log::channel('testing')->info('Log', ['Elemento dentro del foreach', $elemento]);
-                $detalleTransaccion = DetalleProductoTransaccion::where('detalle_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
+                // $detalleTransaccion = DetalleProductoTransaccion::where('inventario_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
                 $item = Inventario::where('detalle_id', $elemento['id'])
                     ->where('sucursal_id', $transaccion->sucursal_id)
                     ->where('cliente_id', $transaccion->cliente_id)

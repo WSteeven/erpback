@@ -28,7 +28,7 @@ class DetalleProductoTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            'detalle_id' => 'required|exists:detalles_productos,id',
+            'inventario_id' => 'required|exists:inventarios,id',
             'transaccion_id' => 'required|exists:transacciones_bodega,id',
             'cantidad_inicial' => 'required|numeric',
             'cantidad_final' => 'required|numeric',
@@ -38,7 +38,7 @@ class DetalleProductoTransaccionRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             if (in_array($this->method(), ['PUT', 'PATCH'])) {
-                $detalle = DetalleProductoTransaccion::where('detalle_id', $this->detalle_id)->where('transaccion_id', $this->transaccion_id)->withSum('devoluciones', 'cantidad')->first();
+                $detalle = DetalleProductoTransaccion::where('inventario_id', $this->inventario_id)->where('transaccion_id', $this->transaccion_id)->withSum('devoluciones', 'cantidad')->first();
                 Log::channel('testing')->info('Log', ['Detalle en funcion de validacion es:', $detalle]);
                 if ($detalle->cantidad_inicial < $this->cantidad_final) {
                     $validator->errors()->add('cantidad_final', 'La cantidad ingresada no puede ser mayor a la cantidad inicial');

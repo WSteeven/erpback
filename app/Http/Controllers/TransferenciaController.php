@@ -127,6 +127,7 @@ class TransferenciaController extends Controller
 
             //Borramos el listado anterior e ingresamos el nuevo
             //Guardamos el listado de productos en el detalle
+            $transferencia->items()->detach();
             foreach($request->listadoProductos as $listado){
                 $transferencia->items()->sync($listado['id'], ['cantidad'=>$listado['cantidades']]);
             }

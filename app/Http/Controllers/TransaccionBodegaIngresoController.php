@@ -113,8 +113,15 @@ class TransaccionBodegaIngresoController extends Controller
                 if ($request->ingreso_masivo) {
                     //Guardar los productos seleccionados en el detalle 
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $transaccion->detalles()->attach(
-                            $listado['id'],
+                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
+                        if(!$itemInventario->id){
+                            $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
+                            $itemInventario = Inventario::create($fila);
+                        }else{
+                            $itemInventario->update(['cantidad'=>$itemInventario->cantidad+$listado['cantidad']]);
+                        }
+                        $transaccion->items()->attach(
+                            $itemInventario->id,
                             [
                                 'cantidad_inicial' => $listado['cantidad'],
                                 // 'cantidad_final' => $listado['cantidad']
@@ -127,9 +134,17 @@ class TransaccionBodegaIngresoController extends Controller
                 } else {
                     Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);    
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $producto = Producto::where('nombre', $listado['producto'])->first();
-                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
-                        $transaccion->detalles()->attach($detalle->id, ['cantidad_inicial' => $listado['cantidad']]);
+                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
+                        if($itemInventario->id){
+                            $producto = Producto::where('nombre', $listado['producto'])->first();
+                            $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                            $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+
+                        }else{
+                            $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
+                            $itemInventario = Inventario::create($fila);
+                            $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                        }
                     }
                 }
 
@@ -140,7 +155,7 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getMessage().$e->getLine()], 422);
             }
 
             return response()->json(compact('mensaje', 'modelo'));
