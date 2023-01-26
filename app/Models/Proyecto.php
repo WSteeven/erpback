@@ -20,7 +20,7 @@ class Proyecto extends Model
         'coordinador_id',
         'fecha_inicio',
         'fecha_fin',
-        // 'costo',
+        'finalizado',
     ];
 
     private static $whiteListFilter = ['*'];

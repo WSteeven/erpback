@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SubtareaEvent;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Subtarea;
@@ -121,6 +122,9 @@ class SubtareaController extends Controller
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        event(new SubtareaEvent);
+
         return response()->json(compact('mensaje', 'modelo'));
     }
 

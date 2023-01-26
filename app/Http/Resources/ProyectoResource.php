@@ -26,7 +26,8 @@ class ProyectoResource extends JsonResource
             'cliente' => $this->cliente->empresa->razon_social,
             'canton' => $this->canton->canton,
             'costo' => $this->costo,
-            'demora' => '0 días'
+            'demora' => '0 días',
+            'finalizado' => $this->finalizado,
         ];
 
         if ($controller_method == 'show') {
