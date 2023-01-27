@@ -26,7 +26,7 @@ class PedidoRequest extends FormRequest
     {
         return [
             'justificacion' => 'required|string',
-            'fecha_limite' => 'nullable|string',
+            'fecha_limite' => 'nullable|date',
             'observacion_aut' => 'nullable|string',
             'observacion_est' => 'nullable|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
@@ -52,6 +52,11 @@ class PedidoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
+        if(!is_null($this->fecha_limite)){
+            $this->merge([
+                'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
+            ]);
+        }
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }

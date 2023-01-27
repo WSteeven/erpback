@@ -23,7 +23,7 @@ class PedidoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
-            'fecha_limite' => $this->fecha_limite,
+            'fecha_limite' => is_null($this->fecha_limite)?'':date('d/m/Y', strtotime($this->fecha_limite)),
             'observacion_aut' => $this->observacion_aut,
             'observacion_est' => $this->observacion_est,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
@@ -37,6 +37,7 @@ class PedidoResource extends JsonResource
             'listadoProductos' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
+            'tiene_fecha_limite'=>$this->fecha_limite?true:false,
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
             'tiene_observacion_est' => $this->observacion_est ? true : false,
