@@ -50,6 +50,16 @@ class PedidoRequest extends FormRequest
             'listadoProductos.*.cantidad' => 'Debes seleccionar una cantidad para el producto del :attribute',
         ];
     }
+
+    public function withValidator($validator){
+        $validator->after(function ($validator){
+            if(!is_null($this->fecha_limite)){
+                if(date('Y-m-d', strtotime($this->fecha_limite))<now()){
+                    $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+                }
+            }
+        });
+    }
     protected function prepareForValidation()
     {
         if(!is_null($this->fecha_limite)){
