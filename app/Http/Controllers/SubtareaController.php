@@ -123,7 +123,7 @@ class SubtareaController extends Controller
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new SubtareaEvent);
+        event(new SubtareaEvent('Mensaje desde el controlador'));
 
         return response()->json(compact('mensaje', 'modelo'));
     }

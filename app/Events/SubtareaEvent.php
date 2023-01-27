@@ -14,14 +14,16 @@ class SubtareaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public string $mensaje;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(string $mensaje)
     {
-        //
+        $this->mensaje = $mensaje;
     }
 
     /**
@@ -32,6 +34,15 @@ class SubtareaEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('channel-name');
-        return new Channel('subtareas-tracker');
+        return new Channel('subtareas-tracker'); 
+    }
+
+    public function broadcastWith() {
+        $extra = [
+            'campo1' => 'Mensaje numero #1',
+            'campo2' => 'Mensaje numero #2',
+        ];
+
+        return $extra;
     }
 }
