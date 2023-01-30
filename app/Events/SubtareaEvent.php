@@ -34,15 +34,21 @@ class SubtareaEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('channel-name');
-        return new Channel('subtareas-tracker'); 
+        return new Channel('subtareas-tracker');
     }
 
-    public function broadcastWith() {
+    /*public function broadcastWith()
+    {
         $extra = [
             'campo1' => 'Mensaje numero #1',
             'campo2' => 'Mensaje numero #2',
         ];
 
         return $extra;
+    }*/
+
+    public function broadcastAs()
+    {
+        return 'subtarea-event';
     }
 }

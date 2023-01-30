@@ -38,6 +38,10 @@ class SubtareaController extends Controller
         return $this->servicio->obtenerTodos();
     }
 
+    /**
+     * Listar todas las subtareas o trabajos que han sido asignados a mi o a mi grupo
+     * en caso de pertenecer a uno.
+     */
     public function subtareasAsignadas()
     {
         $empleado = User::find(Auth::id())->empleado;
@@ -123,8 +127,6 @@ class SubtareaController extends Controller
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new SubtareaEvent('Mensaje desde el controlador'));
-
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -183,6 +185,8 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::ASIGNADO;
         $subtarea->fecha_hora_asignacion = Carbon::now();
         $subtarea->save();
+
+        event(new SubtareaEvent('Subtarea asignada!'));
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }

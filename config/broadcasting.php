@@ -41,6 +41,7 @@ return [
                 'port' => env('PUSHER_PORT', 6001),
                 'scheme' => env('PUSHER_SCHEME', 'http'), //https
                 'encrypted' => true,
+                'cluster' => 'sa1',
                 //'useTLS' => env('PUSHER_SCHEME', 'http') === 'http', //replace http for https
             ],
             'client_options' => [
