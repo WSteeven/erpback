@@ -27,7 +27,7 @@ class TareaSeeder extends Seeder
                 'proyecto_id' => 1,
                 'coordinador_id' => 3,
                 'supervisor_id' => 24,
-                'cliente_id' => null,
+                'cliente_id' => 3,
                 'cliente_final_id' => null,
                 'observacion' => null,
             ],
