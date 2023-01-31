@@ -25,6 +25,7 @@ class TareaResource extends JsonResource
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'fecha_solicitud' => $this->fecha_solicitud,
+            'titulo' => $this->titulo,
             'detalle' => $this->detalle,
             'destino' => $this->destino,
             'cliente' => $this->cliente?->id,
@@ -35,6 +36,7 @@ class TareaResource extends JsonResource
             'cliente_final' => $this->cliente_final ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
             'observacion' => $this->observacion,
+            'tiene_subtareas' => $this->tiene_subtareas,
         ];
 
         if ($controller_method == 'show') {

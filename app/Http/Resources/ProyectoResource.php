@@ -23,6 +23,7 @@ class ProyectoResource extends JsonResource
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
+            'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'cliente' => $this->cliente->empresa->razon_social,
             'canton' => $this->canton->canton,
             'costo' => $this->costo,
