@@ -39,12 +39,20 @@ class Autorizacion extends Model implements Auditable
      * Relacion muchos a muchos
      * Obtener las transacciones que pertenecen a la autorizacion 
      */
-    public function transacciones()
+    /* public function transacciones()
     {
         return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')
             ->withPivot('observacion')
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
+    } */
+    
+    /**
+     * Relación uno a muchos.
+     * Una autorizacion esta en varias transacciones.
+     */
+    public function transaccion(){
+        return $this->hasOne(TransaccionBodega::class);
     }
 
     /**

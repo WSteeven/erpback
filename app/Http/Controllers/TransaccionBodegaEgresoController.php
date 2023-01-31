@@ -62,7 +62,7 @@ class TransaccionBodegaEgresoController extends Controller
             'tarea' => 'required|numeric|integer',
             'grupo' => 'required|numeric|integer'
         ]);
-        
+
         $tarea = $request['tarea'];
         $grupo = $request['grupo'];
 
@@ -105,36 +105,10 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
-        $offset = $request['offset'];
         $estado = $request['estado'];
-        $tipo = 'EGRESO';
         $results = [];
-        if ($page) {
-            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
-                $results = $this->servicio->filtrarTransaccionesEgresoCoordinadorConPaginacion($tipo, $estado, $offset);
-                // TransaccionBodegaResource::collection($results);
-                // $results->appends(['offset' => $request['offset']]);
-            } elseif (auth()->user()->hasRole(User::ROL_BODEGA)) { //si es bodeguero
-                $results = $this->servicio->filtrarTransaccionesEgresoBodegueroConPaginacion($tipo, $estado, $offset);
-                // TransaccionBodegaResource::collection($results);
-                // $results->appends(['offset' => $request['offset']]);
-            } else { //cualquier otro
-                $results = $this->servicio->filtrarTransaccionesEgresoEmpleadoConPaginacion($tipo, $estado, $offset);
-                // TransaccionBodegaResource::collection($results);
-                // $results->appends(['offset' => $request['offset']]);
-            }
-        } else { //si no hay paginacion
-            if (auth()->user()->hasRole(User::ROL_COORDINADOR)) { //si es coordinador
-                $results = $this->servicio->filtrarTransaccionesEgresoCoordinadorSinPaginacion($tipo, $estado);
-                // TransaccionBodegaResource::collection($results);
-            } elseif (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
-                $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($tipo, $estado);
-                // TransaccionBodegaResource::collection($results);
-            } else { //cualquier otro
-                $results = $this->servicio->filtrarTransaccionesEgresoEmpleadoSinPaginacion($tipo, $estado);
-                // TransaccionBodegaResource::collection($results);
-            }
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
+            $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($estado);
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -152,8 +126,8 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
             // $datos['tipo_id'] = $request->safe()->only(['tipo'])['tipo'];
-            if($request->pedido)$datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            if($request->transferencia)$datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
+            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+            if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
             $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
@@ -177,19 +151,6 @@ class TransaccionBodegaEgresoController extends Controller
             $transaccion = TransaccionBodega::create($datos);
 
 
-            //Guardar la autorizacion con su observacion
-            if ($request->obs_autorizacion) {
-                $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['obs_autorizacion']]);
-            } else {
-                $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-            }
-
-            //Guardar el estado con su observacion
-            if ($request->obs_estado) {
-                $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
-            } else {
-                $transaccion->estados()->attach($datos['estado_id']);
-            }
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
                 $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
@@ -203,7 +164,7 @@ class TransaccionBodegaEgresoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getMessage().$e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -226,48 +187,19 @@ class TransaccionBodegaEgresoController extends Controller
     {
         $datos = $request->validated();
         !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-        if($request->transferencia)$datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-        !is_null($request->motivo) ?? $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
+        if($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        !is_null($request->subtarea_id) ?? $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        if($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
-        /* if ($request->subtarea_id) {
-            $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-        }
-        if ($request->per_atiende) {
-            $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        } */
-        //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
         $transaccion->update($datos); //actualizar la transaccion
 
-        /* if ($transaccion->solicitante->id === auth()->user()->empleado->id) {
-            Log::channel('testing')->info('Log', ['entró en el if?', true]);
-            try {
-                DB::beginTransaction();
-                $transaccion->update($datos); //Actualizacion de la transacción
-                $transaccion->detalles()->detach(); //Borra los registros de la tabla intermedia para guardar los modificados
-                foreach ($request->listadoProductosSeleccionados as $listado) { //Guarda los productos seleccionados
-                    $transaccion->detalles()->attach($listado['id'], ['cantidad_inicial' => $listado['cantidades']]);
-                }
-
-                DB::commit();
-
-                $modelo = new TransaccionBodegaResource($transaccion->refresh());
-                $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-            } catch (Exception $e) {
-                DB::rollBack();
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
-            }
-
-            return response()->json(compact('mensaje', 'modelo'));
-        } else { */
         //Aquí el coordinador o jefe inmediato autoriza la transaccion de sus subordinados y modifica los datos del listado
         if ($transaccion->per_autoriza_id === auth()->user()->empleado->id) {
             Log::channel('testing')->info('Log', ['La persona que autoriza es igual al empleado actual?', true]);

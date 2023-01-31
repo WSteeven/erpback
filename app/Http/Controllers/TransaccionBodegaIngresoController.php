@@ -6,13 +6,10 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
-use App\Models\MovimientoProducto;
 use App\Models\Producto;
 use App\Models\TransaccionBodega;
 use App\Models\User;
-use DragonCode\Contracts\Cashier\Config\Details;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,33 +34,12 @@ class TransaccionBodegaIngresoController extends Controller
      * Listar
      */
     public function index(Request $request)
-    {
-        // return response()->json(['results'=>$this->list()]);
-        /* $transacciones = DB::select(
-            "select * from transacciones_bodega tb where subtipo_id in(
-                select id from subtipos_transacciones st where tipo_transaccion_id in(
-                    select id from tipos_transacciones tt where tipo='INGRESO'
-                )
-            )"
-        ); */
-        /* $ids=[];
-        $results = [];
-        foreach($transacciones as $transaccion){
-            array_push($ids, $transaccion->id);
-        }
-        $results = TransaccionBodega::whereIn('id', $ids)->get(); */
-
-        $page = $request['page'];
-        $offset = $request['offset'];
-        $estado = $request['estado'];
+    {   $estado = $request['estado'];
         $tipo = 'INGRESO';
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            if ($page) {
-                $results = $this->servicio->filtrarTransaccionesIngresoBodegueroConPaginacion($tipo, $estado, $offset);
-            } else {
-                $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
-            }
+            $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
+            
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -97,20 +73,9 @@ class TransaccionBodegaIngresoController extends Controller
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
-                //Guardar la autorización con su observación
-                if($request->obs_autorizacion){
-                    $transaccion->autorizaciones()->attach($datos['autorizacion_id'], ['observacion'=>$datos['obs_autorizacion']]);
-                }else{
-                    $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-                }
-                //Guardar el estado con su observacion
-                if ($request->obs_estado) {
-                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
-                } else {
-                    $transaccion->estados()->attach($datos['estado_id']);
-                }
 
                 if ($request->ingreso_masivo) {
+                    Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);    
                     //Guardar los productos seleccionados en el detalle 
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
@@ -124,7 +89,6 @@ class TransaccionBodegaIngresoController extends Controller
                             $itemInventario->id,
                             [
                                 'cantidad_inicial' => $listado['cantidad'],
-                                // 'cantidad_final' => $listado['cantidad']
                             ]
                         );
                     }
@@ -132,16 +96,21 @@ class TransaccionBodegaIngresoController extends Controller
                     Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
 
                 } else {
+                    Log::channel('testing')->info('Log', ['PASÓ DE LARGO']);    
                     Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);    
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
-                        if($itemInventario->id){
-                            $producto = Producto::where('nombre', $listado['producto'])->first();
-                            $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        $producto = Producto::where('nombre', $listado['producto'])->first();
+                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->first();
+                        if($itemInventario){
+                            Log::channel('testing')->info('Log', ['HAY UN ITEM COINCIDENTE EN EL INVENTARIO']);
+                            $itemInventario->cantidad = $itemInventario->cantidad+$listado['cantidad'];
+                            $itemInventario->save();    
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
 
                         }else{
-                            $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
+                            Log::channel('testing')->info('Log', ['NO HAY ITEM, SE VA A CREAR OTRO']);    
+                            $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $listado['condiciones'], $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
                         }
@@ -206,20 +175,6 @@ class TransaccionBodegaIngresoController extends Controller
                 //Actualización de la transacción
                 $transaccion->update($datos);
 
-                //Guardar la autorizacion con su observacion
-                if ($request->observacion_aut) {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion'], ['observacion' => $datos['observacion_aut']]);
-                } else {
-                    $transaccion->autorizaciones()->attach($datos['autorizacion_id']);
-                }
-
-                //Guardar el estado con su observacion
-                if ($request->obs_estado) {
-                    $transaccion->estados()->attach($datos['estado_id'], ['observacion' => $datos['obs_estado']]);
-                } else {
-                    $transaccion->estados()->attach($datos['estado_id']);
-                }
-
 
                 //borrar los registros de la tabla intermedia para guardar los modificados
                 $transaccion->detalles()->detach();
@@ -264,7 +219,6 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function showPreview(TransaccionBodega $transaccion)
     {
-        $estado = TransaccionBodega::ultimoEstado($transaccion->id);
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
 
         $modelo = new TransaccionBodegaResource($transaccion);

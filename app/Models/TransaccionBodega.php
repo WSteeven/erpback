@@ -24,6 +24,8 @@ class TransaccionBodega extends Model implements Auditable
         'justificacion',
         'comprobante',
         'fecha_limite',
+        'observacion_aut',
+        'observacion_est',
         'solicitante_id',
         'motivo_id',
         'devolucion_id',
@@ -36,6 +38,8 @@ class TransaccionBodega extends Model implements Auditable
         'per_autoriza_id',
         'per_atiende_id',
         'per_retira_id',
+        'autorizacion_id',
+        'estado_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -49,23 +53,40 @@ class TransaccionBodega extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+    /**
+     * Relación uno a uno (inversa).
+     * Una transaccion tiene un estado a la vez.
+     */
+    public function estado(){
+        return $this->belongsTo(EstadoTransaccion::class);
+    }
+
+    /**
+     * Relación uno a uno (inversa).
+     * Una transaccion tiene una autorizacion a la vez.
+     */
+    public function autorizacion(){
+        return $this->belongsTo(Autorizacion::class);
+    }
+
     /* Una transaccion tiene varios estados de autorizacion durante su ciclo de vida */
-    public function autorizaciones()
+    /* public function autorizaciones()
     {
         return $this->belongsToMany(Autorizacion::class, 'tiempo_autorizacion_transaccion', 'transaccion_id', 'autorizacion_id')
             ->withPivot('observacion')
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
-    }
+    } */
 
     /* Una transaccion tiene varios estados durante su ciclo de vida */
-    public function estados()
+    /* public function estados()
     {
         return $this->belongsToMany(EstadoTransaccion::class, 'tiempo_estado_transaccion', 'transaccion_id', 'estado_id')
             ->withPivot('observacion')
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
-    }
+    } */
 
     //Una transaccion tiene varios productos solicitados
     public function items()
@@ -166,36 +187,36 @@ class TransaccionBodega extends Model implements Auditable
     /**
      * Obtener la ultima autorizacion de una transaccion 
      */
-    public static function ultimaAutorizacion($id)
+    /* public static function ultimaAutorizacion($id)
     {
         $autorizaciones = TransaccionBodega::find($id)->autorizaciones()->get();
         $autorizacion = $autorizaciones->first();
         return $autorizacion;
-    }
+    } */
     /**
      * Obtener el ultimo estado de una transaccion 
      */
-    public static function ultimoEstado($id)
+    /* public static function ultimoEstado($id)
     {
         $observaciones = TransaccionBodega::find($id)->estados()->get();
         $observacion = $observaciones->first();
         return $observacion;
-    }
+    } */
 
     /**
      * Obtener el listado de productos de una transaccion
      */
     public static function listadoProductos($id)
     {
-        $items= TransaccionBodega::find($id)->items()->get();
+        Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
+        $items = TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
         $row = [];
         foreach ($items as $item) {
-            // Log::channel('testing')->info('Log', ['Foreach de movimientos de devoluciones del  traspaso:', $detalle]);
             $detalleProductoTransaccion = DetalleProductoTransaccion::withSum('devoluciones', 'cantidad')
-            ->where('transaccion_id', $item->pivot->transaccion_id)
-            ->where('inventario_id', $item->pivot->inventario_id)->first();
+                ->where('transaccion_id', $item->pivot->transaccion_id)
+                ->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->id;
@@ -204,7 +225,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['condiciones'] = $item->detalle->producto->categoria->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
             $row['despachado'] = $item->pivot->cantidad_final;
-            $row['devuelto']=$detalleProductoTransaccion->devoluciones_sum_cantidad;
+            $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
             $id++;
         }
@@ -212,13 +233,13 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
-    public static function listadoProductosTarea($results){
+    public static function listadoProductosTarea($results)
+    {
         $listado = [];
         $id = 0;
-        $row=[];
-        foreach($results as $result){
-            foreach($result->detalles as $detalle){
-                
+        $row = [];
+        foreach ($results as $result) {
+            foreach ($result->detalles as $detalle) {
             }
         }
 

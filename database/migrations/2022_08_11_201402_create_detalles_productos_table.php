@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('url_imagen')->nullable();
            
             $table->timestamps();
-
+            $table->unique(['descripcion', 'serial']);
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade')->onUpdate('cascade');
         });

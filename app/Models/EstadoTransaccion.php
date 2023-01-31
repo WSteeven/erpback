@@ -34,14 +34,21 @@ class EstadoTransaccion extends Model implements Auditable
      * ______________________________________________________________________________________
      */
     
-    public function transacciones()
+    /* public function transacciones()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'tiempo_estado_transaccion','transaccion_id', 'estado_id')
             ->withPivot('observacion')
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
-    }
+    } */
 
+    /**
+     * Relación uno a muchos.
+     * Un estado esta en varias transacciones.
+     */
+    public function transacciones(){
+        return $this->hasMany(TransaccionBodega::class);
+    }
 
     /**
      * Relacion uno a muchos.

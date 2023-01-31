@@ -39,7 +39,7 @@ class PedidoController extends Controller
             $results = Pedido::filtrarPedidosEmpleado($estado);
         }
 
-
+        Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
         $results = PedidoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -128,5 +128,4 @@ class PedidoController extends Controller
 
         return response()->json(compact('modelo'), 200);
     }
-
 }

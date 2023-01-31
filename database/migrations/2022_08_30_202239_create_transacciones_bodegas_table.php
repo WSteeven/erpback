@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('justificacion')->nullable();
             $table->string('comprobante')->nullable();
             $table->date('fecha_limite')->nullable();
+            $table->text('observacion_aut')->nullable();
+            $table->text('observacion_est')->nullable();
             $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('motivo_id')->nullable();
             $table->unsignedBigInteger('tarea_id')->nullable();
@@ -29,10 +31,14 @@ return new class extends Migration
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
             $table->unsignedBigInteger('per_atiende_id')->nullable();
             $table->unsignedBigInteger('per_retira_id')->nullable();
+            $table->unsignedBigInteger('autorizacion_id')->nullable();
+            $table->unsignedBigInteger('estado_id')->nullable();
             $table->timestamps();
 
             $table->unique(['id','devolucion_id']);
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('autorizacion_id')->references('id')->on('autorizaciones')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('estado_id')->references('id')->on('estados_transacciones_bodega')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('motivo_id')->references('id')->on('motivos')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('devolucion_id')->references('id')->on('devoluciones')->onDelete('cascade')->onUpdate('cascade');

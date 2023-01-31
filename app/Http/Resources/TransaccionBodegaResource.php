@@ -17,21 +17,19 @@ class TransaccionBodegaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        $autorizacion = TransaccionBodega::ultimaAutorizacion($this->id);
-        $estado = TransaccionBodega::ultimoEstado($this->id);
         $detalles = TransaccionBodega::listadoProductos($this->id);
 
         // Log::channel('testing')->info('Log', ['controller method?:', $controller_method]);
 
         $modelo = [
             'id' => $this->id,
-            'autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->nombre,
-            'obs_autorizacion' => is_null($autorizacion) ? 'N/A' : $autorizacion->pivot->observacion,
+            'autorizacion' =>  $this->autorizacion->nombre,
+            'observacion_aut' =>  $this->observacion_aut,
             'justificacion' => $this->justificacion,
             'comprobante' => $this->comprobante,
             'fecha_limite' => $this->fecha_lximite,
-            'estado' => is_null($estado) ? 'N/A' : $estado->nombre,
-            'obs_estado' => is_null($estado->pivot->observacion) ? 'N/A' : $estado->pivot->observacion,
+            'estado' => $this->estado->nombre,
+            'observacion_est' =>  $this->observacion_est,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
             'devolucion' => $this->devolucion_id,
             'solicitante_id' => $this->solicitante_id,
@@ -50,17 +48,15 @@ class TransaccionBodegaResource extends JsonResource
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
             //variables auxiliares
-            'tiene_obs_autorizacion'=>is_null($autorizacion)?false:true,
-            'tiene_obs_estado'=>is_null($estado)?false:true,
+            'tiene_obs_autorizacion'=>is_null($this->autorizacion_id)?false:true,
+            'tiene_obs_estado'=>is_null($this->estado_id)?false:true,
             // 'retira_tercero'=>$this->tarea?true:false,
             'es_tarea'=>$this->tarea?true:false,
         ];
 
         if ($controller_method == 'show') {
-            $modelo['autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->id;
-            $modelo['obs_autorizacion'] = is_null($autorizacion)?'N/A':$autorizacion->pivot->observacion;
-            $modelo['estado'] = $estado->id;
-            $modelo['obs_estado'] = $estado->pivot->observacion;
+            $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['estado'] = $this->estado_id;
             $modelo['solicitante'] = $this->solicitante_id;
             // $modelo['solicitante_id'] = $this->solicitante_id;
             $modelo['tipo'] = $this->tipo_id;

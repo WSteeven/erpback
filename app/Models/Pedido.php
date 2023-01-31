@@ -155,44 +155,7 @@ class Pedido extends Model implements Auditable
         return $results;
     }
 
-    /* public static function filtrarPedidosEmpleadosssssssss($estado)
-    {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        // Log::channel('testing')->info('Log', ['Hay autorizacion:', $autorizacion]);
-        $results = [];
-        switch ($estado) {
-            case Autorizacion::PENDIENTE:
-                Log::channel('testing')->info('Log', ['Entró en pendiente:', $autorizacion]);
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)
-                    ->where(function ($query) {
-                        $query->where('solicitante_id',  auth()->user()->empleado->id)
-                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })->get();
-                return $results;
-            case Autorizacion::CANCELADO:
-                // Log::channel('testing')->info('Log', ['Entró en cancelado:', $autorizacion]);
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)
-                    ->where(function ($query) {
-                        $query->where('solicitante_id',  auth()->user()->empleado->id)
-                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })
-                    ->get();
-                Log::channel('testing')->info('Log', ['resultados en cancelado:', $autorizacion->id, $results]);
-                return $results;
-            case Autorizacion::APROBADO:
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)
-                    ->where(function ($query) {
-                        $query->where('solicitante_id',  auth()->user()->empleado->id)
-                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })->get();
-                // Log::channel('testing')->info('Log', ['resultados en aprobado:', $results]);
-                return $results;
-            default:
-                $results = Pedido::where('solicitante_id', auth()->user()->empleado->id)
-                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)->get();
-                return $results;
-        }
-    } */
+    
     /**
      * Filtrar todos los pedidos para el bodeguero, de acuerdo al estado de una autorizacion.
      * @param string $estado
@@ -201,9 +164,13 @@ class Pedido extends Model implements Auditable
     public static function filtrarPedidosBodeguero($estado)
     {
         $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+            return $results;
+        } elseif ($estado ===$estadoTransaccion->nombre) {
+            $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
             return $results;
         } else {
             $results = Pedido::all();
