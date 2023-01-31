@@ -30,11 +30,14 @@ class TareaRequest extends FormRequest
             'fecha_solicitud' => 'nullable|string',
             'coordinador' => 'nullable|numeric|integer',
             'supervisor' => 'nullable|string',
+            'titulo' => 'required|string',
             'detalle' => 'required|string',
             'cliente' => 'nullable|numeric|integer',
             'destino' => 'required|string',
             'proyecto' => 'nullable|numeric|integer',
             'destino' => 'required|string',
+            'observacion' => 'nullable|string',
+            'tiene_subtareas' => 'required|boolean',
         ];
     }
 }

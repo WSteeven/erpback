@@ -22,10 +22,12 @@ class Tarea extends Model implements Auditable
         'codigo_tarea',
         'codigo_tarea_cliente',
         'fecha_solicitud',
+        'titulo',
         'detalle',
         'estado',
         'destino',
         'observacion',
+        'tiene_subtareas',
         'proyecto_id',
         'coordinador_id',
         'supervisor_id',
@@ -33,7 +35,7 @@ class Tarea extends Model implements Auditable
         'cliente_final_id',
     ];
 
-    // protected $casts = ['es_proyecto' => 'boolean'];
+    protected $casts = ['tiene_subtareas' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 

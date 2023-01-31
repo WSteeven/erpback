@@ -28,6 +28,9 @@ return new class extends Migration
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onUpdate('cascade')->onDelete('cascade');
 
+            $table->unsignedBigInteger('fiscalizador_id')->nullable();
+            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onUpdate('set null')->onDelete('cascade');
+
             $table->unsignedBigInteger('canton_id');
             $table->foreign('canton_id')->references('id')->on('cantones')->onUpdate('cascade')->onDelete('cascade');
 

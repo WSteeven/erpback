@@ -18,6 +18,7 @@ class Proyecto extends Model
         'cliente_id',
         'canton_id',
         'coordinador_id',
+        'fiscalizador_id',
         'fecha_inicio',
         'fecha_fin',
         'finalizado',
