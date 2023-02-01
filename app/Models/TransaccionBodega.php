@@ -145,7 +145,7 @@ class TransaccionBodega extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
-     * Una o varias transacciones pertenece a un solicitante 
+     * Una o varias transacciones pertenece a un solicitante
      */
     public function solicitante()
     {
@@ -185,7 +185,7 @@ class TransaccionBodega extends Model implements Auditable
      * ______________________________________________________________________________________
      */
     /**
-     * Obtener la ultima autorizacion de una transaccion 
+     * Obtener la ultima autorizacion de una transaccion
      */
     /* public static function ultimaAutorizacion($id)
     {
@@ -194,7 +194,7 @@ class TransaccionBodega extends Model implements Auditable
         return $autorizacion;
     } */
     /**
-     * Obtener el ultimo estado de una transaccion 
+     * Obtener el ultimo estado de una transaccion
      */
     /* public static function ultimoEstado($id)
     {
@@ -222,7 +222,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;
             $row['categoria'] = $item->detalle->producto->categoria->nombre;
-            $row['condiciones'] = $item->detalle->producto->categoria->nombre;
+            $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
             $row['despachado'] = $item->pivot->cantidad_final;
             $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;

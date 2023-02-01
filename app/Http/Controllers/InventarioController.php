@@ -26,16 +26,49 @@ class InventarioController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
-        // $sucursal = $request['sucursal'];
+        $search = $request['search'];
         $results = [];
-        if ($page) {
-            $results = Inventario::simplePaginate($request['offset']);
-            InventarioResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
-        } else {
+        if ($search) {
+            Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
+            $results = Inventario::search($search ?? '')
+                ->query(function ($query) {
+                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+                    // ->orderBy('inventarios.id', 'DESC');
+                })->get();
+            $results = InventarioResource::collection($results);
+        }
+        if ($search && $request->cliente_id) {
+            Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
+            $results = Inventario::search($search ?? '')
+                ->query(function ($query) {
+                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+                })->where('cliente_id', $request['cliente_id'])->get();
+            $results = InventarioResource::collection($results);
+        }
+        if ($search && $request['sucursal_id']) {
+            Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
+            $results = Inventario::search($search ?? '')
+                ->query(function ($query) {
+                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+                })->where('sucursal_id', $request['sucursal_id'])->get();
+            $results = InventarioResource::collection($results);
+        }
+        if ($search && $request['cliente_id'] && $request['sucursal_id']) {
+            Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
+            $results = Inventario::search($search ?? '')
+                ->query(function ($query) {
+                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+                })->where('cliente_id', $request['cliente_id'])
+                ->where('sucursal_id', $request['sucursal_id'])->get();
+            $results = InventarioResource::collection($results);
+        }
+        //si no entra en ningun if
+        if (!$request->hasAny(['search'])) {
             $results = Inventario::filter()->get();
-            // $results = Inventario::filter()->get();
             $results = InventarioResource::collection($results);
         }
         // if ($sucursal) {
@@ -134,7 +167,7 @@ class InventarioController extends Controller
     {
         Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
         $results = [];
-        $results = Inventario::whereIn('id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad','>',0)->get();
+        $results = Inventario::whereIn('id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));

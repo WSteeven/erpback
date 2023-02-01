@@ -76,6 +76,17 @@ class TransaccionBodegaRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            if ($this->route()->uri() === 'api/transacciones-ingresos') {
+                foreach ($this->listadoProductosTransaccion as $listado) {
+                    if (!$this->ingreso_masivo) {
+                        if (array_key_exists('condiciones', $listado)) {
+                            Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
+                        } else {
+                            $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
+                        }
+                    }
+                }
+            }
             if (!in_array($this->method(), ['PUT', 'PATCH'])) {
                 if (!is_null($this->fecha_limite)) {
                     // Log::channel('testing')->info('Log', ['Datos recibidos', $this->fecha_limite]);
@@ -170,7 +181,7 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
-        
+
         if (is_null($this->per_autoriza)) {
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
@@ -178,7 +189,7 @@ class TransaccionBodegaRequest extends FormRequest
                 ]);
             }
         }
-        
+
         if (is_null($this->per_autoriza)) {
             $this->merge([
                 'per_autoriza' => auth()->user()->empleado->jefe_id,

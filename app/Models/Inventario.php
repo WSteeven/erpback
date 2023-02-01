@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -17,6 +18,7 @@ class Inventario extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use Searchable;
 
 
     protected $table = "inventarios";
@@ -41,6 +43,15 @@ class Inventario extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function toSearchableArray()
+    {
+        return [
+            'detalles_productos.descripcion'=>'',
+            // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
+
+        ];
+    }
 
     /**
      * ______________________________________________________________________________________
@@ -184,7 +195,7 @@ class Inventario extends Model implements Auditable
      * @param int $sucursal_id as $sucursal
      * @param int $cliente_id as $cliente
      * @param int $condicion_id as $condicion
-     * @param DetalleProducto[] $elementos 
+     * @param DetalleProducto[] $elementos
      */
     public static function ingresoMasivo(TransaccionBodega $transaccion, int $condicion, array $elementos)
     {
@@ -218,7 +229,7 @@ class Inventario extends Model implements Auditable
                     //Aqui va el registro de movimientos
                     $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'],$elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
                     $movimiento = MovimientoProducto::create($datos);
-                    
+
                 }
                 //Se crea la lista de movimientos
                 Log::channel('testing')->info('Log', ['Se creó el movimiento', $movimiento]);

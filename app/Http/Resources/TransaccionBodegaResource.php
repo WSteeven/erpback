@@ -23,7 +23,7 @@ class TransaccionBodegaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'autorizacion' =>  $this->autorizacion->nombre,
+            'autorizacion' =>  $this->autorizacion?->nombre,
             'observacion_aut' =>  $this->observacion_aut,
             'justificacion' => $this->justificacion,
             'comprobante' => $this->comprobante,
