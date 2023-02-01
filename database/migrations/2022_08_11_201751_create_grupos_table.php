@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('grupos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->boolean('estado');
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }

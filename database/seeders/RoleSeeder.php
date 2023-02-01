@@ -315,10 +315,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_trabajos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_trabajos'])->assignRole($coordinador);
         // Tendidos
-        /* Permission::firstOrCreate(['name' => 'puede.ver.progresivas'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.crear.progresivas'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.editar.progresivas'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.progresivas'])->assignRole($coordinador); */
+        Permission::firstOrCreate(['name' => 'puede.ver.grupos'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.crear.grupos'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.editar.grupos'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.grupos'])->assignRole($recursos_humanos);
         // Tipos elementos
         Permission::firstOrCreate(['name' => 'puede.ver.tipos_elementos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_elementos'])->assignRole($coordinador);

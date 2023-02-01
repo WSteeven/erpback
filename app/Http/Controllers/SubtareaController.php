@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\SubtareaEvent;
-use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
-use App\Models\Subtarea;
-use App\Models\Tarea;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Events\SubtareaEvent;
 use Src\App\SubtareaService;
+use Illuminate\Http\Request;
+use App\Models\Subtarea;
+use App\Models\Tarea;
 use Src\Shared\Utils;
+use App\Models\User;
+use Carbon\Carbon;
 
 class SubtareaController extends Controller
 {

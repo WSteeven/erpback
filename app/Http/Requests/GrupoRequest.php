@@ -24,8 +24,8 @@ class GrupoRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|unique:grupos', 
-            'creador_id'=>'required|exists:users,id'
+            'nombre' => 'required|string|unique:grupos',
+            'activo' => 'required|boolean',
         ];
     }
 }

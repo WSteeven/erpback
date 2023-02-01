@@ -44,14 +44,16 @@ class EmpleadoService
 
     public function obtenerTodosCiertasColumnas($campos)
     {
+        Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
         $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
+        // $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
         // return EmpleadoResource::collection($results);
         return $results;
     }
 
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '<>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos'])->filter()->where('id', '<>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 

@@ -38,9 +38,9 @@ class EmpleadoController extends Controller
         $rol = request('rol');
         $search = request('search');
         $campos = explode(',', request('campos'));
-
         
         $user = User::find(auth()->id());
+
         if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
@@ -75,6 +75,7 @@ class EmpleadoController extends Controller
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
 
         // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 

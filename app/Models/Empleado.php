@@ -25,6 +25,7 @@ class Empleado extends Model implements Auditable
         'sucursal_id',
         'estado',
         'grupo_id',
+        'es_tecnico',
     ];
 
     private static $whiteListFilter = [
@@ -38,6 +39,7 @@ class Empleado extends Model implements Auditable
         'sucursal_id',
         'grupo_id',
         'estado',
+        'es_tecnico',
     ];
 
     const ACTIVO = 'ACTIVO';

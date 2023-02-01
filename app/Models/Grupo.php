@@ -14,16 +14,15 @@ class Grupo extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'estado'];
+    protected $fillable = ['nombre', 'activo'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'estado' => 'boolean',
+        'activo' => 'boolean',
     ];
 
     private static $whiteListFilter = [
         'nombre',
-        'estado',
     ];
 
     public function tareas()
