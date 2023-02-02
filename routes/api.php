@@ -213,7 +213,8 @@ Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBode
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
-Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductos']);
+Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
+Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
 
 Route::get('all-items', [InventarioController::class, 'vista']);
 

@@ -520,7 +520,7 @@ class TransaccionBodegaEgresoService
                     ->get();
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id","autorizacion_id","estado_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "autorizacion_id", "estado_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->whereIn('motivo_id', $motivos)
                     ->join('estados_transacciones_bodega', 'estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::PENDIENTE)
@@ -529,7 +529,8 @@ class TransaccionBodegaEgresoService
                     ->get();
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "autorizacion_id", "estado_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                    ->whereIn('motivo_id', $motivos)
                     ->join('estados_transacciones_bodega', 'estado_id', '=', 'estados_transacciones_bodega.id')
                     ->where('estados_transacciones_bodega.nombre', EstadoTransaccion::COMPLETA)
                     ->join('autorizaciones', 'autorizacion_id', 'autorizaciones.id')

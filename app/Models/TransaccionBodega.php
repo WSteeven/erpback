@@ -208,6 +208,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function listadoProductos($id)
     {
+        Log::channel('testing')->info('Log', ['ID A BUSCAR EN TRANSACCION->listadoProductos',$id]);
         Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
         $items = TransaccionBodega::find($id)->items()->get();
         $results = [];

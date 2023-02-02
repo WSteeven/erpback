@@ -157,17 +157,31 @@ class InventarioController extends Controller
         $results = [];
         $results = Inventario::where('detalle_id', $request->detalle_id)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->get();
         $results = InventarioResource::collection($results);
-
+        
         return response()->json(compact('results'));
     }
     /**
-     * Buscar las coincidencias de productos segun el propietario y la sucursal
+     * Buscar las coincidencias de productos segun los id de inventario, el propietario y la sucursal
      */
-    public function buscarProductos(Request $request)
+    public function buscarProductosSegunId(Request $request)
     {
         Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
         $results = [];
         $results = Inventario::whereIn('id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
+        Log::channel('testing')->info('Log', ['Resultados obtenidos',$results]);
+        $results = InventarioResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
+    /**
+     * Buscar las coincidencias de productos segun el detalle_id, el propietario y la sucursal
+     */
+    public function buscarProductosSegunDetalleId(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['request recibida en buscarProductosSegunDetalleID de inventario', $request->all()]);
+        $results = [];
+        $results = Inventario::whereIn('detalle_id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
+        Log::channel('testing')->info('Log', ['Resultados obtenidos',$results]);
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));
