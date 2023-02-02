@@ -11,6 +11,7 @@ use App\Models\Percha;
 use App\Models\Piso;
 use App\Models\PrestamoTemporal;
 use App\Models\Producto;
+use App\Models\TransaccionBodega;
 use App\Observers\DetalleObserver;
 use App\Observers\DetalleProductoTransaccionObserver;
 use App\Observers\InventarioObserver;
@@ -20,6 +21,7 @@ use App\Observers\PerchaObserver;
 use App\Observers\PisoObserver;
 use App\Observers\PrestamoTemporalObserver;
 use App\Observers\ProductoObserver;
+use App\Observers\TransaccionBodegaObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -58,6 +60,7 @@ class EventServiceProvider extends ServiceProvider
         PrestamoTemporal::observe(PrestamoTemporalObserver::class);
         MovimientoProducto::observe(MovimientoProductoObserver::class);
         DetalleProductoTransaccion::observe(DetalleProductoTransaccionObserver::class);
+        TransaccionBodega::observe(TransaccionBodegaObserver::class);
     }
 
     /**

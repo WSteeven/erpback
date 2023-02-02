@@ -135,12 +135,9 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            if ($request->subtarea) {
-                $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
-            }
-            if ($request->per_atiende) {
-                $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-            }
+            if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+            if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+
             //datos de las relaciones muchos a muchos
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
@@ -153,8 +150,11 @@ class TransaccionBodegaEgresoController extends Controller
 
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
-                $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
+                $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
                 $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                //actualizamos la cantidad en inventario
+                $itemInventario->cantidad -=$listado['cantidad'];
+                $itemInventario->save();
             }
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente

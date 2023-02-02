@@ -142,18 +142,10 @@ class TransaccionBodegaRequest extends FormRequest
                     'autorizacion' => 1,
                 ]);
             }
-
             $this->merge([
                 'solicitante' => auth()->user()->empleado->id,
+                'estado'=>2,
             ]);
-
-            if ($this->tarea) {
-                // $tarea = Tarea::find($this->tarea);
-                // Log::channel('testing')->info('Log', ['tarea recibida', $this->tarea, 'tarea encontrada',$tarea, 'cliente es', $tarea->cliente_id]);
-                /* $this->merge([
-                    'cliente' => $tarea->cliente_id,
-                ]); */
-            }
             if ($this->fecha_limite === "N/A" || is_null($this->fecha_limite)) {
                 $this->merge([
                     'fecha_limite' => null
