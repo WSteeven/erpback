@@ -7,6 +7,7 @@ use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Events\SubtareaEvent;
+use App\Models\GrupoSubtarea;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
 use App\Models\Subtarea;
@@ -38,34 +39,12 @@ class SubtareaController extends Controller
         return $this->servicio->obtenerTodos();
     }
 
-    /**
-     * Listar todas las subtareas o trabajos que han sido asignados a mi o a mi grupo
-     * en caso de pertenecer a uno.
-     */
-    public function subtareasAsignadas()
-    {
-        $empleado = User::find(Auth::id())->empleado;
-        $grupo_id = $empleado->grupo_id;
-
-        if ($grupo_id) {
-            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoGrupo($grupo_id)]);
-        } else {
-            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoEmpleado($empleado->id)]);
-        }
-    }
-
-    /**
-     * Listar
-     */
     public function index()
     {
         $results = $this->list();
         return response()->json(compact('results'));
     }
 
-    /**
-     * Guardar
-     */
     public function store(SubtareaRequest $request)
     {
         $tarea_id = $request['tarea_id'];
@@ -77,8 +56,9 @@ class SubtareaController extends Controller
         $datos['coordinador_id'] = Auth::id();
         $datos['fecha_hora_creacion'] = Carbon::now();
 
-        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
-        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+        /* $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];*/
+
 
         /* if ($datos['grupo_id']) {
             $datos['empleado_id'] = null;
@@ -89,7 +69,10 @@ class SubtareaController extends Controller
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
 
+        $grupos_seleccionados = $request->safe()->only(['grupos_seleccionados'])['grupos_seleccionados'];
+        $empleados_seleccionados = $request->safe()->only(['empleados_seleccionados'])['empleados_seleccionados'];
 
+        GrupoSubtarea::insert($grupos_seleccionados);
 
         // Respuesta
         // Log::channel('testing')->info('Log', ['Datos', $request->all()]);
@@ -104,14 +87,14 @@ class SubtareaController extends Controller
 
         $modelo = Subtarea::create($datos);
 
-        $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
+        /* $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
         if ($tecnicosGrupoPrincipal) {
             $tecnicosGrupoPrincipal = Utils::quitarEspaciosComasString($tecnicosGrupoPrincipal);
             $tecnicosGrupoPrincipal = Utils::convertirStringComasArray($tecnicosGrupoPrincipal);
 
             // Guardar id de tecnicos
             if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->sync($tecnicosGrupoPrincipal);
-        }
+        } */
 
         /* $tecnicosOtrosGrupos = $request->safe()->only(['tecnicos_otros_grupos'])['tecnicos_otros_grupos'];
         if ($tecnicosOtrosGrupos) {

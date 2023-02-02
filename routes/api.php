@@ -62,6 +62,7 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\TrabajoAsignadoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -233,7 +234,7 @@ Route::group(['prefix' => 'subtareas'], function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas
-    Route::get('trabajo-asignado', [SubtareaController::class, 'subtareasAsignadas']);
+    Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
     Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
     Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
     // Fecha y hora del sistema
