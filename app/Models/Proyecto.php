@@ -24,6 +24,10 @@ class Proyecto extends Model
         'finalizado',
     ];
 
+    protected $casts = [
+        'finalizado' => 'boolean',
+    ];
+
     private static $whiteListFilter = ['*'];
 
     // Relacion uno a muchos (inversa)

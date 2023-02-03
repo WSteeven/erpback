@@ -7,6 +7,7 @@ use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Events\SubtareaEvent;
+use App\Models\EmpleadoSubtarea;
 use App\Models\GrupoSubtarea;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
@@ -55,6 +56,7 @@ class SubtareaController extends Controller
         $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['coordinador_id'] = Auth::id();
         $datos['fecha_hora_creacion'] = Carbon::now();
+        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
         /* $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];*/
@@ -69,10 +71,59 @@ class SubtareaController extends Controller
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
 
-        $grupos_seleccionados = $request->safe()->only(['grupos_seleccionados'])['grupos_seleccionados'];
-        $empleados_seleccionados = $request->safe()->only(['empleados_seleccionados'])['empleados_seleccionados'];
 
-        GrupoSubtarea::insert($grupos_seleccionados);
+        $modelo = Subtarea::create($datos);
+
+        switch ($modo_asignacion_trabajo) {
+            case Subtarea::POR_GRUPO:
+                $grupos_seleccionados = $request->safe()->only(['grupos_seleccionados'])['grupos_seleccionados'];
+                $grupos_seleccionados = collect($grupos_seleccionados)->map(function ($grupoSeleccionado) use ($modelo) {
+                    return  [
+                        'grupo_id' => $grupoSeleccionado['id'],
+                        'subtarea_id' => $modelo->id,
+                        'principal' => $grupoSeleccionado['principal'],
+                    ];
+                });
+
+                GrupoSubtarea::insert($grupos_seleccionados->toArray());
+                break;
+            case Subtarea::POR_EMPLEADO:
+                $empleados_seleccionados = $request->safe()->only(['empleados_seleccionados'])['empleados_seleccionados'];
+                $empleados_seleccionados = collect($empleados_seleccionados)->map(function ($empleadoSeleccionado) use ($modelo) {
+                    return  [
+                        'empleado_id' => $empleadoSeleccionado['id'],
+                        'subtarea_id' => $modelo->id,
+                        'principal' => $empleadoSeleccionado['principal'],
+                    ];
+                });
+
+                EmpleadoSubtarea::insert($empleados_seleccionados->toArray());
+                break;
+        }
+
+        /*if ($modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            $grupos_seleccionados = collect($grupos_seleccionados)->map(function ($grupoSeleccionado) use ($modelo) {
+                return  [
+                    'grupo_id' => $grupoSeleccionado['grupo_id'],
+                    'subtarea_id' => $modelo->id,
+                    'principal' => $grupoSeleccionado['principal'],
+                ];
+            });
+
+            GrupoSubtarea::insert($grupos_seleccionados->toArray());
+        }*/
+
+        /* if ($modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+            $empleados_seleccionados = collect($empleados_seleccionados)->map(function ($empleadoSeleccionado) use ($modelo) {
+                return  [
+                    'grupo_id' => $empleadoSeleccionado['empleado_id'],
+                    'subtarea_id' => $modelo->id,
+                    'principal' => $empleadoSeleccionado['principal'],
+                ];
+            });
+
+            EmpleadoSubtarea::insert($empleados_seleccionados->toArray());
+        } */
 
         // Respuesta
         // Log::channel('testing')->info('Log', ['Datos', $request->all()]);
@@ -85,7 +136,6 @@ class SubtareaController extends Controller
             return response()->json(['errors' => ['cancelada' => 'No se pueden agregar porque la subtarea principal está cancelada.']], 422);
         } */
 
-        $modelo = Subtarea::create($datos);
 
         /* $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
         if ($tecnicosGrupoPrincipal) {

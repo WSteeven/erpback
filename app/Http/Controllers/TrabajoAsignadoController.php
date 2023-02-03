@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SubtareaResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Src\App\SubtareaService;
+use Src\App\TrabajoAsignadoService;
 
 class TrabajoAsignadoController extends Controller
 {
-    private SubtareaService $servicio;
+    private TrabajoAsignadoService $servicio;
 
     public function __construct()
     {
-        $this->servicio = new SubtareaService();
-    }   
+        $this->servicio = new TrabajoAsignadoService();
+    }
     /**
      * Listar todas las subtareas o trabajos que han sido asignados a mi o a mi grupo
      * en caso de pertenecer a uno.
@@ -24,10 +25,15 @@ class TrabajoAsignadoController extends Controller
         $empleado = User::find(Auth::id())->empleado;
         $grupo_id = $empleado->grupo_id;
 
+        $results = [];
+
         if ($grupo_id) {
-            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoGrupo($grupo_id)]);
-        } else {
-            return response()->json(['results' => $this->servicio->obtenerTrabajoAsignadoEmpleado($empleado->id)]);
+            array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
         }
+
+        array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
+
+        $results = SubtareaResource::collection($results);
+        return response()->json(compact('results'));
     }
 }

@@ -25,7 +25,7 @@ class Subtarea extends Model implements Auditable
     const REALIZADO = 'REALIZADO';
 
     // Modo de asignacion de trabajo
-    const POR_GRUPO_TECNICO = 'POR_GRUPO_TECNICO';
+    const POR_GRUPO = 'POR_GRUPO';
     const POR_EMPLEADO = 'POR_EMPLEADO';
 
     protected $table = "subtareas";
@@ -73,9 +73,13 @@ class Subtarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function grupo()
+    /*public function grupo()
     {
         return $this->belongsTo(Grupo::class);
+    }*/
+    public function grupos()
+    {
+        return $this->belongsToMany(Grupo::class);
     }
 
     // Relacion uno a muchos (inversa)

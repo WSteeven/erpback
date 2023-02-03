@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('hora_fin_ventana')->nullable();
 
             $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
-            $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO_TECNICO, Subtarea::POR_EMPLEADO]);
+            $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
 
             // Foreign keys
             $table->unsignedBigInteger('subtarea_dependiente')->nullable();
