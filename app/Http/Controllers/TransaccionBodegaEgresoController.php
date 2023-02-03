@@ -142,12 +142,11 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
             //Creacion de la transaccion
-            $transaccion = TransaccionBodega::create($datos);
-
-
+            $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
+            
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
                 $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
@@ -156,14 +155,18 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->cantidad -=$listado['cantidad'];
                 $itemInventario->save();
             }
-
+            if($transaccion->pedido_id){
+                TransaccionBodega::actualizarPedido($transaccion);
+            }
+            // TransaccionBodega::functon
+            
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
             $modelo = new TransaccionBodegaResource($transaccion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage()]);
+            Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
         }
 

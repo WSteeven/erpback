@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Termwind\Components\Raw;
@@ -58,7 +59,8 @@ class TransaccionBodega extends Model implements Auditable
      * Relación uno a uno (inversa).
      * Una transaccion tiene un estado a la vez.
      */
-    public function estado(){
+    public function estado()
+    {
         return $this->belongsTo(EstadoTransaccion::class);
     }
 
@@ -66,7 +68,8 @@ class TransaccionBodega extends Model implements Auditable
      * Relación uno a uno (inversa).
      * Una transaccion tiene una autorizacion a la vez.
      */
-    public function autorizacion(){
+    public function autorizacion()
+    {
         return $this->belongsTo(Autorizacion::class);
     }
 
@@ -208,8 +211,8 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function listadoProductos($id)
     {
-        Log::channel('testing')->info('Log', ['ID A BUSCAR EN TRANSACCION->listadoProductos',$id]);
-        Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
+        // Log::channel('testing')->info('Log', ['ID A BUSCAR EN TRANSACCION->listadoProductos',$id]);
+        // Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
         $items = TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
@@ -247,6 +250,27 @@ class TransaccionBodega extends Model implements Auditable
         return $listado;
     }
 
+    /**
+     * Funcion para actualizar el pedido y su listado en cada egreso.
+     */
+    public static function actualizarPedido($transaccion)
+    {
+        try {
+            $pedido = Pedido::find($transaccion->pedido_id);
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+                Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
+                $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+                Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
+                Log::channel('testing')->info('Log', ['detalle es:', $detallePedido->despachado]);
+                $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
+                $detallePedido->save();
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
+        }
+    }
 
 
     /**

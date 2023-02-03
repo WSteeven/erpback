@@ -29,7 +29,7 @@ class InventarioController extends Controller
         $search = $request['search'];
         $results = [];
         if ($search) {
-            Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
+            // Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
             $results = Inventario::search($search ?? '')
                 ->query(function ($query) {
                     $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
@@ -39,7 +39,7 @@ class InventarioController extends Controller
             $results = InventarioResource::collection($results);
         }
         if ($search && $request->cliente_id) {
-            Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
+            // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
             $results = Inventario::search($search ?? '')
                 ->query(function ($query) {
                     $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
@@ -48,7 +48,7 @@ class InventarioController extends Controller
             $results = InventarioResource::collection($results);
         }
         if ($search && $request['sucursal_id']) {
-            Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
+            // Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
             $results = Inventario::search($search ?? '')
                 ->query(function ($query) {
                     $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
@@ -57,7 +57,7 @@ class InventarioController extends Controller
             $results = InventarioResource::collection($results);
         }
         if ($search && $request['cliente_id'] && $request['sucursal_id']) {
-            Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
+            // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
             $results = Inventario::search($search ?? '')
                 ->query(function ($query) {
                     $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
