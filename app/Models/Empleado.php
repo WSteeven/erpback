@@ -155,10 +155,10 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Devolucion::class);
     }
 
-    public function subtareas()
+    /* public function subtareas()
     {
         return $this->belongsToMany(Subtarea::class);
-    }
+    } */
     /**
      * Relacion uno a muchos.
      * Un empleado BODEGUERO puede registrar muchos movimientos 
@@ -186,4 +186,8 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Transferencia::class);
     }
     
+    public function subtareas()
+    {
+        return $this->belongsToMany(Subtarea::class);
+    }
 }

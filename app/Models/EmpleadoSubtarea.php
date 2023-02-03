@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class EmpleadoSubtarea extends Model
 {
     use HasFactory;
-    protected $table = 'empleados_subtareas';
+    protected $table = 'empleado_subtarea';
     protected $fillable = [
         'principal',
         'empleado_id',

@@ -30,6 +30,10 @@ class Grupo extends Model implements Auditable
         return $this->belongsToMany(Tarea::class);
     }
 
+    public function subtareas()
+    {
+        return $this->belongsToMany(Subtarea::class);
+    }
 
     public function controlMaterialesSubtareas()
     {

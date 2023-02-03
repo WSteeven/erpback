@@ -51,6 +51,7 @@ class SubtareaRequest extends FormRequest
             'tarea_id' => 'required|numeric|integer',
             'grupos_seleccionados' => 'nullable|array',
             'empleados_seleccionados' => 'nullable|array',
+            'modo_asignacion_trabajo' => 'required|string'
             // 'estado' => 'nullable|numeric|integer',
         ];
     }

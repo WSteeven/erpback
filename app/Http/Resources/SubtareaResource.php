@@ -25,7 +25,7 @@ class SubtareaResource extends JsonResource
             'es_dependiente' => $this->es_dependiente,
             'fiscalizador' => $this->fiscalizador,
             'subtarea_dependiente' => $this->subtarea?->codigo_subtarea,
-            'subtarea_dependiente_id' => $this->subtarea_dependiente    ,
+            'subtarea_dependiente_id' => $this->subtarea_dependiente,
             'tipo_instalacion' => $this->tipo_instalacion,
             'id_servicio' => $this->id_servicio,
             'es_ventana' => $this->es_ventana,
@@ -35,7 +35,8 @@ class SubtareaResource extends JsonResource
             'tipo_trabajo' => $this->tipo_trabajo->descripcion,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
-            'grupo' => $this->grupo?->nombre,
+            'grupos' => $this->extraerNombres($this->grupos),
+            'empleados' => $this->extraerNombresApellidos($this->empleados),
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
@@ -46,12 +47,10 @@ class SubtareaResource extends JsonResource
             'causa_suspencion' => $this->causa_suspencion,
             'fecha_hora_cancelacion' => $this->fecha_hora_cancelacion,
             'causa_cancelacion' => $this->causa_cancelacion,
-            'estado' => $this->estado,
-            'tecnicos_grupo_principal' => $this->tecnicosPrincipales($this->empleados),//$this->tecnicosPrincipales(explode(',', $this->tecnicos_grupo_principal)),
-            // 'tecnicos_otros_grupos' => $this->tecnicosPrincipales($this->empleados), //$this->tecnicosPrincipales(explode(',', $this->tecnicos_otros_grupos)),
             'cliente_final' => $this->tarea->cliente_final,
-            'es_primera_asignacion' => $this->tarea->esPrimeraAsignacion($this->id),
-            'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,    
+            'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
+            'estado' => $this->estado,
+            // 'es_primera_asignacion' => $this->tarea->esPrimeraAsignacion($this->id),
         ];
 
         if ($controller_method == 'show') {
@@ -60,9 +59,21 @@ class SubtareaResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
-            $modelo['ubicacion_tarea'] = $this->tarea->ubicacionTarea ? new UbicacionTareaResource($this->tarea->ubicacionTarea) : null;
+            // $modelo['ubicacion_tarea'] = $this->tarea->ubicacionTarea ? new UbicacionTareaResource($this->tarea->ubicacionTarea) : null;
         }
 
         return $modelo;
+    }
+
+    public function extraerNombres($listado)
+    {
+        $nombres = $listado->map(fn ($item) => $item->nombre)->toArray();
+        return implode('; ', $nombres);
+    }
+
+    public function extraerNombresApellidos($listado)
+    {
+        $nombres = $listado->map(fn ($item) => $item->nombres . ' ' . $item->apellidos)->toArray();
+        return implode('; ', $nombres);
     }
 }
