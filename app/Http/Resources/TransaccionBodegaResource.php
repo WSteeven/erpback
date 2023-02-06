@@ -52,6 +52,7 @@ class TransaccionBodegaResource extends JsonResource
             'tiene_obs_estado'=>is_null($this->estado_id)?false:true,
             // 'retira_tercero'=>$this->tarea?true:false,
             'es_tarea'=>$this->tarea?true:false,
+            'es_transferencia'=>$this->transferencia_id?true:false,
         ];
 
         if ($controller_method == 'show') {
