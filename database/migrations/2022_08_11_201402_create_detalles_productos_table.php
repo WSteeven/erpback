@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('detalles_productos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('producto_id');
-            $table->text('descripcion')->required();
+            $table->string('descripcion')->required();
             $table->unsignedBigInteger('modelo_id');
             $table->string('serial')->unique()->nullable();
             $table->double('precio_compra')->default(0);
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('talla')->nullable();
             $table->enum('tipo', [DetalleProducto::HOMBRE, DetalleProducto::MUJER])->nullable();
             $table->string('url_imagen')->nullable();
-           
+
             $table->timestamps();
             $table->unique(['descripcion', 'serial']);
             $table->foreign('modelo_id')->references('id')->on('modelos')->onDelete('cascade')->onUpdate('cascade');
