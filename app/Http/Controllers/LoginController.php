@@ -20,6 +20,12 @@ class LoginController extends Controller
 
         $user = User::where('name', $request['name'])->first();
 
+        if (!$user) {
+            throw ValidationException::withMessages([
+                '404' => ['Usuario no registrado!'],
+            ]);
+        }
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Usuario o contraseña incorrectos'],
