@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Tarea;
 use App\Models\User;
@@ -85,6 +86,16 @@ class TransaccionBodegaRequest extends FormRequest
                             $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
                         }
                     }
+                }
+            }else{
+                foreach($this->listadoProductosTransaccion as $listado){
+                    Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
+                    $itemInventario = Inventario::find($listado['id']);
+                    if($listado['cantidad']<=0)$validator->errors()->add('listadoProductoTransaccion.*.cantidad','La cantidad para el item '.$listado['descripcion'].' debe ser mayor a cero');
+                    if($listado['cantidad']>$itemInventario->cantidad){
+                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad','La cantidad para el item '.$listado['descripcion'].' no debe ser superior a la existente en el inventarioEn inventario:'.$itemInventario->cantidad);
+                    }
+
                 }
             }
             if (!in_array($this->method(), ['PUT', 'PATCH'])) {

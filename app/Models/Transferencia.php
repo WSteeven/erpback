@@ -75,7 +75,7 @@ class Transferencia extends Model implements Auditable
     }
     /**
      * Relacion uno a muchos (inversa).
-     * Una o varias transferencias pertenece a un solicitante que debe ser un bodeguero 
+     * Una o varias transferencias pertenece a un solicitante que debe ser un bodeguero
      */
     public function solicitante()
     {
@@ -99,7 +99,7 @@ class Transferencia extends Model implements Auditable
     {
         return $this->belongsTo(Autorizacion::class);
     }
-    
+
     /**
      * Relación uno a uno(inversa).
      * Una o varias transferencias solo pueden tener una autorización.
@@ -124,17 +124,19 @@ class Transferencia extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($items as $item) {
-            // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);    
+            // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);
             /* $detalle = DetalleInventarioTransferencia::withSum('devoluciones', 'cantidad')
             ->where('traspaso_id', $item->pivot->traspaso_id)
             ->where('inventario_id', $item->pivot->inventario_id)->first(); */
-            $row['id'] = $item->detalle->id;
+            $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
+            $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;
             $row['categoria'] = $item->detalle->producto->categoria->nombre;
             $row['cliente_id'] = $item->cliente->empresa->razon_social;
             $row['condicion'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad;
+            $row['cantidades'] = $item->pivot->cantidad;
             $row['devolucion'] = null;
             // $row['devuelto'] = $detalle->devoluciones_sum_cantidad;
             $results[$id] = $row;

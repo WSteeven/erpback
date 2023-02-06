@@ -146,10 +146,11 @@ class TransaccionBodegaEgresoController extends Controller
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
-            
+
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
-                $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
+                // $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
+                $itemInventario = Inventario::find($listado['id']);
                 $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
                 //actualizamos la cantidad en inventario
                 $itemInventario->cantidad -=$listado['cantidad'];
@@ -159,7 +160,7 @@ class TransaccionBodegaEgresoController extends Controller
                 TransaccionBodega::actualizarPedido($transaccion);
             }
             // TransaccionBodega::functon
-            
+
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
             $modelo = new TransaccionBodegaResource($transaccion);

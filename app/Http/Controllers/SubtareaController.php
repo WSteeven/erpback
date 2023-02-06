@@ -81,7 +81,7 @@ class SubtareaController extends Controller
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
                         'subtarea_id' => $modelo->id,
-                        'principal' => $grupoSeleccionado['principal'],
+                        'principal' => $grupoSeleccionado['principal'] ?? false,
                     ];
                 });
 
@@ -93,7 +93,7 @@ class SubtareaController extends Controller
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
                         'subtarea_id' => $modelo->id,
-                        'principal' => $empleadoSeleccionado['principal'],
+                        'principal' => $empleadoSeleccionado['principal'] ?? false,
                     ];
                 });
 
