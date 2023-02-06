@@ -57,7 +57,8 @@ class SubtareaResource extends JsonResource
             $modelo['cliente'] = $this->tarea->cliente_id;
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
-            $modelo['grupo'] = $this->grupo_id;
+            $modelo['grupos'] = $this->grupos;
+            $modelo['empleados'] = $this->empleados;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
             // $modelo['ubicacion_tarea'] = $this->tarea->ubicacionTarea ? new UbicacionTareaResource($this->tarea->ubicacionTarea) : null;
         }
