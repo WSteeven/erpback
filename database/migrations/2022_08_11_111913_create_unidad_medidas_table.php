@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nombre')->unique();
             $table->string('simbolo')->unique();
             $table->timestamps();
+            $table->unique(['nombre','simbolo']);
         });
     }
 

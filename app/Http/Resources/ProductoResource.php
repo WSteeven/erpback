@@ -27,6 +27,7 @@ class ProductoResource extends JsonResource
         if ($controller_method == 'show') {
             // $modelo['categoria'] = $this->categoria->nombre;
             $modelo['categoria'] = $this->categoria_id;
+            $modelo['unidad_medida'] = $this->unidad_medida_id;
 
         }
         

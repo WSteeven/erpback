@@ -63,6 +63,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TrabajoAsignadoController;
+use App\Http\Controllers\UnidadMedidaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -154,6 +155,7 @@ Route::apiResources(
         'transferencias' => TransferenciaController::class,
         'traspasos' => TraspasoController::class,
         'ubicaciones' => UbicacionController::class,
+        'unidades-medidas' => UnidadMedidaController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -190,6 +192,7 @@ Route::apiResources(
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo-subtarea',
+            'unidades-medidas' => 'unidad',
             'registros-tendidos' => 'registro-tendido'
         ],
         'middleware' => ['auth:sanctum']
