@@ -14,6 +14,6 @@ class GrupoSubtarea extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'principal' => 'boolean',
+        'responsable' => 'boolean',
     ];
 }
