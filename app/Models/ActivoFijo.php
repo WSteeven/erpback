@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ActivoFijo extends Model
+class ActivoFijo extends Model implements Auditable
 {
     use HasFactory;
+    use Filterable;
+    use AuditableModel;
     protected $table = 'activos_fijos';
     protected $fillable = [
         'cantidad',
@@ -26,6 +31,10 @@ class ActivoFijo extends Model
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    private static $whiteListFilter = [
+        '*',
+    ];
+    
     const ASIGNACION = 'ASIGNACION'; //cuando se entrega el activo al empleado
     const DEVOLUCION = 'DEVOLUCION'; //cuando devuelve el activo a bodega
 
