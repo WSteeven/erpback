@@ -169,7 +169,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'activos_fijos' => 'activo',
+            'activos-fijos' => 'activo',
             'autorizaciones' => 'autorizacion',
             'condiciones' => 'condicion',
             'codigos-clientes' => 'codigo_cliente',

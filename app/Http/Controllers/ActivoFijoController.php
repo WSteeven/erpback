@@ -6,6 +6,7 @@ use App\Http\Requests\ActivoFijoRequest;
 use App\Http\Resources\ActivoFijoResource;
 use App\Models\ActivoFijo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ActivoFijoController extends Controller
@@ -35,8 +36,8 @@ class ActivoFijoController extends Controller
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = ActivoFijo::filter()->get();
-            ActivoFijoResource::collection($results);
         }
+        $results = ActivoFijoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -74,6 +75,7 @@ class ActivoFijoController extends Controller
      */
     public function show(ActivoFijo $activo)
     {
+        Log::channel('testing')->info('Log', ['activo es', $activo]);
         $modelo = new ActivoFijoResource($activo);
         return response()->json(compact('modelo'));
     }

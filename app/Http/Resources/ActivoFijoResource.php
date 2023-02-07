@@ -22,7 +22,7 @@ class ActivoFijoResource extends JsonResource
             'accion'=>$this->accion,
             'observacion'=>$this->observacion,
             'lugar'=>$this->lugar,
-            'producto'=>$this->detalle->producto->id,
+            'producto'=>$this->detalle?->producto->id,
             'detalle_id'=>$this->detalle->descripcion,
             'empleado'=>$this->empleado->nombres.' '.$this->empleado->apellidos,
             'sucursal'=>$this->sucursal->lugar,
