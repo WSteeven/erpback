@@ -85,7 +85,7 @@ class SubtareaResource extends JsonResource
         return $gruposSeleccionados->map(fn ($grupo) => [
             'id' => $grupo->grupo_id,
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
-            'principal' => $grupo->principal,
+            'responsable' => $grupo->responsable,
         ]);
     }
 }
