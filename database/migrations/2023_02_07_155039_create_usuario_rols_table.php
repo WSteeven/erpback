@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('permiso', function (Blueprint $table) {
-            $table->integer('id')->increment();
-            $table->string('descripcion',250);
-            $table->integer('id_estatus',12);
-            $table->string('transcriptor',120);
+        Schema::create('usuario_rol', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('usuario_id');
+            $table->unsignedBigInteger('rol_id');
+            $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
+            $table->foreign('usuario_id')->references('id')->on('users');
+            $table->foreign('rol_id')->references('id')->on('roles');
             $table->timestamps();
         });
     }
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('permiso');
+        Schema::dropIfExists('usuario_rol');
     }
 };

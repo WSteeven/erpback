@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('estado_viatico', function (Blueprint $table) {
-            $table->integer('id')->increment();
+            $table->id();
             $table->string('descripcion', 250);
             $table->string('transcriptor', 12);
             $table->timestamp('fecha_trans');

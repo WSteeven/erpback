@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('parroquia', function (Blueprint $table) {
-            $table->integer('id')->increment();
-            $table->string('codigo_can', 4);
-            $table->string('codigo_parro', 4);
-            $table->string('descripcion', 250);
-            $table->string('transcriptor', 150);
+        Schema::create('usuario_grupo', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('id_usuario');
+            $table->unsignedBigInteger('id_grupo');
+            $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
+            $table->foreign('id_usuario')->references('id')->on('users');
+            $table->foreign('id_grupo')->references('id')->on('grupo');
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parroquia');
+        Schema::dropIfExists('usuario_grupo');
     }
 };

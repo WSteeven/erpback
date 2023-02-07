@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('estatus', function (Blueprint $table) {
-            $table->integer('id')->increment();
+            $table->id();
             $table->string('descipcion', 250);
             $table->string('transcriptor', 150);
             $table->timestamp('fecha_trans');

@@ -14,15 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sub_detalle_viatico', function (Blueprint $table) {
-            $table->integer('id')->increment();
-            $table->integer('id_detalle_viatico', 12);
+            $table->id();
+            $table->unsignedBigInteger('id_detalle_viatico');
             $table->string('descripcion', 250);
             $table->string('autorizacion', 2);
-            $table->integer('id_estatus', 12);
+            $table->unsignedBigInteger('id_estatus');
             $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
-            $table->foreing('id_detalle_viatico')->references('id')->on('detalle_viatico');
-            $table->foreing('id_estatus')->references('id')->on('estatus');
+            $table->foreign('id_detalle_viatico')->references('id')->on('detalle_viatico');
+            $table->foreign('id_estatus')->references('id')->on('estatus');
             $table->timestamps();
         });
     }

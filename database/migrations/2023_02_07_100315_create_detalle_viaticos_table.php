@@ -14,12 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('detalle_viatico', function (Blueprint $table) {
-            $table->integer('id')->increment();
+            $table->id();
             $table->string('descripcion', 250);
             $table->string('autorizacion', 2);
-            $table->integer('id_estatus', 12);
+            $table->unsignedBigInteger('id_estatus');
             $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
+            $table->foreign('id_estatus')->references('id')->on('estatus');
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tipo_fondo', function (Blueprint $table) {
-            $table->integer('id')->increment();
+            $table->id();
             $table->string('descripcion', 250);
             $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
