@@ -13,10 +13,10 @@ class UnidadMedidaController extends Controller
     private $entidad = 'Unidad de medida';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.unidad_medida')->only('index', 'show');
-        $this->middleware('can:puede.crear.unidad_medida')->only('store');
-        $this->middleware('can:puede.editar.unidad_medida')->only('update');
-        $this->middleware('can:puede.eliminar.unidad_medida')->only('update');
+        $this->middleware('can:puede.ver.unidades_medidas')->only('index', 'show');
+        $this->middleware('can:puede.crear.unidades_medidas')->only('store');
+        $this->middleware('can:puede.editar.unidades_medidas')->only('update');
+        $this->middleware('can:puede.eliminar.unidades_medidas')->only('update');
     }
 
     /**
@@ -44,7 +44,7 @@ class UnidadMedidaController extends Controller
      */
     public function show(UnidadMedida $unidad){
         $modelo = new UnidadMedidaResource($unidad);
-        return response()->json(compact('modelo'));        
+        return response()->json(compact('modelo'));
     }
     /**
      * Actualizar
