@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('grupo_subtarea', function (Blueprint $table) {
             $table->id();
 
-            $table->boolean('principal');
+            $table->boolean('responsable');
 
             $table->unsignedBigInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on('grupos')->onUpdate('cascade')->onDelete('cascade');

@@ -13,6 +13,10 @@ class UnidadMedida extends Model implements Auditable
     use AuditableModel;
 
     protected $table = 'unidades_medidas';
+    protected $fillable =[
+        'nombre',
+        'simbolo',
+    ];
 
     /**
      * Relacion uno a muchos.

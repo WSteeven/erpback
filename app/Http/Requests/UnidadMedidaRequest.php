@@ -24,7 +24,8 @@ class UnidadMedidaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre'=>'required|string',
+            'simbolo'=>'required|string',
         ];
     }
 }

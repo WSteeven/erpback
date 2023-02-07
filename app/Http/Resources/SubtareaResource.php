@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Grupo;
+use App\Models\GrupoSubtarea;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SubtareaResource extends JsonResource
@@ -57,8 +59,8 @@ class SubtareaResource extends JsonResource
             $modelo['cliente'] = $this->tarea->cliente_id;
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
-            $modelo['grupos'] = $this->grupos;
-            $modelo['empleados'] = $this->empleados;
+            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoSubtarea::where('subtarea_id', $this->id)->get());
+            $modelo['empleados_seleccionados'] = $this->empleados;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
             // $modelo['ubicacion_tarea'] = $this->tarea->ubicacionTarea ? new UbicacionTareaResource($this->tarea->ubicacionTarea) : null;
         }
@@ -76,5 +78,14 @@ class SubtareaResource extends JsonResource
     {
         $nombres = $listado->map(fn ($item) => $item->nombres . ' ' . $item->apellidos)->toArray();
         return implode('; ', $nombres);
+    }
+
+    public function mapGrupoSeleccionado($gruposSeleccionados)
+    {
+        return $gruposSeleccionados->map(fn ($grupo) => [
+            'id' => $grupo->grupo_id,
+            'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
+            'responsable' => $grupo->responsable,
+        ]);
     }
 }
