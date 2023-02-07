@@ -58,19 +58,8 @@ class SubtareaController extends Controller
         $datos['fecha_hora_creacion'] = Carbon::now();
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
-        /* $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
-        $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];*/
-
-
-        /* if ($datos['grupo_id']) {
-            $datos['empleado_id'] = null;
-        } else {
-            $datos['grupo_id'] = null;
-        } */
-
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
-
 
         $modelo = Subtarea::create($datos);
 
@@ -81,7 +70,7 @@ class SubtareaController extends Controller
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
                         'subtarea_id' => $modelo->id,
-                        'principal' => $grupoSeleccionado['principal'] ?? false,
+                        'responsable' => $grupoSeleccionado['responsable'] ?? false,
                     ];
                 });
 
@@ -93,7 +82,7 @@ class SubtareaController extends Controller
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
                         'subtarea_id' => $modelo->id,
-                        'principal' => $empleadoSeleccionado['principal'] ?? false,
+                        'responsable' => $empleadoSeleccionado['responsable'] ?? false,
                     ];
                 });
 
@@ -179,16 +168,48 @@ class SubtareaController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        // -- $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
+
+        $modelo = $subtarea->refresh();
+        $subtarea->empleados()->detach();
+        $subtarea->grupos()->detach();
 
         // Respuesta
         $subtarea->update($datos);
+        
+        switch ($modo_asignacion_trabajo) {
+            case Subtarea::POR_GRUPO:
+                $grupos_seleccionados = $request->safe()->only(['grupos_seleccionados'])['grupos_seleccionados'];
+                $grupos_seleccionados = collect($grupos_seleccionados)->map(function ($grupoSeleccionado) use ($modelo) {
+                    return  [
+                        'grupo_id' => $grupoSeleccionado['id'],
+                        'subtarea_id' => $modelo->id,
+                        'responsable' => $grupoSeleccionado['responsable'] ?? false,
+                    ];
+                });
+                
+                GrupoSubtarea::insert($grupos_seleccionados->toArray());
+                break;
+            case Subtarea::POR_EMPLEADO:
+                $empleados_seleccionados = $request->safe()->only(['empleados_seleccionados'])['empleados_seleccionados'];
+                $empleados_seleccionados = collect($empleados_seleccionados)->map(function ($empleadoSeleccionado) use ($modelo) {
+                    return  [
+                        'empleado_id' => $empleadoSeleccionado['id'],
+                        'subtarea_id' => $modelo->id,
+                        'responsable' => $empleadoSeleccionado['responsable'] ?? false,
+                    ];
+                });
+
+                EmpleadoSubtarea::insert($empleados_seleccionados->toArray());
+                break;
+        }
+
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
+        /* $tecnicosGrupoPrincipal = $request->safe()->only(['tecnicos_grupo_principal'])['tecnicos_grupo_principal'];
         if ($tecnicosGrupoPrincipal) {
             $tecnicosGrupoPrincipal = Utils::quitarEspaciosComasString($tecnicosGrupoPrincipal);
             $tecnicosGrupoPrincipal = Utils::convertirStringComasArray($tecnicosGrupoPrincipal);
@@ -197,7 +218,7 @@ class SubtareaController extends Controller
             if (count($tecnicosGrupoPrincipal)) $modelo->empleados()->sync($tecnicosGrupoPrincipal);
         } else {
             $modelo->empleados()->sync([]);
-        }
+        } */
 
         return response()->json(compact('modelo', 'mensaje'));
     }

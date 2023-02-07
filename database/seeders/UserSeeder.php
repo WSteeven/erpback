@@ -267,7 +267,7 @@ class UserSeeder extends Seeder
         $tecnico->empleado()->create([
             'nombres' => 'ALEXANDER LORENZO',
             'apellidos' => 'TIGUA PILLASAGUA',
-            'identificacion' => '0707474236',
+            'identificacion' => '1315288645',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2010-05-12',
             'jefe_id' => '6',
@@ -438,7 +438,7 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_FISCALIZADOR);
         $tecnico->empleado()->create([
             'nombres' => 'LEIVER JOAO',
-            'apellidos' => 'VILLEGAS CANAVICHE',
+            'apellidos' => 'CELI GONZALEZ',
             'identificacion' => '0701234568',
             'telefono' => '0998474966',
             'fecha_nacimiento' => '1995-05-12',

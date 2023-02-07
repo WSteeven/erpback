@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('empleado_subtarea', function (Blueprint $table) {
             $table->id();
 
-            $table->boolean('principal');
+            $table->boolean('responsable');
 
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onUpdate('cascade')->onDelete('cascade');

@@ -10,13 +10,13 @@ class EmpleadoSubtarea extends Model
     use HasFactory;
     protected $table = 'empleado_subtarea';
     protected $fillable = [
-        'principal',
+        'responsable',
         'empleado_id',
         'subtarea_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'principal' => 'boolean',
+        'responsable' => 'boolean',
     ];
 }

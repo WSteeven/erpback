@@ -126,8 +126,10 @@ class EmpleadoController extends Controller
     {
         // Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
+        $datos = $request->validated();
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
 
-        $empleado->update($request->validated());
+        $empleado->update($datos);
 
         if (!is_null($request->password)) {
             // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
