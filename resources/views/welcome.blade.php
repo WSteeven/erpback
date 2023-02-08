@@ -407,6 +407,14 @@
 <body class="antialiased">
     <div class="text-center py-4">
         Bienvenido a JP CONSTRUCRED API
+        <div><b>anno:</b> {{ date('y') }}</div>
+        <div><b>anno_b:</b> {{ date('Y') }}</div>
+        <div><b>mes_b:</b> {{ date('n') }}</div>
+        <div><b>mes:</b> {{ date('m') }}</div>
+        @php
+            $sec = str_pad(18, 3, '0', STR_PAD_LEFT);
+        @endphp
+        <div><b>sec:</b> {{date('y').'-'.date('m').$sec}}</div>
     </div>
     <div
         class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
@@ -517,8 +525,8 @@
 
                         <div class="ml-12">
                             <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                Transaccion de prueba para imprimir <a
-                                    href="{{route('imprimir', 14)}}" class="underline">Imprimir PDF</a></div>
+                                Transaccion de prueba para imprimir <a href="{{ route('imprimir', 14) }}"
+                                    class="underline">Imprimir PDF</a></div>
                             <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
                                 Laravel's robust library of first-party tools and libraries, such as <a
                                     href="https://forge.laravel.com" class="underline">Forge</a>, <a
