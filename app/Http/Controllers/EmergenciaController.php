@@ -3,11 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EmergenciaRequest;
+use App\Http\Resources\EmergenciaResource;
+use App\Models\Emergencia;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class EmergenciaController extends Controller
 {
-    public function store(EmergenciaRequest $request) {
+    private $entidad = 'Emergencia';
 
+    public function store(EmergenciaRequest $request)
+    {
+        $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        $modelo = Emergencia::create($datos);
+        $modelo = new EmergenciaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

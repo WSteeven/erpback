@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
+use App\Http\Resources\UserResource;
 use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\User;
@@ -105,9 +106,10 @@ class EmpleadoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
 
+        $modelo = new UserResource($user->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(compact('mensaje'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**

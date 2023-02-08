@@ -15,8 +15,10 @@ use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TipoTransaccionController;
+use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\CodigoClienteController;
+use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TransferenciaController;
@@ -51,6 +53,7 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -62,8 +65,6 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Controllers\TrabajoAsignadoController;
-use App\Http\Controllers\UnidadMedidaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -251,6 +252,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // Tendidos
 Route::apiResource('tendidos', TendidoController::class)->except('show');
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
+
+// Emergencias
+Route::apiResource('emergencias', EmergenciaController::class);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
