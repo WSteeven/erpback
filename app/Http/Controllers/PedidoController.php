@@ -6,6 +6,8 @@ use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Pedido;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -127,5 +129,34 @@ class PedidoController extends Controller
         $modelo = new PedidoResource($pedido);
 
         return response()->json(compact('modelo'), 200);
+    }
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(Pedido $pedido){
+        $resource = new PedidoResource($pedido);
+        Log::channel('testing')->info('Log', ['pedido es', $pedido]);
+        Log::channel('testing')->info('Log', ['pedido es', $resource]);
+        $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
+        Log::channel('testing')->info('Log', ['pedido es', $modelo]);
+
+        // $dompdf= new Dompdf();
+        // $dompdf->setPaper('A4', 'landscape');
+        // $dompdf->loadHtmlFile('pedidos.pedido', $resource->resolve());
+        // $dompdf->render();
+        // $dompdf->stream();
+        
+        // json_decode((new PedidoResource($pedido)))->toArray()
+        $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
+        $pdf->setPaper('A5', 'landscape');
+        $pdf->render();
+        return $pdf->stream('pedido_'.time().'.pdf');
+    }
+
+    public function mostrar(Pedido $pedido){
+        $resource = new PedidoResource($pedido);
+
+        return view('pedidos.pedido', [$resource->resolve(),'usuario'=>auth()->user()->empleado]);
     }
 }

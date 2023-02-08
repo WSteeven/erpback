@@ -213,6 +213,7 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
+Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
