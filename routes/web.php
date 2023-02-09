@@ -20,6 +20,8 @@ use Maatwebsite\Excel\Facades\Excel;
 |
 */
 
+Route::get('/qrcode', [PedidoController::class, 'qrview']);
+
 Route::get('/', function () {
     return view('welcome');
 });

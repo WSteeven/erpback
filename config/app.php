@@ -187,6 +187,7 @@ return [
          */
         OwenIt\Auditing\AuditingServiceProvider::class,
         eloquentFilter\ServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -220,6 +221,7 @@ return [
         'EloquentFilter' => eloquentFilter\Facade\EloquentFilter::class,
         'PDF'=>Barryvdh\DomPDF\Facade::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'QrCode'=>SimpleSoftwareIO\QrCode\Facades\QrCode::class,
         
     ])->toArray(),
 

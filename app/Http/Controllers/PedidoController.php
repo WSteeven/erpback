@@ -136,10 +136,10 @@ class PedidoController extends Controller
      */
     public function imprimir(Pedido $pedido){
         $resource = new PedidoResource($pedido);
-        Log::channel('testing')->info('Log', ['pedido es', $pedido]);
-        Log::channel('testing')->info('Log', ['pedido es', $resource]);
+        // Log::channel('testing')->info('Log', ['pedido es', $pedido]);
+        // Log::channel('testing')->info('Log', ['pedido es', $resource]);
+        // Log::channel('testing')->info('Log', ['pedido es', $modelo]);
         $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
-        Log::channel('testing')->info('Log', ['pedido es', $modelo]);
 
         // $dompdf= new Dompdf();
         // $dompdf->setPaper('A4', 'landscape');
@@ -151,12 +151,18 @@ class PedidoController extends Controller
         $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
         $pdf->setPaper('A5', 'landscape');
         $pdf->render();
-        return $pdf->stream('pedido_'.time().'.pdf');
+        return $pdf->download('pedido_'.time().'.pdf');
     }
 
     public function mostrar(Pedido $pedido){
         $resource = new PedidoResource($pedido);
 
         return view('pedidos.pedido', [$resource->resolve(),'usuario'=>auth()->user()->empleado]);
+    }
+    
+
+    //retorna un qr
+    public function qrview(){
+        return view('qrcode');
     }
 }

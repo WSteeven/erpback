@@ -414,7 +414,15 @@
         @php
             $sec = str_pad(18, 3, '0', STR_PAD_LEFT);
         @endphp
-        <div><b>sec:</b> {{date('y').'-'.date('m').$sec}}</div>
+
+        <div><b>sec:</b> {{ date('y') . '-' . date('m') . $sec }}</div>
+        @php
+            $usuario = auth()->user();
+            $fecha = new Datetime();
+            $qr = QrCode::size(100)
+                ->backgroundColor(255, 90, 0)
+                ->generate('Hola a todos, saludos cordiales');
+        @endphp
     </div>
     <div
         class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center py-4 sm:pt-0">
