@@ -64,10 +64,12 @@ use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\UnidadMedidaController;
+use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
+use App\Models\User;
 use Carbon\Carbon;
 
 /*
@@ -246,6 +248,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('provincias', fn () => ['results' => Provincia::all()]);
     Route::get('cantones', fn () => ['results' => Canton::all()]);
+    Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
 });
 
 // Tendidos
@@ -254,3 +257,5 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
+
+Route::get('fondos-rotativos/tipo-fondo', [TipoFondoController::class,'index']);

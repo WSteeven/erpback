@@ -9,6 +9,7 @@ use App\Models\Empleado;
 use App\Models\User;
 use Exception;
 use DateTime;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -86,5 +87,25 @@ class UserController extends Controller
         }
 
         return response()->json(['mensaje' => 'El empleado ha sido actualizado con éxito', 'modelo' => new UserResource($user)]);
+    }
+    public function autorizationUser()
+    {
+        $user = Auth::user();
+        $users = User::join('usuario_rol as ur', 'ur.usuario_id', '=', 'users.id')
+            ->join('roles as r', 'r.id', '=', 'ur.rol_id')
+            ->where('r.id', '!=', 1)
+            ->where('r.id', '!=', 3)
+            ->where('r.id', '!=', 13)
+            ->where('r.id', '!=', 14)
+            ->where('r.id', '!=', 15)
+            ->where('r.id', '!=', 16)
+            ->where('users.id', '!=', $user->id)
+            ->select('users.id', 'users.name')
+            ->orderby('users.name', 'asc')
+            ->get();
+
+
+
+        return response()->json(['results' => $users]);
     }
 }

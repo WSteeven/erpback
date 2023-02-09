@@ -25,8 +25,8 @@ return new class extends Migration
             $table->unsignedBigInteger('detalle');
             $table->integer('sub_detalle')->length(12);
             $table->integer('cant')->length(3);;
-            $table->decimal('valor_u');
-            $table->decimal('total');
+            $table->decimal('valor_u',19,2);
+            $table->decimal('total',19,2);
             $table->string('comprobante', 2500);
             $table->string('comprobante2', 2500);
             $table->string('observacion', 2500);
@@ -39,7 +39,7 @@ return new class extends Migration
             $table->timestamp('fecha_trans');
             $table->foreign('estado')->references('id')->on('estado_viatico');
             $table->foreign('detalle')->references('id')->on('detalle_viatico');
-            $table->foreign('id_lugar')->references('id')->on('parroquias');
+            $table->foreign('id_lugar')->references('id')->on('cantones');
             $table->timestamps();
         });
     }
