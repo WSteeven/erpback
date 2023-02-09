@@ -65,6 +65,8 @@ use App\Http\Controllers\RolController;
 use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
+use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -168,6 +170,8 @@ Route::apiResources(
         'proyectos' => ProyectoController::class,
         'archivos-subtareas' => ArchivoSubtareaController::class,
         'registros-tendidos' => RegistroTendidoController::class,
+        'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
+        'fondos-rotativos/viaticos' => ViaticoController::class,
     ],
     [
         'parameters' => [
@@ -257,5 +261,6 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
-
-Route::get('fondos-rotativos/tipo-fondo', [TipoFondoController::class,'index']);
+Route::group(['prefix' => 'fondos-rotativos'], function () {
+    Route::get('tipo-fondo', [TipoFondoController::class, 'index']);
+});

@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Http\Resources\FondosRotativos\Viaticos;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ViaticoResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
+    public function toArray($request)
+    {
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'fecha_viat' => $this->fecha_viat,
+            'id_lugar' => $this->id_lugar,
+            'num_tarea' => $this->num_tarea,
+            'ruc' => $this->ruc,
+            'factura' => $this->factura,
+            'proveedor' => $this->proveedor,
+            'aut_especial' => $this->aut_especial,
+            'detalle' => $this->detalles->descripcion,
+            'sub_detalle' => $this->sub_detalle,
+            'cant' => $this->cant,
+            'valor_u' => $this->valor_u,
+            'total' => $this->total,
+            'comprobante' => $this->comprobante,
+            'comprobante2' => $this->comprobante2,
+            'observacion' => $this->observacion,
+            'id_usuario' => $this->id_usuario,
+            'estado' => $this->estado,
+            'detalle_esta' => $this->detalle,
+            'fecha_ingreso' => $this->fecha_ingreso,
+            'fecha_proc' => $this -> fecha_proc,
+            'transcriptor' => $this->transcriptor,
+            'fecha_trans' => $this->fecha_trans,
+            'estado' => $this->estado,
+            'id_lugar' => $this->id_lugar,
+        ];
+        return $modelo;
+    }
+}
