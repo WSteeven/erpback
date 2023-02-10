@@ -12,6 +12,8 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class PedidoController extends Controller
@@ -139,19 +141,37 @@ class PedidoController extends Controller
         // Log::channel('testing')->info('Log', ['pedido es', $pedido]);
         // Log::channel('testing')->info('Log', ['pedido es', $resource]);
         // Log::channel('testing')->info('Log', ['pedido es', $modelo]);
-        $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
-
+        // $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
         // $dompdf= new Dompdf();
         // $dompdf->setPaper('A4', 'landscape');
         // $dompdf->loadHtmlFile('pedidos.pedido', $resource->resolve());
         // $dompdf->render();
         // $dompdf->stream();
-        
+
+        try{
         // json_decode((new PedidoResource($pedido)))->toArray()
         $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
         $pdf->setPaper('A5', 'landscape');
         $pdf->render();
-        return $pdf->download('pedido_'.time().'.pdf');
+        $file =$pdf->output();
+        // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
+        $filename = "pedidos/pedido_".$resource->id."_".time().".pdf";
+        Log::channel('testing')->info('Log', ['NOMBRE DE ARCHIVO', $filename]);
+        $bytes = file_put_contents($filename, $file);
+        // Log::channel('testing')->info('Log', ['BYTES', $bytes]);
+        // file_put_contents($filename, $file);
+    //     $headers = [
+    //         'Content-Type'=> 'application/pdf',
+    //         'charset'=>'UTF-8',
+    // ];
+    // $archivo = readfile($filename);
+        // return response()->download($filename, 'pedido.pdf', ['Content-Type'=>'application/pdf',]);
+        return response()->download($filename);
+        // return $pdf->download('pedido_'.$resource->id.'_'.time().'.pdf');
+        }catch(Exception $e){
+            Log::channel('testing')->info('Log', ['Error al generar el pdf', $e->getLine(), $e->getMessage()]);
+            return response()->json('Error:'.$e->getLine());
+        }
     }
 
     public function mostrar(Pedido $pedido){
@@ -159,7 +179,7 @@ class PedidoController extends Controller
 
         return view('pedidos.pedido', [$resource->resolve(),'usuario'=>auth()->user()->empleado]);
     }
-    
+
 
     //retorna un qr
     public function qrview(){
