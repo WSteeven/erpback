@@ -157,7 +157,7 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->save();
             }
             if($transaccion->pedido_id){
-                TransaccionBodega::actualizarPedido($transaccion);
+                TransaccionBodega::actualizarPedido($transaccion); //detalle_poructo_transaccion where transaccion_id = 1 / observer detelle_pedido_producto_observer
             }
             // TransaccionBodega::functon
 

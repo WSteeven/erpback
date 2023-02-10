@@ -9683,16 +9683,16 @@
         },
         {
             "name": "laravel-lang/publisher",
-            "version": "v14.5.0",
+            "version": "v14.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Lang/publisher.git",
-                "reference": "2c1a74fe5f8f76a2d2b7802076a7c35a3f89fcf4"
+                "reference": "56bc9e7e2d2593ac95d5518a25085c34f8113b11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Lang/publisher/zipball/2c1a74fe5f8f76a2d2b7802076a7c35a3f89fcf4",
-                "reference": "2c1a74fe5f8f76a2d2b7802076a7c35a3f89fcf4",
+                "url": "https://api.github.com/repos/Laravel-Lang/publisher/zipball/56bc9e7e2d2593ac95d5518a25085c34f8113b11",
+                "reference": "56bc9e7e2d2593ac95d5518a25085c34f8113b11",
                 "shasum": ""
             },
             "require": {
@@ -9701,8 +9701,8 @@
                 "dragon-code/pretty-array": "^4.0",
                 "dragon-code/support": "^6.3",
                 "ext-json": "*",
-                "illuminate/console": "^8.79 || ^9.18",
-                "illuminate/support": "^8.79 || ^9.18",
+                "illuminate/console": "^8.79 || ^9.18 || ^10.0",
+                "illuminate/support": "^8.79 || ^9.18 || ^10.0",
                 "league/commonmark": "^2.3",
                 "league/config": "^1.2",
                 "php": "^8.1"
@@ -9714,7 +9714,7 @@
             },
             "require-dev": {
                 "laravel-lang/json-fallback-hotfix": "^1.0",
-                "orchestra/testbench": "^6.0 || ^7.0",
+                "orchestra/testbench": "^6.0 || ^7.0 || ^8.0",
                 "phpstan/phpstan": "^1.8",
                 "phpunit/phpunit": "^9.4",
                 "symfony/var-dumper": "^5.0 || ^6.0"
@@ -9787,7 +9787,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2023-01-10T19:26:44+00:00"
+            "time": "2023-02-10T08:21:43+00:00"
         },
         {
             "name": "laravel/pint",

@@ -137,9 +137,6 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el Usuario:
-                    {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
                     </div>
                 </td>
                 <td>
