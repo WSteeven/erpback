@@ -148,30 +148,20 @@ class PedidoController extends Controller
         // $dompdf->render();
         // $dompdf->stream();
 
-        try{
+        // try{
         // json_decode((new PedidoResource($pedido)))->toArray()
         $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
         $pdf->setPaper('A5', 'landscape');
         $pdf->render();
-        $file =$pdf->output();
+        $file =$pdf->output();//SE GENERA EL PDF
+        $filename = "pedido_".$resource->id."_".time().".pdf";
+
+        $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'pedidos'.DIRECTORY_SEPARATOR.$filename;
+        
         // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-        $filename = "pedidos/pedido_".$resource->id."_".time().".pdf";
         Log::channel('testing')->info('Log', ['NOMBRE DE ARCHIVO', $filename]);
-        $bytes = file_put_contents($filename, $file);
-        // Log::channel('testing')->info('Log', ['BYTES', $bytes]);
-        // file_put_contents($filename, $file);
-    //     $headers = [
-    //         'Content-Type'=> 'application/pdf',
-    //         'charset'=>'UTF-8',
-    // ];
-    // $archivo = readfile($filename);
-        // return response()->download($filename, 'pedido.pdf', ['Content-Type'=>'application/pdf',]);
-        return response()->download($filename);
-        // return $pdf->download('pedido_'.$resource->id.'_'.time().'.pdf');
-        }catch(Exception $e){
-            Log::channel('testing')->info('Log', ['Error al generar el pdf', $e->getLine(), $e->getMessage()]);
-            return response()->json('Error:'.$e->getLine());
-        }
+        // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
+        return $file;
     }
 
     public function mostrar(Pedido $pedido){
