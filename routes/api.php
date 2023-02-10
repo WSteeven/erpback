@@ -66,6 +66,7 @@ use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Viatico\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -171,6 +172,7 @@ Route::apiResources(
         'archivos-subtareas' => ArchivoSubtareaController::class,
         'registros-tendidos' => RegistroTendidoController::class,
         'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
+        'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'fondos-rotativos/viaticos' => ViaticoController::class,
     ],
     [

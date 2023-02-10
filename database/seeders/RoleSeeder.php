@@ -377,6 +377,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.editar.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        //detalle fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+
 
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Viatico;
 
+use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,7 @@ class Viatico extends Model implements Auditable
         'comprobante2',
         'observacion',
         'id_usuario',
+        'estado',
         'detalle_estado',
         'fecha_ingreso',
         'fecha_proc',
@@ -43,8 +45,20 @@ class Viatico extends Model implements Auditable
     private static $whiteListFilter = [
         'factura',
     ];
-    public function detalles()
+    public function detalle_info()
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
+    }
+    public function sub_detalle_info()
+    {
+        return $this->hasOne(SubDetalleViatico::class, 'id', 'sub_detalle');
+    }
+    public function aut_especial_user()
+    {
+        return $this->hasOne(User::class, 'id', 'aut_especial');
+    }
+    public function estado_info()
+    {
+        return $this->hasOne(EstadoViatico::class, 'id', 'estado');
     }
 }
