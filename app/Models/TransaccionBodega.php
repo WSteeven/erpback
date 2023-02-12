@@ -180,6 +180,27 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a un pedido.
+     */
+    public function pedido(){
+        return $this->belongsTo(Pedido::class);
+    }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a una devolución.
+     */
+    public function devolucion(){
+        return $this->belongsTo(Devolucion::class);
+    }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a una transferencia.
+     */
+    public function transferencia(){
+        return $this->belongsTo(Transferencia::class);
+    }
 
 
     /**

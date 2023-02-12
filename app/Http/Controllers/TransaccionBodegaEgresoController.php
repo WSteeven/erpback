@@ -12,6 +12,7 @@ use App\Models\Inventario;
 use App\Models\MaterialGrupoTarea;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -275,6 +276,27 @@ class TransaccionBodegaEgresoController extends Controller
         $modelo = new TransaccionBodegaResource($transaccion);
 
         return response()->json(compact('modelo'), 200);
+    }
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(TransaccionBodega $transaccion)
+    {
+        $resource = new TransaccionBodegaResource($transaccion);
+        Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
+        try {
+            $pdf = Pdf::loadView('egresos.egreso', $resource->resolve());
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            $file = $pdf->output();
+            $filename = 'egreso_' . $resource->id . '_' . time() . '.pdf';
+            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'egresos' . DIRECTORY_SEPARATOR . $filename;
+            // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
     }
 
     public function obtenerTransaccionPorTarea(int $tarea_id)

@@ -210,11 +210,16 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
 });
+/**
+ * Rutas para imprimir PDFs
+ */
+Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
-Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
 Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);

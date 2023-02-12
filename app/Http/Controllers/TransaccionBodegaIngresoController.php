@@ -9,6 +9,7 @@ use App\Models\Inventario;
 use App\Models\Producto;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,12 +35,12 @@ class TransaccionBodegaIngresoController extends Controller
      * Listar
      */
     public function index(Request $request)
-    {   $estado = $request['estado'];
+    {
+        $estado = $request['estado'];
         $tipo = 'INGRESO';
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
-            
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -75,15 +76,15 @@ class TransaccionBodegaIngresoController extends Controller
 
 
                 if ($request->ingreso_masivo) {
-                    Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);    
-                    //Guardar los productos seleccionados en el detalle 
+                    Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);
+                    //Guardar los productos seleccionados en el detalle
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
-                        if(!$itemInventario->id){
+                        if (!$itemInventario->id) {
                             $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
-                        }else{
-                            $itemInventario->update(['cantidad'=>$itemInventario->cantidad+$listado['cantidad']]);
+                        } else {
+                            $itemInventario->update(['cantidad' => $itemInventario->cantidad + $listado['cantidad']]);
                         }
                         $transaccion->items()->attach(
                             $itemInventario->id,
@@ -94,22 +95,20 @@ class TransaccionBodegaIngresoController extends Controller
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario
                     Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
-
                 } else {
-                    Log::channel('testing')->info('Log', ['PASÓ DE LARGO']);    
-                    Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);    
+                    Log::channel('testing')->info('Log', ['PASÓ DE LARGO']);
+                    Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->first();
-                        if($itemInventario){
+                        if ($itemInventario) {
                             Log::channel('testing')->info('Log', ['HAY UN ITEM COINCIDENTE EN EL INVENTARIO']);
-                            $itemInventario->cantidad = $itemInventario->cantidad+$listado['cantidad'];
-                            $itemInventario->save();    
+                            $itemInventario->cantidad = $itemInventario->cantidad + $listado['cantidad'];
+                            $itemInventario->save();
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
-
-                        }else{
-                            Log::channel('testing')->info('Log', ['NO HAY ITEM, SE VA A CREAR OTRO']);    
+                        } else {
+                            Log::channel('testing')->info('Log', ['NO HAY ITEM, SE VA A CREAR OTRO']);
                             $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $listado['condiciones'], $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
@@ -124,7 +123,7 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'.$e->getMessage().$e->getLine()], 422);
+                return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -224,5 +223,24 @@ class TransaccionBodegaIngresoController extends Controller
         $modelo = new TransaccionBodegaResource($transaccion);
 
         return response()->json(compact('modelo'), 200);
+    }
+    /**
+     * Imprimir
+     */
+    public function imprimir(TransaccionBodega $transaccion)
+    {
+        $resource = new TransaccionBodegaResource($transaccion);
+        try {
+            $pdf = Pdf::loadView('ingresos.ingreso', $resource->resolve());
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            $file = $pdf->output();
+            $filename = 'ingreso_' . $resource->id . '_' . time() . '.pdf';
+            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'ingresos' . DIRECTORY_SEPARATOR . $filename;
+            // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
     }
 }

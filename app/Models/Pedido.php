@@ -109,6 +109,14 @@ class Pedido extends Model implements Auditable
     }
 
     /**
+     * Relación uno a muchos.
+     * Un pedido esta en varias trasacciones.
+     */
+    public function transacciones(){
+        return $this->hasMany(TransaccionBodega::class);
+    }
+
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES
      * ______________________________________________________________________________________
@@ -155,7 +163,7 @@ class Pedido extends Model implements Auditable
         return $results;
     }
 
-    
+
     /**
      * Filtrar todos los pedidos para el bodeguero, de acuerdo al estado de una autorizacion.
      * @param string $estado

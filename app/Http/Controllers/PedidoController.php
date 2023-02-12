@@ -148,8 +148,7 @@ class PedidoController extends Controller
         // $dompdf->render();
         // $dompdf->stream();
 
-        // try{
-        // json_decode((new PedidoResource($pedido)))->toArray()
+        try{
         $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
         $pdf->setPaper('A5', 'landscape');
         $pdf->render();
@@ -157,11 +156,14 @@ class PedidoController extends Controller
         $filename = "pedido_".$resource->id."_".time().".pdf";
 
         $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'pedidos'.DIRECTORY_SEPARATOR.$filename;
-        
+
         // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
         Log::channel('testing')->info('Log', ['NOMBRE DE ARCHIVO', $filename]);
         // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
         return $file;
+    }catch(Exception $ex){
+        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
     }
 
     public function mostrar(Pedido $pedido){
