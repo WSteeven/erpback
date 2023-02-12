@@ -55,7 +55,7 @@ class TransaccionBodegaIngresoController extends Controller
             try {
                 $datos = $request->validated();
                 DB::beginTransaction();
-
+                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
                 $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
                 $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
@@ -79,8 +79,11 @@ class TransaccionBodegaIngresoController extends Controller
                     Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);
                     //Guardar los productos seleccionados en el detalle
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->first();
-                        if (!$itemInventario->id) {
+                        Log::channel('testing')->info('Log', ['ITEM DEL LISTADO-FOREACH', $listado]);
+                        Log::channel('testing')->info('Log', ['ITEM', $listado['id']]);
+                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->where('condicion_id', $request->condicion)->first();
+                        Log::channel('testing')->info('Log', ['ITEMINVENTARIO', $itemInventario]);
+                        if (!$itemInventario) {
                             $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                         } else {
