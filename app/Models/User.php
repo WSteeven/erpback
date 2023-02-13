@@ -34,6 +34,7 @@ class User extends Authenticatable implements Auditable
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
+    const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
 
     // Roles de cuadrillas
     const ROL_TECNICO_JEFE_CUADRILLA = 'TECNICO JEFE CUADRILLA';

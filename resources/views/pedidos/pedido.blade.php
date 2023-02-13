@@ -6,7 +6,7 @@
     <title>Pedido N° {{ $id }}</title>
     <style>
         @page {
-            margin: 0cm 0px;
+            margin: 0cm 15px;
         }
 
         body {

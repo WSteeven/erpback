@@ -111,6 +111,8 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        $activo_fijo =  User::hasRole(User::ROL_ACTIVOS_FIJOS)->get();
+
         if (!is_null($this->fecha_limite)) {
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
@@ -189,6 +191,11 @@ class TransaccionBodegaRequest extends FormRequest
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,
+                ]);
+            }
+            if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
+                $this->merge([
+                    'per_autoriza'=>auth()
                 ]);
             }
         }

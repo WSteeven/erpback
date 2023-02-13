@@ -11,7 +11,7 @@
 
         body {
             /* background-image: url('img/logoJPBN_10.png'); */
-            background-image: url('img/logoJP_gris.png');
+            background-image: url('img/logoJPBN_10.png');
             background-repeat: no-repeat;
             background-position: center;
         }

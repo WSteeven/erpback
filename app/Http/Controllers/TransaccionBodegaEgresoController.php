@@ -283,6 +283,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
+        Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
         $resource = new TransaccionBodegaResource($transaccion);
         Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
         try {
