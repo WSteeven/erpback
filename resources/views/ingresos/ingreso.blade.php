@@ -3,14 +3,15 @@
 
 <head>
 <meta charset="utf-8">
-    <title>Pedido N° {{ $id }}</title>
+    <title>Comprobante N° {{ $id }}</title>
     <style>
         @page {
             margin: 0cm 0px;
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            /* background-image: url('img/logoJPBN_10.png'); */
+            background-image: url('img/logoJP_gris.png');
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -93,13 +94,17 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
     <header>
         <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
-                <td>
+                <td style="width: 10%;">
                     <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
                 </td>
-                <td>
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE PEDIDO</b></div>
+                <td style="width: 68%">
+                    @if ($transferencia)
+                    <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
+                    @else
+                    <div class="col-md-7" align="center"><b>COMPROBANTE DE INGRESO</b></div>
+                    @endif
                 </td>
-                <td>
+                <td style="width: 22%;">
                     <div class="col-md-2" align="right">Sistema de bodega</div>
                 </td>
             </tr>
@@ -180,21 +185,23 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
+                <th>Condición</th>
                 <th>Cantidad</th>
                 <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
-                @foreach ($ciclo as $c)
-                @foreach ($listadoProductos as $listado)
+                {{-- @foreach ($ciclo as $c) --}}
+                @foreach ($listadoProductosTransaccion as $listado)
                 <tr>
                     <td>{{ $listado['producto'] }}</td>
                     <td>{{ $listado['descripcion'] }}</td>
                     <td>{{ $listado['categoria'] }}</td>
+                    <td>{{ $listado['condiciones'] }}</td>
                     <td align="center">{{ $listado['cantidad'] }}</td>
                     <td align="center">{{ $listado['despachado'] }}</td>
                 </tr>
                 @endforeach
-                @endforeach
+                {{-- @endforeach --}}
             </tbody>
         </table>
     </main>

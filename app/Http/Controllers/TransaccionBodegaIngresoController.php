@@ -81,12 +81,18 @@ class TransaccionBodegaIngresoController extends Controller
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         Log::channel('testing')->info('Log', ['ITEM DEL LISTADO-FOREACH', $listado]);
                         Log::channel('testing')->info('Log', ['ITEM', $listado['id']]);
-                        $itemInventario = Inventario::where('detalle_id', $listado['id'])->where('condicion_id', $request->condicion)->first();
+                        $itemInventario = Inventario::where('detalle_id', $listado['id'])
+                        ->where('condicion_id', $request->condicion)
+                        ->where('sucursal_id', $request->sucursal)
+                        ->where('cliente_id', $request->cliente)
+                        ->first();
                         Log::channel('testing')->info('Log', ['ITEMINVENTARIO', $itemInventario]);
                         if (!$itemInventario) {
-                            $fila = Inventario::estructurarItem($listado['id'], $transaccion->sucursal, $transaccion->cliente, $request->condicion, $listado['cantidad']);
+                            Log::channel('testing')->info('Log', ['ESTOY EN EL IF-91', $itemInventario]);
+                            $fila = Inventario::estructurarItem($listado['id'], $request->sucursal, $request->cliente, $request->condicion, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                         } else {
+                            Log::channel('testing')->info('Log', ['ESTOY EN EL ELSE-95', $itemInventario]);
                             $itemInventario->update(['cantidad' => $itemInventario->cantidad + $listado['cantidad']]);
                         }
                         $transaccion->items()->attach(
@@ -233,6 +239,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function imprimir(TransaccionBodega $transaccion)
     {
         $resource = new TransaccionBodegaResource($transaccion);
+        Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $resource]);
         try {
             $pdf = Pdf::loadView('ingresos.ingreso', $resource->resolve());
             $pdf->setPaper('A5', 'landscape');
