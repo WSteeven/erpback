@@ -178,7 +178,7 @@ class SubtareaController extends Controller
 
         // Respuesta
         $subtarea->update($datos);
-        
+
         switch ($modo_asignacion_trabajo) {
             case Subtarea::POR_GRUPO:
                 $grupos_seleccionados = $request->safe()->only(['grupos_seleccionados'])['grupos_seleccionados'];
@@ -189,7 +189,7 @@ class SubtareaController extends Controller
                         'responsable' => $grupoSeleccionado['responsable'] ?? false,
                     ];
                 });
-                
+
                 GrupoSubtarea::insert($grupos_seleccionados->toArray());
                 break;
             case Subtarea::POR_EMPLEADO:
@@ -252,6 +252,16 @@ class SubtareaController extends Controller
         $subtarea->save();
 
         return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
+    public function finalizar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::FINALIZADO;
+        $subtarea->fecha_hora_finalizacion = Carbon::now();
+        $subtarea->save();
+
+        $modelo = new SubtareaResource($subtarea->refresh());
+        return response()->json(compact('modelo'));
     }
 
     public function pausar(Request $request, Subtarea $subtarea)

@@ -289,17 +289,25 @@ class TransaccionBodega extends Model implements Auditable
                 $detallePedido->save(); //despues de guardar se llama al observer DetallePedidoProductoObserver
 
                 if ($pedido->tarea_id) { //si el pedido se realizó para una tarea, hagase lo siguiente.
+                    Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
                     $material = MaterialGrupoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
-                        ->where('tarea_id', $pedido->tarea_id)
-                        ->first();
+                    ->where('tarea_id', $pedido->tarea_id)
+                    ->first();
 
+                    Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->save();
                     }else{
-                        /* MaterialGrupoTarea::create([
-                            ''
-                        ]); */
+                        Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
+                        MaterialGrupoTarea::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'tarea_id' => $pedido->tarea_id,
+                            'grupo_id' => 12,
+                            'detalle_producto_id' => $detallePedido->detalle_id,
+                            'es_fibra' => false,
+                        ]);
+
                         //consulta de fibras
                         $ids_fibras =Fibra::all('id');
                         DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->get();

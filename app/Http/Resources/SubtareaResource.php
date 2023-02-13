@@ -8,6 +8,7 @@ use App\Models\Grupo;
 use App\Models\GrupoSubtarea;
 use App\Models\Subtarea;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 
@@ -58,6 +59,7 @@ class SubtareaResource extends JsonResource
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
             'estado' => $this->estado,
             'responsable' => $this->verificarResponsable(), //!!$this->empleados()->where('empleado_id', Auth::id())->where('responsable', true)->first(),
+            'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
         ];
 
         if ($controller_method == 'show') {
@@ -65,7 +67,7 @@ class SubtareaResource extends JsonResource
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get());
-            $modelo['empleados_seleccionados'] = $this->mapEmpleadoSeleccionado(EmpleadoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get());
+            $modelo['empleados_seleccionados'] = $this->listarEmpleados();
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
         }
 
@@ -91,6 +93,12 @@ class SubtareaResource extends JsonResource
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
             'responsable' => $grupo->responsable,
         ]);
+    }
+
+    private function listarEmpleados()
+    {
+        $empleadosSeleccionados = EmpleadoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get();
+        if ($empleadosSeleccionados) return $this->mapEmpleadoSeleccionado($empleadosSeleccionados);
     }
 
     public function mapEmpleadoSeleccionado($empleadosSubtarea)

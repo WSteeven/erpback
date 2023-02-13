@@ -23,6 +23,7 @@ class Subtarea extends Model implements Auditable
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';
+    const FINALIZADO = 'FINALIZADO';
 
     // Modo de asignacion de trabajo
     const POR_GRUPO = 'POR_GRUPO';

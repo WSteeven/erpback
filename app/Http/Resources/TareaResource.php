@@ -37,6 +37,7 @@ class TareaResource extends JsonResource
             'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
             'observacion' => $this->observacion,
             'tiene_subtareas' => $this->tiene_subtareas,
+            'cantidad_subtareas' => $this->subtareas->count(),
         ];
 
         if ($controller_method == 'show') {
