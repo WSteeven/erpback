@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('estatus', function (Blueprint $table) {
             $table->id();
-            $table->string('descipcion', 250);
+            $table->string('descripcion', 250);
             $table->string('transcriptor', 150);
             $table->timestamp('fecha_trans');
             $table->timestamps();

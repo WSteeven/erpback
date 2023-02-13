@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('saldo_grupo', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
-            $table->string('tipo_saldo', 250);
+            $table->unsignedBigInteger('id_tipo_saldo');
             $table->string('id_saldo', 12);
             $table->unsignedBigInteger('id_tipo_fondo');
             $table->string('descripcion_saldo', 1500);
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_estatus');
             $table->string('transcriptor', 120);
             $table->timestamp('fecha_trans');
+            $table ->foreign('id_tipo_saldo')->references('id')->on('tipo_saldo');
             $table->foreign('id_tipo_fondo')->references('id')->on('tipo_fondo');
             $table->foreign('id_estatus')->references('id')->on('estatus');
             $table->foreign('id_usuario')->references('id')->on('users');

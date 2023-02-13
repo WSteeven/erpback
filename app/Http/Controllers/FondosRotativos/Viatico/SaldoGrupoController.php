@@ -3,36 +3,34 @@
 namespace App\Http\Controllers\FondosRotativos\Viatico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FondosRotativos\Viaticos\DetalleViaticoResource;
+use App\Http\Resources\FondosRotativos\Viaticos\SaldoGrupoResource;
 use App\Models\FondosRotativos\Usuario\Estatus;
-use App\Models\FondosRotativos\Viatico\DetalleViatico;
+use App\Models\FondosRotativos\Viatico\SaldoGrupo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
-class DetalleViaticoController extends Controller
+class SaldoGrupoController extends Controller
 {
-    private $entidad = 'detalle_viatico';
+    private $entidad = 'saldo_grupo';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.detalle_fondo')->only('index', 'show');
-        $this->middleware('can:puede.crear.detalle_fondo')->only('store');
-        $this->middleware('can:puede.editar.detalle_fondo')->only('update');
-        $this->middleware('can:puede.eliminar.detalle_fondo')->only('update');
+        $this->middleware('can:puede.ver.saldo')->only('index', 'show');
+        $this->middleware('can:puede.crear.saldo')->only('store');
+        $this->middleware('can:puede.editar.saldo')->only('update');
+        $this->middleware('can:puede.eliminar.saldo')->only('update');
     }
     public function index(Request $request)
     {
-        $page = $request['page'];
         $results = [];
-
-        $results = DetalleViatico::with('estatus')->ignoreRequest(['campos'])->filter()->get();
-        $results = DetalleViaticoResource::collection($results);
+        $results = SaldoGrupo::with('tipoFondo','estatus','usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = SaldoGrupoResource::collection($results);
         return response()->json(compact('results'));
     }
     public function show($id)
     {
-        $detalleViatico = DetalleViatico::with('estatus')->where('id', $id)->first();
-        $modelo = new DetalleViaticoResource($detalleViatico);
+        $SaldoGrupo = SaldoGrupo::where('id',$id)->first();
+        $modelo = new SaldoGrupoResource($SaldoGrupo);
         return response()->json(compact('modelo'), 200);
     }
     public function store(Request $request)
@@ -43,25 +41,25 @@ class DetalleViaticoController extends Controller
             'estatus' => 'required',
         ]);
         $user = Auth::user();
-        $estatus = Estatus::where('descripcion','like', '%'.$request->estatus.'%')->first();
+        $estatus = Estatus::where('descripcion', $request->estatus)->first();
         $datos['autorizacion'] = $request->autorizacion;
+        $datos['id_detalle_viatico']= $request->detalle_viatico;
         $datos['transcriptor']= $user->name;
         $datos['id_estatus'] = $estatus->id;
         $datos['descripcion'] = $request->descripcion;
         $datos['fecha_trans'] =date('Y-m-d');
 
-        $modelo = DetalleViatico::create($datos);
-        $modelo = new DetalleViaticoResource($modelo);
+        $modelo = SaldoGrupo::create($datos);
+        $modelo = new SaldoGrupoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
 
 
-    public function destroy(DetalleViatico $viatico)
+    public function destroy(SaldoGrupo $SaldoGrupo)
     {
-        $viatico->delete();
+        $SaldoGrupo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
-
     }
 }

@@ -18,8 +18,10 @@ class SubDetalleViaticoResource extends JsonResource
         $modelo = [
             'id'=>$this->id,
             'descripcion'=>$this->descripcion,
+            'detalle_viatico'=> $this->detalle->descripcion,
             'autorizacion'=>$this->autorizacion,
             'id_estatus' => $this->id_estatus,
+            'estatus' => $this->estatus->descripcion,
             'transcriptor'=>  $this->transcriptor,
             'fecha_trans'=>$this->fecha_trans,
         ];

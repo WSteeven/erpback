@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Viatico;
 
+use App\Models\FondosRotativos\Usuario\Estatus;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,4 +28,8 @@ class DetalleViatico extends Model implements Auditable
     private static $whiteListFilter = [
         'descripcion',
     ];
+    public function estatus()
+    {
+        return $this->hasOne(Estatus::class, 'id','id_estatus');
+    }
 }
