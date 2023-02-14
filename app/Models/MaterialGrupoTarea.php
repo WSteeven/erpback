@@ -15,7 +15,6 @@ class MaterialGrupoTarea extends Model
         'cantidad_stock',
         'es_fibra',
         'tarea_id',
-        'grupo_id',
         'empleado_id',
         'detalle_producto_id',
     ];

@@ -184,21 +184,24 @@ class TransaccionBodega extends Model implements Auditable
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a un pedido.
      */
-    public function pedido(){
+    public function pedido()
+    {
         return $this->belongsTo(Pedido::class);
     }
     /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a una devolución.
      */
-    public function devolucion(){
+    public function devolucion()
+    {
         return $this->belongsTo(Devolucion::class);
     }
     /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a una transferencia.
      */
-    public function transferencia(){
+    public function transferencia()
+    {
         return $this->belongsTo(Transferencia::class);
     }
 
@@ -286,30 +289,31 @@ class TransaccionBodega extends Model implements Auditable
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido->despachado]);
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
-                $detallePedido->save(); //despues de guardar se llama al observer DetallePedidoProductoObserver
+                $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
-                if ($pedido->tarea_id) { //si el pedido se realizó para una tarea, hagase lo siguiente.
-                    Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
+                if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                    // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
                     $material = MaterialGrupoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
-                    ->where('tarea_id', $pedido->tarea_id)
-                    ->first();
+                        ->where('tarea_id', $pedido->tarea_id)
+                        ->where('responsable_id', $pedido->responsable)
+                        ->first();
 
-                    Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
+                    // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->save();
-                    }else{
-                        Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
+                    } else {
+                        // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
                         MaterialGrupoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'tarea_id' => $pedido->tarea_id,
-                            'grupo_id' => 12,
+                            'empleado_id' => $pedido->responsable_id,
                             'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => false,
+                            'es_fibra' => false, // Pendiente de obtener
                         ]);
 
                         //consulta de fibras
-                        $ids_fibras =Fibra::all('id');
+                        $ids_fibras = Fibra::all('id');
                         DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->get();
                     }
                 }
