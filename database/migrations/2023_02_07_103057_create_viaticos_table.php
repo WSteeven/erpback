@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('observacion', 2500);
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('estado');
-            $table->string('detalle_estado', 250);
+            $table->string('detalle_estado', 250)->nullable();
             $table->dateTime('fecha_ingreso');
             $table->dateTime('fecha_proc');
             $table->string('transcriptor',120);

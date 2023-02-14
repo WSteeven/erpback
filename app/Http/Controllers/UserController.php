@@ -95,21 +95,7 @@ class UserController extends Controller
     public function autorizationUser()
     {
         $user = Auth::user();
-        $users = User::join('usuario_rol as ur', 'ur.usuario_id', '=', 'users.id')
-            ->join('roles as r', 'r.id', '=', 'ur.rol_id')
-            ->where('r.id', '!=', 1)
-            ->where('r.id', '!=', 3)
-            ->where('r.id', '!=', 13)
-            ->where('r.id', '!=', 14)
-            ->where('r.id', '!=', 15)
-            ->where('r.id', '!=', 16)
-            ->where('users.id', '!=', $user->id)
-            ->select('users.id', 'users.name')
-            ->orderby('users.name', 'asc')
-            ->get();
-
-
-
+        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => $users]);
     }
 }
