@@ -30,6 +30,7 @@ class PedidoRequest extends FormRequest
             'observacion_aut' => 'nullable|string',
             'observacion_est' => 'nullable|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
+            'responsable' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'per_autoriza' => 'required|numeric|exists:empleados,id',
             'tarea' => 'sometimes|nullable|numeric|exists:tareas,id',

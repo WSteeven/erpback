@@ -157,7 +157,7 @@ class Empleado extends Model implements Auditable
 
     /* public function subtareas()
     {
-        return $this->belongsToMany(Subtarea::class);
+        return $this->belongsToMany(Subtarea::class);e
     } */
     /**
      * Relacion uno a muchos.

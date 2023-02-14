@@ -267,7 +267,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.ubicaciones'])->assignRole($bodega);
 
         //Ubicaciones
-        Permission::firstOrCreate(['name' => 'puede.ver.unidades_medidas'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.ver.unidades_medidas'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad, $activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.crear.unidades_medidas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.editar.unidades_medidas'])->assignRole($bodega);
         Permission::firstOrCreate(['name' => 'puede.eliminar.unidades_medidas'])->assignRole($bodega);

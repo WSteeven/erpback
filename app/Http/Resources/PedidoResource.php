@@ -28,6 +28,8 @@ class PedidoResource extends JsonResource
             'observacion_est' => $this->observacion_est,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
+            'responsable' => $this->responsable->nombres.' '.$this->resposable->apellidos,
+            'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'tarea' => $this->tarea?->detalle,
@@ -45,6 +47,7 @@ class PedidoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['responsable'] = $this->responsable_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['per_autoriza'] = $this->per_autoriza_id;
             $modelo['tarea'] = $this->tarea_id;
