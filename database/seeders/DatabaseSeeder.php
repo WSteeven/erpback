@@ -66,5 +66,7 @@ class DatabaseSeeder extends Seeder
         // ImagenProducto::factory(10)->create();
         $this->call(PedidoSeeder::class);
         $this->call(EstatusSeeder::class);
+        $this->call(TipoFondoSeeder::class);
+        $this->call(TipoSaldoSeeder::class);
     }
 }

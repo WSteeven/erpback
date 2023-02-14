@@ -16,16 +16,8 @@ class TipoFondoController extends Controller
     }
     public function index(Request $request)
     {
-        $page = $request['page'];
         $results = [];
-
-        if ($page) {
-            $results = TipoFondo::simplePaginate($request['offset']);
-            TipoFondoResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
-        } else {
-            $results = TipoFondo::filter()->get();
-        }
+        $results = TipoFondo::ignoreRequest(['campos'])->filter()->get();
         $results = TipoFondoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -55,5 +47,4 @@ class TipoFondoController extends Controller
         $tipo_fondo->delete();
         return response()->json(null, 204);
     }
-
 }

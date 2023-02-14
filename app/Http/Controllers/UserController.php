@@ -17,6 +17,10 @@ class UserController extends Controller
     {
         return response()->json(['modelo' => UserResource::collection(User::all()->except(1))]);
     }
+    public function listaUsuarios()
+    {
+        return response()->json(['results' => UserResource::collection(User::all()->except(1))]);
+    }
 
     public function store(UserRequest $request)
     {

@@ -51,6 +51,7 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -66,6 +67,7 @@ use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Viatico\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Viatico\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
 use Illuminate\Support\Facades\Route;
@@ -174,6 +176,9 @@ Route::apiResources(
         'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
         'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'fondos-rotativos/viaticos' => ViaticoController::class,
+        'fondos-rotativos/tipo-saldo' => TipoSaldoController::class,
+        'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
+        'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
     ],
     [
         'parameters' => [
@@ -255,6 +260,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('provincias', fn () => ['results' => Provincia::all()]);
     Route::get('cantones', fn () => ['results' => Canton::all()]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
+    Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
 });
 
 // Tendidos
@@ -263,6 +269,4 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
-Route::group(['prefix' => 'fondos-rotativos'], function () {
-    Route::get('tipo-fondo', [TipoFondoController::class, 'index']);
-});
+

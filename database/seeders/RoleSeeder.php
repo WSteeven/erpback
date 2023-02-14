@@ -393,5 +393,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
 
+
+
     }
 }
