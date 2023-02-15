@@ -190,4 +190,12 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsToMany(Subtarea::class);
     }
+
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo un cargo.
+     */
+    public function cargo(){
+        return $this->hasOne(Cargo::class);
+    }
 }

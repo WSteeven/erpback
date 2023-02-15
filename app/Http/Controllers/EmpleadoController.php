@@ -25,10 +25,10 @@ class EmpleadoController extends Controller
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
-        /*$this->middleware('can:puede.ver.empleados')->only('index', 'show');
+        $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
         $this->middleware('can:puede.editar.empleados')->only('update');
-        $this->middleware('can:puede.eliminar.empleados')->only('destroy');*/
+        $this->middleware('can:puede.eliminar.empleados')->only('destroy');
     }
 
     public function list()
