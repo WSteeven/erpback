@@ -24,6 +24,7 @@ class Pedido extends Model implements Auditable
         'observacion_aut',
         'observacion_est',
         'solicitante_id',
+        'responsable_id',
         'autorizacion_id',
         'per_autoriza_id',
         'tarea_id',
@@ -79,6 +80,15 @@ class Pedido extends Model implements Auditable
     public function solicitante()
     {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
+    }
+    
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos tienen un responsable
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
 
     /**

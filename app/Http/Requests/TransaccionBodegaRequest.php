@@ -111,7 +111,7 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        $activo_fijo =  User::hasRole(User::ROL_ACTIVOS_FIJOS)->get();
+        $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->get();
 
         if (!is_null($this->fecha_limite)) {
             $this->merge([

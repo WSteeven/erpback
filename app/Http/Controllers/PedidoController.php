@@ -59,6 +59,7 @@ class PedidoController extends Controller
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
@@ -99,6 +100,7 @@ class PedidoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
