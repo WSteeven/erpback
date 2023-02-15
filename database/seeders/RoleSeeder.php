@@ -369,5 +369,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+        // Clientes finales
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);
     }
 }
