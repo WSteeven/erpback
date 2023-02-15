@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserInfoResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empleado;
@@ -96,6 +97,6 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
-        return response()->json(['results' => $users]);
+        return response()->json(['results' => UserInfoResource::collection($users)]);
     }
 }

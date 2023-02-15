@@ -17,6 +17,7 @@ class UserInfoResource extends JsonResource
     {
         return [
             'id' => $this->empleado->id,
+            'usuario' => $this->empleado->nombres. ' ' . $this->empleado->apellidos,
             'nombres' => $this->empleado->nombres,
             'apellidos' => $this->empleado->apellidos,
             'email' => $this->email,

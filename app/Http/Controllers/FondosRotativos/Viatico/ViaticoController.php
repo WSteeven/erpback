@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\FondosRotativos\Viatico;
 
+use App\Exports\ViaticoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
 use App\Models\FondosRotativos\Viatico\DetalleViatico;
@@ -10,6 +11,9 @@ use App\Models\FondosRotativos\Viatico\Viatico;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Excel;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Excel as ExcelExcel;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -71,6 +75,7 @@ class ViaticoController extends Controller
                 $saldo_consumido_viatico=(float)$saldo_consumido_viatico+(float)$request->total;
             }
         }
+
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $usuario_autorizado->id;
@@ -148,6 +153,28 @@ class ViaticoController extends Controller
         $viatico->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+
+    }
+    public function generar_reporte(Request $request,$tipo){
+        switch ($tipo) {
+            case 'excel':
+                return Excel::download(new ViaticoExport( $request->fecha_inicio, $request->fecha_fin), 'fondo_fecha.xlsx');
+                break;
+            default:
+                # code...
+                break;
+        }
+
+    }
+    public function generar_reporte_prueba($tipo){
+        switch ($tipo) {
+            case 'excel':
+              return Excel::download(new ViaticoExport( '2023-02-01', '2023-02-25'), 'fondo_fecha.xlsx');
+                break;
+            default:
+                # code...
+                break;
+        }
 
     }
 

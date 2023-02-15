@@ -270,3 +270,6 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
 
+//fondos-rotativos/reporte/fecha/pdf
+Route::post('fondos-rotativos/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte'])->middleware('auth:sanctum');
+

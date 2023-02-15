@@ -68,5 +68,6 @@ class DatabaseSeeder extends Seeder
         $this->call(EstatusSeeder::class);
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);
+        $this->call(EstadoViaticoSeeder::class);
     }
 }
