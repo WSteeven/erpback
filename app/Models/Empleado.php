@@ -25,6 +25,7 @@ class Empleado extends Model implements Auditable
         'sucursal_id',
         'estado',
         'grupo_id',
+        'cargo_id',
         'es_tecnico',
     ];
 
@@ -38,6 +39,7 @@ class Empleado extends Model implements Auditable
         'jefe_id',
         'sucursal_id',
         'grupo_id',
+        'cargo_id',
         'estado',
         'es_tecnico',
     ];
@@ -130,7 +132,7 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relacion uno a muchos.
-     * Un empleado con rol BODEGA puede entregar cualquier transaccion 
+     * Un empleado con rol BODEGA puede entregar cualquier transaccion
      */
     public function atendidas()
     {
@@ -139,7 +141,7 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relacion uno a muchos.
-     * Un empleado puede retirar cualquier transaccion asignada 
+     * Un empleado puede retirar cualquier transaccion asignada
      */
     public function retiradas()
     {
@@ -161,7 +163,7 @@ class Empleado extends Model implements Auditable
     } */
     /**
      * Relacion uno a muchos.
-     * Un empleado BODEGUERO puede registrar muchos movimientos 
+     * Un empleado BODEGUERO puede registrar muchos movimientos
      */
     public function movimientos()
     {
@@ -196,6 +198,6 @@ class Empleado extends Model implements Auditable
      * Un empleado tiene solo un cargo.
      */
     public function cargo(){
-        return $this->hasOne(Cargo::class);
+        return $this->belongsTo(Cargo::class);
     }
 }

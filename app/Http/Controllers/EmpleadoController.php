@@ -39,16 +39,16 @@ class EmpleadoController extends Controller
         $rol = request('rol');
         $search = request('search');
         $campos = explode(',', request('campos'));
-        
+
         $user = User::find(auth()->id());
 
         if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
             if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
-        
+
         // return $this->servicio->obtenerTodosSinEstado();
-        
+
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($page) return $this->servicio->obtenerPaginacion($offset);
@@ -77,6 +77,7 @@ class EmpleadoController extends Controller
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
 
         // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
@@ -96,7 +97,8 @@ class EmpleadoController extends Controller
                 'telefono' => $datos['telefono'],
                 'fecha_nacimiento' => new DateTime($datos['fecha_nacimiento']),
                 'jefe_id' => $datos['jefe_id'],
-                'sucursal_id' => $datos['sucursal_id']
+                'sucursal_id' => $datos['sucursal_id'],
+                'cargo_id' => $datos['cargo_id']
             ]);
 
             DB::commit();
@@ -130,6 +132,9 @@ class EmpleadoController extends Controller
         //Respuesta
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
+        $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
+        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
 
         $empleado->update($datos);
 
@@ -238,7 +243,7 @@ class EmpleadoController extends Controller
 
         Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
         Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
-        
+
         // Validar que el empleado pertenezca al grupo seleccionado
         if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
             throw ValidationException::withMessages([

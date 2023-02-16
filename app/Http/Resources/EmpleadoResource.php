@@ -30,6 +30,7 @@ class EmpleadoResource extends JsonResource
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado,//?Empleado::ACTIVO:Empleado::INACTIVO,
+            'cargo' => $this->cargo?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
             'disponible' => $this->disponible,
@@ -43,6 +44,7 @@ class EmpleadoResource extends JsonResource
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
+            $modelo['cargo'] = $this->cargo_id;
         }
 
         return $modelo;

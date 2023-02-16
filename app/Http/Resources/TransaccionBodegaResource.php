@@ -33,6 +33,7 @@ class TransaccionBodegaResource extends JsonResource
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
             'devolucion' => $this->devolucion?->justificacion,
             'pedido' => $this->pedido?->justificacion,
+            'responsable'=>$this->responsable?$this->responsable->nombres . ' ' . $this->responsable->apellidos : 'N/A',
             'transferencia' => $this->transferencia?->justificacion,
             'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->tipo?->nombre,
@@ -64,6 +65,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['devolucion'] = $this->devolucion_id;
             $modelo['pedido'] = $this->pedido_id;
+            $modelo['responsable'] = $this->responsable_id;
             $modelo['transferencia'] = $this->transferencia_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;

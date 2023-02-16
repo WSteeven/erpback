@@ -69,7 +69,7 @@ class RoleSeeder extends Seeder
         // -----------------
         // Modulo de Bodega
         // -----------------
-        Permission::firstOrCreate(['name' => 'puede.ver.modulo_bodega'])->syncRoles([$activos_fijos, $administrativo, $bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.ver.modulo_bodega'])->syncRoles([$activos_fijos, $administrativo, $bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $contabilidad, $empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_recursos_humanos'])->assignRole($recursos_humanos);
         // Autorizaciones
         Permission::firstOrCreate(['name' => 'puede.ver.autorizaciones'])->syncRoles([$activos_fijos, $bodega, $contabilidad, $coordinador, $administrativo, $empleado, $tecnico_lider, $tecnico_secretario]);
@@ -77,11 +77,17 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.autorizaciones'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.eliminar.autorizaciones'])->assignRole($activos_fijos);
 
+        //Cargos
+        Permission::firstOrCreate(['name' => 'puede.ver.cargos'])->syncRoles([$empleado, $recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.cargos'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.editar.cargos'])->assignRole($recursos_humanos);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.cargos'])->assignRole($recursos_humanos);
+
         //Categorias
         Permission::firstOrCreate(['name' => 'puede.ver.categorias'])->syncRoles([$activos_fijos, $bodega, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.crear.categorias'])->assignRole($activos_fijos);
         Permission::firstOrCreate(['name' => 'puede.editar.categorias'])->assignRole($activos_fijos);
-        // Permission::firstOrCreate(['name' => 'puede.eliminar.categorias'])->assignRole($activos_fijos);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.categorias'])->assignRole($activos_fijos);
 
         //Clientes
         Permission::firstOrCreate(['name' => 'puede.ver.clientes'])->syncRoles([$jefe_tecnico, $activos_fijos, $bodega, $coordinador, $tecnico_lider, $tecnico_secretario, $empleado]);

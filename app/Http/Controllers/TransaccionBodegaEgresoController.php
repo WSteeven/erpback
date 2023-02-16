@@ -121,6 +121,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function store(TransaccionBodegaRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Estamos en el store de transaccionbodegaegresocontroller']);
         Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
         try {
             $datos = $request->validated();

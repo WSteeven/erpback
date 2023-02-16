@@ -29,6 +29,7 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
+use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PermisoRolController;
@@ -115,6 +116,7 @@ Route::apiResources(
     [
         'activos-fijos' => ActivoFijoController::class,
         'autorizaciones' => AutorizacionController::class,
+        'cargos' => CargoController::class,
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
