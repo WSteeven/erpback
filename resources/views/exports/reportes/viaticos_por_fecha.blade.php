@@ -86,14 +86,14 @@
                                         <td style="font-size:10px"><strong>Tipo Saldo</strong></td>
                                         <td style="font-size:10px"><strong>Descripción</strong></td>
                                     </tr>
-                                    @if (sizeof($viaticos) > 0)
-                                        @foreach ($viaticos as $viatico)
+                                    @if (sizeof($datos_saldo_depositados_semana) > 0)
+                                        @foreach ($datos_saldo_depositados_semana as $saldo_depositado_semana)
                                             <tr>
-                                                <td style="font-size:10px">{{ $viatico->fecha }}</td>
+                                                <td style="font-size:10px">{{ $saldo_depositado_semana->fecha }}</td>
                                                 <td style="font-size:10px">
-                                                    {{ number_format($viatico->saldo_depositado, 2, ',', '.') }}</td>
-                                                <td style="font-size:10px">{{ $viatico->descripcion }}</td>
-                                                <td style="font-size:10px">{{ $viatico->descripcion_saldo }}</td>
+                                                    {{ number_format($saldo_depositado_semana->saldo_depositado, 2, ',', '.') }}</td>
+                                                <td style="font-size:10px">{{ $saldo_depositado_semana->descripcion }}</td>
+                                                <td style="font-size:10px">{{ $saldo_depositado_semana->descripcion_saldo }}</td>
                                             </tr>
                                         @endforeach
                                     @else

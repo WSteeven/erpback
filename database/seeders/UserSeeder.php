@@ -460,5 +460,36 @@ class UserSeeder extends Seeder
             'jefe_id' => '2',
             'sucursal_id' => $localidad_machala->id,
         ]);
+        $autorizador = User::create([
+            'name' => 'YLOJA',
+            'email' => 'ASISTENTE_ADMINISTRATIVO@JEANPAZMINO.COM',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR);
+        $autorizador->empleado()->create([
+            'nombres' => 'YANINA VANESSA',
+            'apellidos' => 'LOJA TORRES',
+            'identificacion' => '0703324863',
+            'telefono' => '999910198',
+            'fecha_nacimiento' => '1980-05-29',
+            'jefe_id' => '2',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
+        $autorizador = User::create([
+            'name' => 'JPAZMINO',
+            'email' => 'jpazmino@jeanpazmino.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR);
+        $autorizador->empleado()->create([
+            'nombres' => 'JEAN PATRICIO',
+            'apellidos' => 'PAZMIÑO BARROS',
+            'identificacion' => '0702875618',
+            'telefono' => '995936695',
+            'fecha_nacimiento' => '1974-07-07',
+            'jefe_id' => '2',
+            'sucursal_id' => $localidad_machala->id,
+        ]);
+
     }
 }
