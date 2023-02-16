@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Tarea;
@@ -89,7 +90,7 @@ class TransaccionBodegaRequest extends FormRequest
                 }
             }else{
                 foreach($this->listadoProductosTransaccion as $listado){
-                    Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
+                    // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
                     $itemInventario = Inventario::find($listado['id']);
                     if($listado['cantidad']<=0)$validator->errors()->add('listadoProductoTransaccion.*.cantidad','La cantidad para el item '.$listado['descripcion'].' debe ser mayor a cero');
                     if($listado['cantidad']>$itemInventario->cantidad){
@@ -111,6 +112,7 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->get();
 
         if (!is_null($this->fecha_limite)) {
@@ -132,7 +134,7 @@ class TransaccionBodegaRequest extends FormRequest
             }
             if ($this->ingreso_masivo) {
                 $this->merge([
-                    'estado' => 2
+                    'estado' => $estado_completo->id
                 ]);
             } else {
                 $this->merge([
@@ -155,9 +157,13 @@ class TransaccionBodegaRequest extends FormRequest
                     'autorizacion' => 1,
                 ]);
             }
+            if (is_null($this->solicitante) || $this->solicitante === '') {
+                $this->merge([
+                    'solicitante' => auth()->user()->empleado->id,
+                ]);
+            }
             $this->merge([
-                'solicitante' => auth()->user()->empleado->id,
-                'estado'=>2,
+                'estado'=>$estado_completo->id,
             ]);
             if ($this->fecha_limite === "N/A" || is_null($this->fecha_limite)) {
                 $this->merge([
@@ -188,7 +194,7 @@ class TransaccionBodegaRequest extends FormRequest
         }
 
         if (is_null($this->per_autoriza)) {
-            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
+            if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,
                 ]);

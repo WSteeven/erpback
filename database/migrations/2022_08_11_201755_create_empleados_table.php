@@ -39,7 +39,7 @@ return new class extends Migration
             $table->unsignedBigInteger('sucursal_id');
             $table->foreign('sucursal_id')->references('id')->on('sucursales')->onDelete(NULL)->onUpdate('cascade');
 
-            $table->unsignedBigInteger('cargo_id');
+            $table->unsignedBigInteger('cargo_id')->nullable();
             $table->foreign('cargo_id')->references('id')->on('cargos')->onDelete(null)->onUpdate('cascade');
         });
     }

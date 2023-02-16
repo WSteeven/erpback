@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         // Modulo de Bodega
         $this->call(GrupoSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(CargoSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(CondicionesProductosFacturasSeeder::class);
         $this->call(ProvinciaSeeder::class);

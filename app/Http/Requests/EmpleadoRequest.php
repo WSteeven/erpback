@@ -41,6 +41,7 @@ class EmpleadoRequest extends FormRequest
             'roles'=>'required|exists:roles,name',
             'estado'=>'sometimes|boolean',
             'grupo'=>'nullable|exists:grupos,id',
+            'cargo'=>'required|exists:cargos,id',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){

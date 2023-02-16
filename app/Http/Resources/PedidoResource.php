@@ -28,7 +28,7 @@ class PedidoResource extends JsonResource
             'observacion_est' => $this->observacion_est,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
-            'responsable' => $this->responsable->nombres.' '.$this->responsable->apellidos,
+            'responsable' => is_null($this->responsable)?'':$this->responsable->nombres.' '.$this->responsable->apellidos,
             'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,

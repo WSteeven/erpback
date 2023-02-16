@@ -57,18 +57,9 @@ class CargoController extends Controller
      */
     public function show(Cargo $cargo)
     {
-        //
-    }
+        $modelo = new CargoResource($cargo);
+        return response()->json(compact('modelo'));
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Cargo  $cargo
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Cargo $cargo)
-    {
-        //
     }
 
     /**
@@ -78,9 +69,14 @@ class CargoController extends Controller
      * @param  \App\Models\Cargo  $cargo
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Cargo $cargo)
+    public function update(CargoRequest $request, Cargo $cargo)
     {
-        //
+        //Respuesta
+        $cargo->update($request->validated());
+        $modelo = new CargoResource($cargo->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -91,6 +87,8 @@ class CargoController extends Controller
      */
     public function destroy(Cargo $cargo)
     {
-        //
+        $cargo->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

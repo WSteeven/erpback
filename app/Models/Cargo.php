@@ -2,12 +2,17 @@
 
 namespace App\Models;
 
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Cargo extends Model
+class Cargo extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
+    use Filterable;
     protected $table = 'cargos';
     protected $fillable = [
         'nombre'
@@ -15,7 +20,7 @@ class Cargo extends Model
 
     private static $whiteListFilter = [
         'id',
-        'nombres',
+        'nombre',
     ];
 
     protected $casts = [
@@ -30,7 +35,7 @@ class Cargo extends Model
         ];
     }
 
-    
+
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
@@ -43,6 +48,6 @@ class Cargo extends Model
      */
     public function empleados()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->hasMany(Empleado::class);
     }
 }

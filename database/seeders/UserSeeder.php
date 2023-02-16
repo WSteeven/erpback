@@ -75,7 +75,6 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO);
 
 
-
         //Localidad
         $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jpconstrucred.com', 'administrador_id' => 7]);
         $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jpconstrucred.com', 'administrador_id' => 5]);
@@ -235,6 +234,21 @@ class UserSeeder extends Seeder
             'identificacion' => '0780401526',
             'telefono' => '0987457845',
             'fecha_nacimiento' => '2000-05-12',
+            'jefe_id' => '2',
+            'sucursal_id' => $localidad_machala->id
+        ]);
+
+        $sso = User::create([
+            'name'=>'ASERRANO',
+            'email'=>'aserrano@jpconstrucred.com',
+            'password'=>bcrypt('password'),
+        ])->syncRoles([User::ROL_EMPLEADO, User::ROL_SSO]);
+        $sso->empleado()->create([
+            'nombres' => 'ARNALDO JOSE',
+            'apellidos' => 'SERRANO COELLO',
+            'identificacion' => '0703517029',
+            'telefono' => '0982984348',
+            'fecha_nacimiento' => '1978-08-06',
             'jefe_id' => '2',
             'sucursal_id' => $localidad_machala->id
         ]);
