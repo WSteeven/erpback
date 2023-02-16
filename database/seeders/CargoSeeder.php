@@ -19,16 +19,13 @@ class CargoSeeder extends Seeder
         Cargo::create(['nombre' => 'GERENCIA']);
         Cargo::create(['nombre' => 'JEFE TECNICO']);
         Cargo::create(['nombre' => 'COORDINADOR TECNICO']);
-        Cargo::create(['nombre' => 'TECNICO']);
 
-        Cargo::insert([
-            'nombre' => 'TÉCNICO LÍDER DE GRUPO',
-            'nombre' => 'TÉCNICO CABLISTA',
-            'nombre' => 'TÉCNICO SECRETARIO',
-            'nombre' => 'TÉCNICO AYUDANTE',
-            'nombre' => 'TECNICO FUSIONADOR',
-            'nombre' => 'CHOFER'
-        ]);
+        Cargo::create(['nombre' => 'TÉCNICO LÍDER DE GRUPO']);
+        Cargo::create(['nombre' => 'TÉCNICO CABLISTA']);
+        Cargo::create(['nombre' => 'TÉCNICO SECRETARIO']);
+        Cargo::create(['nombre' => 'TÉCNICO AYUDANTE']);
+        Cargo::create(['nombre' => 'TECNICO FUSIONADOR']);
+        Cargo::create(['nombre' => 'CHOFER']);
 
         Cargo::create(['nombre' => 'ADMINISTRADOR']);
         Cargo::create(['nombre' => 'ASISTENTE ADMINISTRATIVO']);

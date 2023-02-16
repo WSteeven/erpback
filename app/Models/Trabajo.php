@@ -31,9 +31,16 @@ class Trabajo extends Model
 
     protected $table = 'trabajos';
     protected $fillable = [
-        'codigo_subtarea',
-        'detalle',
+        'codigo_trabajo',
+        'codigo_trabajo_cliente',
+        'titulo',
         'descripcion_completa',
+        'observacion',
+        'para_cliente_proyecto',
+        'fecha_solicitud',
+        'estado',
+        'modo_asignacion_trabajo',
+
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
@@ -43,19 +50,22 @@ class Trabajo extends Model
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
+        'dias_ocupados',
+
         'es_dependiente',
-        'subtarea_dependiente',
         'es_ventana',
         'fecha_agendado',
         'hora_inicio_agendado',
         'hora_fin_agendado',
-        'estado',
-        'modo_asignacion_trabajo',
-        'grupo_id',
-        'empleado_id',
+
         'tipo_trabajo_id',
-        'tarea_id',
-        // 'coordinador_id',
+        'trabajo_padre_id',
+        'cliente_final_id',
+        'coordinador_id',
+        'fiscalizador_id',
+        'proyecto_id',
+        'cliente_id',
+        'trabajo_dependiente_id',
     ];
 
     protected $casts = [

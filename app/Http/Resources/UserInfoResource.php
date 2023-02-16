@@ -32,6 +32,7 @@ class UserInfoResource extends JsonResource
             'estado' => $this->empleado->estado,
             'es_lider' => $this->esTecnicoLider(),
             'permisos' => $this->obtenerPermisos($this->id),
+            'cargo' => $this->empleado->cargo?->nombre,
         ];
     }
 }
