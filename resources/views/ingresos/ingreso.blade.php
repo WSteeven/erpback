@@ -6,7 +6,7 @@
     <title>Comprobante N° {{ $id }}</title>
     <style>
         @page {
-            margin: 0cm 0px;
+            margin: 2px 15px 5px 15px;
         }
 
         body {
@@ -86,7 +86,7 @@ $fecha = new Datetime();
 $qr = QrCode::size(100)
 ->backgroundColor(255, 90, 0)
 ->generate('Hola a todos, saludos cordiales');
-
+$mensaje_qr='JP CONSTRUCRED C. LTDA.'.PHP_EOL.'TRANSACCION: '.$id.PHP_EOL.'INGRESO: '.$motivo.PHP_EOL.'SOLICITADO POR: '.$solicitante.PHP_EOL.'AUTORIZADO POR: '.$per_autoriza.PHP_EOL.'BODEGA DE CLIENTE: '.$cliente.PHP_EOL.'SUCURSAL: '.$sucursal;
 $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
 @endphp
 
@@ -95,7 +95,7 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
         <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
+                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transferencia)
@@ -148,7 +148,7 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                     </div>
                 </td>
                 <td>
-                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->size(70)->generate('Hola, soy un qr en un PDF'),) !!}"></div>
+                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr)) !!}"></div>
                 </td>
             </tr>
         </table>
@@ -167,16 +167,23 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <td>Sucursal: <b>{{ $sucursal }}</b></td>
             </tr>
             <tr class="row">
-                <td>Autorizado por: <b>{{ $per_autoriza }}</b></td>
+                <td>Ingresado por: <b>{{ $per_autoriza }}</b></td>
                 <td></td>
                 <td>Estado: <b>{{ $estado }}</b></td>
+            </tr>
+            <tr class="row">
+                <td>Cliente: <b>{{$cliente}}</b></td>
+                <td></td>
+                <td>Motivo: <b>{{$motivo}}</b></td>
             </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
+                @if ($tarea)
                 <tr>
                     <td>Tarea: <b>{{ $tarea }}</b></td>
-                </tr>
+                </tr>    
+                @endif
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
@@ -187,7 +194,6 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <th>Categoria</th>
                 <th>Condición</th>
                 <th>Cantidad</th>
-                <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
                 {{-- @foreach ($ciclo as $c) --}}
@@ -198,7 +204,6 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                     <td>{{ $listado['categoria'] }}</td>
                     <td>{{ $listado['condiciones'] }}</td>
                     <td align="center">{{ $listado['cantidad'] }}</td>
-                    <td align="center">{{ $listado['despachado'] }}</td>
                 </tr>
                 @endforeach
                 {{-- @endforeach --}}

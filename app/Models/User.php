@@ -121,6 +121,6 @@ class User extends Authenticatable implements Auditable
 
     public function esTecnicoLider()
     {
-        return $this->hasRole(User::ROL_TECNICO_JEFE_CUADRILLA);
+        return $this->hasRole(User::ROL_TECNICO);
     }
 }
