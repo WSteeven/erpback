@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Resources\EmpleadoResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -10,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 
-class Subtarea extends Model implements Auditable
+class Trabajo extends Model
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
@@ -27,7 +26,10 @@ class Subtarea extends Model implements Auditable
     const POR_GRUPO = 'POR_GRUPO';
     const POR_EMPLEADO = 'POR_EMPLEADO';
 
-    protected $table = "subtareas";
+    const PARA_PROYECTO = 'PARA_PROYECTO';
+    const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
+
+    protected $table = 'trabajos';
     protected $fillable = [
         'codigo_subtarea',
         'detalle',

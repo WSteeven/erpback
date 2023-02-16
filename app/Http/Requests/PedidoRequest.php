@@ -87,6 +87,9 @@ class PedidoRequest extends FormRequest
                 'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
+        if(is_null($this->responsable)){
+            $this->merge(['responsable'=>$this->solicitante]);
+        }
         if($this->autorizacion===3){
             $this->merge([
                 'estado'=>4,
