@@ -62,10 +62,8 @@
                     <table width="100%">
                         <tr>
                             <td bgcolor="#bfbfbf" style="font-size:12px">
-                                <div align="center"><strong>REPORTE SEMANAL DE GASTOS DEL ' . $fecha_titulo_ini[2] . '-'
-                                        . $fecha_titulo_ini[1] . '-' . $fecha_titulo_ini[0] . ' AL ' .
-                                        $fecha_titulo_fin[2] . '-' . $fecha_titulo_fin[1] . '-' . $fecha_titulo_fin[0] .
-                                        ' </strong></div>
+                                <div align="center"><strong>REPORTE SEMANAL DE GASTOS DEL
+                                        {{ $fecha_inicio . ' AL ' . $fecha_fin }}</strong></div>
                             </td>
                         </tr>
                         <tr>
@@ -105,9 +103,80 @@
                                     @endif
 
                                 </table>
-
-                                <div class="footer">JP Construcred / Reposte Generado por el Usuario:
-                                    {{ $datos_usuario_logueado->name . ' ' . $datos_usuario_logueado->name }}</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                    style="margin-top:' . $height . '%; ">
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="10" style="font-size:10px">
+                            <div align="right"><strong>SALDO ANTERIOR:</strong></div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">' . number_format($sal_anterior, 2, ',', ' ') . '</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="10" style="font-size:10px">
+                            <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">' . number_format($sal_dep_r, 2, ',', ' ') . '</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="10" style="font-size:10px">
+                            <div align="right"><strong>NUEVO SALDO:&nbsp;</strong></div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">' . number_format($nuevo_saldo, 2, ',', ' ') . '</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="2%" bgcolor="#a9d08e">
+                            <div align="center"><strong>N&deg;</strong></div>
+                        </td>
+                        <td width="5%" bgcolor="#a9d08e">
+                            <div align="center"><strong>FECHA</strong></div>
+                        </td>
+                        <td width="8%" bgcolor="#a9d08e">
+                            <div align="center"><strong>TAREA</strong></div>
+                        </td>
+                        <td width="10%" bgcolor="#a9d08e">
+                            <div align="center"><strong># FACTURA</strong></div>
+                        </td>
+                        <td width="10%" bgcolor="#a9d08e">
+                            <div align="center"><strong>RUC</strong></div>
+                        </td>
+                        <td width="10%" bgcolor="#a9d08e">
+                            <div align="center"><strong>AUTORIZACION ESPECIAL</strong></div>
+                        </td>
+                        <td width="8%" bgcolor="#a9d08e">
+                            <div align="center"><strong>DETALLE</strong></div>
+                        </td>
+                        <td width="8%" bgcolor="#a9d08e">
+                            <div align="center"><strong>SUB DETALLE</strong></div>
+                        </td>
+                        <td width="24%" bgcolor="#a9d08e">
+                            <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                        </td>
+                        <td width="3%" bgcolor="#a9d08e">
+                            <div align="center"><strong>CANT.</strong></div>
+                        </td>
+                        <td width="7%" bgcolor="#a9d08e">
+                            <div align="center"><strong>V. UNI.</strong></div>
+                        </td>
+                        <td width="5%" bgcolor="#a9d08e">
+                            <div align="center"><strong>TOTAL</strong></div>
+                        </td>
+                    </tr>
+                    <div class="footer">JP Construcred / Reporte Generado por el Usuario:
+                        {{ $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'] }}</div>
 </body>
 
 </html>

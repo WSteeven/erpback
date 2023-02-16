@@ -2,6 +2,8 @@
 
 namespace App\Models\FondosRotativos\Viatico;
 
+use App\Models\Proyecto;
+use App\Models\Tarea;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +21,8 @@ class Viatico extends Model implements Auditable
     protected $fillable = [
         'id_lugar',
         'fecha_viat',
-        'num_tarea',
+        'id_tarea',
+        'id_proyecto',
         'ruc',
         'factura',
         'proveedor',
@@ -60,5 +63,13 @@ class Viatico extends Model implements Auditable
     public function estado_info()
     {
         return $this->hasOne(EstadoViatico::class, 'id', 'estado');
+    }
+    public function proyecto_info()
+    {
+        return $this->hasOne(Proyecto::class, 'id', 'id_proyecto');
+    }
+    public function tarea_info()
+    {
+        return $this->hasOne(Tarea::class, 'id', 'id_tarea');
     }
 }

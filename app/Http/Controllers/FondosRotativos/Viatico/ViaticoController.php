@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FondosRotativos\Viatico;
 use App\Exports\ViaticoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
+use App\Http\Resources\UserInfoResource;
 use App\Models\FondosRotativos\Viatico\DetalleViatico;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\Viatico;
@@ -28,7 +29,7 @@ class ViaticoController extends Controller
         $this->middleware('can:puede.editar.fondo')->only('update');
         $this->middleware('can:puede.eliminar.fondo')->only('update');
     }
-     /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -37,52 +38,51 @@ class ViaticoController extends Controller
     {
         $results = [];
 
-        $results = Viatico::ignoreRequest(['campos'])->with('detalle_info','aut_especial_user','estado_info')->filter()->get();
+        $results = Viatico::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info','tarea_info','proyecto_info')->filter()->get();
         $results = ViaticoResource::collection($results);
 
         return response()->json(compact('results'));
     }
-      /**
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \App\Models\Viatico  $viatico
      * @return \Illuminate\Http\Response
      */
-    public function store (Request $request)
+    public function store(Request $request)
     {
 
         $datos = $request->all();
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_viatico=0;
-        if($datos_detalle->descripcion==''){
-            if($datos_detalle->autorizacion=='SI'){
-                $datos_estatus_via= EstadoViatico::where('descripcion','POR APROBAR')->first();
+        $saldo_consumido_viatico = 0;
+        if ($datos_detalle->descripcion == '') {
+            if ($datos_detalle->autorizacion == 'SI') {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+            } else {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
-            else{
-                $datos_estatus_via= EstadoViatico::where('descripcion','APROBADO')->first();
-                $saldo_consumido_viatico=(float)$saldo_consumido_viatico+(float)$request->total;
-            }
-
-        }else{
-            if($datos_detalle->autorizacion=='SI'){
-                $datos_estatus_via= EstadoViatico::where('descripcion','POR APROBAR')->first();
-            }
-            else{
-                $datos_estatus_via= EstadoViatico::where('descripcion','APROBADO')->first();
-                $saldo_consumido_viatico=(float)$saldo_consumido_viatico+(float)$request->total;
+        } else {
+            if ($datos_detalle->autorizacion == 'SI') {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+            } else {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
         }
 
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['fecha_ingreso']= date('Y-m-d');
+        $datos['fecha_ingreso'] = date('Y-m-d');
         $datos['transcriptor'] = $user->name;
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
+        $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
+        $datos['id_proyecto']=$request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
         if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();
@@ -93,7 +93,7 @@ class ViaticoController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-     /**
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -107,29 +107,26 @@ class ViaticoController extends Controller
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_viatico=0;
-        if($datos_detalle->descripcion==''){
-            if($datos_detalle->autorizacion=='SI'){
-                $datos_estatus_via= EstadoViatico::where('descripcion','POR APROBAR')->first();
+        $saldo_consumido_viatico = 0;
+        if ($datos_detalle->descripcion == '') {
+            if ($datos_detalle->autorizacion == 'SI') {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+            } else {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
-            else{
-                $datos_estatus_via= EstadoViatico::where('descripcion','APROBADO')->first();
-                $saldo_consumido_viatico=(float)$saldo_consumido_viatico+(float)$request->total;
-            }
-
-        }else{
-            if($datos_detalle->autorizacion=='SI'){
-                $datos_estatus_via= EstadoViatico::where('descripcion','POR APROBAR')->first();
-            }
-            else{
-                $datos_estatus_via= EstadoViatico::where('descripcion','APROBADO')->first();
-                $saldo_consumido_viatico=(float)$saldo_consumido_viatico+(float)$request->total;
+        } else {
+            if ($datos_detalle->autorizacion == 'SI') {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+            } else {
+                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
         }
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['fecha_ingreso']= date('Y-m-d');
+        $datos['fecha_ingreso'] = date('Y-m-d');
         $datos['transcriptor'] = $user->name;
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
@@ -153,29 +150,27 @@ class ViaticoController extends Controller
         $viatico->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
-
     }
-    public function generar_reporte(Request $request,$tipo){
+    public function generar_reporte(Request $request, $tipo)
+    {
         switch ($tipo) {
             case 'excel':
-                return Excel::download(new ViaticoExport( $request->fecha_inicio, $request->fecha_fin), 'fondo_fecha.xlsx');
+                return Excel::download(new ViaticoExport($request->fecha_inicio, $request->fecha_fin), 'fondo_fecha.xlsx');
                 break;
             default:
                 # code...
                 break;
         }
-
     }
-    public function generar_reporte_prueba($tipo){
+    public function generar_reporte_prueba($tipo)
+    {
         switch ($tipo) {
             case 'excel':
-              return Excel::download(new ViaticoExport( '2023-02-01', '2023-02-25'), 'fondo_fecha.xlsx');
+                return Excel::download(new ViaticoExport('2023-02-01', '2023-02-25'), 'fondo_fecha.xlsx');
                 break;
             default:
                 # code...
                 break;
         }
-
     }
-
 }

@@ -17,7 +17,8 @@ return new class extends Migration
             $table->id();
             $table->date('fecha_viat');
             $table->unsignedBigInteger('id_lugar');
-            $table->string('num_tarea', 25);
+            $table->unsignedBigInteger('id_tarea')->nullable();
+            $table->unsignedBigInteger('id_proyecto')->nullable();
             $table->string('ruc', 13);
             $table->string('factura', 25);
             $table->string('proveedor', 250);
@@ -42,6 +43,8 @@ return new class extends Migration
             $table->foreign('id_lugar')->references('id')->on('cantones');
             $table->foreign('aut_especial')->references('id')->on('users');
             $table->foreign('id_usuario')->references('id')->on('users');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
+            $table->foreign('id_proyecto')->references('id')->on('proyectos');
             $table->timestamps();
         });
     }
