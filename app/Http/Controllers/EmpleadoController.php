@@ -180,7 +180,7 @@ class EmpleadoController extends Controller
 
     public function intercambiarJefeCuadrilla(Request $request)
     {
-        $request->validate([
+        /*$request->validate([
             'grupo' => 'required|numeric|integer',
             'nuevo_jefe' => 'required|numeric|integer',
         ]);
@@ -191,6 +191,9 @@ class EmpleadoController extends Controller
 
         // Buscar lider de cuadrilla actual
         foreach ($empleados as $empleado) {
+            $esTecnico = $empleado->user->hasRole(User::ROL_TECNICO);
+            $empleado->cargo = $empleado;
+
             $es_lider = in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
 
             if ($es_lider) $jefeActual = $empleado->user;
@@ -219,12 +222,12 @@ class EmpleadoController extends Controller
         $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_JEFE_CUADRILLA);
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
 
-        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
+        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);*/
     }
 
     public function intercambiarSecretarioCuadrilla(Request $request)
     {
-        $request->validate([
+        /* $request->validate([
             'grupo' => 'required|numeric|integer',
             'nuevo_jefe' => 'required|numeric|integer',
         ]);
@@ -266,6 +269,6 @@ class EmpleadoController extends Controller
         $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
 
-        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']);
+        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
 }
