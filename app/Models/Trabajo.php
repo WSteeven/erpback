@@ -1,0 +1,165 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use App\Traits\UppercaseValuesTrait;
+
+class Trabajo extends Model
+{
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
+
+    const CREADO = 'CREADO';
+    const ASIGNADO = 'ASIGNADO';
+    const EJECUTANDO = 'EJECUTANDO';
+    const PAUSADO = 'PAUSADO';
+    const SUSPENDIDO = 'SUSPENDIDO';
+    const CANCELADO = 'CANCELADO';
+    const REALIZADO = 'REALIZADO';
+    const FINALIZADO = 'FINALIZADO';
+
+    // Modo de asignacion de trabajo
+    const POR_GRUPO = 'POR_GRUPO';
+    const POR_EMPLEADO = 'POR_EMPLEADO';
+
+    const PARA_PROYECTO = 'PARA_PROYECTO';
+    const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
+
+    protected $table = 'trabajos';
+    protected $fillable = [
+        'codigo_subtarea',
+        'detalle',
+        'descripcion_completa',
+        'fecha_hora_creacion',
+        'fecha_hora_asignacion',
+        'fecha_hora_ejecucion',
+        'fecha_hora_realizado',
+        'fecha_hora_finalizacion',
+        'fecha_hora_suspendido',
+        'causa_suspencion',
+        'fecha_hora_cancelacion',
+        'causa_cancelacion',
+        'es_dependiente',
+        'subtarea_dependiente',
+        'es_ventana',
+        'fecha_agendado',
+        'hora_inicio_agendado',
+        'hora_fin_agendado',
+        'estado',
+        'modo_asignacion_trabajo',
+        'grupo_id',
+        'empleado_id',
+        'tipo_trabajo_id',
+        'tarea_id',
+        // 'coordinador_id',
+    ];
+
+    protected $casts = [
+        'es_dependiente' => 'boolean',
+        'es_ventana' => 'boolean',
+    ];
+
+    private static $whiteListFilter = [
+        '*'
+    ];
+
+    // Relacion uno a muchos (inversa)
+    public function tarea()
+    {
+        return $this->belongsTo(Tarea::class);
+    }
+
+    // Relacion uno a muchos (inversa)
+    /*public function grupo()
+    {
+        return $this->belongsTo(Grupo::class);
+    }*/
+    public function grupos()
+    {
+        return $this->belongsToMany(Grupo::class);
+    }
+
+    // Relacion uno a muchos (inversa)
+    public function tipo_trabajo()
+    {
+        return $this->belongsTo(TipoTrabajo::class);
+    }
+
+    /**
+     * Relación uno a muchos .
+     * Una subtarea puede tener varias transacciones
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(TransaccionBodega::class);
+    }
+
+    // Relacion uno a muchos
+    public function archivos()
+    {
+        return $this->hasMany(ArchivoSubtarea::class);
+    }
+
+    public function pausasSubtarea()
+    {
+        return $this->hasMany(PausaSubtarea::class);
+    }
+
+    public function subtarea()
+    {
+        return $this->hasOne(Subtarea::class, 'id', 'subtarea_dependiente');
+    }
+
+    public function tecnicosPrincipales($empleados)
+    {
+        // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());
+        // return Empleado::whereIn('id', $ids)->get()->map(fn ($item) => [
+
+        return $empleados->map(fn ($item) => [
+            'id' => $item->id,
+            'identificacion' => $item->identificacion,
+            'nombres' => $item->nombres,
+            'apellidos' => $item->apellidos,
+            'telefono' => $item->telefono,
+            'fecha_nacimiento' => $item->fecha_nacimiento,
+            'email' => $item->user ? $item->user->email : '',
+            'jefe' => $item->jefe ? $item->jefe->nombres . ' ' . $item->jefe->apellidos : 'N/A',
+            'usuario' => $item->user->name,
+            'sucursal' => $item->sucursal->lugar,
+            'estado' => $item->estado,
+            'grupo' => $item->grupo?->nombre,
+            'disponible' => $item->disponible,
+            'roles' => implode(', ', $item->user->getRoleNames()->toArray()),
+        ]);
+    }
+
+    public function otrosTecnicos($empleados)
+    {
+        //$empleados->filter(fn($item) => $item->);
+        return $empleados->map(fn ($item) => [
+            'id' => $item->id,
+            'identificacion' => $item->identificacion,
+            'nombres' => $item->nombres,
+            'apellidos' => $item->apellidos,
+            'telefono' => $item->telefono,
+            'fecha_nacimiento' => $item->fecha_nacimiento,
+            'email' => $item->user ? $item->user->email : '',
+            'jefe' => $item->jefe ? $item->jefe->nombres . ' ' . $item->jefe->apellidos : 'N/A',
+            'usuario' => $item->user->name,
+            'sucursal' => $item->sucursal->lugar,
+            'estado' => $item->estado,
+            'grupo' => $item->grupo?->nombre,
+            'disponible' => $item->disponible,
+            'roles' => implode(', ', $item->user->getRoleNames()->toArray()),
+        ]);
+    }
+
+    public function empleados()
+    {
+        return $this->belongsToMany(Empleado::class);
+    }
+}

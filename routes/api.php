@@ -65,6 +65,7 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Controllers\TrabajoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -159,6 +160,7 @@ Route::apiResources(
         'unidades-medidas' => UnidadMedidaController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
+        'trabajos' => TrabajoController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
@@ -264,4 +266,4 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 Route::apiResource('emergencias', EmergenciaController::class);
 
 // Reportes de material
-Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
+Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');
