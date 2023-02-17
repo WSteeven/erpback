@@ -248,6 +248,18 @@ Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
 });
 
+Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
+    Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
+    Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);
+    Route::post('realizar/{trabajo}', [TrabajoController::class, 'realizar']);
+    Route::post('finalizar/{trabajo}', [TrabajoController::class, 'finalizar']);
+    Route::post('pausar/{trabajo}', [TrabajoController::class, 'pausar']);
+    Route::post('reanudar/{trabajo}', [TrabajoController::class, 'reanudar']);
+    Route::post('suspender/{trabajo}', [TrabajoController::class, 'suspender']);
+    Route::post('cancelar/{trabajo}', [TrabajoController::class, 'cancelar']);
+    Route::get('pausas/{trabajo}', [TrabajoController::class, 'obtenerPausas']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas
     Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);

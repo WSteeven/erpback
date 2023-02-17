@@ -29,7 +29,7 @@ class TrabajoRequest extends FormRequest
             'titulo' => 'required|string',
             'descripcion_completa' => 'nullable|string',
             'observacion' => 'nullable|string',
-            'tiene_subtareas' => 'required|boolean',
+            'tiene_subtrabajos' => 'required|boolean',
             /*'grupo' => 'nullable|numeric|integer',
             'empleado' => 'nullable|numeric|integer',*/
             // 'cantidad_dias' => 'nullable|string',

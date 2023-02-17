@@ -54,6 +54,7 @@ class Trabajo extends Model implements Auditable
 
         'es_dependiente',
         'es_ventana',
+        'tiene_subtrabajos',
         'fecha_agendado',
         'hora_inicio_agendado',
         'hora_fin_agendado',
@@ -71,6 +72,7 @@ class Trabajo extends Model implements Auditable
     protected $casts = [
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
+        'tiene_subtrabajos' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -78,9 +80,21 @@ class Trabajo extends Model implements Auditable
     ];
 
     // Relacion uno a muchos (inversa)
-    public function tarea()
+    public function cliente()
     {
-        return $this->belongsTo(Tarea::class);
+        return $this->belongsTo(Cliente::class);
+    }
+
+    // Relacion uno a muchos (inversa)
+    public function fiscalizador()
+    {
+        return $this->belongsTo(Empleado::class, 'fiscalizador_id', 'id');
+    }
+
+    // Relacion uno a muchos (inversa)
+    public function coordinador()
+    {
+        return $this->belongsTo(Empleado::class);
     }
 
     // Relacion uno a muchos (inversa)

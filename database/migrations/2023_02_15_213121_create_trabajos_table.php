@@ -39,6 +39,7 @@ return new class extends Migration
 
             $table->boolean('es_dependiente')->default(false);
             $table->boolean('es_ventana')->default(false);
+            $table->boolean('tiene_subtrabajos');
 
             $table->string('fecha_agendado')->nullable();
             $table->string('hora_inicio_agendado')->nullable();

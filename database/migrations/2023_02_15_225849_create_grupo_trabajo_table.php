@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('grupo_subtarea', function (Blueprint $table) {
+        Schema::create('grupo_trabajo', function (Blueprint $table) {
             $table->id();
 
             $table->boolean('responsable');
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unsignedBigInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on('grupos')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('subtarea_id');
-            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('trabajo_id');
+            $table->foreign('trabajo_id')->references('id')->on('trabajos')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
         });
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('grupo_subtarea');
+        Schema::dropIfExists('grupo_trabajo');
     }
 };

@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EmpleadoSubtarea extends Model
+class EmpleadoTrabajo extends Model
 {
     use HasFactory;
-    protected $table = 'empleado_subtarea';
+    protected $table = 'empleado_trabajo';
     protected $fillable = [
         'responsable',
         'empleado_id',
-        'subtarea_id',
+        'trabajo_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
