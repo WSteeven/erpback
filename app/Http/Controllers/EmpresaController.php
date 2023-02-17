@@ -18,29 +18,16 @@ class EmpresaController extends Controller
         $this->middleware('can:puede.eliminar.empresas')->only('destroy');
     }
 
-    public function list(){
-        $page = request('page');
-        $offset = request('offset');
-        $results = [];
-        
-        if ($page) {
-            $results = Empresa::simplePaginate($offset);
-            EmpresaResource::collection($results);
-            $results->appends(['offset' => $offset]);
-        } else {
-            $results = Empresa::filter()->get();
-            EmpresaResource::collection($results);
-        }
-        return response()->json(compact('results'));
-    }
     /**
      * Listar
      */
     public function index()
     {
-        // $results = EmpresaResource::collection(Empresa::all());
-        // return response()->json(compact('results'));
-        return response()->json(['results' => $this->list()]);
+        $results = [];
+
+        $results = Empresa::filter()->get();
+        $results = EmpresaResource::collection($results);
+        return response()->json(compact('results'));
     }
 
 
