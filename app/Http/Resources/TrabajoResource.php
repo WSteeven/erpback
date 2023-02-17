@@ -26,8 +26,8 @@ class TrabajoResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'codigo_subtarea' => $this->codigo_subtarea,
-            'detalle' => $this->detalle,
+            'codigo_trabajo' => $this->codigo_trabajo,
+            'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
             'actividad_realizada' => $this->actividad_realizada,
             'es_dependiente' => $this->es_dependiente,
@@ -41,8 +41,8 @@ class TrabajoResource extends JsonResource
             'hora_inicio_agendado' => $this->hora_inicio_agendado,
             'hora_fin_agendado' => $this->hora_fin_agendado,
             'tipo_trabajo' => $this->tipo_trabajo->descripcion,
-            'tarea' => $this->tarea->codigo_tarea,
-            'tarea_id' => $this->tarea_id,
+            //'tarea' => $this->tarea->codigo_tarea,
+            //'tarea_id' => $this->tarea_id,
             'grupos' => $this->extraerNombres($this->grupos()->orderBy('responsable', 'desc')->get()),
             'empleados' => $this->extraerNombresApellidos($this->empleados()->orderBy('responsable', 'desc')->get()),
             'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,

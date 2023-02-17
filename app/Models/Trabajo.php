@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 
-class Trabajo extends Model
+class Trabajo extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
