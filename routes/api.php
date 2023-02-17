@@ -261,6 +261,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('cantones', fn () => ['results' => Canton::all()]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
+    Route::post('fondos-rotativos/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte']);
 });
 
 // Tendidos
@@ -271,5 +272,5 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
 
 //fondos-rotativos/reporte/fecha/pdf
-Route::post('fondos-rotativos/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte'])->middleware('auth:sanctum');
+
 

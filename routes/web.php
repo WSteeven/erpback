@@ -30,4 +30,3 @@ Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIn
 
 Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php
 Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));
-Route::get('fondos-rotativos/prueba/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte_prueba']);
