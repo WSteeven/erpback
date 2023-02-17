@@ -6,6 +6,7 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
@@ -137,6 +138,8 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
+            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
             if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
@@ -161,7 +164,7 @@ class TransaccionBodegaEgresoController extends Controller
             if($transaccion->pedido_id){
                 TransaccionBodega::actualizarPedido($transaccion); //detalle_poructo_transaccion where transaccion_id = 1 / observer detelle_pedido_producto_observer
             }
-            
+
             // TransaccionBodega::functon
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
@@ -287,8 +290,9 @@ class TransaccionBodegaEgresoController extends Controller
         Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
         $resource = new TransaccionBodegaResource($transaccion);
         Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
+        $persona_retira = Empleado::find($transaccion->per_retira_id);
         try {
-            $pdf = Pdf::loadView('egresos.egreso', $resource->resolve());
+            $pdf = Pdf::loadView('egresos.egreso', $resource->resolve(), $persona_retira->toArray());
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();

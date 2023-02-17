@@ -32,6 +32,7 @@ class PedidoResource extends JsonResource
             'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
+            'per_autoriza_id' => $this->per_autoriza_id,
             'tarea' => $this->tarea?->detalle,
             'sucursal' => $this->sucursal->lugar,
             'sucursal_id' => $this->sucursal_id,

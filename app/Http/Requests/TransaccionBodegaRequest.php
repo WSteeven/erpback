@@ -43,18 +43,18 @@ class TransaccionBodegaRequest extends FormRequest
             'transferencia' => 'sometimes|nullable|exists:transferencias,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
-            'motivo' => 'sometimes|nullable|exists:motivos,id',
+            'motivo' => 'required|exists:motivos,id',
             'sucursal' => 'required|exists:sucursales,id',
             'per_autoriza' => 'required|exists:empleados,id',
             'per_atiende' => 'sometimes|nullable|exists:empleados,id',
-            'per_retira' => 'sometimes|exists:empleados,id',
+            'per_retira' => 'sometimes|nullable|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
             'listadoProductosTransaccion.*.cantidad' => 'required'
         ];
-        if ($this->route()->uri() === 'api/transacciones-ingresos') {
+        if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';
-            $rules['motivo'] = 'required|exists:motivos,id';
+            $rules['responsable'] = 'required|exists:empleados,id';
         }
 
         return $rules;
@@ -120,6 +120,9 @@ class TransaccionBodegaRequest extends FormRequest
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
             ]);
         }
+        /**
+         * **********************************************************************************     INGRESOS     ****************************************
+         */
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             if (is_null($this->autorizacion) || $this->autorizacion == '') {
                 // Log::channel('testing')->info('Log', ['autorizacion', $this->autorizacion]);
@@ -151,6 +154,9 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
+        /**
+         * **********************************************************************************     EGRESOS     ***************************************
+         */
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             if ($this->autorizacion == '') {
                 $this->merge([
@@ -168,6 +174,11 @@ class TransaccionBodegaRequest extends FormRequest
             if ($this->fecha_limite === "N/A" || is_null($this->fecha_limite)) {
                 $this->merge([
                     'fecha_limite' => null
+                ]);
+            }
+            if (is_null($this->per_retira)) {
+                $this->merge([
+                    'per_retira' => $this->responsable,
                 ]);
             }
         }
@@ -199,11 +210,6 @@ class TransaccionBodegaRequest extends FormRequest
                     'per_autoriza' => auth()->user()->empleado->id,
                 ]);
             }
-            if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
-                $this->merge([
-                    'per_autoriza'=>auth()
-                ]);
-            }
         }
 
         if (is_null($this->per_autoriza)) {
@@ -214,11 +220,6 @@ class TransaccionBodegaRequest extends FormRequest
         if (auth()->user()->hasRole([User::ROL_BODEGA])) {
             $this->merge([
                 'autorizacion' => 2
-            ]);
-        }
-        if (is_null($this->per_retira)) {
-            $this->merge([
-                'per_retira' => auth()->user()->empleado->id,
             ]);
         }
         //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);

@@ -28,6 +28,7 @@ class TransaccionBodega extends Model implements Auditable
         'observacion_aut',
         'observacion_est',
         'solicitante_id',
+        'responsable_id',
         'motivo_id',
         'devolucion_id',
         'pedido_id',

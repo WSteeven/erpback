@@ -81,7 +81,7 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos tienen un responsable
@@ -195,4 +195,35 @@ class Pedido extends Model implements Auditable
             return $results;
         }
     }
+
+    /**
+     * Filtrar todos los pedidos para el de activos fijos de acuerdo al estado de una autorizacion
+     */
+    public static function filtrarPedidosActivosFijos($estado){
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $results = [];
+        if($estado===EstadoTransaccion::PENDIENTE){
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)
+                    ->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                    })->get();
+            }
+            return $results;
+        }else{
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+                return $results;
+            } elseif ($estado ===$estadoTransaccion->nombre) {
+                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+                return $results;
+            } else {
+                $results = Pedido::all();
+                return $results;
+            }
+        }
+    }
+
 }

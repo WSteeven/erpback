@@ -82,7 +82,6 @@
 </head>
 @php
     $fecha = new Datetime();
-    
     $qr = QrCode::size(100)
         ->backgroundColor(255, 90, 0)
         ->generate('Hola a todos, saludos cordiales');
@@ -130,8 +129,8 @@
                         {{ auth('sanctum')->user()->empleado->apellidos }} </td>
                     <td></td>
                     <td style="padding-left: 60px;">
-                        @if ($responsable)
-                            {{ $responsable }}
+                        @if ($responsable_id)
+                            {{$per_retira}}
                         @else
                             Nombre:
                         @endif
@@ -140,7 +139,7 @@
                 <tr>
                     <td align="center" >{{ auth('sanctum')->user()->empleado->identificacion }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">C.I:</td>
+                    <td align="center">{{$identificacion}}</td>
                 </tr>
             </tbody>
         </table>
