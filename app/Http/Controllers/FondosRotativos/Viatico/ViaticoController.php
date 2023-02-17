@@ -8,6 +8,7 @@ use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\FondosRotativos\Viatico\DetalleViatico;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Viatico\SaldoGrupo;
 use App\Models\FondosRotativos\Viatico\Viatico;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -38,7 +39,7 @@ class ViaticoController extends Controller
     {
         $results = [];
 
-        $results = Viatico::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info','tarea_info','proyecto_info')->filter()->get();
+        $results = Viatico::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
         $results = ViaticoResource::collection($results);
 
         return response()->json(compact('results'));
@@ -82,7 +83,7 @@ class ViaticoController extends Controller
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
-        $datos['id_proyecto']=$request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
+        $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
         if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();
@@ -166,6 +167,17 @@ class ViaticoController extends Controller
     {
         switch ($tipo) {
             case 'excel':
+                $idUsuarioLogeado = 26;
+            $fecha_inicio = '2023-02-01';
+                $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '<=', $fecha_inicio)
+                ->orderBy('id', 'desc')
+                ->get();
+            if (sizeof($datos_semana) == 0) {
+                $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
                 return Excel::download(new ViaticoExport('2023-02-01', '2023-02-25'), 'fondo_fecha.xlsx');
                 break;
             default:
