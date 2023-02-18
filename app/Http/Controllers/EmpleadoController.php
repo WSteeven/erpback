@@ -34,8 +34,8 @@ class EmpleadoController extends Controller
     public function list()
     {
         // Obtener parametros
-        $page = request('page');
-        $offset = request('offset');
+        // $page = request('page');
+        // $offset = request('offset');
         $rol = request('rol');
         $search = request('search');
         $campos = explode(',', request('campos'));
@@ -43,7 +43,7 @@ class EmpleadoController extends Controller
         $user = User::find(auth()->id());
 
         if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
-            if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
+            // if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
 
@@ -51,7 +51,7 @@ class EmpleadoController extends Controller
 
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-        if ($page) return $this->servicio->obtenerPaginacion($offset);
+        // if ($page) return $this->servicio->obtenerPaginacion($offset);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
         return $this->servicio->obtenerTodos();
