@@ -127,10 +127,10 @@ class RoleSeeder extends Seeder
         // Permission::firstOrCreate(['name' => 'puede.eliminar.empleados'])->assignRole($recursos_humanos);
 
         // Empresas
-        Permission::firstOrCreate(['name' => 'puede.ver.empresas'])->assignRole($jefe_tecnico);
-        Permission::firstOrCreate(['name' => 'puede.crear.empresas'])->assignRole($jefe_tecnico);
-        Permission::firstOrCreate(['name' => 'puede.editar.empresas'])->assignRole($jefe_tecnico);
-        // Permission::firstOrCreate(['name' => 'puede.eliminar.empresas'])->assignRole($jefe_tecnico);
+        Permission::firstOrCreate(['name' => 'puede.ver.empresas'])->syncRoles([$jefe_tecnico, $empleado, $activos_fijos, $coordinador, $tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.empresas'])->syncRoles([$jefe_tecnico, $activos_fijos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.empresas'])->syncRoles([$jefe_tecnico, $activos_fijos]);
+        // Permission::firstOrCreate(['name' => 'puede.eliminar.empresas'])->assignRole($jefe_tecnico, $activos_fijos);
 
         //Estados de transacciones
         Permission::firstOrCreate(['name' => 'puede.ver.estados_transacciones'])->syncRoles([$activos_fijos, $bodega, $contabilidad, $coordinador, $administrativo, $empleado, $tecnico]);

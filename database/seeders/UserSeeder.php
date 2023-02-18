@@ -211,7 +211,7 @@ class UserSeeder extends Seeder
             'email' => 'pedro@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA]);
+        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO]);
         $activos_fijos->empleado()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'AGUILAR',

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete(null)->onUpdate('cascade');
 
             $table->unsignedBigInteger('jefe_id')->nullable();
-            $table->foreign('jefe_id')->references('id')->on('empleados')->onDelete(null)->onUpdate('cascade');
+            $table->foreign('jefe_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
