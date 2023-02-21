@@ -50,7 +50,7 @@ class SaldoGrupoController extends Controller
         $sum = 5 - $dia_actual;
         $estatus_viatico = EstadoViatico::where('descripcion', 'like', '%APROBADO%')->first();
         $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
-        $datos_saldo_inicio_sem = SaldoGrupo::where('id_usuario', $request->usuario)->first();
+        $datos_saldo_inicio_sem = SaldoGrupo::where('id_usuario', $request->usuario)->orderBy('id', 'desc')->first();
         $user = Auth::user();
         $fechaIni = date("Y-m-d", strtotime($request->fecha . "-$rest days"));
         $fechaFin = date("Y-m-d", strtotime($request->fecha. "+$sum days"));

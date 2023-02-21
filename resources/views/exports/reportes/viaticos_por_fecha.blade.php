@@ -197,9 +197,6 @@
                                                 <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                                             </td>
                                         </tr>
-                                        @php
-                                            $sub_total = 0;
-                                        @endphp
                                     @else
                                         @foreach ($datos_reporte as $dato)
                                             @php

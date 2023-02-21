@@ -163,6 +163,7 @@ class ViaticoExport implements FromView
             'fecha_fin' => $this->fecha_fin,
             'fecha_titulo_ini' => $fecha_titulo_ini,
             'fecha_titulo_fin' => $fecha_titulo_fin,
+            'sub_total' => $sub_total,
             'sal_anterior' => $sal_anterior,
             'sal_dep_r' => $sal_dep_r,
             'nuevo_saldo' => $nuevo_saldo,

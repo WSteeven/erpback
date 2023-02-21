@@ -78,16 +78,21 @@ class ViaticoController extends Controller
 
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
-        $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['fecha_ingreso'] = date('Y-m-d');
+        $datos['id_usuario'] = $user->id;
+        $datos['fecha_ingreso'] = date('Y-m-d h:i:s');
+        $datos['fecha_proc'] = date('Y-m-d h:i:s');
+        $dtaos['fecha_trans'] = date('Y-m-d h:i:s');
+        $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
         $datos['transcriptor'] = $user->name;
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
+        $datos['comprobante']= $request->comprobante1;
+        $datos['comprobante2']= $request->comprobante2;
         //Convierte base 64 a url
-        if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
-        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();
+        /*if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
+        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();*/
         //Guardar Registro
         $modelo = Viatico::create($datos);
         $modelo = new ViaticoResource($modelo);
@@ -172,7 +177,7 @@ class ViaticoController extends Controller
                 $fecha_titulo_ini = explode("-",  $fecha_inicio);
                 $fecha_titulo_fin = explode("-", $fecha_fin);
                 $datos_reporte = Viatico::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
-                    ->whereBetween(DB::raw("DATE_FORMAT(fecha_viat, '%Y-%m-%d')"), array($fecha_inicio, $fecha_fin))
+                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                     ->where('estado', '=', 1)
                     ->where('id_usuario', '=', $idUsuarioLogeado)
                     ->get();
@@ -184,6 +189,7 @@ class ViaticoController extends Controller
                             ->orWhereBetween('fecha_fin', [$fecha_inicio, $fecha_fin]);
                     })
                     ->get();
+
                 $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
                     ->where('saldo_depositado', '!=', 0)
                     ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
