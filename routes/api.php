@@ -67,7 +67,7 @@ use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Viatico\SaldoGrupoController;
+use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Viatico\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
 use Illuminate\Support\Facades\Route;

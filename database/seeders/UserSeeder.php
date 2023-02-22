@@ -480,7 +480,7 @@ class UserSeeder extends Seeder
             'email' => 'jpazmino@jeanpazmino.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR, User::ROL_CONTABILIDAD);
         $autorizador->empleado()->create([
             'nombres' => 'JEAN PATRICIO',
             'apellidos' => 'PAZMIÑO BARROS',

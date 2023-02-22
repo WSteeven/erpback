@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Models\FondosRotativos\Viatico;
+namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\TipoSaldo;
+use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Viatico\TipoFondo;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

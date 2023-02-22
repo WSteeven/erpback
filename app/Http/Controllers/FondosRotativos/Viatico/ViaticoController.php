@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\FondosRotativos\Viatico;
 
+use App\Events\FondoRotativoEvent;
 use App\Exports\ViaticoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\FondosRotativos\Viatico\DetalleViatico;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
-use App\Models\FondosRotativos\Viatico\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Viatico\Viatico;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -88,15 +89,21 @@ class ViaticoController extends Controller
         $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
-        $datos['comprobante']= $request->comprobante1;
-        $datos['comprobante2']= $request->comprobante2;
         //Convierte base 64 a url
-        /*if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
-        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();*/
+        if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
+        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();
         //Guardar Registro
         $modelo = Viatico::create($datos);
+        $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
+        $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario )->first();
+        $saldo_actual_usuario=(float)$datos_saldo_usuario->saldo_actual;
         $modelo = new ViaticoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        //Actualiza saldo
+        $saldo_grupo = SaldoGrupo::where('id', $datos_saldo_usuario->id)->first();
+        $saldo_grupo->saldo_actual = (float)$saldo_actual_usuario - (float)$saldo_consumido_viatico;
+        $saldo_grupo->save();
+        event(new FondoRotativoEvent($modelo));
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -164,154 +171,156 @@ class ViaticoController extends Controller
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
         $usuario_logeado = Auth::user();
         $id_usuario = $usuario_logeado->id;
+        $DateAndTime = date('m-d-Y h:i:s a', time());
+        $usuario_logeado = User::where('id', $id_usuario)->get();
+        $idUsuarioLogeado = $usuario_logeado[0]->id;
+
+        $fecha_titulo_ini = explode("-",  $fecha_inicio);
+        $fecha_titulo_fin = explode("-", $fecha_fin);
+        $datos_reporte = Viatico::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
+            ->where('estado', '=', 1)
+            ->where('id_usuario', '=', $idUsuarioLogeado)
+            ->get();
+
+        $datos_saldo_usuario_depositado = SaldoGrupo::selectRaw('SUM(saldo_depositado) as saldo_depositado')
+            ->where('id_usuario', $idUsuarioLogeado)
+            ->where(function ($query) use ($fecha_inicio, $fecha_fin) {
+                $query->whereBetween('fecha_inicio', [$fecha_inicio, $fecha_fin])
+                    ->orWhereBetween('fecha_fin', [$fecha_inicio, $fecha_fin]);
+            })
+            ->get();
+
+        $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+            ->where('saldo_depositado', '!=', 0)
+            ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
+            ->orderBy('id', 'DESC')
+            ->get();
+
+
+        // Obtener el saldo del usuario correspondiente al periodo anterior
+        $datos_saldo_usuario_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+            ->where('fecha_inicio', $fecha_inicio)
+            ->where('fecha_fin', $fecha_fin)
+            ->orderBy('id', 'DESC')
+            ->get();
+        $nuevo_saldo = ((float)(Count($datos_saldo_usuario_anterior) > 0 ? $datos_saldo_usuario_anterior[0]->saldo_anterior : 0) + (float)(Count($datos_saldo_usuario_depositado) > 0 ? $datos_saldo_usuario_depositado[0]->saldo_depositado : 0));
+        $sub_total = 0;
+        $fi = new \DateTime($fecha_inicio);
+        $ff = new \DateTime($fecha_fin);
+        $diff = $fi->diff($ff);
+        $total_observacion = "";
+        $restas_diferencias = 0;
+        $corte = 900;
+        if ($diff->days > 6) {
+            //////sacando de don inicia la semana para el corte
+            $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '<=', $fecha_inicio)
+                ->orderBy('id', 'desc')
+                ->get();
+            if (sizeof($datos_semana) == 0) {
+                $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+
+            $inicio_semana = Count($datos_semana) > 0  ? $datos_semana[0]->fecha_inicio : '';
+            $fin_semana = Count($datos_semana) > 0 ? $datos_semana[0]->fecha_fin : '';
+
+
+            $datos_depositos_corte =  SaldoGrupo::selectRaw("SUM(saldo_depositado) as saldo_depositado")
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '>=', $inicio_semana)
+                ->get();
+
+            $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+
+            $datos_gastos_corte = Viatico::select(DB::raw('SUM(total) as total'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha_viat', '>=', $inicio_semana)
+                ->where('estado', 1)
+                ->get();
+
+            $saldo_depositado = Count($datos_depositos_corte) > 0 ? $datos_depositos_corte[0]->saldo_depositado : 0;
+            $total_gastos = Count($datos_gastos_corte) > 0 ? $datos_gastos_corte[0]->total : 0;
+            $diferencia_corte =  $saldo_depositado - $total_gastos;
+
+            $datos_fecha_rango = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+
+            $datos_rango_gastos = Viatico::select(DB::raw('SUM(total) as total'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', 1)
+                ->get();
+
+            $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
+
+            $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha', [$inicio_semana, $fin_semana])
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $sal_anterior = Count($datos_saldo_anterior) > 0 ? $datos_saldo_anterior->saldo_anterior : 0;
+            $sal_dep_r = $datos_fecha_rango[0]->saldo_depositado;
+
+            $restas_diferencias = $diferencia_corte - $diferencia_rango;
+            $resta_porcentaje = 8;
+            ////fin
+        } else {
+            $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario',  $idUsuarioLogeado)
+                ->whereRaw("date_format(fecha, '%Y-%m-%d') BETWEEN '" . $fecha_inicio . "' AND '" . $fecha_fin . "'")
+                ->where('saldo_depositado', '<>', 0)
+                ->orderByDesc('id')
+                ->get();
+
+            $datos_saldo_usuario_depositado = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->whereRaw("date_format(fecha, '%Y-%m-%d') BETWEEN '" . $fecha_inicio . "' AND '" . $fecha_fin . "'")
+                ->get();
+
+            $sal_anterior = Count($datos_saldo_usuario_anterior) > 0 ? $datos_saldo_usuario_anterior[0]->saldo_anterior : 0;
+            $sal_dep_r = 0;
+
+            foreach ($datos_saldo_depositados_semana as $saldo) {
+                $sal_dep_r += $saldo->saldo_depositado;
+            }
+
+            $nuevo_saldo = $sal_anterior + $sal_dep_r;
+        }
+        $usuario_logeado = UserInfoResource::collection($usuario_logeado);
+        $sub_total = 0;
+        $datos_usuario_logueado =  $this->obtener_usuario($usuario_logeado);
+        $reporte = compact(
+            'datos_reporte',
+            'datos_usuario_logueado',
+            'fecha_inicio',
+            'fecha_fin',
+            'fecha_titulo_ini',
+            'fecha_titulo_fin',
+            'sal_anterior',
+            'sal_dep_r',
+            'sub_total',
+            'nuevo_saldo',
+            'restas_diferencias',
+            'datos_saldo_usuario_depositado',
+            'DateAndTime',
+            'datos_saldo_depositados_semana',
+            'datos_saldo_usuario_anterior'
+        );
+        $nombre_reporte = 'reporte_'.$fecha_inicio.'-'.$fecha_fin.'de'.$datos_usuario_logueado['nombres'].' '.$datos_usuario_logueado['apellidos'];
         switch ($tipo) {
             case 'excel':
-                $usuario_logeado = Auth::user();
-                return Excel::download(new ViaticoExport($fecha_inicio, $fecha_fin,$id_usuario) ,'fondo_fecha.xlsx');
+                return Excel::download(new ViaticoExport($reporte), $nombre_reporte.'.xlsx');
                 break;
             case 'pdf':
-                $DateAndTime = date('m-d-Y h:i:s a', time());
-                $usuario_logeado = User::where('id', $id_usuario)->get();
-                $idUsuarioLogeado = $usuario_logeado[0]->id;
 
-                $fecha_titulo_ini = explode("-",  $fecha_inicio);
-                $fecha_titulo_fin = explode("-", $fecha_fin);
-                $datos_reporte = Viatico::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
-                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                    ->where('estado', '=', 1)
-                    ->where('id_usuario', '=', $idUsuarioLogeado)
-                    ->get();
-
-                $datos_saldo_usuario_depositado = SaldoGrupo::selectRaw('SUM(saldo_depositado) as saldo_depositado')
-                    ->where('id_usuario', $idUsuarioLogeado)
-                    ->where(function ($query) use ($fecha_inicio, $fecha_fin) {
-                        $query->whereBetween('fecha_inicio', [$fecha_inicio, $fecha_fin])
-                            ->orWhereBetween('fecha_fin', [$fecha_inicio, $fecha_fin]);
-                    })
-                    ->get();
-
-                $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->where('saldo_depositado', '!=', 0)
-                    ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                    ->orderBy('id', 'DESC')
-                    ->get();
-
-
-                // Obtener el saldo del usuario correspondiente al periodo anterior
-                $datos_saldo_usuario_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->where('fecha_inicio', $fecha_inicio)
-                    ->where('fecha_fin', $fecha_fin)
-                    ->orderBy('id', 'DESC')
-                    ->get();
-                $nuevo_saldo = ((float)(Count($datos_saldo_usuario_anterior) > 0 ? $datos_saldo_usuario_anterior[0]->saldo_anterior : 0) + (float)(Count($datos_saldo_usuario_depositado) > 0 ? $datos_saldo_usuario_depositado[0]->saldo_depositado : 0));
-                $sub_total = 0;
-                $fi = new \DateTime($fecha_inicio);
-                $ff = new \DateTime($fecha_fin);
-                $diff = $fi->diff($ff);
-                $total_observacion = "";
-                $restas_diferencias = 0;
-                $corte = 900;
-                if ($diff->days > 6) {
-                    //////sacando de don inicia la semana para el corte
-                    $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                        ->where('fecha', '<=', $fecha_inicio)
-                        ->orderBy('id', 'desc')
-                        ->get();
-                    if (sizeof($datos_semana) == 0) {
-                        $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                            ->orderBy('id', 'desc')
-                            ->get();
-                    }
-
-                    $inicio_semana = Count($datos_semana) > 0  ? $datos_semana[0]->fecha_inicio : '';
-                    $fin_semana = Count($datos_semana) > 0 ? $datos_semana[0]->fecha_fin : '';
-
-
-                    $datos_depositos_corte =  SaldoGrupo::selectRaw("SUM(saldo_depositado) as saldo_depositado")
-                        ->where('id_usuario', $idUsuarioLogeado)
-                        ->where('fecha', '>=', $inicio_semana)
-                        ->get();
-
-                    $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                        ->get();
-
-                    $datos_gastos_corte = Viatico::select(DB::raw('SUM(total) as total'))
-                        ->where('id_usuario', $idUsuarioLogeado)
-                        ->where('fecha_viat', '>=', $inicio_semana)
-                        ->where('estado', 1)
-                        ->get();
-
-                    $saldo_depositado = Count($datos_depositos_corte)>0? $datos_depositos_corte[0]->saldo_depositado : 0;
-                    $total_gastos = Count($datos_gastos_corte)>0 ? $datos_gastos_corte[0]->total : 0;
-                    $diferencia_corte =  $saldo_depositado - $total_gastos;
-
-                    $datos_fecha_rango = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
-                        ->where('id_usuario', $idUsuarioLogeado)
-                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                        ->get();
-
-                    $datos_rango_gastos = Viatico::select(DB::raw('SUM(total) as total'))
-                        ->where('id_usuario', $idUsuarioLogeado)
-                        ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                        ->where('estado', 1)
-                        ->get();
-
-                    $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
-
-                    $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                        ->whereBetween('fecha', [$inicio_semana, $fin_semana])
-                        ->orderBy('id', 'desc')
-                        ->get();
-
-                    $sal_anterior = Count($datos_saldo_anterior) > 0 ? $datos_saldo_anterior->saldo_anterior : 0;
-                    $sal_dep_r = $datos_fecha_rango[0]->saldo_depositado;
-
-                    $restas_diferencias = $diferencia_corte - $diferencia_rango;
-                    $resta_porcentaje = 8;
-                    ////fin
-                } else {
-                    $datos_saldo_depositados_semana = SaldoGrupo::where('id_usuario',  $idUsuarioLogeado)
-                        ->whereRaw("date_format(fecha, '%Y-%m-%d') BETWEEN '" . $fecha_inicio . "' AND '" . $fecha_fin . "'")
-                        ->where('saldo_depositado', '<>', 0)
-                        ->orderByDesc('id')
-                        ->get();
-
-                    $datos_saldo_usuario_depositado = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
-                        ->where('id_usuario', $idUsuarioLogeado)
-                        ->whereRaw("date_format(fecha, '%Y-%m-%d') BETWEEN '" .$fecha_inicio . "' AND '" . $fecha_fin . "'")
-                        ->get();
-
-                    $sal_anterior = Count($datos_saldo_usuario_anterior) >0 ?$datos_saldo_usuario_anterior[0]->saldo_anterior:0;
-                    $sal_dep_r = 0;
-
-                    foreach ($datos_saldo_depositados_semana as $saldo) {
-                        $sal_dep_r += $saldo->saldo_depositado;
-                    }
-
-                    $nuevo_saldo = $sal_anterior + $sal_dep_r;
-                }
-
-
-                $usuario_logeado = UserInfoResource::collection($usuario_logeado);
-
-                $pdf = Pdf::loadView('exports.reportes.viaticos_por_fecha', [
-                    'datos_reporte' => $datos_reporte,
-                    'datos_usuario_logueado' => $this->obtener_usuario($usuario_logeado),
-                    'fecha_inicio' => $fecha_inicio,
-                    'fecha_fin' => $fecha_fin,
-                    'fecha_titulo_ini' => $fecha_titulo_ini,
-                    'fecha_titulo_fin' => $fecha_titulo_fin,
-                    'sal_anterior' => $sal_anterior,
-                    'sal_dep_r' => $sal_dep_r,
-                    'nuevo_saldo' => $nuevo_saldo,
-                    'restas_diferencias' => $restas_diferencias,
-                    'datos_saldo_usuario_depositado' => $datos_saldo_usuario_depositado,
-                    'DateAndTime' => $DateAndTime,
-                    'datos_saldo_depositados_semana' => $datos_saldo_depositados_semana,
-                    'datos_saldo_usuario_anterior' => $datos_saldo_usuario_anterior
-                ]);
-                return $pdf->download('singlepdf.pdf');
+                $pdf = Pdf::loadView('exports.reportes.viaticos_por_fecha', $reporte);
+                return $pdf->download($nombre_reporte.'.pdf');
                 break;
         }
     }

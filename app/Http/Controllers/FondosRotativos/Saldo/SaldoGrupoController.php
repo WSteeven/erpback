@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\FondosRotativos\Viatico;
+namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FondosRotativos\Viaticos\SaldoGrupoResource;
+use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
-use App\Models\FondosRotativos\Viatico\SaldoGrupo;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
