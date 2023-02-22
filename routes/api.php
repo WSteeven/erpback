@@ -217,6 +217,7 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
 /**
  * Rutas para imprimir PDFs
  */
+Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
