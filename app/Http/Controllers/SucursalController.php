@@ -6,6 +6,7 @@ use App\Http\Requests\SucursalRequest;
 use App\Http\Resources\SucursalResource;
 use App\Models\Sucursal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Psy\Sudo;
 use Src\Shared\Utils;
 
@@ -45,7 +46,7 @@ class SucursalController extends Controller
  
             if($sucursal) $results = SucursalResource::collection(Sucursal::where('id', $sucursal->id)->get());
         }
-        SucursalResource::collection($results);
+        $results = SucursalResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -54,8 +55,12 @@ class SucursalController extends Controller
      * Guardar
      */
     public function store(SucursalRequest $request)
-    {
-        $sucursal = Sucursal::create($request->validated());
+    {   
+        //Adaptación de foreign keys
+        $datos = $request->validated();
+        $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
+
+        $sucursal = Sucursal::create($datos);
         $modelo = new SucursalResource($sucursal);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -76,7 +81,14 @@ class SucursalController extends Controller
      */
     public function update(SucursalRequest $request, Sucursal  $sucursal)
     {
-        $sucursal->update($request->validated());
+        Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
+        //Adaptación de foreign keys
+        $datos = $request->validated();
+        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+        $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
+        
+        //Respuesta
+        $sucursal->update($datos);
         $modelo = new SucursalResource($sucursal->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
