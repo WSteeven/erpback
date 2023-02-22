@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('lugar')->unique();
             $table->string('telefono');
             $table->string('correo')->nullable();
-            $table->unsignedBigInteger('administrador_id');
+            $table->unsignedBigInteger('administrador_id')->nullable();
             $table->timestamps();
 
             $table->foreign('administrador_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();

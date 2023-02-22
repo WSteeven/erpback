@@ -17,7 +17,7 @@ class Sucursal extends Model implements Auditable
     use Filterable;
 
     protected $table = "sucursales";
-    protected $fillable = ['lugar', 'telefono', 'correo'];
+    protected $fillable = ['lugar', 'telefono', 'correo', 'administrador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -114,5 +114,12 @@ class Sucursal extends Model implements Auditable
     public function transferencias()
     {
         return $this->hasMany(Transferencia::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Una sucursal tiene un adminitrador
+     */
+    public function administrador(){
+        return $this->belongsTo(User::class);
     }
 }
