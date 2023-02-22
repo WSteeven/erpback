@@ -25,7 +25,7 @@ class TrabajoRequest extends FormRequest
     {
         return [
             'codigo_trabajo' => 'nullable|string',
-            'codigo_trabajo_cliente' => 'required|string',
+            //'codigo_trabajo_cliente' => 'required|string',
             'titulo' => 'required|string',
             'descripcion_completa' => 'nullable|string',
             'observacion' => 'nullable|string',
@@ -64,6 +64,7 @@ class TrabajoRequest extends FormRequest
             'para_cliente_proyecto' => 'required|string',
             'proyecto' => 'nullable|numeric|integer',
             'trabajo_padre' => 'nullable|numeric|integer',
+            'tarea' => 'required|numeric|integer',
         ];
     }
 }

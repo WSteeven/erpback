@@ -33,11 +33,11 @@ class TareaResource extends JsonResource
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
             'cliente' => $this->obtenerCliente(),//$this->cliente?->empresa?->razon_social,
-            'cliente_final' => $this->cliente_final ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
+            'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             // 'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
             /*'observacion' => $this->observacion,
-            'tiene_subtareas' => $this->tiene_subtareas,
-            'cantidad_subtareas' => $this->subtareas->count(),*/
+            'tiene_subtareas' => $this->tiene_subtareas,*/
+            'cantidad_trabajos' => $this->trabajos->count(),
         ];
 
         if ($controller_method == 'show') {

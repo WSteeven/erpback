@@ -8,6 +8,7 @@ use App\Http\Resources\TrabajoResource;
 use App\Models\EmpleadoSubtarea;
 use App\Models\EmpleadoTrabajo;
 use App\Models\GrupoTrabajo;
+use App\Models\Tarea;
 use App\Models\Trabajo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -52,15 +53,19 @@ class TrabajoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['trabajo_padre_id'] = $request->safe()->only(['trabajo_padre'])['trabajo_padre'];
-        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+        $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['coordinador_id'] = Auth::user()->empleado->id;
-        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['trabajo_dependiente_id'] = $request->safe()->only(['trabajo_dependiente'])['trabajo_dependiente'];
+        
+        $tarea = Tarea::find($datos['tarea_id']);
+        $datos['codigo_trabajo'] = $tarea->codigo_tarea . '-' . $tarea->trabajos->count() + 1;
+        //$datos['codigo_trabajo'] = 'TR' . Trabajo::latest('id')->first()?->id + 1;
+        //$datos['trabajo_padre_id'] = $request->safe()->only(['trabajo_padre'])['trabajo_padre'];
+        //$datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+        //$datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+        //$datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+        //$datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
-        $datos['codigo_trabajo'] = 'TR' . Trabajo::latest('id')->first()?->id + 1;
 
 
         // $datos['codigo_subtarea'] = Trabajo::find($tarea_id)->codigo_tarea . '-' . (Trabajo::where('tarea_id', $tarea_id)->count() + 1);

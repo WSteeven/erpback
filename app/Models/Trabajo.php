@@ -14,6 +14,7 @@ use Src\App\WhereRelationLikeCondition\TrabajoClienteWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraCreacionWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoProyectoWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoTareaWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
 class Trabajo extends Model implements Auditable
@@ -39,15 +40,14 @@ class Trabajo extends Model implements Auditable
     protected $table = 'trabajos';
     protected $fillable = [
         'codigo_trabajo',
-        'codigo_trabajo_cliente',
         'titulo',
         'descripcion_completa',
         'observacion',
-        'para_cliente_proyecto',
-        'fecha_solicitud',
         'estado',
         'modo_asignacion_trabajo',
-
+        // 'codigo_trabajo_cliente',
+        // 'para_cliente_proyecto',
+        // 'fecha_solicitud',
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
@@ -57,23 +57,23 @@ class Trabajo extends Model implements Auditable
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
-        'dias_ocupados',
+        // 'dias_ocupados',
 
         'es_dependiente',
         'es_ventana',
-        'tiene_subtrabajos',
+        // 'tiene_subtrabajos',
         'fecha_agendado',
         'hora_inicio_agendado',
         'hora_fin_agendado',
 
         'tipo_trabajo_id',
-        'trabajo_padre_id',
-        'cliente_final_id',
-        'coordinador_id',
-        'fiscalizador_id',
-        'proyecto_id',
-        'cliente_id',
+        'tarea_id',
         'trabajo_dependiente_id',
+        'coordinador_id',
+        // 'cliente_final_id',
+        //         'fiscalizador_id',
+        //     'proyecto_id',
+        //   'cliente_id',
     ];
 
     protected $casts = [
@@ -92,6 +92,7 @@ class Trabajo extends Model implements Auditable
         'tipo_trabajo.descripcion',
         'canton',
         'coordinador.nombres',
+        'tarea.codigo_tarea',
     ];
 
     private $aliasListFilter = [
@@ -99,13 +100,13 @@ class Trabajo extends Model implements Auditable
         'proyecto.codigo_proyecto' => 'proyecto',
         'tipo_trabajo.descripcion' => 'tipo_trabajo',
         'coordinador.nombres' => 'coordinador',
-        // 'canton.canton' => 'canton',
+        'tarea.codigo_tarea' => 'tarea',
     ];
 
     public function serializeRequestFilter($request)
     {
-       $request['es_ventana'] = isset($request['es_ventana']) && $request['es_ventana']['like'] == '%true%' ? 1 : 0;
-       return $request;
+        $request['es_ventana'] = isset($request['es_ventana']) && $request['es_ventana']['like'] == '%true%' ? 1 : 0;
+        return $request;
     }
 
     public function EloquentFilterCustomDetection(): array
@@ -117,6 +118,7 @@ class Trabajo extends Model implements Auditable
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class,
             TrabajoCoordinadorWRLC::class,
+            TrabajoTareaWRLC::class,
         ];
     }
 
@@ -189,9 +191,15 @@ class Trabajo extends Model implements Auditable
         return $this->belongsTo(Proyecto::class);
     }
 
-    public function trabajo()
+    public function tarea()
     {
-        return $this->hasOne(Trabajo::class, 'id', 'trabajo_dependiente');
+        return $this->belongsTo(Tarea::class);
+    }
+
+    public function trabajoDependiente()
+    {
+        // return $this->hasOne(Trabajo::class, 'id', 'trabajo_dependiente');
+        return $this->hasOne(Trabajo::class, 'id', 'trabajo_dependiente_id');
     }
 
     public function tecnicosPrincipales($empleados)
