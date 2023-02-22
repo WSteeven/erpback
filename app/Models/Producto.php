@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\DetalleProductoResource;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,7 +40,7 @@ class Producto extends Model implements Auditable
      */
     public function detalles()
     {
-        return $this->hasMany(DetallesProducto::class);
+        return $this->hasMany(DetalleProducto::class);
     }
 
 
@@ -56,7 +57,7 @@ class Producto extends Model implements Auditable
     {
         return $this->belongsTo(Categoria::class);
     }
-    
+
     /**
      * Uno o varios productos pertenecen a una categoría
      */
