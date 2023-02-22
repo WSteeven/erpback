@@ -9,8 +9,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 class Canton extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
+    use HasFactory, AuditableModel;
+
     protected $table = "cantones";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -20,7 +20,8 @@ class Canton extends Model implements Auditable
     /**
      * Get the parroquia associated with the canton.
      */
-    public function parroquias(){
+    public function parroquias()
+    {
         return $this->hasMany(Parroquia::class);
     }
 
@@ -31,5 +32,4 @@ class Canton extends Model implements Auditable
     {
         return $this->belongsTo(Provincia::class);
     }
-
 }

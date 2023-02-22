@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es" >
+<html lang="es">
 
 <head>
-<meta charset="utf-8">
+    <meta charset="utf-8">
     <title>Comprobante N° {{ $id }}</title>
     <style>
         @page {
-            margin: 0cm 0px;
+            margin: 2px 15px 5px 15px;
         }
 
         body {
@@ -81,26 +81,27 @@
     </style>
 </head>
 @php
-$fecha = new Datetime();
-$qr = QrCode::size(100)
-->backgroundColor(255, 90, 0)
-->generate('Hola a todos, saludos cordiales');
-
-$ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
+    $fecha = new Datetime();
+    $qr = QrCode::size(100)
+        ->backgroundColor(255, 90, 0)
+        ->generate('Hola a todos, saludos cordiales');
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
+    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
 @endphp
 
 <body>
     <header>
-        <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
+                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transferencia)
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
+                        <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
                     @else
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE EGRESO</b></div>
+                        <div class="col-md-7" align="center"><b>COMPROBANTE DE EGRESO</b></div>
                     @endif
                 </td>
                 <td style="width: 22%;">
@@ -124,14 +125,21 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                     <td><b>RECIBE</b></td>
                 </tr>
                 <tr>
-                    <td style="padding-left: 60px;">Nombre: </td>
+                    <td align="center">{{ auth('sanctum')->user()->empleado->nombres }}
+                        {{ auth('sanctum')->user()->empleado->apellidos }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">Nombre:</td>
+                    <td style="padding-left: 60px;">
+                        @if ($responsable_id)
+                            {{$per_retira}}
+                        @else
+                            Nombre:
+                        @endif
+                    </td>
                 </tr>
                 <tr>
-                    <td style="padding-left: 60px;">C.I: </td>
+                    <td align="center" >{{ auth('sanctum')->user()->empleado->identificacion }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">C.I:</td>
+                    <td align="center">{{$identificacion}}</td>
                 </tr>
             </tbody>
         </table>
@@ -139,15 +147,18 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el Usuario:
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
                     </div>
                 </td>
                 <td>
-                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->size(70)->generate('Hola, soy un qr en un PDF'),) !!}"></div>
+                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(
+                        QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
+                    ) !!}"></div>
                 </td>
             </tr>
         </table>
@@ -170,12 +181,19 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <td></td>
                 <td>Estado: <b>{{ $estado }}</b></td>
             </tr>
+            <tr class="row">
+                <td>Cliente: <b>{{ $cliente }}</b></td>
+                <td></td>
+                <td>Motivo: <b>{{ $motivo }}</b></td>
+            </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
-                <tr>
-                    <td>Tarea: <b>{{ $tarea }}</b></td>
-                </tr>
+                @if ($tarea)
+                    <tr>
+                        <td>Tarea: <b>{{ $tarea }}</b></td>
+                    </tr>
+                @endif
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
@@ -184,19 +202,17 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
-                <th>Cantidad</th>
                 <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
                 {{-- @foreach ($ciclo as $c) --}}
                 @foreach ($listadoProductosTransaccion as $listado)
-                <tr>
-                    <td>{{ $listado['producto'] }}</td>
-                    <td>{{ $listado['descripcion'] }}</td>
-                    <td>{{ $listado['categoria'] }}</td>
-                    <td align="center">{{ $listado['cantidad'] }}</td>
-                    <td align="center">{{ $listado['despachado'] }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ $listado['producto'] }}</td>
+                        <td>{{ $listado['descripcion'] }}</td>
+                        <td>{{ $listado['categoria'] }}</td>
+                        <td align="center">{{ $listado['cantidad'] }}</td>
+                    </tr>
                 @endforeach
                 {{-- @endforeach --}}
             </tbody>

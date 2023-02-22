@@ -65,7 +65,7 @@ class PedidoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
-Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
+        Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
         if(!is_null($this->fecha_limite)){
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),

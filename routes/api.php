@@ -217,6 +217,7 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
 /**
  * Rutas para imprimir PDFs
  */
+Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -246,6 +247,18 @@ Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
+});
+
+Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
+    Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
+    Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);
+    Route::post('realizar/{trabajo}', [TrabajoController::class, 'realizar']);
+    Route::post('finalizar/{trabajo}', [TrabajoController::class, 'finalizar']);
+    Route::post('pausar/{trabajo}', [TrabajoController::class, 'pausar']);
+    Route::post('reanudar/{trabajo}', [TrabajoController::class, 'reanudar']);
+    Route::post('suspender/{trabajo}', [TrabajoController::class, 'suspender']);
+    Route::post('cancelar/{trabajo}', [TrabajoController::class, 'cancelar']);
+    Route::get('pausas/{trabajo}', [TrabajoController::class, 'obtenerPausas']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {

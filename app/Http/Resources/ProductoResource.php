@@ -21,7 +21,7 @@ class ProductoResource extends JsonResource
             'nombre' => $this->nombre,
             'categoria' => $this->categoria?->nombre,
             'unidad_medida' => $this->unidadMedida?->simbolo,
-            // 'categoria' => $this->categoria->nombre,
+            'detalles' => DetalleProductoResource::collection($this->detalles),
         ];
 
         if ($controller_method == 'show') {
@@ -30,7 +30,7 @@ class ProductoResource extends JsonResource
             $modelo['unidad_medida'] = $this->unidad_medida_id;
 
         }
-        
+
         return $modelo;
     }
 }

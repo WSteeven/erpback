@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Pedido;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Dompdf\Dompdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Src\Config\RutasStorage;
+
 use Src\Shared\Utils;
 
 class PedidoController extends Controller
@@ -35,10 +34,12 @@ class PedidoController extends Controller
         $estado = $request['estado'];
         $results = [];
 
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+        if (auth()->user()->hasRole(User::ROL_BODEGA)&& !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {//para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
-        } else {
+        } else if(auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)){
+            $results = Pedido::filtrarPedidosActivosFijos($estado);
+        }else{
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
         }
@@ -75,12 +76,15 @@ class PedidoController extends Controller
                 $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
+
+            event(new PedidoEvent('Pedido registrado!'));
+
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**

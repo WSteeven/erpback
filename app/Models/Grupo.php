@@ -25,14 +25,20 @@ class Grupo extends Model implements Auditable
         'nombre',
     ];
 
-    public function tareas()
+    /*public function tareas()
     {
         return $this->belongsToMany(Tarea::class);
-    }
+    }*/
 
-    public function subtareas()
+    // eliminar
+    /*public function subtareas()
     {
         return $this->belongsToMany(Subtarea::class);
+    } */
+
+    public function trabajos()
+    {
+        return $this->belongsToMany(Trabajo::class);
     }
 
     public function controlMaterialesSubtareas()

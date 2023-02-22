@@ -6,10 +6,11 @@
     <title>Pedido N° {{ $id }}</title>
     <style>
         @page {
-            margin: 0cm 15px;
+            margin: 2px 15px 5px 15px;
         }
 
         body {
+            /* background-image: url('img/logoJPBN_10.png'); */
             background-image: url('img/logoJPBN_10.png');
             background-repeat: no-repeat;
             background-position: center;
@@ -86,7 +87,7 @@ $qr = QrCode::size(100)
 ->backgroundColor(255, 90, 0)
 ->generate('Hola a todos, saludos cordiales');
 
-$ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
+
 @endphp
 
 <body>
@@ -94,13 +95,13 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
         <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td>
-                    <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
+                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td>
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE PEDIDO</b></div>
+                    <div class="col-md-7" align="center"><b>ACTA DE ASIGNACION</b></div>
                 </td>
                 <td>
-                    <div class="col-md-2" align="right">Sistema de bodega</div>
+                    <div class="col-md-2" align="right">Control de activos</div>
                 </td>
             </tr>
         </table>
@@ -136,7 +137,7 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el Usuario:
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
@@ -152,49 +153,29 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
     <main>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
             <tr class="row">
-                <td>Transacción N°: <b>{{ $id }}</b></td>
-                <td>Fecha: <b>{{ $created_at }}</b></td>
-                <td>Solicitante: <b>{{ $solicitante }}</b></td>
+                <td>Transacción N°: <b></b></td>
+                <td>Solicitante: <b></td>
             </tr>
             <tr class="row">
-                <td>Justificación: <b>{{ $justificacion }}</b></td>
+                <td>Justificación: </td>
                 <td></td>
-                <td>Sucursal: <b>{{ $sucursal }}</b></td>
+                <td>Sucursal: </td>
             </tr>
             <tr class="row">
-                <td>Autorizado por: <b>{{ $per_autoriza }}</b></td>
+                <td>Autorizado por:</td>
                 <td></td>
-                <td>Estado: <b>{{ $estado }}</b></td>
+                <td>Estado: <b></b></td>
             </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
                 <tr>
-                    <td>Tarea: <b>{{ $tarea }}</b></td>
+                    <td>Tarea: </td>
                 </tr>
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
-        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
-            <thead>
-                <th>Producto</th>
-                <th>Descripcion</th>
-                <th>Categoria</th>
-                <th>Cantidad</th>
-                <th>Despachado</th>
-            </thead>
-            <tbody style="font-size: 14px;">
-                @foreach ($listadoProductos as $listado)
-                <tr>
-                    <td>{{ $listado['producto'] }}</td>
-                    <td>{{ $listado['descripcion'] }}</td>
-                    <td>{{ $listado['categoria'] }}</td>
-                    <td align="center">{{ $listado['cantidad'] }}</td>
-                    <td align="center">{{ $listado['despachado'] }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+
     </main>
 
 

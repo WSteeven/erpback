@@ -20,6 +20,7 @@ class EmpresaResource extends JsonResource
             'tipo_contribuyente'=>$this->tipo_contribuyente,
             'razon_social'=>$this->razon_social,
             'nombre_comercial'=>$this->nombre_comercial,
+            'telefono'=>$this->telefono,
             'correo'=>$this->correo,
             'direccion'=>$this->direccion,
         ];

@@ -42,8 +42,8 @@ class TareaController extends Controller
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
-        $datos['coordinador_id'] = Auth::id();
+        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+        $datos['coordinador_id'] = Auth::user()->empleado->id;
         $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
 
         $modelo = Tarea::create($datos);
@@ -80,7 +80,7 @@ class TareaController extends Controller
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
+        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
         $datos['coordinador_id'] = Auth::id();
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
 

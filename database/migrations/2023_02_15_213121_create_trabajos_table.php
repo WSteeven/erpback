@@ -39,14 +39,15 @@ return new class extends Migration
 
             $table->boolean('es_dependiente')->default(false);
             $table->boolean('es_ventana')->default(false);
+            $table->boolean('tiene_subtrabajos');
 
             $table->string('fecha_agendado')->nullable();
             $table->string('hora_inicio_agendado')->nullable();
             $table->string('hora_fin_agendado')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('tipo_trabajo_id');
-            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('tipo_trabajo_id')->nullable();
+            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('cliente_final_id')->nullable();
             $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');
@@ -54,8 +55,8 @@ return new class extends Migration
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('fiscalizador_id');
-            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('fiscalizador_id')->nullable();
+            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('proyecto_id')->nullable();
             $table->foreign('proyecto_id')->references('id')->on('proyectos')->onDelete('set null')->onUpdate('cascade');

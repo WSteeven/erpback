@@ -28,10 +28,7 @@ class ProductoController extends Controller
     {
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
-        // Log::channel('testing')->info('Log', ['Variable campos', $request['campos']]);
-        // Log::channel('testing')->info('Log', ['Variable campos dividida',  $campos]);
         $results = [];
-        // Log::channel('testing')->info('Log', ['Variable campos vacia?',  $campos]);
         if ($request['campos']) {
             $results = Producto::all($campos);
             $results =ProductoResource::collection($results);
@@ -39,8 +36,6 @@ class ProductoController extends Controller
         } else
         if ($page) {
             $results = Producto::simplePaginate($request['offset']);
-            // ProductoResource::collection($results);
-            // $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Producto::ignoreRequest(['campos'])->filter()->get();
             // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
