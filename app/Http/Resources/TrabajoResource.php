@@ -26,23 +26,27 @@ class TrabajoResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
+            'codigo_trabajo_padre' => $this->trabajo_padre_id,
             'codigo_trabajo' => $this->codigo_trabajo,
             'codigo_trabajo_cliente' => $this->codigo_trabajo_cliente,
             'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
+            'observacion' => $this->observacion,
             'actividad_realizada' => $this->actividad_realizada,
             'es_dependiente' => $this->es_dependiente,
             'fiscalizador' => $this->fiscalizador,
             'trabajo_dependiente' => $this->trabajo_dependiente_id,
             'fecha_solicitud' => $this->fecha_solicitud,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
-            'cliente' => $this->cliente->empresa->razon_social,
+            'cliente' => $this->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->cliente_id,
+            'proyecto' => $this->proyecto?->codigo_proyecto,
             //'subtarea_dependiente_id' => $this->subtarea_dependiente,
             'es_ventana' => $this->es_ventana,
             'fecha_agendado' => $this->fecha_agendado,
             'hora_inicio_agendado' => $this->hora_inicio_agendado,
             'hora_fin_agendado' => $this->hora_fin_agendado,
-            'tipo_trabajo' => $this->tipo_trabajo->descripcion,
+            'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
             'tiene_subtrabajos' => $this->tiene_subtrabajos,
             //'tarea' => $this->tarea->codigo_tarea,
             //'tarea_id' => $this->tarea_id,
@@ -63,11 +67,13 @@ class TrabajoResource extends JsonResource
             'estado' => $this->estado,
             //'responsable' => $this->verificarResponsable(), //!!$this->empleados()->wher    e('empleado_id', Auth::id())->where('responsable', true)->first(),
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
+            'canton' => $this->obtenerCanton(),
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
+            $modelo['proyecto'] = $this->proyecto_id;
             //$modelo['tarea'] = $this->tarea_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['fiscalizador'] = $this->fiscalizador_id;
@@ -125,7 +131,7 @@ class TrabajoResource extends JsonResource
     public function verificarResponsable()
     {
         $usuario = Auth::user();
-        $esSecretario = $usuario->empleado->cargo === User::TECNICO_SECRETARIO; 
+        $esSecretario = $usuario->empleado->cargo === User::TECNICO_SECRETARIO;
         // $rolPermitido = in_array(User::ROL_TECNICO_SECRETARIO, $usuario->getRoleNames()->toArray());
 
         if ($this->modo_asignacion_trabajo === Trabajo::POR_GRUPO) {
@@ -139,5 +145,14 @@ class TrabajoResource extends JsonResource
         }
 
         return false;
+    }
+
+    private function obtenerCanton()
+    {
+        if ($this->para_cliente_proyecto === Trabajo::PARA_PROYECTO) {
+            return $this->proyecto->canton->canton;
+        } else if ($this->para_cliente_proyecto === Trabajo::PARA_CLIENTE_FINAL) {
+            return $this->clienteFinal->canton->canton;
+        }
     }
 }

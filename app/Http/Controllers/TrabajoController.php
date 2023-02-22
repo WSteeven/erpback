@@ -31,9 +31,12 @@ class TrabajoController extends Controller
         $estados = request('estados');
         $campos = explode(',', request('campos'));
 
+        //$
+
         // Procesar
-        if ($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
-        elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
+        //if ($estados) return $this->servicio->obtenerFiltradosEstados($estados, $campos);
+        // if ($estados && request('campos')) return $this->servicio->obtenerFiltradosEstadosCampos($estados, $campos);
+        // elseif ($estados) return $this->servicio->obtenerFiltradosEstados($estados);
 
         return $this->servicio->obtenerTodos();
     }
@@ -118,7 +121,7 @@ class TrabajoController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        
+
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['trabajo_padre_id'] = $request->safe()->only(['trabajo_padre'])['trabajo_padre'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
@@ -127,7 +130,7 @@ class TrabajoController extends Controller
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['trabajo_dependiente_id'] = $request->safe()->only(['trabajo_dependiente'])['trabajo_dependiente'];
-        
+
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
         $modelo = $trabajo->refresh();

@@ -33,7 +33,7 @@ class TrabajoRequest extends FormRequest
             /*'grupo' => 'nullable|numeric|integer',
             'empleado' => 'nullable|numeric|integer',*/
             // 'cantidad_dias' => 'nullable|string',
-            'tipo_trabajo' => 'required|numeric|integer',
+            'tipo_trabajo' => 'nullable|numeric|integer',
             'fecha_hora_creacion' => 'nullable|string',
             'fecha_hora_asignacion' => 'nullable|string',
             'fecha_hora_ejecucion' => 'nullable|string',

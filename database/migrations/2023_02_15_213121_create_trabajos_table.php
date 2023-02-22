@@ -46,8 +46,8 @@ return new class extends Migration
             $table->string('hora_fin_agendado')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('tipo_trabajo_id');
-            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('tipo_trabajo_id')->nullable();
+            $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('cliente_final_id')->nullable();
             $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');

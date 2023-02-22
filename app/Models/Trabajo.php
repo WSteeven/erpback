@@ -8,6 +8,13 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Support\Facades\Log;
+use Src\App\WhereRelationLikeCondition\TrabajoCantonWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoClienteWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoFechaHoraCreacionWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoProyectoWRLC;
+use Src\App\WhereRelationLikeCondition\TrabajoTipoTrabajoWRLC;
 
 class Trabajo extends Model implements Auditable
 {
@@ -75,14 +82,58 @@ class Trabajo extends Model implements Auditable
         'tiene_subtrabajos' => 'boolean',
     ];
 
+    /*******************
+     * Eloquent Filter
+     *******************/
     private static $whiteListFilter = [
-        '*'
+        '*',
+        'cliente.empresa.razon_social',
+        'proyecto.codigo_proyecto',
+        'tipo_trabajo.descripcion',
+        'canton',
+        'coordinador.nombres',
     ];
+
+    private $aliasListFilter = [
+        'cliente.empresa.razon_social' => 'cliente',
+        'proyecto.codigo_proyecto' => 'proyecto',
+        'tipo_trabajo.descripcion' => 'tipo_trabajo',
+        'coordinador.nombres' => 'coordinador',
+        // 'canton.canton' => 'canton',
+    ];
+
+    public function serializeRequestFilter($request)
+    {
+       $request['es_ventana'] = isset($request['es_ventana']) && $request['es_ventana']['like'] == '%true%' ? 1 : 0;
+       return $request;
+    }
+
+    public function EloquentFilterCustomDetection(): array
+    {
+        return [
+            TrabajoClienteWRLC::class,
+            TrabajoProyectoWRLC::class,
+            TrabajoTipoTrabajoWRLC::class,
+            TrabajoFechaHoraCreacionWRLC::class,
+            TrabajoCantonWRLC::class,
+            TrabajoCoordinadorWRLC::class,
+        ];
+    }
+
+    /**************
+     * RELACIONES
+     **************/
 
     // Relacion uno a muchos (inversa)
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
+        //return $this->hasOne(Cliente::class);
+    }
+
+    public function clienteFinal()
+    {
+        return $this->belongsTo(ClienteFinal::class);
     }
 
     // Relacion uno a muchos (inversa)
@@ -94,7 +145,7 @@ class Trabajo extends Model implements Auditable
     // Relacion uno a muchos (inversa)
     public function coordinador()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
     }
 
     // Relacion uno a muchos (inversa)
@@ -133,9 +184,14 @@ class Trabajo extends Model implements Auditable
         return $this->hasMany(PausaSubtarea::class);
     }
 
-    public function subtarea()
+    public function proyecto()
     {
-        return $this->hasOne(Subtarea::class, 'id', 'subtarea_dependiente');
+        return $this->belongsTo(Proyecto::class);
+    }
+
+    public function trabajo()
+    {
+        return $this->hasOne(Trabajo::class, 'id', 'trabajo_dependiente');
     }
 
     public function tecnicosPrincipales($empleados)
