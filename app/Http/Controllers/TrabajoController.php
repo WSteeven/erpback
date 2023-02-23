@@ -84,7 +84,7 @@ class TrabajoController extends Controller
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $grupoSeleccionado['responsable'] ?? false,
+                        'responsable' => $grupoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 
@@ -96,7 +96,7 @@ class TrabajoController extends Controller
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $empleadoSeleccionado['responsable'] ?? false,
+                        'responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 
@@ -152,7 +152,7 @@ class TrabajoController extends Controller
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $grupoSeleccionado['responsable'] ?? false,
+                        'responsable' => $grupoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 
@@ -164,7 +164,7 @@ class TrabajoController extends Controller
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $empleadoSeleccionado['responsable'] ?? false,
+                        'responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 

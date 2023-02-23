@@ -58,11 +58,11 @@ return new class extends Migration
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
-            /*$table->unsignedBigInteger('fiscalizador_id')->nullable();
-            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
-
             $table->unsignedBigInteger('proyecto_id')->nullable();
             $table->foreign('proyecto_id')->references('id')->on('proyectos')->onDelete('set null')->onUpdate('cascade');
+
+            /*$table->unsignedBigInteger('fiscalizador_id')->nullable();
+            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principal
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');

@@ -93,6 +93,7 @@ class Trabajo extends Model implements Auditable
         'canton',
         'coordinador.nombres',
         'tarea.codigo_tarea',
+        //'proyecto.canton.canton'
     ];
 
     private $aliasListFilter = [
@@ -101,6 +102,7 @@ class Trabajo extends Model implements Auditable
         'tipo_trabajo.descripcion' => 'tipo_trabajo',
         'coordinador.nombres' => 'coordinador',
         'tarea.codigo_tarea' => 'tarea',
+        //'proyecto.canton.canton' => 'canton',
     ];
 
     public function serializeRequestFilter($request)

@@ -105,7 +105,7 @@ class TrabajoResource extends JsonResource
         return $gruposSeleccionados->map(fn ($grupo) => [
             'id' => $grupo->grupo_id,
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
-            'responsable' => $grupo->responsable,
+            'es_responsable' => $grupo->responsable,
         ]);
     }
 
@@ -125,7 +125,7 @@ class TrabajoResource extends JsonResource
                 'apellidos' => $empleado->apellidos,
                 'telefono' => $empleado->telefono,
                 'grupo' => $empleado->grupo?->nombre,
-                'responsable' => $item->responsable,
+                'es_responsable' => $item->responsable,
                 'roles' => implode(', ', $empleado->user->getRoleNames()->toArray()),
             ];
         });

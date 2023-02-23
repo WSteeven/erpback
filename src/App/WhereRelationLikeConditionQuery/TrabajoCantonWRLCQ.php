@@ -18,10 +18,10 @@ class TrabajoCantonWRLCQ extends BaseClause
             $q->whereHas('canton', function ($q) {
                 $q->where('canton', 'like', "%" . $this->values['like'] . "%");
             });
-        })->orWhereHas('clienteFinal', function ($q) {
+        }); /*->orWhereHas('clienteFinal', function ($q) {
             $q->whereHas('canton', function ($q) {
                 $q->where('canton', 'like', "%" . $this->values['like'] . "%");
             });
-        });
+        });*/
     }
 }
