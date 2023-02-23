@@ -29,7 +29,7 @@ class TrabajoRequest extends FormRequest
             'titulo' => 'required|string',
             'descripcion_completa' => 'nullable|string',
             'observacion' => 'nullable|string',
-            'tiene_subtrabajos' => 'required|boolean',
+            // 'tiene_subtrabajos' => 'required|boolean',
             /*'grupo' => 'nullable|numeric|integer',
             'empleado' => 'nullable|numeric|integer',*/
             // 'cantidad_dias' => 'nullable|string',
@@ -61,7 +61,7 @@ class TrabajoRequest extends FormRequest
             'coordinador' => 'nullable|numeric|integer',
             'fiscalizador' => 'nullable|numeric|integer',
             'cliente' => 'nullable|numeric|integer',
-            'para_cliente_proyecto' => 'required|string',
+            // 'para_cliente_proyecto' => 'required|string',
             'proyecto' => 'nullable|numeric|integer',
             'trabajo_padre' => 'nullable|numeric|integer',
             'tarea' => 'required|numeric|integer',
