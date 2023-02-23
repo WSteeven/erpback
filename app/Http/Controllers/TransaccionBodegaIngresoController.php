@@ -63,7 +63,7 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
                 $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
                 $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-                !is_null($request->per_atiende) ?? $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+                if($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
                 $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
@@ -110,7 +110,7 @@ class TransaccionBodegaIngresoController extends Controller
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
-                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->first();
+                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->first();
                         if ($itemInventario) {
                             Log::channel('testing')->info('Log', ['HAY UN ITEM COINCIDENTE EN EL INVENTARIO']);
                             $itemInventario->cantidad = $itemInventario->cantidad + $listado['cantidad'];
@@ -161,9 +161,7 @@ class TransaccionBodegaIngresoController extends Controller
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if ($request->per_atiende) {
-            $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
-        }
+        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
         //datos de las relaciones muchos a muchos
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];

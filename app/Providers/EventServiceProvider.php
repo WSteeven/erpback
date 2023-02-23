@@ -62,7 +62,7 @@ class EventServiceProvider extends ServiceProvider
         PrestamoTemporal::observe(PrestamoTemporalObserver::class);
         MovimientoProducto::observe(MovimientoProductoObserver::class);
         DetalleProductoTransaccion::observe(DetalleProductoTransaccionObserver::class);
-        TransaccionBodega::observe(TransaccionBodegaObserver::class);
+        // TransaccionBodega::observe(TransaccionBodegaObserver::class);
         DetallePedidoProducto::observe(DetallePedidoProductoObserver::class);
     }
 
