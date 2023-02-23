@@ -24,7 +24,7 @@ class SaldoGrupoController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = SaldoGrupo::with('tipo_fondo','tipo_saldo', 'estatus', 'usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = SaldoGrupo::with('usuario')->ignoreRequest(['campos'])->filter()->get();
         $results = SaldoGrupoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -48,7 +48,6 @@ class SaldoGrupoController extends Controller
 
         $rest = $dia_actual + 1;
         $sum = 5 - $dia_actual;
-        $estatus_viatico = EstadoViatico::where('descripcion', 'like', '%APROBADO%')->first();
         $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
         $datos_saldo_inicio_sem = SaldoGrupo::where('id_usuario', $request->usuario)->orderBy('id', 'desc')->first();
         $user = Auth::user();
@@ -56,16 +55,11 @@ class SaldoGrupoController extends Controller
         $fechaFin = date("Y-m-d", strtotime($request->fecha. "+$sum days"));
         //Adaptacion de campos
             $datos = $request->all();
-            $datos['id_tipo_fondo'] = $request->tipo_fondo;
-            $datos['id_tipo_saldo'] = $request->tipo_saldo;
             $datos['id_usuario'] = $request->usuario;
-            $datos['id_estatus'] = $estatus_viatico->id;
             $datos['saldo_anterior'] = $datos_saldo_inicio_sem!=null ? $datos_saldo_inicio_sem->saldo_actual : 0;
             $datos['fecha'] = date('Y-m-d H:i:s');
             $datos['fecha_inicio'] = $fechaIni;
             $datos['fecha_fin'] = $fechaFin;
-            $datos['fecha_trans'] = date("Y-m-d", strtotime($request->fecha));
-            $datos['transcriptor']= $user->name;
         $modelo = SaldoGrupo::create($datos);
         $modelo = new SaldoGrupoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -78,5 +72,12 @@ class SaldoGrupoController extends Controller
         $SaldoGrupo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+    public function saldo_actual_usuario($id)
+    {
+        $saldo_actual = SaldoGrupo::where('id_usuario', $id)->orderBy('id', 'desc')->first();
+        $saldo_actual = $saldo_actual!=null ? $saldo_actual->saldo_actual : 0;
+
+        return response()->json(compact('saldo_actual'));
     }
 }

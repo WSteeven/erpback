@@ -23,11 +23,6 @@ class SaldoGrupoResource extends JsonResource
             'tipo_saldo' => $this->id_tipo_saldo,
             'usuario' => $this->id_usuario,
             'usuario_info' => $this->usuario->name,
-            'estatus_info' => $this->estatus->descripcion,
-            'tipo_fondo' => $this->id_tipo_fondo,
-            'tipo_fondo_info' => $this->tipo_fondo->descripcion,
-            'tipo_saldo_info' => $this->tipo_saldo->descripcion,
-            'id_saldo' => $this->id_saldo,
             'descripcion_saldo' => $this->descripcion_saldo,
             'saldo_anterior' => $this->saldo_anterior,
             'saldo_depositado' => $this->saldo_depositado,
@@ -35,8 +30,6 @@ class SaldoGrupoResource extends JsonResource
             'gasto' => $this->getSaldoGrupo($this->fecha_inicio,$this->fecha_fin,$this->id_usuario),
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
-            'transcriptor' =>  $this->transcriptor,
-            'fecha_trans' => $this->fecha_trans,
         ];
         return $modelo;
     }

@@ -37,12 +37,7 @@ class Viatico extends Model implements Auditable
         'observacion',
         'id_usuario',
         'estado',
-        'detalle_estado',
-        'fecha_ingreso',
-        'fecha_proc',
-        'transcriptor',
-        'fecha_trans'
-
+        'detalle_estado'
     ];
 
     private static $whiteListFilter = [

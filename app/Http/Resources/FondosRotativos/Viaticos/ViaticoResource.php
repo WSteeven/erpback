@@ -42,10 +42,6 @@ class ViaticoResource extends JsonResource
             'estado' => $this->estado,
             'estado_info' => $this->estado_info->descripcion,
             'detalle_esta' => $this->detalle,
-            'fecha_ingreso' => $this->fecha_ingreso,
-            'fecha_proc' => $this -> fecha_proc,
-            'transcriptor' => $this->transcriptor,
-            'fecha_trans' => $this->fecha_trans,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
         ];

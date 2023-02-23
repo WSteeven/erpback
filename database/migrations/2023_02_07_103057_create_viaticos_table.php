@@ -34,10 +34,6 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('estado');
             $table->string('detalle_estado', 250)->nullable();
-            $table->dateTime('fecha_ingreso');
-            $table->dateTime('fecha_proc');
-            $table->string('transcriptor',120);
-            $table->timestamp('fecha_trans');
             $table->foreign('estado')->references('id')->on('estado_viatico');
             $table->foreign('detalle')->references('id')->on('detalle_viatico');
             $table->foreign('id_lugar')->references('id')->on('cantones');

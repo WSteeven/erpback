@@ -27,10 +27,10 @@ class ViaticoController extends Controller
     private $entidad = 'viatico';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.fondo')->only('index', 'show');
-        $this->middleware('can:puede.crear.fondo')->only('store');
-        $this->middleware('can:puede.editar.fondo')->only('update');
-        $this->middleware('can:puede.eliminar.fondo')->only('update');
+        $this->middleware('can:puede.ver.gasto')->only('index', 'show');
+        $this->middleware('can:puede.crear.gasto')->only('store');
+        $this->middleware('can:puede.editar.gasto')->only('update');
+        $this->middleware('can:puede.eliminar.gasto')->only('update');
     }
     /**
      * Display a listing of the resource.
@@ -60,31 +60,25 @@ class ViaticoController extends Controller
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_viatico = 0;
+
         if ($datos_detalle->descripcion == '') {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
             } else {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
         } else {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
             } else {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
             }
         }
 
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $user->id;
-        $datos['fecha_ingreso'] = date('Y-m-d h:i:s');
-        $datos['fecha_proc'] = date('Y-m-d h:i:s');
-        $dtaos['fecha_trans'] = date('Y-m-d h:i:s');
         $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
-        $datos['transcriptor'] = $user->name;
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
@@ -96,13 +90,9 @@ class ViaticoController extends Controller
         $modelo = Viatico::create($datos);
         $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
         $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario )->first();
-        $saldo_actual_usuario=(float)$datos_saldo_usuario->saldo_actual;
+        $saldo_actual_usuario=$datos_saldo_usuario!=null?$datos_saldo_usuario->saldo_actual:0.0;
         $modelo = new ViaticoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        //Actualiza saldo
-        $saldo_grupo = SaldoGrupo::where('id', $datos_saldo_usuario->id)->first();
-        $saldo_grupo->saldo_actual = (float)$saldo_actual_usuario - (float)$saldo_consumido_viatico;
-        $saldo_grupo->save();
         event(new FondoRotativoEvent($modelo));
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -140,8 +130,6 @@ class ViaticoController extends Controller
         //Adaptacion de foreign keys
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['fecha_ingreso'] = date('Y-m-d');
-        $datos['transcriptor'] = $user->name;
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
 
