@@ -22,7 +22,7 @@ class Empleado extends Model implements Auditable
         'telefono',
         'fecha_nacimiento',
         'jefe_id',
-        'sucursal_id',
+        'canton_id',
         'estado',
         'grupo_id',
         'cargo_id',
@@ -37,7 +37,7 @@ class Empleado extends Model implements Auditable
         'telefono',
         'fecha_nacimiento',
         'jefe_id',
-        'sucursal_id',
+        'canton_id',
         'grupo_id',
         'cargo_id',
         'estado',
@@ -90,11 +90,11 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relación uno a muchos (inversa).
-     * Uno o más empleados pertenecen a una sucursal.
+     * Uno o más empleados pertenecen a una sede o canton.
      */
-    public function sucursal()
+    public function canton()
     {
-        return $this->belongsTo(Sucursal::class);
+        return $this->belongsTo(Canton::class);
     }
 
     // Relacion uno a uno
