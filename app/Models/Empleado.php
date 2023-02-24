@@ -188,16 +188,17 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Transferencia::class);
     }
 
-    public function subtareas()
+    public function trabajos()
     {
-        return $this->belongsToMany(Subtarea::class);
+        return $this->belongsToMany(Trabajo::class);
     }
 
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.
      */
-    public function cargo(){
+    public function cargo()
+    {
         return $this->belongsTo(Cargo::class);
     }
 }

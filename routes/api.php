@@ -29,6 +29,7 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
+use App\Http\Controllers\ArchivoTrabajoController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -169,7 +170,7 @@ Route::apiResources(
         'tipos-elementos' => TipoElementoController::class,
         'clientes-finales' => ClienteFinalController::class,
         'proyectos' => ProyectoController::class,
-        'archivos-subtareas' => ArchivoSubtareaController::class,
+        'archivos-trabajos' => ArchivoTrabajoController::class,
         'registros-tendidos' => RegistroTendidoController::class,
     ],
     [
@@ -196,7 +197,7 @@ Route::apiResources(
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',
-            'archivos-subtareas' => 'archivo-subtarea',
+            'archivos-trabajos' => 'archivo-trabajo',
             'unidades-medidas' => 'unidad',
             'registros-tendidos' => 'registro-tendido'
         ],

@@ -18,17 +18,18 @@ class TipoTrabajoController extends Controller
     public function index(Request $request)
     {
         $cliente = $request['cliente'];
-        $page = $request['page'];
+        // $page = $request['page'];
         $results = [];
 
-        if ($page) {
+        /*if ($page) {
             $results = TipoTrabajo::simplePaginate($request['offset']);
             TipoTrabajoResource::collection($results);
-        } else if ($cliente) {
+        } else*/
+        /*if ($cliente) {
             $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
-        } else {
-            $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
-        }
+        } else {*/
+        $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
+        //}
 
         return response()->json(compact('results'));
     }

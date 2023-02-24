@@ -10,13 +10,13 @@ class EmpleadoTrabajo extends Model
     use HasFactory;
     protected $table = 'empleado_trabajo';
     protected $fillable = [
-        'responsable',
+        'es_responsable',
         'empleado_id',
         'trabajo_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'responsable' => 'boolean',
+        'es_responsable' => 'boolean',
     ];
 }

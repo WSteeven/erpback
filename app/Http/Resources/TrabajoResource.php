@@ -42,17 +42,14 @@ class TrabajoResource extends JsonResource
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'cliente_id' => $this->cliente_id,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
-            //'subtarea_dependiente_id' => $this->subtarea_dependiente,
             'es_ventana' => $this->es_ventana,
             'fecha_agendado' => $this->fecha_agendado,
             'hora_inicio_agendado' => $this->hora_inicio_agendado,
             'hora_fin_agendado' => $this->hora_fin_agendado,
             'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
             'tiene_subtrabajos' => $this->tiene_subtrabajos,
-            //'tarea' => $this->tarea->codigo_tarea,
-            //'tarea_id' => $this->tarea_id,
-            'grupos' => $this->extraerNombres($this->grupos()->orderBy('responsable', 'desc')->get()),
-            'empleados' => $this->extraerNombresApellidos($this->empleados()->orderBy('responsable', 'desc')->get()),
+            'grupos' => $this->extraerNombres($this->grupos()->orderBy('es_responsable', 'desc')->get()),
+            'empleados' => $this->extraerNombresApellidos($this->empleados()->orderBy('es_responsable', 'desc')->get()),
             'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
@@ -63,13 +60,12 @@ class TrabajoResource extends JsonResource
             'causa_suspencion' => $this->causa_suspencion,
             'fecha_hora_cancelacion' => $this->fecha_hora_cancelacion,
             'causa_cancelacion' => $this->causa_cancelacion,
-            //'cliente_final' => $this->tarea->cliente_final,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
 
             'estado' => $this->estado,
-            //'responsable' => $this->verificarResponsable(), //!!$this->empleados()->wher    e('empleado_id', Auth::id())->where('responsable', true)->first(),
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
+            'es_responsable' => $this->verificarResponsable(), //!!$this->empleados()->where('empleado_id', Auth::id())->where('responsable', true)->first(),
         ];
 
         if ($controller_method == 'show') {
@@ -79,7 +75,7 @@ class TrabajoResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['fiscalizador'] = $this->fiscalizador_id;
-            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoTrabajo::where('trabajo_id', $this->id)->orderBy('responsable', 'desc')->get());
+            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoTrabajo::where('trabajo_id', $this->id)->orderBy('es_responsable', 'desc')->get());
             $modelo['empleados_seleccionados'] = $this->listarEmpleados();
             $modelo['cliente_final'] = $this->cliente_final_id;
             $modelo['trabajo_dependiente'] = $this->trabajo_dependiente_id;
@@ -105,19 +101,19 @@ class TrabajoResource extends JsonResource
         return $gruposSeleccionados->map(fn ($grupo) => [
             'id' => $grupo->grupo_id,
             'nombre' => Grupo::select('nombre')->where('id', $grupo->grupo_id)->first()->nombre,
-            'es_responsable' => $grupo->responsable,
+            'es_responsable' => $grupo->es_responsable,
         ]);
     }
 
     private function listarEmpleados()
     {
-        $empleadosSeleccionados = EmpleadoTrabajo::where('trabajo_id', $this->id)->orderBy('responsable', 'desc')->get();
+        $empleadosSeleccionados = EmpleadoTrabajo::where('trabajo_id', $this->id)->orderBy('es_responsable', 'desc')->get();
         if ($empleadosSeleccionados) return $this->mapEmpleadoSeleccionado($empleadosSeleccionados);
     }
 
-    public function mapEmpleadoSeleccionado($empleadosSubtarea)
+    public function mapEmpleadoSeleccionado($empleadosTrabajo)
     {
-        return $empleadosSubtarea->map(function ($item) {
+        return $empleadosTrabajo->map(function ($item) {
             $empleado = Empleado::find($item->empleado_id);
             return [
                 'id' => $item->empleado_id,
@@ -125,7 +121,7 @@ class TrabajoResource extends JsonResource
                 'apellidos' => $empleado->apellidos,
                 'telefono' => $empleado->telefono,
                 'grupo' => $empleado->grupo?->nombre,
-                'es_responsable' => $item->responsable,
+                'es_responsable' => $item->es_responsable,
                 'roles' => implode(', ', $empleado->user->getRoleNames()->toArray()),
             ];
         });
@@ -133,18 +129,17 @@ class TrabajoResource extends JsonResource
 
     public function verificarResponsable()
     {
-        $usuario = Auth::user();
-        $esSecretario = $usuario->empleado->cargo === User::TECNICO_SECRETARIO;
-        // $rolPermitido = in_array(User::ROL_TECNICO_SECRETARIO, $usuario->getRoleNames()->toArray());
+        $empleado = Auth::user()->empleado;
+        $esSecretario = $empleado->cargo === User::TECNICO_SECRETARIO;
 
         if ($this->modo_asignacion_trabajo === Trabajo::POR_GRUPO) {
             if ($esSecretario) {
-                return !!$this->grupos()->where('grupo_id', $usuario->empleado->grupo_id)->where('responsable', true)->first();
+                return !!$this->grupos()->where('grupo_id', $empleado->grupo_id)->where('es_responsable', true)->first();
             }
         }
 
         if ($this->modo_asignacion_trabajo === Trabajo::POR_EMPLEADO) {
-            return !!$this->empleados()->where('empleado_id', Auth::id())->where('responsable', true)->first();
+            return !!$this->empleados()->where('empleado_id', Auth::id())->where('es_responsable', true)->first();
         }
 
         return false;

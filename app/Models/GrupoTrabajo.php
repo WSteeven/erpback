@@ -10,10 +10,10 @@ class GrupoTrabajo extends Model
     use HasFactory;
 
     protected $table = 'grupo_trabajo';
-    protected $fillable = ['responsable', 'grupo_id', 'trabajo_id'];
+    protected $fillable = ['es_responsable', 'grupo_id', 'trabajo_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'responsable' => 'boolean',
+        'es_responsable' => 'boolean',
     ];
 }

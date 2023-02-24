@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('archivos_subtareas', function (Blueprint $table) {
+        Schema::create('archivos_trabajos', function (Blueprint $table) {
             $table->id();
 
             $table->string('nombre');
@@ -22,8 +22,8 @@ return new class extends Migration
             $table->text('comentario')->nullable();
 
             // Foreign key
-            $table->unsignedBigInteger('subtarea_id');
-            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('trabajo_id');
+            $table->foreign('trabajo_id')->references('id')->on('trabajos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('archivos_subtareas');
+        Schema::dropIfExists('archivos_trabajos');
     }
 };

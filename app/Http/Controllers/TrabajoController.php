@@ -59,16 +59,7 @@ class TrabajoController extends Controller
         
         $tarea = Tarea::find($datos['tarea_id']);
         $datos['codigo_trabajo'] = $tarea->codigo_tarea . '-' . $tarea->trabajos->count() + 1;
-        //$datos['codigo_trabajo'] = 'TR' . Trabajo::latest('id')->first()?->id + 1;
-        //$datos['trabajo_padre_id'] = $request->safe()->only(['trabajo_padre'])['trabajo_padre'];
-        //$datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        //$datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        //$datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        //$datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
-
-
-        // $datos['codigo_subtarea'] = Trabajo::find($tarea_id)->codigo_tarea . '-' . (Trabajo::where('tarea_id', $tarea_id)->count() + 1);
         $datos['fecha_hora_creacion'] = Carbon::now();
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
@@ -84,7 +75,7 @@ class TrabajoController extends Controller
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $grupoSeleccionado['es_responsable'] ?? false,
+                        'es_responsable' => $grupoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 
@@ -96,7 +87,7 @@ class TrabajoController extends Controller
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
                         'trabajo_id' => $modelo->id,
-                        'responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
+                        'es_responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
 

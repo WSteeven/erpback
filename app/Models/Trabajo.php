@@ -45,9 +45,7 @@ class Trabajo extends Model implements Auditable
         'observacion',
         'estado',
         'modo_asignacion_trabajo',
-        // 'codigo_trabajo_cliente',
-        // 'para_cliente_proyecto',
-        // 'fecha_solicitud',
+        
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
@@ -57,11 +55,9 @@ class Trabajo extends Model implements Auditable
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
-        // 'dias_ocupados',
 
         'es_dependiente',
         'es_ventana',
-        // 'tiene_subtrabajos',
         'fecha_agendado',
         'hora_inicio_agendado',
         'hora_fin_agendado',
@@ -70,10 +66,6 @@ class Trabajo extends Model implements Auditable
         'tarea_id',
         'trabajo_dependiente_id',
         'coordinador_id',
-        // 'cliente_final_id',
-        //         'fiscalizador_id',
-        //     'proyecto_id',
-        //   'cliente_id',
     ];
 
     protected $casts = [
@@ -105,11 +97,11 @@ class Trabajo extends Model implements Auditable
         //'proyecto.canton.canton' => 'canton',
     ];
 
-    public function serializeRequestFilter($request)
+    /*public function serializeRequestFilter($request)
     {
         $request['es_ventana'] = isset($request['es_ventana']) && $request['es_ventana']['like'] == '%true%' ? 1 : 0;
         return $request;
-    }
+    }*/
 
     public function EloquentFilterCustomDetection(): array
     {
