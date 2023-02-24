@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" >
+<html lang="es">
 
 <head>
-<meta charset="utf-8">
+    <meta charset="utf-8">
     <title>Pedido N° {{ $id }}</title>
     <style>
         @page {
@@ -52,9 +52,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 15px;
-            /* margin-bottom: 100px; */
-            /* text-transform: uppercase; */
+            font-size: 13px;
         }
 
         div {
@@ -81,17 +79,14 @@
     </style>
 </head>
 @php
-$fecha = new Datetime();
-$qr = QrCode::size(100)
-->backgroundColor(255, 90, 0)
-->generate('Hola a todos, saludos cordiales');
-
-$ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'RESPONSABLE: ' . $responsable . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
 @endphp
 
 <body>
     <header>
-        <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td>
                     <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
@@ -135,15 +130,19 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.</div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el Usuario:
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
                     </div>
                 </td>
                 <td>
-                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->size(70)->generate('Hola, soy un qr en un PDF'),) !!}"></div>
+                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(
+                        QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
+                    ) !!}"></div>
                 </td>
             </tr>
         </table>
@@ -169,9 +168,11 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
         </table>
         <table>
             <thead style="margin-bottom:4px;">
-                <tr>
-                    <td>Tarea: <b>{{ $tarea }}</b></td>
-                </tr>
+                @if ($tarea)
+                    <tr>
+                        <td>Tarea: <b>{{ $tarea }}</b></td>
+                    </tr>
+                @endif
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
@@ -185,13 +186,13 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
             </thead>
             <tbody style="font-size: 14px;">
                 @foreach ($listadoProductos as $listado)
-                <tr>
-                    <td>{{ $listado['producto'] }}</td>
-                    <td>{{ $listado['descripcion'] }}</td>
-                    <td>{{ $listado['categoria'] }}</td>
-                    <td align="center">{{ $listado['cantidad'] }}</td>
-                    <td align="center">{{ $listado['despachado'] }}</td>
-                </tr>
+                    <tr>
+                        <td>{{ $listado['producto'] }}</td>
+                        <td>{{ $listado['descripcion'] }}</td>
+                        <td>{{ $listado['categoria'] }}</td>
+                        <td align="center">{{ $listado['cantidad'] }}</td>
+                        <td align="center">{{ $listado['despachado'] }}</td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

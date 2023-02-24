@@ -164,7 +164,7 @@ class PedidoController extends Controller
         $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'pedidos'.DIRECTORY_SEPARATOR.$filename;
 
         // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-        Log::channel('testing')->info('Log', ['NOMBRE DE ARCHIVO', $filename]);
+        Log::channel('testing')->info('Log', ['El pedido es', $resource]);
         // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
         return $file;
     }catch(Exception $ex){

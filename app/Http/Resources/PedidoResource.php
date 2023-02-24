@@ -39,6 +39,7 @@ class PedidoResource extends JsonResource
             'estado' => $this->estado->nombre,
             'listadoProductos' => $detalles,
             'created_at' => date('d-m-Y', strtotime($this->created_at)),
+            'updated_at' => $this->updated_at,
 
             'tiene_fecha_limite'=>$this->fecha_limite?true:false,
             'es_tarea' => $this->tarea ? true : false,

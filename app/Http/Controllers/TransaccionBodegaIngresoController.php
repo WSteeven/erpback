@@ -6,7 +6,9 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
+use App\Models\Motivo;
 use App\Models\Producto;
+use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -37,10 +39,12 @@ class TransaccionBodegaIngresoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
-        $tipo = 'INGRESO';
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
+            // $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));

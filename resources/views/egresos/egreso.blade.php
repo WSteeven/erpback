@@ -52,9 +52,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 15px;
-            /* margin-bottom: 100px; */
-            /* text-transform: uppercase; */
+            font-size: 12px;
         }
 
         div {
@@ -86,7 +84,6 @@
         ->backgroundColor(255, 90, 0)
         ->generate('Hola a todos, saludos cordiales');
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
 @endphp
 
 <body>
@@ -156,7 +153,7 @@
                     </div>
                 </td>
                 <td>
-                    <div color="#000000"><img src="data:image/svg;base64,{!! base64_encode(
+                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(
                         QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
                     ) !!}"></div>
                 </td>

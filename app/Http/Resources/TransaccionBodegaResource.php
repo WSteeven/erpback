@@ -45,7 +45,7 @@ class TransaccionBodegaResource extends JsonResource
             'per_atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
             'per_retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,
             'per_retira_id'=>$this->retira?->id,
-            'tarea' => $this->tarea ? $this->tarea->detalle : null,
+            'tarea' => $this->tarea ? $this->tarea->titulo : null,
             'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'cliente_id' => $this->cliente_id,
             'listadoProductosTransaccion' => $detalles,
