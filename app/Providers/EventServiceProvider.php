@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Viatico\Viatico;
 use App\Models\Inventario;
 use App\Models\InventarioPrestamoTemporal;
@@ -17,6 +18,7 @@ use App\Models\TransaccionBodega;
 use App\Observers\DetalleObserver;
 use App\Observers\DetallePedidoProductoObserver;
 use App\Observers\DetalleProductoTransaccionObserver;
+use App\Observers\FondosRotativos\Saldo\AcreditacionObserver;
 use App\Observers\FondosRotativos\Saldo\GastosObserver;
 use App\Observers\InventarioObserver;
 use App\Observers\InventarioPrestamoTemporalObserver;
@@ -67,6 +69,7 @@ class EventServiceProvider extends ServiceProvider
         TransaccionBodega::observe(TransaccionBodegaObserver::class);
         DetallePedidoProducto::observe(DetallePedidoProductoObserver::class);
         Viatico::observe(GastosObserver::class);
+        Acreditaciones::observe(AcreditacionObserver::class);
     }
 
     /**

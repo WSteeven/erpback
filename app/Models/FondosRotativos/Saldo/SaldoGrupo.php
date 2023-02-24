@@ -35,4 +35,27 @@ class SaldoGrupo extends  Model implements Auditable
     {
         return $this->hasOne(User::class, 'id','id_usuario');
     }
+    public static function empaquetarListado($saldos)
+    {
+            $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($saldos as $saldo) {
+            $row['id'] = $saldo->id;
+            $row['fecha'] = $saldo->fecha;
+            $row['tipo_saldo'] = $saldo->id_tipo_saldo;
+            $row['usuario'] = $saldo->id_usuario;
+            $row['usuario_info'] = $saldo->usuario;
+            $row['descripcion_saldo'] = $saldo->descripcion_saldo;
+            $row['saldo_anterior'] = $saldo->saldo_anterior;
+            $row['saldo_depositado'] = $saldo->saldo_depositado;
+            $row['saldo_actual'] = $saldo->saldo_actual;
+            $row['fecha_inicio'] = $saldo->fecha_inicio;
+            $row['fecha_fin'] = $saldo->fecha_fin;
+            $results[$id] = $row;
+            $id++;
+        }
+
+        return $results;
+    }
 }

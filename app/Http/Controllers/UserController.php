@@ -10,8 +10,12 @@ use App\Models\Empleado;
 use App\Models\User;
 use Exception;
 use DateTime;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 class UserController extends Controller
 {
     public function index()
@@ -98,5 +102,42 @@ class UserController extends Controller
         $user = Auth::user();
         $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
+    }
+    public function recuperarPassword(Request $request){
+        $email = $request->input('email');
+        $usuario = User::where('email', $email)->first();
+        if($usuario){
+            $username =  explode("@", $email)[0];
+            $confirmation_code = Str::random(9);
+            $credenciales =[
+                'email' => $email,
+                'username' =>  $username,
+                'confirmation_code' => $confirmation_code
+            ];
+        $usuario->remember_token = $confirmation_code;
+        $usuario->save();
+        Mail::send('email.recoveryPassword',$credenciales, function($msj) use($email,$username){
+            $msj->to($email,$username);
+            $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
+        });
+        return response()
+        ->json('Porfavor revise su codigo de confirmacion en su  Correo Institucional ');
+        }
+        else {
+            return response()->json('Correo Institucional no existe',401);
+        }
+    }
+    public function updateContrasenaRecovery (Request $request){
+        $code = $request->input('code');
+        $contrasena_usuario =  Hash::make($request->input('contrasena_usuario'));
+        $users = User::where('confirmation_code', $code)->first();
+        if ($users == null) {
+            return response()->json('Correo no verificado',401);
+        }
+        $confirmation_code = ' ';
+        $users->confirmation_code = $confirmation_code;
+        $users->password = $contrasena_usuario;
+        return response()
+            ->json('Contraseña Actualizada con exito');
     }
 }

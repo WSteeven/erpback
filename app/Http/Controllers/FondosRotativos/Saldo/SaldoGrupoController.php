@@ -7,8 +7,12 @@ use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 
 class SaldoGrupoController extends Controller
@@ -20,6 +24,7 @@ class SaldoGrupoController extends Controller
         $this->middleware('can:puede.crear.saldo')->only('store');
         $this->middleware('can:puede.editar.saldo')->only('update');
         $this->middleware('can:puede.eliminar.saldo')->only('update');
+        $this->middleware('can:puede.ver.reporte_saldo_actual')->only('saldo_actual');
     }
     public function index(Request $request)
     {
@@ -52,14 +57,14 @@ class SaldoGrupoController extends Controller
         $datos_saldo_inicio_sem = SaldoGrupo::where('id_usuario', $request->usuario)->orderBy('id', 'desc')->first();
         $user = Auth::user();
         $fechaIni = date("Y-m-d", strtotime($request->fecha . "-$rest days"));
-        $fechaFin = date("Y-m-d", strtotime($request->fecha. "+$sum days"));
+        $fechaFin = date("Y-m-d", strtotime($request->fecha . "+$sum days"));
         //Adaptacion de campos
-            $datos = $request->all();
-            $datos['id_usuario'] = $request->usuario;
-            $datos['saldo_anterior'] = $datos_saldo_inicio_sem!=null ? $datos_saldo_inicio_sem->saldo_actual : 0;
-            $datos['fecha'] = date('Y-m-d H:i:s');
-            $datos['fecha_inicio'] = $fechaIni;
-            $datos['fecha_fin'] = $fechaFin;
+        $datos = $request->all();
+        $datos['id_usuario'] = $request->usuario;
+        $datos['saldo_anterior'] = $datos_saldo_inicio_sem != null ? $datos_saldo_inicio_sem->saldo_actual : 0;
+        $datos['fecha'] = date('Y-m-d H:i:s');
+        $datos['fecha_inicio'] = $fechaIni;
+        $datos['fecha_fin'] = $fechaFin;
         $modelo = SaldoGrupo::create($datos);
         $modelo = new SaldoGrupoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -76,8 +81,57 @@ class SaldoGrupoController extends Controller
     public function saldo_actual_usuario($id)
     {
         $saldo_actual = SaldoGrupo::where('id_usuario', $id)->orderBy('id', 'desc')->first();
-        $saldo_actual = $saldo_actual!=null ? $saldo_actual->saldo_actual : 0;
+        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
 
         return response()->json(compact('saldo_actual'));
+    }
+    public function saldo_actual(Request $request, $tipo)
+    {
+        try {
+            $id = $request->usuario != null ?  $request->usuario : 0;
+            $fecha = date('Y-m-d');
+            $fecha_inicio = '2023-02-11'; //$this->calcular_fechas($fecha)[0];
+            $fecha_fin = '2023-02-17'; //$this->calcular_fechas($fecha)[1];
+            $saldos_actual_user = $id == 0 ?
+                SaldoGrupo::with('usuario')->whereBetween('fecha', [$fecha_inicio, $fecha_fin])->get()
+                : SaldoGrupo::with('usuario')->whereBetween('fecha', [$this->calcular_fechas($fecha)[0], $this->calcular_fechas($fecha)[1]])->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+
+            $results = SaldoGrupo::empaquetarListado($saldos_actual_user);
+
+            $saldos_actuales = SaldoGrupoResource::collection($saldos_actual_user);
+            $nombre_reporte = 'reporte_saldoActual';
+            $reportes =  ['saldos' => $saldos_actuales];
+            switch ($tipo) {
+                case 'excel':
+                    //return Excel::download(new ViaticoExport($reporte), $nombre_reporte.'.xlsx');
+                    break;
+                case 'pdf':
+                    //return  $reporte['saldos'][0];
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes,$results]);
+                    $pdf = Pdf::loadView('exports.reportes.reporte_saldo_actual', $reportes);
+                    return $pdf->download($nombre_reporte . '.pdf');
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private function calcular_fechas($fecha)
+    {
+        $array_dias['Sunday'] = 0;
+        $array_dias['Monday'] = 1;
+        $array_dias['Tuesday'] = 2;
+        $array_dias['Wednesday'] = 3;
+        $array_dias['Thursday'] = 4;
+        $array_dias['Friday'] = 5;
+        $array_dias['Saturday'] = 6;
+
+        $dia_actual = $array_dias[date('l', strtotime($fecha))];
+
+        $rest = $dia_actual + 1;
+        $sum = 5 - $dia_actual;
+        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
+        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
+        return array($fechaIni, $fechaFin);
     }
 }

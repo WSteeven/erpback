@@ -2,13 +2,11 @@
 
 namespace App\Http\Resources\FondosRotativos\Saldo;
 
-use App\Http\Resources\UserResource;
 use App\Models\FondosRotativos\Viatico\Viatico;
-use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 
-class SaldoGrupoResource extends JsonResource
+class AcreditacionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -24,14 +22,10 @@ class SaldoGrupoResource extends JsonResource
             'fecha' => $this->fecha,
             'tipo_saldo' => $this->id_tipo_saldo,
             'usuario' => $this->id_usuario,
-            'usuario_info' => $this->usuario,
-            'descripcion_saldo' => $this->descripcion_saldo,
-            'saldo_anterior' => $this->saldo_anterior,
-            'saldo_depositado' => $this->saldo_depositado,
-            'saldo_actual' => $this->saldo_actual,
+            'usuario_info' => $this->usuario->name,
+            'descripcion_acreditacion' => $this->descripcion_saldo,
+            'monto' => $this->monto,
             'gasto' => $this->getSaldoGrupo($this->fecha_inicio,$this->fecha_fin,$this->id_usuario),
-            'fecha_inicio' => $this->fecha_inicio,
-            'fecha_fin' => $this->fecha_fin,
         ];
         return $modelo;
     }

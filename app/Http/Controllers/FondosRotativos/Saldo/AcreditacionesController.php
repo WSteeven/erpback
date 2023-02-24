@@ -3,10 +3,23 @@
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
+use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class AcreditacionesController extends Controller
 {
+private $entidad = 'Acreditacion';
+public function __construct()
+    {
+        $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
+        $this->middleware('can:puede.crear.acreditacion')->only('store');
+        $this->middleware('can:puede.editar.acreditacion')->only('update');
+        $this->middleware('can:puede.puede.eliminar.acreditacion')->only('update');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,8 +27,12 @@ class AcreditacionesController extends Controller
      */
     public function index()
     {
-        //
+        $results = [];
+        $results = Acreditaciones::with('usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = AcreditacionResource::collection($results);
+        return response()->json(compact('results'));
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -25,7 +42,17 @@ class AcreditacionesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
+        //Adaptacion de campos
+            $datos = $request->all();
+            $datos['id_tipo_fondo'] = $request->tipo_fondo;
+            $datos['id_tipo_saldo'] = $request->tipo_saldo;
+            $datos['id_usuario'] = $request->usuario;
+            $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
+        $modelo = Acreditaciones::create($datos);
+        $modelo = new AcreditacionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -36,7 +63,9 @@ class AcreditacionesController extends Controller
      */
     public function show($id)
     {
-        //
+        $acreditacion = Acreditaciones::findOrFail($id);
+        $acreditacion = new AcreditacionResource($acreditacion);
+        return response()->json(compact('acreditacion'));
     }
 
     /**
@@ -48,7 +77,18 @@ class AcreditacionesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $acreditacion = Acreditaciones::findOrFail($id);
+        $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
+        //Adaptacion de campos
+            $datos = $request->all();
+            $datos['id_tipo_fondo'] = $request->tipo_fondo;
+            $datos['id_tipo_saldo'] = $request->tipo_saldo;
+            $datos['id_usuario'] = $request->usuario;
+            $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
+        $modelo = $acreditacion->update($datos);
+        $modelo = new AcreditacionResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -59,6 +99,9 @@ class AcreditacionesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $acreditacion = Acreditaciones::findOrFail($id);
+        $acreditacion->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

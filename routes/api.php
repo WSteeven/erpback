@@ -51,6 +51,7 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
+use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
@@ -91,6 +92,8 @@ use Carbon\Carbon;
 Route::get('tablero', [TableroController::class, 'index']);
 
 Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
+Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
@@ -179,6 +182,7 @@ Route::apiResources(
         'fondos-rotativos/tipo-saldo' => TipoSaldoController::class,
         'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
         'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
+        'fondos-rotativos/acreditacion' => AcreditacionesController::class,
     ],
     [
         'parameters' => [
@@ -262,6 +266,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
     Route::post('fondos-rotativos/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte']);
+    Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
 });
 
