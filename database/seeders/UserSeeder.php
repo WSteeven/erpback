@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
         $recursos_humanos = User::create([
             'name' => 'LPESANTES',
             'email' => 'manuel@jpconstrucred.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0706751393'),
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
         // Coordinador
         $coordinador_sto_domingo = User::create([
@@ -58,14 +58,14 @@ class UserSeeder extends Seeder
         $bodeguero1 = User::create([
             'name' => 'CALBARRACIN',
             'email' => 'asistentebodega1@jpconstrucred.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0703324319'),
         ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
         // Asistente de bodega 2
         $bodeguero2 = User::create([
             'name' => 'JTORRES',
             'email' => 'asistentebodega2@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0705191054'),
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_BODEGA);
         // Jefe tecnico
         $jveintimilla = User::create([
@@ -86,7 +86,6 @@ class UserSeeder extends Seeder
         $admin->empleado()->create([
             'nombres' => 'Superusuario',
             'apellidos' => 'Administrador',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
 
@@ -97,7 +96,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456748',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $jveintimilla->empleado()->create([
@@ -107,7 +105,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987459218',
             'fecha_nacimiento' => '2011-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $coordinador->empleado()->create([
@@ -117,7 +114,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $recursos_humanos->empleado()->create([
@@ -127,7 +123,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456747',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $coordinador_sto_domingo->empleado()->create([
@@ -137,7 +132,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456741',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_sto_domingo->id
         ]);
 
         $coordinador_telconet->empleado()->create([
@@ -147,7 +141,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456785',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $bodeguero1->empleado()->create([
@@ -157,7 +150,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456112',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $bodeguero2->empleado()->create([
@@ -167,7 +159,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456965',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Departamento de compras
@@ -184,7 +175,6 @@ class UserSeeder extends Seeder
             'telefono' => '0984568596',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Personal administrativo
@@ -201,7 +191,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456235',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '5',
-            'sucursal_id' => $localidad_guayaquil->id
         ]);
 
 
@@ -210,7 +199,7 @@ class UserSeeder extends Seeder
             'name' => 'PAGUILAR',
             'email' => 'pedro@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0706751393'),
         ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO]);
         $activos_fijos->empleado()->create([
             'nombres' => 'PEDRO',
@@ -219,7 +208,6 @@ class UserSeeder extends Seeder
             'telefono' => '0989857463',
             'fecha_nacimiento' => '1993-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Contabilidad
@@ -235,7 +223,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987457845',
             'fecha_nacimiento' => '2000-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $sso = User::create([
@@ -250,7 +237,6 @@ class UserSeeder extends Seeder
             'telefono' => '0982984348',
             'fecha_nacimiento' => '1978-08-06',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         /** TECNICOS */
@@ -268,7 +254,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
             'cargo_id' => 5,
         ]);
@@ -286,7 +271,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2010-05-12',
             'jefe_id' => '6',
-            'sucursal_id' => $localidad_machala->id,
             'grupo_id' => 1,
             'cargo_id' => 6,
         ]);
@@ -304,7 +288,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456331',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 3,
             'cargo_id' => 5,
         ]);
@@ -322,7 +305,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 2,
             'cargo_id' => 5,
         ]);
@@ -340,7 +322,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456333',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
             'cargo_id' => 8,
         ]);
@@ -358,7 +339,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
             'cargo_id' => 10,
         ]);
@@ -376,7 +356,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456333',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 2,
             'cargo_id' => 6,
         ]);
@@ -394,7 +373,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 3,
             'cargo_id' => 6,
         ]);
@@ -418,7 +396,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987498564',
             'fecha_nacimiento' => '2000-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
         ]);
 
         $tecnico = User::create([
@@ -434,7 +411,6 @@ class UserSeeder extends Seeder
             'telefono' => '0992200572',
             'fecha_nacimiento' => '1997-06-29',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
         ]);
 
         $tecnico = User::create([
@@ -450,7 +426,6 @@ class UserSeeder extends Seeder
             'telefono' => '0998474965',
             'fecha_nacimiento' => '1996-05-12',
             'jefe_id' => '24',
-            'sucursal_id' => $localidad_machala->id,
         ]);
 
         $tecnico = User::create([
@@ -466,7 +441,6 @@ class UserSeeder extends Seeder
             'telefono' => '0998474969',
             'fecha_nacimiento' => '1996-05-12',
             'jefe_id' => '24',
-            'sucursal_id' => $localidad_machala->id,
         ]);
 
         $tecnico = User::create([
@@ -482,7 +456,6 @@ class UserSeeder extends Seeder
             'telefono' => '0998474966',
             'fecha_nacimiento' => '1995-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
         ]);
     }
 }

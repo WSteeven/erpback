@@ -324,7 +324,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.grupos'])->assignRole($recursos_humanos);
         Permission::firstOrCreate(['name' => 'puede.crear.grupos'])->assignRole($recursos_humanos);
         Permission::firstOrCreate(['name' => 'puede.editar.grupos'])->assignRole($recursos_humanos);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.grupos'])->assignRole($recursos_humanos);
+        // Permission::firstOrCreate(['name' => 'puede.eliminar.grupos'])->assignRole($recursos_humanos);
         // Tipos elementos
         Permission::firstOrCreate(['name' => 'puede.ver.tipos_elementos'])->assignRole($coordinador);
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_elementos'])->assignRole($coordinador);

@@ -68,8 +68,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
-            /* position: inherit; */
-            /* top: 140px; */
+            font-size: 12px;
         }
 
 
@@ -127,16 +126,16 @@
                     <td></td>
                     <td style="padding-left: 60px;">
                         @if ($responsable_id)
-                            {{$per_retira}}
+                            {{ $per_retira }}
                         @else
                             Nombre:
                         @endif
                     </td>
                 </tr>
                 <tr>
-                    <td align="center" >{{ auth('sanctum')->user()->empleado->identificacion }} </td>
+                    <td align="center">{{ auth('sanctum')->user()->empleado->identificacion }} </td>
                     <td></td>
-                    <td align="center">{{$identificacion}}</td>
+                    <td align="center">{{ $identificacion }}</td>
                 </tr>
             </tbody>
         </table>

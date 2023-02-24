@@ -6,14 +6,12 @@ use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\UserResource;
 use App\Models\Empleado;
-use App\Models\Grupo;
 use App\Models\User;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 
@@ -71,11 +69,11 @@ class EmpleadoController extends Controller
      */
     public function store(EmpleadoRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
+        Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
 
@@ -97,8 +95,9 @@ class EmpleadoController extends Controller
                 'telefono' => $datos['telefono'],
                 'fecha_nacimiento' => new DateTime($datos['fecha_nacimiento']),
                 'jefe_id' => $datos['jefe_id'],
-                'sucursal_id' => $datos['sucursal_id'],
-                'cargo_id' => $datos['cargo_id']
+                'canton_id' => $datos['canton_id'],
+                'cargo_id' => $datos['cargo_id'],
+                'grupo_id' => $datos['grupo_id']
             ]);
 
             DB::commit();
@@ -108,7 +107,7 @@ class EmpleadoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
 
-        $modelo = new UserResource($user->refresh());
+        $modelo = new EmpleadoResource($user->empleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -134,7 +133,7 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         $empleado->update($datos);
 

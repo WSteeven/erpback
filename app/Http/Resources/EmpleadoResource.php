@@ -2,9 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Crypt;
 
 class EmpleadoResource extends JsonResource
 {
@@ -28,7 +26,7 @@ class EmpleadoResource extends JsonResource
             // 'password'=>bcrypt($this->user->password),
             'usuario' => $this->user->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
-            'sucursal' => $this->sucursal->lugar,
+            'canton' => $this->canton? $this->canton->canton:'NO TIENE',
             'estado' => $this->estado,//?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
             'grupo' => $this->grupo?->nombre,
@@ -41,7 +39,7 @@ class EmpleadoResource extends JsonResource
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
             $modelo['usuario'] = $this->user->name;
-            $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['canton'] = $this->canton_id;
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;

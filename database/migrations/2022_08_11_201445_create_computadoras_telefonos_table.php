@@ -14,6 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('computadoras_telefonos', function (Blueprint $table) {
+            $table->string('imei')->nullable();
             $table->unsignedBigInteger('detalle_id');
             $table->unsignedBigInteger('memoria_id');
             $table->unsignedBigInteger('disco_id');

@@ -37,7 +37,7 @@ class EmpleadoRequest extends FormRequest
             'usuario' => 'required|string',
             'fecha_nacimiento'=>'required|date',
             'jefe'=>'required|exists:empleados,id',
-            'sucursal'=>'required|exists:sucursales,id',
+            'canton'=>'sometimes|nullable|exists:cantones,id',
             'roles'=>'required|exists:roles,name',
             'estado'=>'sometimes|boolean',
             'grupo'=>'nullable|exists:grupos,id',
