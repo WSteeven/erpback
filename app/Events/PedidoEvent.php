@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class PedidoEvent implements ShouldBroadcast
 {
@@ -34,10 +35,12 @@ class PedidoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('pedidos-tracker');
+        Log::channel('testing')->info('Log', ['Estamos en el broadcastOn de pedidos']);
         return new Channel('pedidos-tracker');
     }
 
     public function broadcastAs(){
+        Log::channel('testing')->info('Log', ['Estamos en el broadcastAs de pedidos']);
         return 'pedido-event';
     }
 }

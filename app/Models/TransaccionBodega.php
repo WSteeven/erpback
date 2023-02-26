@@ -3,16 +3,13 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
-use DragonCode\Contracts\Cashier\Config\Payments\Statuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Termwind\Components\Raw;
 
 class TransaccionBodega extends Model implements Auditable
 {

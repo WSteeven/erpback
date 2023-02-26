@@ -83,6 +83,7 @@
         ->backgroundColor(255, 90, 0)
         ->generate('Hola a todos, saludos cordiales');
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
+    $ciclo = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
 @endphp
 
 <body>
@@ -101,7 +102,7 @@
                     @endif
                 </td>
                 <td style="width: 22%;">
-                    <div class="col-md-2" align="right">Sistema de bodega</div>
+                    <div class="col-md-2" align="right" style="font-size: 15px">Sistema de bodega</div>
                 </td>
             </tr>
         </table>
@@ -120,11 +121,11 @@
                     <td><b></b></td>
                     <td><b>RECIBE</b></td>
                 </tr>
-                <tr>
-                    <td align="center">{{ auth('sanctum')->user()->empleado->nombres }}
+                <tr align="center">
+                    <td>{{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">
+                    <td>
                         @if ($responsable_id)
                             {{ $per_retira }}
                         @else
@@ -132,10 +133,10 @@
                         @endif
                     </td>
                 </tr>
-                <tr>
-                    <td align="center">{{ auth('sanctum')->user()->empleado->identificacion }} </td>
+                <tr align="center">
+                    <td >{{ auth('sanctum')->user()->empleado->identificacion }} </td>
                     <td></td>
-                    <td align="center">{{ $identificacion }}</td>
+                    <td>{{ $identificacion }}</td>
                 </tr>
             </tbody>
         </table>
@@ -201,7 +202,7 @@
                 <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
-                {{-- @foreach ($ciclo as $c) --}}
+                @foreach ($ciclo as $c)
                 @foreach ($listadoProductosTransaccion as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
@@ -210,7 +211,7 @@
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>
                 @endforeach
-                {{-- @endforeach --}}
+                @endforeach
             </tbody>
         </table>
     </main>
