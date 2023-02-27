@@ -37,7 +37,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
             <tr>
                 <td width="17%">
-                    <div align="center"><img width="100" height="64" src="'.$imagen_logo.'" /></div>
+                    <div align="center"><img width="100" height="64" src="img/logoJP.png" /></div>
                 </td>
                 <td width="83%" style="font-size:16px; font-weight:bold">
                     <div align="center">JEAN PATRICIO PAZMI&Ntilde;O BARROS</div>
@@ -46,8 +46,7 @@
             </tr>
         </table>
     </header>
-    <footer>JP Construcred / Reposte Generado por el Usuario: '.$datos_usuario_logueado[0]->apellido.'
-        '.$datos_usuario_logueado[0]->nombre.' '.$DateAndTime.'</footer>
+    <footer>JP Construcred / Reposte Generado por el Usuario: {{ $usuario->apellidos.' '.$usuario->nombres.' '.$DateAndTime}}</footer>
 
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
@@ -59,7 +58,7 @@
                         <tr>
                             <td bgcolor="#bfbfbf" style="font-size:12px">
                                 <div align="center"><strong>REPORTE AUTORIZACIONES CON ESTADO
-                                        {{ $tipo_reporte . ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}
+                                        {{ $tipo_reporte->descripcion . ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}
                                     </strong>
                                 </div>
                             </td>
@@ -67,7 +66,7 @@
                         <tr>
                             <td bgcolor="#bfbfbf" style="font-size:14px">
                                 <div align="center">
-                                    <strong>{{ $usuario->empleado . nombres . ' ' . $usuario->empleado->apellidos }}</strong>
+                                    <strong>{{ $usuario->nombres . ' ' . $usuario->apellidos }}</strong>
                                 </div>
                             </td>
                         </tr>
@@ -75,7 +74,7 @@
                         <tr>
                             <td>
                                 <table width="100%" border="1" cellspacing="0" bordercolor="#666666">
-                                    @if ($tipo_ARCHIVO == 'PDF')
+                                    @if ($tipo_ARCHIVO == 'pdf')
                                         <tr>
                                             <td width="5%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>FECHA</strong></div>
@@ -85,7 +84,7 @@
                                             </td>
                                             <td width="8%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>GRUPO</strong></div>
-                                            </td><br />
+                                            </td>
                                             <td width="8%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>TAREA</strong></div>
                                             </td>
@@ -147,14 +146,13 @@
                                         @if ($tipo_ARCHIVO == 'pdf')
                                             <tr style="font-size:9px">
                                                 <td width="5%">{{ $dato['fecha'] }}</td>
-                                                <td width="10%">
-                                                    {{ $dato['usuario']->nombres . ' ' . $$dato['usuario']->apellidos }}
+                                                   <td width="10%">
+                                                    {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                                                 </td>
-                                                <td width="8%">{{ $detalle_grupo = $datos_grupo[0]->descripcion }}
-                                                </td>
+                                                <td width="8%">{{-- $detalle_grupo=$datos_grupo[0]->descripcion --}}sdfgdfgdf</td>
                                                 <td width="8%">{{ $dato['tarea']->codigo_tarea }}</td>
                                                 <td width="8%">{{ $dato['detalle']->descripcion }}</td>
-                                                <td width="8%">{{ $dato['subdetalle']->descripcion }}</td>
+                                                <td width="8%">{{ $dato['sub_detalle']->descripcion }}</td>
                                                 <td width="33%">{{ $dato['observacion'] }}</td>
                                                 <td width="22%">{{ $dato['detalle_estado'] }}</td>
                                                 <td width="6%" align="center">
@@ -172,7 +170,7 @@
                                                 </td>
                                                 <td width="8%">{{ $dato['tarea']->codigo_tarea }}</td>
                                                 <td width="8%">{{ $dato['detalle']->descripcion }}</td>
-                                                <td width="8%">{{ $dato['subdetalle']->descripcion }}</td>
+                                                <td width="8%">{{ $dato['sub_detalle']->descripcion }}</td>
                                                 <td width="22%">{{ $dato['observacion'] }}</td>
                                                 <td width="23%">{{ $dato['detalle_estado'] }}</td>
                                                 <td width="6%" align="center">
@@ -182,8 +180,6 @@
                                     @endforeach
                                     @if (is_int($resto / $div))
                                 </table>
-
-                                <div style="page-break-after:always;"></div>
                                 <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
                                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
                                     @endif
@@ -193,7 +189,7 @@
                                             <div align="right"><strong>TOTAL</strong></div>
                                         </td>
                                         <td width="5%"style="font-size:10px">
-                                            <div align="center">'.number_format($sub_total, 2, ',', ' ').'</div>
+                                            <div align="center">{{ number_format($subtotal, 2, ',', ' ') }}</div>
                                         </td>
                                     </tr>
 

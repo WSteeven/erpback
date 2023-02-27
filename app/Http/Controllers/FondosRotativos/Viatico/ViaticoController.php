@@ -17,6 +17,7 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +35,7 @@ class ViaticoController extends Controller
         $this->middleware('can:puede.crear.gasto')->only('store');
         $this->middleware('can:puede.editar.gasto')->only('update');
         $this->middleware('can:puede.eliminar.gasto')->only('update');
+        $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
     }
     /**
      * Display a listing of the resource.
@@ -315,36 +317,43 @@ class ViaticoController extends Controller
     *
     * @param Request request The request object.
     */
-    public function reporte_autorizaciones(Request $request)
+    public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $fecha_inicio = $request->fecha_inicio;
-            $fecha_fin = $request->fecha_fin;
-            $tipo_ARCHIVO = $request->tipo;
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $tipo_ARCHIVO = $tipo;
             $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;
             $usuario = User::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Viatico::with('usuario', 'detalle_info', 'sub_detalle_info')
+            $reporte = Viatico::with('usuario_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
-                ->where('id_usuario', $id_usuario)
+                ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $subtotal = Viatico::with('usuario', 'detalle_info', 'sub_detalle_info')
+            $subtotal = Viatico::with('usuario_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
-                ->where('id_usuario', $id_usuario)
+                ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Viatico::empaquetar($reporte);
-            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reporte_empaquetado]);
+            $div = $tipo_reporte->nombre=='Aprobado' ?10 :12;
+            $resto =0;
+            $DateAndTime = date('Y-m-d H:i:s');
             $reportes =  [
+                'div'=>$div,
+                'resto'=>$resto,
                 'datos_reporte' => $reporte_empaquetado,
                 'tipo_ARCHIVO' => $tipo_ARCHIVO,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'usuario' => $usuario,
                 'tipo_reporte' => $tipo_reporte,
-                'subtotal' => $subtotal
+                'subtotal' => $subtotal,
+                'DateAndTime' => $DateAndTime
+
             ];
+            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             switch ($tipo_ARCHIVO) {
                 case 'excel':

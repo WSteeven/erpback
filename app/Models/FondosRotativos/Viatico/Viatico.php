@@ -75,7 +75,7 @@ class Viatico extends Model implements Auditable
     {
         return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
     }
-    public static function empaquetarListado($viaticos)
+    public static function empaquetar($viaticos)
     {
         $results = [];
         $id = 0;
@@ -89,9 +89,11 @@ class Viatico extends Model implements Auditable
             $row['observacion'] = $viatico->observacion;
             $row['detalle_estado'] = $viatico->detalle_estado;
             $row['total']= $viatico->total;
-
+            $results[$id] = $row;
+            $id++;
 
         }
+        return $results;
 
     }
 }
