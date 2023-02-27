@@ -47,7 +47,7 @@ class Inventario extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
-            'detalles_productos.descripcion'=>'',
+            'detalles_productos.descripcion' => '',
             // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
 
         ];
@@ -176,6 +176,26 @@ class Inventario extends Model implements Auditable
      * @param $saldo La cantidad de existencias ahora del item en inventario
      * @param $inventario_id Id del ítem del inventario
      */
+
+
+
+
+    /**
+     * It takes an array of data and returns the same array of data
+     * 
+     * @param inventario_id The id of the inventory
+     * @param detalle_producto_transaccion_id is the id of the detail of the transaction
+     * @param cantidad quantity
+     * @param precio_unitario the price of the product
+     * @param saldo the current stock of the product
+     * @param tipo 1 = entrada, 2 = salida
+     * 
+     * @return an array with the following structure:
+     * <code> = [
+     *             'inventario_id' =&gt; ,
+     *             'detalle_producto_transaccion_id' =&gt; ,
+     *             'cantidad' =
+     */
     public static function estructurarMovimiento($inventario_id, $detalle_producto_transaccion_id, $cantidad, $precio_unitario, $saldo, $tipo)
     {
         $datos = [
@@ -218,7 +238,7 @@ class Inventario extends Model implements Auditable
                     $item->save();
 
                     //Aqui va el registro de movimientos
-                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'],$elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
+                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'], $elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
                     $movimiento = MovimientoProducto::create($datos);
                 } else {
                     $datos = self::estructurarItem($elemento['id'], $transaccion->sucursal_id, $transaccion->cliente_id, $condicion, $elemento['cantidad']);
@@ -227,9 +247,8 @@ class Inventario extends Model implements Auditable
                     Log::channel('testing')->info('Log', ['item creado es ', $item]);
 
                     //Aqui va el registro de movimientos
-                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'],$elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
+                    $datos = self::estructurarMovimiento($item->id, $detalleTransaccion->id, $elemento['cantidad'], $elemento['precio_compra'], $item->cantidad, $transaccion->motivo->tipoTransaccion->nombre);
                     $movimiento = MovimientoProducto::create($datos);
-
                 }
                 //Se crea la lista de movimientos
                 Log::channel('testing')->info('Log', ['Se creó el movimiento', $movimiento]);

@@ -209,32 +209,26 @@ class TransaccionBodega extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
-    /**
-     * Obtener la ultima autorizacion de una transaccion
-     */
-    /* public static function ultimaAutorizacion($id)
-    {
-        $autorizaciones = TransaccionBodega::find($id)->autorizaciones()->get();
-        $autorizacion = $autorizaciones->first();
-        return $autorizacion;
-    } */
-    /**
-     * Obtener el ultimo estado de una transaccion
-     */
-    /* public static function ultimoEstado($id)
-    {
-        $observaciones = TransaccionBodega::find($id)->estados()->get();
-        $observacion = $observaciones->first();
-        return $observacion;
-    } */
 
+     
     /**
-     * Obtener el listado de productos de una transaccion
+     * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
+     * the items dispatched, then it returns an array with the data.
+     * </code>
+     * 
+     * @param id The id of the transaction
+     * 
+     * @return <code>{
+     *     "id": 1,
+     *     "producto": "CAMARA",
+     *     "detalle_id": 1,
+     *     "descripcion": "CAMARA",
+     *     "categoria": "CAMARA",
+     *     "condiciones": "BUENO",
+     *     "cantidad": 1,
      */
     public static function listadoProductos($id)
     {
-        // Log::channel('testing')->info('Log', ['ID A BUSCAR EN TRANSACCION->listadoProductos',$id]);
-        // Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
         $items = TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
@@ -259,6 +253,19 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
+    /**
+     * It takes an array of objects, and returns an array of objects
+     * 
+     * @param results 
+     * 
+     * @return <code>array:1 [▼
+     *   0 =&gt; array:2 [▼
+     *     "id" =&gt; 1
+     *     "detalles" =&gt; array:1 [▼
+     *       0 =&gt; array:2 [▼
+     *         "id" =&gt; 1
+     *         "producto"
+     */
     public static function listadoProductosTarea($results)
     {
         $listado = [];
