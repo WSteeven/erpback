@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
-use App\Models\MaterialGrupoTarea;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\MovimientoProducto;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\Log;
@@ -35,9 +35,9 @@ class MovimientoProductoObserver
                 $grupo_id = $transaccion->solicitante->grupo_id;
 
                 if ($tarea_id) {
-                    $detalle_existente = MaterialGrupoTarea::where('detalle_producto_id', $itemDetalleProductoTransaccion->detalle_id)->where('tarea_id', $tarea_id)->where('grupo_id', $grupo_id)->first();
+                    $detalle_existente = MaterialEmpleadoTarea::where('detalle_producto_id', $itemDetalleProductoTransaccion->detalle_id)->where('tarea_id', $tarea_id)->where('grupo_id', $grupo_id)->first();
                     if (!$detalle_existente) {
-                        MaterialGrupoTarea::create([
+                        MaterialEmpleadoTarea::create([
                             'detalle_tarea_id' => $detalle_existente->detalle_producto_id,
                             'cantidad_stock' => $movimientoProducto->cantidad,
                             'tarea_id' => $tarea_id,

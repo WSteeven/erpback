@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\MaterialGrupoTarea;
+use App\Models\MaterialEmpleadoTarea;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class MaterialGrupoTareaSeeder extends Seeder
      */
     public function run()
     {
-        MaterialGrupoTarea::insert([
+        MaterialEmpleadoTarea::insert([
             [
                 'cantidad_stock' => 100,
                 'tarea_id' => 2,

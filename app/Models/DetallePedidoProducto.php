@@ -28,7 +28,8 @@ class DetallePedidoProducto extends Pivot implements Auditable
 
     private static $whiteListFilter = ['*'];
 
-
-
-
+    public function detalleProducto()
+    {
+        return $this->belongsTo(DetalleProducto::class);
+    }
 }
