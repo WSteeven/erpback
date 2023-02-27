@@ -67,4 +67,31 @@ class Viatico extends Model implements Auditable
     {
         return $this->hasOne(Tarea::class, 'id', 'id_tarea');
     }
+    public function lugar_info()
+    {
+        return $this->hasOne(LugarViatico::class, 'id', 'id_lugar');
+    }
+    public function usuario_info()
+    {
+        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
+    }
+    public static function empaquetarListado($viaticos)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($viaticos as $viatico) {
+            $row['fecha']= $viatico->fecha_viat;
+            $row['usuario'] = $viatico->usuario_info->empleado;
+            $row['tarea'] = $viatico->tarea_info;
+            $row['detalle'] = $viatico->detalle_info;
+            $row['sub_detalle'] = $viatico->sub_detalle_info;
+            $row['observacion'] = $viatico->observacion;
+            $row['detalle_estado'] = $viatico->detalle_estado;
+            $row['total']= $viatico->total;
+
+
+        }
+
+    }
 }

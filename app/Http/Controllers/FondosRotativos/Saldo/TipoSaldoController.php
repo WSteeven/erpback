@@ -25,37 +25,26 @@ class TipoSaldoController extends Controller
 
         return response()->json(compact('results'));
     }
-      /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\TipoSaldo  $tiposaldo
-     * @return \Illuminate\Http\Response
-     */
-    public function store (Request $request)
-    {
 
 
-    }
-
-     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\TipoSaldo  $tiposaldo
-     * @return \Illuminate\Http\Response
-     */
-    public function update(TipoSaldo $request, TipoSaldo $activo)
-    {
-
-    }
-
+/**
+ * It shows the information of the model.
+ *
+ * @param TipoSaldo tiposaldo The model name
+ *
+ * @return A JSON object with the data of the model.
+ */
     public function show(TipoSaldo $tiposaldo)
     {
         $modelo = new TipoSaldoResource($tiposaldo);
         return response()->json(compact('modelo'), 200);
     }
 
+/**
+ * *|CURSOR_MARCADOR|*
+ *
+ * @param TipoSaldo tiposaldo The model name.
+ */
     public function destroy(TipoSaldo $tiposaldo)
     {
         $tiposaldo->delete();

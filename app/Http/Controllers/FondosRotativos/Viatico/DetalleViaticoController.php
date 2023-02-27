@@ -20,6 +20,13 @@ class DetalleViaticoController extends Controller
         $this->middleware('can:puede.editar.detalle_fondo')->only('update');
         $this->middleware('can:puede.eliminar.detalle_fondo')->only('update');
     }
+   /**
+    * It returns a list of all the detalle_viaticos in the database.
+    *
+    * @param Request request The request object.
+    *
+    * @return A collection of DetalleViaticoResource
+    */
     public function index(Request $request)
     {
         $page = $request['page'];
@@ -29,12 +36,24 @@ class DetalleViaticoController extends Controller
         $results = DetalleViaticoResource::collection($results);
         return response()->json(compact('results'));
     }
+    /**
+     * It returns the data of a specific record.
+     *
+     * @param id The id of the resource you want to retrieve.
+     *
+     * @return A JSON object with the data of the model.
+     */
     public function show($id)
     {
         $detalleViatico = DetalleViatico::with('estatus')->where('id', $id)->first();
         $modelo = new DetalleViaticoResource($detalleViatico);
         return response()->json(compact('modelo'), 200);
     }
+   /**
+    * It creates a new record in the database.
+    *
+    * @param Request request The request object.
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -57,6 +76,11 @@ class DetalleViaticoController extends Controller
     }
 
 
+    /**
+     * It deletes a record from the database
+     *
+     * @param DetalleViatico viatico The model instance that you want to delete.
+     */
     public function destroy(DetalleViatico $viatico)
     {
         $viatico->delete();

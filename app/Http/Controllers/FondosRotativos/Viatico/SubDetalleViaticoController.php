@@ -20,6 +20,13 @@ class SubDetalleViaticoController extends Controller
         $this->middleware('can:puede.editar.sub_detalle_fondo')->only('update');
         $this->middleware('can:puede.eliminar.sub_detalle_fondo')->only('update');
     }
+   /**
+    * A function that is used to delete a record from the database.
+    *
+    * @param Request request The request object.
+    *
+    * @return The response is a JSON object with the following properties:
+    */
     public function index(Request $request)
     {
         $results = [];
@@ -27,12 +34,24 @@ class SubDetalleViaticoController extends Controller
         $results = SubDetalleViaticoResource::collection($results);
         return response()->json(compact('results'));
     }
+  /**
+   * *|CURSOR_MARCADOR|*
+   *
+   * @param id The id of the subDetalleViatico you want to show.
+   *
+   * @return A JSON object with the data of the subDetalleViatico.
+   */
     public function show($id)
     {
         $subDetalleViatico = SubDetalleViatico::where('id',$id)->first();
         $modelo = new SubDetalleViaticoResource($subDetalleViatico);
         return response()->json(compact('modelo'), 200);
     }
+   /**
+    * It takes a request, validates it, creates a new model, and returns a response
+    *
+    * @param Request request The request object.
+    */
     public function store(Request $request)
     {
         $request->validate([
@@ -56,6 +75,11 @@ class SubDetalleViaticoController extends Controller
     }
 
 
+   /**
+    * *|CURSOR_MARCADOR|*
+    *
+    * @param SubDetalleViatico subDetalleViatico The model instance that will be deleted.
+    */
     public function destroy(SubDetalleViatico $subDetalleViatico)
     {
         $subDetalleViatico->delete();

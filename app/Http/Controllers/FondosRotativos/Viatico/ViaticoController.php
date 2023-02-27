@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FondosRotativos\Viatico;
 
 use App\Events\FondoRotativoEvent;
+use App\Exports\AutorizacionesExport;
 use App\Exports\ViaticoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
@@ -91,8 +92,8 @@ class ViaticoController extends Controller
         //Guardar Registro
         $modelo = Viatico::create($datos);
         $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
-        $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario )->first();
-        $saldo_actual_usuario=$datos_saldo_usuario!=null?$datos_saldo_usuario->saldo_actual:0.0;
+        $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
+        $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
         $modelo = new ViaticoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         event(new FondoRotativoEvent($modelo));
@@ -143,6 +144,13 @@ class ViaticoController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
+    /**
+     * It shows the viatico
+     *
+     * @param Viatico viatico The model that will be used to retrieve the data.
+     *
+     * @return A JSON object with the data of the viatico.
+     */
     public function show(Viatico $viatico)
     {
         $modelo = new ViaticoResource($viatico);
@@ -155,6 +163,15 @@ class ViaticoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+    /**
+     * It generates a report of the expenses of a user in a given period of time.
+     * </code>
+     *
+     * @param Request request The request object.
+     * @param tipo The type of file you want to generate.
+     *
+     * @return The data is being returned in the form of a collection.
+     */
     public function generar_reporte(Request $request, $tipo)
     {
         try {
@@ -176,7 +193,7 @@ class ViaticoController extends Controller
                         ->orWhereBetween('fecha_fin', [$fecha_inicio, $fecha_fin]);
                 })
                 ->get();
-            $datos_saldo_depositados_semana = Acreditaciones:: with('tipo_fondo','tipo_saldo')->where('id_usuario', $idUsuarioLogeado)
+            $datos_saldo_depositados_semana = Acreditaciones::with('tipo_fondo', 'tipo_saldo')->where('id_usuario', $idUsuarioLogeado)
                 ->where('monto', '!=', 0)
                 ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'DESC')
@@ -231,19 +248,19 @@ class ViaticoController extends Controller
                     ->whereBetween('fecha', [$inicio_semana, $fin_semana])
                     ->orderBy('id', 'desc')
                     ->first();
-                $sal_anterior = $datos_saldo_anterior !=null ? $datos_saldo_anterior->saldo_anterior : 0;
+                $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
                 $sal_dep_r = $datos_fecha_rango[0]->saldo_depositado;
                 $restas_diferencias = $diferencia_corte - $diferencia_rango;
             } else {
-                    $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                        ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                        ->orderBy('id', 'desc')
-                        ->first();
-                $sal_anterior = $datos_saldo_anterior !=null? $datos_saldo_anterior->saldo_anterior : 0;
-                $sal_dep_r = Acreditaciones:: where('id_usuario', $idUsuarioLogeado)
-                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                ->orderBy('id', 'DESC')
-                ->sum('monto');
+                $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->orderBy('id', 'desc')
+                    ->first();
+                $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
+                $sal_dep_r = Acreditaciones::where('id_usuario', $idUsuarioLogeado)
+                    ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
+                    ->orderBy('id', 'DESC')
+                    ->sum('monto');
                 $nuevo_saldo = $sal_anterior + $sal_dep_r;
             }
             $usuario_logeado = UserInfoResource::collection($usuario_logeado);
@@ -263,26 +280,83 @@ class ViaticoController extends Controller
                 'datos_reporte',
             );
             Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reporte]);
-            $nombre_reporte = 'reporte_'.$fecha_inicio.'-'.$fecha_fin.'de'.$datos_usuario_logueado['nombres'].' '.$datos_usuario_logueado['apellidos'];
+            $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             switch ($tipo) {
                 case 'excel':
-                    return Excel::download(new ViaticoExport($reporte), $nombre_reporte.'.xlsx');
+                    return Excel::download(new ViaticoExport($reporte), $nombre_reporte . '.xlsx');
                     break;
                 case 'pdf':
 
                     $pdf = Pdf::loadView('exports.reportes.viaticos_por_fecha', $reporte);
-                    return $pdf->download($nombre_reporte.'.pdf');
+                    return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }
-       } catch (Exception $e) {
+        } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
-
     }
+    /**
+     * It takes a user object and returns an array of the user's data
+     *
+     * @param usuario The user's email address.
+     *
+     * @return The user object is being returned.
+     */
     private function obtener_usuario($usuario)
     {
         $usuario_logeado =  json_decode(json_encode($usuario), true);
         $usuario_logeado = $usuario_logeado[0];
         return $usuario_logeado;
+    }
+
+   /**
+    * It takes a request, gets some data from the request, gets some data from the database, and then
+    * returns a file
+    *
+    * @param Request request The request object.
+    */
+    public function reporte_autorizaciones(Request $request)
+    {
+        try {
+            $fecha_inicio = $request->fecha_inicio;
+            $fecha_fin = $request->fecha_fin;
+            $tipo_ARCHIVO = $request->tipo;
+            $id_tipo_reporte = $request->tipo_reporte;
+            $id_usuario = $request->usuario;
+            $usuario = User::where('id', $id_usuario)->first();
+            $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
+            $reporte = Viatico::with('usuario', 'detalle_info', 'sub_detalle_info')
+                ->where('estado', $id_tipo_reporte)
+                ->where('id_usuario', $id_usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $subtotal = Viatico::with('usuario', 'detalle_info', 'sub_detalle_info')
+                ->where('estado', $id_tipo_reporte)
+                ->where('id_usuario', $id_usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
+            $reporte_empaquetado = Viatico::empaquetar($reporte);
+            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reporte_empaquetado]);
+            $reportes =  [
+                'datos_reporte' => $reporte_empaquetado,
+                'tipo_ARCHIVO' => $tipo_ARCHIVO,
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
+                'usuario' => $usuario,
+                'tipo_reporte' => $tipo_reporte,
+                'subtotal' => $subtotal
+            ];
+            $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
+            switch ($tipo_ARCHIVO) {
+                case 'excel':
+                    return Excel::download(new AutorizacionesExport($reportes), $nombre_reporte . '.xlsx');
+                    break;
+                case 'pdf':
+                    $pdf = Pdf::loadView('exports.reportes.reporte_autorizaciones', $reportes);
+                    return $pdf->download($nombre_reporte . '.pdf');
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
     }
 }

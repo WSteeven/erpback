@@ -17,7 +17,7 @@
                 <table width="100%" border="0">
                     <tr>
                         <td width="17%">
-                            <div align="center"><!--<img width="100" height="64" src="../img/logo/logo_reporte.svg" />-->
+                            <div align="center"><img width="100" height="64" src="img/logoJP.png" />
                             </div>
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">

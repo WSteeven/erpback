@@ -26,6 +26,13 @@ class SaldoGrupoController extends Controller
         $this->middleware('can:puede.eliminar.saldo')->only('update');
         $this->middleware('can:puede.ver.reporte_saldo_actual')->only('saldo_actual');
     }
+    /**
+     * It gets all the data from the table, filters it, and returns it as a json response
+     *
+     * @param Request request The request object.
+     *
+     * @return A collection of SaldoGrupoResource
+     */
     public function index(Request $request)
     {
         $results = [];
@@ -33,12 +40,34 @@ class SaldoGrupoController extends Controller
         $results = SaldoGrupoResource::collection($results);
         return response()->json(compact('results'));
     }
+    /**
+     * It returns a JSON response with a single SaldoGrupo model
+     *
+     * @param id The id of the SaldoGrupo you want to show.
+     *
+     * @return A JSON object with the data from the database.
+     */
     public function show($id)
     {
         $SaldoGrupo = SaldoGrupo::where('id', $id)->first();
         $modelo = new SaldoGrupoResource($SaldoGrupo);
         return response()->json(compact('modelo'), 200);
     }
+    /**
+     * It takes the date of the current day, and then it calculates the start and end date of the week.
+     * </code>
+     *
+     * @param Request request ->fecha
+     *
+     * @return <code>{
+     *     "mensaje": "Registro creado correctamente",
+     *     "modelo": {
+     *         "id": 1,
+     *         "id_usuario": 1,
+     *         "saldo_anterior": 0,
+     *         "saldo_actual": 0,
+     *         "fecha": "2019-
+     */
     public function store(Request $request)
     {
         $array_dias['Sunday'] = 0;
@@ -70,14 +99,29 @@ class SaldoGrupoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
-
-
+    /**
+     * It deletes a record from the database
+     *
+     * @param SaldoGrupo SaldoGrupo The model
+     *
+     * @return The response is a JSON object with the message.
+     */
     public function destroy(SaldoGrupo $SaldoGrupo)
     {
         $SaldoGrupo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
+   /**
+    * It returns the last record of the table SaldoGrupo where the id_usuario is equal to the id passed
+    * as a parameter.
+    * If there is no record, it returns 0
+    *
+    * @param id The id of the user
+    *
+    * @return The last record of the table SaldoGrupo where the id_usuario is equal to the id passed as
+    * a parameter.
+    */
     public function saldo_actual_usuario($id)
     {
         $saldo_actual = SaldoGrupo::where('id_usuario', $id)->orderBy('id', 'desc')->first();
@@ -85,6 +129,14 @@ class SaldoGrupoController extends Controller
 
         return response()->json(compact('saldo_actual'));
     }
+   /**
+    * It's a function that returns a PDF or Excel file depending on the parameter that is passed to it
+    *
+    * @param Request request The request object.
+    * @param tipo is the type of report, it can be excel or pdf
+    *
+    * @return a file, but the file is not being downloaded.
+    */
     public function saldo_actual(Request $request, $tipo)
     {
         try {
