@@ -95,25 +95,16 @@
                                     </tr>
                                     @if (sizeof($datos_saldo_depositados_semana) > 0)
                                         @foreach ($datos_saldo_depositados_semana as $dato)
-                                            @php
-                                                $tipo_fondo_descripcion = DB::table('tipo_fondo')
-                                                    ->select('*')
-                                                    ->where('id', '=', $dato->id_tipo_fondo)
-                                                    ->get();
-                                            @endphp
                                             <tr>
                                                 <td style="font-size:10px">{{ $dato->fecha }}</td>
                                                 <td style="font-size:10px">
-                                                    {{ number_format($dato->saldo_depositado, 2, ',', '.') }}</td>
-                                                <td style="font-size:10px">{{ $tipo_fondo_descripcion[0]->descripcion }}
+                                                    {{ number_format($dato->monto, 2, ',', '.') }}</td>
+                                                <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
                                                 </td>
                                                 <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                                             </tr>
                                         @endforeach
                                     @else
-                                        @php
-                                            $height = 8;
-                                        @endphp
                                         <tr>
                                             <td style="font-size:10px" colspan="4">NO SE REALIZARON DEPOSITOS.</td>
                                         </tr>

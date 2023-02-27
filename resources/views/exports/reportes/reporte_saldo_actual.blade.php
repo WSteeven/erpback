@@ -17,7 +17,7 @@
                 <table width="100%" border="0">
                     <tr>
                         <td width="17%">
-                            <div align="center"><img width="100" height="64" src="../img/logo/logo_reporte.svg" />
+                            <div align="center"><!--<img width="100" height="64" src="../img/logo/logo_reporte.svg" />-->
                             </div>
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
@@ -48,6 +48,9 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center"><strong>Nombres y Apellidos</strong></div>
                                         </td>
+                                         <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>Cargo</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center"><strong>Usuario</strong></div>
                                         </td>
@@ -56,25 +59,31 @@
                                         </td>
                                     </tr>
                                     @foreach ($saldos as $saldo)
-                                        <tr>
-                                            <td style="font-size:10px">
-                                                <div align="left" style="margin-left:20px;"></div></td>
-                                            <td style="font-size:10px">
-                                                <div align="left" style="margin-left:20px;">
-                                                   {{-- $saldo->usuario_info->nombres.''.$saldo->usuario_info->apellidos --}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="left" style="margin-left:20px;">
-                                                   {{ $saldo->usuario_info->name}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="right" style="margin-right:20px;">
-                                                    {{ number_format($saldo->saldo_actual, 2, ',', '.') }}
-                                                </div>
-                                            </td>
-                                        </tr>
+                                    <tr>
+                                        <td style="font-size:10px">
+                                            <div align="left" style="margin-left:20px;"> {{$saldo['item']}}</div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="left" style="margin-left:20px;">
+                                                {{ $saldo['empleado']->nombres.' '.$saldo['empleado']->apellidos }}
+                                            </div>
+                                        </td>
+                                          <td style="font-size:10px">
+                                            <div align="left" style="margin-left:20px;">
+                                               {{$saldo['cargo']}}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="left" style="margin-left:20px;">
+                                                {{ $saldo['usuario_info']->name}}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right" style="margin-right:20px;">
+                                                {{ number_format($saldo['saldo_actual'], 2, ',', '.') }}
+                                            </div>
+                                        </td>
+                                    </tr>
                                     @endforeach
 
                                 </table>

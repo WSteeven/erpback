@@ -33,29 +33,54 @@ class SaldoGrupo extends  Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne(User::class, 'id','id_usuario');
+        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
     }
-    public static function empaquetarListado($saldos)
+    public static function empaquetarListado($saldos, $tipo)
     {
-            $results = [];
+        $results = [];
         $id = 0;
         $row = [];
-        foreach ($saldos as $saldo) {
-            $row['id'] = $saldo->id;
-            $row['fecha'] = $saldo->fecha;
-            $row['tipo_saldo'] = $saldo->id_tipo_saldo;
-            $row['usuario'] = $saldo->id_usuario;
-            $row['usuario_info'] = $saldo->usuario;
-            $row['descripcion_saldo'] = $saldo->descripcion_saldo;
-            $row['saldo_anterior'] = $saldo->saldo_anterior;
-            $row['saldo_depositado'] = $saldo->saldo_depositado;
-            $row['saldo_actual'] = $saldo->saldo_actual;
-            $row['fecha_inicio'] = $saldo->fecha_inicio;
-            $row['fecha_fin'] = $saldo->fecha_fin;
-            $results[$id] = $row;
-            $id++;
+        if (isset($saldos)) {
+            switch ($tipo) {
+                case 'todos':
+                    foreach ($saldos as $saldo) {
+                        $row['item'] = $id + 1;
+                        $row['id'] = $saldo->id;
+                        $row['fecha'] = $saldo->fecha;
+                        $row['tipo_saldo'] = $saldo->id_tipo_saldo;
+                        $row['usuario'] = $saldo->id_usuario;
+                        $row['usuario_info'] = $saldo->usuario;
+                        $row['cargo'] = $saldo->usuario->getRoleNames()[0]=='EMPLEADO'?$saldo->usuario->getRoleNames()[1]:$saldo->usuario->getRoleNames()[0];
+                        $row['empleado'] = $saldo->usuario->empleado;
+                        $row['descripcion_saldo'] = $saldo->descripcion_saldo;
+                        $row['saldo_anterior'] = $saldo->saldo_anterior;
+                        $row['saldo_depositado'] = $saldo->saldo_depositado;
+                        $row['saldo_actual'] = $saldo->saldo_actual;
+                        $row['fecha_inicio'] = $saldo->fecha_inicio;
+                        $row['fecha_fin'] = $saldo->fecha_fin;
+                        $results[$id] = $row;
+                        $id++;
+                    }
+                    break;
+                case 'usuario':
+                    $row['item'] = $id;
+                    $row['id'] = $saldos->id;
+                    $row['fecha'] = $saldos->fecha;
+                    $row['tipo_saldo'] = $saldos->id_tipo_saldo;
+                    $row['usuario'] = $saldos->id_usuario;
+                    $row['usuario_info'] = $saldos->usuario;
+                    $row['empleado'] = $saldos->usuario->empleado;
+                    $row['cargo'] = $saldos->usuario->getRoleNames()[0]=='EMPLEADO'?$saldos->usuario->getRoleNames()[1]:$saldos->usuario->getRoleNames()[0];
+                    $row['descripcion_saldo'] = $saldos->descripcion_saldo;
+                    $row['saldo_anterior'] = $saldos->saldo_anterior;
+                    $row['saldo_depositado'] = $saldos->saldo_depositado;
+                    $row['saldo_actual'] = $saldos->saldo_actual;
+                    $row['fecha_inicio'] = $saldos->fecha_inicio;
+                    $row['fecha_fin'] = $saldos->fecha_fin;
+                    $results[$id] = $row;
+                    break;
+            }
         }
-
         return $results;
     }
 }

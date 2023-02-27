@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\FondosRotativos\Viatico\TipoFondo;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,12 @@ class Acreditaciones extends Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne('App\Models\User', 'id', 'id_usuario');
+        return $this->hasOne('App\Models\User', 'id', 'id_usuario')->with('empleado');
+    }
+    public function tipo_saldo(){
+        return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');
+    }
+    public function tipo_fondo(){
+        return $this->hasOne(TipoFondo::class, 'id', 'id_tipo_fondo');
     }
 }

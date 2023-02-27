@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
-
+use App\Exports\SaldoActualExport;
 class SaldoGrupoController extends Controller
 {
     private $entidad = 'saldo_grupo';
@@ -89,25 +89,21 @@ class SaldoGrupoController extends Controller
     {
         try {
             $id = $request->usuario != null ?  $request->usuario : 0;
-            $fecha = date('Y-m-d');
-            $fecha_inicio = '2023-02-11'; //$this->calcular_fechas($fecha)[0];
-            $fecha_fin = '2023-02-17'; //$this->calcular_fechas($fecha)[1];
-            $saldos_actual_user = $id == 0 ?
-                SaldoGrupo::with('usuario')->whereBetween('fecha', [$fecha_inicio, $fecha_fin])->get()
-                : SaldoGrupo::with('usuario')->whereBetween('fecha', [$this->calcular_fechas($fecha)[0], $this->calcular_fechas($fecha)[1]])->where('id_usuario', $id)->orderBy('id', 'desc')->first();
-
-            $results = SaldoGrupo::empaquetarListado($saldos_actual_user);
-
-            $saldos_actuales = SaldoGrupoResource::collection($saldos_actual_user);
+            $saldos_actual_user = $request->usuario == null ?
+            SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+            })->get()
+                : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            $tipo_reporte = $request->usuario != null ? 'usuario' : 'todos';           ;
+            $results = SaldoGrupo::empaquetarListado($saldos_actual_user, $tipo_reporte);
             $nombre_reporte = 'reporte_saldoActual';
-            $reportes =  ['saldos' => $saldos_actuales];
+            $reportes =  ['saldos' => $results];
             switch ($tipo) {
                 case 'excel':
-                    //return Excel::download(new ViaticoExport($reporte), $nombre_reporte.'.xlsx');
+                    return Excel::download(new SaldoActualExport($reportes), $nombre_reporte.'.xlsx');
                     break;
                 case 'pdf':
-                    //return  $reporte['saldos'][0];
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes,$results]);
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
                     $pdf = Pdf::loadView('exports.reportes.reporte_saldo_actual', $reportes);
                     return $pdf->download($nombre_reporte . '.pdf');
                     break;
@@ -115,23 +111,5 @@ class SaldoGrupoController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
-    }
-    private function calcular_fechas($fecha)
-    {
-        $array_dias['Sunday'] = 0;
-        $array_dias['Monday'] = 1;
-        $array_dias['Tuesday'] = 2;
-        $array_dias['Wednesday'] = 3;
-        $array_dias['Thursday'] = 4;
-        $array_dias['Friday'] = 5;
-        $array_dias['Saturday'] = 6;
-
-        $dia_actual = $array_dias[date('l', strtotime($fecha))];
-
-        $rest = $dia_actual + 1;
-        $sum = 5 - $dia_actual;
-        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
-        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
-        return array($fechaIni, $fechaFin);
     }
 }
