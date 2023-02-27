@@ -37,7 +37,7 @@ class User extends Authenticatable implements Auditable
     const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
     const ROL_TECNICO = 'TECNICO';
     const ROL_TECNICO_LIDER_DE_GRUPO = 'TECNICO LIDER DE GRUPO';
-
+    const ROL_AUTORIZADOR = 'AUTORIZADOR';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
@@ -49,6 +49,7 @@ class User extends Authenticatable implements Auditable
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
+
 
     /**
      * The attributes that are mass assignable.
