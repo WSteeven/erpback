@@ -292,7 +292,9 @@ class TransaccionBodega extends Model implements Auditable
                 Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
-                Log::channel('testing')->info('Log', ['detalle es:', $detallePedido->despachado]);
+                Log::channel('testing')->info('Log', ['detalle despachado es:', $detallePedido->despachado]);
+                Log::channel('testing')->info('Log', ['Pedido:', $pedido]);
+                Log::channel('testing')->info('Log', ['Detalle producto es:', DetalleProducto::find($detallePedido->detalle_id)]);
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
@@ -300,7 +302,7 @@ class TransaccionBodega extends Model implements Auditable
                     // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
                     $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
                         ->where('tarea_id', $pedido->tarea_id)
-                        ->where('responsable_id', $pedido->responsable)
+                        ->where('empleado_id', $pedido->responsable)
                         ->first();
 
                     // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
@@ -308,18 +310,23 @@ class TransaccionBodega extends Model implements Auditable
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->save();
                     } else {
+                        Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
                         // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
+                        //consulta de fibras
+                        $ids_fibras = Fibra::select('id')->get();
+                        $fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
+
+                        Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
+                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $fibra]);
+                        Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
+
                         MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'tarea_id' => $pedido->tarea_id,
                             'empleado_id' => $pedido->responsable_id,
                             'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => false, // Pendiente de obtener
+                            'es_fibra' => !!$fibra, // Pendiente de obtener
                         ]);
-
-                        //consulta de fibras
-                        $ids_fibras = Fibra::all('id');
-                        DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->get();
                     }
                 }
             }
