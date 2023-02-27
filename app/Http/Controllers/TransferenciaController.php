@@ -42,6 +42,9 @@ class TransferenciaController extends Controller
 
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             $results = Transferencia::filter()->get();
+            /* if(auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)){
+                $results = Transferencia::filtrarPedidosActivosFijos($estado);
+            } */
         }
         $results = TransferenciaResource::collection($results);
 

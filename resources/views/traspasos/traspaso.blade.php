@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Comprobante N° {{ $id }}</title>
+    <title>Traspaso N° {{ $id }}</title>
     <style>
         @page {
-            margin: 2px 15px 5px 15px;
+            margin: 0cm 15px;
         }
 
         body {
@@ -52,7 +52,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         div {
@@ -68,7 +68,8 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
-            font-size: 12px;
+            /* position: inherit; */
+            /* top: 140px; */
         }
 
 
@@ -79,11 +80,7 @@
 </head>
 @php
     $fecha = new Datetime();
-    $qr = QrCode::size(100)
-        ->backgroundColor(255, 90, 0)
-        ->generate('Hola a todos, saludos cordiales');
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
-    $ciclo = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRASPASO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'SUCURSAL: ' . $sucursal. PHP_EOL . 'ESTADO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
 @endphp
 
 <body>
@@ -91,18 +88,14 @@
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
-                <td style="width: 10%;">
+                <td style="width: 10%">
                     <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 68%">
-                    @if ($transferencia)
-                        <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
-                    @else
-                        <div class="col-md-7" align="center"><b>COMPROBANTE DE EGRESO</b></div>
-                    @endif
+                    <div class="col-md-7" align="center"><b>COMPROBANTE DE TRASPASO ENTRE CLIENTES</b></div>
                 </td>
-                <td style="width: 22%;">
-                    <div class="col-md-2" align="right" style="font-size: 15px">Sistema de bodega</div>
+                <td style="width: 22%">
+                    <div class="col-md-2" align="right">Sistema de bodega</div>
                 </td>
             </tr>
         </table>
@@ -121,22 +114,15 @@
                     <td><b></b></td>
                     <td><b>RECIBE</b></td>
                 </tr>
-                <tr align="center">
-                    <td>{{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} </td>
+                <tr>
+                    <td style="padding-left: 60px;">Nombre: </td>
                     <td></td>
-                    <td>
-                        @if ($responsable_id)
-                            {{ $per_retira }}
-                        @else
-                            Nombre:
-                        @endif
-                    </td>
+                    <td style="padding-left: 60px;">Nombre:</td>
                 </tr>
-                <tr align="center">
-                    <td >{{ auth('sanctum')->user()->empleado->identificacion }} </td>
+                <tr>
+                    <td style="padding-left: 60px;">C.I: </td>
                     <td></td>
-                    <td>{{ $identificacion }}</td>
+                    <td style="padding-left: 60px;">C.I:</td>
                 </tr>
             </tbody>
         </table>
@@ -146,7 +132,8 @@
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
                     </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
@@ -164,33 +151,23 @@
     <main>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
             <tr class="row">
-                <td>Transacción N°: <b>{{ $id }}</b></td>
+                <td>Traspaso N°: <b>{{ $id }}</b></td>
                 <td>Fecha: <b>{{ $created_at }}</b></td>
-                <td>Solicitante: <b>{{ $solicitante }}</b></td>
             </tr>
-            <tr class="row">
-                <td>Justificación: <b>{{ $justificacion }}</b></td>
-                <td></td>
+            <tr>
+                <td>Solicitante: <b>{{ $solicitante }}</b></td>
                 <td>Sucursal: <b>{{ $sucursal }}</b></td>
             </tr>
-            <tr class="row">
-                <td>Autorizado por: <b>{{ $per_autoriza }}</b></td>
-                <td></td>
-                <td>Estado: <b>{{ $estado }}</b></td>
-            </tr>
-            <tr class="row">
-                <td>Cliente: <b>{{ $cliente }}</b></td>
-                <td></td>
-                <td>Motivo: <b>{{ $motivo }}</b></td>
+            <tr>
+                <td>Origen: <b>{{ $desde_cliente }}</b></td>
+                <td>Destino: <b>{{ $hasta_cliente }}</b></td>
             </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
-                @if ($tarea)
-                    <tr>
-                        <td>Tarea: <b>{{ $tarea }}</b></td>
-                    </tr>
-                @endif
+                <tr class="row">
+                    <td>Justificación: <b>{{ Str::upper($justificacion) }}</b></td>
+                </tr>
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
@@ -198,23 +175,25 @@
             <thead>
                 <th>Producto</th>
                 <th>Descripcion</th>
-                <th>Categoria</th>
-                <th>Despachado</th>
+                <th>Condición</th>
+                <th>Cantidad</th>
+                <th>Devuelto</th>
             </thead>
             <tbody style="font-size: 14px;">
-                {{-- @foreach ($ciclo as $c) --}}
-                @foreach ($listadoProductosTransaccion as $listado)
+                @foreach ($listadoProductos as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
-                        <td>{{ $listado['descripcion'] }}</td>
-                        <td>{{ $listado['categoria'] }}</td>
-                        <td align="center">{{ $listado['cantidad'] }}</td>
+                        <td>{{ $listado['detalle_id'] }}</td>
+                        <td>{{ $listado['condicion'] }}</td>
+                        <td align="center">{{ $listado['cantidades'] }}</td>
+                        <td align="center">{{ $listado['devuelto'] }}</td>
                     </tr>
                 @endforeach
-                {{-- @endforeach --}}
             </tbody>
         </table>
     </main>
+
+
 </body>
 
 </html>

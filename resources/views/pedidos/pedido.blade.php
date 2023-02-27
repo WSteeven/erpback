@@ -89,7 +89,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td>
-                    <div class="col-md-3"><img src="img/logoJP.png" width="50"></div>
+                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td>
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE PEDIDO</b></div>

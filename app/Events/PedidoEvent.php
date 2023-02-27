@@ -2,6 +2,8 @@
 
 namespace App\Events;
 
+use App\Models\Notificacion;
+use App\Models\Pedido;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -16,15 +18,37 @@ class PedidoEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public string $mensaje;
+    public Pedido $pedido;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(string $mensaje)
+    public function __construct(string $mensaje, $pedido)
     {
         $this->mensaje = $mensaje;
+        $this->pedido= $pedido;
+
+
+        /* Creating a notification with the message, the originator and the recipient */
+        $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
+    }
+
+
+    /**
+     * It creates a notification with the message, the originator and the recipient
+     *
+     * @param mensaje The message you want to send.
+     * @param originador The user who sent the message
+     * @param destinatario The user who will receive the notification.
+     */
+    public static function crearNotificacion($mensaje, $originador, $destinatario){
+        Notificacion::create([
+            'mensaje'=>$mensaje,
+            'per_originador_id'=>$originador,
+            'per_destinatario_id'=>$destinatario
+        ]);
     }
 
     /**

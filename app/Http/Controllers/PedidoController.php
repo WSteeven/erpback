@@ -77,7 +77,7 @@ class PedidoController extends Controller
             }
             DB::commit();
 
-            event(new PedidoEvent('Pedido registrado!'));
+            event(new PedidoEvent('Pedido registrado!', $pedido));
             Log::channel('testing')->info('Log', ['Paso la linea de crear el evento ']);
 
             return response()->json(compact('mensaje', 'modelo'));

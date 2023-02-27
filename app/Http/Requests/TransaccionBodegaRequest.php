@@ -32,12 +32,12 @@ class TransaccionBodegaRequest extends FormRequest
         // Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
-            'obs_autorizacion' => 'nullable|string|sometimes',
+            'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
-            'obs_estado' => 'nullable|string|sometimes',
+            'observacion_est' => 'nullable|string|sometimes',
             'devolucion' => 'sometimes|nullable|exists:devoluciones,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'pedido' => 'sometimes|nullable|exists:pedidos,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'transferencia' => 'sometimes|nullable|exists:transferencias,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,

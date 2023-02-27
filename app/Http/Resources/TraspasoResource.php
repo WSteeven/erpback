@@ -32,6 +32,7 @@ class TraspasoResource extends JsonResource
             'listadoProductos' => $detalles,
             'listadoDevoluciones' => $devoluciones,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'updated_at' => $this->updated_at,
 
             'es_tarea'=>$this->tarea?true:false,
         ];
