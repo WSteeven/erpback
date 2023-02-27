@@ -17,7 +17,6 @@ class PedidoEvent implements ShouldBroadcast
 
     public string $mensaje;
     public Pedido $pedido;
-    public Notificacion $notificacion;
 
     /**
      * Create a new event instance.
