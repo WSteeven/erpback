@@ -34,12 +34,12 @@ class PedidoController extends Controller
         $estado = $request['estado'];
         $results = [];
 
-        if (auth()->user()->hasRole(User::ROL_BODEGA)&& !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {//para que unicamente el bodeguero pueda ver las transacciones pendientes
+        if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
-        } else if(auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)){
+        } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = Pedido::filtrarPedidosActivosFijos($estado);
-        }else{
+        } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
         }
@@ -102,21 +102,36 @@ class PedidoController extends Controller
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
-        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
-        $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+        try {
+            DB::beginTransaction();
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-        // Respuesta
-        $pedido->update($datos);
-        $modelo = new PedidoResource($pedido->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
+            // Respuesta
+            $pedido->update($datos);
+            $modelo = new PedidoResource($pedido->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+            //modifica los datos del listado, en caso de requerirse
+            $pedido->detalles()->detach();
+            foreach ($request->listadoProductos as $listado) {
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            }
+
+            DB::commit();
+
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. '.$e->getMessage().' '.$e->getLine()], 422);
+        }
     }
 
     /**
@@ -143,7 +158,8 @@ class PedidoController extends Controller
     /**
      * Imprimir
      */
-    public function imprimir(Pedido $pedido){
+    public function imprimir(Pedido $pedido)
+    {
         $resource = new PedidoResource($pedido);
         // Log::channel('testing')->info('Log', ['pedido es', $pedido]);
         // Log::channel('testing')->info('Log', ['pedido es', $resource]);
@@ -155,33 +171,35 @@ class PedidoController extends Controller
         // $dompdf->render();
         // $dompdf->stream();
 
-        try{
-        $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
-        $pdf->setPaper('A5', 'landscape');
-        $pdf->render();
-        $file =$pdf->output();//SE GENERA EL PDF
-        $filename = "pedido_".$resource->id."_".time().".pdf";
+        try {
+            $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            $file = $pdf->output(); //SE GENERA EL PDF
+            $filename = "pedido_" . $resource->id . "_" . time() . ".pdf";
 
-        $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'pedidos'.DIRECTORY_SEPARATOR.$filename;
+            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
 
-        // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-        Log::channel('testing')->info('Log', ['El pedido es', $resource]);
-        // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
-        return $file;
-    }catch(Exception $ex){
-        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
+            Log::channel('testing')->info('Log', ['El pedido es', $resource]);
+            // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
         }
     }
 
-    public function mostrar(Pedido $pedido){
+    public function mostrar(Pedido $pedido)
+    {
         $resource = new PedidoResource($pedido);
 
-        return view('pedidos.pedido', [$resource->resolve(),'usuario'=>auth()->user()->empleado]);
+        return view('pedidos.pedido', [$resource->resolve(), 'usuario' => auth()->user()->empleado]);
     }
 
 
     //retorna un qr
-    public function qrview(){
+    public function qrview()
+    {
         return view('qrcode');
     }
 }
