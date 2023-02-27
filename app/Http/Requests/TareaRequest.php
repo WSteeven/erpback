@@ -35,6 +35,7 @@ class TareaRequest extends FormRequest
             'fiscalizador' => 'nullable|numeric|integer',
             'proyecto' => 'nullable|numeric|integer',
             'cliente_final' => 'nullable|numeric|integer',
+            'medio_notificacion' => 'required|string',
             // 'observacion' => 'nullable|string',
             // 'tiene_subtareas' => 'required|boolean',
         ];

@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('materiales_grupos_tareas', function (Blueprint $table) {
+        Schema::create('materiales_empleados_tareas', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('cantidad_stock'); // Cantidad de material que tiene el grupo a su disposición
+            $table->integer('cantidad_stock'); // Cantidad de material que tiene el empleado a su disposición para la tarea
             $table->boolean('es_fibra')->default(false);
 
             // Foreign key
@@ -44,6 +44,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('materiales_grupos_tareas');
+        Schema::dropIfExists('materiales_empleados_tareas');
     }
 };

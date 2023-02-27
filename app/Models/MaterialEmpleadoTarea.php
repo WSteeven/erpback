@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MaterialGrupoTarea extends Model
+class MaterialEmpleadoTarea extends Model
 {
     use HasFactory;
 
-    protected $table = 'materiales_grupos_tareas';
+    protected $table = 'materiales_empleados_tareas';
 
     protected $fillable = [
         'cantidad_stock',

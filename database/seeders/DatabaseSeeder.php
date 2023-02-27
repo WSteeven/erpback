@@ -51,6 +51,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
         $this->call(MotivoSeeder::class);
+        // $this->call(PedidoSeeder::class); */
 
         // Módulo de Tareas
         $this->call(ProyectoSeeder::class);

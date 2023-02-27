@@ -23,24 +23,24 @@ return new class extends Migration
             $table->date('fecha_nacimiento')->nullable();
             // $table->enum('estado', [Empleado::ACTIVO, Empleado::INACTIVO])->default(Empleado::ACTIVO);
             $table->boolean('estado')->default(true);
-            $table->boolean('disponible')->default(true);
-            
+            // $table->boolean('es_responsable_grupo')->default(true);
+
             // Foreign keys
             $table->unsignedBigInteger('grupo_id')->nullable();
             $table->foreign('grupo_id')->references('id')->on('grupos')->onDelete(null)->onUpdate('cascade');
-            
+
             $table->unsignedBigInteger('jefe_id')->nullable();
             $table->foreign('jefe_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
-            
+
             $table->unsignedBigInteger('usuario_id'); //fk usuario que inicia sesion
             $table->foreign('usuario_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            
+
             $table->unsignedBigInteger('canton_id')->nullable();
             $table->foreign('canton_id')->references('id')->on('cantones')->onDelete(NULL)->onUpdate('cascade');
-            
+
             $table->unsignedBigInteger('cargo_id')->nullable();
             $table->foreign('cargo_id')->references('id')->on('cargos')->onDelete(null)->onUpdate('cascade');
-            
+
             $table->timestamps();
         });
     }

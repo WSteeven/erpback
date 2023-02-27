@@ -22,11 +22,13 @@ class TareaController extends Controller
     public function index(Request $request)
     {
         $campos = explode(',', $request['campos']);
+        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
 
         if ($request['campos']) {
-            $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
+            // if ()
+            $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
         } else {
-            $results = TareaResource::collection(Tarea::filter()->get());
+            $results = TareaResource::collection(Tarea::filter()->porCoordinador()->get());
         }
 
         return response()->json(compact('results'));
@@ -81,7 +83,7 @@ class TareaController extends Controller
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        $datos['coordinador_id'] = Auth::id();
+        // $datos['coordinador_id'] = Auth::id();
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
 
         unset($datos['codigo_tarea']);

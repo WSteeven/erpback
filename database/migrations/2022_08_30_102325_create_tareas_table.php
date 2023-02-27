@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('titulo');
             // $table->string('detalle');
             $table->enum('para_cliente_proyecto', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
+            $table->enum('medio_notificacion', [Tarea::CORREO, Tarea::LLAMADA, Tarea::CHAT]);
             // $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
             //$table->text('observacion')->nullable();
             //$table->boolean('tiene_subtareas');

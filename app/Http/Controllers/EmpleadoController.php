@@ -6,6 +6,7 @@ use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\UserResource;
 use App\Models\Empleado;
+use App\Models\Grupo;
 use App\Models\User;
 use DateTime;
 use Exception;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
+use Illuminate\Validation\ValidationException;
 
 class EmpleadoController extends Controller
 {
@@ -100,6 +102,9 @@ class EmpleadoController extends Controller
                 'grupo_id' => $datos['grupo_id']
             ]);
 
+            //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
+            //$grupo = Grupo::find($datos['grupo_id']);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -111,6 +116,23 @@ class EmpleadoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function existeResponsableGrupo(Request $request)
+    {
+        $request->validate([
+            'grupo_id' => 'required|numeric|integer',
+        ]);
+
+        $responsableActualGrupo = Empleado::where('grupo_id', $request['grupo_id'])->where('es_responsable_grupo', true)->first();
+
+        if ($responsableActualGrupo) {
+            throw ValidationException::withMessages([
+                'responsable_grupo' => ['Ya existe un empleado designado como responsable del grupo. ¿Desea reemplazarlo por el empleado actual?'],
+            ]);
+        }
+
+        return response()->isOk();
     }
 
     /**
