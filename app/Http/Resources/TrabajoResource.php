@@ -130,16 +130,14 @@ class TrabajoResource extends JsonResource
 
     public function verificarResponsable()
     {
-        $empleado = Auth::user()->empleado;
-        $esSecretario = $empleado->cargo?->nombre === User::TECNICO_SECRETARIO;
-
-        /*Log::channel('testing')->info('Log', ['Modo asignacion trabajo', $this->modo_asignacion_trabajo]);
-        Log::channel('testing')->info('Log', ['Cargo', $empleado->cargo]);*/
+        $usuario = User::find(Auth::id());
 
         if ($this->modo_asignacion_trabajo === Trabajo::POR_GRUPO) {
-            // Log::channel('testing')->info('Log', ['Grupo', $empleado->grupo_id]);
-            if ($esSecretario) {
-                return !!$this->grupos()->where('grupo_id', $empleado->grupo_id)->where('es_responsable', true)->first();
+            $esLider = $usuario->hasRole(User::ROL_TECNICO_LIDER_DE_GRUPO);
+            $grupo_id = $usuario->empleado->grupo_id;
+
+            if ($esLider) {
+                return !!$this->grupos()->where('grupo_id', $grupo_id)->where('es_responsable', true)->first();
             }
         }
 

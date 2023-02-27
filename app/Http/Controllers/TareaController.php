@@ -6,6 +6,7 @@ use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Tarea;
 use App\Models\UbicacionTarea;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -23,13 +24,17 @@ class TareaController extends Controller
     {
         $campos = explode(',', $request['campos']);
         // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
+        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
 
         if ($request['campos']) {
-            // if ()
-            $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
+            if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
+            if ($esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
         } else {
-            $results = TareaResource::collection(Tarea::filter()->porCoordinador()->get());
+            if (!$esCoordinador) $results = Tarea::filter()->get();
+            if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
         }
+
+        TareaResource::collection($results);
 
         return response()->json(compact('results'));
     }

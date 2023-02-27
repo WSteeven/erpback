@@ -32,7 +32,7 @@ class TendidoController extends Controller
 
         if (!$modelo) {
             throw ValidationException::withMessages([
-                'no_encontrado' => ['No existe control de tendido para esta subtarea.'],
+                'no_encontrado' => ['Seleccione una bobina para iniciar con el trabajo.'],
             ]);
         }
 

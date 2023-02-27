@@ -228,7 +228,7 @@ class TrabajoController extends Controller
         $trabajo->save();
         //$trabajo->fecha_hora_pa = Carbon::now();
 
-        $trabajo->pausasSubtarea()->create([
+        $trabajo->pausasTrabajo()->create([
             'fecha_hora_pausa' => Carbon::now(),
             'motivo' => $motivo,
         ]);
@@ -248,7 +248,7 @@ class TrabajoController extends Controller
         $trabajo->estado = Trabajo::EJECUTANDO;
         $trabajo->save();
 
-        $trabajo->pausasSubtarea()->update([
+        $trabajo->pausasTrabajo()->update([
             'fecha_hora_retorno' => Carbon::now(),
         ]);
     }
