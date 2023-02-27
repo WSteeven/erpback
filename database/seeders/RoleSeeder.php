@@ -36,6 +36,7 @@ class RoleSeeder extends Seeder
 
         // Roles de cuadrillas
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
+        $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER_DE_GRUPO]);
 
         // -----------------
         // Modulo de Sistema

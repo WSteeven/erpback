@@ -14,6 +14,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\MaterialGrupoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
+use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -44,15 +45,17 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     } */
 
-    // Obtener materiales para tarea grupo
+    // Obtener materiales de tipo bobina desgnadas a un empleado, para tarea.
     public function obtenerBobinas(Request $request)
     {
-        $tarea = $request['tarea'];
-        // $grupo = $request['grupo'];
-        //$idEmpleadoConMateriales =
+        $request->validate([
+            'trabajo_id' => 'required|numeric|integer',
+        ]);
+
+        $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
         $empleado_id = Auth::user()->empleado_id;
 
-        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('empleado_id', $empleado_id)->get();
+        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
         // $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
@@ -74,7 +77,7 @@ class TransaccionBodegaEgresoController extends Controller
         $tarea = $request['tarea'];
         $grupo = $request['grupo'];
 
-        $results = MaterialGrupoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = collect($results)->map(fn ($items) => [
             'detalle_producto_id' => intval($items->detalle_producto_id),
             'stock_actual' => intval($items->cantidad_stock),
@@ -167,10 +170,10 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario = Inventario::find($listado['id']);
                 $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
                 // Actualizamos la cantidad en inventario
-                $itemInventario->cantidad -=$listado['cantidad'];
+                $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            if($transaccion->pedido_id){
+            if ($transaccion->pedido_id) {
                 TransaccionBodega::actualizarPedido($transaccion); //detalle_poructo_transaccion where transaccion_id = 1 / observer detelle_pedido_producto_observer
             }
 
@@ -206,12 +209,12 @@ class TransaccionBodegaEgresoController extends Controller
         $datos = $request->validated();
         !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
         if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-        if($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        if ($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];

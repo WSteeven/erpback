@@ -8,7 +8,6 @@ use App\Http\Controllers\MovimientoProductoController;
 use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\TransaccionBodegaController;
-use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\ProductoEnPerchaController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\RegistroTendidoController;
@@ -139,7 +138,6 @@ Route::apiResources(
         'notificaciones' => NotificacionController::class,
         'pedidos' => PedidoController::class,
         'procesadores' => ProcesadorController::class,
-        'prestamos' => PrestamoTemporalController::class,
         'productos' => ProductoController::class,
         'productos-perchas' => ProductoEnPerchaController::class,
         'perchas' => PerchaController::class,
@@ -231,7 +229,6 @@ Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPrevi
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
-Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
