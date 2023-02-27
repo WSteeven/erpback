@@ -86,6 +86,8 @@ use Carbon\Carbon;
 Route::get('tablero', [TableroController::class, 'index']);
 
 Route::post('usuarios/login', [LoginController::class, 'login']);
+Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
+Route::post('usuarios/validar-token', [UserController::class, 'updateContrasenaRecovery']);
 Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('registrar', [UserController::class, 'store']);
