@@ -27,6 +27,7 @@ class Empleado extends Model implements Auditable
         'grupo_id',
         'cargo_id',
         'es_tecnico',
+        // 'es_responsable_grupo',
     ];
 
     private static $whiteListFilter = [
@@ -50,6 +51,7 @@ class Empleado extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_responsable_grupo' => 'boolean',
     ];
 
     public function toSearchableArray()

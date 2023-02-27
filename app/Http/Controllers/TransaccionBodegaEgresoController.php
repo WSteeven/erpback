@@ -10,6 +10,7 @@ use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\MaterialGrupoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
@@ -47,9 +48,12 @@ class TransaccionBodegaEgresoController extends Controller
     public function obtenerBobinas(Request $request)
     {
         $tarea = $request['tarea'];
-        $grupo = $request['grupo'];
+        // $grupo = $request['grupo'];
+        //$idEmpleadoConMateriales =
+        $empleado_id = Auth::user()->empleado_id;
 
-        $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('empleado_id', $empleado_id)->get();
+        // $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,

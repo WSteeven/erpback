@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Support\Facades\Auth;
 
 class Tarea extends Model implements Auditable
 {
@@ -16,6 +17,10 @@ class Tarea extends Model implements Auditable
 
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
+
+    const CORREO = 'CORREO';
+    const LLAMADA = 'LLAMADA';
+    const CHAT = 'CHAT';
 
     protected $table = 'tareas';
     protected $fillable = [
@@ -129,5 +134,13 @@ class Tarea extends Model implements Auditable
     public function pedidos()
     {
         return $this->hasMany(Pedido::class);
+    }
+
+    /*********
+     * Scopes
+     *********/
+    public function scopePorCoordinador($query)
+    {
+        return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
 }

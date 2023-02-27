@@ -8,14 +8,12 @@ use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
 use Src\Shared\GuardarArchivo;
+use Illuminate\Validation\ValidationException;
 
 class ArchivoTrabajoController extends Controller
 {
     public function index()
     {
-        // $subtarea = request('trabajo');
-
-        // $results = ArchivoSubtarea::where('subtarea_id', $subtarea)->get();
         $results = ArchivoTrabajo::filter()->get();
         return response()->json(compact('results'));
     }
@@ -23,16 +21,24 @@ class ArchivoTrabajoController extends Controller
 
     public function store(Request $request)
     {
-        $trabajo = Trabajo::find($request['trabajo']);
-        $modelo = null;
+        $trabajo = Trabajo::find($request['trabajo_id']);
 
-        if ($trabajo && $request->hasFile('file')) {
-
-            $guardarArchivo = new GuardarArchivo($trabajo, $request, RutasStorage::SUBTAREAS);
-            $modelo = $guardarArchivo->execute();
-
-            return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
+        if (!$trabajo) {
+            throw ValidationException::withMessages([
+                'trabajo' => ['El trabajo no existe'],
+            ]);
         }
+
+        if (!$request->hasFile('file')) {
+            throw ValidationException::withMessages([
+                'file' => ['Debe seleccionar al menos un archivo.'],
+            ]);
+        }
+
+        $guardarArchivo = new GuardarArchivo($trabajo, $request, RutasStorage::TRABAJOS);
+        $modelo = $guardarArchivo->execute();
+
+        return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
 
         return response()->json(['mensaje' => 'No se pudo subir!']);
     }

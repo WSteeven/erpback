@@ -56,7 +56,7 @@ class TrabajoController extends Controller
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['coordinador_id'] = Auth::user()->empleado->id;
         $datos['trabajo_dependiente_id'] = $request->safe()->only(['trabajo_dependiente'])['trabajo_dependiente'];
-        
+
         $tarea = Tarea::find($datos['tarea_id']);
         $datos['codigo_trabajo'] = $tarea->codigo_tarea . '-' . $tarea->trabajos->count() + 1;
 
@@ -267,7 +267,7 @@ class TrabajoController extends Controller
 
     public function obtenerPausas(Trabajo $trabajo)
     {
-        $results = $trabajo->pausasSubtarea->map(fn ($item) => [
+        $results = $trabajo->pausasTrabajo->map(fn ($item) => [
             'fecha_hora_pausa' => $item->fecha_hora_pausa,
             'fecha_hora_retorno' => $item->fecha_hora_retorno,
             'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurrido(Carbon::parse($item->fecha_hora_retorno)->diffInMinutes(Carbon::parse($item->fecha_hora_pausa)), '') : null,

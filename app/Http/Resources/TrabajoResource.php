@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class TrabajoResource extends JsonResource
 {
@@ -77,7 +78,7 @@ class TrabajoResource extends JsonResource
             $modelo['fiscalizador'] = $this->fiscalizador_id;
             $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoTrabajo::where('trabajo_id', $this->id)->orderBy('es_responsable', 'desc')->get());
             $modelo['empleados_seleccionados'] = $this->listarEmpleados();
-            $modelo['cliente_final'] = $this->cliente_final_id;
+            $modelo['cliente_final'] = $this->tarea->cliente_final_id;
             $modelo['trabajo_dependiente'] = $this->trabajo_dependiente_id;
         }
 
@@ -130,9 +131,13 @@ class TrabajoResource extends JsonResource
     public function verificarResponsable()
     {
         $empleado = Auth::user()->empleado;
-        $esSecretario = $empleado->cargo === User::TECNICO_SECRETARIO;
+        $esSecretario = $empleado->cargo?->nombre === User::TECNICO_SECRETARIO;
+
+        /*Log::channel('testing')->info('Log', ['Modo asignacion trabajo', $this->modo_asignacion_trabajo]);
+        Log::channel('testing')->info('Log', ['Cargo', $empleado->cargo]);*/
 
         if ($this->modo_asignacion_trabajo === Trabajo::POR_GRUPO) {
+            // Log::channel('testing')->info('Log', ['Grupo', $empleado->grupo_id]);
             if ($esSecretario) {
                 return !!$this->grupos()->where('grupo_id', $empleado->grupo_id)->where('es_responsable', true)->first();
             }

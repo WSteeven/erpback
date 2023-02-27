@@ -32,13 +32,14 @@ class TareaResource extends JsonResource
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
-            'cliente' => $this->obtenerCliente()?->razon_social,
-            'cliente_id' => $this->obtenerCliente()?->id,
+            'cliente' => $this->obtenerCliente(),
+            'cliente_id' => $this->cliente_id,
             'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             // 'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
             /*'observacion' => $this->observacion,
             'tiene_subtareas' => $this->tiene_subtareas,*/
             'cantidad_trabajos' => $this->trabajos->count(),
+            'medio_notificacion' => $this->medio_notificacion,
         ];
 
         if ($controller_method == 'show') {
@@ -55,9 +56,9 @@ class TareaResource extends JsonResource
     private function obtenerCliente()
     {
         if ($this->proyecto) {
-            return $this->proyecto->cliente?->empresa; //?->razon_social;
+            return $this->proyecto->cliente?->empresa?->razon_social;
         } else {
-            return $this->cliente?->empresa; //?->razon_social;
+            return $this->cliente?->empresa?->razon_social;
         }
     }
 }

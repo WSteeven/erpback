@@ -10,6 +10,6 @@ enum RutasStorage: string
 		// Public
 	case SERVICIOS = 'public/servicios';
 	case POPUP = 'public/popup';
-	case SUBTAREAS = 'public/subtareas';
+	case TRABAJOS = 'public/trabajos';
 	case REGISTROS_TENDIDOS = 'public/registrosTendidos';
 }

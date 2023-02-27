@@ -205,7 +205,7 @@ Route::apiResources(
     ]
 );
 
-Route::get('bobinas-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
+Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
 Route::get('materiales-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
 
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
@@ -238,7 +238,7 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
 // Estados de las subtareas
-Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
+/* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
@@ -248,7 +248,7 @@ Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
-});
+}); */
 
 Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
     Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);

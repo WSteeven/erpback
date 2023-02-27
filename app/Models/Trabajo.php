@@ -45,7 +45,7 @@ class Trabajo extends Model implements Auditable
         'observacion',
         'estado',
         'modo_asignacion_trabajo',
-        
+
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
@@ -172,12 +172,12 @@ class Trabajo extends Model implements Auditable
     // Relacion uno a muchos
     public function archivos()
     {
-        return $this->hasMany(ArchivoSubtarea::class);
+        return $this->hasMany(ArchivoTrabajo::class);
     }
 
-    public function pausasSubtarea()
+    public function pausasTrabajo()
     {
-        return $this->hasMany(PausaSubtarea::class);
+        return $this->hasMany(PausaTrabajo::class);
     }
 
     public function proyecto()

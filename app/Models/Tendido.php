@@ -12,7 +12,7 @@ class Tendido extends Model
     protected $fillable = [
         'marca_inicial',
         'marca_final',
-        'subtarea_id',
+        'trabajo_id',
         'bobina_id',
     ];
 
@@ -21,9 +21,9 @@ class Tendido extends Model
         return $this->hasMany(RegistroTendido::class);
     }
 
-    public function subtarea()
+    public function trabajo()
     {
-        return $this->belongsTo(Subtarea::class);
+        return $this->belongsTo(Trabajo::class);
     }
 
     public function bobina()

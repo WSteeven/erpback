@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('marca_final')->nullable();
 
             // Foreign key
-            $table->unsignedBigInteger('subtarea_id');
-            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('trabajo_id');
+            $table->foreign('trabajo_id')->references('id')->on('trabajos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('bobina_id');
             $table->foreign('bobina_id')->references('id')->on('detalles_productos')->onDelete('cascade')->onUpdate('cascade');
