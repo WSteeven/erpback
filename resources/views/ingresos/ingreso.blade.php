@@ -69,6 +69,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
+            font-size: 12px;
             /* position: inherit; */
             /* top: 140px; */
         }

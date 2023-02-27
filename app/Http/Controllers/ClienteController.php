@@ -22,7 +22,7 @@ class ClienteController extends Controller
         $this->middleware('can:puede.eliminar.clientes')->only('update');
     }
     /**
-     * Listar 
+     * Listar
      */
     public function index(Request $request)
     {
@@ -41,7 +41,7 @@ class ClienteController extends Controller
             $results = Cliente::all();
             Log::channel('testing')->info('Log', ['entro en el else grande', $results]);
         }
-        
+
         $results = ClienteResource::collection($results);
         return response()->json(compact('results'));
     }

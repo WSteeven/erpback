@@ -5,13 +5,11 @@ use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\MovimientoProductoController;
-use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\TransaccionBodegaController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\ProductoEnPerchaController;
-use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TipoTransaccionController;
@@ -62,6 +60,7 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
@@ -137,6 +136,7 @@ Route::apiResources(
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
         'motivos' => MotivoController::class,
+        'notificaciones' => NotificacionController::class,
         'pedidos' => PedidoController::class,
         'procesadores' => ProcesadorController::class,
         'prestamos' => PrestamoTemporalController::class,
@@ -153,7 +153,6 @@ Route::apiResources(
         'spans' => SpanController::class,
         'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
-        'subtipos-transacciones' => SubtipoTransaccionController::class,
         'transacciones' => TransaccionBodegaController::class,
         'transacciones-ingresos' => TransaccionBodegaIngresoController::class,
         'transacciones-egresos' => TransaccionBodegaEgresoController::class,
@@ -183,12 +182,12 @@ Route::apiResources(
             'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
+            'notificaciones' => 'notificacion',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
             'sucursales' => 'sucursal',
             'tipos-transacciones' => 'tipo_transaccion',
-            'subtipos-transacciones' => 'subtipo_transaccion',
             'transacciones' => 'transaccion',
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',

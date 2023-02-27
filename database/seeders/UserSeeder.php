@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
         $recursos_humanos = User::create([
             'name' => 'LPESANTES',
             'email' => 'manuel@jpconstrucred.com',
-            'password' => bcrypt('0706751393'),
+            'password' => bcrypt('0706297280'),
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
         // Coordinador
         $coordinador_sto_domingo = User::create([

@@ -34,8 +34,9 @@ class DetalleProductoResource extends JsonResource
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
             'procesador' => $this->computadora ? $this->computadora->procesador->nombre : null,
+            'imei' => $this->computadora ? $this->computadora->imei: null,
 
-            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre : null,
+            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei?', IMEI: ' .$this->computadora->imei:null) : null,
             'fibra' => $this->fibra ? 'Span ' . $this->fibra->span->nombre . ', ' . $this->fibra->hilo->nombre . 'H, ' . $this->fibra->tipo_fibra->nombre : null,
 
             'span' => $this->fibra ? $this->fibra->span->nombre : 'N/A',
