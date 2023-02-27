@@ -470,7 +470,7 @@ class UserSeeder extends Seeder
             'telefono' => '0994887502',
             'fecha_nacimiento' => '0000-00-00',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
+           // 'sucursal_id' => $localidad_machala->id,
         ]);
         $autorizador = User::create([
             'name' => 'YLOJA',
@@ -485,7 +485,7 @@ class UserSeeder extends Seeder
             'telefono' => '999910198',
             'fecha_nacimiento' => '1980-05-29',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
+           // 'sucursal_id' => $localidad_machala->id,
         ]);
         $autorizador = User::create([
             'name' => 'JPAZMINO',
@@ -500,7 +500,7 @@ class UserSeeder extends Seeder
             'telefono' => '995936695',
             'fecha_nacimiento' => '1974-07-07',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
+           // 'sucursal_id' => $localidad_machala->id,
         ]);
 
     }

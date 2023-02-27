@@ -67,7 +67,7 @@ class DatabaseSeeder extends Seeder
 
         // $this->call(TransaccionBodegaSeeder::class);
         // ImagenProducto::factory(10)->create();
-        $this->call(PedidoSeeder::class);
+       // $this->call(PedidoSeeder::class);
         $this->call(EstatusSeeder::class);
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);

@@ -2,7 +2,6 @@
 
 use App\Exports\RegistroTendidoExport;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;

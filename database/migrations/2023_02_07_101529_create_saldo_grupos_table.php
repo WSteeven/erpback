@@ -22,7 +22,6 @@ return new class extends Migration
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->unsignedBigInteger('id_usuario');
-            $table->timestamp('fecha_trans');
             $table->foreign('id_usuario')->references('id')->on('users');
             $table->timestamps();
         });
