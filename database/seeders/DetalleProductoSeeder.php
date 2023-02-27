@@ -57,6 +57,11 @@ class DetalleProductoSeeder extends Seeder
             [39, 20, 'CORRECTOR BLANCO', 53, NULL, 0.75, NULL, NULL, NULL, NULL, '2023-02-23 23:59:20', '2023-02-23 23:59:20'],
             [40, 21, 'CINTA DE EMBALAJE GRANDE', 18, NULL, 0, NULL, NULL, NULL, NULL, '2023-02-24 00:01:04', '2023-02-24 00:01:04'],
             [41, 22, 'ESFERO AZUL PUNTA FINA', 54, NULL, 0.4, NULL, NULL, NULL, NULL, '2023-02-24 00:03:16', '2023-02-24 00:03:16'],
+            [42, 25, 'CASCO AZUL', 1, NULL, 0, 'AZUL', '10', 'HOMBRE', NULL, '2023-02-27 15:45:03', '2023-02-27 15:45:03'],
+            [43, 23, 'CAMISA TALLA L', 1, NULL, 0, 'AZUL', 'L', 'HOMBRE', NULL, '2023-02-27 15:45:22', '2023-02-27 15:45:22'],
+            [44, 24, 'PANTALON TALLA #32', 1, NULL, 0, 'AZUL', '32', 'HOMBRE', NULL, '2023-02-27 15:45:44', '2023-02-27 15:45:44'],
+            [45, 26, 'ZAPATOS TALLA 42', 1, NULL, 0, 'CAFE', '42', 'HOMBRE', NULL, '2023-02-27 15:46:27', '2023-02-27 15:46:27'],
+            [46, 27, 'BOBINA 24H TELCONET', 15, '2334FRE32', 0, NULL, NULL, NULL, NULL, '2023-02-27 15:47:25', '2023-02-27 15:47:25'],
         ];
 
         foreach ($datos as $fila) {
