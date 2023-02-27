@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PedidoRequest extends FormRequest
 {
@@ -30,6 +31,7 @@ class PedidoRequest extends FormRequest
             'observacion_aut' => 'nullable|string',
             'observacion_est' => 'nullable|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
+            'responsable' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'per_autoriza' => 'required|numeric|exists:empleados,id',
             'tarea' => 'sometimes|nullable|numeric|exists:tareas,id',
@@ -62,6 +64,8 @@ class PedidoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
+        $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
+        Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
         if(!is_null($this->fecha_limite)){
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
@@ -85,6 +89,15 @@ class PedidoRequest extends FormRequest
                 // 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,
             ]);
+        }
+        if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
+            $this->merge([
+                'per_autoriza'=>$user_activo_fijo->empleado->id,
+            ]);
+        }
+
+        if(is_null($this->responsable)){
+            $this->merge(['responsable'=>$this->solicitante]);
         }
         if($this->autorizacion===3){
             $this->merge([

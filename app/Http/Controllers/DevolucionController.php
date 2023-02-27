@@ -6,10 +6,12 @@ use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Devolucion;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\TryCatch;
 use Src\Shared\Utils;
 
 class DevolucionController extends Controller
@@ -38,7 +40,7 @@ class DevolucionController extends Controller
             $results = Devolucion::where('estado', Devolucion::CREADA)->get($campos);
             $results = DevolucionResource::collection($results);
             return response()->json(compact('results'));
-        } else 
+        } else
         if ($page) {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
                 $results = Devolucion::filtrarDevolucionesBodegueroConPaginacion($estado, $offset);
@@ -145,5 +147,26 @@ class DevolucionController extends Controller
         $devolucion->causa_anulacion = $request['motivo'];
         $devolucion->estado = Devolucion::ANULADA;
         $devolucion->save();
+    }
+
+    public function imprimir(Devolucion $devolucion) {
+        $resource = new DevolucionResource($devolucion);
+        Log::channel('testing')->info('Log', ['devolucion que se va a imprimir', $resource]);
+        try {
+            $pdf = Pdf::loadView('devoluciones.devolucion', $resource->resolve());
+            $pdf->setPaper('A5', 'landscape');
+        $pdf->render();
+        $file = $pdf->output();
+
+        return $file;
+
+        //usar esto en caso de querer guardar los pdfs generados en el servidor backend
+
+        // $filename = "pedido_".$resource->id."_".time().".pdf";
+        // $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'devoluciones'.DIRECTORY_SEPARATOR.$filename;
+        // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
     }
 }

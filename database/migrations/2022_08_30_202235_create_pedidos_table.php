@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('observacion_aut')->nullable();
             $table->text('observacion_est')->nullable();
             $table->unsignedBigInteger('solicitante_id')->nullable();
+            $table->unsignedBigInteger('responsable_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id')->nullable();
             $table->unsignedBigInteger('per_autoriza_id')->nullable();
             $table->unsignedBigInteger('tarea_id')->nullable();
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('responsable_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('per_autoriza_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('autorizacion_id')->references('id')->on('autorizaciones')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('tarea_id')->references('id')->on('tareas')->cascadeOnDelete()->cascadeOnUpdate();

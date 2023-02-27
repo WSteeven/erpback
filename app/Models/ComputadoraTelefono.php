@@ -15,6 +15,7 @@ class ComputadoraTelefono extends Model
         'memoria_id',
         'disco_id',
         'procesador_id',
+        'imei',
     ];
 
 
@@ -25,7 +26,7 @@ class ComputadoraTelefono extends Model
     public function detalle(){
         return $this->belongsTo(DetalleProducto::class, 'detalle_id');
     }
-    
+
     /**
      * Relación uno a muchos(inversa).
      * Una computadora o telefono tiene una ram.

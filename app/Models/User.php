@@ -34,15 +34,21 @@ class User extends Authenticatable implements Auditable
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
     const ROL_RECURSOS_HUMANOS = 'RECURSOS HUMANOS';
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
+    const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
+    const ROL_TECNICO = 'TECNICO';
+    const ROL_TECNICO_LIDER_DE_GRUPO = 'TECNICO LIDER DE GRUPO';
 
-    // Roles de cuadrillas
-    const ROL_TECNICO_JEFE_CUADRILLA = 'TECNICO JEFE CUADRILLA';
-    const ROL_TECNICO_CABLISTA = 'TECNICO CABLISTA';
-    const ROL_TECNICO_SECRETARIO = 'TECNICO SECRETARIO';
-    const ROL_TECNICO_AYUDANTE = 'TECNICO AYUDANTE';
-    const ROL_TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
-    const ROL_CHOFER = 'CHOFER';
-    const ROL_AUTORIZADOR = 'AUTORIZADOR';
+    // Cargos
+    const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
+    const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
+    const TECNICO_AYUDANTE = 'TÉCNICO AYUDANTE';
+    const TECNICO_FUSIONADOR = 'TECNICO FUSIONADOR';
+    const CHOFER = 'CHOFER';
+
+    const GERENCIA = 'GERENCIA';
+    const JEFE_TECNICO = 'JEFE TECNICO';
+    const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
+    const TECNICO = 'TECNICO';
 
     /**
      * The attributes that are mass assignable.
@@ -107,20 +113,21 @@ class User extends Authenticatable implements Auditable
     }
 
     public function obtenerPermisos($user_id)
-	{
-		$permissions = [];
-		$user = User::find($user_id);
+    {
+        $permissions = [];
+        $user = User::find($user_id);
 
-		foreach (Permission::all() as $permission) {
-			if ($user->can($permission->name)) {
-				$permissions[] = $permission->name;
-			}
-		}
-		return $permissions;
-	}
+        foreach (Permission::all() as $permission) {
+            if ($user->can($permission->name)) {
+                $permissions[] = $permission->name;
+            }
+        }
+        return $permissions;
+    }
 
     public function esTecnicoLider()
     {
-        return $this->hasRole(User::ROL_TECNICO_JEFE_CUADRILLA);
+        return $this->hasRole(User::ROL_TECNICO_LIDER_DE_GRUPO);
+        // return $this->empleado->cargo === User::ROL_TECNICO_LIDER_DE_GRUPO;
     }
 }

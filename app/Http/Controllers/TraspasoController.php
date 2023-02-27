@@ -10,6 +10,7 @@ use App\Models\Inventario;
 use App\Models\MovimientoProducto;
 use App\Models\Traspaso;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Dflydev\DotAccessData\Util;
 use Exception;
 use Illuminate\Http\Request;
@@ -152,4 +153,30 @@ class TraspasoController extends Controller
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
+
+    /**
+     * Consultar datos sin el método show.
+     */
+    public function showPreview(Traspaso $traspaso)
+    {
+        $modelo = new TraspasoResource($traspaso);
+
+        return response()->json(compact('modelo'), 200);
+    }
+
+        public function imprimir(Traspaso $traspaso) {
+        $resource = new TraspasoResource($traspaso);
+        Log::channel('testing')->info('Log', ['traspaso que se va a imprimir', $resource]);
+        try {
+            $pdf = Pdf::loadView('traspasos.traspaso', $resource->resolve());
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            $file = $pdf->output();
+
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
+    }
+
 }

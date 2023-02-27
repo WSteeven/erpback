@@ -44,6 +44,7 @@ class DetalleProductoRequest extends FormRequest
             'procesador' => 'nullable|sometimes|exists:procesadores,id|required_with_all:ram,disco',
             'ram' => 'nullable|sometimes|exists:rams,id|required_with_all:procesador,disco',
             'disco' => 'nullable|sometimes|exists:discos,id|required_with_all:ram,procesador',
+            'imei' => 'nullable|sometimes|numeric',
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',

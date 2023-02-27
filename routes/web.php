@@ -3,6 +3,7 @@
 use App\Exports\RegistroTendidoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
+use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Models\PrestamoTemporal;
@@ -20,6 +21,8 @@ use Maatwebsite\Excel\Facades\Excel;
 |
 */
 
+Route::get('/qrcode', [PedidoController::class, 'qrview']);
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -27,6 +30,10 @@ Route::get('/', function () {
 // Route::name('imprimir')->get('/imprimir-pdf', [Controller::class, 'imprimir']);
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
 // Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);
+
+//pedidos
+Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir']);
+
 
 Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php
 Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));

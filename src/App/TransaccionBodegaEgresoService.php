@@ -10,6 +10,7 @@ use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Type\Integer;
@@ -293,7 +294,7 @@ class TransaccionBodegaEgresoService
         }
     }
     /* *****************************************************************************************************
-    Filtros sin paginación 
+    Filtros sin paginación
     ********************************************************************************************************/
     /**
      * EN DESUSO
@@ -629,5 +630,15 @@ class TransaccionBodegaEgresoService
             'detalle' => DetalleProducto::find($items->detalle_id)->descripcion,
         ]);
         return $results;
+    }
+
+    public function getIdEmpleadoConMateriales() {
+        $empleado = Auth::user()->empleado;
+
+        if ($empleado->grupo_id) {
+
+        } else {
+
+        }
     }
 }

@@ -28,14 +28,18 @@ class PedidoResource extends JsonResource
             'observacion_est' => $this->observacion_est,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
+            'responsable' => is_null($this->responsable)?'':$this->responsable->nombres.' '.$this->responsable->apellidos,
+            'responsable_id' => $this->responsable_id,
             'autorizacion' => $this->autorizacion->nombre,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
+            'per_autoriza_id' => $this->per_autoriza_id,
             'tarea' => $this->tarea?->detalle,
             'sucursal' => $this->sucursal->lugar,
             'sucursal_id' => $this->sucursal_id,
             'estado' => $this->estado->nombre,
             'listadoProductos' => $detalles,
             'created_at' => date('d-m-Y', strtotime($this->created_at)),
+            'updated_at' => $this->updated_at,
 
             'tiene_fecha_limite'=>$this->fecha_limite?true:false,
             'es_tarea' => $this->tarea ? true : false,
@@ -45,6 +49,7 @@ class PedidoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['responsable'] = $this->responsable_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['per_autoriza'] = $this->per_autoriza_id;
             $modelo['tarea'] = $this->tarea_id;

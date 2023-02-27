@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Tarea;
@@ -31,29 +32,29 @@ class TransaccionBodegaRequest extends FormRequest
         // Log::channel('testing')->info('Log', ['Datos recibidos en TransaccionBodegaRequest', $this->request->all()]);
         $rules = [
             'autorizacion' => 'required|exists:autorizaciones,id',
-            'obs_autorizacion' => 'nullable|string|sometimes',
+            'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
-            'obs_estado' => 'nullable|string|sometimes',
+            'observacion_est' => 'nullable|string|sometimes',
             'devolucion' => 'sometimes|nullable|exists:devoluciones,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'pedido' => 'sometimes|nullable|exists:pedidos,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'transferencia' => 'sometimes|nullable|exists:transferencias,id', //|unique:transacciones_bodega,devolucion_id,NULL,id,id,'.$this->id,
             'solicitante' => 'required|exists:empleados,id',
             'tipo' => 'sometimes|nullable|exists:tipos_transacciones,id',
-            'motivo' => 'sometimes|nullable|exists:motivos,id',
+            'motivo' => 'required|exists:motivos,id',
             'sucursal' => 'required|exists:sucursales,id',
             'per_autoriza' => 'required|exists:empleados,id',
             'per_atiende' => 'sometimes|nullable|exists:empleados,id',
-            'per_retira' => 'sometimes|exists:empleados,id',
+            'per_retira' => 'sometimes|nullable|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
             'listadoProductosTransaccion.*.cantidad' => 'required'
         ];
-        if ($this->route()->uri() === 'api/transacciones-ingresos') {
+        if ($this->route()->uri() === 'api/transacciones-egresos') {
             // $rules['autorizacion'] = 'nullable';
-            $rules['motivo'] = 'required|exists:motivos,id';
+            $rules['responsable'] = 'required|exists:empleados,id';
         }
 
         return $rules;
@@ -87,15 +88,14 @@ class TransaccionBodegaRequest extends FormRequest
                         }
                     }
                 }
-            }else{
-                foreach($this->listadoProductosTransaccion as $listado){
-                    Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
+            } else {
+                foreach ($this->listadoProductosTransaccion as $listado) {
+                    // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
                     $itemInventario = Inventario::find($listado['id']);
-                    if($listado['cantidad']<=0)$validator->errors()->add('listadoProductoTransaccion.*.cantidad','La cantidad para el item '.$listado['descripcion'].' debe ser mayor a cero');
-                    if($listado['cantidad']>$itemInventario->cantidad){
-                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad','La cantidad para el item '.$listado['descripcion'].' no debe ser superior a la existente en el inventarioEn inventario:'.$itemInventario->cantidad);
+                    if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' debe ser mayor a cero');
+                    if ($listado['cantidad'] > $itemInventario->cantidad) {
+                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventarioEn inventario:' . $itemInventario->cantidad);
                     }
-
                 }
             }
             if (!in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -111,11 +111,19 @@ class TransaccionBodegaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $user_activo_fijo = User::whereHas("roles", function ($q) {
+            $q->where("name", User::ROL_ACTIVOS_FIJOS);
+        })->get();
+
         if (!is_null($this->fecha_limite)) {
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
             ]);
         }
+        /**
+         * **********************************************************************************     INGRESOS     ****************************************
+         */
         if ($this->route()->uri() === 'api/transacciones-ingresos') {
             if (is_null($this->autorizacion) || $this->autorizacion == '') {
                 // Log::channel('testing')->info('Log', ['autorizacion', $this->autorizacion]);
@@ -128,15 +136,15 @@ class TransaccionBodegaRequest extends FormRequest
                     'tipo' => 1,
                 ]);
             }
-            if ($this->ingreso_masivo) {
-                $this->merge([
-                    'estado' => 2
-                ]);
-            } else {
-                $this->merge([
-                    'estado' => 1
-                ]);
-            }
+            // if ($this->ingreso_masivo) {
+            //     $this->merge([
+            //         'estado' => $estado_completo->id
+            //     ]);
+            // } else {
+            $this->merge([
+                'estado' => $estado_completo->id
+            ]);
+            // }
             if (is_null($this->solicitante) || $this->solicitante === '') {
                 $this->merge([
                     'solicitante' => auth()->user()->empleado->id,
@@ -147,19 +155,31 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_atiende' => auth()->user()->empleado->id
             ]);
         }
+        /**
+         * **********************************************************************************     EGRESOS     ***************************************
+         */
         if ($this->route()->uri() === 'api/transacciones-egresos') {
             if ($this->autorizacion == '') {
                 $this->merge([
                     'autorizacion' => 1,
                 ]);
             }
+            if (is_null($this->solicitante) || $this->solicitante === '') {
+                $this->merge([
+                    'solicitante' => auth()->user()->empleado->id,
+                ]);
+            }
             $this->merge([
-                'solicitante' => auth()->user()->empleado->id,
-                'estado'=>2,
+                'estado' => $estado_completo->id,
             ]);
             if ($this->fecha_limite === "N/A" || is_null($this->fecha_limite)) {
                 $this->merge([
                     'fecha_limite' => null
+                ]);
+            }
+            if (is_null($this->per_retira)) {
+                $this->merge([
+                    'per_retira' => $this->responsable,
                 ]);
             }
         }
@@ -168,11 +188,11 @@ class TransaccionBodegaRequest extends FormRequest
                 'cliente' => 1,
             ]);
         }
-        if ($this->estado === '' || is_null($this->estado)) {
+        /* if ($this->estado === '' || is_null($this->estado)) {
             $this->merge([
                 'estado' => 1,
             ]);
-        }
+        } */
         /* if($this->motivo){
             $this->merge([
                 'tipo'=>Motivo::where('id',$this->motivo)->get('tipo_transaccion_id')
@@ -186,7 +206,7 @@ class TransaccionBodegaRequest extends FormRequest
         }
 
         if (is_null($this->per_autoriza)) {
-            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE])) {
+            if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_GERENTE])) {
                 $this->merge([
                     'per_autoriza' => auth()->user()->empleado->id,
                 ]);
@@ -201,11 +221,6 @@ class TransaccionBodegaRequest extends FormRequest
         if (auth()->user()->hasRole([User::ROL_BODEGA])) {
             $this->merge([
                 'autorizacion' => 2
-            ]);
-        }
-        if (is_null($this->per_retira)) {
-            $this->merge([
-                'per_retira' => auth()->user()->empleado->id,
             ]);
         }
         //Log::channel('testing')->info('Log', ['Usuario es coordinador?:', auth()->user()->hasRole(User::ROL_COORDINADOR)]);

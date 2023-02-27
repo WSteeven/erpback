@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('memoria_id');
             $table->unsignedBigInteger('disco_id');
             $table->unsignedBigInteger('procesador_id');
+            $table->string('imei')->nullable();
             $table->timestamps();
 
             $table->primary('detalle_id');

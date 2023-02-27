@@ -32,11 +32,11 @@ return new class extends Migration
             $table->boolean('es_dependiente')->default(false);
 
             $table->boolean('es_ventana')->default(false);
-            $table->string('fecha_ventana')->nullable();
-            $table->string('hora_inicio_ventana')->nullable();
-            $table->string('hora_fin_ventana')->nullable();
+            $table->string('fecha_agendado')->nullable(); // fecha_ventana
+            $table->string('hora_inicio_agendado')->nullable(); // hora_inicio_ventana
+            $table->string('hora_fin_agendado')->nullable(); // hora_fin_ventana
 
-            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
+            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
             $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
 
             // Foreign keys

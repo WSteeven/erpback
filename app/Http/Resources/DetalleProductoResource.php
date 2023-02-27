@@ -3,6 +3,8 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
+use PgSql\Lob;
 
 class DetalleProductoResource extends JsonResource
 {
@@ -32,8 +34,9 @@ class DetalleProductoResource extends JsonResource
             'ram' => $this->computadora ? $this->computadora->memoria->nombre : null,
             'disco' => $this->computadora ? $this->computadora->disco->nombre : null,
             'procesador' => $this->computadora ? $this->computadora->procesador->nombre : null,
+            'imei' => $this->computadora ? $this->computadora->imei: null,
 
-            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre : null,
+            'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei?', IMEI: ' .$this->computadora->imei:null) : null,
             'fibra' => $this->fibra ? 'Span ' . $this->fibra->span->nombre . ', ' . $this->fibra->hilo->nombre . 'H, ' . $this->fibra->tipo_fibra->nombre : null,
 
             'span' => $this->fibra ? $this->fibra->span->nombre : 'N/A',
@@ -59,9 +62,11 @@ class DetalleProductoResource extends JsonResource
             'tiene_adicionales' => $this->color || $this->talla || $this->capacidad ? true : false,
         ];
         if ($controller_method == 'show') {
+            Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
             $modelo['marca'] = $this->modelo->marca_id;
             $modelo['modelo'] = $this->modelo_id;
+            $modelo['modelo_id'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
             $modelo['tipo_fibra'] =  $this->fibra ? $this->fibra->tipo_fibra_id : null;
             $modelo['hilos'] = $this->fibra ? $this->fibra->hilo_id : null;

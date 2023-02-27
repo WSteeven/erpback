@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\SubtareaResource;
+use App\Http\Resources\TrabajoResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +33,7 @@ class TrabajoAsignadoController extends Controller
 
         array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
 
-        $results = SubtareaResource::collection($results);
+        $results = TrabajoResource::collection($results);
         return response()->json(compact('results'));
     }
 }

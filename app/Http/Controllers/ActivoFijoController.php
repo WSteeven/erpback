@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ActivoFijoRequest;
 use App\Http\Resources\ActivoFijoResource;
 use App\Models\ActivoFijo;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -29,7 +31,7 @@ class ActivoFijoController extends Controller
     {
         $page = $request['page'];
         $results = [];
-        
+
         if ($page) {
             $results = ActivoFijo::simplePaginate($request['offset']);
             ActivoFijoResource::collection($results);
@@ -41,7 +43,7 @@ class ActivoFijoController extends Controller
         return response()->json(compact('results'));
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -100,7 +102,7 @@ class ActivoFijoController extends Controller
         $activo->update($datos);
         $modelo = new ActivoFijoResource($activo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        
+
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -116,5 +118,21 @@ class ActivoFijoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
 
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(ActivoFijo $activo){
+        $resource = new ActivoFijoResource($activo);
+        try{
+            $pdf = Pdf::loadView('activos_fijos.asignacion', $resource->resolve());
+            $pdf->render();
+            $file = $pdf->output();
+
+            return $file;
+        }catch(Exception $e){
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+        }
     }
 }

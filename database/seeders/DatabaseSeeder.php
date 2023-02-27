@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         // Modulo de Bodega
         $this->call(GrupoSeeder::class);
         $this->call(RoleSeeder::class);
+        $this->call(CargoSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(CondicionesProductosFacturasSeeder::class);
         $this->call(ProvinciaSeeder::class);
@@ -44,12 +45,13 @@ class DatabaseSeeder extends Seeder
         $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
         $this->call(CodigoClienteSeeder::class);
-        $this->call(FibraSeeder::class);
+        // $this->call(FibraSeeder::class);
         $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
         $this->call(MotivoSeeder::class);
+        // $this->call(PedidoSeeder::class); */
 
         // Módulo de Tareas
         $this->call(ProyectoSeeder::class);
@@ -59,7 +61,8 @@ class DatabaseSeeder extends Seeder
         $this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
         $this->call(PropietarioElementoSeeder::class);
-        $this->call(MaterialGrupoTareaSeeder::class);
+        // $this->call(TrabajoSeeder::class);
+        //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 
         // $this->call(TransaccionBodegaSeeder::class);
@@ -69,5 +72,6 @@ class DatabaseSeeder extends Seeder
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);
         $this->call(EstadoViaticoSeeder::class);
+        // $this->call(PedidoSeeder::class);
     }
 }

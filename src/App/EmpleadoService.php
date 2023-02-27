@@ -44,7 +44,7 @@ class EmpleadoService
 
     public function obtenerTodosCiertasColumnas($campos)
     {
-        Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
+        // Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
         $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
         // $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
         // return EmpleadoResource::collection($results);

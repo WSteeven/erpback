@@ -76,6 +76,7 @@ class DetalleProductoController extends Controller
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],
                     'procesador_id' => $datos['procesador'],
+                    'imei' => $datos['imei'],
                 ]);
                 DB::commit();
             }
@@ -117,6 +118,7 @@ class DetalleProductoController extends Controller
      */
     public function update(DetalleProductoRequest $request, DetalleProducto $detalle)
     {
+        // Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
@@ -127,6 +129,7 @@ class DetalleProductoController extends Controller
             // $datos['span_id'] = $request->safe()->only(['span'])['span'];
             // $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
             // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
+            // Log::channel('testing')->info('Log', ['datos validados:', $datos]);
 
             //Respuesta
             $detalle->update($datos);
@@ -135,6 +138,7 @@ class DetalleProductoController extends Controller
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],
                     'procesador_id' => $datos['procesador'],
+                    'imei' => $datos['imei'],
                 ]);
                 DB::commit();
             }

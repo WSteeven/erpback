@@ -14,11 +14,21 @@ class SucursalResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo =  [
             'id' => $this->id,
             'lugar' => $this->lugar,
             'telefono' => $this->telefono,
             'correo' => $this->correo,
+            'administrador' => $this->administrador->empleado->nombres.' '.$this->administrador->empleado->apellidos,
+            'administrador_id'=>$this->administrador_id,
         ];
+
+        if($controller_method=='show'){
+            $modelo['administrador'] = $this->administrador_id;
+        }
+
+        return $modelo;
     }
 }

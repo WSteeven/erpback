@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Pedido;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+
 use Src\Shared\Utils;
 
 class PedidoController extends Controller
@@ -31,10 +34,12 @@ class PedidoController extends Controller
         $estado = $request['estado'];
         $results = [];
 
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+        if (auth()->user()->hasRole(User::ROL_BODEGA)&& !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {//para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
-        } else {
+        } else if(auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)){
+            $results = Pedido::filtrarPedidosActivosFijos($estado);
+        }else{
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
         }
@@ -55,6 +60,7 @@ class PedidoController extends Controller
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
@@ -70,12 +76,16 @@ class PedidoController extends Controller
                 $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
+
+            event(new PedidoEvent('Pedido registrado!', $pedido));
+            Log::channel('testing')->info('Log', ['Paso la linea de crear el evento ']);
+
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -95,6 +105,7 @@ class PedidoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
@@ -127,5 +138,50 @@ class PedidoController extends Controller
         $modelo = new PedidoResource($pedido);
 
         return response()->json(compact('modelo'), 200);
+    }
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(Pedido $pedido){
+        $resource = new PedidoResource($pedido);
+        // Log::channel('testing')->info('Log', ['pedido es', $pedido]);
+        // Log::channel('testing')->info('Log', ['pedido es', $resource]);
+        // Log::channel('testing')->info('Log', ['pedido es', $modelo]);
+        // $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
+        // $dompdf= new Dompdf();
+        // $dompdf->setPaper('A4', 'landscape');
+        // $dompdf->loadHtmlFile('pedidos.pedido', $resource->resolve());
+        // $dompdf->render();
+        // $dompdf->stream();
+
+        try{
+        $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
+        $pdf->setPaper('A5', 'landscape');
+        $pdf->render();
+        $file =$pdf->output();//SE GENERA EL PDF
+        $filename = "pedido_".$resource->id."_".time().".pdf";
+
+        $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'pedidos'.DIRECTORY_SEPARATOR.$filename;
+
+        // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
+        Log::channel('testing')->info('Log', ['El pedido es', $resource]);
+        // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
+        return $file;
+    }catch(Exception $ex){
+        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
+    }
+
+    public function mostrar(Pedido $pedido){
+        $resource = new PedidoResource($pedido);
+
+        return view('pedidos.pedido', [$resource->resolve(),'usuario'=>auth()->user()->empleado]);
+    }
+
+
+    //retorna un qr
+    public function qrview(){
+        return view('qrcode');
     }
 }

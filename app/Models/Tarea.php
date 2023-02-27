@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Support\Facades\Auth;
 
 class Tarea extends Model implements Auditable
 {
@@ -17,20 +18,20 @@ class Tarea extends Model implements Auditable
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
 
+    const CORREO = 'CORREO';
+    const LLAMADA = 'LLAMADA';
+    const CHAT = 'CHAT';
+
     protected $table = 'tareas';
     protected $fillable = [
         'codigo_tarea',
         'codigo_tarea_cliente',
         'fecha_solicitud',
         'titulo',
-        'detalle',
-        'estado',
-        'destino',
-        'observacion',
-        'tiene_subtareas',
+        'para_cliente_proyecto',
         'proyecto_id',
         'coordinador_id',
-        'supervisor_id',
+        'fiscalizador_id',
         'cliente_id',
         'cliente_final_id',
     ];
@@ -52,9 +53,9 @@ class Tarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function supervisor()
+    public function fiscalizador()
     {
-        return $this->belongsTo(Empleado::class, 'supervisor_id', 'id');
+        return $this->belongsTo(Empleado::class, 'fiscalizador_id', 'id');
     }
 
     // Relacion uno a muchos (inversa)
@@ -109,9 +110,14 @@ class Tarea extends Model implements Auditable
         return $this->belongsTo(ClienteFinal::class);
     }
 
-    public function subtareas()
+    /*public function subtareas()
     {
         return $this->hasMany(Subtarea::class);
+    }*/
+
+    public function trabajos()
+    {
+        return $this->hasMany(Trabajo::class);
     }
 
     public function esPrimeraAsignacion($subtarea_id)
@@ -128,5 +134,13 @@ class Tarea extends Model implements Auditable
     public function pedidos()
     {
         return $this->hasMany(Pedido::class);
+    }
+
+    /*********
+     * Scopes
+     *********/
+    public function scopePorCoordinador($query)
+    {
+        return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
 }

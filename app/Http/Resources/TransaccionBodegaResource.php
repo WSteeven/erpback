@@ -31,7 +31,11 @@ class TransaccionBodegaResource extends JsonResource
             'estado' => $this->estado->nombre,
             'observacion_est' =>  $this->observacion_est,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
-            'devolucion' => $this->devolucion_id,
+            'devolucion' => $this->devolucion?->justificacion,
+            'pedido' => $this->pedido?->justificacion,
+            'responsable'=>$this->responsable?$this->responsable->nombres . ' ' . $this->responsable->apellidos : null,
+            'responsable_id'=>$this->responsable_id,
+            'transferencia' => $this->transferencia?->justificacion,
             'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
@@ -41,7 +45,7 @@ class TransaccionBodegaResource extends JsonResource
             'per_atiende' => is_null($this->atiende) ? '' : $this->atiende->nombres . ' ' . $this->atiende->apellidos,
             'per_retira'=>is_null($this->retira)?'':$this->retira->nombres . ' ' . $this->retira->apellidos,
             'per_retira_id'=>$this->retira?->id,
-            'tarea' => $this->tarea ? $this->tarea->detalle : null,
+            'tarea' => $this->tarea ? $this->tarea->titulo : null,
             'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'cliente_id' => $this->cliente_id,
             'listadoProductosTransaccion' => $detalles,
@@ -53,13 +57,17 @@ class TransaccionBodegaResource extends JsonResource
             // 'retira_tercero'=>$this->tarea?true:false,
             'es_tarea'=>$this->tarea?true:false,
             'es_transferencia'=>$this->transferencia_id?true:false,
+            'tiene_pedido'=>$this->pedido_id?true:false,
         ];
 
         if ($controller_method == 'show') {
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['estado'] = $this->estado_id;
             $modelo['solicitante'] = $this->solicitante_id;
-            // $modelo['solicitante_id'] = $this->solicitante_id;
+            $modelo['devolucion'] = $this->devolucion_id;
+            $modelo['pedido'] = $this->pedido_id;
+            $modelo['responsable'] = $this->responsable_id;
+            $modelo['transferencia'] = $this->transferencia_id;
             $modelo['tipo'] = $this->tipo_id;
             $modelo['motivo'] = $this->motivo_id;
             $modelo['tarea'] = $this->tarea_id;

@@ -5,18 +5,17 @@ use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\MovimientoProductoController;
-use App\Http\Controllers\SubtipoTransaccionController;
 use App\Http\Controllers\EstadoTransaccionController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\TransaccionBodegaController;
-use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\ProductoEnPerchaController;
-use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\DetalleProductoController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TipoTransaccionController;
+use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\ImagenProductoController;
 use App\Http\Controllers\CodigoClienteController;
+use App\Http\Controllers\UnidadMedidaController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\ValidarCedulaController;
 use App\Http\Controllers\TransferenciaController;
@@ -27,6 +26,8 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
+use App\Http\Controllers\ArchivoTrabajoController;
+use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\PermisoRolController;
@@ -51,26 +52,20 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
-use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
-use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
+use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
-use App\Http\Controllers\TrabajoAsignadoController;
-use App\Http\Controllers\UnidadMedidaController;
-use App\Http\Controllers\FondosRotativos\TipoFondoController;
-use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
-use App\Http\Controllers\FondosRotativos\Viatico\SubDetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
+use App\Http\Controllers\TrabajoController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -123,6 +118,7 @@ Route::apiResources(
     [
         'activos-fijos' => ActivoFijoController::class,
         'autorizaciones' => AutorizacionController::class,
+        'cargos' => CargoController::class,
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
@@ -142,9 +138,9 @@ Route::apiResources(
         'modelos' => ModeloController::class,
         'movimientos-productos' => MovimientoProductoController::class,
         'motivos' => MotivoController::class,
+        'notificaciones' => NotificacionController::class,
         'pedidos' => PedidoController::class,
         'procesadores' => ProcesadorController::class,
-        'prestamos' => PrestamoTemporalController::class,
         'productos' => ProductoController::class,
         'productos-perchas' => ProductoEnPerchaController::class,
         'perchas' => PerchaController::class,
@@ -158,7 +154,6 @@ Route::apiResources(
         'spans' => SpanController::class,
         'tipos-fibras' => TipoFibraController::class,
         'tipos-transacciones' => TipoTransaccionController::class,
-        'subtipos-transacciones' => SubtipoTransaccionController::class,
         'transacciones' => TransaccionBodegaController::class,
         'transacciones-ingresos' => TransaccionBodegaIngresoController::class,
         'transacciones-egresos' => TransaccionBodegaEgresoController::class,
@@ -168,13 +163,14 @@ Route::apiResources(
         'unidades-medidas' => UnidadMedidaController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
+        'trabajos' => TrabajoController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
         'clientes-finales' => ClienteFinalController::class,
         'proyectos' => ProyectoController::class,
-        'archivos-subtareas' => ArchivoSubtareaController::class,
+        'archivos-trabajos' => ArchivoTrabajoController::class,
         'registros-tendidos' => RegistroTendidoController::class,
         'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
         'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
@@ -194,12 +190,12 @@ Route::apiResources(
             'detalles-productos-transacciones' => 'detalle',
             'imagenesproductos' => 'imagenproducto',
             'movimientos-productos' => 'movimiento',
+            'notificaciones' => 'notificacion',
             'procesadores' => 'procesador',
             'proveedores' => 'proveedor',
             'productos-perchas' => 'producto_en_percha',
             'sucursales' => 'sucursal',
             'tipos-transacciones' => 'tipo_transaccion',
-            'subtipos-transacciones' => 'subtipo_transaccion',
             'transacciones' => 'transaccion',
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
@@ -208,7 +204,7 @@ Route::apiResources(
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',
-            'archivos-subtareas' => 'archivo-subtarea',
+            'archivos-trabajos' => 'archivo-trabajo',
             'unidades-medidas' => 'unidad',
             'registros-tendidos' => 'registro-tendido'
         ],
@@ -216,7 +212,7 @@ Route::apiResources(
     ]
 );
 
-Route::get('bobinas-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
+Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
 Route::get('materiales-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
 
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
@@ -226,13 +222,23 @@ Route::controller(TransaccionBodegaEgresoController::class)->prefix('transaccion
     Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
     Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
 });
+/**
+ * Rutas para imprimir PDFs
+ */
+Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
+//show-preview
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
+Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
 
-Route::get('prestamos/imprimir/{prestamo}', [PrestamoTemporalController::class, 'print']);
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
@@ -242,16 +248,29 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
 // Estados de las subtareas
-Route::group(['prefix' => 'subtareas'], function () {
+/* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
+    Route::post('finalizar/{subtarea}', [SubtareaController::class, 'finalizar']);
     Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
     Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
-})->middleware('auth:sanctum');
+}); */
+
+Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
+    Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
+    Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);
+    Route::post('realizar/{trabajo}', [TrabajoController::class, 'realizar']);
+    Route::post('finalizar/{trabajo}', [TrabajoController::class, 'finalizar']);
+    Route::post('pausar/{trabajo}', [TrabajoController::class, 'pausar']);
+    Route::post('reanudar/{trabajo}', [TrabajoController::class, 'reanudar']);
+    Route::post('suspender/{trabajo}', [TrabajoController::class, 'suspender']);
+    Route::post('cancelar/{trabajo}', [TrabajoController::class, 'cancelar']);
+    Route::get('pausas/{trabajo}', [TrabajoController::class, 'obtenerPausas']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas
@@ -274,11 +293,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::apiResource('tendidos', TendidoController::class)->except('show');
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
+// Emergencias
+Route::apiResource('emergencias', EmergenciaController::class);
+
 // Reportes de material
-Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');;
-
-
-
-//fondos-rotativos/reporte/fecha/pdf
-
-
+Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');

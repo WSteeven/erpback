@@ -6,7 +6,6 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -24,6 +23,7 @@ class Pedido extends Model implements Auditable
         'observacion_aut',
         'observacion_est',
         'solicitante_id',
+        'responsable_id',
         'autorizacion_id',
         'per_autoriza_id',
         'tarea_id',
@@ -83,6 +83,15 @@ class Pedido extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos tienen un responsable
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+
+    /**
+     * Relacion uno a muchos (inversa).
      * Uno o varios pedidos son autorizados por una persona
      */
     public function autoriza()
@@ -106,6 +115,15 @@ class Pedido extends Model implements Auditable
     public function estado()
     {
         return $this->belongsTo(EstadoTransaccion::class);
+    }
+
+    /**
+     * Relación uno a muchos.
+     * Un pedido esta en varias trasacciones.
+     */
+    public function transacciones()
+    {
+        return $this->hasMany(TransaccionBodega::class);
     }
 
     /**
@@ -144,9 +162,16 @@ class Pedido extends Model implements Auditable
     public static function filtrarPedidosEmpleado($estado)
     {
         $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)
+            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)
+                ->where(function ($query) {
+                    $query->where('solicitante_id',  auth()->user()->empleado->id)
+                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                })->get();
+        } elseif ($estado === $estadoTransaccion->nombre) {
+            $results = Pedido::where('estado_id', $estadoTransaccion->id)
                 ->where(function ($query) {
                     $query->where('solicitante_id',  auth()->user()->empleado->id)
                         ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
@@ -155,7 +180,7 @@ class Pedido extends Model implements Auditable
         return $results;
     }
 
-    
+
     /**
      * Filtrar todos los pedidos para el bodeguero, de acuerdo al estado de una autorizacion.
      * @param string $estado
@@ -169,12 +194,43 @@ class Pedido extends Model implements Auditable
         if ($autorizacion) {
             $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
             return $results;
-        } elseif ($estado ===$estadoTransaccion->nombre) {
+        } elseif ($estado === $estadoTransaccion->nombre) {
             $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
             return $results;
         } else {
             $results = Pedido::all();
             return $results;
+        }
+    }
+
+    /**
+     * Filtrar todos los pedidos para el de activos fijos de acuerdo al estado de una autorizacion
+     */
+    public static function filtrarPedidosActivosFijos($estado)
+    {
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $results = [];
+        if ($estado === EstadoTransaccion::PENDIENTE) {
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)
+                    ->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                    })->get();
+            }
+            return $results;
+        } else {
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+                return $results;
+            } elseif ($estado === $estadoTransaccion->nombre) {
+                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+                return $results;
+            } else {
+                $results = Pedido::all();
+                return $results;
+            }
         }
     }
 }

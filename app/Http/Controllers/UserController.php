@@ -16,11 +16,16 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
+
 class UserController extends Controller
 {
     public function index()
     {
-        return response()->json(['modelo' => UserResource::collection(User::all()->except(1))]);
+        $results = User::where('id', '<>', 1)->orderBy('id', 'asc')->get();
+        Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
+
+        return response()->json(['modelo' => UserResource::collection($results)]);
     }
     public function listaUsuarios()
     {

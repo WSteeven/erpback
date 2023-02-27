@@ -15,8 +15,10 @@ return new class extends Migration
     {
         Schema::create('grupo_empleado', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('grupo_id');
             $table->boolean('disponible');
+
+            $table->unsignedBigInteger('grupo_id');
+            $table->foreign('grupo_id')->references('id')->on('grupos');
             
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');

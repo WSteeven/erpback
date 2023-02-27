@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class Devolucion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
 
     public $table = 'devoluciones';
     public $fillable = [
@@ -71,7 +73,7 @@ class Devolucion extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
-     * Una o varias devoluciones pertenece a un solicitante 
+     * Una o varias devoluciones pertenece a un solicitante
      */
     public function solicitante()
     {

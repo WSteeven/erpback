@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Transferencia;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -35,8 +36,8 @@ class TransferenciaRequest extends FormRequest
             'per_autoriza' => 'required|exists:empleados,id',
             'recibida' => 'sometimes|boolean',
             'estado' => ['required', Rule::in([Transferencia::PENDIENTE, Transferencia::TRANSITO, Transferencia::COMPLETADO])],
-            'observacion_aut' => 'sometimes|string',
-            'observacion_est' => 'sometimes|string',
+            'observacion_aut' => 'sometimes|string|nullable',
+            'observacion_est' => 'sometimes|string|nullable',
             'listadoProductos.*.cantidades' => 'required',
         ];
 
@@ -64,12 +65,13 @@ class TransferenciaRequest extends FormRequest
     } */
     public function prepareForValidation()
     {
+        $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
         if (!in_array($this->method(), ['PUT', 'PATCH'])) {
             $this->merge([
                 'autorizacion' => 1, //pendiente
                 'solicitante' => auth()->user()->empleado->id,
                 'estado' => Transferencia::PENDIENTE,
-                'per_autoriza' => 11, //autoriza el de activos fijos
+                'per_autoriza' => $user_activo_fijo->empleado->id //autoriza el de activos fijos
 
             ]);
         }
@@ -81,6 +83,16 @@ class TransferenciaRequest extends FormRequest
                     'estado' => Transferencia::TRANSITO
                 ]);
             }
+        }
+        if(is_null($this->observacion_aut)||$this->observacion_aut===''){
+            $this->merge([
+                'observacion_aut' => 'SIN NOVEDADES'
+            ]);
+        }
+        if(is_null($this->observacion_est)||$this->observacion_est===''){
+            $this->merge([
+                'observacion_est' => 'OK'
+            ]);
         }
     }
 }

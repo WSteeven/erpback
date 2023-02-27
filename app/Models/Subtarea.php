@@ -15,14 +15,13 @@ class Subtarea extends Model implements Auditable
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
     const CREADO = 'CREADO';
-
     const ASIGNADO = 'ASIGNADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
-
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';
+    const FINALIZADO = 'FINALIZADO';
 
     // Modo de asignacion de trabajo
     const POR_GRUPO = 'POR_GRUPO';
@@ -45,9 +44,9 @@ class Subtarea extends Model implements Auditable
         'es_dependiente',
         'subtarea_dependiente',
         'es_ventana',
-        'fecha_ventana',
-        'hora_inicio_ventana',
-        'hora_fin_ventana',
+        'fecha_agendado',
+        'hora_inicio_agendado',
+        'hora_fin_agendado',
         'estado',
         'modo_asignacion_trabajo',
         'grupo_id',

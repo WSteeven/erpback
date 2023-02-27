@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
+use App\Http\Resources\UserResource;
 use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\User;
@@ -12,9 +13,9 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
+use Illuminate\Validation\ValidationException;
 
 class EmpleadoController extends Controller
 {
@@ -24,33 +25,33 @@ class EmpleadoController extends Controller
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
-        /*$this->middleware('can:puede.ver.empleados')->only('index', 'show');
+        $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
         $this->middleware('can:puede.editar.empleados')->only('update');
-        $this->middleware('can:puede.eliminar.empleados')->only('destroy');*/
+        $this->middleware('can:puede.eliminar.empleados')->only('destroy');
     }
 
     public function list()
     {
         // Obtener parametros
-        $page = request('page');
-        $offset = request('offset');
+        // $page = request('page');
+        // $offset = request('offset');
         $rol = request('rol');
         $search = request('search');
         $campos = explode(',', request('campos'));
-        
+
         $user = User::find(auth()->id());
 
         if ($user->hasRole(User::ROL_RECURSOS_HUMANOS)) {
-            if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
+            // if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
-        
+
         // return $this->servicio->obtenerTodosSinEstado();
-        
+
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-        if ($page) return $this->servicio->obtenerPaginacion($offset);
+        // if ($page) return $this->servicio->obtenerPaginacion($offset);
         if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
         return $this->servicio->obtenerTodos();
@@ -70,12 +71,13 @@ class EmpleadoController extends Controller
      */
     public function store(EmpleadoRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
+        Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
 
         // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
@@ -95,8 +97,13 @@ class EmpleadoController extends Controller
                 'telefono' => $datos['telefono'],
                 'fecha_nacimiento' => new DateTime($datos['fecha_nacimiento']),
                 'jefe_id' => $datos['jefe_id'],
-                'sucursal_id' => $datos['sucursal_id']
+                'canton_id' => $datos['canton_id'],
+                'cargo_id' => $datos['cargo_id'],
+                'grupo_id' => $datos['grupo_id']
             ]);
+
+            //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
+            //$grupo = Grupo::find($datos['grupo_id']);
 
             DB::commit();
         } catch (Exception $e) {
@@ -105,9 +112,27 @@ class EmpleadoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
 
+        $modelo = new EmpleadoResource($user->empleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(compact('mensaje'));
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function existeResponsableGrupo(Request $request)
+    {
+        $request->validate([
+            'grupo_id' => 'required|numeric|integer',
+        ]);
+
+        $responsableActualGrupo = Empleado::where('grupo_id', $request['grupo_id'])->where('es_responsable_grupo', true)->first();
+
+        if ($responsableActualGrupo) {
+            throw ValidationException::withMessages([
+                'responsable_grupo' => ['Ya existe un empleado designado como responsable del grupo. ¿Desea reemplazarlo por el empleado actual?'],
+            ]);
+        }
+
+        return response()->isOk();
     }
 
     /**
@@ -126,8 +151,13 @@ class EmpleadoController extends Controller
     {
         // Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
+        $datos = $request->validated();
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
+        $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
+        $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
-        $empleado->update($request->validated());
+        $empleado->update($datos);
 
         if (!is_null($request->password)) {
             // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
@@ -171,7 +201,7 @@ class EmpleadoController extends Controller
 
     public function intercambiarJefeCuadrilla(Request $request)
     {
-        $request->validate([
+        /*$request->validate([
             'grupo' => 'required|numeric|integer',
             'nuevo_jefe' => 'required|numeric|integer',
         ]);
@@ -182,6 +212,9 @@ class EmpleadoController extends Controller
 
         // Buscar lider de cuadrilla actual
         foreach ($empleados as $empleado) {
+            $esTecnico = $empleado->user->hasRole(User::ROL_TECNICO);
+            $empleado->cargo = $empleado;
+
             $es_lider = in_array(User::ROL_TECNICO_JEFE_CUADRILLA, $empleado->user->getRoleNames()->toArray()); //()->with(User::ROL_TECNICO_JEFE_CUADRILLA)->first();
 
             if ($es_lider) $jefeActual = $empleado->user;
@@ -210,12 +243,12 @@ class EmpleadoController extends Controller
         $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_JEFE_CUADRILLA);
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
 
-        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
+        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);*/
     }
 
     public function intercambiarSecretarioCuadrilla(Request $request)
     {
-        $request->validate([
+        /* $request->validate([
             'grupo' => 'required|numeric|integer',
             'nuevo_jefe' => 'required|numeric|integer',
         ]);
@@ -234,7 +267,7 @@ class EmpleadoController extends Controller
 
         Log::channel('testing')->info('Log', ['Grupo empleado ', Empleado::find($request['nuevo_jefe'])->grupo_id]);
         Log::channel('testing')->info('Log', ['Grupo asignado ', $request['grupo']]);
-        
+
         // Validar que el empleado pertenezca al grupo seleccionado
         if (Empleado::find($request['nuevo_jefe'])->grupo_id !== $request['grupo']) {
             throw ValidationException::withMessages([
@@ -257,6 +290,6 @@ class EmpleadoController extends Controller
         $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_SECRETARIO);
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
 
-        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']);
+        return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Tarea;
 use App\Models\UbicacionTarea;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -22,12 +23,18 @@ class TareaController extends Controller
     public function index(Request $request)
     {
         $campos = explode(',', $request['campos']);
+        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
+        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
 
         if ($request['campos']) {
-            $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
+            if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
+            if ($esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
         } else {
-            $results = TareaResource::collection(Tarea::filter()->get());
+            if (!$esCoordinador) $results = Tarea::filter()->get();
+            if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
         }
+
+        TareaResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -42,8 +49,8 @@ class TareaController extends Controller
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
-        $datos['coordinador_id'] = Auth::id();
+        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+        $datos['coordinador_id'] = Auth::user()->empleado->id;
         $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
 
         $modelo = Tarea::create($datos);
@@ -80,8 +87,8 @@ class TareaController extends Controller
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
-        $datos['coordinador_id'] = Auth::id();
+        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+        // $datos['coordinador_id'] = Auth::id();
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
 
         unset($datos['codigo_tarea']);

@@ -6,12 +6,18 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\MaterialGrupoTarea;
+use App\Models\Motivo;
+use App\Models\TipoTransaccion;
+use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,13 +45,18 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     } */
 
-    // Obtener materiales para tarea grupo
+    // Obtener materiales de tipo bobina desgnadas a un empleado, para tarea.
     public function obtenerBobinas(Request $request)
     {
-        $tarea = $request['tarea'];
-        $grupo = $request['grupo'];
+        $request->validate([
+            'trabajo_id' => 'required|numeric|integer',
+        ]);
 
-        $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
+        $empleado_id = Auth::user()->empleado_id;
+
+        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
+        // $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
@@ -66,7 +77,7 @@ class TransaccionBodegaEgresoController extends Controller
         $tarea = $request['tarea'];
         $grupo = $request['grupo'];
 
-        $results = MaterialGrupoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = collect($results)->map(fn ($items) => [
             'detalle_producto_id' => intval($items->detalle_producto_id),
             'stock_actual' => intval($items->cantidad_stock),
@@ -106,9 +117,12 @@ class TransaccionBodegaEgresoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
-            $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($estado);
+            // $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($estado);
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -120,6 +134,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function store(TransaccionBodegaRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Estamos en el store de transaccionbodegaegresocontroller']);
         Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
         try {
             $datos = $request->validated();
@@ -135,6 +150,8 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
+            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
             if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
@@ -152,15 +169,15 @@ class TransaccionBodegaEgresoController extends Controller
                 // $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
                 $itemInventario = Inventario::find($listado['id']);
                 $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
-                //actualizamos la cantidad en inventario
-                $itemInventario->cantidad -=$listado['cantidad'];
+                // Actualizamos la cantidad en inventario
+                $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            if($transaccion->pedido_id){
-                TransaccionBodega::actualizarPedido($transaccion);
+            if ($transaccion->pedido_id) {
+                TransaccionBodega::actualizarPedido($transaccion); //detalle_poructo_transaccion where transaccion_id = 1 / observer detelle_pedido_producto_observer
             }
-            // TransaccionBodega::functon
 
+            // TransaccionBodega::functon
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
             $modelo = new TransaccionBodegaResource($transaccion);
@@ -192,12 +209,12 @@ class TransaccionBodegaEgresoController extends Controller
         $datos = $request->validated();
         !is_null($request->pedido) ?? $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
         if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
-        if($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
+        if ($request->motivo) $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
-        if($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
+        if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
@@ -275,6 +292,29 @@ class TransaccionBodegaEgresoController extends Controller
         $modelo = new TransaccionBodegaResource($transaccion);
 
         return response()->json(compact('modelo'), 200);
+    }
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(TransaccionBodega $transaccion)
+    {
+        Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
+        $resource = new TransaccionBodegaResource($transaccion);
+        Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
+        $persona_retira = Empleado::find($transaccion->per_retira_id);
+        try {
+            $pdf = Pdf::loadView('egresos.egreso', $resource->resolve(), $persona_retira->toArray());
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->render();
+            $file = $pdf->output();
+            $filename = 'egreso_' . $resource->id . '_' . time() . '.pdf';
+            $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'egresos' . DIRECTORY_SEPARATOR . $filename;
+            // file_put_contents($ruta, $file); //en caso de que se quiera guardar el documento en el backend
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
     }
 
     public function obtenerTransaccionPorTarea(int $tarea_id)

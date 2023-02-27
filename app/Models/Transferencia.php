@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 class Transferencia extends Model implements Auditable
 {
     use HasFactory;
+    use UppercaseValuesTrait;
     use AuditableModel;
     use Filterable;
 

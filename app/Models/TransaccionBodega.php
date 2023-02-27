@@ -3,16 +3,13 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
-use DragonCode\Contracts\Cashier\Config\Payments\Statuses;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Termwind\Components\Raw;
 
 class TransaccionBodega extends Model implements Auditable
 {
@@ -28,6 +25,7 @@ class TransaccionBodega extends Model implements Auditable
         'observacion_aut',
         'observacion_est',
         'solicitante_id',
+        'responsable_id',
         'motivo_id',
         'devolucion_id',
         'pedido_id',
@@ -180,6 +178,30 @@ class TransaccionBodega extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a un pedido.
+     */
+    public function pedido()
+    {
+        return $this->belongsTo(Pedido::class);
+    }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a una devolución.
+     */
+    public function devolucion()
+    {
+        return $this->belongsTo(Devolucion::class);
+    }
+    /**
+     * Relación uno a muchos (inversa).
+     * Una o varias transacciones pertenecen a una transferencia.
+     */
+    public function transferencia()
+    {
+        return $this->belongsTo(Transferencia::class);
+    }
 
 
     /**
@@ -257,15 +279,42 @@ class TransaccionBodega extends Model implements Auditable
     {
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
-            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $itemInventario = Inventario::find($detalle['inventario_id']);
                 Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido->despachado]);
-                $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
-                $detallePedido->save();
+                $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
+                $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
+
+                if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                    // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
+                    $material = MaterialGrupoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
+                        ->where('tarea_id', $pedido->tarea_id)
+                        ->where('responsable_id', $pedido->responsable)
+                        ->first();
+
+                    // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
+                        MaterialGrupoTarea::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'tarea_id' => $pedido->tarea_id,
+                            'empleado_id' => $pedido->responsable_id,
+                            'detalle_producto_id' => $detallePedido->detalle_id,
+                            'es_fibra' => false, // Pendiente de obtener
+                        ]);
+
+                        //consulta de fibras
+                        $ids_fibras = Fibra::all('id');
+                        DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->get();
+                    }
+                }
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);

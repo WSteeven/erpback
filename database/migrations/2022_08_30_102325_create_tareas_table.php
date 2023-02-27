@@ -19,13 +19,14 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_tarea');
             $table->string('codigo_tarea_cliente')->nullable();
-            $table->string('titulo');
-            $table->string('detalle');
             $table->string('fecha_solicitud')->nullable();
-            $table->enum('destino', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
-            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
-            $table->text('observacion')->nullable();
-            $table->boolean('tiene_subtareas');
+            $table->string('titulo');
+            // $table->string('detalle');
+            $table->enum('para_cliente_proyecto', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
+            $table->enum('medio_notificacion', [Tarea::CORREO, Tarea::LLAMADA, Tarea::CHAT]);
+            // $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
+            //$table->text('observacion')->nullable();
+            //$table->boolean('tiene_subtareas');
 
             // Foreign keys
             $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principal
@@ -34,8 +35,8 @@ return new class extends Migration
             $table->unsignedBigInteger('cliente_final_id')->nullable();
             $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('supervisor_id')->nullable();
-            $table->foreign('supervisor_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('fiscalizador_id')->nullable();
+            $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

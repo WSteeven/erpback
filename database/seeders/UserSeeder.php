@@ -40,7 +40,7 @@ class UserSeeder extends Seeder
         $recursos_humanos = User::create([
             'name' => 'LPESANTES',
             'email' => 'manuel@jpconstrucred.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0706297280'),
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
         // Coordinador
         $coordinador_sto_domingo = User::create([
@@ -58,14 +58,14 @@ class UserSeeder extends Seeder
         $bodeguero1 = User::create([
             'name' => 'CALBARRACIN',
             'email' => 'asistentebodega1@jpconstrucred.com',
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0703324319'),
         ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
         // Asistente de bodega 2
         $bodeguero2 = User::create([
             'name' => 'JTORRES',
             'email' => 'asistentebodega2@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
+            'password' => bcrypt('0705191054'),
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_BODEGA);
         // Jefe tecnico
         $jveintimilla = User::create([
@@ -73,7 +73,6 @@ class UserSeeder extends Seeder
             'email' => 'jveintimilla@jpconstrucred.com',
             'password' => bcrypt('password'),
         ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO);
-
 
 
         //Localidad
@@ -87,7 +86,6 @@ class UserSeeder extends Seeder
         $admin->empleado()->create([
             'nombres' => 'Superusuario',
             'apellidos' => 'Administrador',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
 
@@ -98,7 +96,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456748',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $jveintimilla->empleado()->create([
@@ -108,7 +105,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987459218',
             'fecha_nacimiento' => '2011-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $coordinador->empleado()->create([
@@ -118,7 +114,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $recursos_humanos->empleado()->create([
@@ -128,7 +123,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456747',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $coordinador_sto_domingo->empleado()->create([
@@ -138,7 +132,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456741',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_sto_domingo->id
         ]);
 
         $coordinador_telconet->empleado()->create([
@@ -148,7 +141,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456785',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $bodeguero1->empleado()->create([
@@ -158,7 +150,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456112',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         $bodeguero2->empleado()->create([
@@ -168,7 +159,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456965',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Departamento de compras
@@ -185,7 +175,6 @@ class UserSeeder extends Seeder
             'telefono' => '0984568596',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Personal administrativo
@@ -202,7 +191,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987456235',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '5',
-            'sucursal_id' => $localidad_guayaquil->id
         ]);
 
 
@@ -211,8 +199,8 @@ class UserSeeder extends Seeder
             'name' => 'PAGUILAR',
             'email' => 'pedro@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_AUTORIZADOR]);
+            'password' => bcrypt('0706751393'),
+        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO]);
         $activos_fijos->empleado()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'AGUILAR',
@@ -220,7 +208,6 @@ class UserSeeder extends Seeder
             'telefono' => '0989857463',
             'fecha_nacimiento' => '1993-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
         ]);
 
         // Contabilidad
@@ -236,7 +223,20 @@ class UserSeeder extends Seeder
             'telefono' => '0987457845',
             'fecha_nacimiento' => '2000-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id
+        ]);
+
+        $sso = User::create([
+            'name'=>'ASERRANO',
+            'email'=>'aserrano@jpconstrucred.com',
+            'password'=>bcrypt('password'),
+        ])->syncRoles([User::ROL_EMPLEADO, User::ROL_SSO]);
+        $sso->empleado()->create([
+            'nombres' => 'ARNALDO JOSE',
+            'apellidos' => 'SERRANO COELLO',
+            'identificacion' => '0703517029',
+            'telefono' => '0982984348',
+            'fecha_nacimiento' => '1978-08-06',
+            'jefe_id' => '2',
         ]);
 
         /** TECNICOS */
@@ -246,7 +246,7 @@ class UserSeeder extends Seeder
             'email' => 'jpilay@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_JEFE_CUADRILLA, User::ROL_TECNICO_CABLISTA);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO, User::ROL_TECNICO_LIDER_DE_GRUPO);
         $tecnico->empleado()->create([
             'nombres' => 'JAIME LEONEL',
             'apellidos' => 'PILAY PEÑAFIEL',
@@ -254,8 +254,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
+            'cargo_id' => 5,
         ]);
 
         $tecnico = User::create([
@@ -263,16 +263,16 @@ class UserSeeder extends Seeder
             'email' => 'atigua@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'ALEXANDER LORENZO',
             'apellidos' => 'TIGUA PILLASAGUA',
-            'identificacion' => '0707474236',
+            'identificacion' => '1315288645',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2010-05-12',
             'jefe_id' => '6',
-            'sucursal_id' => $localidad_machala->id,
             'grupo_id' => 1,
+            'cargo_id' => 6,
         ]);
 
         $tecnico = User::create([
@@ -280,7 +280,7 @@ class UserSeeder extends Seeder
             'email' => 'cfernandez@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_JEFE_CUADRILLA);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'CARLOS',
             'apellidos' => 'FERNANDEZ',
@@ -288,8 +288,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456331',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 3,
+            'cargo_id' => 5,
         ]);
 
         $tecnico = User::create([
@@ -297,7 +297,7 @@ class UserSeeder extends Seeder
             'email' => 'osanchez@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_JEFE_CUADRILLA);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'OSCAR OMAR',
             'apellidos' => 'SANCHEZ QUIROZ',
@@ -305,8 +305,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 2,
+            'cargo_id' => 5,
         ]);
 
         $tecnico = User::create([
@@ -314,7 +314,7 @@ class UserSeeder extends Seeder
             'email' => 'bjuarez@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_AYUDANTE);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'BENITO',
             'apellidos' => 'JUAREZ',
@@ -322,8 +322,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456333',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
+            'cargo_id' => 8,
         ]);
 
         $tecnico = User::create([
@@ -331,7 +331,7 @@ class UserSeeder extends Seeder
             'email' => 'rsanchez@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_CHOFER);
+        ])->syncRoles(User::ROL_EMPLEADO);
         $tecnico->empleado()->create([
             'nombres' => 'RICK',
             'apellidos' => 'SANCHEZ',
@@ -339,8 +339,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 1,
+            'cargo_id' => 10,
         ]);
 
         $tecnico = User::create([
@@ -348,7 +348,7 @@ class UserSeeder extends Seeder
             'email' => 'larmijos@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'LEONARLO',
             'apellidos' => 'ARMIJOS',
@@ -356,8 +356,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456333',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 2,
+            'cargo_id' => 6,
         ]);
 
         $tecnico = User::create([
@@ -365,7 +365,7 @@ class UserSeeder extends Seeder
             'email' => 'pcarrion@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO_SECRETARIO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
         $tecnico->empleado()->create([
             'nombres' => 'POLO',
             'apellidos' => 'CARRIÓN',
@@ -373,8 +373,8 @@ class UserSeeder extends Seeder
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
             'jefe_id' => '3',
-            'sucursal_id' => $localidad_cuenca->id,
             'grupo_id' => 3,
+            'cargo_id' => 6,
         ]);
 
         /**
@@ -396,7 +396,6 @@ class UserSeeder extends Seeder
             'telefono' => '0987498564',
             'fecha_nacimiento' => '2000-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
         ]);
 
         $tecnico = User::create([
@@ -404,16 +403,16 @@ class UserSeeder extends Seeder
             'email' => 'wcordova@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO, User::ROL_COORDINADOR);
         $tecnico->empleado()->create([
             'nombres' => 'WILSON',
             'apellidos' => 'CORDOVA',
             'identificacion' => '0750360919',
             'telefono' => '0992200572',
             'fecha_nacimiento' => '1997-06-29',
-            'jefe_id' => '21',
-            'sucursal_id' => $localidad_machala->id,
+            'jefe_id' => '2',
         ]);
+
         $tecnico = User::create([
             'name' => 'JCUESTA',
             'email' => 'jcuesta@jpconstrucred.com',
@@ -426,8 +425,22 @@ class UserSeeder extends Seeder
             'identificacion' => '0705570679',
             'telefono' => '0998474965',
             'fecha_nacimiento' => '1996-05-12',
-            'jefe_id' => '21',
-            'sucursal_id' => $localidad_machala->id,
+            'jefe_id' => '24',
+        ]);
+
+        $tecnico = User::create([
+            'name' => 'HSIMBAÑA',
+            'email' => 'hsimbana@jpconstrucred.com',
+            'email_verified_at' => date("Y-m-d"),
+            'password' => bcrypt('password'),
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
+        $tecnico->empleado()->create([
+            'nombres' => 'HENRY',
+            'apellidos' => 'SIMBAÑA',
+            'identificacion' => '0705570678',
+            'telefono' => '0998474969',
+            'fecha_nacimiento' => '1996-05-12',
+            'jefe_id' => '24',
         ]);
 
         $tecnico = User::create([
@@ -438,12 +451,11 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_FISCALIZADOR);
         $tecnico->empleado()->create([
             'nombres' => 'LEIVER JOAO',
-            'apellidos' => 'VILLEGAS CANAVICHE',
+            'apellidos' => 'CELI GONZALEZ',
             'identificacion' => '0701234568',
             'telefono' => '0998474966',
             'fecha_nacimiento' => '1995-05-12',
             'jefe_id' => '2',
-            'sucursal_id' => $localidad_machala->id,
         ]);
         $autorizador = User::create([
             'name' => 'AARMIJOS',

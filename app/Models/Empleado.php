@@ -22,10 +22,12 @@ class Empleado extends Model implements Auditable
         'telefono',
         'fecha_nacimiento',
         'jefe_id',
-        'sucursal_id',
+        'canton_id',
         'estado',
         'grupo_id',
+        'cargo_id',
         'es_tecnico',
+        // 'es_responsable_grupo',
     ];
 
     private static $whiteListFilter = [
@@ -36,8 +38,9 @@ class Empleado extends Model implements Auditable
         'telefono',
         'fecha_nacimiento',
         'jefe_id',
-        'sucursal_id',
+        'canton_id',
         'grupo_id',
+        'cargo_id',
         'estado',
         'es_tecnico',
     ];
@@ -48,6 +51,7 @@ class Empleado extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'es_responsable_grupo' => 'boolean',
     ];
 
     public function toSearchableArray()
@@ -88,11 +92,11 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relación uno a muchos (inversa).
-     * Uno o más empleados pertenecen a una sucursal.
+     * Uno o más empleados pertenecen a una sede o canton.
      */
-    public function sucursal()
+    public function canton()
     {
-        return $this->belongsTo(Sucursal::class);
+        return $this->belongsTo(Canton::class);
     }
 
     // Relacion uno a uno
@@ -130,7 +134,7 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relacion uno a muchos.
-     * Un empleado con rol BODEGA puede entregar cualquier transaccion 
+     * Un empleado con rol BODEGA puede entregar cualquier transaccion
      */
     public function atendidas()
     {
@@ -139,7 +143,7 @@ class Empleado extends Model implements Auditable
 
     /**
      * Relacion uno a muchos.
-     * Un empleado puede retirar cualquier transaccion asignada 
+     * Un empleado puede retirar cualquier transaccion asignada
      */
     public function retiradas()
     {
@@ -157,11 +161,11 @@ class Empleado extends Model implements Auditable
 
     /* public function subtareas()
     {
-        return $this->belongsToMany(Subtarea::class);
+        return $this->belongsToMany(Subtarea::class);e
     } */
     /**
      * Relacion uno a muchos.
-     * Un empleado BODEGUERO puede registrar muchos movimientos 
+     * Un empleado BODEGUERO puede registrar muchos movimientos
      */
     public function movimientos()
     {
@@ -185,9 +189,18 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(Transferencia::class);
     }
-    
-    public function subtareas()
+
+    public function trabajos()
     {
-        return $this->belongsToMany(Subtarea::class);
+        return $this->belongsToMany(Trabajo::class);
+    }
+
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo un cargo.
+     */
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class);
     }
 }
