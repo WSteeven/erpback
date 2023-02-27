@@ -11,7 +11,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\MaterialGrupoTarea;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\Trabajo;
@@ -56,7 +56,7 @@ class TransaccionBodegaEgresoController extends Controller
         $empleado_id = Auth::user()->empleado_id;
 
         $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
-        // $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        // $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,

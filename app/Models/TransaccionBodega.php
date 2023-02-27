@@ -298,7 +298,7 @@ class TransaccionBodega extends Model implements Auditable
 
                 if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
                     // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
-                    $material = MaterialGrupoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
+                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
                         ->where('tarea_id', $pedido->tarea_id)
                         ->where('responsable_id', $pedido->responsable)
                         ->first();
@@ -309,7 +309,7 @@ class TransaccionBodega extends Model implements Auditable
                         $material->save();
                     } else {
                         // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
-                        MaterialGrupoTarea::create([
+                        MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'tarea_id' => $pedido->tarea_id,
                             'empleado_id' => $pedido->responsable_id,
