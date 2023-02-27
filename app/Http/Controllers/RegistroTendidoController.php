@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RegistroTendidoResource;
 use App\Models\ControlMaterialSubtarea;
-use App\Models\MaterialGrupoTarea;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\RegistroTendido;
 use App\Models\Subtarea;
 use Carbon\Carbon;

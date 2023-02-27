@@ -9,7 +9,7 @@ class Fibra extends Model
 {
     use HasFactory;
     protected $table = 'fibras';
-    protected $fillable=[
+    protected $fillable = [
         'detalle_id',
         'span_id',
         'tipo_fibra_id',
@@ -23,15 +23,17 @@ class Fibra extends Model
      * Relacion uno a uno (inversa).
      * Una fibra es un detalle de producto
      */
-    public function detalle(){
+    public function detalle()
+    {
         return $this->belongsTo(DetalleProducto::class, 'detalle_id');
     }
-    
+
     /**
      * Relacion uno a uno (inversa).
      * Una fibra tiene 1 span
      */
-    public function span(){
+    public function span()
+    {
         return $this->belongsTo(Span::class);
     }
 
@@ -39,7 +41,8 @@ class Fibra extends Model
      * Relacion uno a uno (inversa).
      * Una fibra tiene 1 tipo de fibra
      */
-    public function tipo_fibra(){
+    public function tipo_fibra()
+    {
         return $this->belongsTo(TipoFibra::class);
     }
 
@@ -47,7 +50,8 @@ class Fibra extends Model
      * Relacion uno a uno (inversa).
      * Una fibra tiene 1 hilo
      */
-    public function hilo(){
+    public function hilo()
+    {
         return $this->belongsTo(Hilo::class);
     }
 }

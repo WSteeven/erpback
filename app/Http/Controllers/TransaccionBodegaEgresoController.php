@@ -2,29 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\TransaccionBodegaRequest;
-use App\Http\Resources\TransaccionBodegaResource;
-use App\Models\Autorizacion;
-use App\Models\DetalleProducto;
-use App\Models\Empleado;
-use App\Models\EstadoTransaccion;
-use App\Models\Fibra;
-use App\Models\Inventario;
+// Dependencias
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Src\Shared\Utils;
+use Exception;
+
+// Modelos
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\MaterialGrupoTarea;
-use App\Models\Motivo;
+use App\Models\DetalleProducto;
 use App\Models\TipoTransaccion;
+use App\Models\Inventario;
+use App\Models\Empleado;
+use App\Models\Fibra;
+use App\Models\Motivo;
 use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+
+// Logica
+use App\Http\Resources\TransaccionBodegaResource;
+use App\Http\Requests\TransaccionBodegaRequest;
 use Src\App\TransaccionBodegaEgresoService;
-use Src\Shared\Utils;
 
 class TransaccionBodegaEgresoController extends Controller
 {
@@ -56,7 +58,7 @@ class TransaccionBodegaEgresoController extends Controller
         $empleado_id = Auth::user()->empleado_id;
 
         $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
-        // $results = MaterialGrupoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        // $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,

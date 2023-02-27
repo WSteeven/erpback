@@ -5,7 +5,7 @@ namespace Src\App;
 use App\Http\Resources\SubtareaResource;
 use App\Models\ControlMaterialSubtarea;
 use App\Models\Empleado;
-use App\Models\MaterialGrupoTarea;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +32,7 @@ class ControlMaterialSubtareaService
 
     private function verificarEnStockStore($detalle_id, $cantidad)
     {
-        $material = MaterialGrupoTarea::where('detalle_producto_id', $detalle_id)->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
         if (!$material) throw ValidationException::withMessages([
             'marterial_insuficiente' => ['No existe el material solicitado.'],
         ]);
@@ -44,7 +44,7 @@ class ControlMaterialSubtareaService
 
     private function verificarStockUpdate($detalle_id, $cantidad)
     {
-        $material = MaterialGrupoTarea::where('detalle_producto_id', $detalle_id)->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
         if (!$material) throw ValidationException::withMessages([
             'marterial_insuficiente' => ['No existe el material solicitado.'],
         ]);
@@ -71,14 +71,14 @@ class ControlMaterialSubtareaService
 
     public function restarMaterial($detalle_id, $cantidad)
     {
-        $material = MaterialGrupoTarea::where('detalle_producto_id', $detalle_id)->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
         $material->cantidad_stock -= $cantidad;
         $material->save();
     }
 
     public function sumaMaterialAnterior($detalle_id)
     {
-        $material = MaterialGrupoTarea::where('detalle_producto_id', $detalle_id)->first();
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
         $materialAnterior = ControlMaterialSubtarea::where('detalle_producto_id', $detalle_id)->first();
 
         $material->cantidad_stock += $materialAnterior->cantidad_utilizada;
@@ -88,7 +88,7 @@ class ControlMaterialSubtareaService
     /* public function verificarPropietarioMaterial(array $materiales, $tarea) {
         $grupo = Auth::user()->empleado->grupo_id;
 
-        $materialeAlmacenados = MaterialGrupoTarea::where('grupo_id', $grupo)->where('tarea_id', $tarea)->get();
+        $materialeAlmacenados = MaterialEmpleadoTarea::where('grupo_id', $grupo)->where('tarea_id', $tarea)->get();
 
 
     }*/
