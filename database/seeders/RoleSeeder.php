@@ -146,10 +146,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.hilos'])->assignRole($bodega);
 
         //Inventarios
-        // Permission::firstOrCreate(['name' => 'puede.ver.inventarios'])->syncRoles([$bodega, $contabilidad]);
-        // Permission::firstOrCreate(['name' => 'puede.crear.inventarios'])->assignRole($bodega);
-        // Permission::firstOrCreate(['name' => 'puede.editar.inventarios'])->assignRole($bodega);
-        // Permission::firstOrCreate(['name' => 'puede.eliminar.inventarios'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.ver.inventarios'])->syncRoles([$bodega, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.inventarios'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.editar.inventarios'])->assignRole($bodega);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.inventarios'])->assignRole($bodega);
         //Marcas
         Permission::firstOrCreate(['name' => 'puede.ver.marcas'])->syncRoles($activos_fijos, $bodega);
         Permission::firstOrCreate(['name' => 'puede.crear.marcas'])->assignRole($bodega);
