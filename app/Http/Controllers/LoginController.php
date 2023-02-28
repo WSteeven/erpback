@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -19,6 +20,14 @@ class LoginController extends Controller
         ]);
 
         $user = User::where('name', $request['name'])->first();
+        Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
+
+        if($user->updated_at->diffInDays(now()) >= 90){
+             throw ValidationException::withMessages([
+                '412' => ['Ha expirado su contraseña, por favor restablecerla!'],
+             ])->status(412);
+            //return response()->json(["mensaje" => "Ha expirado su contraseña, por favor restablecerla!"], 412);
+        }
 
         if (!$user) {
             throw ValidationException::withMessages([
