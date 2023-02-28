@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(FibraSeeder::class);
         $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
+        $this->call(DevolucionSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
         $this->call(MotivoSeeder::class);

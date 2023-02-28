@@ -26,5 +26,6 @@ class CategoriaSeeder extends Seeder
         Categoria::create(['nombre'=>'INFORMATICA']);
         Categoria::create(['nombre'=>'MATERIALES']);
         Categoria::create(['nombre'=>'SUMINISTROS']);
+        Categoria::create(['nombre'=>'UNIFORMES']);
     }
 }
