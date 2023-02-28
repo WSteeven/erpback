@@ -8,7 +8,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 
-class Emergencia extends Model
+class Emergencia extends Model implements Auditable
 {
     use HasFactory, AuditableModel, UppercaseValuesTrait;
 

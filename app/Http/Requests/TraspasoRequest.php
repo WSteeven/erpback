@@ -72,9 +72,12 @@ class TraspasoRequest extends FormRequest
                     }
                     //Consultar si la cantidad a devolver existe en el inventario o no
                     $producto = Producto::where('nombre', $listado['producto'])->first();
+                    Log::channel('testing')->info('Log', ['producto en Traspaso:', $producto]);
                     $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['detalle_id'])->first();
+                    Log::channel('testing')->info('Log', ['detalle en Traspaso:', $detalle]);
                     $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('sucursal_id', $this->sucursal)->where('cliente_id', $this->hasta_cliente)->first();
-                    if($listado['devuelto']>$itemInventario->cantidad){
+                    Log::channel('testing')->info('Log', ['item del inventario en Traspaso:', $itemInventario]);
+                    if($listado['devolucion']>$itemInventario->cantidad){
                         $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad de devolución del item '. $listado['producto'].' no puede ser mayor a la cantidad existente en inventario');
                     }
                 } else {

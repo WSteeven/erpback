@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class GrupoTrabajo extends Model
+class GrupoTrabajo extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
 
     protected $table = 'grupo_trabajo';
     protected $fillable = ['es_responsable', 'grupo_id', 'trabajo_id'];

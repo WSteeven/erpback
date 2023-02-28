@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Fibra extends Model
+class Fibra extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
+    
     protected $table = 'fibras';
     protected $fillable = [
         'detalle_id',

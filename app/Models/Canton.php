@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -10,6 +11,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 class Canton extends Model implements Auditable
 {
     use HasFactory, AuditableModel;
+    use UppercaseValuesTrait;
 
     protected $table = "cantones";
     protected $casts = [

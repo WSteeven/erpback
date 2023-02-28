@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -11,7 +12,8 @@ class Provincia extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
-    
+    use UppercaseValuesTrait;
+
     protected $table = "provincias";
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -26,5 +28,5 @@ class Provincia extends Model implements Auditable
     public function cantones(){
         return $this->hasMany(Canton::class);
     }
-    
+
 }
