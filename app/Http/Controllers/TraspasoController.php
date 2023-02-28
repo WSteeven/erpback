@@ -51,10 +51,7 @@ class TraspasoController extends Controller
     {
         Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
 
-        // if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-        // Log::channel('testing')->info('Log', ['Pasó la validacion, solo los bodegueros pueden hacer traspasos en su sucursal']);
         try {
-            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             DB::beginTransaction();
             $datos = $request->validated();
 
@@ -84,7 +81,6 @@ class TraspasoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
         }
         return response()->json(compact('mensaje', 'modelo'));
-        // } else return response()->json(compact('Este usuario no puede realizar préstamo de materiales'), 421);
     }
 
     /**

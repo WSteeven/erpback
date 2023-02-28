@@ -82,10 +82,7 @@
 </head>
 @php
 $fecha = new Datetime();
-$qr = QrCode::size(100)
-->backgroundColor(255, 90, 0)
-->generate('Hola a todos, saludos cordiales');
-$mensaje_qr='JP CONSTRUCRED C. LTDA.'.PHP_EOL.'TRANSACCION: '.$id.PHP_EOL.'INGRESO: '.$motivo.PHP_EOL.'SOLICITADO POR: '.$solicitante.PHP_EOL.'AUTORIZADO POR: '.$per_autoriza.PHP_EOL.'BODEGA DE CLIENTE: '.$cliente.PHP_EOL.'SUCURSAL: '.$sucursal;
+$mensaje_qr='JP CONSTRUCRED C. LTDA.'.PHP_EOL.'TRANSACCION: '.$id.PHP_EOL.'INGRESO: '.$motivo.PHP_EOL.'SOLICITADO POR: '.$solicitante.PHP_EOL.'AUTORIZADO POR: '.$per_autoriza.PHP_EOL.'INGRESADO POR: '.$per_atiende.PHP_EOL.'BODEGA DE CLIENTE: '.$cliente.PHP_EOL.'SUCURSAL: '.$sucursal;
 $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
 @endphp
 
@@ -166,7 +163,7 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                 <td>Sucursal: <b>{{ $sucursal }}</b></td>
             </tr>
             <tr class="row">
-                <td>Ingresado por: <b>{{ $per_autoriza }}</b></td>
+                <td>Ingresado por: <b>{{ $per_atiende }}</b></td>
                 <td></td>
                 <td>Estado: <b>{{ $estado }}</b></td>
             </tr>

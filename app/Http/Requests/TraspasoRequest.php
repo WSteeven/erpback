@@ -3,8 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\DetalleInventarioTraspaso;
+use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
+use App\Models\Inventario;
+use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class TraspasoRequest extends FormRequest
 {
@@ -59,11 +63,22 @@ class TraspasoRequest extends FormRequest
     }
     protected function withValidator($validator)
     {
+        Log::channel('testing')->info('Log', ['withValidator de Traspaso:', $this->all()]);
         $validator->after(function ($validator) {
             foreach ($this->listadoProductos as $listado) {
                 if (in_array($this->method(), ['PUT', 'PATCH'])) {
                     if (($listado['devolucion'] + $listado['devuelto']) > $listado['cantidades']) {
                         $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad de devolución del item ' . $listado['producto'] . ' no puede ser mayor a la cantidad prestada.');
+                    }
+                    //Consultar si la cantidad a devolver existe en el inventario o no
+                    $producto = Producto::where('nombre', $listado['producto'])->first();
+                    Log::channel('testing')->info('Log', ['producto en Traspaso:', $producto]);
+                    $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['detalle_id'])->first();
+                    Log::channel('testing')->info('Log', ['detalle en Traspaso:', $detalle]);
+                    $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('sucursal_id', $this->sucursal)->where('cliente_id', $this->hasta_cliente)->first();
+                    Log::channel('testing')->info('Log', ['item del inventario en Traspaso:', $itemInventario]);
+                    if($listado['devolucion']>$itemInventario->cantidad){
+                        $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad de devolución del item '. $listado['producto'].' no puede ser mayor a la cantidad existente en inventario');
                     }
                 } else {
                     if ($listado['cantidades'] > $listado['cantidad']) {
@@ -88,7 +103,6 @@ class TraspasoRequest extends FormRequest
         ]);
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            // $completa = false;
             foreach ($this->listadoProductos as $listado) {
                 // $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id',$item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
                 $completa = $listado['cantidades'] == ($listado['devolucion'] + $listado['devuelto']) ? true : false;

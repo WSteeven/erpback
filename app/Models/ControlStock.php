@@ -2,15 +2,19 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-use function PHPUnit\Framework\isEmpty;
 
-class ControlStock extends Model
+class ControlStock extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
+    use UppercaseValuesTrait;
+
     protected $table = 'control_stocks';
     protected $fillable = [
         'detalle_id',
@@ -28,12 +32,12 @@ class ControlStock extends Model
     /**
      * Reglas de estados de control
      * cuando la sumatoria del stock de nuevos y usados en una misma bodega del inventario del producto con detalle_id #
-     * Por ejemplo: detalle_id #1, hay 100 productos nuevos y 40 usados en la bodega de machala, 
+     * Por ejemplo: detalle_id #1, hay 100 productos nuevos y 40 usados en la bodega de machala,
      * entonces se realiza un calculo en base a esa sumatoria y se comprueba si:
      * Si sumatoria es mayor al valor del punto de reorden , el estado debe ser @const SUFICIENTE
      * Si sumatoria es menor al punto de reorden , el estado debe ser @const REORDEN
      * Si sumatoria es menor al punto minimo, el estado debe ser @const MINIMO
-     * 
+     *
      * @return int $cantidad Cantidad de existencias
      */
 
@@ -69,7 +73,7 @@ class ControlStock extends Model
 
     /**
      * Relacion uno a muchos (inversa)
-     * Obtener el detalle de producto al que pertenece el control de stock 
+     * Obtener el detalle de producto al que pertenece el control de stock
      */
     public function detalle()
     {
@@ -77,7 +81,7 @@ class ControlStock extends Model
     }
     /**
      * Relacion uno a muchos (inversa)
-     * Obtener la sucursal al que pertenece el control de stock 
+     * Obtener la sucursal al que pertenece el control de stock
      */
     public function sucursal()
     {

@@ -11,6 +11,7 @@ use App\Models\Motivo;
 use App\Models\Producto;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
+use App\Models\Transferencia;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -60,7 +61,7 @@ class TransaccionBodegaIngresoController extends Controller
             try {
                 $datos = $request->validated();
                 DB::beginTransaction();
-                if ($request->transferencia) $datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
+                if ($request->transferencia)$datos['transferencia_id'] = $request->safe()->only(['transferencia'])['transferencia'];
                 $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
                 $datos['devolucion_id'] = $request->safe()->only(['devolucion'])['devolucion'];
                 $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
@@ -73,8 +74,8 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
                 //Creacion de la transaccion
-                Log::channel('testing')->info('Log', ['Datos recibidos del front', $request->all()]);
-                Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
+                // Log::channel('testing')->info('Log', ['Datos recibidos del front', $request->all()]);
+                // Log::channel('testing')->info('Log', ['Datos antes de ingresar', $datos]);
 
                 $transaccion = TransaccionBodega::create($datos);
                 Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
@@ -116,7 +117,7 @@ class TransaccionBodegaIngresoController extends Controller
                         // $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
-                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->first();
+                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
                         // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->first();
                         if ($itemInventario) {
                             Log::channel('testing')->info('Log', ['HAY UN ITEM COINCIDENTE EN EL INVENTARIO']);
@@ -134,6 +135,13 @@ class TransaccionBodegaIngresoController extends Controller
                 }
 
                 DB::commit(); //Se registra la transaccion y sus detalles exitosamente
+                if($transaccion->transferencia_id){
+                    //se entiende que si hay un ingreso por transferencia es porque la transferencia llegó a su destino, entonces procedemos a actualizar la transferencia
+                    $transferencia = Transferencia::find($transaccion->transferencia_id);
+                    $transferencia->estado = Transferencia::COMPLETADO;
+                    $transferencia->recibida = true;
+                    $transferencia->save();
+                }
 
                 $modelo = new TransaccionBodegaResource($transaccion);
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

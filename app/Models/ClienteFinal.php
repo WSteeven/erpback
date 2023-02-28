@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ClienteFinal extends Model
+class ClienteFinal extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
+    use AuditableModel;
 
     protected $table = "clientes_finales";
     protected $fillable = [

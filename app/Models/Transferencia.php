@@ -147,4 +147,12 @@ class Transferencia extends Model implements Auditable
         // Log::channel('testing')->info('Log', ['Foreach de movimientos de devoluciones del  traspaso:', $devoluciones]);
         return $results;
     }
+
+    public function obtenerCantidadesIngreso(int $id){
+        
+    }
+    public function obtenerCantidadesEgreso(int $id){
+
+    }
+
 }

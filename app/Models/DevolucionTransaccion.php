@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class DevolucionTransaccion extends Model
+class DevolucionTransaccion extends Model implements Auditable
 {
     use HasFactory;
+    use AuditableModel;
     protected $table = 'devoluciones_transacciones';
     protected $fillable = [
         'detalle_producto_transaccion_id',

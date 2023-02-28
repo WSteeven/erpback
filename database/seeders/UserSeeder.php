@@ -75,11 +75,11 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO);
 
 
-        //Localidad
-        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jpconstrucred.com', 'administrador_id' => 7]);
-        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jpconstrucred.com', 'administrador_id' => 5]);
-        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jpconstrucred.com', 'administrador_id' => 8]);
-        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jpconstrucred.com', 'administrador_id' => 1]);
+        //Localidad o sucursal
+        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jpconstrucred.com',]);
+        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jpconstrucred.com',]);
+        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jpconstrucred.com',]);
+        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jpconstrucred.com',]);
 
 
 
@@ -226,9 +226,9 @@ class UserSeeder extends Seeder
         ]);
 
         $sso = User::create([
-            'name'=>'ASERRANO',
-            'email'=>'aserrano@jpconstrucred.com',
-            'password'=>bcrypt('password'),
+            'name' => 'ASERRANO',
+            'email' => 'aserrano@jpconstrucred.com',
+            'password' => bcrypt('password'),
         ])->syncRoles([User::ROL_EMPLEADO, User::ROL_SSO]);
         $sso->empleado()->create([
             'nombres' => 'ARNALDO JOSE',

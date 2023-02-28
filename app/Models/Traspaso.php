@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class Traspaso extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
 
     public $table = 'traspasos';
     public $fillable = [
@@ -67,7 +69,7 @@ class Traspaso extends Model implements Auditable
     }
     /**
      * Relacion uno a muchos (inversa).
-     * Uno o varios traspasos pertenece a un solicitante 
+     * Uno o varios traspasos pertenece a un solicitante
      */
     public function solicitante()
     {
@@ -115,10 +117,9 @@ class Traspaso extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($items as $item) {
-            // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);    
-            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')
-            ->where('traspaso_id', $item->pivot->traspaso_id)
-            ->where('inventario_id', $item->pivot->inventario_id)->first();
+            // Log::channel('testing')->info('Log', ['Foreach de traspaso:', $item]);
+            $detalleTraspaso = DetalleInventarioTraspaso::with('devoluciones')->where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
+            $detalle = DetalleInventarioTraspaso::withSum('devoluciones', 'cantidad')->where('traspaso_id', $item->pivot->traspaso_id)->where('inventario_id', $item->pivot->inventario_id)->first();
             $row['id'] = $item->id;
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->descripcion;
@@ -127,6 +128,7 @@ class Traspaso extends Model implements Auditable
             $row['cantidades'] = $item->pivot->cantidad;
             $row['devolucion'] = null;
             $row['devuelto'] = $detalle->devoluciones_sum_cantidad;
+            $row['devoluciones'] = $detalleTraspaso->devoluciones;
             $results[$id] = $row;
             $id++;
         }

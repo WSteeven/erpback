@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,8 @@ class Cargo extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
+
     protected $table = 'cargos';
     protected $fillable = [
         'nombre'

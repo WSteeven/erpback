@@ -16,12 +16,13 @@ return new class extends Migration
         Schema::create('sucursales', function (Blueprint $table) {
             $table->id();
             $table->string('lugar')->unique();
-            $table->string('telefono');
+            $table->string('telefono')->nullable();
+            $table->integer('extension')->nullable();
             $table->string('correo')->nullable();
-            $table->unsignedBigInteger('administrador_id')->nullable();
+            // $table->unsignedBigInteger('administrador_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('administrador_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
+            // $table->foreign('administrador_id')->references('id')->on('users')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

@@ -31,7 +31,8 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 90px;
+            /* bottom: 90px; */ /* va bien cuando hay firma */
+            bottom: 5px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -80,7 +81,7 @@
 </head>
 @php
     $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRASPASO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'SUCURSAL: ' . $sucursal. PHP_EOL . 'ESTADO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRASPASO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
 @endphp
 
 <body>
@@ -102,7 +103,7 @@
         <hr>
     </header>
     <footer>
-        <table class="firma" style="width: 100%;">
+        {{-- <table class="firma" style="width: 100%;">
             <thead>
                 <th align="center">___________________</th>
                 <th align="center"></th>
@@ -125,7 +126,7 @@
                     <td style="padding-left: 60px;">C.I:</td>
                 </tr>
             </tbody>
-        </table>
+        </table> --}}
         <table style="width: 100%;">
             <tr>
                 <td class="page">Página </td>
@@ -171,7 +172,7 @@
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
-        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
+        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" >
             <thead>
                 <th>Producto</th>
                 <th>Descripcion</th>
@@ -191,6 +192,34 @@
                 @endforeach
             </tbody>
         </table>
+        {{-- Aqui va el historial de devoluciones --}}
+
+            <br>
+            <h3><u>Historial de devoluciones</u></h3>
+
+            @foreach ($listadoProductos as $listado)
+                {{-- verificamos si hay devoluciones para mostrar la tabla --}}
+                @if ($listado['devoluciones']->count() > 0)
+                <table border="1" style="border-collapse: collapse;" >
+                    <thead>
+                        <th>Item</th>
+                        <th>Cantidad</th>
+                        <th>Fecha</th>
+                    </thead>
+                    <tbody>
+                        @foreach ($listado['devoluciones'] as $devolucion)
+                            <tr align="center">
+                                <td>{{ $listado['detalle_id'] }}</td>
+                                <td>{{ $devolucion['cantidad'] }}</td>
+                                <td>{{ $devolucion['updated_at'] }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @else
+                <p>Aún no se han realizado devoluciones</p>
+                @endif
+            @endforeach
     </main>
 
 

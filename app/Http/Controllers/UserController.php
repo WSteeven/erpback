@@ -13,10 +13,11 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Log;
+
 
 class UserController extends Controller
 {
@@ -71,6 +72,24 @@ class UserController extends Controller
     {
         $user = User::find($empleado->usuario_id);
         return response()->json(['modelo' => new UserResource($user)]);
+    }
+    public function resetearPassword(Request $request)
+    {
+       $user = User::where('name',strtoupper($request->nombreUsuario))->first();
+        if (!$user) {
+            throw ValidationException::withMessages([
+                '404' => ['Usuario no registrado!'],
+            ]);
+        }
+        Log::channel('testing')->info('Log', ['Usuario consultado: ', $user]);
+        if (!$user || !Hash::check($request->password_old, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['Usuario o contraseña incorrectos'],
+            ]);
+        }
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return response()->json(['mensaje' => 'La contraseña ha sido actualizada con éxito', 'modelo' => new UserResource($user)]);
     }
 
     public function update(UserRequest $request, Empleado $empleado)
@@ -134,14 +153,15 @@ class UserController extends Controller
     }
     public function updateContrasenaRecovery (Request $request){
         $code = $request->input('code');
-        $contrasena_usuario =  Hash::make($request->input('contrasena_usuario'));
-        $users = User::where('confirmation_code', $code)->first();
+        $contrasena_usuario =  Hash::make($request->input('password'));
+        $users = User::where('remember_token', $code)->first();
         if ($users == null) {
             return response()->json('Correo no verificado',401);
         }
         $confirmation_code = ' ';
-        $users->confirmation_code = $confirmation_code;
+        $users->remember_token = $confirmation_code;
         $users->password = $contrasena_usuario;
+        $users->save();
         return response()
             ->json('Contraseña Actualizada con exito');
     }

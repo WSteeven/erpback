@@ -6,8 +6,6 @@ use App\Models\Notificacion;
 use App\Models\Pedido;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +27,8 @@ class PedidoEvent implements ShouldBroadcast
     {
         $this->mensaje = $mensaje;
         $this->pedido= $pedido;
-
+        
+        // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
         $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
@@ -44,11 +43,12 @@ class PedidoEvent implements ShouldBroadcast
      * @param destinatario The user who will receive the notification.
      */
     public static function crearNotificacion($mensaje, $originador, $destinatario){
-        Notificacion::create([
+        $notificacion = Notificacion::create([
             'mensaje'=>$mensaje,
             'per_originador_id'=>$originador,
             'per_destinatario_id'=>$destinatario
         ]);
+        return $notificacion;
     }
 
     /**

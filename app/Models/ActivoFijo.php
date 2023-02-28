@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ class ActivoFijo extends Model implements Auditable
     use HasFactory;
     use Filterable;
     use AuditableModel;
+    use UppercaseValuesTrait;
     protected $table = 'activos_fijos';
     protected $fillable = [
         'cantidad',
@@ -34,7 +36,7 @@ class ActivoFijo extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
-    
+
     const ASIGNACION = 'ASIGNACION'; //cuando se entrega el activo al empleado
     const DEVOLUCION = 'DEVOLUCION'; //cuando devuelve el activo a bodega
 
@@ -54,7 +56,7 @@ class ActivoFijo extends Model implements Auditable
     {
         return $this->belongsTo(DetalleProducto::class);
     }
-    
+
     /**
      * Relación uno a muchos (inversa).
      * Un activo fijo tiene una condicion.

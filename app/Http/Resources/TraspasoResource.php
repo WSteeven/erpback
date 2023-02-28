@@ -18,7 +18,7 @@ class TraspasoResource extends JsonResource
         // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
         $detalles = Traspaso::listadoProductos($this->id);
-        $devoluciones = Traspaso::devolucionesRealizadas($this->id);
+        // $devoluciones = Traspaso::devolucionesRealizadas($this->id);
         $modelo = [
             'id'=>$this->id,
             'justificacion' => $this->justificacion,
@@ -30,7 +30,7 @@ class TraspasoResource extends JsonResource
             'sucursal' => $this->sucursal->lugar,
             'estado' => $this->estado->nombre,
             'listadoProductos' => $detalles,
-            'listadoDevoluciones' => $devoluciones,
+            // 'listadoDevoluciones' => $devoluciones,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
 

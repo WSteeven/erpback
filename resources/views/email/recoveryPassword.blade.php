@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>JPCONSTRUCTRED</h2>
-    <img src="{{ asset('img/logoJP.png') }}" alt="logo" width="100" height="100"/>
+    <img src="img/logoJP.png" alt="logo" width="100" height="100"/>
     <h2> Estimado {{ $username }} ha recibido este correo porque realizó una solicitud de recuperación de contraseña para su cuenta. </h2>
     <p>Tu codigo de confirmacion es:  {{ $confirmation_code}}</p>
 </body>

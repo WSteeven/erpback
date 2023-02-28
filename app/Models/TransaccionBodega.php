@@ -209,32 +209,26 @@ class TransaccionBodega extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
-    /**
-     * Obtener la ultima autorizacion de una transaccion
-     */
-    /* public static function ultimaAutorizacion($id)
-    {
-        $autorizaciones = TransaccionBodega::find($id)->autorizaciones()->get();
-        $autorizacion = $autorizaciones->first();
-        return $autorizacion;
-    } */
-    /**
-     * Obtener el ultimo estado de una transaccion
-     */
-    /* public static function ultimoEstado($id)
-    {
-        $observaciones = TransaccionBodega::find($id)->estados()->get();
-        $observacion = $observaciones->first();
-        return $observacion;
-    } */
+
 
     /**
-     * Obtener el listado de productos de una transaccion
+     * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
+     * the items dispatched, then it returns an array with the data.
+     * </code>
+     *
+     * @param id The id of the transaction
+     *
+     * @return <code>{
+     *     "id": 1,
+     *     "producto": "CAMARA",
+     *     "detalle_id": 1,
+     *     "descripcion": "CAMARA",
+     *     "categoria": "CAMARA",
+     *     "condiciones": "BUENO",
+     *     "cantidad": 1,
      */
     public static function listadoProductos($id)
     {
-        // Log::channel('testing')->info('Log', ['ID A BUSCAR EN TRANSACCION->listadoProductos',$id]);
-        // Log::channel('testing')->info('Log', ['Listado de items:', TransaccionBodega::find($id)->items()->get()]);
         $items = TransaccionBodega::find($id)->items()->get();
         $results = [];
         $id = 0;
@@ -259,6 +253,19 @@ class TransaccionBodega extends Model implements Auditable
         return $results;
     }
 
+    /**
+     * It takes an array of objects, and returns an array of objects
+     *
+     * @param results
+     *
+     * @return <code>array:1 [▼
+     *   0 =&gt; array:2 [▼
+     *     "id" =&gt; 1
+     *     "detalles" =&gt; array:1 [▼
+     *       0 =&gt; array:2 [▼
+     *         "id" =&gt; 1
+     *         "producto"
+     */
     public static function listadoProductosTarea($results)
     {
         $listado = [];
@@ -285,15 +292,17 @@ class TransaccionBodega extends Model implements Auditable
                 Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
                 Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
-                Log::channel('testing')->info('Log', ['detalle es:', $detallePedido->despachado]);
+                Log::channel('testing')->info('Log', ['detalle despachado es:', $detallePedido->despachado]);
+                Log::channel('testing')->info('Log', ['Pedido:', $pedido]);
+                Log::channel('testing')->info('Log', ['Detalle producto es:', DetalleProducto::find($detallePedido->detalle_id)]);
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
                 if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
                     // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
-                    $material = MaterialGrupoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
+                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
                         ->where('tarea_id', $pedido->tarea_id)
-                        ->where('responsable_id', $pedido->responsable)
+                        ->where('empleado_id', $pedido->responsable)
                         ->first();
 
                     // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
@@ -301,18 +310,24 @@ class TransaccionBodega extends Model implements Auditable
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->save();
                     } else {
+                        Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
                         // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
-                        MaterialGrupoTarea::create([
+                        //consulta de fibras
+                        //$ids_fibras = Fibra::select('id')->get();
+                        //$fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
+                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
+
+                        //Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
+                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $esFibra]);
+                        //Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
+
+                        MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'tarea_id' => $pedido->tarea_id,
                             'empleado_id' => $pedido->responsable_id,
                             'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => false, // Pendiente de obtener
+                            'es_fibra' => $esFibra, // Pendiente de obtener
                         ]);
-
-                        //consulta de fibras
-                        $ids_fibras = Fibra::all('id');
-                        DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->get();
                     }
                 }
             }

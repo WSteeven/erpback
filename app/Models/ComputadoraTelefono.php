@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ComputadoraTelefono extends Model
+class ComputadoraTelefono extends Model implements Auditable
 {
     use HasFactory;
+    use UppercaseValuesTrait;
+    use AuditableModel;
+
+
     protected $table='computadoras_telefonos';
     protected $fillable=[
         'detalle_id',

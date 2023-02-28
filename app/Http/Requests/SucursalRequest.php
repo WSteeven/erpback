@@ -28,7 +28,8 @@ class SucursalRequest extends FormRequest
             'lugar'=>'required|unique:sucursales|string',
             'telefono'=>'required|string|min:7|max:10',
             'correo'=>'required|email',
-            'administrador'=>'sometimes|nullable|exists:users,id',
+            'extension'=>'sometimes|numeric|nullable'
+            // 'administrador'=>'sometimes|nullable|exists:users,id',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){
