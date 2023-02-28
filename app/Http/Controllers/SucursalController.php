@@ -58,7 +58,7 @@ class SucursalController extends Controller
     {   
         //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
+        // $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
 
         $sucursal = Sucursal::create($datos);
         $modelo = new SucursalResource($sucursal);
@@ -85,7 +85,7 @@ class SucursalController extends Controller
         //Adaptación de foreign keys
         $datos = $request->validated();
         Log::channel('testing')->info('Log', ['Datos validados', $datos]);
-        $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
+        // $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
         
         //Respuesta
         $sucursal->update($datos);

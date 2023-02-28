@@ -17,7 +17,8 @@ class Sucursal extends Model implements Auditable
     use Filterable;
 
     protected $table = "sucursales";
-    protected $fillable = ['lugar', 'telefono', 'correo', 'administrador_id'];
+    protected $fillable = ['lugar', 'telefono','extension', 'correo'];
+    // protected $fillable = ['lugar', 'telefono', 'correo', 'administrador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

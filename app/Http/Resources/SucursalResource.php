@@ -21,13 +21,14 @@ class SucursalResource extends JsonResource
             'lugar' => $this->lugar,
             'telefono' => $this->telefono,
             'correo' => $this->correo,
-            'administrador' => $this->administrador->empleado->nombres.' '.$this->administrador->empleado->apellidos,
-            'administrador_id'=>$this->administrador_id,
+            'extension' => $this->extension,
+            // 'administrador' => $this->administrador?->empleado->nombres.' '.$this->administrador?->empleado->apellidos,
+            // 'administrador_id'=>$this->administrador_id,
         ];
 
-        if($controller_method=='show'){
+        /* if($controller_method=='show'){
             $modelo['administrador'] = $this->administrador_id;
-        }
+        } */
 
         return $modelo;
     }
