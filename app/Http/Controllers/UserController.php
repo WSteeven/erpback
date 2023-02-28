@@ -121,14 +121,15 @@ class UserController extends Controller
     }
     public function updateContrasenaRecovery (Request $request){
         $code = $request->input('code');
-        $contrasena_usuario =  Hash::make($request->input('contrasena_usuario'));
-        $users = User::where('confirmation_code', $code)->first();
+        $contrasena_usuario =  Hash::make($request->input('password'));
+        $users = User::where('remember_token', $code)->first();
         if ($users == null) {
             return response()->json('Correo no verificado',401);
         }
         $confirmation_code = ' ';
-        $users->confirmation_code = $confirmation_code;
+        $users->remember_token = $confirmation_code;
         $users->password = $contrasena_usuario;
+        $users->save();
         return response()
             ->json('Contraseña Actualizada con exito');
     }
