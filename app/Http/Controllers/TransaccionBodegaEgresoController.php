@@ -55,9 +55,14 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
-        $empleado_id = Auth::user()->empleado_id;
+        $empleado_id = Auth::user()->empleado->id;
+
+        Log::channel('testing')->info('Log', ['Tarea id', $tarea_id]);
+        Log::channel('testing')->info('Log', ['Empleado id', $empleado_id]);
 
         $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
+
+        Log::channel('testing')->info('Log', ['Results', $results]);
         // $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
@@ -72,14 +77,14 @@ class TransaccionBodegaEgresoController extends Controller
     public function obtenerMateriales(Request $request)
     {
         $request->validate([
-            'tarea' => 'required|numeric|integer',
-            'grupo' => 'required|numeric|integer'
+            'trabajo_id' => 'required|numeric|integer',
         ]);
 
-        $tarea = $request['tarea'];
-        $grupo = $request['grupo'];
+        $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
+        $empleado_id = Auth::user()->empleado->id;
 
-        $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
+        $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
+
         $results = collect($results)->map(fn ($items) => [
             'detalle_producto_id' => intval($items->detalle_producto_id),
             'stock_actual' => intval($items->cantidad_stock),
