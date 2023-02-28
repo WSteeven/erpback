@@ -205,7 +205,7 @@ Route::apiResources(
 );
 
 Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
-Route::get('materiales-grupo-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
+Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
 
 Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
     // Route::get('materiales-grupo-tarea', 'obtenerMateriales');

@@ -210,14 +210,14 @@ class TransaccionBodega extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     
+
     /**
      * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
      * the items dispatched, then it returns an array with the data.
      * </code>
-     * 
+     *
      * @param id The id of the transaction
-     * 
+     *
      * @return <code>{
      *     "id": 1,
      *     "producto": "CAMARA",
@@ -255,9 +255,9 @@ class TransaccionBodega extends Model implements Auditable
 
     /**
      * It takes an array of objects, and returns an array of objects
-     * 
-     * @param results 
-     * 
+     *
+     * @param results
+     *
      * @return <code>array:1 [▼
      *   0 =&gt; array:2 [▼
      *     "id" =&gt; 1
@@ -313,19 +313,20 @@ class TransaccionBodega extends Model implements Auditable
                         Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
                         // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
                         //consulta de fibras
-                        $ids_fibras = Fibra::select('id')->get();
-                        $fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
+                        //$ids_fibras = Fibra::select('id')->get();
+                        //$fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
+                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
 
-                        Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
-                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $fibra]);
-                        Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
+                        //Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
+                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $esFibra]);
+                        //Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
 
                         MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'tarea_id' => $pedido->tarea_id,
                             'empleado_id' => $pedido->responsable_id,
                             'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => !!$fibra, // Pendiente de obtener
+                            'es_fibra' => $esFibra, // Pendiente de obtener
                         ]);
                     }
                 }
