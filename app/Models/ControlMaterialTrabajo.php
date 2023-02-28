@@ -7,19 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ControlMaterialSubtarea extends Model implements Auditable
+class ControlMaterialTrabajo extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     
-    protected $table = 'control_materiales_subtareas';
+    protected $table = 'control_materiales_trabajos';
     protected $fillable = [
         'stock_actual',
         'cantidad_utilizada',
         'fecha',
         'tarea_id',
-        'subtarea_id',
+        'trabajo_id',
         'detalle_producto_id',
-        'grupo_id',
+        'empleado_id',
     ];
 }

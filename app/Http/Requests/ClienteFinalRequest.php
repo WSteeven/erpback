@@ -24,20 +24,20 @@ class ClienteFinalRequest extends FormRequest
     public function rules()
     {
         return [
+            'cliente' => 'required|numeric|integer',
             "id_cliente_final" => 'required|string',
             "nombres" => 'required|string',
-            "apellidos" => 'required|string',
-            "nombres" => 'required|string',
-            "apellidos" => 'required|string',
-            "celular" => 'required|string',
-            "parroquia" => 'required|string',
-            "direccion" => 'required|string',
-            "referencia" => 'required|string',
-            "coordenada_latitud" => 'required|numeric',
-            'coordenada_longitud' => 'required|numeric',
-            "provincia" => 'required|numeric|integer',
-            "canton" => 'required|numeric|integer',
-            'cliente' => 'required|numeric|integer',
+            "apellidos" => 'nullable|string',
+            "nombres" => 'nullable|string',
+            "apellidos" => 'nullable|string',
+            "celular" => 'nullable|string',
+            "parroquia" => 'nullable|string',
+            "direccion" => 'nullable|string',
+            "referencia" => 'nullable|string',
+            "coordenada_latitud" => 'nullable|numeric',
+            'coordenada_longitud' => 'nullable|numeric',
+            "provincia" => 'nullable|numeric|integer',
+            "canton" => 'nullable|numeric|integer',
         ];
     }
 }

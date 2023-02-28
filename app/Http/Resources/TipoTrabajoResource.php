@@ -20,6 +20,7 @@ class TipoTrabajoResource extends JsonResource
             'id' => $this->id,
             'descripcion' => $this->descripcion,
             'cliente' => $this->cliente->empresa->razon_social,
+            'cliente_id' => $this->cliente_id,
         ];
         
         if ($controller_method == 'show') {

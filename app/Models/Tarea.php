@@ -29,6 +29,7 @@ class Tarea extends Model implements Auditable
         'fecha_solicitud',
         'titulo',
         'para_cliente_proyecto',
+        'medio_notificacion',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',

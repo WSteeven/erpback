@@ -4,6 +4,7 @@ namespace Src\App;
 
 use App\Http\Resources\SubtareaResource;
 use App\Models\ControlMaterialSubtarea;
+use App\Models\ControlMaterialTrabajo;
 use App\Models\Empleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-class ControlMaterialSubtareaService
+class ControlMaterialTrabajoService
 {
     public function __construct()
     {
@@ -79,7 +80,7 @@ class ControlMaterialSubtareaService
     public function sumaMaterialAnterior($detalle_id)
     {
         $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
-        $materialAnterior = ControlMaterialSubtarea::where('detalle_producto_id', $detalle_id)->first();
+        $materialAnterior = ControlMaterialTrabajo::where('detalle_producto_id', $detalle_id)->first();
 
         $material->cantidad_stock += $materialAnterior->cantidad_utilizada;
         $material->save();

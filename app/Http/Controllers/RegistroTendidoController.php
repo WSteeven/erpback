@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use Src\App\RegistroTendido\GuardarImagenIndividual;
 use App\Http\Resources\RegistroTendidoResource;
-use App\Models\ControlMaterialSubtarea;
-use App\Models\MaterialEmpleadoTarea;
+use App\Models\ControlMaterialTrabajo;
 use App\Models\RegistroTendido;
-use App\Models\Subtarea;
+use App\Models\Trabajo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Src\App\ControlMaterialSubtareaService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\ControlMaterialTrabajoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class RegistroTendidoController extends Controller
 {
     private $entidad = 'Registro tendido';
-    private $controlMaterialSubtareaService;
+    private $controlMaterialTrabajoService;
 
     public function __construct()
     {
-        $this->controlMaterialSubtareaService = new ControlMaterialSubtareaService();
+        $this->controlMaterialTrabajoService = new ControlMaterialTrabajoService();
     }
 
     /**
@@ -43,22 +41,22 @@ class RegistroTendidoController extends Controller
     {
         $datos = $request->all();
         $datos['tendido_id'] = $datos['tendido'];
-        $datos['subtarea_id'] = $datos['subtarea'];
+        $datos['trabajo_id'] = $datos['trabajo'];
         $materialesOcupados = $datos['materiales_ocupados'];
 
         // Validar el stock disponible
-        $this->controlMaterialSubtareaService->verificarDisponibleStock($materialesOcupados);
-        $this->controlMaterialSubtareaService->computarMaterialesOcupados($materialesOcupados);
+        $this->controlMaterialTrabajoService->verificarDisponibleStock($materialesOcupados);
+        $this->controlMaterialTrabajoService->computarMaterialesOcupados($materialesOcupados);
 
         // Las cantidades se validaron y se puede proceder al registro de materiales
         foreach ($materialesOcupados as $material) {
-            $subtarea = Subtarea::find($datos['subtarea_id']);
+            $trabajo = Trabajo::find($datos['trabajo_id']);
 
-            $material['subtarea_id'] = $datos['subtarea_id'];
-            $material['tarea_id'] = $subtarea->tarea->id;
-            $material['grupo_id'] = $subtarea->grupo->id;
+            $material['trabajo_id'] = $datos['trabajo_id'];
+            $material['tarea_id'] = $trabajo->tarea->id;
+            $material['empleado_id'] = $trabajo->empleado->id;
             $material['fecha'] = Carbon::now()->format('d-m-Y');
-            ControlMaterialSubtarea::create($material);
+            ControlMaterialTrabajo::create($material);
         }
 
         // Guardar imagenes        

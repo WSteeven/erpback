@@ -27,27 +27,22 @@ class TareaResource extends JsonResource
             'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
-            // 'detalle' => $this->detalle,
-            // 'cliente' => $this->cliente?->id,
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
             'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
             'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
-            // 'estado' => $this->subtareas()->where('fecha_hora_asignacion', '!=', null)->orderBy('fecha_hora_asignacion', 'asc')->first()?->estado,
-            /*'observacion' => $this->observacion,
-            'tiene_subtareas' => $this->tiene_subtareas,*/
             'cantidad_trabajos' => $this->trabajos->count(),
             'medio_notificacion' => $this->medio_notificacion,
         ];
 
         if ($controller_method == 'show') {
-            $modelo['cliente'] = $this->cliente_id;
             $modelo['cliente_final'] = $this->cliente_final_id;
-            $modelo['coordinador'] = $this->coordinador_id;
             $modelo['fiscalizador'] = $this->fiscalizador_id;
+            $modelo['coordinador'] = $this->coordinador_id;
             $modelo['proyecto'] = $this->proyecto_id;
+            $modelo['cliente'] = $this->cliente_id;
         }
 
         return $modelo;

@@ -18,8 +18,8 @@ return new class extends Migration
 
             $table->string('id_cliente_final');
             $table->string('nombres');
-            $table->string('apellidos');
-            $table->string('celular');
+            $table->string('apellidos')->nullable();
+            $table->string('celular')->nullable();
             $table->string('parroquia')->nullable();
             $table->string('direccion')->nullable();
             $table->string('referencia')->nullable();
