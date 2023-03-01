@@ -65,7 +65,7 @@ class ViaticoController extends Controller
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-
+        //Asignacion de estatus de viatico
         if ($datos_detalle->descripcion == '') {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
@@ -86,7 +86,7 @@ class ViaticoController extends Controller
         $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
-        $datos['id_tarea'] = $request->num_tarea !== null ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
+        $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
