@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
+use App\Models\FondosRotativos\Viatico\Viatico;
 
 class SaldoGrupoController extends Controller
 {
@@ -167,60 +168,146 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+    /**
+     * It's a function that returns a function that returns a function
+     *
+     * @param Request request The request object.
+     * @param tipo 1 = Acreditaciones, 2 = Gasos, 3 = Consolidado
+     */
     public function consolidado(Request $request, $tipo)
     {
         try {
             switch ($request->tipo_saldo) {
                 case '1':
-                    $this->acreditacion($request, $tipo);
+                    return $this->acreditacion($request, $tipo);
                     break;
                 case '2':
-                    $this->gasto($request, $tipo);
+                    return $this->gasto($request, $tipo);
                     break;
                 case '3':
-                    $this->reporte_consolidado($request, $tipo);
+                    return $this->reporte_consolidado($request, $tipo);
                     break;
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+    /**
+     * It's a function that receives two parameters, one of them is a request object and the other is a
+     * string
+     *
+     * @param request The request object.
+     * @param tipo The type of report you want to generate.
+     */
     private  function acreditacion($request, $tipo)
     {
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $saldos_actual_user = Acreditaciones::with('usuario')
-            ->where('id_usuario', $request->usuario)
-            ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-            ->get();
+            $acreditaciones = Acreditaciones::with('usuario')
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $usuario = User::with('empleado')
+                ->where('id', $request->usuario)
+                ->first();
             $nombre_reporte = 'reporte_saldoActual';
-            $results = Acreditaciones::empaquetar($saldos_actual_user);
-            $reportes =  ['acreditaciones' => $results];
+            $results = Acreditaciones::empaquetar($acreditaciones);
+            $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
             switch ($tipo) {
                 case 'excel':
                     //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
                     break;
                 case 'pdf':
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
-                     $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario', $reportes);
-                   // return $pdf->download($nombre_reporte . '.pdf');
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
+                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario', $reportes);
+                    return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+    /**
+     * A function that is used to generate a report of the expenses of a user.
+     *
+     * @param request The request object.
+     * @param tipo The type of report you want to generate.
+     */
     private  function gasto($request, $tipo)
     {
         try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $gastos = Viatico::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $nombre_reporte = 'reporte_gastos';
+            $results = Viatico::empaquetar($gastos);
+            $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
+            switch ($tipo) {
+                case 'excel':
+                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
+                    break;
+                case 'pdf':
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
+                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_gastos_usuario', $reportes);
+                    return $pdf->download($nombre_reporte . '.pdf');
+                    break;
+            }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+    /**
+     * It's a function that receives two parameters, one of them is a request object and the other is a
+     * string
+     *
+     * @param request The request object.
+     * @param tipo The type of report you want to generate.
+     */
     private  function reporte_consolidado($request, $tipo)
     {
         try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $fecha_anterior = date('Y-m-d', strtotime($request->fecha_inicio . '- 1 day'));
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('fecha', $fecha_anterior)
+                ->first();
+            $acreditaciones = Acreditaciones::with('usuario')
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+            $gastos = Viatico::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->sum('total');
+            $total = $saldo_anterior != null? $saldo_anterior->saldo_actual:0 + $acreditaciones - $gastos;
+            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $nombre_reporte = 'reporte_consolidado';
+            $reportes =  [
+                'fecha_anterior'=> $fecha_anterior,
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
+                'usuario' => $usuario,
+                'saldo_anterior' => $saldo_anterior != null? $saldo_anterior->saldo_actual:0,
+                'acreditaciones' => $acreditaciones,
+                'gastos' => $gastos,
+                'total_suma' => $total
+            ];
+            switch ($tipo) {
+                case 'excel':
+                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
+                    break;
+                case 'pdf':
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
+                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_consolidado_usuario', $reportes);
+                    return $pdf->download($nombre_reporte . '.pdf');
+                    break;
+            }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

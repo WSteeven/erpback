@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte Acreditaciones</title>
+    <title>Reporte de Gastos</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -95,8 +95,8 @@
                     <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE ACREDITACIONES
-                            {{' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
+                            {{ ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
                 </td>
             </tr>
         </table>
@@ -150,26 +150,26 @@
                                                 <div align="center"><strong>Monto</strong></div>
                                             </td>
                                         </tr>
-                                        @foreach ($acreditaciones as $acreditacion)
+                                        @foreach ($gastos as $gasto)
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
+                                                        {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
-                                                    <div align="left">{{ $acreditacion['usuario']->name }}
+                                                    <div align="left">{{ $gasto['usuario_info']->name }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ $acreditacion['fecha'] }}</div>
+                                                    <div align="center">{{ $gasto['fecha'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
-                                                    <div align="left">{{ $acreditacion['descripcion_saldo'] }}</div>
+                                                    <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="10%">
                                                     <div align="right">
-                                                        {{ number_format($acreditacion['monto'], 2, ',', '.') }}</div>
+                                                        {{ number_format($gasto['total'], 2, ',', '.') }}</div>
                                                 </td>
                                             </tr>
                                         @endforeach

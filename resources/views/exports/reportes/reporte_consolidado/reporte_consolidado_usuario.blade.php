@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte Acreditaciones</title>
+    <title>Reporte Consolidado</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -33,7 +33,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 90px;
+            bottom: 10px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -95,8 +95,8 @@
                     <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE ACREDITACIONES
-                            {{' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE CONSOLIDADO
+                            {{ ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
                 </td>
             </tr>
         </table>
@@ -105,8 +105,7 @@
     <footer>
         <table style="width: 100%;">
             <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
+                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
@@ -126,11 +125,6 @@
                     <div align="center">
                         <table width="100%">
                             <tr>
-                                <td bgcolor="#bfbfbf" style="font-size:12px">
-                                    <div align="center"><strong>{{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }} </strong></div>
-                                </td>
-                            </tr>
-                            <tr>
                                 <td height="55px;">
                                     <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
                                         <tr>
@@ -141,7 +135,7 @@
                                                 <div align="center"><strong>Usuario</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
-                                                <div align="center"><strong>Fecha</strong></div>
+                                                <div align="center"><strong>Fecha Consolidado</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
                                                 <div align="center"><strong>Descripci&oacute;n</strong></div>
@@ -150,29 +144,81 @@
                                                 <div align="center"><strong>Monto</strong></div>
                                             </td>
                                         </tr>
-                                        @foreach ($acreditaciones as $acreditacion)
+                                        <!--Saldo Inicial-->
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
+                                                        {{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
-                                                    <div align="left">{{ $acreditacion['usuario']->name }}
+                                                    <div align="left">{{ $usuario->name }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ $acreditacion['fecha'] }}</div>
+                                                    <div align="center">{{ $fecha_anterior }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
-                                                    <div align="left">{{ $acreditacion['descripcion_saldo'] }}</div>
+                                                    <div align="left">Saldo Inicial</div>
                                                 </td>
                                                 <td style="font-size:10px" width="10%">
                                                     <div align="right">
-                                                        {{ number_format($acreditacion['monto'], 2, ',', '.') }}</div>
+                                                        {{ number_format($saldo_anterior, 2, ',', '.') }}</div>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <!--Fin Saldo Inicial-->
+                                        <!--Acreditaciones-->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $usuario->name }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">{{ $fecha_inicio . ' ' . $fecha_fin }}</div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Acreditaciones</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($acreditaciones, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
+                                        <!--Fin Acreditaciones-->
+                                        <!--Gastos-->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $usuario->name }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">{{ $fecha_inicio . ' ' . $fecha_fin }}</div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Gastos</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($gastos, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
+                                        <!--Fin Gastos-->
+                                        <!--Saldo Final-->
+                                        <tr>
+                                            <td colspan="4" style="font-size:10px"><div align="right"><strong>TOTAL:</strong></div></td>
+                                            <td style="font-size:10px" align="center"><div align="right"  style="margin-right:20px;">{{  number_format($total_suma, 2, ',', ' ')  }}</div></td>
+                                          </tr>
+                                        <!--Fin Saldo Final-->
                                     </table>
                                 </td>
                             </tr>
