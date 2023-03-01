@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('talla')->nullable();
             $table->enum('tipo', [DetalleProducto::HOMBRE, DetalleProducto::MUJER])->nullable();
             $table->string('url_imagen')->nullable();
+            $table->boolean('activo')->default(true);
 
             $table->timestamps();
             $table->unique(['descripcion', 'serial']);

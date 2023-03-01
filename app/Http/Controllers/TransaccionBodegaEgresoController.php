@@ -128,7 +128,6 @@ class TransaccionBodegaEgresoController extends Controller
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
-            // $results = $this->servicio->filtrarTransaccionesEgresoBodegueroSinPaginacion($estado);
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->get();
         }
         $results = TransaccionBodegaResource::collection($results);
@@ -176,15 +175,18 @@ class TransaccionBodegaEgresoController extends Controller
                 // $itemInventario = Inventario::where('detalle_id', $listado['detalle'])->first();
                 $itemInventario = Inventario::find($listado['id']);
                 $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                //Actualizamos el estado del item de inventario
+                TransaccionBodega::desactivarDetalle($itemInventario->detalle_id);
                 // Actualizamos la cantidad en inventario
                 $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
+            
+            //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
-                TransaccionBodega::actualizarPedido($transaccion); //detalle_poructo_transaccion where transaccion_id = 1 / observer detelle_pedido_producto_observer
+                TransaccionBodega::actualizarPedido($transaccion); 
             }
 
-            // TransaccionBodega::functon
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
             $modelo = new TransaccionBodegaResource($transaccion);

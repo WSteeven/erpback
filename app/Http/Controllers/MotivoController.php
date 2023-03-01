@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\MotivoRequest;
 use App\Models\Motivo;
-use App\Http\Requests\StoreMotivoRequest;
-use App\Http\Requests\UpdateMotivoRequest;
 use App\Http\Resources\MotivoResource;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
@@ -43,7 +41,7 @@ class MotivoController extends Controller
         } else {
             $results = Motivo::ignoreRequest(['campos'])->filter()->get();
         }
-        MotivoResource::collection($results);
+        $results = MotivoResource::collection($results);
         return response()->json(compact('results'));
     }
 

@@ -72,7 +72,7 @@ class UserSeeder extends Seeder
             'name' => 'JVEINTIMILLA',
             'email' => 'jveintimilla@jpconstrucred.com',
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO);
+        ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO, User::ROL_COORDINADOR);
 
 
         //Localidad o sucursal
