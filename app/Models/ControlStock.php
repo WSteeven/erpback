@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -14,6 +15,7 @@ class ControlStock extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use UppercaseValuesTrait;
+    use Filterable;
 
     protected $table = 'control_stocks';
     protected $fillable = [
@@ -28,6 +30,8 @@ class ControlStock extends Model implements Auditable
     const SUFICIENTE = "STOCK SUFICIENTE";
     const REORDEN = "PROXIMO A AGOTARSE";
     const MINIMO = "DEBAJO DEL MINIMO";
+
+    private static $whiteListFilter = ['*'];
 
     /**
      * Reglas de estados de control

@@ -35,7 +35,7 @@ class EmpleadoRequest extends FormRequest
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'usuario' => 'required|string',
-            'fecha_nacimiento' => 'required|date',
+            'fecha_nacimiento' => 'required|date|date_format:Y-m-d',
             'jefe' => 'required|exists:empleados,id',
             'canton' => 'sometimes|nullable|exists:cantones,id',
             'roles' => 'required|exists:roles,name',
@@ -66,5 +66,10 @@ class EmpleadoRequest extends FormRequest
             // if(substr_count($this->identificacion, '9')<9){
             // }
         });
+    }
+    public function prepareForValidation(){
+        $this->merge([
+            'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
+        ]);
     }
 }
