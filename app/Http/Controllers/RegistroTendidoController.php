@@ -44,8 +44,9 @@ class RegistroTendidoController extends Controller
         $datos['tendido_id'] = $datos['tendido'];
         $datos['trabajo_id'] = $datos['trabajo'];
         $materialesOcupados = $datos['materiales_ocupados'];
+        $this->controlMaterialTrabajoService->setTrabajoId($datos['trabajo_id']);
 
-        // Validar el stock disponible
+        // Validar y computar el stock disponible
         $this->controlMaterialTrabajoService->verificarDisponibleStock($materialesOcupados);
         $this->controlMaterialTrabajoService->computarMaterialesOcupados($materialesOcupados);
 
@@ -63,6 +64,7 @@ class RegistroTendidoController extends Controller
 
             $material['fecha'] = Carbon::now()->format('d-m-Y');
 
+            // Se registra el material ocupado en la tabla de trabajos
             ControlMaterialTrabajo::create($material);
         }
 
@@ -97,7 +99,35 @@ class RegistroTendidoController extends Controller
      */
     public function update(Request $request, RegistroTendido $registroTendido)
     {
-        $registroTendido->update($request->all());
+        $datos = $request->all();
+        $datos['tendido_id'] = $datos['tendido'];
+        $datos['trabajo_id'] = $datos['trabajo'];
+
+        $registroTendido->update($datos);
+        $materialesOcupados = $datos['materiales_ocupados'];
+        $this->controlMaterialTrabajoService->setTrabajoId($datos['trabajo_id']);
+
+        // Validar el stock disponible
+        $this->controlMaterialTrabajoService->verificarDisponibleStock($materialesOcupados);
+        $this->controlMaterialTrabajoService->computarMaterialesOcupadosUpdate($materialesOcupados);
+
+        $empleado = Auth::user()->empleado;
+        $trabajo = Trabajo::find($datos['trabajo_id']);
+
+        /*foreach ($materialesOcupados as $material) {
+
+            $material['trabajo_id'] = $datos['trabajo_id'];
+            $material['tarea_id'] = $trabajo->tarea_id;
+
+            $material['empleado_id'] = $empleado->id;
+            $material['grupo_id'] = $empleado->grupo_id;
+
+            $material['fecha'] = Carbon::now()->format('d-m-Y');
+
+            // Se actualiza el material ocupado en la tabla de trabajos
+            // ControlMaterialTrabajo::create($material);
+        }*/
+
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         $modelo = $registroTendido;
         return response()->json(compact('mensaje', 'modelo'));

@@ -43,6 +43,6 @@ class Grupo extends Model implements Auditable
 
     public function controlMaterialesSubtareas()
     {
-        return $this->hasMany(ControlMaterialSubtarea::class);
+        return $this->hasMany(ControlMaterialTrabajo::class);
     }
 }
