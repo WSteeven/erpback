@@ -9,6 +9,7 @@ use App\Models\RegistroTendido;
 use App\Models\Trabajo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\App\ControlMaterialTrabajoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -49,22 +50,28 @@ class RegistroTendidoController extends Controller
         $this->controlMaterialTrabajoService->computarMaterialesOcupados($materialesOcupados);
 
         // Las cantidades se validaron y se puede proceder al registro de materiales
+        $empleado = Auth::user()->empleado;
+        $trabajo = Trabajo::find($datos['trabajo_id']);
+
         foreach ($materialesOcupados as $material) {
-            $trabajo = Trabajo::find($datos['trabajo_id']);
 
             $material['trabajo_id'] = $datos['trabajo_id'];
-            $material['tarea_id'] = $trabajo->tarea->id;
-            $material['empleado_id'] = $trabajo->empleado->id;
+            $material['tarea_id'] = $trabajo->tarea_id;
+
+            $material['empleado_id'] = $empleado->id;
+            $material['grupo_id'] = $empleado->grupo_id;
+
             $material['fecha'] = Carbon::now()->format('d-m-Y');
+
             ControlMaterialTrabajo::create($material);
         }
 
-        // Guardar imagenes        
+        // Guardar imagenes
         $datos['imagen_elemento'] = (new GuardarImagenIndividual($datos['imagen_elemento'], RutasStorage::REGISTROS_TENDIDOS))->execute();
 
         // Log::channel('testing')->info('Log', ['Existe imahgen de cruce americano', $request['imagen_cruce_americano']]);
         if ($datos['imagen_cruce_americano'])
-            $datos['imagen_cruce_americano'] = (new GuardarImagenIndividual($datos['imagen_cruce_americano'], RutasStorage::REGISTROS_TENDIDOS))->execute();    
+            $datos['imagen_cruce_americano'] = (new GuardarImagenIndividual($datos['imagen_cruce_americano'], RutasStorage::REGISTROS_TENDIDOS))->execute();
 
         if ($datos['imagen_poste_anclaje1'])
             $datos['imagen_poste_anclaje1'] = (new GuardarImagenIndividual($datos['imagen_poste_anclaje1'], RutasStorage::REGISTROS_TENDIDOS))->execute();
@@ -72,7 +79,7 @@ class RegistroTendidoController extends Controller
         if ($datos['imagen_poste_anclaje2'])
             $datos['imagen_poste_anclaje2'] = (new GuardarImagenIndividual($datos['imagen_poste_anclaje2'], RutasStorage::REGISTROS_TENDIDOS))->execute();
 
-        $modelo = new RegistroTendidoResource(RegistroTendido::create($datos)); 
+        $modelo = new RegistroTendidoResource(RegistroTendido::create($datos));
         return response()->json(compact('modelo'));
     }
 

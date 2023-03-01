@@ -9,9 +9,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 
 class ControlMaterialTrabajo extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
-    
+    use HasFactory, AuditableModel;
+
     protected $table = 'control_materiales_trabajos';
     protected $fillable = [
         'stock_actual',
@@ -19,7 +18,8 @@ class ControlMaterialTrabajo extends Model implements Auditable
         'fecha',
         'tarea_id',
         'trabajo_id',
-        'detalle_producto_id',
         'empleado_id',
+        'grupo_id',
+        'detalle_producto_id',
     ];
 }

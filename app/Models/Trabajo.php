@@ -149,10 +149,6 @@ class Trabajo extends Model implements Auditable
     {
         return $this->belongsTo(Grupo::class);
     }*/
-    public function grupos()
-    {
-        return $this->belongsToMany(Grupo::class);
-    }
 
     // Relacion uno a muchos (inversa)
     public function tipo_trabajo()
@@ -240,8 +236,15 @@ class Trabajo extends Model implements Auditable
         ]);
     }
 
+    // Modo asignacion de trabajo empleados individuales
     public function empleados()
     {
         return $this->belongsToMany(Empleado::class);
+    }
+
+    // Modo de asignación de trabajo por grupo
+    public function grupos()
+    {
+        return $this->belongsToMany(Grupo::class);
     }
 }
