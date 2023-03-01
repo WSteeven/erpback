@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ControlMaterialSubtarea;
+use App\Models\ControlMaterialTrabajo;
 use App\Models\DetalleProducto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +22,7 @@ class ReporteControlMaterialController extends Controller
         $grupo = request('grupo');
         $fecha = request('fecha');
 
-        $results = ControlMaterialSubtarea::select(DB::raw('detalle_producto_id, stock_actual, sum(cantidad_utilizada) as cantidad_utilizada'), 'stock_actual')->where('tarea_id', $tarea)->where('grupo_id', $grupo)->groupBy('detalle_producto_id')->where('fecha', $fecha)->get();
+        $results = ControlMaterialTrabajo::select(DB::raw('detalle_producto_id, stock_actual, sum(cantidad_utilizada) as cantidad_utilizada'), 'stock_actual')->where('tarea_id', $tarea)->where('grupo_id', $grupo)->groupBy('detalle_producto_id')->where('fecha', $fecha)->get();
         $results = $this->mapearListado($results);
 
         return response()->json(compact('results'));

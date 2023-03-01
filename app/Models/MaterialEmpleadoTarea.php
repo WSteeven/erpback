@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class MaterialEmpleadoTarea extends Model
 {
@@ -18,4 +19,14 @@ class MaterialEmpleadoTarea extends Model
         'empleado_id',
         'detalle_producto_id',
     ];
+
+    public function scopeResponsable($query)
+    {
+        return $query->where('empleado_id', Auth::user()->empleado->id);
+    }
+
+    public function tarea()
+    {
+        return $this->hasOne(Tarea::class, 'id', 'tarea_id');
+    }
 }
