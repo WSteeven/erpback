@@ -83,6 +83,7 @@ class Viatico extends Model implements Auditable
         foreach ($viaticos as $viatico) {
             $row['fecha']= $viatico->fecha_viat;
             $row['usuario'] = $viatico->usuario_info->empleado;
+            $row['grupo'] = $viatico->usuario_info->empleado->grupo==null?'':$viatico->usuario_info->empleado->grupo->descripcion;
             $row['tarea'] = $viatico->tarea_info;
             $row['detalle'] = $viatico->detalle_info;
             $row['sub_detalle'] = $viatico->sub_detalle_info;

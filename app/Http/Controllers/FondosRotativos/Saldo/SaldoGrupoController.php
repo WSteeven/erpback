@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
+use App\Models\FondosRotativos\Saldo\Acreditaciones;
+
 class SaldoGrupoController extends Controller
 {
     private $entidad = 'saldo_grupo';
@@ -25,6 +27,7 @@ class SaldoGrupoController extends Controller
         $this->middleware('can:puede.editar.saldo')->only('update');
         $this->middleware('can:puede.eliminar.saldo')->only('update');
         $this->middleware('can:puede.ver.reporte_saldo_actual')->only('saldo_actual');
+        $this->middleware('can:puede.ver.reporte_consolidado')->only('consolidado');
     }
     /**
      * It gets all the data from the table, filters it, and returns it as a json response
@@ -112,16 +115,16 @@ class SaldoGrupoController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
-   /**
-    * It returns the last record of the table SaldoGrupo where the id_usuario is equal to the id passed
-    * as a parameter.
-    * If there is no record, it returns 0
-    *
-    * @param id The id of the user
-    *
-    * @return The last record of the table SaldoGrupo where the id_usuario is equal to the id passed as
-    * a parameter.
-    */
+    /**
+     * It returns the last record of the table SaldoGrupo where the id_usuario is equal to the id passed
+     * as a parameter.
+     * If there is no record, it returns 0
+     *
+     * @param id The id of the user
+     *
+     * @return The last record of the table SaldoGrupo where the id_usuario is equal to the id passed as
+     * a parameter.
+     */
     public function saldo_actual_usuario($id)
     {
         $saldo_actual = SaldoGrupo::where('id_usuario', $id)->orderBy('id', 'desc')->first();
@@ -129,30 +132,30 @@ class SaldoGrupoController extends Controller
 
         return response()->json(compact('saldo_actual'));
     }
-   /**
-    * It's a function that returns a PDF or Excel file depending on the parameter that is passed to it
-    *
-    * @param Request request The request object.
-    * @param tipo is the type of report, it can be excel or pdf
-    *
-    * @return a file, but the file is not being downloaded.
-    */
+    /**
+     * It's a function that returns a PDF or Excel file depending on the parameter that is passed to it
+     *
+     * @param Request request The request object.
+     * @param tipo is the type of report, it can be excel or pdf
+     *
+     * @return a file, but the file is not being downloaded.
+     */
     public function saldo_actual(Request $request, $tipo)
     {
         try {
             $id = $request->usuario != null ?  $request->usuario : 0;
             $saldos_actual_user = $request->usuario == null ?
-            SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
-                $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
-            })->get()
+                SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                    $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+                })->get()
                 : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
-            $tipo_reporte = $request->usuario != null ? 'usuario' : 'todos';           ;
+            $tipo_reporte = $request->usuario != null ? 'usuario' : 'todos';
             $results = SaldoGrupo::empaquetarListado($saldos_actual_user, $tipo_reporte);
             $nombre_reporte = 'reporte_saldoActual';
             $reportes =  ['saldos' => $results];
             switch ($tipo) {
                 case 'excel':
-                    return Excel::download(new SaldoActualExport($reportes), $nombre_reporte.'.xlsx');
+                    return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
                     break;
                 case 'pdf':
                     Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
@@ -160,6 +163,64 @@ class SaldoGrupoController extends Controller
                     return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    public function consolidado(Request $request, $tipo)
+    {
+        try {
+            switch ($request->tipo_saldo) {
+                case '1':
+                    $this->acreditacion($request, $tipo);
+                    break;
+                case '2':
+                    $this->gasto($request, $tipo);
+                    break;
+                case '3':
+                    $this->reporte_consolidado($request, $tipo);
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private  function acreditacion($request, $tipo)
+    {
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $saldos_actual_user = Acreditaciones::with('usuario')
+            ->where('id_usuario', $request->usuario)
+            ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+            ->get();
+            $nombre_reporte = 'reporte_saldoActual';
+            $results = Acreditaciones::empaquetar($saldos_actual_user);
+            $reportes =  ['acreditaciones' => $results];
+            switch ($tipo) {
+                case 'excel':
+                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
+                    break;
+                case 'pdf':
+                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
+                     $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario', $reportes);
+                   // return $pdf->download($nombre_reporte . '.pdf');
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private  function gasto($request, $tipo)
+    {
+        try {
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private  function reporte_consolidado($request, $tipo)
+    {
+        try {
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

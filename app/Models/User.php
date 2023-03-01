@@ -96,7 +96,7 @@ class User extends Authenticatable implements Auditable
     // Relacion uno a uno
     public function empleado()
     {
-        return $this->hasOne(Empleado::class, 'usuario_id');
+        return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo','grupo');
     }
 
     // Permite a vue acceder a los roles y permisos

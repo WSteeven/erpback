@@ -50,7 +50,7 @@ class SaldoGrupo extends  Model implements Auditable
                         $row['tipo_saldo'] = $saldo->id_tipo_saldo;
                         $row['usuario'] = $saldo->id_usuario;
                         $row['usuario_info'] = $saldo->usuario;
-                        $row['cargo'] = $saldo->usuario->getRoleNames()[0]=='EMPLEADO'?$saldo->usuario->getRoleNames()[1]:$saldo->usuario->getRoleNames()[0];
+                        $row['cargo'] = $saldo->usuario->empleado->cargo->nombre;
                         $row['empleado'] = $saldo->usuario->empleado;
                         $row['descripcion_saldo'] = $saldo->descripcion_saldo;
                         $row['saldo_anterior'] = $saldo->saldo_anterior;
@@ -70,7 +70,7 @@ class SaldoGrupo extends  Model implements Auditable
                     $row['usuario'] = $saldos->id_usuario;
                     $row['usuario_info'] = $saldos->usuario;
                     $row['empleado'] = $saldos->usuario->empleado;
-                    $row['cargo'] = $saldos->usuario->getRoleNames()[0]=='EMPLEADO'?$saldos->usuario->getRoleNames()[1]:$saldos->usuario->getRoleNames()[0];
+                    $row['cargo'] = $saldos->usuario->empleado->cargo->nombre;
                     $row['descripcion_saldo'] = $saldos->descripcion_saldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;

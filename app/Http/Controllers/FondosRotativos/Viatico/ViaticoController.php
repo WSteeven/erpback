@@ -246,7 +246,7 @@ class ViaticoController extends Controller
                     ->where('estado', 1)
                     ->get();
                 $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
-                $datos_saldo_anterior = SaldoGrupo::where('id_usuarioff', $idUsuarioLogeado)
+                $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
                     ->whereBetween('fecha', [$inicio_semana, $fin_semana])
                     ->orderBy('id', 'desc')
                     ->first();

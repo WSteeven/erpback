@@ -296,6 +296,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
     Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [ViaticoController::class, 'reporte_autorizaciones']);
+    Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
 });
 
 // Tendidos
