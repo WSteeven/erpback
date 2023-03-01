@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\FondosRotativos\Viatico;
+namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\FondoRotativoEvent;
 use App\Exports\AutorizacionesExport;
-use App\Exports\ViaticoExport;
+use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FondosRotativos\Viaticos\ViaticoResource;
+use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\UserInfoResource;
-use App\Models\FondosRotativos\Viatico\DetalleViatico;
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
+use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Viatico\Viatico;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -26,9 +26,9 @@ use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
-class ViaticoController extends Controller
+class GastoController extends Controller
 {
-    private $entidad = 'viatico';
+    private $entidad = 'gasto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.gasto')->only('index', 'show');
@@ -46,8 +46,8 @@ class ViaticoController extends Controller
     {
         $results = [];
 
-        $results = Viatico::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-        $results = ViaticoResource::collection($results);
+        $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        $results = GastoResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -55,7 +55,7 @@ class ViaticoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -65,7 +65,7 @@ class ViaticoController extends Controller
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        //Asignacion de estatus de viatico
+        //Asignacion de estatus de gasto
         if ($datos_detalle->descripcion == '') {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
@@ -89,14 +89,14 @@ class ViaticoController extends Controller
         $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
-        if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_VIATICOS))->execute();
-        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_VIATICOS))->execute();
+        if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
+        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
         //Guardar Registro
-        $modelo = Viatico::create($datos);
+        $modelo = Gasto::create($datos);
         $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
         $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
         $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
-        $modelo = new ViaticoResource($modelo);
+        $modelo = new GastoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         event(new FondoRotativoEvent($modelo));
         return response()->json(compact('mensaje', 'modelo'));
@@ -106,30 +106,30 @@ class ViaticoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
-    public function update(Viatico $request, Viatico $activo)
+    public function update(Gasto $request, Gasto $activo)
     {
         //Adaptacion de foreign keys
         $datos = $request->all();
         $user = Auth::user();
         $usuario_autorizado = User::where('id', $request->aut_especial)->first();
         $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_viatico = 0;
+        $saldo_consumido_gasto = 0;
         if ($datos_detalle->descripcion == '') {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
             } else {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
+                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
             }
         } else {
             if ($datos_detalle->autorizacion == 'SI') {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
             } else {
                 $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_viatico = (float)$saldo_consumido_viatico + (float)$request->total;
+                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
             }
         }
         //Adaptacion de foreign keys
@@ -140,28 +140,28 @@ class ViaticoController extends Controller
 
         //Respuesta
         $activo->update($datos);
-        $modelo = new ViaticoResource($activo->refresh());
+        $modelo = new GastoResource($activo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
-     * It shows the viatico
+     * It shows the gasto
      *
-     * @param Viatico viatico The model that will be used to retrieve the data.
+     * @param Gasto gasto The model that will be used to retrieve the data.
      *
-     * @return A JSON object with the data of the viatico.
+     * @return A JSON object with the data of the gasto.
      */
-    public function show(Viatico $viatico)
+    public function show(Gasto $gasto)
     {
-        $modelo = new ViaticoResource($viatico);
+        $modelo = new GastoResource($gasto);
         return response()->json(compact('modelo'), 200);
     }
 
-    public function destroy(Viatico $viatico)
+    public function destroy(Gasto $gasto)
     {
-        $viatico->delete();
+        $gasto->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
     }
@@ -183,7 +183,7 @@ class ViaticoController extends Controller
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
             $idUsuarioLogeado = $usuario_logeado[0]->id;
-            $datos_reporte = Viatico::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $datos_reporte = Gasto::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=', $idUsuarioLogeado)
@@ -228,7 +228,7 @@ class ViaticoController extends Controller
                     ->where('id_usuario', $idUsuarioLogeado)
                     ->where('fecha', '>=', $inicio_semana)
                     ->get();
-                $datos_gastos_corte = Viatico::select(DB::raw('SUM(total) as total'))
+                $datos_gastos_corte = Gasto::select(DB::raw('SUM(total) as total'))
                     ->where('id_usuario', $idUsuarioLogeado)
                     ->where('fecha_viat', '>=', $inicio_semana)
                     ->where('estado', 1)
@@ -240,7 +240,7 @@ class ViaticoController extends Controller
                     ->where('id_usuario', $idUsuarioLogeado)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
-                $datos_rango_gastos = Viatico::select(DB::raw('SUM(total) as total'))
+                $datos_rango_gastos = Gasto::select(DB::raw('SUM(total) as total'))
                     ->where('id_usuario', $idUsuarioLogeado)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->where('estado', 1)
@@ -285,11 +285,11 @@ class ViaticoController extends Controller
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             switch ($tipo) {
                 case 'excel':
-                    return Excel::download(new ViaticoExport($reporte), $nombre_reporte . '.xlsx');
+                    return Excel::download(new GastoExport($reporte), $nombre_reporte . '.xlsx');
                     break;
                 case 'pdf':
 
-                    $pdf = Pdf::loadView('exports.reportes.viaticos_por_fecha', $reporte);
+                    $pdf = Pdf::loadView('exports.reportes.gastos_por_fecha', $reporte);
                     return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }
@@ -327,16 +327,16 @@ class ViaticoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = User::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Viatico::with('usuario_info', 'detalle_info', 'sub_detalle_info')
+            $reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $subtotal = Viatico::with('usuario_info', 'detalle_info', 'sub_detalle_info')
+            $subtotal = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
-            $reporte_empaquetado = Viatico::empaquetar($reporte);
+            $reporte_empaquetado = Gasto::empaquetar($reporte);
             $div = $tipo_reporte->nombre=='Aprobado' ?10 :12;
             $resto =0;
             $DateAndTime = date('Y-m-d H:i:s');

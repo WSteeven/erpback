@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\FondosRotativos\Viatico;
+namespace App\Models\FondosRotativos\Gasto;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

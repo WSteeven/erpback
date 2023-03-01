@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('viaticos', function (Blueprint $table) {
+        Schema::create('gastos', function (Blueprint $table) {
             $table->id();
             $table->date('fecha_viat');
             $table->unsignedBigInteger('id_lugar');

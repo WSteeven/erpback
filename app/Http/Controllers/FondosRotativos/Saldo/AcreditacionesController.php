@@ -5,7 +5,7 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;

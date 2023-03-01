@@ -13,15 +13,15 @@ use Illuminate\Queue\SerializesModels;
 class FondoRotativoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-    public $viatico;
+    public $gasto;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($viatico)
+    public function __construct($gasto)
     {
-        $this->viatico = $viatico;
+        $this->gasto = $gasto;
     }
 
     /**
@@ -32,7 +32,7 @@ class FondoRotativoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         //return new PrivateChannel('channel-name');
-        return new Channel('fondo-rotativo-'. $this->viatico->aut_especial);
+        return new Channel('fondo-rotativo-'. $this->gasto->aut_especial);
     }
     public function broadcastAs()
     {

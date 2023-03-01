@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\FondosRotativos\Viatico;
+namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Proyecto;
 use App\Models\Tarea;
@@ -11,12 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Viatico extends Model implements Auditable
+class Gasto extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'viaticos';
+    protected $table = 'gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
         'id_lugar',
@@ -45,11 +45,11 @@ class Viatico extends Model implements Auditable
     ];
     public function detalle_info()
     {
-        return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
+        return $this->hasOne(DetalleGasto::class, 'id', 'detalle');
     }
     public function sub_detalle_info()
     {
-        return $this->hasOne(SubDetalleViatico::class, 'id', 'sub_detalle');
+        return $this->hasOne(SubDetalleGasto::class, 'id', 'sub_detalle');
     }
     public function aut_especial_user()
     {
@@ -57,7 +57,7 @@ class Viatico extends Model implements Auditable
     }
     public function estado_info()
     {
-        return $this->hasOne(EstadoViatico::class, 'id', 'estado');
+        return $this->hasOne(EstadoGasto::class, 'id', 'estado');
     }
     public function proyecto_info()
     {
@@ -69,28 +69,28 @@ class Viatico extends Model implements Auditable
     }
     public function lugar_info()
     {
-        return $this->hasOne(LugarViatico::class, 'id', 'id_lugar');
+        return $this->hasOne(LugarGasto::class, 'id', 'id_lugar');
     }
     public function usuario_info()
     {
         return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
     }
-    public static function empaquetar($viaticos)
+    public static function empaquetar($gastos)
     {
         $results = [];
         $id = 0;
         $row = [];
-        foreach ($viaticos as $viatico) {
-            $row['fecha']= $viatico->fecha_viat;
-            $row['usuario_info']= $viatico->usuario_info;
-            $row['usuario'] = $viatico->usuario_info->empleado;
-            $row['grupo'] = $viatico->usuario_info->empleado->grupo==null?'':$viatico->usuario_info->empleado->grupo->descripcion;
-            $row['tarea'] = $viatico->tarea_info;
-            $row['detalle'] = $viatico->detalle_info;
-            $row['sub_detalle'] = $viatico->sub_detalle_info;
-            $row['observacion'] = $viatico->observacion;
-            $row['detalle_estado'] = $viatico->detalle_estado;
-            $row['total']= $viatico->total;
+        foreach ($gastos as $gasto) {
+            $row['fecha']= $gasto->fecha_viat;
+            $row['usuario_info']= $gasto->usuario_info;
+            $row['usuario'] = $gasto->usuario_info->empleado;
+            $row['grupo'] = $gasto->usuario_info->empleado->grupo==null?'':$gasto->usuario_info->empleado->grupo->descripcion;
+            $row['tarea'] = $gasto->tarea_info;
+            $row['detalle'] = $gasto->detalle_info;
+            $row['sub_detalle'] = $gasto->sub_detalle_info;
+            $row['observacion'] = $gasto->observacion;
+            $row['detalle_estado'] = $gasto->detalle_estado;
+            $row['total']= $gasto->total;
             $results[$id] = $row;
             $id++;
 

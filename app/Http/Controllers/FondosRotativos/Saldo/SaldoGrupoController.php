@@ -5,7 +5,7 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -16,7 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Viatico\Viatico;
+use App\Models\FondosRotativos\Gasto\Gasto;
 
 class SaldoGrupoController extends Controller
 {
@@ -239,13 +239,13 @@ class SaldoGrupoController extends Controller
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $gastos = Viatico::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
-            $results = Viatico::empaquetar($gastos);
+            $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
             switch ($tipo) {
                 case 'excel':
@@ -281,7 +281,7 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos = Viatico::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');

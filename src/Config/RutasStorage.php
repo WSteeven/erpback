@@ -12,5 +12,5 @@ enum RutasStorage: string
 	case POPUP = 'public/popup';
 	case TRABAJOS = 'public/trabajos';
 	case REGISTROS_TENDIDOS = 'public/registrosTendidos';
-    case COMPROBANTES_VIATICOS = 'public/comprobantesViaticos';
+    case COMPROBANTES_GASTOS = 'public/comprobantesViaticos';
 }

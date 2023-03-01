@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
+use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

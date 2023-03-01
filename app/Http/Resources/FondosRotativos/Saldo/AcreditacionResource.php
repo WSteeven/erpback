@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\FondosRotativos\Saldo;
 
-use App\Models\FondosRotativos\Viatico\Viatico;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +30,7 @@ class AcreditacionResource extends JsonResource
         return $modelo;
     }
     private function getSaldoGrupo($fecha_inicio,$fecha_fin,$id_usuario){
-        $gasto = Viatico::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+        $gasto = Gasto::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
             ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio,$fecha_fin])
             ->where('estado', '=', 1)
             ->where('id_usuario', '=', $id_usuario)

@@ -6,7 +6,7 @@ use App\Models\DetallePedidoProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Viatico\Viatico;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\Inventario;
 use App\Models\InventarioPrestamoTemporal;
 use App\Models\MovimientoProducto;
@@ -62,7 +62,7 @@ class EventServiceProvider extends ServiceProvider
         DetalleProductoTransaccion::observe(DetalleProductoTransaccionObserver::class);
         // TransaccionBodega::observe(TransaccionBodegaObserver::class);
         DetallePedidoProducto::observe(DetallePedidoProductoObserver::class);
-        Viatico::observe(GastosObserver::class);
+        Gasto::observe(GastosObserver::class);
         Acreditaciones::observe(AcreditacionObserver::class);
     }
 

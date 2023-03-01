@@ -5,7 +5,7 @@ namespace App\Exports;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 
-class ViaticoExport implements FromView
+class GastoExport implements FromView
 {
     protected $reporte;
 
@@ -16,6 +16,6 @@ class ViaticoExport implements FromView
     public function view(): View
     {
 
-        return view('exports.reportes.viaticos_por_fecha',$this->reporte);
+        return view('exports.reportes.gastos_por_fecha',$this->reporte);
     }
 }

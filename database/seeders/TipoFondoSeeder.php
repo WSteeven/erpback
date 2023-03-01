@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\FondosRotativos\Viatico\TipoFondo;
+use App\Models\FondosRotativos\Gasto\TipoFondo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

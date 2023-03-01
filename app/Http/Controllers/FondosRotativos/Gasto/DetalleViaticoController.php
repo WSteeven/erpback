@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\FondosRotativos\Viatico;
+namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FondosRotativos\Viaticos\DetalleViaticoResource;
+use App\Http\Resources\FondosRotativos\Gastos\DetalleViaticoResource;
 use App\Models\FondosRotativos\Usuario\Estatus;
-use App\Models\FondosRotativos\Viatico\DetalleViatico;
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class DetalleViaticoController extends Controller
 {
-    private $entidad = 'detalle_viatico';
+    private $entidad = 'detalle_gasto';
     public function __construct()
     {
         $this->middleware('can:puede.ver.detalle_fondo')->only('index', 'show');
@@ -21,7 +21,7 @@ class DetalleViaticoController extends Controller
         $this->middleware('can:puede.eliminar.detalle_fondo')->only('update');
     }
    /**
-    * It returns a list of all the detalle_viaticos in the database.
+    * It returns a list of all the detalle_gastos in the database.
     *
     * @param Request request The request object.
     *
@@ -79,11 +79,11 @@ class DetalleViaticoController extends Controller
     /**
      * It deletes a record from the database
      *
-     * @param DetalleViatico viatico The model instance that you want to delete.
+     * @param DetalleViatico gasto The model instance that you want to delete.
      */
-    public function destroy(DetalleViatico $viatico)
+    public function destroy(DetalleViatico $gasto)
     {
-        $viatico->delete();
+        $gasto->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
 

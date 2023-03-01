@@ -3,20 +3,20 @@
 namespace App\Observers\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Viatico\DetalleViatico;
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
-use App\Models\FondosRotativos\Viatico\Viatico ;
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
+use App\Models\FondosRotativos\Gasto\EstadoGasto;
+use App\Models\FondosRotativos\Gasto\Gasto ;
 use Spatie\LaravelIgnition\Recorders\DumpRecorder\Dump;
 
 class GastosObserver
 {
     /**
-     * Handle the Viatico "created" event.
+     * Handle the Gasto "created" event.
      *
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\FondosRotativos\Gasto\Gasto  $gasto
      * @return void
      */
-    public function created(Viatico $gasto)
+    public function created(Gasto $gasto)
     {
         $datos_detalle = DetalleViatico::where('id', $gasto->detalle)->first();
         if ($datos_detalle->descripcion == '') {
@@ -32,45 +32,45 @@ class GastosObserver
     }
 
     /**
-     * Handle the Viatico "updated" event.
+     * Handle the Gasto "updated" event.
      *
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\FondosRotativos\Gasto\Gasto  $gasto
      * @return void
      */
-    public function updated(Viatico $gasto)
+    public function updated(Gasto $gasto)
     {
         $this->guardar_gasto($gasto);
     }
 
     /**
-     * Handle the Viatico "deleted" event.
+     * Handle the Gasto "deleted" event.
      *
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\Gasto  $gasto
      * @return void
      */
-    public function deleted(Viatico $viatico)
+    public function deleted(Gasto $gasto)
     {
         //
     }
 
     /**
-     * Handle the Viatico "restored" event.
+     * Handle the Gasto "restored" event.
      *
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\Gasto  $gasto
      * @return void
      */
-    public function restored(Viatico $viatico)
+    public function restored(Gasto $gasto)
     {
         //
     }
 
     /**
-     * Handle the Viatico "force deleted" event.
+     * Handle the Gasto "force deleted" event.
      *
-     * @param  \App\Models\Viatico  $viatico
+     * @param  \App\Models\Gasto  $gasto
      * @return void
      */
-    public function forceDeleted(Viatico $viatico)
+    public function forceDeleted(Gasto $gasto)
     {
         //
     }
@@ -92,7 +92,7 @@ class GastosObserver
         $fechaFin = date("Y-m-d", strtotime($fecha. "+$sum days"));
         return array($fechaIni, $fechaFin);
     }
-    private function guardar_gasto(Viatico $gasto){
+    private function guardar_gasto(Gasto $gasto){
         $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('id', 'desc')->first();
         $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
         $saldo = new SaldoGrupo();

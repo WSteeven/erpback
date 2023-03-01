@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\FondosRotativos\Viaticos;
+namespace App\Http\Resources\FondosRotativos\Gastos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 

@@ -57,9 +57,9 @@ use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
-use App\Http\Controllers\FondosRotativos\Viatico\DetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Viatico\SubDetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Viatico\ViaticoController;
+use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
+use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -182,7 +182,7 @@ Route::apiResources(
         'registros-tendidos' => RegistroTendidoController::class,
         'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
         'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
-        'fondos-rotativos/viaticos' => ViaticoController::class,
+        'fondos-rotativos/gastos' => GastoController::class,
         'fondos-rotativos/tipo-saldo' => TipoSaldoController::class,
         'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
         'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
@@ -292,10 +292,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('cantones', fn () => ['results' => Canton::all()]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
-    Route::post('fondos-rotativos/reporte/fecha/{tipo}', [ViaticoController::class, 'generar_reporte']);
+    Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
     Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
-    Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [ViaticoController::class, 'reporte_autorizaciones']);
+    Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
 });
 

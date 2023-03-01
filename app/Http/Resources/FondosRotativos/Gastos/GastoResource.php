@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Resources\FondosRotativos\Viaticos;
+namespace App\Http\Resources\FondosRotativos\Gastos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ViaticoResource extends JsonResource
+class GastoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

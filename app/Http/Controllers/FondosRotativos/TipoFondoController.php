@@ -4,7 +4,7 @@ namespace App\Http\Controllers\FondosRotativos;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FondosRotativos\Viatico\TipoFondo;
+use App\Models\FondosRotativos\Gasto\TipoFondo;
 use App\Http\Resources\FondosRotativos\TipoFondoResource;
 
 class TipoFondoController extends Controller
