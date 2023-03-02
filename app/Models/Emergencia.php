@@ -33,6 +33,6 @@ class Emergencia extends Model implements Auditable
         'trabajo_realizado',
         'observaciones',
         'materiales_ocupados',
-        'subtarea_id',
+        'trabajo_id',
     ];
 }

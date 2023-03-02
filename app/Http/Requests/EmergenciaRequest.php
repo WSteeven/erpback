@@ -36,13 +36,13 @@ class EmergenciaRequest extends FormRequest
             'hora_fin_reparacion' => 'required|string',
             'fecha_retiro_personal' => 'required|string',
             'hora_retiro_personal' => 'required|string',
-            'tiempo_espera_adicional' => 'required|string',
-            'estacion_referencia_afectacion' => 'required|string',
-            'distancia_afectacion' => 'required|string',
+            'tiempo_espera_adicional' => 'nullable|string',
+            'estacion_referencia_afectacion' => 'nullable|string',
+            'distancia_afectacion' => 'nullable|string',
             'trabajo_realizado' => 'required|string',
             'observaciones' => 'required|string',
-            'materiales_ocupados' => 'required|string',
-            'subtarea_id' => 'required|string',
+            'materiales_ocupados' => 'required|array',
+            // 'subtarea_id' => 'required|string',
         ];
     }
 }
