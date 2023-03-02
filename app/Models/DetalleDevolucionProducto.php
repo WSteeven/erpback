@@ -29,7 +29,7 @@ class DetalleDevolucionProducto extends Pivot implements Auditable
      * @var string[]
      */
     protected $fillable = [
-        'detalle_id',
+        'producto_id',
         'devolucion_id',
         'cantidad',
     ];

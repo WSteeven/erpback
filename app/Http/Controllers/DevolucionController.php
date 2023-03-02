@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Devolucion;
+use App\Models\Producto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -50,7 +51,11 @@ class DevolucionController extends Controller
                 DevolucionResource::collection($results);
             }
         } else {
-            $results = Devolucion::ignoreRequest(['campos'])->filter()->get();
+            if(auth()->user()->hasRole(User::ROL_BODEGA)){
+                $results = Devolucion::ignoreRequest(['campos'])->filter()->get();
+            }else{
+                $results = Devolucion::ignoreRequest(['campos'])->filter()->where('solicitante_id', auth()->user()->empleado->id)->get();
+            }
         }
 
         $results = DevolucionResource::collection($results);
@@ -78,7 +83,8 @@ class DevolucionController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
-                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $producto = Producto::where('nombre', $listado['producto'])->first();
+                $devolucion->productos()->attach($producto->id, ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
         } catch (Exception $e) {

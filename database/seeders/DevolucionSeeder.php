@@ -26,10 +26,10 @@ class DevolucionSeeder extends Seeder
 
         //detalles
         $datos = [
-            [1, 15, 1, 1, '2023-02-24 16:51:28', '2023-02-24 16:51:28']
+            [1, 3, 1, 1, '2023-02-24 16:51:28', '2023-02-24 16:51:28']
         ];
         foreach ($datos as $fila) {
-            DB::insert('INSERT INTO `detalle_devolucion_producto` (`id`, `detalle_id`, `devolucion_id`, `cantidad`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)', $fila);
+            DB::insert('INSERT INTO `detalle_devolucion_producto` (`id`, `producto_id`, `devolucion_id`, `cantidad`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)', $fila);
         }
     }
 }

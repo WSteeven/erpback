@@ -23,7 +23,7 @@ class DevolucionResource extends JsonResource
             'id'=>$this->id,
             'justificacion'=>$this->justificacion,
             'solicitante'=>$this->solicitante->nombres.' '. $this->solicitante->apellidos,
-            'tarea'=>$this->tarea?->detalle,
+            'tarea'=>$this->tarea?->titulo,
             'sucursal'=>$this->sucursal->lugar,
             'estado'=>$this->estado,
             'listadoProductos'=>$detalles,
