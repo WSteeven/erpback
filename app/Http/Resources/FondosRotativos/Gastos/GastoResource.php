@@ -20,7 +20,7 @@ class GastoResource extends JsonResource
             'fecha_viat' => $this->fecha_viat,
             'lugar' => $this->id_lugar,
             'num_tarea' => $this->id_tarea,
-            'tarea_info' => $this->tarea_info->codigo_tarea.' - '. $this->tarea_info->detalle,
+            'tarea_info' =>  $this->tarea_info !=null? $this->tarea_info->codigo_tarea.' - '. $this->tarea_info->detalle:'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->proyecto_info!=null? $this->proyecto_info->codigo_proyecto.' - '.$this->proyecto_info->nombre: 'Sin Proyecto',
             'ruc' => $this->ruc,

@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Gasto;
 
+use App\Models\Canton;
 use App\Models\Proyecto;
 use App\Models\Tarea;
 use App\Models\User;
@@ -45,19 +46,19 @@ class Gasto extends Model implements Auditable
     ];
     public function detalle_info()
     {
-        return $this->hasOne(DetalleGasto::class, 'id', 'detalle');
+        return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
     }
     public function sub_detalle_info()
     {
-        return $this->hasOne(SubDetalleGasto::class, 'id', 'sub_detalle');
+        return $this->hasOne(SubDetalleViatico::class, 'id', 'sub_detalle');
     }
     public function aut_especial_user()
     {
-        return $this->hasOne(User::class, 'id', 'aut_especial');
+        return $this->hasOne(User::class, 'id', 'aut_especial')->with('empleado');
     }
     public function estado_info()
     {
-        return $this->hasOne(EstadoGasto::class, 'id', 'estado');
+        return $this->hasOne(EstadoViatico::class, 'id', 'estado');
     }
     public function proyecto_info()
     {
@@ -69,7 +70,7 @@ class Gasto extends Model implements Auditable
     }
     public function lugar_info()
     {
-        return $this->hasOne(LugarGasto::class, 'id', 'id_lugar');
+        return $this->hasOne(Canton::class, 'id', 'id_lugar');
     }
     public function usuario_info()
     {

@@ -2,7 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
-use App\Models\FondosRotativos\Viatico\TipoFondo;
+use App\Models\FondosRotativos\Gasto\TipoFondo;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

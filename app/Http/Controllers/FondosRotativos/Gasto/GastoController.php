@@ -183,7 +183,7 @@ class GastoController extends Controller
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
             $idUsuarioLogeado = $usuario_logeado[0]->id;
-            $datos_reporte = Gasto::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $datos_reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info','aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=', $idUsuarioLogeado)
@@ -268,6 +268,8 @@ class GastoController extends Controller
             $usuario_logeado = UserInfoResource::collection($usuario_logeado);
             $sub_total = 0;
             $datos_usuario_logueado =  $this->obtener_usuario($usuario_logeado);
+            Log::channel('testing')->info('Log', ['datos_saldo_depositados_semana', count($datos_saldo_depositados_semana)]);
+            Log::channel('testing')->info('Log', ['datos_reporte', count($datos_reporte)]);
             $reporte = compact(
                 'fecha_inicio',
                 'fecha_fin',
@@ -290,6 +292,7 @@ class GastoController extends Controller
                 case 'pdf':
 
                     $pdf = Pdf::loadView('exports.reportes.gastos_por_fecha', $reporte);
+                    $pdf->setPaper('A5', 'landscape');
                     return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }
