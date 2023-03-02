@@ -39,8 +39,8 @@ class EmergenciaRequest extends FormRequest
             'tiempo_espera_adicional' => 'nullable|string',
             'estacion_referencia_afectacion' => 'nullable|string',
             'distancia_afectacion' => 'nullable|string',
-            'trabajo_realizado' => 'required|string',
-            'observaciones' => 'required|string',
+            'trabajo_realizado' => 'required|array',
+            'observaciones' => 'required|array',
             'materiales_ocupados' => 'required|array',
             // 'subtarea_id' => 'required|string',
         ];

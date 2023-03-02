@@ -31,9 +31,9 @@ return new class extends Migration
             $table->string('tiempo_espera_adicional');
             $table->string('estacion_referencia_afectacion');
             $table->string('distancia_afectacion');
-            $table->string('trabajo_realizado');
-            $table->string('observaciones');
-            $table->string('materiales_ocupados');
+            $table->json('trabajo_realizado');
+            $table->json('observaciones');
+            $table->json('materiales_ocupados');
 
             // Foreign keys
             $table->unsignedBigInteger('trabajo_id');
