@@ -253,7 +253,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415236',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 1,
             'cargo_id' => 5,
         ]);
@@ -304,7 +304,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415232',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 2,
             'cargo_id' => 5,
         ]);
@@ -338,9 +338,9 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415237',
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 1,
-            'cargo_id' => 10,
+            'cargo_id' => 5,
         ]);
 
         $tecnico = User::create([

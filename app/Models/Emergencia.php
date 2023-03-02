@@ -30,9 +30,9 @@ class Emergencia extends Model implements Auditable
         'tiempo_espera_adicional',
         'estacion_referencia_afectacion',
         'distancia_afectacion',
-        'trabajo_realizado',
-        'observaciones',
-        'materiales_ocupados',
-        'subtarea_id',
+        //'trabajo_realizado',
+        //'observaciones',
+        // 'materiales_ocupados',
+        'trabajo_id',
     ];
 }

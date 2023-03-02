@@ -46,7 +46,7 @@ class ControlMaterialTrabajoService
         $material = MaterialEmpleadoTarea::with('tarea')->where('detalle_producto_id', $detalle_id)->responsable()->first();
 
         if (!$material) throw ValidationException::withMessages([
-            'marterial_insuficiente' => ['No existe el material solicitado.'],
+            'marterial_insuficiente' => ['No se ha realizado el pedido del material solicitado.'],
         ]);
 
         if ($material->cantidad_stock < $cantidad) throw ValidationException::withMessages([
@@ -54,17 +54,24 @@ class ControlMaterialTrabajoService
         ]);
     }
 
-    /* private function verificarStockUpdate($detalle_id, $cantidad)
+    public function verificarDisponibleStockUpdate(array $materiales, array $materialesAnteriores)
     {
-        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first();
+        foreach ($materiales as $material) {
+            $this->verificarEnStockUpdate($material['detalle_producto_id'], $material['cantidad_utilizada'], $materialesAnteriores);
+        }
+    }
+
+    private function verificarEnStockUpdate(int $detalle_id, int $cantidad, array $materialesAnteriores)
+    {
+        $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)->first(); // stock
         if (!$material) throw ValidationException::withMessages([
-            'marterial_insuficiente' => ['No existe el material solicitado.'],
+            'marterial_insuficiente' => ['No se ha realizado el pedido del material solicitado.'],
         ]);
 
         if ($material->cantidad_stock < $cantidad) throw ValidationException::withMessages([
             'marterial_insuficiente' => ['No existe la cantidad suficiente del material para realizar esta transaccón.'],
         ]);
-    } */
+    }
 
     /**
      * Store
