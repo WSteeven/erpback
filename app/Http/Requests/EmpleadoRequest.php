@@ -42,6 +42,7 @@ class EmpleadoRequest extends FormRequest
             'estado' => 'sometimes|boolean',
             'cargo' => 'required|exists:cargos,id',
             'grupo' => 'nullable|exists:grupos,id',
+            'firma_url' => 'nullable|string',
             // 'es_responsable_grupo' => 'nullable|boolean',
         ];
 
