@@ -292,7 +292,7 @@ class GastoController extends Controller
                 case 'pdf':
 
                     $pdf = Pdf::loadView('exports.reportes.gastos_por_fecha', $reporte);
-                    $pdf->setPaper('A5', 'landscape');
+                    $pdf->setPaper('A4', 'landscape');
                     return $pdf->download($nombre_reporte . '.pdf');
                     break;
             }

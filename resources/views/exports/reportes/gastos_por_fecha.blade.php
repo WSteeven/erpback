@@ -4,10 +4,13 @@
     <style>
         body {
             font-family: sans-serif;
+            background-image: url('img/logoJPBN_10.png');
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         @page {
-            margin: 100px 50px;
+            margin: 100px 25px;
         }
 
         header {
@@ -30,17 +33,22 @@
         footer {
             position: fixed;
             left: 0px;
-            bottom: -55px;
+            bottom: -75px;
             right: 0px;
-            height: 70px;
+            height: 65px;
+            margin-top: 0%;
+            margin-bottom: 0%;
+            font-size: 7pt;
         }
 
         .firma {
             table-layout: fixed;
-            width: 100%;
+            width: 75%;
             line-height: normal;
-            font-size: 12px;
+            font-size: 10pt;
             margin-top: 0%;
+            margin-bottom: -20px;
+            font-size: 7pt;
         }
 
         footer .page:after {
@@ -68,7 +76,13 @@
             line-height: normal;
             font-size: 10pt;
         }
-
+        .observacion
+        {
+            table-layout: fixed;
+            width: 100%;
+            line-height: normal;
+            font-size: 7pt;
+        }
         footer .izq {
             text-align: left;
         }
@@ -330,7 +344,7 @@
             </table>
         </p>
         <p>
-        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" class="observacion">
             <tr>
                 <td>
                     <div align="left">
