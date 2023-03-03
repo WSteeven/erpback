@@ -32,8 +32,9 @@ return new class extends Migration
             $table->string('estacion_referencia_afectacion');
             $table->string('distancia_afectacion');
             $table->json('trabajo_realizado');
-            $table->json('observaciones');
-            $table->json('materiales_ocupados');
+            $table->json('observaciones')->nullable();
+            $table->json('materiales_ocupados')->nullable();
+            $table->json('materiales_devolucion')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('trabajo_id');

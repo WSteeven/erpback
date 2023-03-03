@@ -34,12 +34,13 @@ class Emergencia extends Model implements Auditable
         'trabajo_realizado',
         'observaciones',
         'materiales_ocupados',
+        'materiales_devolucion',
         'trabajo_id',
     ];
 
     protected $casts = [
         'trabajo_realizado' => 'json',
-        'trabajo_realizado' => 'json',
+        'observaciones' => 'json',
         'materiales_ocupados' => 'json',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
