@@ -40,7 +40,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('cargo_id')->nullable();
             $table->foreign('cargo_id')->references('id')->on('cargos')->onDelete(null)->onUpdate('cascade');
-
+            $table->string('firma_url')->nullable();;
             $table->timestamps();
         });
     }
