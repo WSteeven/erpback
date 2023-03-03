@@ -42,7 +42,7 @@ class EmergenciaRequest extends FormRequest
             'trabajo_realizado' => 'required|array',
             'observaciones' => 'required|array',
             'materiales_ocupados' => 'required|array',
-            // 'subtarea_id' => 'required|string',
+            'trabajo' => 'required|numeric|integer',
         ];
     }
 }

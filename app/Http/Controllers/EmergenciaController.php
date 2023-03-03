@@ -12,11 +12,17 @@ class EmergenciaController extends Controller
 {
     private $entidad = 'Emergencia';
 
+    public function index(){
+        $results = Emergencia::filter()->get();
+        return response()->json(compact('results'));
+    }
+
     public function store(EmergenciaRequest $request)
     {
-        // $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
+        $datos = $request->validated();
+        $datos['trabajo_id'] = $request->safe()->only(['trabajo'])['trabajo'];
         //$modelo = new EmergenciaResource($modelo);
-        $modelo = Emergencia::create($request->all());
+        $modelo = Emergencia::create($datos);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
