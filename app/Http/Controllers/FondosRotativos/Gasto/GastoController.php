@@ -23,14 +23,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class GastoController extends Controller
 {
     private $entidad = 'gasto';
+    private $reporteService;
     public function __construct()
     {
+        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.gasto')->only('index', 'show');
         $this->middleware('can:puede.crear.gasto')->only('store');
         $this->middleware('can:puede.editar.gasto')->only('update');
@@ -270,7 +273,7 @@ class GastoController extends Controller
             $datos_usuario_logueado =  $this->obtener_usuario($usuario_logeado);
             Log::channel('testing')->info('Log', ['datos_saldo_depositados_semana', count($datos_saldo_depositados_semana)]);
             Log::channel('testing')->info('Log', ['datos_reporte', count($datos_reporte)]);
-            $reporte = compact(
+            $reportes = compact(
                 'fecha_inicio',
                 'fecha_fin',
                 'datos_usuario_logueado',
@@ -283,19 +286,12 @@ class GastoController extends Controller
                 'datos_saldo_anterior',
                 'datos_reporte',
             );
-            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reporte]);
+            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
-            switch ($tipo) {
-                case 'excel':
-                    return Excel::download(new GastoExport($reporte), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
+            $vista = 'exports.reportes.gastos_por_fecha';
+            $export_excel = new GastoExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','landscape', $reportes, $nombre_reporte,$vista,$export_excel);
 
-                    $pdf = Pdf::loadView('exports.reportes.gastos_por_fecha', $reporte);
-                    $pdf->setPaper('A4', 'landscape');
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -358,15 +354,9 @@ class GastoController extends Controller
             ];
             Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
-            switch ($tipo_ARCHIVO) {
-                case 'excel':
-                    return Excel::download(new AutorizacionesExport($reportes), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
-                    $pdf = Pdf::loadView('exports.reportes.reporte_autorizaciones', $reportes);
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
+            $vista = 'exports.reportes.reporte_autorizaciones';
+            $export_excel =new AutorizacionesExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','landscape', $reportes, $nombre_reporte,$vista,$export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

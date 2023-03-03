@@ -17,12 +17,15 @@ use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class SaldoGrupoController extends Controller
 {
     private $entidad = 'saldo_grupo';
+    private $reporteService;
     public function __construct()
     {
+        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.saldo')->only('index', 'show');
         $this->middleware('can:puede.crear.saldo')->only('store');
         $this->middleware('can:puede.editar.saldo')->only('update');
@@ -154,16 +157,9 @@ class SaldoGrupoController extends Controller
             $results = SaldoGrupo::empaquetarListado($saldos_actual_user, $tipo_reporte);
             $nombre_reporte = 'reporte_saldoActual';
             $reportes =  ['saldos' => $results];
-            switch ($tipo) {
-                case 'excel':
-                    return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
-                    $pdf = Pdf::loadView('exports.reportes.reporte_saldo_actual', $reportes);
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
+            $vista = 'exports.reportes.reporte_saldo_actual';
+            $export_excel= new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -214,16 +210,9 @@ class SaldoGrupoController extends Controller
             $nombre_reporte = 'reporte_saldoActual';
             $results = Acreditaciones::empaquetar($acreditaciones);
             $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
-            switch ($tipo) {
-                case 'excel':
-                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
-                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario', $reportes);
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
+            $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
+            $export_excel= new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -247,16 +236,9 @@ class SaldoGrupoController extends Controller
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
-            switch ($tipo) {
-                case 'excel':
-                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
-                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_gastos_usuario', $reportes);
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
+            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
+            $export_excel= new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -298,16 +280,9 @@ class SaldoGrupoController extends Controller
                 'gastos' => $gastos,
                 'total_suma' => $total
             ];
-            switch ($tipo) {
-                case 'excel':
-                    //return Excel::download(new SaldoActualExport($reportes), $nombre_reporte . '.xlsx');
-                    break;
-                case 'pdf':
-                    Log::channel('testing')->info('Log', ['variable que se envia a la vista PDF', $reportes]);
-                    $pdf = Pdf::loadView('exports.reportes.reporte_consolidado.reporte_consolidado_usuario', $reportes);
-                    return $pdf->download($nombre_reporte . '.pdf');
-                    break;
-            }
+            $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
+            $export_excel= new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
