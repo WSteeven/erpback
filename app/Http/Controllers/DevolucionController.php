@@ -84,7 +84,11 @@ class DevolucionController extends Controller
 
             foreach ($request->listadoProductos as $listado) {
                 $producto = Producto::where('nombre', $listado['producto'])->first();
-                $devolucion->productos()->attach($producto->id, ['cantidad' => $listado['cantidad']]);
+                $devolucion->productos()->attach($producto->id, [
+                    'descripcion' => $listado['descripcion'],
+                    'serial' => $listado['serial'],
+                    'cantidad' => $listado['cantidad']
+                ]);
             }
             DB::commit();
         } catch (Exception $e) {
