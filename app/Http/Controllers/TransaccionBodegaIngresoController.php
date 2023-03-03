@@ -114,11 +114,11 @@ class TransaccionBodegaIngresoController extends Controller
                     Log::channel('testing')->info('Log', ['PASÓ DE LARGO']);
                     Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);
                     foreach ($request->listadoProductosTransaccion as $listado) {
-                        // $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+                        $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
                         $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
-                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
-                        // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->first();
+                        // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
+                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
                         if ($itemInventario) {
                             Log::channel('testing')->info('Log', ['HAY UN ITEM COINCIDENTE EN EL INVENTARIO']);
                             $itemInventario->cantidad = $itemInventario->cantidad + $listado['cantidad'];
@@ -126,8 +126,8 @@ class TransaccionBodegaIngresoController extends Controller
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
                         } else {
                             Log::channel('testing')->info('Log', ['NO HAY ITEM, SE VA A CREAR OTRO']);
-                            $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $listado['condiciones'], $listado['cantidad']);
-                            // $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $condicion->id, $listado['cantidad']);
+                            // $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $listado['condiciones'], $listado['cantidad']);
+                            $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $condicion->id, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
                         }
