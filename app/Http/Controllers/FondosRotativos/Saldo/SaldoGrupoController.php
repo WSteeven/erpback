@@ -189,6 +189,47 @@ class SaldoGrupoController extends Controller
         }
     }
     /**
+     * It returns a function based on the value of the variable ->tipo_saldo
+     *
+     * @param Request request The request object.
+     * @param tipo 1 = Acreditaciones, 2 = Gasos Filtrado, 3 = Consolidado
+     */
+    public function consolidado_filtrado(Request $request, $tipo){
+        try {
+            switch ($request->tipo_saldo) {
+                case '1':
+                    return $this->acreditacion($request, $tipo);
+                    break;
+                case '2':
+                    return $this->gasto_filtrado($request, $tipo);
+                    break;
+                case '3':
+                    return $this->reporte_consolidado($request, $tipo);
+                    break;
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private function gasto_filtrado(Request $request, $tipo){
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $request['id_proyecto'] = $request['proyecto'];
+            $gastos = Gasto::ignoreRequest(['proyecto'])->filter($request->all())->with('usuario_info', 'detalle_estado', 'sub_detalle_info','proyecto_info')->get();
+            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $nombre_reporte = 'reporte_gastos';
+            $results = Gasto::empaquetar($gastos);
+            $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
+            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
+            $export_excel= new SaldoActualExport($reportes);
+            Log::channel('testing')->info('Log', ['variable que se envia:', $gastos]);
+            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    /**
      * It's a function that receives two parameters, one of them is a request object and the other is a
      * string
      *

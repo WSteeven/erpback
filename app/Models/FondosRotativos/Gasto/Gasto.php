@@ -43,6 +43,40 @@ class Gasto extends Model implements Auditable
 
     private static $whiteListFilter = [
         'factura',
+        'fecha_viat',
+        'id_tarea',
+        'id_proyecto',
+        'ruc',
+        'factura',
+        'proveedor',
+        'aut_especial',
+        'detalle',
+        'sub_detalle',
+        'cant',
+        'valor_u',
+        'total',
+        'comprobante',
+        'comprobante2',
+        'observacion',
+        'id_usuario',
+        'estado',
+        'detalle_estado',
+        'usuario',
+        'proyecto',
+        'tarea',
+        'tipo_saldo',
+        'tipo_filtro',
+        'fecha_inicio',
+        'fecha_fin',
+        'autorizador'
+    ];
+   public function serializeRequestFilter($request)
+    {
+       $request['id_proyecto'] = $request['proyecto'];
+       return $request;
+    }
+    private $aliasListFilter = [
+        'proyecto' => 'id_proyecto',
     ];
     public function detalle_info()
     {
@@ -76,6 +110,11 @@ class Gasto extends Model implements Auditable
     {
         return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
     }
+    public function detalle_estado()
+    {
+        return $this->hasOne(EstadoViatico::class, 'id', 'detalle_estado');
+    }
+
     public static function empaquetar($gastos)
     {
         $results = [];
@@ -87,6 +126,7 @@ class Gasto extends Model implements Auditable
             $row['usuario'] = $gasto->usuario_info->empleado;
             $row['grupo'] = $gasto->usuario_info->empleado->grupo==null?'':$gasto->usuario_info->empleado->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
+            $row['proyecto'] = $gasto->proyecto_info;
             $row['detalle'] = $gasto->detalle_info;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
             $row['observacion'] = $gasto->observacion;
