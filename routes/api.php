@@ -194,7 +194,7 @@ Route::apiResources(
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
             'ubicaciones' => 'ubicacion',
-            'tipos-subtareas' => 'tipo_trabajo',
+            'tipos-trabajos' => 'tipo_trabajo',
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',

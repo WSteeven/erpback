@@ -26,6 +26,8 @@ class SubtareaRequest extends FormRequest
         return [
             'codigo_subtarea' => 'nullable|string',
             'titulo' => 'required|string',
+            'observacion' => 'nullable|string',
+            'descripcion_completa' => 'nullable|string',
             'grupo' => 'nullable|numeric|integer',
             'empleado' => 'nullable|numeric|integer',
             'tipo_trabajo' => 'required|numeric|integer',
@@ -45,7 +47,6 @@ class SubtareaRequest extends FormRequest
             'fecha_agendado' => 'nullable|string',
             'hora_inicio_agendado' => 'nullable|string',
             'hora_fin_agendado' => 'nullable|string',
-            'descripcion_completa' => 'nullable|string',
             'tecnicos_grupo_principal' => 'nullable|string',
             //'tecnicos_otros_grupos' => 'nullable|string',
             'tarea' => 'required|numeric|integer',

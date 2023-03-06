@@ -16,6 +16,7 @@ use App\Models\Tarea;
 use Src\Shared\Utils;
 use App\Models\User;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 
 class SubtareaController extends Controller
 {
@@ -173,9 +174,9 @@ class SubtareaController extends Controller
         $subtarea->estado = Subtarea::EJECUTANDO;
         $subtarea->save();
 
-        $subtarea->pausasSubtarea()->update([
-            'fecha_hora_retorno' => Carbon::now(),
-        ]);
+        $pausa = $subtarea->pausasSubtarea()->orderBy('fecha_hora_pausa', 'desc')->first();
+        $pausa->fecha_hora_retorno = Carbon::now();
+        $pausa->save();
     }
 
     public function suspender(Request $request, Subtarea $subtarea)
@@ -195,7 +196,8 @@ class SubtareaController extends Controller
         $results = $subtarea->pausasSubtarea->map(fn ($item) => [
             'fecha_hora_pausa' => $item->fecha_hora_pausa,
             'fecha_hora_retorno' => $item->fecha_hora_retorno,
-            'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurrido(Carbon::parse($item->fecha_hora_retorno)->diffInMinutes(Carbon::parse($item->fecha_hora_pausa)), '') : null,
+            // 'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurridoSeconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)), '') : null,
+            'tiempo_pausado' => CarbonInterval::seconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)))->cascade()->forHumans(),
             'motivo' => $item->motivo,
         ]);
 
