@@ -15,8 +15,12 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\Proyecto;
+use App\Models\Tarea;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class SaldoGrupoController extends Controller
@@ -158,8 +162,8 @@ class SaldoGrupoController extends Controller
             $nombre_reporte = 'reporte_saldoActual';
             $reportes =  ['saldos' => $results];
             $vista = 'exports.reportes.reporte_saldo_actual';
-            $export_excel= new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+            $export_excel = new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -194,7 +198,8 @@ class SaldoGrupoController extends Controller
      * @param Request request The request object.
      * @param tipo 1 = Acreditaciones, 2 = Gasos Filtrado, 3 = Consolidado
      */
-    public function consolidado_filtrado(Request $request, $tipo){
+    public function consolidado_filtrado(Request $request, $tipo)
+    {
         try {
             switch ($request->tipo_saldo) {
                 case '1':
@@ -211,20 +216,84 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private function gasto_filtrado(Request $request, $tipo){
+  /**
+   * It's a function that receives a request, a type, and returns a report
+   *
+   * @param Request request The request object.
+   * @param tipo The type of report you want to generate, in this case it is pdf.
+   */
+    private function gasto_filtrado(Request $request, $tipo)
+    {
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $request['id_proyecto'] = $request['proyecto'];
-            $gastos = Gasto::ignoreRequest(['proyecto'])->filter($request->all())->with('usuario_info', 'detalle_estado', 'sub_detalle_info','proyecto_info')->get();
+            $request['id_proyecto'] =  $request['proyecto'];
+            $request['sub_detalle'] = $request['id_sub_detalle'];
+            $request['id_usuario'] = $request['usuario'];
+            $request['id_estado'] = $request['estado'];
+            $request['id_tarea'] = $request['tarea'];
+            $request['aut_especial'] = $request['autorizador'];
+            $gastos = Gasto::ignoreRequest([
+                'tipo_saldo',
+                'tipo_filtro',
+                'sub_detalle',
+                'usuario', 'tarea',
+                'autorizador',
+                'fecha_inicio',
+                'fecha_fin',
+                'estado',
+                'detalle',
+                'proyecto',
+            ])
+                ->filter($request->all())
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->with(
+                    'usuario_info',
+                    'detalle_estado',
+                    'sub_detalle_info',
+                    'proyecto_info'
+                )->get();
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
-            $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
-            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
-            $export_excel= new SaldoActualExport($reportes);
-            Log::channel('testing')->info('Log', ['variable que se envia:', $gastos]);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+            $titulo = 'REPORTE DE';
+            switch ($request->tipo_filtro) {
+                case '1':
+                    $proyecto = Proyecto::where('id', $request->proyecto)->first();
+                    $titulo .= ' GASTOS POR PROYECTO ' . $proyecto->codigo_proyecto . ' ';
+                    break;
+                case '2':
+                    $tarea = Tarea::where('id', $request->tarea)->first();
+                    $titulo .= ' GASTOS POR TAREA ' . $tarea->codigo_tarea . ' ';
+                    break;
+                case '3':
+                    $detalle = DetalleViatico::where('id', $request->detalle)->first();
+                    $titulo .= ' GASTOS POR DETALLE ' . $detalle->descripcion . ' ';
+                    break;
+                case '4':
+                    $sub_detalle = SubDetalleViatico::where('id', $request->sub_detalle)->first();
+                    $titulo .= ' GASTOS POR SUBDETALLE ' . $sub_detalle->descripcion . ' ';
+                    break;
+                case '5':
+                    $autorizador = User::with('empleado')->where('id', $request->autorizador)->first();
+                    $titulo .= ' GASTOS POR AUTORIZADOR ' . $autorizador->empleado->nombres . ' ' . $autorizador->empleado->apellidos . ' ';
+                    break;
+                case '6':
+                    $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+                    $titulo .= ' GASTOS POR USUARIO ' . $usuario->empleado->nombres . ' ' . $usuario->empleado->apellidos . ' ';
+                    break;
+            }
+            $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
+            $reportes =  [
+                'gastos' => $results,
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'usuario' => $usuario,
+                'titulo' => $titulo,
+            ];
+            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
+            $export_excel = new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -252,8 +321,8 @@ class SaldoGrupoController extends Controller
             $results = Acreditaciones::empaquetar($acreditaciones);
             $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
-            $export_excel= new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+            $export_excel = new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -278,8 +347,8 @@ class SaldoGrupoController extends Controller
             $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $request->fecha_inicio, 'fecha_fin' => $request->fecha_fin, 'usuario' => $usuario];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
-            $export_excel= new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+            $export_excel = new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -308,22 +377,22 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');
-            $total = $saldo_anterior != null? $saldo_anterior->saldo_actual:0 + $acreditaciones - $gastos;
+            $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + $acreditaciones - $gastos;
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_consolidado';
             $reportes =  [
-                'fecha_anterior'=> $fecha_anterior,
+                'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null? $saldo_anterior->saldo_actual:0,
+                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
                 'gastos' => $gastos,
                 'total_suma' => $total
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
-            $export_excel= new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','portail', $reportes, $nombre_reporte,$vista,$export_excel);
+            $export_excel = new SaldoActualExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

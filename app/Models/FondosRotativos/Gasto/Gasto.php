@@ -62,22 +62,10 @@ class Gasto extends Model implements Auditable
         'estado',
         'detalle_estado',
         'usuario',
-        'proyecto',
-        'tarea',
-        'tipo_saldo',
-        'tipo_filtro',
         'fecha_inicio',
         'fecha_fin',
-        'autorizador'
     ];
-   public function serializeRequestFilter($request)
-    {
-       $request['id_proyecto'] = $request['proyecto'];
-       return $request;
-    }
-    private $aliasListFilter = [
-        'proyecto' => 'id_proyecto',
-    ];
+
     public function detalle_info()
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
