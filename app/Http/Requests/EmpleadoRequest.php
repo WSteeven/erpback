@@ -43,6 +43,7 @@ class EmpleadoRequest extends FormRequest
             'cargo' => 'required|exists:cargos,id',
             'grupo' => 'nullable|exists:grupos,id',
             'firma_url' => 'nullable|string',
+            'foto_url' => 'nullable|string',
             // 'es_responsable_grupo' => 'nullable|boolean',
         ];
 

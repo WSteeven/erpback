@@ -70,6 +70,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
+use App\Models\Parroquia;
 use Carbon\Carbon;
 
 /*
@@ -275,6 +276,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('provincias', fn () => ['results' => Provincia::all()]);
     Route::get('cantones', fn () => ['results' => Canton::all()]);
+    Route::get('parroquias', fn () => ['results' => Parroquia::all()]);
 });
 
 // Tendidos

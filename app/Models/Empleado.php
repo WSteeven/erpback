@@ -28,6 +28,7 @@ class Empleado extends Model implements Auditable
         'cargo_id',
         'es_tecnico',
         'firma_url',
+        'foto_url',
         // 'es_responsable_grupo',
     ];
 
