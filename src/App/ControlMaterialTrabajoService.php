@@ -15,14 +15,14 @@ use Illuminate\Validation\ValidationException;
 
 class ControlMaterialTrabajoService
 {
-    private int $trabajo_id;
+    private int $subtarea_id;
     /*public function __construct()
     {
     }*/
 
-    public function setTrabajoId($trabajo_id)
+    public function setTrabajoId($subtarea_id)
     {
-        $this->trabajo_id = $trabajo_id;
+        $this->subtarea_id = $subtarea_id;
     }
     /**
      * Recible arreglo de DetalleProducto

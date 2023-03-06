@@ -37,7 +37,7 @@ class Trabajo extends Model implements Auditable
     const PARA_PROYECTO = 'PARA_PROYECTO';
     const PARA_CLIENTE_FINAL = 'PARA_CLIENTE_FINAL';
 
-    protected $table = 'trabajos';
+    protected $table = 'subtareas';
     protected $fillable = [
         'codigo_trabajo',
         'titulo',
@@ -62,7 +62,7 @@ class Trabajo extends Model implements Auditable
         'hora_inicio_agendado',
         'hora_fin_agendado',
 
-        'tipo_trabajo_id',
+        'tipo_subtarea_id',
         'tarea_id',
         'trabajo_dependiente_id',
         'coordinador_id',
@@ -168,7 +168,7 @@ class Trabajo extends Model implements Auditable
     // Relacion uno a muchos
     public function archivos()
     {
-        return $this->hasMany(ArchivoTrabajo::class);
+        return $this->hasMany(ArchivoSubtarea::class);
     }
 
     public function pausasTrabajo()

@@ -33,7 +33,7 @@ class EmergenciaResource extends JsonResource
             'trabajo_realizado' => $this->trabajo_realizado,
             'observaciones' => $this->observaciones,
             'materiales_ocupados' => $this->materiales_ocupados,
-            'trabajo' => $this->trabajo_id,
+            'trabajo' => $this->subtarea_id,
         ];
     }
 }

@@ -191,7 +191,7 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Transferencia::class);
     }
 
-    public function trabajos()
+    public function subtareas()
     {
         return $this->belongsToMany(Trabajo::class);
     }

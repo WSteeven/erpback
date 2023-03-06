@@ -18,7 +18,7 @@ class ControlMaterialTrabajo extends Model implements Auditable
         'cantidad_utilizada',
         'fecha',
         'tarea_id',
-        'trabajo_id',
+        'subtarea_id',
         'empleado_id',
         'grupo_id',
         'detalle_producto_id',
@@ -29,9 +29,9 @@ class ControlMaterialTrabajo extends Model implements Auditable
         return $query->where('empleado_id', Auth::user()->empleado->id);
     }
 
-    public function trabajo() //$query, $trabajo_id)
+    public function trabajo() //$query, $subtarea_id)
     {
-        return $this->hasOne(Trabajo::class, 'id', 'trabajo_id');
-        // return $query->where('trabajo_id', $trabajo_id);
+        return $this->hasOne(Trabajo::class, 'id', 'subtarea_id');
+        // return $query->where('subtarea_id', $subtarea_id);
     }
 }

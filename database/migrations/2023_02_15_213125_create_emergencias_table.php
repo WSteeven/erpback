@@ -37,8 +37,8 @@ return new class extends Migration
             $table->json('materiales_devolucion')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('trabajo_id');
-            $table->foreign('trabajo_id')->references('id')->on('trabajos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('subtarea_id');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

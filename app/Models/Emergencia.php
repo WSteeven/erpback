@@ -35,7 +35,7 @@ class Emergencia extends Model implements Auditable
         'observaciones',
         'materiales_ocupados',
         'materiales_devolucion',
-        'trabajo_id',
+        'subtarea_id',
     ];
 
     protected $casts = [

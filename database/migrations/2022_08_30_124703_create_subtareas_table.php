@@ -18,8 +18,13 @@ return new class extends Migration
             $table->id();
 
             $table->string('codigo_subtarea');
-            $table->text('detalle');
+            $table->text('titulo');
             $table->text('descripcion_completa')->nullable();
+            $table->text('observacion')->nullable();
+
+            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
+            $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
+
             $table->timestamp('fecha_hora_creacion')->nullable();
             $table->timestamp('fecha_hora_asignacion')->nullable();
             $table->timestamp('fecha_hora_ejecucion')->nullable();
@@ -29,18 +34,16 @@ return new class extends Migration
             $table->string('causa_suspencion')->nullable();
             $table->timestamp('fecha_hora_cancelacion')->nullable();
             $table->string('causa_cancelacion')->nullable();
+
             $table->boolean('es_dependiente')->default(false);
-
             $table->boolean('es_ventana')->default(false);
-            $table->string('fecha_agendado')->nullable(); // fecha_ventana
-            $table->string('hora_inicio_agendado')->nullable(); // hora_inicio_ventana
-            $table->string('hora_fin_agendado')->nullable(); // hora_fin_ventana
 
-            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
-            $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
+            $table->string('fecha_agendado')->nullable();
+            $table->string('hora_inicio_agendado')->nullable();
+            $table->string('hora_fin_agendado')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('subtarea_dependiente')->nullable();
+            $table->unsignedBigInteger('subtarea_dependiente_id')->nullable();
 
             $table->unsignedBigInteger('tipo_trabajo_id');
             $table->foreign('tipo_trabajo_id')->references('id')->on('tipos_trabajos')->onDelete('cascade')->onUpdate('cascade');
@@ -56,8 +59,8 @@ return new class extends Migration
             $table->unsignedBigInteger('empleado_id')->nullable();
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
-            // $table->unsignedBigInteger('coordinador_id');
-            // $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            /* $table->unsignedBigInteger('coordinador_id');
+            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');*/
 
             $table->timestamps();
         });

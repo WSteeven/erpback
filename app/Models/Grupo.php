@@ -36,7 +36,7 @@ class Grupo extends Model implements Auditable
         return $this->belongsToMany(Subtarea::class);
     } */
 
-    public function trabajos()
+    public function subtareas()
     {
         return $this->belongsToMany(Trabajo::class);
     }

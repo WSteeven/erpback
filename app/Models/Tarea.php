@@ -30,6 +30,8 @@ class Tarea extends Model implements Auditable
         'titulo',
         'para_cliente_proyecto',
         'medio_notificacion',
+        'observacion',
+        'tiene_subtareas',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',
@@ -111,14 +113,9 @@ class Tarea extends Model implements Auditable
         return $this->belongsTo(ClienteFinal::class);
     }
 
-    /*public function subtareas()
+    public function subtareas()
     {
         return $this->hasMany(Subtarea::class);
-    }*/
-
-    public function trabajos()
-    {
-        return $this->hasMany(Trabajo::class);
     }
 
     public function esPrimeraAsignacion($subtarea_id)

@@ -42,9 +42,9 @@ class RegistroTendidoController extends Controller
     {
         $datos = $request->all();
         $datos['tendido_id'] = $datos['tendido'];
-        $datos['trabajo_id'] = $datos['trabajo'];
+        $datos['subtarea_id'] = $datos['trabajo'];
         $materialesOcupados = $datos['materiales_ocupados'];
-        $this->controlMaterialTrabajoService->setTrabajoId($datos['trabajo_id']);
+        $this->controlMaterialTrabajoService->setTrabajoId($datos['subtarea_id']);
 
         // Validar y computar el stock disponible
         $this->controlMaterialTrabajoService->verificarDisponibleStock($materialesOcupados);
@@ -52,11 +52,11 @@ class RegistroTendidoController extends Controller
 
         // Las cantidades se validaron y se puede proceder al registro de materiales
         $empleado = Auth::user()->empleado;
-        $trabajo = Trabajo::find($datos['trabajo_id']);
+        $trabajo = Trabajo::find($datos['subtarea_id']);
 
         foreach ($materialesOcupados as $material) {
 
-            $material['trabajo_id'] = $datos['trabajo_id'];
+            $material['subtarea_id'] = $datos['subtarea_id'];
             $material['tarea_id'] = $trabajo->tarea_id;
 
             $material['empleado_id'] = $empleado->id;
@@ -64,7 +64,7 @@ class RegistroTendidoController extends Controller
 
             $material['fecha'] = Carbon::now()->format('d-m-Y');
 
-            // Se registra el material ocupado en la tabla de trabajos
+            // Se registra el material ocupado en la tabla de subtareas
             ControlMaterialTrabajo::create($material);
         }
 
@@ -101,22 +101,22 @@ class RegistroTendidoController extends Controller
     {
         $datos = $request->all();
         $datos['tendido_id'] = $datos['tendido'];
-        $datos['trabajo_id'] = $datos['trabajo'];
+        $datos['subtarea_id'] = $datos['trabajo'];
 
         $registroTendido->update($datos);
         $materialesOcupados = $datos['materiales_ocupados'];
-        $this->controlMaterialTrabajoService->setTrabajoId($datos['trabajo_id']);
+        $this->controlMaterialTrabajoService->setTrabajoId($datos['subtarea_id']);
 
         // Validar el stock disponible
         $this->controlMaterialTrabajoService->verificarDisponibleStock($materialesOcupados);
         $this->controlMaterialTrabajoService->computarMaterialesOcupadosUpdate($materialesOcupados);
 
         $empleado = Auth::user()->empleado;
-        $trabajo = Trabajo::find($datos['trabajo_id']);
+        $trabajo = Trabajo::find($datos['subtarea_id']);
 
         /*foreach ($materialesOcupados as $material) {
 
-            $material['trabajo_id'] = $datos['trabajo_id'];
+            $material['subtarea_id'] = $datos['subtarea_id'];
             $material['tarea_id'] = $trabajo->tarea_id;
 
             $material['empleado_id'] = $empleado->id;
@@ -124,7 +124,7 @@ class RegistroTendidoController extends Controller
 
             $material['fecha'] = Carbon::now()->format('d-m-Y');
 
-            // Se actualiza el material ocupado en la tabla de trabajos
+            // Se actualiza el material ocupado en la tabla de subtareas
             // ControlMaterialTrabajo::create($material);
         }*/
 

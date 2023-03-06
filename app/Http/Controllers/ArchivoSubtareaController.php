@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ArchivoTrabajo;
+use App\Models\ArchivoSubtarea;
+use App\Models\Subtarea;
 use App\Models\Trabajo;
 use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
@@ -10,18 +11,18 @@ use Src\Shared\EliminarArchivo;
 use Src\Shared\GuardarArchivo;
 use Illuminate\Validation\ValidationException;
 
-class ArchivoTrabajoController extends Controller
+class ArchivoSubtareaController extends Controller
 {
     public function index()
     {
-        $results = ArchivoTrabajo::filter()->get();
+        $results = ArchivoSubtarea::filter()->get();
         return response()->json(compact('results'));
     }
 
 
     public function store(Request $request)
     {
-        $trabajo = Trabajo::find($request['trabajo_id']);
+        $trabajo = Subtarea::find($request['subtarea_id']);
 
         if (!$trabajo) {
             throw ValidationException::withMessages([
@@ -35,7 +36,7 @@ class ArchivoTrabajoController extends Controller
             ]);
         }
 
-        $guardarArchivo = new GuardarArchivo($trabajo, $request, RutasStorage::TRABAJOS);
+        $guardarArchivo = new GuardarArchivo($trabajo, $request, RutasStorage::SUBTAREAS);
         $modelo = $guardarArchivo->execute();
 
         return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
@@ -44,17 +45,17 @@ class ArchivoTrabajoController extends Controller
     }
 
 
-    public function update(Request $request, ArchivoTrabajo $archivo_trabajo)
+    public function update(Request $request, ArchivoSubtarea $archivo_subtarea)
     {
-        $archivo_trabajo->update($request->all());
-        return response()->json(['modelo' => $archivo_trabajo->refresh(), 'mensaje' => 'Información actualizada exitosamente!']);
+        $archivo_subtarea->update($request->all());
+        return response()->json(['modelo' => $archivo_subtarea->refresh(), 'mensaje' => 'Información actualizada exitosamente!']);
     }
 
 
-    public function destroy(ArchivoTrabajo $archivo_trabajo)
+    public function destroy(ArchivoSubtarea $archivo_subtarea)
     {
-        if ($archivo_trabajo) {
-            $eliminar = new EliminarArchivo($archivo_trabajo);
+        if ($archivo_subtarea) {
+            $eliminar = new EliminarArchivo($archivo_subtarea);
             $eliminar->execute();
         }
         return response()->json(['mensaje' => 'Archivo eliminado exitosamente!']);

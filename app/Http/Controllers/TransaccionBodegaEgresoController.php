@@ -51,10 +51,10 @@ class TransaccionBodegaEgresoController extends Controller
     public function obtenerBobinas(Request $request)
     {
         $request->validate([
-            'trabajo_id' => 'required|numeric|integer',
+            'subtarea_id' => 'required|numeric|integer',
         ]);
 
-        $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
+        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
         $empleado_id = Auth::user()->empleado->id;
 
         Log::channel('testing')->info('Log', ['Tarea id', $tarea_id]);
@@ -77,10 +77,10 @@ class TransaccionBodegaEgresoController extends Controller
     public function obtenerMateriales(Request $request)
     {
         $request->validate([
-            'trabajo_id' => 'required|numeric|integer',
+            'subtarea_id' => 'required|numeric|integer',
         ]);
 
-        $tarea_id = Trabajo::find($request['trabajo_id'])->tarea_id;
+        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
         $empleado_id = Auth::user()->empleado->id;
 
         $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
@@ -181,10 +181,10 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            
+
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
-                TransaccionBodega::actualizarPedido($transaccion); 
+                TransaccionBodega::actualizarPedido($transaccion);
             }
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente

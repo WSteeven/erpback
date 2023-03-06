@@ -17,7 +17,7 @@ class TrabajoAsignadoController extends Controller
         $this->servicio = new TrabajoAsignadoService();
     }
     /**
-     * Listar todas las subtareas o trabajos que han sido asignados a mi o a mi grupo
+     * Listar todas las subtareas o subtareas que han sido asignados a mi o a mi grupo
      * en caso de pertenecer a uno.
      */
     public function index()

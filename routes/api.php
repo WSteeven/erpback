@@ -26,7 +26,7 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
-use App\Http\Controllers\ArchivoTrabajoController;
+use App\Http\Controllers\ArchivoSubtareaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -163,14 +163,14 @@ Route::apiResources(
         'unidades-medidas' => UnidadMedidaController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
-        'trabajos' => TrabajoController::class,
+        // 'subtareas' => TrabajoController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
         'clientes-finales' => ClienteFinalController::class,
         'proyectos' => ProyectoController::class,
-        'archivos-trabajos' => ArchivoTrabajoController::class,
+        'archivos-subtareas' => ArchivoSubtareaController::class,
         'registros-tendidos' => RegistroTendidoController::class,
     ],
     [
@@ -193,11 +193,11 @@ Route::apiResources(
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
             'ubicaciones' => 'ubicacion',
-            'tipos-trabajos' => 'tipo_trabajo',
+            'tipos-subtareas' => 'tipo_trabajo',
             'tipos-elementos' => 'tipo_elemento',
             'tipos-fibras' => 'tipo_fibra',
             'clientes-finales' => 'cliente_final',
-            'archivos-trabajos' => 'archivo-trabajo',
+            'archivos-subtareas' => 'archivo-subtarea',
             'unidades-medidas' => 'unidad',
             'registros-tendidos' => 'registro-tendido'
         ],
@@ -241,7 +241,7 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
 // Estados de las subtareas
-/* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
+Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
@@ -251,9 +251,9 @@ Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, '
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
-}); */
+});
 
-Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
+/* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
     Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);
     Route::post('realizar/{trabajo}', [TrabajoController::class, 'realizar']);
@@ -263,7 +263,7 @@ Route::middleware('auth:sanctum')->prefix('trabajos')->group(function () {
     Route::post('suspender/{trabajo}', [TrabajoController::class, 'suspender']);
     Route::post('cancelar/{trabajo}', [TrabajoController::class, 'cancelar']);
     Route::get('pausas/{trabajo}', [TrabajoController::class, 'obtenerPausas']);
-});
+}); */
 
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas

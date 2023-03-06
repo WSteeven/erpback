@@ -52,13 +52,13 @@ class TrabajoController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['coordinador_id'] = Auth::user()->empleado->id;
         $datos['trabajo_dependiente_id'] = $request->safe()->only(['trabajo_dependiente'])['trabajo_dependiente'];
 
         $tarea = Tarea::find($datos['tarea_id']);
-        $datos['codigo_trabajo'] = $tarea->codigo_tarea . '-' . $tarea->trabajos->count() + 1;
+        $datos['codigo_trabajo'] = $tarea->codigo_tarea . '-' . $tarea->subtareas->count() + 1;
 
         $datos['fecha_hora_creacion'] = Carbon::now();
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
@@ -74,7 +74,7 @@ class TrabajoController extends Controller
                 $grupos_seleccionados = collect($grupos_seleccionados)->map(function ($grupoSeleccionado) use ($modelo) {
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
-                        'trabajo_id' => $modelo->id,
+                        'subtarea_id' => $modelo->id,
                         'es_responsable' => $grupoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
@@ -86,7 +86,7 @@ class TrabajoController extends Controller
                 $empleados_seleccionados = collect($empleados_seleccionados)->map(function ($empleadoSeleccionado) use ($modelo) {
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
-                        'trabajo_id' => $modelo->id,
+                        'subtarea_id' => $modelo->id,
                         'es_responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
@@ -118,7 +118,7 @@ class TrabajoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
 
-        $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['trabajo_padre_id'] = $request->safe()->only(['trabajo_padre'])['trabajo_padre'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         // $datos['coordinador_id'] = Auth::id();
@@ -142,7 +142,7 @@ class TrabajoController extends Controller
                 $grupos_seleccionados = collect($grupos_seleccionados)->map(function ($grupoSeleccionado) use ($modelo) {
                     return  [
                         'grupo_id' => $grupoSeleccionado['id'],
-                        'trabajo_id' => $modelo->id,
+                        'subtarea_id' => $modelo->id,
                         'responsable' => $grupoSeleccionado['es_responsable'] ?? false,
                     ];
                 });
@@ -154,7 +154,7 @@ class TrabajoController extends Controller
                 $empleados_seleccionados = collect($empleados_seleccionados)->map(function ($empleadoSeleccionado) use ($modelo) {
                     return  [
                         'empleado_id' => $empleadoSeleccionado['id'],
-                        'trabajo_id' => $modelo->id,
+                        'subtarea_id' => $modelo->id,
                         'responsable' => $empleadoSeleccionado['es_responsable'] ?? false,
                     ];
                 });

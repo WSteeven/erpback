@@ -20,7 +20,7 @@ class EmergenciaController extends Controller
     public function store(EmergenciaRequest $request)
     {
         $datos = $request->validated();
-        $datos['trabajo_id'] = $request->safe()->only(['trabajo'])['trabajo'];
+        $datos['subtarea_id'] = $request->safe()->only(['trabajo'])['trabajo'];
         //$modelo = new EmergenciaResource($modelo);
         $modelo = Emergencia::create($datos);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

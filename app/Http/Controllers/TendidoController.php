@@ -19,7 +19,7 @@ class TendidoController extends Controller
     {
         $datos = $request->all();
         $datos['bobina_id'] = $request['bobina'];
-        $datos['trabajo_id'] = $request['trabajo'];
+        $datos['subtarea_id'] = $request['trabajo'];
 
         $modelo = Tendido::create($datos);
         $mensaje = 'Iniciado exitosamente!';
@@ -28,7 +28,7 @@ class TendidoController extends Controller
 
     public function show($trabajo)
     {
-        $modelo = Tendido::where('trabajo_id', $trabajo)->first();
+        $modelo = Tendido::where('subtarea_id', $trabajo)->first();
 
         if (!$modelo) {
             throw ValidationException::withMessages([

@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unsignedBigInteger('grupo_id');
             $table->foreign('grupo_id')->references('id')->on('grupos')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedBigInteger('trabajo_id');
-            $table->foreign('trabajo_id')->references('id')->on('trabajos')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('subtarea_id');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
         });
