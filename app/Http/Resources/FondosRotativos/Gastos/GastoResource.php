@@ -36,7 +36,7 @@ class GastoResource extends JsonResource
             'valor_u' => $this->valor_u,
             'total' => $this->total,
             'comprobante1' => $this->comprobante?url($this->comprobante):null,
-            'comprobante2' => $this->comprobante?url( $this->comprobante2):null,
+            'comprobante2' => $this->comprobante2?url( $this->comprobante2):null,
             'observacion' => $this->observacion,
             'id_usuario' => $this->id_usuario,
             'estado' => $this->estado,

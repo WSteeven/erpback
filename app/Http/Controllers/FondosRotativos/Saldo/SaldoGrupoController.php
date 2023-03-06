@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
+use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
@@ -216,12 +217,12 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-  /**
-   * It's a function that receives a request, a type, and returns a report
-   *
-   * @param Request request The request object.
-   * @param tipo The type of report you want to generate, in this case it is pdf.
-   */
+    /**
+     * It's a function that receives a request, a type, and returns a report
+     *
+     * @param Request request The request object.
+     * @param tipo The type of report you want to generate, in this case it is pdf.
+     */
     private function gasto_filtrado(Request $request, $tipo)
     {
         try {
@@ -393,6 +394,22 @@ class SaldoGrupoController extends Controller
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new SaldoActualExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    public function gastocontabilidad(Request $request)
+    {
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->orderBy('fecha_viat', 'asc')
+                ->get();
+            $results = GastoResource::collection($gastos);
+            return response()->json(compact('results'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
