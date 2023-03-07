@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Sucursal;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
@@ -200,7 +201,7 @@ class UserSeeder extends Seeder
             'email' => 'pedro@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('0706751393'),
-        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO]);
+        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO, User::ROL_COMPRAS, User::ROL_JEFE_TECNICO]);
         $activos_fijos->empleado()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'AGUILAR',
