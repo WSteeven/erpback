@@ -20,7 +20,7 @@ class LoginController extends Controller
         ]);
 
         $user = User::where('name', $request['name'])->first();
-        Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
+        // Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
 
         if($user->updated_at->diffInDays(now()) >= 90){
              throw ValidationException::withMessages([
