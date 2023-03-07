@@ -54,6 +54,7 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
+        'estado' => 'boolean',
     ];
 
     public function toSearchableArray()
