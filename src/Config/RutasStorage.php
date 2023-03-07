@@ -15,4 +15,5 @@ enum RutasStorage: string
 	case FOTOS_PERFILES = 'public/fotosPerfiles';
 	case FIRMAS = 'public/firmas';
 	case TRABAJOS = 'public/trabajos';
+    case COMPROBANTES_GASTOS = 'public/comprobantesViaticos';
 }

@@ -37,6 +37,7 @@ class RoleSeeder extends Seeder
         // Roles de cuadrillas
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER_DE_GRUPO]);
+        $autorizador = Role::firstOrCreate(['name' => User::ROL_AUTORIZADOR]);
 
         // -----------------
         // Modulo de Sistema
@@ -372,6 +373,78 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+
+        /**
+         * Roles  para fondo rotativo
+         */
+        // fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Gasto
+        Permission::firstOrCreate(['name' => 'puede.ver.gasto'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.gasto'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.gasto'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //detalle fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //subdetalle fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.sub_detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.sub_detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.sub_detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.sub_detalle_fondo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Saldo
+        Permission::firstOrCreate(['name' => 'puede.ver.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Acreditacion
+        Permission::firstOrCreate(['name' => 'puede.ver.acreditacion'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.acreditacion'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.acreditacion'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.acreditacion'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte de Saldos
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_saldo_actual'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_saldo_actual'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_saldo_actual'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_saldo_actual'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte Autorizacion
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_autorizaciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_autorizaciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_autorizaciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_autorizaciones'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte Consolidado
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte Consolidado Filtrado
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+
+        //Reporte Contabilidad
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+
+        //Cambiar Contraseña
+        Permission::firstOrCreate(['name' => 'puede.ver.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.editar.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.cambiar_contrasena'])->syncRoles([$empleado]);
+
         // Clientes finales
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);

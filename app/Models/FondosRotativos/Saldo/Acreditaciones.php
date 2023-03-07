@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models\FondosRotativos\Saldo;
+
+use App\Models\FondosRotativos\Gasto\TipoFondo;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+
+class Acreditaciones extends Model implements Auditable
+{
+    use HasFactory;
+    use AuditableModel;
+    use Filterable;
+    protected $table = 'acreditaciones';
+    protected $fillable = [
+        'id_tipo_fondo',
+        'id_tipo_saldo',
+        'id_usuario',
+        'fecha',
+        'descripcion_saldo',
+        'monto',
+    ];
+    private static $whiteListFilter = [
+        'fecha',
+    ];
+    public function usuario()
+    {
+        return $this->hasOne('App\Models\User', 'id', 'id_usuario')->with('empleado');
+    }
+    public function tipo_saldo(){
+        return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');
+    }
+    public function tipo_fondo(){
+        return $this->hasOne(TipoFondo::class, 'id', 'id_tipo_fondo');
+    }
+    public static function empaquetar($acreditaciones)
+    {
+
+        $results = [];
+        $id = 0;
+        $row = [];
+        if (isset($acreditaciones)) {
+            foreach ($acreditaciones as $acreditacion) {
+                $row['item'] = $id + 1;
+                $row['id'] = $acreditacion->id;
+                $row['fecha'] = $acreditacion->fecha;
+                $row['tipo_saldo'] = $acreditacion->tipo_saldo->descripcion;
+                $row['tipo_fondo'] = $acreditacion->tipo_fondo->descripcion;
+                $row['usuario'] = $acreditacion->usuario;
+                $row['cargo'] = $acreditacion->usuario->empleado->cargo==null?'':$acreditacion->usuario->empleado->cargo->nombre;
+                $row['empleado'] = $acreditacion->usuario->empleado;
+                $row['descripcion_saldo'] = $acreditacion->descripcion_saldo;
+                $row['monto'] = $acreditacion->monto;
+                $results[$id] = $row;
+                $id++;
+            }
+
+        }
+        return $results;
+
+    }
+}
