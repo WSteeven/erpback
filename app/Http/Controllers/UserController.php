@@ -165,4 +165,16 @@ class UserController extends Controller
         return response()
             ->json('Contraseña Actualizada con exito');
     }
+    public function updatePassword(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['contraseña incorrectos'],
+            ]);
+        }
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return response()->json(['mensaje' => 'La contraseña ha sido actualizada con éxito', 'modelo' => new UserResource($user)]);
+    }
 }

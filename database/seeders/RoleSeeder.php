@@ -427,8 +427,23 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.editar.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_consolidado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        //Reporte Consolidado Filtrado
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_consolidado_filtrado'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
 
+        //Reporte Contabilidad
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_contabilidad'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
 
+        //Cambiar Contraseña
+        Permission::firstOrCreate(['name' => 'puede.ver.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.editar.cambiar_contrasena'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.cambiar_contrasena'])->syncRoles([$empleado]);
 
         // Clientes finales
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_trabajos_realizados'])->syncRoles([$coordinador, $jefe_tecnico]);

@@ -103,6 +103,8 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
+    Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
+
 });
 
 Route::group(['prefix' => '/permisos'], function () {
