@@ -22,6 +22,10 @@ class ArchivoSubtareaController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'subtarea_id' => 'required|numeric|integer',
+        ]);
+
         $trabajo = Subtarea::find($request['subtarea_id']);
 
         if (!$trabajo) {
