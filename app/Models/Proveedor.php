@@ -14,11 +14,14 @@ class Proveedor extends Model implements Auditable
     use AuditableModel;
     
     protected $table = "proveedores";
+    protected $fillable = ["empresa_id", "estado"];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'estado'=>'boolean',
     ];
 
+    private static $whiteListFilter=['*'];
 
     public function empresa()
     {

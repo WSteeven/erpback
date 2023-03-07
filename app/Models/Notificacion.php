@@ -14,7 +14,6 @@ class Notificacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    use UppercaseValuesTrait;
     protected $table = 'notificaciones';
     protected $fillable = [
         'mensaje',
