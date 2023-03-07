@@ -25,16 +25,10 @@ class ControlStockController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
         $results = [];
-        
-        if ($page) {
-            $results = ControlStock::simplePaginate($request['offset']);
-            ControlStockResource::collection($results);
-            $results->appends(['offset' => $request['offset']]);
-        } else {
-            $results = ControlStock::filter()->get();
-        }
+        $results = ControlStock::filter()->get();
+        $results = ControlStockResource::collection($results);
+
         return response()->json(compact('results'));
     }
 

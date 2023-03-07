@@ -34,7 +34,7 @@ class TareaController extends Controller
             if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
         }
 
-        TareaResource::collection($results);
+        $results = TareaResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -50,11 +50,14 @@ class TareaController extends Controller
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
         $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+        // $datos['medio_notificacion'] = $request->safe()->only(['medio_notificacion'])['medio_notificacion'];
         $datos['coordinador_id'] = Auth::user()->empleado->id;
         $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
 
-        $modelo = Tarea::create($datos);
+        Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
+        $modelo = Tarea::create($datos);
+        Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
         // Ubicacion tarea manual
         /*$ubicacionTarea = $request['ubicacion_tarea'];
         if ($ubicacionTarea && !$datos['cliente_final_id']) {

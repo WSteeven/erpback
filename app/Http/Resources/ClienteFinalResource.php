@@ -19,6 +19,7 @@ class ClienteFinalResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'id_cliente_final' => $this->id_cliente_final,
+            'cliente' => $this->cliente->empresa->razon_social,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'celular' => $this->celular,
@@ -27,9 +28,8 @@ class ClienteFinalResource extends JsonResource
             'referencia' => $this->referencia,
             'coordenada_latitud' => $this->coordenada_latitud,
             'coordenada_longitud' => $this->coordenada_longitud,
-            'provincia' => $this->provincia->provincia,
-            'canton' => $this->canton->canton,
-            'cliente' => $this->cliente->empresa->razon_social,
+            'provincia' => $this->provincia?->provincia,
+            'canton' => $this->canton?->canton,
         ];
 
         if ($controller_method == 'show') {

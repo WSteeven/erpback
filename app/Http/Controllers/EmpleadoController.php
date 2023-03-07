@@ -158,6 +158,7 @@ class EmpleadoController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         $empleado->update($datos);
+        $empleado->user->syncRoles($datos['roles']);
 
         if (!is_null($request->password)) {
             // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
