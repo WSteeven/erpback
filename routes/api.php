@@ -266,6 +266,7 @@ Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('finalizar/{subtarea}', [SubtareaController::class, 'finalizar']);
     Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
     Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
+    Route::post('pendiente/{subtarea}', [SubtareaController::class, 'marcarComoPendiente']);
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);

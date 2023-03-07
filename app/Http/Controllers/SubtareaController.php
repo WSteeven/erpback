@@ -55,7 +55,6 @@ class SubtareaController extends Controller
         $datos = $request->validated();
         $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['subtarea_dependiente_id'] = $request->safe()->only(['subtarea_dependiente'])['subtarea_dependiente'];
-        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
@@ -177,6 +176,18 @@ class SubtareaController extends Controller
         $pausa = $subtarea->pausasSubtarea()->orderBy('fecha_hora_pausa', 'desc')->first();
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
+    }
+
+    public function marcarComoPendiente(Request $request, Subtarea $subtarea)
+    {
+        $motivo = $request['motivo'];
+
+        $subtarea->estado = Subtarea::PENDIENTE;
+        $subtarea->fecha_hora_pendiente = Carbon::now();
+        $subtarea->causa_pendiente = $motivo;
+        $subtarea->save();
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
     public function suspender(Request $request, Subtarea $subtarea)

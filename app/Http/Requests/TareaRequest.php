@@ -36,6 +36,7 @@ class TareaRequest extends FormRequest
             'cliente_final' => 'nullable|numeric|integer',
             'medio_notificacion' => 'required|string',
             'tiene_subtareas' => 'required|boolean',
+            'subtarea' => 'nullable'
         ];
     }
 }
