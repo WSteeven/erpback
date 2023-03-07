@@ -18,12 +18,8 @@ class ProyectoController extends Controller
         $page = request('page');
         $results = [];
 
-        if ($page) {
-            $results = Proyecto::simplePaginate(request('offset'));
-            ProyectoResource::collection($results);
-        } else {
-            $results = ProyectoResource::collection(Proyecto::filter()->get());
-        }
+        $results = ProyectoResource::collection(Proyecto::ignoreRequest(['campos'])->filter()->get());
+
 
         return response()->json(compact('results'));
     }

@@ -53,6 +53,13 @@ use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
 use App\Http\Controllers\EmergenciaController;
+use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
+use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
+use App\Http\Controllers\FondosRotativos\TipoFondoController;
+use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
+use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -71,6 +78,7 @@ use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
 use App\Models\Parroquia;
+use App\Models\User;
 use Carbon\Carbon;
 
 /*
@@ -96,6 +104,8 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::post('logout', [LoginController::class, 'logout']);
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
+    Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
+
 });
 
 Route::group(['prefix' => '/permisos'], function () {
@@ -173,6 +183,13 @@ Route::apiResources(
         'proyectos' => ProyectoController::class,
         'archivos-subtareas' => ArchivoSubtareaController::class,
         'registros-tendidos' => RegistroTendidoController::class,
+        'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
+        'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
+        'fondos-rotativos/gastos' => GastoController::class,
+        'fondos-rotativos/tipo-saldo' => TipoSaldoController::class,
+        'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
+        'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
+        'fondos-rotativos/acreditacion' => AcreditacionesController::class,
     ],
     [
         'parameters' => [
@@ -277,6 +294,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('provincias', fn () => ['results' => Provincia::all()]);
     Route::get('cantones', fn () => ['results' => Canton::all()]);
     Route::get('parroquias', fn () => ['results' => Parroquia::all()]);
+    Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
+    Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
+    Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
+    Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
+    Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
+    Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
+    Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
+    Route::post('fondos-rotativos/consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
+    Route::get('fondos-rotativos/gastocontabilidad', [SaldoGrupoController::class, 'gastocontabilidad']);
 });
 
 // Tendidos

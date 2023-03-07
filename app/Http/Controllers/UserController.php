@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserInfoResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empleado;
@@ -10,11 +11,13 @@ use App\Models\User;
 use Exception;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+
 
 class UserController extends Controller
 {
@@ -24,6 +27,10 @@ class UserController extends Controller
         Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
 
         return response()->json(['modelo' => UserResource::collection($results)]);
+    }
+    public function listaUsuarios()
+    {
+        return response()->json(['results' => UserResource::collection(User::all()->except(1))]);
     }
 
     public function store(UserRequest $request)
@@ -114,6 +121,12 @@ class UserController extends Controller
 
         return response()->json(['mensaje' => 'El empleado ha sido actualizado con éxito', 'modelo' => new UserResource($user)]);
     }
+    public function autorizationUser()
+    {
+        $user = Auth::user();
+        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
+        return response()->json(['results' => UserInfoResource::collection($users)]);
+    }
     public function recuperarPassword(Request $request){
         $email = $request->input('email');
         $usuario = User::where('email', $email)->first();
@@ -151,5 +164,17 @@ class UserController extends Controller
         $users->save();
         return response()
             ->json('Contraseña Actualizada con exito');
+    }
+    public function updatePassword(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        if (!$user || !Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => ['contraseña incorrectos'],
+            ]);
+        }
+        $user->password = bcrypt($request->password);
+        $user->save();
+        return response()->json(['mensaje' => 'La contraseña ha sido actualizada con éxito', 'modelo' => new UserResource($user)]);
     }
 }
