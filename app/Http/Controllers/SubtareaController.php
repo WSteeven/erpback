@@ -105,6 +105,27 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
+    public function actualizarFechasReagendar(SubtareaRequest $request, Subtarea $subtarea)
+    {
+        // Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
+
+        $modelo = $subtarea->refresh();
+        $subtarea->empleados()->detach();
+        $subtarea->grupos()->detach();
+
+        // Respuesta
+        $subtarea->update($datos);
+
+        $modelo = new SubtareaResource($subtarea->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
     /**
      * Eliminar
      */
@@ -122,7 +143,19 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_asignacion = Carbon::now();
         $subtarea->save();
 
-        event(new SubtareaEvent('Subtarea asignada!'));
+        // event(new SubtareaEvent('Subtarea asignada!'));
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
+    // Estados de las subtareas
+    public function agendar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+        $subtarea->save();
+
+        event(new SubtareaEvent('Subtarea agendada!'));
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
@@ -187,7 +220,9 @@ class SubtareaController extends Controller
         $subtarea->causa_pendiente = $motivo;
         $subtarea->save();
 
-        return response()->json(['modelo' => $subtarea->refresh()]);
+        $mensaje = 'El coordinador a cargo le reagendará el trabajo.';
+
+        return response()->json(['modelo' => $subtarea->refresh(), 'mensaje' => $mensaje]);
     }
 
     public function suspender(Request $request, Subtarea $subtarea)

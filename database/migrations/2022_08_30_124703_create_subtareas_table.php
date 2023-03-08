@@ -22,14 +22,14 @@ return new class extends Migration
             $table->text('descripcion_completa')->nullable();
             $table->text('observacion')->nullable();
 
-            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::PENDIENTE, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
+            $table->enum('estado', [Subtarea::AGENDADO, Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::PENDIENTE, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
             $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
 
             $table->timestamp('fecha_hora_creacion')->nullable();
             $table->timestamp('fecha_hora_asignacion')->nullable(); // Torre a coordinador
             $table->timestamp('fecha_hora_agendado')->nullable();   // Coordinador a técnico
             $table->timestamp('fecha_hora_ejecucion')->nullable();
-            $table->timestamp('fecha_hora_realizado')->nullable(); 
+            $table->timestamp('fecha_hora_realizado')->nullable();
             $table->timestamp('fecha_hora_finalizacion')->nullable();
             $table->timestamp('fecha_hora_pendiente')->nullable();
             $table->string('causa_pendiente')->nullable();

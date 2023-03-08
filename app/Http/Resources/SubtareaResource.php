@@ -44,6 +44,7 @@ class SubtareaResource extends JsonResource
             'hora_fin_trabajo' => $this->hora_fin_trabajo,
             'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
+            'fecha_hora_agendado' => $this->fecha_hora_agendado,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
             'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
             'fecha_hora_finalizacion' => $this->fecha_hora_finalizacion,

@@ -262,6 +262,7 @@ Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, '
 
 // Estados de las subtareas
 Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
+    Route::post('agendar/{subtarea}', [SubtareaController::class, 'agendar']);
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
