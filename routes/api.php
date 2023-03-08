@@ -273,6 +273,8 @@ Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
 });
 
+Route::put('subtareas/actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar'])->middleware('auth:sanctum');
+
 /* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
     Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);

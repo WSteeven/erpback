@@ -89,7 +89,7 @@ class SubtareaController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        //$datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
         $modelo = $subtarea->refresh();
@@ -105,23 +105,26 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-    public function actualizarFechasReagendar(SubtareaRequest $request, Subtarea $subtarea)
+    public function actualizarFechasReagendar(Request $request, Subtarea $subtarea)
     {
+        // $request->isMethod('patch');
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
+        $fechaInicioTrabajo = $request['fecha_inicio_trabajo'];
+        $horaInicioTrabajo = $request['hora_inicio_trabajo'];
+        $horaFinTrabajo = $request['hora_fin_trabajo'];
 
         $modelo = $subtarea->refresh();
-        $subtarea->empleados()->detach();
-        $subtarea->grupos()->detach();
 
         // Respuesta
-        $subtarea->update($datos);
+        $subtarea->fecha_inicio_trabajo = $fechaInicioTrabajo;
+        $subtarea->hora_inicio_trabajo = $horaInicioTrabajo;
+        $subtarea->hora_fin_trabajo = $horaFinTrabajo;
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+        $subtarea->save();
 
         $modelo = new SubtareaResource($subtarea->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        $mensaje = 'Subtarea reagendada exitosamente!';
 
         return response()->json(compact('modelo', 'mensaje'));
     }
