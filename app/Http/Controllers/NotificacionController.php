@@ -29,9 +29,9 @@ class NotificacionController extends Controller
     {
         $campos = explode(',', $request['campos']);
         if($request['campos']){
-            $results = Notificacion::orderBy('id', 'desc')->limit(10)->get($campos);
+            $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
         }else{
-            $results = Notificacion::orderBy('id', 'desc')->get();
+            $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
 
         return response()->json(compact('results'));
@@ -91,5 +91,16 @@ class NotificacionController extends Controller
         $notificacion->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Marcar como leída una notificacion
+     */
+    public function leida(Notificacion $notificacion){
+        $notificacion->leida =true;
+        $notificacion->save();
+        $modelo = $notificacion;
+
+        return response()->json(compact('modelo'), 200);
     }
 }
