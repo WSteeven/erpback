@@ -21,7 +21,7 @@ class Notificacion extends Model implements Auditable
         'per_originador_id',
         'per_destinatario_id',
         'leida',
-        'icono',
+        'tipo_notificacion',
     ];
     /* protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
