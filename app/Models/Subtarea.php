@@ -16,6 +16,7 @@ class Subtarea extends Model implements Auditable
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
+    const AGENDADO = 'AGENDADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
     const PENDIENTE = 'PENDIENTE';
