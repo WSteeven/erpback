@@ -77,8 +77,8 @@ class PedidoController extends Controller
             }
             DB::commit();
 
+            /* Sending a notification to the user who autorized the order. */
             event(new PedidoEvent('¡Pedido creado!', $pedido));
-            Log::channel('testing')->info('Log', ['Paso la linea de crear el evento ']);
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

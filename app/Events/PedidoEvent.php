@@ -28,7 +28,7 @@ class PedidoEvent implements ShouldBroadcast
     {
         $this->mensaje = $mensaje;
         $this->pedido= $pedido;
-        
+
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
@@ -49,7 +49,8 @@ class PedidoEvent implements ShouldBroadcast
             'mensaje'=>$mensaje,
             'link'=>env('SPA_URL', 'http://localhost:8080').'/pedidos',
             'per_originador_id'=>$originador,
-            'per_destinatario_id'=>$destinatario
+            'per_destinatario_id'=>$destinatario,
+            'icono'=>'bi-file-earmark-text',
         ]);
         return $notificacion;
     }

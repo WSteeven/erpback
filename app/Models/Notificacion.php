@@ -20,12 +20,13 @@ class Notificacion extends Model implements Auditable
         'link',
         'per_originador_id',
         'per_destinatario_id',
-        'leida'
+        'leida',
+        'icono',
     ];
-    protected $casts = [
+    /* protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-    ];
+    ]; */
 
     private static $whiteListFilter = ['*'];
 
