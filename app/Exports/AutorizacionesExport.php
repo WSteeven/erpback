@@ -16,6 +16,6 @@ class AutorizacionesExport implements FromView
     public function view(): View
     {
 
-        return view('exports.reportes.reporte_autorizaciones',$this->reporte);
+        return view('exports.reportes.excel.reporte_autorizaciones',$this->reporte);
     }
 }
