@@ -96,12 +96,13 @@ class GastoController extends Controller
         if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
         //Guardar Registro
         $modelo = Gasto::create($datos);
+        event(new FondoRotativoEvent($modelo));
         $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
         $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
         $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
         $modelo = new GastoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        event(new FondoRotativoEvent($modelo));
+
         return response()->json(compact('mensaje', 'modelo'));
     }
 
