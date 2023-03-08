@@ -33,8 +33,12 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
+        //Adaptación de foreign keys
+        $datos = $request->validated();
+        $datos['empresa_id']=$request->safe()->only(['empresa'])['empresa'];
+        
         //Respuesta
-        $modelo = Proveedor::create($request->validated());
+        $modelo = Proveedor::create($datos);
         $modelo = new ProveedorResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

@@ -22,14 +22,17 @@ return new class extends Migration
             $table->text('descripcion_completa')->nullable();
             $table->text('observacion')->nullable();
 
-            $table->enum('estado', [Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
+            $table->enum('estado', [Subtarea::AGENDADO, Subtarea::ASIGNADO, Subtarea::CANCELADO, Subtarea::CREADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::PENDIENTE, Subtarea::SUSPENDIDO, Subtarea::FINALIZADO]);
             $table->enum('modo_asignacion_trabajo', [Subtarea::POR_GRUPO, Subtarea::POR_EMPLEADO]);
 
             $table->timestamp('fecha_hora_creacion')->nullable();
-            $table->timestamp('fecha_hora_asignacion')->nullable();
+            $table->timestamp('fecha_hora_asignacion')->nullable(); // Torre a coordinador
+            $table->timestamp('fecha_hora_agendado')->nullable();   // Coordinador a técnico
             $table->timestamp('fecha_hora_ejecucion')->nullable();
-            $table->timestamp('fecha_hora_realizado')->nullable(); // tecnico
-            $table->timestamp('fecha_hora_finalizacion')->nullable(); // coordinador
+            $table->timestamp('fecha_hora_realizado')->nullable();
+            $table->timestamp('fecha_hora_finalizacion')->nullable();
+            $table->timestamp('fecha_hora_pendiente')->nullable();
+            $table->string('causa_pendiente')->nullable();
             $table->timestamp('fecha_hora_suspendido')->nullable();
             $table->string('causa_suspencion')->nullable();
             $table->timestamp('fecha_hora_cancelacion')->nullable();
@@ -38,9 +41,9 @@ return new class extends Migration
             $table->boolean('es_dependiente')->default(false);
             $table->boolean('es_ventana')->default(false);
 
-            $table->string('fecha_agendado')->nullable();
-            $table->string('hora_inicio_agendado')->nullable();
-            $table->string('hora_fin_agendado')->nullable();
+            $table->string('fecha_inicio_trabajo')->nullable();
+            $table->string('hora_inicio_trabajo')->nullable();
+            $table->string('hora_fin_trabajo')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('subtarea_dependiente_id')->nullable();

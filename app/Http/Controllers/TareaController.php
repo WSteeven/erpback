@@ -4,18 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
+use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\UbicacionTarea;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\SubtareaService;
 use Src\Shared\Utils;
 use stdClass;
 
 class TareaController extends Controller
 {
     private $entidad = 'Tarea';
+    private SubtareaService $subtareaService;
+
+    public function __construct()
+    {
+        $this->subtareaService = new SubtareaService();
+    }
 
     /**
      * Listar
@@ -44,30 +54,47 @@ class TareaController extends Controller
      */
     public function store(TareaRequest $request)
     {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        // $datos['medio_notificacion'] = $request->safe()->only(['medio_notificacion'])['medio_notificacion'];
-        $datos['coordinador_id'] = Auth::user()->empleado->id;
-        $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
+        DB::beginTransaction();
 
-        Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
+        try {
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+            $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+            $datos['coordinador_id'] = Auth::user()->empleado->id;
+            $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
 
-        $modelo = Tarea::create($datos);
-        Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
-        // Ubicacion tarea manual
-        /*$ubicacionTarea = $request['ubicacion_tarea'];
-        if ($ubicacionTarea && !$datos['cliente_final_id']) {
-            $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
-            $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
-            $modelo->ubicacionTarea()->create($ubicacionTarea);
-        }*/
+            Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
-        $modelo = new TareaResource($modelo->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
+            $modelo = Tarea::create($datos);
+            Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
+
+            $subtarea = $datos['subtarea'];
+
+            // Si la tarea no tiene subtareas, se crea una subtarea por defecto
+            if (!$datos['tiene_subtareas'] && $subtarea) {
+                $tarea_id = $modelo->id;
+                // Adpatacion de foreign keys para Subtarea
+                $subtarea['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
+                $subtarea['tipo_trabajo_id'] = $subtarea['tipo_trabajo'];
+                $subtarea['tarea_id'] = $tarea_id;
+                $subtarea['grupo_id'] = $subtarea['grupo'];
+                $subtarea['empleado_id'] = $subtarea['empleado'];
+                $subtarea['fecha_hora_creacion'] = Carbon::now();
+                $subtarea['estado'] = Subtarea::CREADO;
+                Subtarea::create($subtarea);
+            }
+
+            DB::commit();
+
+            $modelo = new TareaResource($modelo->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
+        } catch (\Exception $e) {
+            DB::rollBack();
+        }
+
         return response()->json(compact('mensaje', 'modelo'));
     }
     // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);

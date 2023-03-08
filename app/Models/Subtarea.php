@@ -16,8 +16,10 @@ class Subtarea extends Model implements Auditable
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
+    const AGENDADO = 'AGENDADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
+    const PENDIENTE = 'PENDIENTE';
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';
@@ -38,9 +40,12 @@ class Subtarea extends Model implements Auditable
 
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
+        'fecha_hora_agendado',
         'fecha_hora_ejecucion',
         'fecha_hora_realizado',
         'fecha_hora_finalizacion',
+        'fecha_hora_pendiente',
+        'causa_pendiente',
         'fecha_hora_suspendido',
         'causa_suspencion',
         'fecha_hora_cancelacion',
@@ -48,9 +53,9 @@ class Subtarea extends Model implements Auditable
 
         'es_dependiente',
         'es_ventana',
-        'fecha_agendado',
-        'hora_inicio_agendado',
-        'hora_fin_agendado',
+        'fecha_inicio_trabajo',
+        'hora_inicio_trabajo',
+        'hora_fin_trabajo',
 
         'tipo_trabajo_id',
         'tarea_id',

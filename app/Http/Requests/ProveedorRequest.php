@@ -24,8 +24,15 @@ class ProveedorRequest extends FormRequest
     public function rules()
     {
         return [
-            'empresa_id' => 'required|exists:empresas,id', 
+            'empresa' => 'required|exists:empresas,id|unique:proveedores,empresa_id,NULL,id', 
             'estado'=>'boolean'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'empresa'=>'Ya existe un proveedor registrado con esta razón social'
         ];
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('link')->nullable();
             $table->unsignedBigInteger('per_originador_id')->nullable();
             $table->unsignedBigInteger('per_destinatario_id')->nullable();
+            $table->string('tipo_notificacion');
             $table->boolean('leida')->default(false);
             $table->timestamps();
 

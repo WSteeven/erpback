@@ -55,7 +55,6 @@ class SubtareaController extends Controller
         $datos = $request->validated();
         $datos['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
         $datos['subtarea_dependiente_id'] = $request->safe()->only(['subtarea_dependiente'])['subtarea_dependiente'];
-        $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
         $datos['tipo_trabajo_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
@@ -90,7 +89,7 @@ class SubtareaController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
-        $datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
+        //$datos['tipo_subtarea_id'] = $request->safe()->only(['tipo_trabajo'])['tipo_trabajo'];
         $modo_asignacion_trabajo = $request->safe()->only(['modo_asignacion_trabajo'])['modo_asignacion_trabajo'];
 
         $modelo = $subtarea->refresh();
@@ -102,6 +101,30 @@ class SubtareaController extends Controller
 
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    public function actualizarFechasReagendar(Request $request, Subtarea $subtarea)
+    {
+        // $request->isMethod('patch');
+        // Adaptacion de foreign keys
+        $fechaInicioTrabajo = $request['fecha_inicio_trabajo'];
+        $horaInicioTrabajo = $request['hora_inicio_trabajo'];
+        $horaFinTrabajo = $request['hora_fin_trabajo'];
+
+        $modelo = $subtarea->refresh();
+
+        // Respuesta
+        $subtarea->fecha_inicio_trabajo = $fechaInicioTrabajo;
+        $subtarea->hora_inicio_trabajo = $horaInicioTrabajo;
+        $subtarea->hora_fin_trabajo = $horaFinTrabajo;
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+        $subtarea->save();
+
+        $modelo = new SubtareaResource($subtarea->refresh());
+        $mensaje = 'Subtarea reagendada exitosamente!';
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -123,7 +146,19 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_asignacion = Carbon::now();
         $subtarea->save();
 
-        event(new SubtareaEvent('Subtarea asignada!'));
+        // event(new SubtareaEvent('Subtarea asignada!'));
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
+    // Estados de las subtareas
+    public function agendar(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+        $subtarea->save();
+
+        event(new SubtareaEvent('Subtarea agendada!'));
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
@@ -177,6 +212,20 @@ class SubtareaController extends Controller
         $pausa = $subtarea->pausasSubtarea()->orderBy('fecha_hora_pausa', 'desc')->first();
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
+    }
+
+    public function marcarComoPendiente(Request $request, Subtarea $subtarea)
+    {
+        $motivo = $request['motivo'];
+
+        $subtarea->estado = Subtarea::PENDIENTE;
+        $subtarea->fecha_hora_pendiente = Carbon::now();
+        $subtarea->causa_pendiente = $motivo;
+        $subtarea->save();
+
+        $mensaje = 'El coordinador a cargo le reagendará el trabajo.';
+
+        return response()->json(['modelo' => $subtarea->refresh(), 'mensaje' => $mensaje]);
     }
 
     public function suspender(Request $request, Subtarea $subtarea)

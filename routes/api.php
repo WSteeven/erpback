@@ -77,6 +77,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
+use App\Models\Notificacion;
 use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
@@ -243,8 +244,9 @@ Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimi
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
-//show-preview
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
+Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
@@ -260,16 +262,20 @@ Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, '
 
 // Estados de las subtareas
 Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
+    Route::post('agendar/{subtarea}', [SubtareaController::class, 'agendar']);
     Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
     Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
     Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
     Route::post('finalizar/{subtarea}', [SubtareaController::class, 'finalizar']);
     Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
     Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
+    Route::post('pendiente/{subtarea}', [SubtareaController::class, 'marcarComoPendiente']);
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
     Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
 });
+
+Route::put('subtareas/actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar'])->middleware('auth:sanctum');
 
 /* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
     Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
