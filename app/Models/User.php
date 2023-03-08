@@ -38,6 +38,7 @@ class User extends Authenticatable implements Auditable
     const ROL_TECNICO = 'TECNICO';
     const ROL_TECNICO_LIDER_DE_GRUPO = 'TECNICO LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
+    const ROL_TECNICO_SECRETARIO = 'TECNICO SECRETARIO';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';

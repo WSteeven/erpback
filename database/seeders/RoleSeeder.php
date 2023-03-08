@@ -37,6 +37,7 @@ class RoleSeeder extends Seeder
         // Roles de cuadrillas
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER_DE_GRUPO]);
+        $tecnico_secretario = Role::firstOrCreate(['name' => User::ROL_TECNICO_SECRETARIO]);
         $autorizador = Role::firstOrCreate(['name' => User::ROL_AUTORIZADOR]);
 
         // -----------------
@@ -300,10 +301,10 @@ class RoleSeeder extends Seeder
          * El jefe tecnico y los coordinadores son los encargados de crear proyectos.
          * Dentro de cada proyecto van las tareas y dentro de las mismas van las subtareas.
          */
-        Permission::firstOrCreate(['name' => 'puede.ver.proyectos'])->syncRoles([$jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->syncRoles([$jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->syncRoles([$jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         // Tareas
         /**
          * Los coordinadores son los encargados de crear las tareas
