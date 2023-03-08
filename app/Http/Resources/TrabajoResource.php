@@ -71,12 +71,12 @@ class TrabajoResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->cliente_id;
-            $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
+            $modelo['tipo_trabajo'] = $this->tipo_subtarea_id;
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['fiscalizador'] = $this->fiscalizador_id;
-            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoTrabajo::where('trabajo_id', $this->id)->orderBy('es_responsable', 'desc')->get());
+            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoTrabajo::where('subtarea_id', $this->id)->orderBy('es_responsable', 'desc')->get());
             $modelo['empleados_seleccionados'] = $this->listarEmpleados();
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
             $modelo['trabajo_dependiente'] = $this->trabajo_dependiente_id;
@@ -108,7 +108,7 @@ class TrabajoResource extends JsonResource
 
     private function listarEmpleados()
     {
-        $empleadosSeleccionados = EmpleadoTrabajo::where('trabajo_id', $this->id)->orderBy('es_responsable', 'desc')->get();
+        $empleadosSeleccionados = EmpleadoTrabajo::where('subtarea_id', $this->id)->orderBy('es_responsable', 'desc')->get();
         if ($empleadosSeleccionados) return $this->mapEmpleadoSeleccionado($empleadosSeleccionados);
     }
 

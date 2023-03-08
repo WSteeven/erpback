@@ -29,6 +29,7 @@ class DevolucionRequest extends FormRequest
             'tarea'=>'sometimes|nullable|exists:tareas,id',
             'sucursal'=>'sometimes|nullable|exists:sucursales,id',
             'listadoProductos.*.cantidad'=>'required',
+            'listadoProductos.*.descripcion'=>'required',
         ];
 
         return $rules;
@@ -43,6 +44,7 @@ class DevolucionRequest extends FormRequest
     {
         return [
             'listadoProductos.*.cantidad'=>'Debes seleccionar una cantidad para el producto del :attribute',
+            'listadoProductos.*.descripcion'=>'El campo descripción debe contener detalles y estado del producto a devolver',
         ];
     }
     protected function prepareForValidation()

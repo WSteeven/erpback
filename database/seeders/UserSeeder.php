@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Sucursal;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
@@ -72,7 +73,7 @@ class UserSeeder extends Seeder
             'name' => 'JVEINTIMILLA',
             'email' => 'jveintimilla@jpconstrucred.com',
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO);
+        ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO, User::ROL_COORDINADOR);
 
 
         //Localidad o sucursal
@@ -200,7 +201,7 @@ class UserSeeder extends Seeder
             'email' => 'pedro@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('0706751393'),
-        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO]);
+        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO, User::ROL_COMPRAS, User::ROL_JEFE_TECNICO]);
         $activos_fijos->empleado()->create([
             'nombres' => 'PEDRO',
             'apellidos' => 'AGUILAR',
@@ -253,7 +254,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415236',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 1,
             'cargo_id' => 5,
         ]);
@@ -304,7 +305,7 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415232',
             'telefono' => '0987456332',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 2,
             'cargo_id' => 5,
         ]);
@@ -338,9 +339,9 @@ class UserSeeder extends Seeder
             'identificacion' => '0707415237',
             'telefono' => '0987456334',
             'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
+            'jefe_id' => 4,
             'grupo_id' => 1,
-            'cargo_id' => 10,
+            'cargo_id' => 5,
         ]);
 
         $tecnico = User::create([

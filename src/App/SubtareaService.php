@@ -42,9 +42,15 @@ class SubtareaService
         return $filter;
     }
 
-    public function obtenerTodos()
+    /*public function obtenerTodos()
     {
         $results = Subtarea::ignoreRequest(['estados'])->filter()->orderBy('fecha_hora_creacion', 'desc')->get();
+        return SubtareaResource::collection($results);
+    }*/
+
+    public function obtenerTodos()
+    {
+        $results = Subtarea::filter()->get();
         return SubtareaResource::collection($results);
     }
 }

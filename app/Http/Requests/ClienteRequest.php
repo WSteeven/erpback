@@ -25,8 +25,8 @@ class ClienteRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'empresa_id' =>     'exists:empresas,id|required|unique:clientes,empresa_id,NULL,id,parroquia_id,' . $this->parroquia_id,
-            'parroquia_id' =>   'exists:parroquias,id|required|unique:clientes,empresa_id',//NULL, empresa_id' . $this->empresa_id,
+            'empresa' =>     'exists:empresas,id|required|unique:clientes,empresa_id,NULL,id,parroquia_id,' . $this->parroquia_id,
+            'parroquia' =>   'exists:parroquias,id|required|unique:clientes,empresa_id',//NULL, empresa_id' . $this->empresa_id,
             'requiere_bodega' => 'boolean',
             'estado' => 'boolean'
         ];
@@ -37,14 +37,6 @@ class ClienteRequest extends FormRequest
         } */
         return $rules;
     }
-    public function attributes()
-    {
-        return [
-            'empresa_id' => 'empresa_id',
-            'parroquia_id' => 'parroquia_id'
-        ];
-    }
-
     /* public function messages()
     {
         return [

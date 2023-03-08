@@ -27,6 +27,8 @@ class Empleado extends Model implements Auditable
         'grupo_id',
         'cargo_id',
         'es_tecnico',
+        'firma_url',
+        'foto_url',
         // 'es_responsable_grupo',
     ];
 
@@ -52,6 +54,7 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
+        'estado' => 'boolean',
     ];
 
     public function toSearchableArray()
@@ -190,9 +193,9 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Transferencia::class);
     }
 
-    public function trabajos()
+    public function subtareas()
     {
-        return $this->belongsToMany(Trabajo::class);
+        return $this->hasMany(Subtarea::class);
     }
 
     /**

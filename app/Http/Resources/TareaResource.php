@@ -26,6 +26,8 @@ class TareaResource extends JsonResource
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
+            'observacion' => $this->observacion,
+            'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
@@ -33,7 +35,7 @@ class TareaResource extends JsonResource
             'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
             'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
-            'cantidad_trabajos' => $this->trabajos->count(),
+            'cantidad_subtareas' => $this->subtareas->count(),
             'medio_notificacion' => $this->medio_notificacion,
         ];
 

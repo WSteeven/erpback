@@ -13,7 +13,7 @@ class GrupoTrabajo extends Model implements Auditable
     use AuditableModel;
 
     protected $table = 'grupo_trabajo';
-    protected $fillable = ['es_responsable', 'grupo_id', 'trabajo_id'];
+    protected $fillable = ['es_responsable', 'grupo_id', 'subtarea_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

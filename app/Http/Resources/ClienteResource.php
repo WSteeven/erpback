@@ -20,13 +20,15 @@ class ClienteResource extends JsonResource
             'id' => $this->id,
             'empresa' => $this->empresa_id,
             'razon_social' => $this->empresa->razon_social,
+            'canton' => $this->parroquia?->canton->canton,
             'parroquia' => $this->parroquia?->parroquia,
             'requiere_bodega' => $this->requiere_bodega,
-            'estado' => $this->estado
+            'estado' => $this->estado,
         ];
 
         if ($controller_method == 'show') {
             $modelo['empresa'] = $this->empresa_id;
+            $modelo['canton'] = $this->parroquia->canton_id;
             $modelo['parroquia'] = $this->parroquia_id;
         }
 

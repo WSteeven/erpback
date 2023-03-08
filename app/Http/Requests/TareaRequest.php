@@ -24,20 +24,18 @@ class TareaRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'codigo_tarea' => 'nullable|string',
             'codigo_tarea_cliente' => 'nullable|string',
             'fecha_solicitud' => 'nullable|string',
             'titulo' => 'required|string',
+            'observacion' => 'nullable|string',
             'para_cliente_proyecto' => 'required|string',
-            // 'detalle' => 'required|string',
             'cliente' => 'nullable|numeric|integer',
             'coordinador' => 'nullable|numeric|integer',
             'fiscalizador' => 'nullable|numeric|integer',
             'proyecto' => 'nullable|numeric|integer',
             'cliente_final' => 'nullable|numeric|integer',
             'medio_notificacion' => 'required|string',
-            // 'observacion' => 'nullable|string',
-            // 'tiene_subtareas' => 'required|boolean',
+            'tiene_subtareas' => 'required|boolean',
         ];
     }
 }

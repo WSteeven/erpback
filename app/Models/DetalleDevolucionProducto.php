@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -12,6 +13,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 class DetalleDevolucionProducto extends Pivot implements Auditable
 {
     use HasFactory;
+    use UppercaseValuesTrait;
     use AuditableModel;
     use Filterable;
     protected $table ='detalle_devolucion_producto';
@@ -29,8 +31,10 @@ class DetalleDevolucionProducto extends Pivot implements Auditable
      * @var string[]
      */
     protected $fillable = [
-        'detalle_id',
+        'producto_id',
         'devolucion_id',
+        'descripcion',
+        'serial',
         'cantidad',
     ];
     protected $casts = [

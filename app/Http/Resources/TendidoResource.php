@@ -28,7 +28,7 @@ class TendidoResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['trabajo'] = $this->trabajo_id;
+            $modelo['trabajo'] = $this->subtarea_id;
             $modelo['bobina'] = $this->bobina_id;
         }
 

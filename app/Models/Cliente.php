@@ -21,7 +21,8 @@ class Cliente extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'requiere_bodega' => 'boolean'
+        'requiere_bodega' => 'boolean',
+        'estado' => 'boolean'
     ];
 
     private static $whiteListFilter=['*'];

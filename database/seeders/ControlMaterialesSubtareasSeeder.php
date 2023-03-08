@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\ControlMaterialSubtarea;
+use App\Models\ControlMaterialTrabajo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class ControlMaterialesSubtareasSeeder extends Seeder
      */
     public function run()
     {
-        ControlMaterialSubtarea::insert([
+        ControlMaterialTrabajo::insert([
             [
                 'stock_actual' => 80,
                 'cantidad_utilizada' => 16,

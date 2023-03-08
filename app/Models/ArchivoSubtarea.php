@@ -8,11 +8,11 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class ArchivoTrabajo extends Model implements Auditable
+class ArchivoSubtarea extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable;
-    protected $table = 'archivos_trabajos';
-    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'comentario', 'trabajo_id'];
+    protected $table = 'archivos_subtareas';
+    protected $fillable = ['nombre', 'ruta', 'tamanio_bytes', 'comentario', 'subtarea_id'];
 
     private static $whiteListFilter = ['*'];
 }

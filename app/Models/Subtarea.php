@@ -30,8 +30,12 @@ class Subtarea extends Model implements Auditable
     protected $table = "subtareas";
     protected $fillable = [
         'codigo_subtarea',
-        'detalle',
+        'titulo',
         'descripcion_completa',
+        'observacion',
+        'estado',
+        'modo_asignacion_trabajo',
+
         'fecha_hora_creacion',
         'fecha_hora_asignacion',
         'fecha_hora_ejecucion',
@@ -41,24 +45,25 @@ class Subtarea extends Model implements Auditable
         'causa_suspencion',
         'fecha_hora_cancelacion',
         'causa_cancelacion',
+
         'es_dependiente',
-        'subtarea_dependiente',
         'es_ventana',
         'fecha_agendado',
         'hora_inicio_agendado',
         'hora_fin_agendado',
-        'estado',
-        'modo_asignacion_trabajo',
-        'grupo_id',
-        'empleado_id',
+
         'tipo_trabajo_id',
         'tarea_id',
-        // 'coordinador_id',
+        'grupo_id',
+        'empleado_id',
+        'subtarea_dependiente_id',
+        'coordinador_id',
     ];
 
     protected $casts = [
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
+        'tiene_subtrabajos' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -72,13 +77,14 @@ class Subtarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    /*public function grupo()
+    public function grupo()
     {
         return $this->belongsTo(Grupo::class);
-    }*/
-    public function grupos()
+    }
+
+    public function empleado()
     {
-        return $this->belongsToMany(Grupo::class);
+        return $this->belongsTo(Empleado::class);
     }
 
     // Relacion uno a muchos (inversa)

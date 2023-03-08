@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class Emergencia extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, UppercaseValuesTrait;
+    use HasFactory, AuditableModel, UppercaseValuesTrait, Filterable;
 
     protected $table = 'emergencias';
 
@@ -33,6 +34,17 @@ class Emergencia extends Model implements Auditable
         'trabajo_realizado',
         'observaciones',
         'materiales_ocupados',
+        'materiales_devolucion',
         'subtarea_id',
     ];
+
+    protected $casts = [
+        'trabajo_realizado' => 'json',
+        'observaciones' => 'json',
+        'materiales_ocupados' => 'json',
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+    ];
+
+    private static $whiteListFilter = ['*'];
 }

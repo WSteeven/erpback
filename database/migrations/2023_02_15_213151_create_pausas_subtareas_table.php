@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('pausas_trabajos', function (Blueprint $table) {
+        Schema::create('pausas_subtareas', function (Blueprint $table) {
             $table->id();
             $table->string('fecha_hora_pausa');
             $table->string('fecha_hora_retorno')->nullable();
             $table->text('motivo');
 
-            $table->unsignedBigInteger('trabajo_id');
-            $table->foreign('trabajo_id')->references('id')->on('trabajos');
+            $table->unsignedBigInteger('subtarea_id');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas');
         });
     }
 
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pausas_trabajos');
+        Schema::dropIfExists('pausas_subtareas');
     }
 };

@@ -12,7 +12,7 @@ class Tendido extends Model
     protected $fillable = [
         'marca_inicial',
         'marca_final',
-        'trabajo_id',
+        'subtarea_id',
         'bobina_id',
     ];
 

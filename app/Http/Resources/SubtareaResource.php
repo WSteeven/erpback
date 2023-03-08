@@ -7,6 +7,7 @@ use App\Models\EmpleadoSubtarea;
 use App\Models\Grupo;
 use App\Models\GrupoSubtarea;
 use App\Models\Subtarea;
+use App\Models\Tarea;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -26,26 +27,24 @@ class SubtareaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
+            'tarea' => $this->tarea->codigo_tarea,
             'codigo_subtarea' => $this->codigo_subtarea,
-            'detalle' => $this->detalle,
+            'codigo_tarea_cliente' => $this->tarea->codigo_tarea_cliente,
+            'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
-            'actividad_realizada' => $this->actividad_realizada,
+            'observacion' => $this->observacion,
+            // 'actividad_realizada' => $this->actividad_realizada,
             'es_dependiente' => $this->es_dependiente,
-            'fiscalizador' => $this->fiscalizador,
-            'subtarea_dependiente' => $this->subtarea?->codigo_subtarea,
-            'subtarea_dependiente_id' => $this->subtarea_dependiente,
-            'tipo_instalacion' => $this->tipo_instalacion,
-            'id_servicio' => $this->id_servicio,
+            'subtarea_dependiente' => $this->subtareaDependiente?->codigo_subtarea,
+            'fecha_solicitud' => $this->tarea->fecha_solicitud,
+            //'para_cliente_proyecto' => $this->para_cliente_proyecto,
+            'cliente' => $this->tarea->cliente?->empresa?->razon_social,
+            'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
             'es_ventana' => $this->es_ventana,
             'fecha_agendado' => $this->fecha_agendado,
             'hora_inicio_agendado' => $this->hora_inicio_agendado,
             'hora_fin_agendado' => $this->hora_fin_agendado,
-            'tipo_trabajo' => $this->tipo_trabajo->descripcion,
-            'tarea' => $this->tarea->codigo_tarea,
-            'tarea_id' => $this->tarea_id,
-            'grupos' => $this->extraerNombres($this->grupos()->orderBy('responsable', 'desc')->get()),
-            'empleados' => $this->extraerNombresApellidos($this->empleados()->orderBy('responsable', 'desc')->get()),
-            'coordinador' => $this->tarea->coordinador->nombres . ' ' . $this->tarea->coordinador->apellidos,
+            'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
             'fecha_hora_creacion' => $this->fecha_hora_creacion,
             'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
             'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
@@ -55,20 +54,29 @@ class SubtareaResource extends JsonResource
             'causa_suspencion' => $this->causa_suspencion,
             'fecha_hora_cancelacion' => $this->fecha_hora_cancelacion,
             'causa_cancelacion' => $this->causa_cancelacion,
-            'cliente_final' => $this->tarea->cliente_final,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
+
             'estado' => $this->estado,
-            'responsable' => $this->verificarResponsable(), //!!$this->empleados()->where('empleado_id', Auth::id())->where('responsable', true)->first(),
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
+            'canton' => $this->obtenerCanton(),
+            'es_responsable' => $this->verificarResponsable(),
+            'empleado' => $this->extraerNombresApellidos($this->empleado),
+            'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
+            'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
+            'grupo' => $this->grupo?->nombre,
         ];
 
         if ($controller_method == 'show') {
             $modelo['cliente'] = $this->tarea->cliente_id;
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
+            $modelo['proyecto'] = $this->proyecto_id;
             $modelo['tarea'] = $this->tarea_id;
-            $modelo['grupos_seleccionados'] = $this->mapGrupoSeleccionado(GrupoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get());
-            $modelo['empleados_seleccionados'] = $this->listarEmpleados();
+            $modelo['coordinador'] = $this->tarea->coordinador_id;
+            $modelo['fiscalizador'] = $this->tarea->fiscalizador_id;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
+            $modelo['subtarea_dependiente'] = $this->subtarea_dependiente_id;
+            $modelo['empleado'] = $this->empleado_id;
+            $modelo['grupo'] = $this->grupo_id;
         }
 
         return $modelo;
@@ -80,11 +88,11 @@ class SubtareaResource extends JsonResource
         return implode('; ', $nombres);
     }
 
-    public function extraerNombresApellidos($listado)
+    /* public function extraerNombresApellidos($listado)
     {
         $nombres = $listado->map(fn ($item) => $item->nombres . ' ' . $item->apellidos)->toArray();
         return implode('; ', $nombres);
-    }
+    } */
 
     public function mapGrupoSeleccionado($gruposSeleccionados)
     {
@@ -95,11 +103,11 @@ class SubtareaResource extends JsonResource
         ]);
     }
 
-    private function listarEmpleados()
+    /* private function listarEmpleados()
     {
         $empleadosSeleccionados = EmpleadoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get();
         if ($empleadosSeleccionados) return $this->mapEmpleadoSeleccionado($empleadosSeleccionados);
-    }
+    }*/
 
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
@@ -119,19 +127,35 @@ class SubtareaResource extends JsonResource
 
     public function verificarResponsable()
     {
-        $usuario = Auth::user();
-        $rolPermitido = in_array(User::ROL_TECNICO_SECRETARIO, $usuario->getRoleNames()->toArray());
+        $usuario = User::find(Auth::id());
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-            if ($rolPermitido) {
-                return !!$this->grupos()->where('grupo_id', $usuario->empleado->grupo_id)->where('responsable', true)->first();
+            $esLider = $usuario->hasRole(User::ROL_TECNICO_LIDER_DE_GRUPO);
+            $grupo_id = $usuario->empleado->grupo_id;
+
+            if ($esLider) {
+                return $this->grupo_id == $grupo_id && $esLider;
             }
         }
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
-            return !!$this->empleados()->where('empleado_id', Auth::id())->where('responsable', true)->first();
+            return $this->empleado_id == $usuario->empleado->id;
         }
 
         return false;
+    }
+
+    private function obtenerCanton()
+    {
+        if ($this->tarea->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
+            return $this->tarea->proyecto->canton->canton;
+        } else if ($this->tarea->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
+            return $this->tarea->clienteFinal->canton->canton;
+        }
+    }
+
+    private function extraerNombresApellidos($empleado) {
+        if (!$empleado) return null;
+        return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }

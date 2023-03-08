@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Log;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 
 class EmpleadoController extends Controller
 {
@@ -79,6 +81,13 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
 
+        if($datos['foto_url']){
+            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
+        }
+        if($datos['firma_url']){
+            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
+        }
+
         // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
         try {
@@ -99,7 +108,8 @@ class EmpleadoController extends Controller
                 'jefe_id' => $datos['jefe_id'],
                 'canton_id' => $datos['canton_id'],
                 'cargo_id' => $datos['cargo_id'],
-                'grupo_id' => $datos['grupo_id']
+                'grupo_id' => $datos['grupo_id'],
+                'firma_url' => $datos['firma_url'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -156,6 +166,17 @@ class EmpleadoController extends Controller
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+
+        if($datos['foto_url'] && Utils::esBase64($datos['foto_url'])){
+            $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
+        }else{
+            unset($datos['foto_url']);
+        }
+        if($datos['firma_url'] && Utils::esBase64($datos['firma_url'])){
+            $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
+        }else{
+            unset($datos['firma_url']);
+        }
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);

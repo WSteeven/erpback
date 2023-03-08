@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -17,9 +18,20 @@ class ControlMaterialTrabajo extends Model implements Auditable
         'cantidad_utilizada',
         'fecha',
         'tarea_id',
-        'trabajo_id',
+        'subtarea_id',
         'empleado_id',
         'grupo_id',
         'detalle_producto_id',
     ];
+
+    public function scopeResponsable($query)
+    {
+        return $query->where('empleado_id', Auth::user()->empleado->id);
+    }
+
+    public function trabajo() //$query, $subtarea_id)
+    {
+        return $this->hasOne(Trabajo::class, 'id', 'subtarea_id');
+        // return $query->where('subtarea_id', $subtarea_id);
+    }
 }

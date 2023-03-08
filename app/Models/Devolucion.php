@@ -46,10 +46,10 @@ class Devolucion extends Model implements Auditable
      * Relación muchos a muchos(inversa).
      * Una devolución tiene varios detalles
      */
-    public function detalles()
+    public function productos()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
-            ->withPivot('cantidad')->withTimestamps();
+        return $this->belongsToMany(Producto::class, 'detalle_devolucion_producto', 'devolucion_id', 'producto_id')
+            ->withPivot('descripcion','serial','cantidad')->withTimestamps();
     }
 
 
@@ -90,15 +90,17 @@ class Devolucion extends Model implements Auditable
      */
     public static function listadoProductos(int $id)
     {
-        $detalles = Devolucion::find($id)->detalles()->get();
+        $detalles = Devolucion::find($id)->productos()->get();
         $results = [];
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
+            Log::channel('testing')->info('Log', ['Detalle en el listado de devolucion:', $detalle]);
             $row['id'] = $detalle->id;
-            $row['producto'] = $detalle->producto->nombre;
-            $row['descripcion'] = $detalle->descripcion;
-            $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['producto'] = $detalle->nombre;
+            $row['descripcion'] = $detalle->pivot->descripcion;
+            $row['serial'] = $detalle->pivot->serial;
+            $row['categoria'] = $detalle->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $results[$id] = $row;
             $id++;

@@ -289,12 +289,12 @@ class TransaccionBodega extends Model implements Auditable
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $itemInventario = Inventario::find($detalle['inventario_id']);
-                Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
+                // Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
-                Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
-                Log::channel('testing')->info('Log', ['detalle despachado es:', $detallePedido->despachado]);
-                Log::channel('testing')->info('Log', ['Pedido:', $pedido]);
-                Log::channel('testing')->info('Log', ['Detalle producto es:', DetalleProducto::find($detallePedido->detalle_id)]);
+                // Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
+                // Log::channel('testing')->info('Log', ['detalle despachado es:', $detallePedido->despachado]);
+                // Log::channel('testing')->info('Log', ['Pedido:', $pedido]);
+                // Log::channel('testing')->info('Log', ['Detalle producto es:', DetalleProducto::find($detallePedido->detalle_id)]);
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
@@ -333,6 +333,34 @@ class TransaccionBodega extends Model implements Auditable
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
+        }
+    }
+
+
+    /**
+     * If the product has a serial number and is active, then set it to inactive
+     * 
+     * @param id The id of the product
+     */
+    public static function desactivarDetalle($id)
+    {
+        $detalle = DetalleProducto::find($id);
+        if ($detalle->serial && $detalle->activo) {
+            $detalle->activo = false;
+            $detalle->save();
+        }
+    }
+    /**
+     * It finds a record in the database, and if it's not active, it sets it to active and saves it
+     * 
+     * @param id The id of the model you want to update.
+     */
+    public function activarDetalle($id)
+    {
+        $detalle = DetalleProducto::find($id);
+        if (!$detalle->activo) {
+            $detalle->activo = true;
+            $detalle->save();
         }
     }
 

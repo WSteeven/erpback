@@ -33,6 +33,7 @@ return new class extends Migration
             $table->double('coordenada_poste_anclaje2_latitud')->nullable();
             $table->string('estado_elemento');
             $table->string('tipo_elemento'); // verificar su se deja como string o llave foránea
+            $table->string('propietario_elemento'); // verificar su se deja como string o llave foránea
             // $table->boolean('tiene_transformador')->default(false);
             $table->integer('cantidad_transformadores')->nullable();
             $table->boolean('tiene_americano')->default(false);
@@ -57,8 +58,8 @@ return new class extends Migration
             /*$table->unsignedBigInteger('tipo_elemento_id');
             $table->foreign('tipo_elemento_id')->references('id')->on('tipos_elementos')->onDelete('cascade')->onUpdate('cascade');*/
 
-            $table->unsignedBigInteger('propietario_elemento_id');
-            $table->foreign('propietario_elemento_id')->references('id')->on('propietarios_elementos')->onDelete('cascade')->onUpdate('cascade');
+            /* $table->unsignedBigInteger('propietario_elemento_id');
+            $table->foreign('propietario_elemento_id')->references('id')->on('propietarios_elementos')->onDelete('cascade')->onUpdate('cascade'); */
 
             $table->timestamps();
         });

@@ -29,7 +29,7 @@ class UserInfoResource extends JsonResource
             'sucursal_id' => $this->empleado->sucursal_id,
             'grupo_id' => $this->empleado->grupo_id,
             'grupo' => $this->empleado->grupo?->nombre,
-            'rol' => $this->getRoleNames(), // ->toArray()),
+            'roles' => $this->getRoleNames(), // ->toArray()),
             'estado' => $this->empleado->estado,
             'es_lider' => $this->esTecnicoLider(),
             'permisos' => $this->obtenerPermisos($this->id),

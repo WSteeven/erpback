@@ -15,7 +15,7 @@ class EmpleadoTrabajo extends Model implements Auditable
     protected $fillable = [
         'es_responsable',
         'empleado_id',
-        'trabajo_id',
+        'subtarea_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
