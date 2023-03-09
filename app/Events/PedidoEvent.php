@@ -26,7 +26,7 @@ class PedidoEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(string $mensaje, $destinatario, $pedido)
+    public function __construct(string $mensaje, $pedido, $destinatario)
     {
         $this->mensaje = $mensaje;
         $this->pedido= $pedido;

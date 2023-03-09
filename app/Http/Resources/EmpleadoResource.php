@@ -31,7 +31,7 @@ class EmpleadoResource extends JsonResource
             'cargo' => $this->cargo?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
-            'roles' => implode(', ', $this->user->getRoleNames()->toArray()),
+            'roles' => implode(', ', $this->user->getRoleNames()->filter(fn($rol) => $rol !== 'EMPLEADO')->toArray()),
             'cargo' => $this->cargo?->nombre,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'foto_url' => $this->foto_url ? url($this->foto_url) : null,
