@@ -176,7 +176,6 @@ Route::apiResources(
         'unidades-medidas' => UnidadMedidaController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
-        // 'subtareas' => TrabajoController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
@@ -293,8 +292,9 @@ Route::put('subtareas/actualizar-fechas-reagendar/{subtarea}', [SubtareaControll
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas
     Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
-    Route::post('intercambiar-jefe-cuadrilla', [EmpleadoController::class, 'intercambiarJefeCuadrilla']);
-    Route::post('intercambiar-secretario-cuadrilla', [EmpleadoController::class, 'intercambiarSecretarioCuadrilla']);
+    Route::post('designar-lider-grupo', [EmpleadoController::class, 'designarLiderGrupo']);
+    Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
+    
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
