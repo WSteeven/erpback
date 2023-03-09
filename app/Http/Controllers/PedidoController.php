@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
+use App\Models\Autorizacion;
 use App\Models\Pedido;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -78,7 +79,15 @@ class PedidoController extends Controller
             DB::commit();
 
             /* Sending a notification to the user who autorized the order. */
-            event(new PedidoEvent('¡Pedido creado!', $pedido));
+            //logica para los eventos de las notificaciones
+            if($pedido->solicitante_id==$pedido->per_autoriza_id && $pedido->autorizacion->nombre===Autorizacion::APROBADO){
+                //No se hace nada y se crea la logica
+                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.'indicando que tú eres el responsable de los materiales, el estado del pedido es '.$pedido->autorizacion->nombre;
+                event(new PedidoEvent($msg, $pedido, $pedido->responsable_id));
+            }else{
+                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.' y está '.$pedido->autorizacion->nombre.' de autorización';
+                event(new PedidoEvent($msg, $pedido, $pedido->per_autoriza_id));
+            }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

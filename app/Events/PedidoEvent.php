@@ -19,22 +19,24 @@ class PedidoEvent implements ShouldBroadcast
     public string $mensaje;
     public Pedido $pedido;
     public Notificacion $notificacion;
+    public int $destinatario;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(string $mensaje, $pedido)
+    public function __construct(string $mensaje, $destinatario, $pedido)
     {
         $this->mensaje = $mensaje;
         $this->pedido= $pedido;
+        $this->destinatario= $destinatario;
+
 
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
-        $mensaje = 'Pedido N°'.$this->pedido->id.' '.$this->pedido->solicitante->nombres.' '.$this->pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$this->pedido->sucursal->lugar.' y está '.$this->pedido->autorizacion->nombre.' de autorización';
-        $this->notificacion = $this->crearNotificacion($mensaje, $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
+        $this->notificacion = $this->crearNotificacion($this->mensaje, $this->pedido->solicitante_id, $this->destinatario);
     }
 
 
