@@ -26,7 +26,7 @@ class FondoRotativoEvent implements ShouldBroadcast
      */
     public function __construct($gasto)
     {
-        $ruta = env('SPA_URL', 'http://localhost:8080').'/gasto';
+        $ruta = env('SPA_URL', 'http://localhost:8080').'/autorizar-gasto';
         $this->gasto = $gasto;
         $this->notificacion = Notificacion::crearNotificacion('Tienes un gasto por aprobar',$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $this->gasto->id_usuario, $this->gasto->aut_especial);
     }
