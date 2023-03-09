@@ -26,11 +26,11 @@ class PedidoEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(string $mensaje, $destinatario, $pedido)
+    public function __construct(string $mensaje, $pedido, $destinatario)
     {
         $this->mensaje = $mensaje;
-        $this->pedido= $pedido;
-        $this->destinatario= $destinatario;
+        $this->pedido = $pedido;
+        $this->destinatario = $destinatario;
 
 
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
@@ -47,13 +47,14 @@ class PedidoEvent implements ShouldBroadcast
      * @param originador The user who sent the message
      * @param destinatario The user who will receive the notification.
      */
-    public static function crearNotificacion($mensaje, $originador, $destinatario){
+    public static function crearNotificacion($mensaje, $originador, $destinatario)
+    {
         $notificacion = Notificacion::create([
-            'mensaje'=>$mensaje,
-            'link'=>env('SPA_URL', 'http://localhost:8080').'/pedidos',
-            'per_originador_id'=>$originador,
-            'per_destinatario_id'=>$destinatario,
-            'tipo_notificacion'=>TiposNotificaciones::PEDIDO,
+            'mensaje' => $mensaje,
+            'link' => env('SPA_URL', 'http://localhost:8080') . '/pedidos',
+            'per_originador_id' => $originador,
+            'per_destinatario_id' => $destinatario,
+            'tipo_notificacion' => TiposNotificaciones::PEDIDO,
         ]);
         return $notificacion;
     }
@@ -67,10 +68,11 @@ class PedidoEvent implements ShouldBroadcast
     {
         // return new PrivateChannel('pedidos-tracker');
         Log::channel('testing')->info('Log', ['Estamos en el broadcastOn de pedidos', $this->pedido]);
-        return new Channel('pedidos-tracker-'.$this->pedido->per_autoriza_id);
+        return new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id);
     }
 
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'pedido-event';
     }
 }
