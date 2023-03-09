@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PermisoRequest;
 use App\Http\Resources\PermisoResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Stmt\Switch_;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Src\Shared\Utils;
 
 class PermisoController extends Controller
@@ -20,6 +24,37 @@ class PermisoController extends Controller
     {
         $results = PermisoResource::collection(Permission::all());
         return response()->json(compact('results'));
+    }
+
+    public function listarPermisos(Request $request)
+    {
+        $results = [];
+        switch ($request['tipo']) {
+            case 'ASIGNADOS':
+                $results = Role::find($request['id_rol'])->permissions;
+                break;
+            case 'NO ASIGNADOS':
+                $id_permisos = Role::find($request['id_rol'])->permissions->pluck('id')->toArray();
+                $results = Permission::whereNotIn('id',$id_permisos)->get();
+                break;
+            default:
+                $results = DB::table('role_has_permissions')
+                    ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+                    ->get();
+                break;
+        }
+
+
+        return response()->json(compact('results'));
+    }
+
+    public function asignarPermisos(Request $request)
+    {
+        $rol = Role::find($request['id_rol']);
+        Log::channel('testing')->info('Log', ['rol',$request['id_rol']]);
+        $rol->permissions()->sync($request['permisos']);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje'));
     }
 
     /**
