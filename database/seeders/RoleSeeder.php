@@ -36,8 +36,8 @@ class RoleSeeder extends Seeder
 
         // Roles de cuadrillas
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
-        $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_TECNICO_LIDER_DE_GRUPO]);
-        $tecnico_secretario = Role::firstOrCreate(['name' => User::ROL_TECNICO_SECRETARIO]);
+        $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_LIDER_DE_GRUPO]);
+        $tecnico_secretario = Role::firstOrCreate(['name' => User::ROL_SECRETARIO]);
         $autorizador = Role::firstOrCreate(['name' => User::ROL_AUTORIZADOR]);
 
         // -----------------
