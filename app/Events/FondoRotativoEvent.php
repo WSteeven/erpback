@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\Notificacion;
 use Illuminate\Broadcasting\Channel;
@@ -43,11 +44,15 @@ class FondoRotativoEvent implements ShouldBroadcast
             $mensaje = 'Tienes un gasto por aprobar';
                 break;
         }
-        $destinatario = $gasto->estado==3? $gasto->aut_especial:$gasto->id_usuario;
-        $remitente = $gasto->estado==3? $gasto->id_usuario:$gasto->aut_especial;
+        $destinatario = $gasto->estado==3? $this->obtenerEmpleado($gasto->aut_especial)->id:$this->obtenerEmpleado($gasto->id_usuario)->id;
+        $remitente = $gasto->estado==3? $this->obtenerEmpleado($gasto->id_usuario)->id:$this->obtenerEmpleado($gasto->aut_especial)->id;
         $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
 
+    public function obtenerEmpleado($id)
+    {
+        return Empleado::where('usuario_id',$id)->first();
+    }
 
     /**
      * Get the channels the event should broadcast on.

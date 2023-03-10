@@ -48,9 +48,10 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        $usuario = Auth::user();
         $results = [];
 
-        $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        $results = Gasto::where('id_usuario',$usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
         $results = GastoResource::collection($results);
 
         return response()->json(compact('results'));

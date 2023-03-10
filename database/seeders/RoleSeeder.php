@@ -383,12 +383,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.editar.gasto'])->syncRoles([$empleado]);
         //detalle fondo
-        Permission::firstOrCreate(['name' => 'puede.ver.detalle_fondo'])->syncRoles([$compras]);
+        Permission::firstOrCreate(['name' => 'puede.ver.detalle_fondo'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.detalle_fondo'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.editar.detalle_fondo'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.detalle_fondo'])->syncRoles([$compras]);
         //subdetalle fondo
-        Permission::firstOrCreate(['name' => 'puede.ver.sub_detalle_fondo'])->syncRoles([$compras]);
+        Permission::firstOrCreate(['name' => 'puede.ver.sub_detalle_fondo'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.sub_detalle_fondo'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.editar.sub_detalle_fondo'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.sub_detalle_fondo'])->syncRoles([$compras]);
