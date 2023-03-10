@@ -82,7 +82,7 @@
     $qr = QrCode::size(100)
         ->backgroundColor(255, 90, 0)
         ->generate('Hola a todos, saludos cordiales');
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion->id . PHP_EOL . 'EGRESO: ' . $motivo . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'BODEGA DE CLIENTE: ' . $cliente . PHP_EOL . 'SUCURSAL: ' . $sucursal;
     $ciclo = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17];
 @endphp
 

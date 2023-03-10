@@ -255,6 +255,7 @@ class TransaccionBodegaIngresoController extends Controller
         $resource = new TransaccionBodegaResource($transaccion);
         Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $resource]);
         try {
+            Log::channel('testing')->info('Log', ['ingreso a imprimir', $resource->resolve()]);
             $pdf = Pdf::loadView('ingresos.ingreso', $resource->resolve());
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
