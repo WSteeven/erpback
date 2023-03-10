@@ -258,14 +258,14 @@ class EmpleadoController extends Controller
         } */
 
         // Quitar rol de jefe al actual
-        $nuevosRolesAnteriorJefe = $jefeActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_LIDER_DE_GRUPO);
+        /*$nuevosRolesAnteriorJefe = $jefeActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_LIDER_DE_GRUPO);
         $jefeActual->syncRoles($nuevosRolesAnteriorJefe);
 
         // Agregar rol de jefe a nuevo jefed
-        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_JEFE_CUADRILLA);
-        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
+        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_LIDER_DE_GRUPO);
+        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);*/
 
-        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);*/
+        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
     }
 
     public function designarSecretarioGrupo(Request $request)
