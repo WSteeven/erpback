@@ -349,7 +349,7 @@ class UserSeeder extends Seeder
             'email' => 'larmijos@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO, User::ROL_COMPRAS);
         $tecnico->empleado()->create([
             'nombres' => 'LEONARLO',
             'apellidos' => 'ARMIJOS',
@@ -463,7 +463,7 @@ class UserSeeder extends Seeder
             'email' => 'AARMIJOS@JEANPAZMINO.COM',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR, User::ROL_COMPRAS);
         $autorizador->empleado()->create([
             'nombres' => 'ANGEL FERNANDO',
             'apellidos' => 'ARMIJOS RIOS',
