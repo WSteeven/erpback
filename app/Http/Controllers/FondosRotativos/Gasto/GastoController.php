@@ -384,7 +384,9 @@ class GastoController extends Controller
     public function aprobar_gasto(Request $request){
         $gasto = Gasto::where('id', $request->id)->first();
         $gasto->estado = 1;
+        $gasto->detalle_estado = $request->detalle_estado;
         $gasto->save();
+        event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto autorizado correctamente']);
     }
     /**
@@ -395,9 +397,11 @@ class GastoController extends Controller
      * @return A JSON object with the success message.
      */
     public function rechazar_gasto(Request $request){
-        $gasto = Gasto::where('id', $request->id_gasto)->first();
+        $gasto = Gasto::where('id', $request->id)->first();
         $gasto->estado = 2;
+        $gasto->detalle_estado = $request->detalle_estado;
         $gasto->save();
+        event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto rechazado']);
     }
 }

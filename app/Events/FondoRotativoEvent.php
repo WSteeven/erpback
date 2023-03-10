@@ -11,6 +11,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class FondoRotativoEvent implements ShouldBroadcast
@@ -26,9 +27,25 @@ class FondoRotativoEvent implements ShouldBroadcast
      */
     public function __construct($gasto)
     {
-        $ruta = env('SPA_URL', 'http://localhost:8080').'/autorizar-gasto';
+        $ruta = $gasto->estado == 3? env('SPA_URL', 'http://localhost:8080').'/autorizar-gasto':env('SPA_URL', 'http://localhost:8080').'/notificaciones';
         $this->gasto = $gasto;
-        $this->notificacion = Notificacion::crearNotificacion('Tienes un gasto por aprobar',$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $this->gasto->id_usuario, $this->gasto->aut_especial);
+        switch ($gasto->estado) {
+            case 1:
+               $mensaje = 'Te han aprobado un gasto';
+                break;
+            case 2:
+                $mensaje = 'Te han rechazado un gasto';
+                break;
+            case 3:
+                $mensaje = 'Tienes un gasto por aprobar';
+                break;
+            default:
+            $mensaje = 'Tienes un gasto por aprobar';
+                break;
+        }
+        $destinatario = $gasto->estado==3? $gasto->aut_especial:$gasto->id_usuario;
+        $remitente = $gasto->estado==3? $gasto->id_usuario:$gasto->aut_especial;
+        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
 
 
@@ -40,7 +57,9 @@ class FondoRotativoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         //return new PrivateChannel('channel-name');
-        return new Channel('fondo-rotativo-'. $this->gasto->aut_especial);
+        $nombre_chanel =  $this->gasto->estado==3? 'fondo-rotativo-'. $this->gasto->aut_especial:'fondo-rotativo-'. $this->gasto->id_usuario;
+        Log::channel('testing')->info('Log', ['nombre canal',$nombre_chanel]);
+        return new Channel($nombre_chanel );
     }
 
 
