@@ -7,6 +7,7 @@ use App\Http\Resources\TrabajoResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\App\TrabajoAsignadoService;
 
 class TrabajoAsignadoController extends Controller
@@ -28,11 +29,14 @@ class TrabajoAsignadoController extends Controller
 
         $results = [];
 
-        if ($grupo_id) {
-            array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
+        if (request('estado') == 'PROXIMO') {
+            Log::channel('testing')->info('Log', ['Estado: ', request('estado')]);
+            array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
+            array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoEmpleado($empleado));
+        } else {
+            if ($grupo_id) array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
+            array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
         }
-
-        array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
 
         $results = SubtareaResource::collection($results);
         return response()->json(compact('results'));

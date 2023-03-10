@@ -81,10 +81,10 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
 
-        if($datos['foto_url']){
+        if ($datos['foto_url']) {
             $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
         }
-        if($datos['firma_url']){
+        if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
 
@@ -167,14 +167,14 @@ class EmpleadoController extends Controller
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
-        if($datos['foto_url'] && Utils::esBase64($datos['foto_url'])){
+        if ($datos['foto_url'] && Utils::esBase64($datos['foto_url'])) {
             $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
-        }else{
+        } else {
             unset($datos['foto_url']);
         }
-        if($datos['firma_url'] && Utils::esBase64($datos['firma_url'])){
+        if ($datos['firma_url'] && Utils::esBase64($datos['firma_url'])) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
-        }else{
+        } else {
             unset($datos['firma_url']);
         }
 
@@ -225,8 +225,25 @@ class EmpleadoController extends Controller
     {
         $request->validate([
             'grupo' => 'required|numeric|integer',
-            // 'nuevo_jefe' => 'required|numeric|integer',
         ]);
+
+        if ($empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO) && $empleado->grupo_id == $request['grupo']) {
+            throw ValidationException::withMessages([
+                '403' => ['No puede designar a la misma persona'],
+            ]);
+        }
+
+        DB::transaction(function () use ($request, $empleado) {
+            // Buscar lider del grupo actual
+            $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();
+            $liderActual = $empleadosGrupoActual->filter(fn ($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+
+            if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
+
+            $empleado->user->assignRole(User::ROL_LIDER_DE_GRUPO);
+
+            Log::channel('testing')->info('Log', ['Lider actual ', $liderActual]);
+        });
 
         // Empleados
         /* $empleados = Grupo::find($request['grupo'])->empleados;
@@ -265,7 +282,9 @@ class EmpleadoController extends Controller
         $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_LIDER_DE_GRUPO);
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);*/
 
-        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
+        $modelo = new EmpleadoResource($empleado->refresh());
+        $mensaje = 'Nuevo jefe de cuadrilla asignado exitosamente';
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     public function designarSecretarioGrupo(Request $request)

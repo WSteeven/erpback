@@ -60,6 +60,7 @@ class SubtareaController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
         $datos['fecha_hora_creacion'] = Carbon::now();
+        $datos['fecha_inicio_trabajo'] = Carbon::parse($request->safe()->only(['fecha_inicio_trabajo'])['fecha_inicio_trabajo'])->format('Y-m-d');
 
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
@@ -108,8 +109,11 @@ class SubtareaController extends Controller
     public function actualizarFechasReagendar(Request $request, Subtarea $subtarea)
     {
         // $request->isMethod('patch');
+        $request->validate([
+            'fecha_inicio_trabajo' => 'required|string',
+        ]);
         // Adaptacion de foreign keys
-        $fechaInicioTrabajo = $request['fecha_inicio_trabajo'];
+        $fechaInicioTrabajo = Carbon::parse($request['fecha_inicio_trabajo'])->format('Y-m-d');
         $horaInicioTrabajo = $request['hora_inicio_trabajo'];
         $horaFinTrabajo = $request['hora_fin_trabajo'];
 
