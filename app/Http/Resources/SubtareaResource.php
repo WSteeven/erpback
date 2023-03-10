@@ -12,6 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class SubtareaResource extends JsonResource
 {
@@ -39,7 +40,7 @@ class SubtareaResource extends JsonResource
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
             'es_ventana' => $this->es_ventana,
-            'fecha_inicio_trabajo' => $this->fecha_inicio_trabajo,
+            'fecha_inicio_trabajo' => Carbon::parse($this->fecha_inicio_trabajo)->format('d-m-Y'),
             'hora_inicio_trabajo' => $this->hora_inicio_trabajo,
             'hora_fin_trabajo' => $this->hora_fin_trabajo,
             'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
@@ -65,6 +66,9 @@ class SubtareaResource extends JsonResource
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
+
+            'ejecutar_hoy' => $this->puedeEjecutarHoy(),
+            'puede_ejecutar' => $this->verificarPuedeEjecutar(),
         ];
 
         if ($controller_method == 'show') {
@@ -155,8 +159,22 @@ class SubtareaResource extends JsonResource
         }
     }
 
-    private function extraerNombresApellidos($empleado) {
+    private function extraerNombresApellidos($empleado)
+    {
         if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
+    private function verificarPuedeEjecutar()
+    {
+        $puedeIniciarHoraTrabajo = $this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
+        $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count(); 
+
+        if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $puedeIniciarHoraTrabajo && !$existeTrabajoEjecutadoHoy;
+        else return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
+    }
+
+    private function puedeEjecutarHoy() {
+        return $this->fecha_inicio_trabajo == Carbon::today()->toDateString();
     }
 }
