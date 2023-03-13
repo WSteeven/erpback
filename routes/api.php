@@ -106,7 +106,6 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('ver/{empleado}', [UserController::class, 'show']);
     Route::put('actualizar/{empleado}', [UserController::class, 'update']);
     Route::post('cambiar-contrasena', [UserController::class, 'updatePassword']);
-
 });
 
 Route::group(['prefix' => '/permisos'], function () {
@@ -309,6 +308,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
     Route::post('fondos-rotativos/consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
     Route::get('fondos-rotativos/gastocontabilidad', [SaldoGrupoController::class, 'gastocontabilidad']);
+    Route::get('fondos-rotativos/autorizaciones_gastos', [GastoController::class, 'autorizaciones_gastos']);
+    Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
+    Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
 });
 
 // Tendidos

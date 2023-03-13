@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use PgSql\Lob;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
@@ -47,9 +48,21 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        $usuario = Auth::user();
         $results = [];
 
-        $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        $results = Gasto::where('id_usuario',$usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        $results = GastoResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
+    public function autorizaciones_gastos(Request $request)
+    {
+        $user = Auth::user();
+
+        $results = [];
+
+        $results = Gasto::where('aut_especial',$user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
         $results = GastoResource::collection($results);
 
         return response()->json(compact('results'));
@@ -362,5 +375,35 @@ class GastoController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
+    }
+   /**
+    * It updates the status of the expense to 1, which means it is approved.
+    *
+    * @param Request request The request object.
+    *
+    * @return A JSON object with the success message.
+    */
+    public function aprobar_gasto(Request $request){
+        $gasto = Gasto::where('id', $request->id)->first();
+        $gasto->estado = 1;
+        $gasto->detalle_estado = $request->detalle_estado;
+        $gasto->save();
+        event(new FondoRotativoEvent($gasto));
+        return response()->json(['success' => 'Gasto autorizado correctamente']);
+    }
+    /**
+     * It updates the status of the expense to 1, which means it is rejected.
+     *
+     * @param Request request The request object.
+     *
+     * @return A JSON object with the success message.
+     */
+    public function rechazar_gasto(Request $request){
+        $gasto = Gasto::where('id', $request->id)->first();
+        $gasto->estado = 2;
+        $gasto->detalle_estado = $request->detalle_estado;
+        $gasto->save();
+        event(new FondoRotativoEvent($gasto));
+        return response()->json(['success' => 'Gasto rechazado']);
     }
 }
