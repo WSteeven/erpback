@@ -90,6 +90,7 @@ class GastoController extends Controller
         $datos['estado'] = $datos_estatus_via->id;
         $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
+        $datos['id_subtarea']= $request->subTarea !== 0 ? $datos['id_subtarea'] = $request->subTarea : $datos['id_subtarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
