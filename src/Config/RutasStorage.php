@@ -16,4 +16,5 @@ enum RutasStorage: string
 	case FIRMAS = 'public/firmas';
 	case TRABAJOS = 'public/trabajos';
     case COMPROBANTES_GASTOS = 'public/comprobantesViaticos';
+    case TRANSFERENCIAS = 'public/transferencias';
 }

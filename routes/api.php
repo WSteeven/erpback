@@ -60,6 +60,7 @@ use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
+use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -190,6 +191,7 @@ Route::apiResources(
         'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
         'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
         'fondos-rotativos/acreditacion' => AcreditacionesController::class,
+        'fondos-rotativos/transferencia' => TransferenciasController::class,
     ],
     [
         'parameters' => [
