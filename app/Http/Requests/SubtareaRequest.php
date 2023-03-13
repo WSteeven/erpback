@@ -41,7 +41,7 @@ class SubtareaRequest extends FormRequest
             'causa_pendiente' => 'nullable|string',
             'fecha_hora_suspendido' => 'nullable|string',
             'causa_suspencion' => 'nullable|string',
-            'fecha_hora_cancelacion' => 'nullable|string',
+            'fecha_hora_cancelado' => 'nullable|string',
             'causa_cancelacion' => 'nullable|string',
             'es_dependiente' => 'boolean',
             'subtarea_dependiente' => 'nullable|numeric|integer',

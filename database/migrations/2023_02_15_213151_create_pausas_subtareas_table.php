@@ -17,7 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('fecha_hora_pausa');
             $table->string('fecha_hora_retorno')->nullable();
-            $table->text('motivo');
+
+            $table->unsignedBigInteger('motivo_pausa_id');
+            $table->foreign('motivo_pausa_id')->references('id')->on('motivos_pausas');
 
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas');

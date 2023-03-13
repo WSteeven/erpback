@@ -41,7 +41,7 @@ class TrabajoRequest extends FormRequest
             'fecha_hora_realizado' => 'nullable|string',
             'fecha_hora_suspendido' => 'nullable|string',
             'causa_suspencion' => 'nullable|string',
-            'fecha_hora_cancelacion' => 'nullable|string',
+            'fecha_hora_cancelado' => 'nullable|string',
             'causa_cancelacion' => 'nullable|string',
             'trabajo_dependiente' => 'nullable|numeric|integer',
             'es_dependiente' => 'boolean',

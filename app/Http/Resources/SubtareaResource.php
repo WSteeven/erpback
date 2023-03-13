@@ -51,11 +51,11 @@ class SubtareaResource extends JsonResource
             'fecha_hora_finalizacion' => $this->fecha_hora_finalizacion,
             'fecha_hora_realizado' => $this->fecha_hora_realizado,
             'fecha_hora_pendiente' => $this->fecha_hora_pendiente,
-            'causa_pendiente' => $this->causa_pendiente,
+            'motivo_pendiente' => $this->motivoPendiente?->motivo,
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
-            'causa_suspencion' => $this->causa_suspencion,
-            'fecha_hora_cancelacion' => $this->fecha_hora_cancelacion,
-            'causa_cancelacion' => $this->causa_cancelacion,
+            'motivo_suspendido' => $this->motivoSuspendido?->motivo,
+            'fecha_hora_cancelado' => $this->fecha_hora_cancelado,
+            'motivo_cancelado' => $this->motivoCancelado?->motivo,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
 
             'estado' => $this->estado,
@@ -67,7 +67,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
 
-            'ejecutar_hoy' => $this->puedeEjecutarHoy(),
+            // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarPuedeEjecutar(),
         ];
 
@@ -167,14 +167,20 @@ class SubtareaResource extends JsonResource
 
     private function verificarPuedeEjecutar()
     {
-        $puedeIniciarHoraTrabajo = $this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
-        $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count(); 
+        $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count();
 
-        if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $puedeIniciarHoraTrabajo && !$existeTrabajoEjecutadoHoy;
+        if ($this->hora_inicio_trabajo) return $this->puedeIniciarHoraTrabajo() && $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
         else return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
     }
 
     private function puedeEjecutarHoy() {
         return $this->fecha_inicio_trabajo == Carbon::today()->toDateString();
+    }
+
+    private function puedeIniciarHoraTrabajo() {
+        $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
+
+        //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
+        return Carbon::now()->format('H:i:s') >= $horaInicio;
     }
 }

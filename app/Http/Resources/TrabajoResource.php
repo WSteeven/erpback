@@ -59,7 +59,7 @@ class TrabajoResource extends JsonResource
             'fecha_hora_realizado' => $this->fecha_hora_realizado,
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
             'causa_suspencion' => $this->causa_suspencion,
-            'fecha_hora_cancelacion' => $this->fecha_hora_cancelacion,
+            'fecha_hora_cancelado' => $this->fecha_hora_cancelado,
             'causa_cancelacion' => $this->causa_cancelacion,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
 

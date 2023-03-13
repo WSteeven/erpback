@@ -238,11 +238,11 @@ class EmpleadoController extends Controller
             $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();
             $liderActual = $empleadosGrupoActual->filter(fn ($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
-            if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
+            Log::channel('testing')->info('Log', ['Lider actual ', $liderActual->first()]);
+            if ($liderActual) $liderActual->first()->user->removeRole(User::ROL_LIDER_DE_GRUPO);
+            // if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
 
             $empleado->user->assignRole(User::ROL_LIDER_DE_GRUPO);
-
-            Log::channel('testing')->info('Log', ['Lider actual ', $liderActual]);
         });
 
         // Empleados
@@ -283,7 +283,7 @@ class EmpleadoController extends Controller
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);*/
 
         $modelo = new EmpleadoResource($empleado->refresh());
-        $mensaje = 'Nuevo jefe de cuadrilla asignado exitosamente';
+        $mensaje = 'Nuevo líder de grupo designado exitosamente!';
         return response()->json(compact('mensaje', 'modelo'));
     }
 
