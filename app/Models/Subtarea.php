@@ -150,7 +150,7 @@ class Subtarea extends Model implements Auditable
 
     public function motivoCancelado()
     {
-        return $this->belongsTo(MotivoSuspendido::class, 'motivo_cancelado_id', 'id' );
+        return $this->belongsTo(MotivoSuspendido::class, 'motivo_cancelado_id', 'id');
     }
 
     public function tecnicosPrincipales($empleados)

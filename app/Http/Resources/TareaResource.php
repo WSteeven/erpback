@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Canton;
 use App\Models\Provincia;
+use App\Models\Tarea;
 use App\Models\UbicacionTarea;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -40,6 +41,7 @@ class TareaResource extends JsonResource
             'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             'cantidad_subtareas' => $this->tiene_subtareas ? $this->subtareas->count() : null,
             'medio_notificacion' => $this->medio_notificacion,
+            'canton' => $this->obtenerCanton(),
             'subtarea' => $primeraSubtarea,
             // Subtarea
              'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
@@ -55,6 +57,9 @@ class TareaResource extends JsonResource
              'fecha_hora_ejecucion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_ejecucion : null) : null,
              'fecha_hora_realizado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_realizado : null) : null,
              'fecha_hora_finalizacion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
+             'fecha_hora_' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
+             'grupo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->grupo?->nombre : null) : null,
+             'empleado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $this->extraerNombresApellidos($primeraSubtarea->empleado) : null) : null,
         ];
 
         if ($controller_method == 'show') {
@@ -74,6 +79,21 @@ class TareaResource extends JsonResource
             return $this->proyecto->cliente?->empresa?->razon_social;
         } else {
             return $this->cliente?->empresa?->razon_social;
+        }
+    }
+
+    private function extraerNombresApellidos($empleado)
+    {
+        if (!$empleado) return null;
+        return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+
+    private function obtenerCanton()
+    {
+        if ($this->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
+            return $this->proyecto->canton->canton;
+        } else if ($this->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
+            return $this->clienteFinal->canton->canton;
         }
     }
 }

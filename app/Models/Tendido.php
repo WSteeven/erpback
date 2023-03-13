@@ -21,9 +21,9 @@ class Tendido extends Model
         return $this->hasMany(RegistroTendido::class);
     }
 
-    public function trabajo()
+    public function subtarea()
     {
-        return $this->belongsTo(Trabajo::class);
+        return $this->belongsTo(Subtarea::class);
     }
 
     public function bobina()

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->string('hora_retiro_personal');
             $table->string('tiempo_espera_adicional');
             $table->string('estacion_referencia_afectacion');
-            $table->string('distancia_afectacion');
+            $table->string('distancia_afectacion')->nullable();
             $table->json('trabajo_realizado');
             $table->json('observaciones')->nullable();
             $table->json('materiales_ocupados')->nullable();
