@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('transferencias', function (Blueprint $table) {
+        Schema::create('transferencias_saldos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('usuario_envia_id');
             $table->unsignedBigInteger('usuario_recibe_id');
@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('motivo', 100);
             $table->string('cuenta', 20);
             $table->text('comprobante', 20);
+            $table->foreign('usuario_envia_id')->references('id')->on('users');
+            $table->foreign('usuario_recibe_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

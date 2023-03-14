@@ -13,7 +13,7 @@ class Transferencias extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'transferencias';
+    protected $table = 'transferencias_saldos';
     protected $primaryKey = 'id';
     protected $fillable = [
         'usuario_envia_id',

@@ -400,6 +400,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.acreditacion'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.crear.acreditacion'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.editar.acreditacion'])->syncRoles([$compras]);
+        //Transferencias
+        Permission::firstOrCreate(['name' => 'puede.ver.transferencia'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.transferencia'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.editar.transferencia'])->syncRoles([$empleado]);
         //Reporte fondo
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.crear.reporte_fondo_fecha'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
@@ -434,7 +438,7 @@ class RoleSeeder extends Seeder
 
         //Menus
         Permission::firstOrCreate(['name' => 'puede.ver.menu.detalle_fondo'])->syncRoles([$compras]);
-        Permission::firstOrCreate(['name' => 'puede.ver.menu.saldos'])->syncRoles([$compras]);
+        Permission::firstOrCreate(['name' => 'puede.ver.menu.saldos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.fondo'])->syncRoles([$empleado]);
 
         //Cambiar Contraseña
