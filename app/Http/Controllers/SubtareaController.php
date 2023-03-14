@@ -231,20 +231,6 @@ class SubtareaController extends Controller
         $pausa->save();
     }
 
-    public function marcarComoPendiente(Request $request, Subtarea $subtarea)
-    {
-        $motivo_pendiente_id = $request['motivo_pendiente_id'];
-
-        $subtarea->estado = Subtarea::PENDIENTE;
-        $subtarea->fecha_hora_pendiente = Carbon::now();
-        $subtarea->motivo_pendiente_id = $motivo_pendiente_id;
-        $subtarea->save();
-
-        $mensaje = 'El coordinador a cargo le reagendará el trabajo.';
-
-        return response()->json(['modelo' => $subtarea->refresh(), 'mensaje' => $mensaje]);
-    }
-
     public function suspender(Request $request, Subtarea $subtarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];

@@ -20,7 +20,6 @@ class Subtarea extends Model implements Auditable
     const AGENDADO = 'AGENDADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
-    const PENDIENTE = 'PENDIENTE';
     const SUSPENDIDO = 'SUSPENDIDO';
     const CANCELADO = 'CANCELADO';
     const REALIZADO = 'REALIZADO';
@@ -45,8 +44,6 @@ class Subtarea extends Model implements Auditable
         'fecha_hora_ejecucion',
         'fecha_hora_realizado',
         'fecha_hora_finalizacion',
-        'fecha_hora_pendiente',
-        'motivo_pendiente_id',
         'fecha_hora_suspendido',
         'motivo_suspendido_id',
         'fecha_hora_cancelado',
@@ -136,11 +133,6 @@ class Subtarea extends Model implements Auditable
     public function subtarea()
     {
         return $this->hasOne(Subtarea::class, 'id', 'subtarea_dependiente');
-    }
-
-    public function motivoPendiente()
-    {
-        return $this->belongsTo(MotivoPendiente::class);
     }
 
     public function motivoSuspendido()

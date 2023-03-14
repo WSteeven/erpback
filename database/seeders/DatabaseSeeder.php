@@ -62,8 +62,8 @@ class DatabaseSeeder extends Seeder
         //$this->call(SubtareaSeeder::class);
         $this->call(TipoElementoSeeder::class);
         $this->call(PropietarioElementoSeeder::class);
-        $this->call(MotivoPendienteSeeder::class);
         $this->call(MotivoSuspendidoSeeder::class);
+        $this->call(MotivoPausaSeeder::class);
         // $this->call(TrabajoSeeder::class);
         //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);

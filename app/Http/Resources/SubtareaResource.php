@@ -51,7 +51,6 @@ class SubtareaResource extends JsonResource
             'fecha_hora_finalizacion' => $this->fecha_hora_finalizacion,
             'fecha_hora_realizado' => $this->fecha_hora_realizado,
             'fecha_hora_pendiente' => $this->fecha_hora_pendiente,
-            'motivo_pendiente' => $this->motivoPendiente?->motivo,
             'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
             'motivo_suspendido' => $this->motivoSuspendido?->motivo,
             'fecha_hora_cancelado' => $this->fecha_hora_cancelado,

@@ -13,7 +13,6 @@ use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
-use App\Http\Controllers\MotivoPendienteController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SubtareaController;
@@ -35,7 +34,6 @@ Route::apiResources(
         'archivos-subtareas' => ArchivoSubtareaController::class,
         'registros-tendidos' => RegistroTendidoController::class,
         'motivos-pausas' => MotivoPausaController::class,
-        'motivos-pendientes' => MotivoPendienteController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
     ],
     [
@@ -46,7 +44,6 @@ Route::apiResources(
             'archivos-subtareas' => 'archivo_subtarea',
             'registros-tendidos' => 'registro_tendido',
             'motivos-pausas' => 'motivo_pausa',
-            'motivos-pendientes' => 'motivo_pendiente',
             'motivos-suspendidos' => 'motivo_suspendido',
         ],
     ]
