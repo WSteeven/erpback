@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('transferencias_saldos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('usuario_envia_id');
-            $table->unsignedBigInteger('usuario_recibe_id');
+            $table->unsignedBigInteger('usuario_recibe_id')->nullable();
             $table->decimal('monto', 10, 2);
             $table->string('motivo', 100);
             $table->string('cuenta', 20);

@@ -23,6 +23,14 @@ class Transferencias extends Model implements Auditable
         'cuenta',
         'comprobante'
     ];
+    public function usuario_envia()
+    {
+        return $this->belongsTo('App\Models\User', 'usuario_envia_id');
+    }
+    public function usuario_recive()
+    {
+        return $this->belongsTo('App\Models\User', 'usuario_recibe_id');
+    }
     private static $whiteListFilter = [
         'motivo',
     ];

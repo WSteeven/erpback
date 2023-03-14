@@ -101,7 +101,6 @@ class GastoController extends Controller
         $datos['id_usuario'] = $user->id;
         $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
         $datos['estado'] = $datos_estatus_via->id;
-        $datos['cantidad'] = $request->cant;
         $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
         $datos['id_subtarea']= $request->subTarea !== 0 ? $datos['id_subtarea'] = $request->subTarea : $datos['id_subtarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
@@ -109,7 +108,31 @@ class GastoController extends Controller
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
         if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
         //Guardar Registro
-        $modelo = Gasto::create($datos);
+        $modelo = new Gasto();
+        $modelo->fecha_viat= $datos['fecha_viat'];
+        $modelo->id_lugar = $datos['id_lugar'];
+        $modelo->id_tarea = $datos['id_tarea'];
+        $modelo->id_subtarea = $datos['id_subtarea'];
+        $modelo->id_proyecto = $datos['id_proyecto'];
+        $modelo->id_usuario = $datos['id_usuario'];
+        $modelo->ruc = $datos['ruc'];
+        $modelo->factura = $datos['factura'];
+        $modelo->estado = $datos['estado'];
+        $modelo->numComprobante = $datos['numComprobante'];
+        $modelo->aut_especial = $datos['aut_especial'];
+        $modelo->detalle = $datos['detalle'];
+        $modelo->cant = $datos['cantidad'];
+        $modelo->valor_u= $datos['valor_u'];
+        $modelo->total= $datos['total'];
+        $modelo->comprobante = $datos['comprobante'];
+        $modelo->comprobante2 = $datos['comprobante2'];
+        $modelo->aut_especial = $datos['aut_especial'];
+        $modelo->observacion = $datos['observacion'];
+        $modelo ->estado = $datos['estado'];
+        $modelo->detalle_estado = $datos['detalle_estado'];
+        $modelo->save();
+        //Guardar en tabla de destalle gasto
+        $modelo->sub_detalle_info()->sync($datos['sub_detalle']);
         event(new FondoRotativoEvent($modelo));
         $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
         $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\TransferenciaResource;
-use App\Models\Transferencia;
+use App\Models\FondosRotativos\Saldo\Transferencias;
 use Illuminate\Http\Request;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
@@ -27,7 +27,7 @@ class TransferenciasController extends Controller
     public function index()
     {
         $results = [];
-        $results = Transferencia::with('usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = Transferencias::with('usuario_envia','usuario_recive')->ignoreRequest(['campos'])->filter()->get();
         $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
 
@@ -42,10 +42,10 @@ class TransferenciasController extends Controller
     public function store(Request $request)
     {
         $datos = $request->all();
-        $datos['usuario_envia_id'] = auth()->user()->id;
-        $datos['usuario_recibe_id'] = $request->usuario_recibe_id;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::TRANSFERENCIAS))->execute();
-        $modelo = Transferencia::create($datos);
+        $datos['usuario_envia_id'] = $request->usuario_envia==0?null:$request->usuario_envia;
+        $datos['usuario_recibe_id'] = $request->usuario_recibe==0?null:$request->usuario_recibe;
+        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIAS))->execute();
+        $modelo = Transferencias::create($datos);
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -59,7 +59,7 @@ class TransferenciasController extends Controller
      */
     public function show($id)
     {
-        $Transferencia = Transferencia::where('id', $id)->first();
+        $Transferencia = Transferencias::where('id', $id)->first();
         $modelo = new TransferenciaResource($Transferencia);
         return response()->json(compact('modelo'), 200);
     }
@@ -68,10 +68,10 @@ class TransferenciasController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  Transferencia  $transferencia
+     * @param  Transferencias  $transferencia
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,Transferencia $transferencia)
+    public function update(Request $request,Transferencias $transferencia)
     {
         $datos = $request->all();
         $datos['usuario_envia_id'] = auth()->user()->id;
@@ -89,7 +89,7 @@ class TransferenciasController extends Controller
      * @param  Transferencia  $transferencia
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Transferencia $transferencia)
+    public function destroy(Transferencias $transferencia)
     {
         $transferencia->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');

@@ -21,8 +21,6 @@ class DetalleViatico extends Model implements Auditable
         'descripcion',
         'autorizacion',
         'id_estatus',
-        'transcriptor',
-        'fecha_trans',
     ];
 
     private static $whiteListFilter = [
@@ -31,5 +29,8 @@ class DetalleViatico extends Model implements Auditable
     public function estatus()
     {
         return $this->hasOne(Estatus::class, 'id','id_estatus');
+    }
+    public function gastos(){
+        return $this->hasMany(Gasto::class,'detalle','id');
     }
 }
