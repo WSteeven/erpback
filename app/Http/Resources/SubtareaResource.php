@@ -132,7 +132,7 @@ class SubtareaResource extends JsonResource
         $usuario = User::find(Auth::id());
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-            $esLider = $usuario->hasRole(User::ROL_TECNICO_LIDER_DE_GRUPO);
+            $esLider = $usuario->hasRole(User::ROL_LIDER_DE_GRUPO);
             $grupo_id = $usuario->empleado->grupo_id;
 
             if ($esLider) {

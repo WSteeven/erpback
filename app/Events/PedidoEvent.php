@@ -19,22 +19,24 @@ class PedidoEvent implements ShouldBroadcast
     public string $mensaje;
     public Pedido $pedido;
     public Notificacion $notificacion;
+    public int $destinatario;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(string $mensaje, $pedido)
+    public function __construct(string $mensaje, $pedido, $destinatario)
     {
         $this->mensaje = $mensaje;
-        $this->pedido= $pedido;
+        $this->pedido = $pedido;
+        $this->destinatario = $destinatario;
+
 
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
-        $mensaje = 'Pedido N°'.$this->pedido->id.' '.$this->pedido->solicitante->nombres.' '.$this->pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$this->pedido->sucursal->lugar.' y está '.$this->pedido->autorizacion->nombre.' de autorización';
-        $this->notificacion = $this->crearNotificacion($mensaje, $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
+        $this->notificacion = $this->crearNotificacion($this->mensaje, $this->pedido->solicitante_id, $this->destinatario);
     }
 
 
@@ -45,13 +47,14 @@ class PedidoEvent implements ShouldBroadcast
      * @param originador The user who sent the message
      * @param destinatario The user who will receive the notification.
      */
-    public static function crearNotificacion($mensaje, $originador, $destinatario){
+    public static function crearNotificacion($mensaje, $originador, $destinatario)
+    {
         $notificacion = Notificacion::create([
-            'mensaje'=>$mensaje,
-            'link'=>env('SPA_URL', 'http://localhost:8080').'/pedidos',
-            'per_originador_id'=>$originador,
-            'per_destinatario_id'=>$destinatario,
-            'tipo_notificacion'=>TiposNotificaciones::PEDIDO,
+            'mensaje' => $mensaje,
+            'link' => env('SPA_URL', 'http://localhost:8080') . '/pedidos',
+            'per_originador_id' => $originador,
+            'per_destinatario_id' => $destinatario,
+            'tipo_notificacion' => TiposNotificaciones::PEDIDO,
         ]);
         return $notificacion;
     }
@@ -65,10 +68,11 @@ class PedidoEvent implements ShouldBroadcast
     {
         // return new PrivateChannel('pedidos-tracker');
         Log::channel('testing')->info('Log', ['Estamos en el broadcastOn de pedidos', $this->pedido]);
-        return new Channel('pedidos-tracker-'.$this->pedido->per_autoriza_id);
+        return new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id);
     }
 
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'pedido-event';
     }
 }

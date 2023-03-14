@@ -247,7 +247,7 @@ class UserSeeder extends Seeder
             'email' => 'jpilay@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO, User::ROL_TECNICO_LIDER_DE_GRUPO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO, User::ROL_LIDER_DE_GRUPO);
         $tecnico->empleado()->create([
             'nombres' => 'JAIME LEONEL',
             'apellidos' => 'PILAY PEÑAFIEL',
@@ -264,7 +264,7 @@ class UserSeeder extends Seeder
             'email' => 'atigua@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_TECNICO, User::ROL_SECRETARIO);
         $tecnico->empleado()->create([
             'nombres' => 'ALEXANDER LORENZO',
             'apellidos' => 'TIGUA PILLASAGUA',

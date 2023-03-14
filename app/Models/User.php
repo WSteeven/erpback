@@ -36,8 +36,9 @@ class User extends Authenticatable implements Auditable
     const ROL_FISCALIZADOR = 'FISCALIZADOR';
     const ROL_SSO = 'SEGURIDAD Y SALUD OCUPACIONAL';
     const ROL_TECNICO = 'TECNICO';
-    const ROL_TECNICO_LIDER_DE_GRUPO = 'TECNICO LIDER DE GRUPO';
+    const ROL_LIDER_DE_GRUPO = 'LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
+    const ROL_SECRETARIO = 'SECRETARIO';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
@@ -128,7 +129,7 @@ class User extends Authenticatable implements Auditable
 
     public function esTecnicoLider()
     {
-        return $this->hasRole(User::ROL_TECNICO_LIDER_DE_GRUPO);
+        return $this->hasRole(User::ROL_LIDER_DE_GRUPO);
         // return $this->empleado->cargo === User::ROL_TECNICO_LIDER_DE_GRUPO;
     }
 }

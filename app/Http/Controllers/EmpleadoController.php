@@ -221,15 +221,15 @@ class EmpleadoController extends Controller
     }
 
 
-    public function intercambiarJefeCuadrilla(Request $request)
+    public function designarLiderGrupo(Request $request, Empleado $empleado)
     {
-        /*$request->validate([
+        $request->validate([
             'grupo' => 'required|numeric|integer',
-            'nuevo_jefe' => 'required|numeric|integer',
+            // 'nuevo_jefe' => 'required|numeric|integer',
         ]);
 
         // Empleados
-        $empleados = Grupo::find($request['grupo'])->empleados;
+        /* $empleados = Grupo::find($request['grupo'])->empleados;
         $jefeActual = null;
 
         // Buscar lider de cuadrilla actual
@@ -255,20 +255,20 @@ class EmpleadoController extends Controller
             throw ValidationException::withMessages([
                 'secretario' => ['Este empleado tiene rol de Secretario de cuadrilla. Cámbielo y vuelva a intentar.'],
             ]);
-        }
+        } */
 
         // Quitar rol de jefe al actual
-        $nuevosRolesAnteriorJefe = $jefeActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_TECNICO_JEFE_CUADRILLA);
+        /*$nuevosRolesAnteriorJefe = $jefeActual->getRoleNames()->filter(fn ($item) => $item !== User::ROL_LIDER_DE_GRUPO);
         $jefeActual->syncRoles($nuevosRolesAnteriorJefe);
 
         // Agregar rol de jefe a nuevo jefed
-        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_TECNICO_JEFE_CUADRILLA);
-        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
+        $nuevosRolesNuevoJefe = $nuevoJefe->getRoleNames()->push(User::ROL_LIDER_DE_GRUPO);
+        $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);*/
 
-        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);*/
+        return response()->json(['mensaje' => 'Nuevo jefe de cuadrilla asignado exitosamente']);
     }
 
-    public function intercambiarSecretarioCuadrilla(Request $request)
+    public function designarSecretarioGrupo(Request $request)
     {
         /* $request->validate([
             'grupo' => 'required|numeric|integer',
