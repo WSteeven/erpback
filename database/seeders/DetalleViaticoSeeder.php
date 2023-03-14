@@ -132,6 +132,11 @@ class DetalleViaticoSeeder extends Seeder
                 'id_estatus' => 1,
             ],
             [
+                'descripcion' => 'NO POSEE',
+                'autorizacion' => 'SI',
+                'id_estatus' => 1,
+            ],
+            [
                 'descripcion' => 'MANTENIMIENTO DE VEHICULO',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
