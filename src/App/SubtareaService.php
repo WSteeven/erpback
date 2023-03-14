@@ -74,7 +74,7 @@ class SubtareaService
 
     public function obtenerTodos()
     {
-        $results = Subtarea::filter()->get();
+        $results = Subtarea::ignoreRequest(['campos'])->filter()->get();
         return SubtareaResource::collection($results);
     }
 }

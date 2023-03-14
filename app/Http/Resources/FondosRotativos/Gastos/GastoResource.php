@@ -30,8 +30,6 @@ class GastoResource extends JsonResource
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle' => $this->detalle,
-            'sub_detalle_info' => $this->sub_detalle_info->descripcion,
-            'sub_detalle' => $this->sub_detalle,
             'cantidad' => $this->cant,
             'valor_u' => $this->valor_u,
             'total' => $this->total,

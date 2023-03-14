@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
+use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\ImagenProducto;
 use App\Models\TransaccionBodega;
 use Illuminate\Database\Seeder;
@@ -75,6 +77,8 @@ class DatabaseSeeder extends Seeder
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);
         $this->call(EstadoViaticoSeeder::class);
+        $this->call(DetalleViaticoSeeder::class);
+        $this->call(SubDetalleViaticoSeeder::class);
         // $this->call(PedidoSeeder::class);
     }
 }

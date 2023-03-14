@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detalle_viatico', function (Blueprint $table) {
+        Schema::create('subdetalle_gastos', function (Blueprint $table) {
             $table->id();
-            $table->string('descripcion', 250);
-            $table->string('autorizacion', 2);
-            $table->unsignedBigInteger('id_estatus');
-            $table->foreign('id_estatus')->references('id')->on('estatus');
+            $table->unsignedBigInteger('gasto_id');
+            $table->unsignedBigInteger('subdetalle_gasto_id');
+            $table->foreign('gasto_id')->references('id')->on('gastos');
+            $table->foreign('subdetalle_gasto_id')->references('id')->on('subdetalle_gastos');
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detalle_viatico');
+        Schema::dropIfExists('subdetalle_gastos');
     }
 };

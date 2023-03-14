@@ -21,7 +21,7 @@ class AcreditacionesFactory extends Factory
             'id_saldo' => $this->RandomSaldo(),
             'descripcion_saldo' =>fake()->text(200),
             'monto' =>fake()->numberBetween(20, 200),
-            'id_usuario' => 7,//fake()->numberBetween(3, 30),
+            'id_usuario' => fake()->numberBetween(3, 30),
             'id_tipo_saldo' =>fake()->numberBetween(1,4),
             'id_tipo_fondo' => fake()->numberBetween(1,2),
             'created_at' => date('Y-m-d H:i:s'),
