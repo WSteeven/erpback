@@ -50,7 +50,7 @@ class SaldoGrupo extends  Model implements Auditable
                         $row['tipo_saldo'] = $saldo->id_tipo_saldo;
                         $row['usuario'] = $saldo->id_usuario;
                         $row['usuario_info'] = $saldo->usuario;
-                        $row['cargo'] = $saldo->usuario->empleado->cargo->nombre;
+                        $row['cargo'] = $saldo->usuario->empleado->cargo!=null?$saldo->usuario->empleado->cargo->nombre:'';
                         $row['empleado'] = $saldo->usuario->empleado;
                         $row['descripcion_saldo'] = $saldo->descripcion_saldo;
                         $row['saldo_anterior'] = $saldo->saldo_anterior;
@@ -63,14 +63,14 @@ class SaldoGrupo extends  Model implements Auditable
                     }
                     break;
                 case 'usuario':
-                    $row['item'] = $id;
+                    $row['item'] = 1;
                     $row['id'] = $saldos->id;
                     $row['fecha'] = $saldos->fecha;
                     $row['tipo_saldo'] = $saldos->id_tipo_saldo;
                     $row['usuario'] = $saldos->id_usuario;
                     $row['usuario_info'] = $saldos->usuario;
                     $row['empleado'] = $saldos->usuario->empleado;
-                    $row['cargo'] = $saldos->usuario->empleado->cargo->nombre;
+                    $row['cargo'] =  $saldos->usuario->empleado->cargo!=null?$saldos->usuario->empleado->cargo->nombre:'';
                     $row['descripcion_saldo'] = $saldos->descripcion_saldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;

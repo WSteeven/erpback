@@ -23,9 +23,11 @@ class Gasto extends Model implements Auditable
         'id_lugar',
         'fecha_viat',
         'id_tarea',
+        'id_subtarea',
         'id_proyecto',
         'ruc',
         'factura',
+        'numComprobante',
         'proveedor',
         'aut_especial',
         'detalle',
@@ -51,7 +53,6 @@ class Gasto extends Model implements Auditable
         'proveedor',
         'aut_especial',
         'detalle',
-        'sub_detalle',
         'cant',
         'valor_u',
         'total',
@@ -72,8 +73,10 @@ class Gasto extends Model implements Auditable
     }
     public function sub_detalle_info()
     {
-        return $this->hasOne(SubDetalleViatico::class, 'id', 'sub_detalle');
+        return $this->belongsToMany(SubDetalleViatico::class,'subdetalle_gastos', 'gasto_id', 'subdetalle_gasto_id');
     }
+
+
     public function aut_especial_user()
     {
         return $this->hasOne(User::class, 'id', 'aut_especial')->with('empleado');

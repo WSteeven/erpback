@@ -16,6 +16,6 @@ class SaldoActualExport implements FromView
     public function view(): View
     {
 
-        return view('exports.reportes.reporte_saldo_actual',$this->reporte);
+        return view('exports.reportes.excel.reporte_saldo_actual',$this->reporte);
     }
 }

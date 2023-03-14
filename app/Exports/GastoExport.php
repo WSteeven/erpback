@@ -16,6 +16,6 @@ class GastoExport implements FromView
     public function view(): View
     {
 
-        return view('exports.reportes.gastos_por_fecha',$this->reporte);
+        return view('exports.reportes.excel.gastos_por_fecha_excel',$this->reporte);
     }
 }

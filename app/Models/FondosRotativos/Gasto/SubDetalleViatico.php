@@ -34,4 +34,8 @@ class SubDetalleViatico extends Model implements Auditable
     {
         return $this->hasOne(Estatus::class, 'id','id_estatus');
     }
+    public function gastos(){
+        return $this->belongsToMany(Gasto::class,'subdetalle_gastos','detalle','id');
+    }
+
 }

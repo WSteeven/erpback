@@ -53,5 +53,23 @@ class Notificacion extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_destinatario_id', 'id');
     }
 
+    /**
+     * It creates a notification with the message, the originator and the recipient
+     *
+     * @param mensaje The message you want to send.
+     * @param originador The user who sent the message
+     * @param destinatario The user who will receive the notification.
+     */
+    public static function crearNotificacion($mensaje,$ruta,$tipo, $originador, $destinatario){
+        $notificacion = Notificacion::create([
+            'mensaje'=>$mensaje,
+            'link'=>$ruta,
+            'per_originador_id'=>$originador,
+            'per_destinatario_id'=>$destinatario,
+            'tipo_notificacion'=>$tipo,
+        ]);
+        return $notificacion;
+    }
+
 
 }
