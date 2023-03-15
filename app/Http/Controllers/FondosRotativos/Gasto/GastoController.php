@@ -49,20 +49,27 @@ class GastoController extends Controller
     public function index(Request $request)
     {
         $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
-
-        $results = Gasto::where('id_usuario',$usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-        $results = GastoResource::collection($results);
+        if ($usuario_ac->hasRole('CONTABILIDAD')) {
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = GastoResource::collection($results);
+            return response()->json(compact('results'));
+        } else {
+            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = GastoResource::collection($results);
+        }
 
         return response()->json(compact('results'));
     }
     public function autorizaciones_gastos(Request $request)
     {
         $user = Auth::user();
-
+        $usuario = User::where('id', $user->id)->first();
+        $usuario->hasRole('writer');
         $results = [];
 
-        $results = Gasto::where('aut_especial',$user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
         $results = GastoResource::collection($results);
 
         return response()->json(compact('results'));
@@ -102,14 +109,14 @@ class GastoController extends Controller
         $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
         $datos['estado'] = $datos_estatus_via->id;
         $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
-        $datos['id_subtarea']= $request->subTarea !== 0 ? $datos['id_subtarea'] = $request->subTarea : $datos['id_subtarea'] = null;
+        $datos['id_subtarea'] = $request->subTarea !== 0 ? $datos['id_subtarea'] = $request->subTarea : $datos['id_subtarea'] = null;
         $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
         //Convierte base 64 a url
         if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
         if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
         //Guardar Registro
         $modelo = new Gasto();
-        $modelo->fecha_viat= $datos['fecha_viat'];
+        $modelo->fecha_viat = $datos['fecha_viat'];
         $modelo->id_lugar = $datos['id_lugar'];
         $modelo->id_tarea = $datos['id_tarea'];
         $modelo->id_subtarea = $datos['id_subtarea'];
@@ -122,13 +129,13 @@ class GastoController extends Controller
         $modelo->aut_especial = $datos['aut_especial'];
         $modelo->detalle = $datos['detalle'];
         $modelo->cant = $datos['cantidad'];
-        $modelo->valor_u= $datos['valor_u'];
-        $modelo->total= $datos['total'];
+        $modelo->valor_u = $datos['valor_u'];
+        $modelo->total = $datos['total'];
         $modelo->comprobante = $datos['comprobante'];
         $modelo->comprobante2 = $datos['comprobante2'];
         $modelo->aut_especial = $datos['aut_especial'];
         $modelo->observacion = $datos['observacion'];
-        $modelo ->estado = $datos['estado'];
+        $modelo->estado = $datos['estado'];
         $modelo->detalle_estado = $datos['detalle_estado'];
         $modelo->save();
         //Guardar en tabla de destalle gasto
@@ -224,7 +231,7 @@ class GastoController extends Controller
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
             $idUsuarioLogeado = $usuario_logeado[0]->id;
-            $datos_reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info','aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $datos_reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=', $idUsuarioLogeado)
@@ -328,8 +335,7 @@ class GastoController extends Controller
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             $vista = 'exports.reportes.gastos_por_fecha';
             $export_excel = new GastoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','landscape', $reportes, $nombre_reporte,$vista,$export_excel);
-
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -348,12 +354,12 @@ class GastoController extends Controller
         return $usuario_logeado;
     }
 
-   /**
-    * It takes a request, gets some data from the request, gets some data from the database, and then
-    * returns a file
-    *
-    * @param Request request The request object.
-    */
+    /**
+     * It takes a request, gets some data from the request, gets some data from the database, and then
+     * returns a file
+     *
+     * @param Request request The request object.
+     */
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
@@ -374,12 +380,12 @@ class GastoController extends Controller
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);
-            $div = $tipo_reporte->nombre=='Aprobado' ?10 :12;
-            $resto =0;
+            $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
+            $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');
             $reportes =  [
-                'div'=>$div,
-                'resto'=>$resto,
+                'div' => $div,
+                'resto' => $resto,
                 'datos_reporte' => $reporte_empaquetado,
                 'tipo_ARCHIVO' => $tipo_ARCHIVO,
                 'fecha_inicio' => $fecha_inicio,
@@ -393,20 +399,21 @@ class GastoController extends Controller
             Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             $vista = 'exports.reportes.reporte_autorizaciones';
-            $export_excel =new AutorizacionesExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo,'A4','landscape', $reportes, $nombre_reporte,$vista,$export_excel);
+            $export_excel = new AutorizacionesExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-   /**
-    * It updates the status of the expense to 1, which means it is approved.
-    *
-    * @param Request request The request object.
-    *
-    * @return A JSON object with the success message.
-    */
-    public function aprobar_gasto(Request $request){
+    /**
+     * It updates the status of the expense to 1, which means it is approved.
+     *
+     * @param Request request The request object.
+     *
+     * @return A JSON object with the success message.
+     */
+    public function aprobar_gasto(Request $request)
+    {
         $gasto = Gasto::where('id', $request->id)->first();
         $gasto->estado = 1;
         $gasto->detalle_estado = $request->detalle_estado;
@@ -421,7 +428,8 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function rechazar_gasto(Request $request){
+    public function rechazar_gasto(Request $request)
+    {
         $gasto = Gasto::where('id', $request->id)->first();
         $gasto->estado = 2;
         $gasto->detalle_estado = $request->detalle_estado;
