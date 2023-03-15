@@ -42,7 +42,7 @@ class TareaResource extends JsonResource
             'cantidad_subtareas' => $this->tiene_subtareas ? $this->subtareas->count() : null,
             'medio_notificacion' => $this->medio_notificacion,
             'canton' => $this->obtenerCanton(),
-            'subtarea' => $primeraSubtarea,
+            'subtarea' => new SubtareaResource($primeraSubtarea),
             // Subtarea
              'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
              'tipo_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->tipo_trabajo->descripcion : null) : null,

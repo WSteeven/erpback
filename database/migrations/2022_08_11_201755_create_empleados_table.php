@@ -42,6 +42,15 @@ return new class extends Migration
             $table->foreign('cargo_id')->references('id')->on('cargos')->onDelete(null)->onUpdate('cascade');
             $table->string('foto_url')->nullable();
             $table->string('firma_url')->nullable();
+            $table->string('convencional')->nullable();
+            $table->string('telefono_empresa')->nullable();
+            $table->string('extension')->nullable();
+            $table->string('coordenadas')->nullable();
+            $table->boolean('casa_propia')->default(true);
+            $table->boolean('vive_con_discapacitados')->default(false);
+            $table->boolean('responsable_discapacitados')->default(false);
+
+
             $table->timestamps();
         });
     }

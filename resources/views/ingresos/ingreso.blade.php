@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" >
+<html lang="es">
 
 <head>
-<meta charset="utf-8">
-    <title>Comprobante N° {{ $id }}</title>
+    <meta charset="utf-8">
+    <title>Comprobante N° {{ $transaccion['id'] }}</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -81,23 +81,23 @@
     </style>
 </head>
 @php
-$fecha = new Datetime();
-$mensaje_qr='JP CONSTRUCRED C. LTDA.'.PHP_EOL.'TRANSACCION: '.$id.PHP_EOL.'INGRESO: '.$motivo.PHP_EOL.'SOLICITADO POR: '.$solicitante.PHP_EOL.'AUTORIZADO POR: '.$per_autoriza.PHP_EOL.'INGRESADO POR: '.$per_atiende.PHP_EOL.'BODEGA DE CLIENTE: '.$cliente.PHP_EOL.'SUCURSAL: '.$sucursal;
-$ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
 @endphp
 
 <body>
     <header>
-        <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
+        <table
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 68%">
-                    @if ($transferencia)
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
+                    @if ($transaccion['transferencia'])
+                        <div class="col-md-7" align="center"><b>COMPROBANTE DE TRANSFERENCIA</b></div>
                     @else
-                    <div class="col-md-7" align="center"><b>COMPROBANTE DE INGRESO</b></div>
+                        <div class="col-md-7" align="center"><b>COMPROBANTE DE INGRESO</b></div>
                     @endif
                 </td>
                 <td style="width: 22%;">
@@ -120,15 +120,15 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                     <td><b></b></td>
                     <td><b>RECIBE</b></td>
                 </tr>
-                <tr>
-                    <td style="padding-left: 60px;">Nombre: </td>
+                <tr align="center">
+                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} </td=>
                     <td></td>
-                    <td style="padding-left: 60px;">Nombre:</td>
+                    <td>{{ $persona_atiende->nombres }} {{ $persona_atiende->apellidos }} </td>
                 </tr>
-                <tr>
-                    <td style="padding-left: 60px;">C.I: </td>
+                <tr align="center">
+                    <td>{{ $persona_entrega->identificacion }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">C.I:</td>
+                    <td>{{ $persona_atiende->identificacion }}</td>
                 </tr>
             </tbody>
         </table>
@@ -136,7 +136,8 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.</div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
+                    </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
@@ -144,7 +145,9 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                     </div>
                 </td>
                 <td>
-                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr)) !!}"></div>
+                    <div align="right"><img src="data:image/svg;base64,{!! base64_encode(
+                        QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr),
+                    ) !!}"></div>
                 </td>
             </tr>
         </table>
@@ -153,34 +156,35 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
     <main>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
             <tr class="row">
-                <td>Transacción N°: <b>{{ $id }}</b></td>
-                <td>Fecha: <b>{{ $created_at }}</b></td>
-                <td>Solicitante: <b>{{ $solicitante }}</b></td>
+                <td>Transacción N°: <b>{{ $transaccion['id'] }}</b></td>
+                <td>Fecha: <b>{{ $transaccion['created_at'] }}</b></td>
+                <td>Solicitante: <b>{{ $transaccion['solicitante'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Justificación: <b>{{ $justificacion }}</b></td>
+                <td>Justificación: <b>{{ $transaccion['justificacion'] }}</b></td>
                 <td></td>
-                <td>Sucursal: <b>{{ $sucursal }}</b></td>
+                <td>Sucursal: <b>{{ $transaccion['sucursal'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Ingresado por: <b>{{ $per_atiende }}</b></td>
+                <td>Ingresado por: <b>{{ $transaccion['per_atiende'] }}</b></td>
                 <td></td>
-                <td>Estado: <b>{{ $estado }}</b></td>
+                <td>Estado: <b>{{ $transaccion['estado'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Cliente: <b>{{$cliente}}</b></td>
+                <td>Cliente: <b>{{ $transaccion['cliente'] }}</b></td>
                 <td></td>
-                <td>Motivo: <b>{{$motivo}}</b></td>
+                <td>Motivo: <b>{{ $transaccion['motivo'] }}</b></td>
             </tr>
         </table>
-        <table>
-            <thead style="margin-bottom:4px;">
-                @if ($tarea)
-                <tr>
-                    <td>Tarea: <b>{{ $tarea }}</b></td>
+        <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
+
+            @if ($transaccion['tarea'])
+                <tr class="row">
+                    <td style="width: 65%">Tarea: <b>{{ $transaccion['tarea'] }}</b></td>
+                    <td style="width: 35%">Cod. Tarea: <b>{{ $transaccion['tarea_codigo'] }}</b></td>
                 </tr>
-                @endif
-            </thead>
+            @endif
+
         </table>
         <!-- aqui va el listado de productos -->
         <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
@@ -193,14 +197,14 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
             </thead>
             <tbody style="font-size: 14px;">
                 {{-- @foreach ($ciclo as $c) --}}
-                @foreach ($listadoProductosTransaccion as $listado)
-                <tr>
-                    <td>{{ $listado['producto'] }}</td>
-                    <td>{{ $listado['descripcion'] }}</td>
-                    <td>{{ $listado['categoria'] }}</td>
-                    <td>{{ $listado['condiciones'] }}</td>
-                    <td align="center">{{ $listado['cantidad'] }}</td>
-                </tr>
+                @foreach ($transaccion['listadoProductosTransaccion'] as $listado)
+                    <tr>
+                        <td>{{ $listado['producto'] }}</td>
+                        <td>{{ $listado['descripcion'] }}</td>
+                        <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['condiciones'] }}</td>
+                        <td align="center">{{ $listado['cantidad'] }}</td>
+                    </tr>
                 @endforeach
                 {{-- @endforeach --}}
             </tbody>

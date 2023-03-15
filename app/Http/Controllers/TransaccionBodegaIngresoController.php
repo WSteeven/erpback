@@ -6,6 +6,7 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Condicion;
 use App\Models\DetalleProducto;
+use App\Models\Empleado;
 use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Producto;
@@ -86,19 +87,17 @@ class TransaccionBodegaIngresoController extends Controller
                     //Guardar los productos seleccionados en el detalle
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         Log::channel('testing')->info('Log', ['ITEM DEL LISTADO-FOREACH', $listado]);
-                        Log::channel('testing')->info('Log', ['ITEM', $listado['id']]);
-                        $itemInventario = Inventario::where('detalle_id', $listado['id'])
-                        ->where('condicion_id', $request->condicion)
-                        ->where('sucursal_id', $request->sucursal)
-                        ->where('cliente_id', $request->cliente)
-                        ->first();
+                        $producto = Producto::where('nombre', $listado['producto'])->first();
+                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        // Log::channel('testing')->info('Log', ['ITEM', $listado['id']]);
+                        $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $request->condicion)->where('sucursal_id', $request->sucursal)->where('cliente_id', $request->cliente)->first();
                         Log::channel('testing')->info('Log', ['ITEMINVENTARIO', $itemInventario]);
                         if (!$itemInventario) {
-                            Log::channel('testing')->info('Log', ['ESTOY EN EL IF-91', $itemInventario]);
-                            $fila = Inventario::estructurarItem($listado['id'], $request->sucursal, $request->cliente, $request->condicion, $listado['cantidad']);
+                            Log::channel('testing')->info('Log', ['ESTOY EN EL IF-95', $itemInventario]);
+                            $fila = Inventario::estructurarItem($detalle->id, $request->sucursal, $request->cliente, $request->condicion, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                         } else {
-                            Log::channel('testing')->info('Log', ['ESTOY EN EL ELSE-95', $itemInventario]);
+                            Log::channel('testing')->info('Log', ['ESTOY EN EL ELSE-99', $itemInventario]);
                             $itemInventario->update(['cantidad' => $itemInventario->cantidad + $listado['cantidad']]);
                         }
                         $transaccion->items()->attach(
@@ -253,10 +252,14 @@ class TransaccionBodegaIngresoController extends Controller
     public function imprimir(TransaccionBodega $transaccion)
     {
         $resource = new TransaccionBodegaResource($transaccion);
+        $persona_entrega = Empleado::find($transaccion->solicitante_id);
+        $persona_atiende = Empleado::find($transaccion->per_atiende_id);
+        Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $transaccion]);
         Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $resource]);
         try {
-            Log::channel('testing')->info('Log', ['ingreso a imprimir', $resource->resolve()]);
-            $pdf = Pdf::loadView('ingresos.ingreso', $resource->resolve());
+            Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion'=>$resource->resolve()]]);
+            $transaccion = $resource->resolve();
+            $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
