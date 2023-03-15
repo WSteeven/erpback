@@ -282,7 +282,7 @@ class TrabajoController extends Controller
         $motivo = $request['motivo'];
 
         $trabajo->estado = Trabajo::CANCELADO;
-        $trabajo->fecha_hora_cancelacion = Carbon::now();
+        $trabajo->fecha_hora_cancelado = Carbon::now();
         $trabajo->causa_cancelacion = $motivo;
         $trabajo->save();
         return response()->json(['modelo' => $trabajo->refresh()]);

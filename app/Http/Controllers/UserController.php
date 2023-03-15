@@ -170,7 +170,7 @@ class UserController extends Controller
         $user = User::find(Auth::user()->id);
         if (!$user || !Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
-                'password' => ['contraseña incorrectos'],
+                'password' => ['La contraseña actual es incorrecta.'],
             ]);
         }
         $user->password = bcrypt($request->password);

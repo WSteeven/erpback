@@ -64,7 +64,7 @@ class TareaController extends Controller
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
             $datos['coordinador_id'] = Auth::user()->empleado->id;
-            $datos['codigo_tarea'] = 'TR' . Tarea::latest('id')->first()->id + 1;
+            $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
 
             Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
@@ -75,6 +75,7 @@ class TareaController extends Controller
 
             // Si la tarea no tiene subtareas, se crea una subtarea por defecto
             if (!$datos['tiene_subtareas'] && $subtarea) {
+                Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', 'dentro de if']);
                 $tarea_id = $modelo->id;
                 // Adpatacion de foreign keys para Subtarea
                 $subtarea['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
@@ -82,20 +83,33 @@ class TareaController extends Controller
                 $subtarea['tarea_id'] = $tarea_id;
                 $subtarea['grupo_id'] = $subtarea['grupo'];
                 $subtarea['empleado_id'] = $subtarea['empleado'];
+                $subtarea['fecha_inicio_trabajo'] = Carbon::parse($subtarea['fecha_inicio_trabajo'])->format('Y-m-d');
                 $subtarea['fecha_hora_creacion'] = Carbon::now();
                 $subtarea['estado'] = Subtarea::CREADO;
-                Subtarea::create($subtarea);
+
+                // Primera subtarea
+                $modeloSubtarea = Subtarea::create($subtarea);
+
+                // Asignar
+                $modeloSubtarea->estado = Subtarea::ASIGNADO;
+                $modeloSubtarea->fecha_hora_asignacion = Carbon::now();
+
+                // Agendar
+                $modeloSubtarea->estado = Subtarea::AGENDADO;
+                $modeloSubtarea->fecha_hora_agendado = Carbon::now();
+                $modeloSubtarea->save();
+
+                // event(new SubtareaEvent('Subtarea agendada!'));
             }
 
             DB::commit();
 
             $modelo = new TareaResource($modelo->refresh());
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', false);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (\Exception $e) {
             DB::rollBack();
         }
-
-        return response()->json(compact('mensaje', 'modelo'));
     }
     // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
 

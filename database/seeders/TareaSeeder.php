@@ -71,7 +71,7 @@ class TareaSeeder extends Seeder
                 'fiscalizador_id' => 27,
                 'cliente_id' => 3,
                 'cliente_final_id' => 4,
-                'tiene_subtareas' => true,
+                'tiene_subtareas' => false,
             ],
             [
                 'codigo_tarea' => 'TR5',

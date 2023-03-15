@@ -17,7 +17,12 @@ class PausaSubtarea extends Model implements Auditable
     protected $fillable = [
         'fecha_hora_pausa',
         'fecha_hora_retorno',
-        'motivo',
+        'motivo_pausa_id',
         'subtarea_id'
     ];
+
+    public function motivoPausa()
+    {
+        return $this->belongsTo(MotivoPausa::class);
+    }
 }

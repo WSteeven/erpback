@@ -53,7 +53,7 @@ class Trabajo extends Model implements Auditable
         'fecha_hora_finalizacion',
         'fecha_hora_suspendido',
         'causa_suspencion',
-        'fecha_hora_cancelacion',
+        'fecha_hora_cancelado',
         'causa_cancelacion',
 
         'es_dependiente',

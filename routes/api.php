@@ -174,16 +174,6 @@ Route::apiResources(
         'traspasos' => TraspasoController::class,
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
-        'tareas' => TareaController::class,
-        'subtareas' => SubtareaController::class,
-        'tipos-trabajos' => TipoTrabajoController::class,
-        'control-asistencias' => ControlAsistenciaController::class,
-        'control-cambios' => ControlCambioController::class,
-        'tipos-elementos' => TipoElementoController::class,
-        'clientes-finales' => ClienteFinalController::class,
-        'proyectos' => ProyectoController::class,
-        'archivos-subtareas' => ArchivoSubtareaController::class,
-        'registros-tendidos' => RegistroTendidoController::class,
         'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
         'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'fondos-rotativos/gastos' => GastoController::class,
@@ -213,28 +203,13 @@ Route::apiResources(
             'transacciones-ingresos' => 'transaccion',
             'transacciones-egresos' => 'transaccion',
             'ubicaciones' => 'ubicacion',
-            'tipos-trabajos' => 'tipo_trabajo',
-            'tipos-elementos' => 'tipo_elemento',
-            'tipos-fibras' => 'tipo_fibra',
-            'clientes-finales' => 'cliente_final',
-            'archivos-subtareas' => 'archivo-subtarea',
             'unidades-medidas' => 'unidad',
-            'registros-tendidos' => 'registro-tendido'
+            'tipos-fibras' => 'tipo_fibra',
         ],
         'middleware' => ['auth:sanctum']
     ]
 );
 
-Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas'])->middleware('auth:sanctum');
-Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
-
-Route::controller(TransaccionBodegaEgresoController::class)->prefix('transacciones-egresos')->group(function () {
-    // Route::get('materiales-grupo-tarea', 'obtenerMateriales');
-    Route::get('prueba/{tarea}', 'prueba');
-    Route::get('materiales-despachados/{tarea}', 'materialesDespachados');
-    Route::get('show-preview/{transaccion}', 'showPreview'); //->name('imprimir-transaccion');
-    Route::get('materiales/{tarea}', 'obtenerTransaccionPorTarea');
-});
 /**
  * Rutas para imprimir PDFs
  */
@@ -261,41 +236,7 @@ Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
 
-// Estados de las subtareas
-Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
-    Route::post('agendar/{subtarea}', [SubtareaController::class, 'agendar']);
-    Route::post('asignar/{subtarea}', [SubtareaController::class, 'asignar']);
-    Route::post('ejecutar/{subtarea}', [SubtareaController::class, 'ejecutar']);
-    Route::post('realizar/{subtarea}', [SubtareaController::class, 'realizar']);
-    Route::post('finalizar/{subtarea}', [SubtareaController::class, 'finalizar']);
-    Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
-    Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
-    Route::post('pendiente/{subtarea}', [SubtareaController::class, 'marcarComoPendiente']);
-    Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
-    Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
-    Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
-});
-
-Route::put('subtareas/actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar'])->middleware('auth:sanctum');
-
-/* Route::middleware('auth:sanctum')->prefix('subtareas')->group(function () {
-    Route::post('asignar/{trabajo}', [TrabajoController::class, 'asignar']);
-    Route::post('ejecutar/{trabajo}', [TrabajoController::class, 'ejecutar']);
-    Route::post('realizar/{trabajo}', [TrabajoController::class, 'realizar']);
-    Route::post('finalizar/{trabajo}', [TrabajoController::class, 'finalizar']);
-    Route::post('pausar/{trabajo}', [TrabajoController::class, 'pausar']);
-    Route::post('reanudar/{trabajo}', [TrabajoController::class, 'reanudar']);
-    Route::post('suspender/{trabajo}', [TrabajoController::class, 'suspender']);
-    Route::post('cancelar/{trabajo}', [TrabajoController::class, 'cancelar']);
-    Route::get('pausas/{trabajo}', [TrabajoController::class, 'obtenerPausas']);
-}); */
-
 Route::middleware('auth:sanctum')->group(function () {
-    // Subtareas
-    Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
-    Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'designarLiderGrupo']);
-    Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
-    
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
@@ -315,13 +256,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
     Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
 });
-
-// Tendidos
-Route::apiResource('tendidos', TendidoController::class)->except('show');
-Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
-
-// Emergencias
-Route::apiResource('emergencias', EmergenciaController::class);
-
-// Reportes de material
-Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index'])->middleware('auth:sanctum');

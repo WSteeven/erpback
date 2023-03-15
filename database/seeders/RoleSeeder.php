@@ -458,5 +458,20 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.hoja_control_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.hoja_control_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.hoja_control_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
+        // Motivos de pausas
+        Permission::firstOrCreate(['name' => 'puede.ver.motivos_pausas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivos_pausas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivos_pausas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_pausas'])->syncRoles([$jefe_tecnico]);
+        // Motivos de pendientes
+        Permission::firstOrCreate(['name' => 'puede.ver.motivos_pendientes'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivos_pendientes'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivos_pendientes'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_pendientes'])->syncRoles([$jefe_tecnico]);
+        // Motivos de suspendidos
+        Permission::firstOrCreate(['name' => 'puede.ver.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
     }
 }
