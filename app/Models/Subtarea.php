@@ -9,6 +9,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 
 class Subtarea extends Model implements Auditable
 {
@@ -65,15 +66,29 @@ class Subtarea extends Model implements Auditable
         'coordinador_id',
     ];
 
+    // protected $dateFormat = 'd-m-Y';
+
     protected $casts = [
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
         'tiene_subtrabajos' => 'boolean',
+        // 'fecha_inicio_trabajo' => 'datetime:d-m-Y',
+        // 'created_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
     private static $whiteListFilter = [
         '*'
     ];
+
+    /* public function setFechaInicioTrabajoAttribute($value)
+    {
+        $this->attributes['fecha_inicio_trabajo'] = (new Carbon($value))->format('Y-m-d');
+    }
+
+    public function getFechaInicioTrabajoAttribute($value)
+    {
+        $this->attributes['fecha_inicio_trabajo'] = Carbon::parse($value)->format('Y-m-d');
+    } */
 
     // Relacion uno a muchos (inversa)
     public function tarea()
@@ -170,5 +185,15 @@ class Subtarea extends Model implements Auditable
     public function empleados()
     {
         return $this->belongsToMany(Empleado::class);
+    }
+
+    public function scopeFechaActual($query)
+    {
+        return $query->whereDate('fecha_inicio_trabajo', '=', Carbon::today());
+    }
+
+    public function scopeFechaFuturo($query)
+    {
+        return $query->whereDate('fecha_inicio_trabajo', '>', Carbon::today());
     }
 }

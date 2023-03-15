@@ -12,14 +12,26 @@ class TrabajoAsignadoService
     public function obtenerTrabajoAsignadoGrupo(Empleado $empleado)
     {
         // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('grupo_id', $grupo)->get();
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_asignacion', '!=', null)->get();
+        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
         // return SubtareaResource::collection($results);
     }
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
+        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
         // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('empleado_id', $id_empleado)->get();
-        return $empleado->subtareas()->filter()->where('fecha_hora_asignacion', '!=', null)->get();
+        // return SubtareaResource::collection($results);
+    }
+
+    public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
+    {
+        return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
+    }
+
+    public function obtenerFuturoTrabajoAsignadoEmpleado(Empleado $empleado)
+    {
+        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
+        // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('empleado_id', $id_empleado)->get();
         // return SubtareaResource::collection($results);
     }
 }

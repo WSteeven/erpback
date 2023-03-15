@@ -41,7 +41,7 @@ return new class extends Migration
             $table->boolean('es_dependiente')->default(false);
             $table->boolean('es_ventana')->default(false);
 
-            $table->string('fecha_inicio_trabajo')->nullable();
+            $table->date('fecha_inicio_trabajo')->nullable();
             $table->string('hora_inicio_trabajo')->nullable();
             $table->string('hora_fin_trabajo')->nullable();
 

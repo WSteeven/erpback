@@ -293,7 +293,7 @@ Route::put('subtareas/actualizar-fechas-reagendar/{subtarea}', [SubtareaControll
 Route::middleware('auth:sanctum')->group(function () {
     // Subtareas
     Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
-    Route::post('designar-lider-grupo', [EmpleadoController::class, 'designarLiderGrupo']);
+    Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'designarLiderGrupo']);
     Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
     
     // Fecha y hora del sistema

@@ -311,9 +311,12 @@ class TransaccionBodegaEgresoController extends Controller
         Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
         $resource = new TransaccionBodegaResource($transaccion);
         Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
+        $persona_entrega = Empleado::find($transaccion->per_atiende_id);
         $persona_retira = Empleado::find($transaccion->per_retira_id);
         try {
-            $pdf = Pdf::loadView('egresos.egreso', $resource->resolve(), $persona_retira->toArray());
+            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion'=>$resource->resolve(), 'per_retira'=>$persona_retira->toArray(), 'per_entrega'=>$persona_entrega->toArray()]]);
+            // $pdf = Pdf::loadView('egresos.egreso', [$resource->resolve(), $persona_retira->toArray(), $persona_entrega->toArray()]);
+            $pdf = Pdf::loadView('egresos.egreso', ['transaccion'=>[$resource->resolve()], 'per_retira'=>[$persona_retira->toArray()], 'per_entrega'=>[$persona_entrega->toArray()]]);
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
