@@ -110,9 +110,10 @@
     <footer>
         <table class="firma" style="width: 100%;">
             <thead>
-                <th align="center">___________________</th>
+                <th align="center"><img src="{{url($persona_entrega->firma_url)}}" alt=""></th>
+                {{-- <th align="center">___________________</th> --}}
                 <th align="center"></th>
-                <th align="center">___________________</th>
+                <th align="center">{{$persona_entrega->firma_url}}</th>
             </thead>
             <tbody>
                 <tr align="center">
