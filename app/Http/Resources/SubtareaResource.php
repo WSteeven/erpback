@@ -25,12 +25,13 @@ class SubtareaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+        $tarea = $this->tarea;
 
         $modelo = [
             'id' => $this->id,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
-            'codigo_subtarea' => $this->codigo_subtarea,
+            'codigo_subtarea' => $this->tarea->tiene_subtareas ? $this->codigo_subtarea : null,
             'codigo_tarea_cliente' => $this->tarea->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
@@ -40,6 +41,7 @@ class SubtareaResource extends JsonResource
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
+            'cliente_final' => $tarea->clienteFinal?->id_cliente_final,
             'es_ventana' => $this->es_ventana,
             'fecha_inicio_trabajo' => Carbon::parse($this->fecha_inicio_trabajo)->format('d-m-Y'),
             'hora_inicio_trabajo' => $this->hora_inicio_trabajo,
@@ -66,7 +68,7 @@ class SubtareaResource extends JsonResource
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
-
+            'tiene_subtareas' => $this->tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarPuedeEjecutar(),
         ];
