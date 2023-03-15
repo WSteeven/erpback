@@ -121,6 +121,7 @@
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
                     </p>
                 </td>
                 <td>
@@ -208,14 +209,21 @@
                 @foreach ($datos_reporte as $dato)
                     @if ($tipo_ARCHIVO == 'pdf')
                         <tr style="font-size:9px">
-                            <td width="5%">{{ $dato['fecha'] }}</td>
+                            <td width="5%">{{ date("d/m/Y", strtotime( $dato['fecha']))}}</td>
                             <td width="10%">
                                 {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                             </td>
                             <td width="8%">{{ $dato['grupo'] }}</td>
-                            <td width="8%">{{ $dato['tarea']->codigo_tarea }}</td>
-                            <td width="8%">{{ $dato['detalle']->descripcion }}</td>
-                            <td width="8%">{{ $dato['sub_detalle']->descripcion }}</td>
+                            <td width="8%">{{ $dato['tarea'] ==null?'SIN TAREA': $dato['tarea']->descripcion }}</td>
+                            <td width="8%">{{ isset($dato['detalle']) ==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
+                            <td width="8%">
+                                @foreach($dato['sub_detalle'] as $sub_detalle)
+                                {{ $sub_detalle['descripcion'] }}
+                                @if (!$loop->last)
+                                   ,
+                                @endif
+                             @endforeach
+                            </td>
                             <td width="33%">{{ $dato['observacion'] }}</td>
                             <td width="22%">{{ $dato['detalle_estado'] }}</td>
                             <td width="6%" align="center">
@@ -230,9 +238,16 @@
                                 {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                             </td>
                             <td width="8%">{{ $dato['grupo']}}</td>
-                            <td width="8%">{{ $dato['tarea']->codigo_tarea }}</td>
-                            <td width="8%">{{ $dato['detalle']->descripcion }}</td>
-                            <td width="8%">{{ $dato['sub_detalle']->descripcion }}</td>
+                            <td width="8%">{{$dato['tarea']==null?'SIN TAREA': $dato['tarea']->descripcion }}</td>
+                            <td width="8%">{{isset($dato['detalle'])==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
+                            <td width="8%">
+                                @foreach($dato['sub_detalle'] as $sub_detalle)
+                                {{ $sub_detalle['descripcion'] }}
+                                @if (!$loop->last)
+                                   ,
+                                @endif
+                             @endforeach
+                            </td>
                             <td width="22%">{{ $dato['observacion'] }}</td>
                             <td width="23%">{{ $dato['detalle_estado'] }}</td>
                             <td width="6%" align="center">

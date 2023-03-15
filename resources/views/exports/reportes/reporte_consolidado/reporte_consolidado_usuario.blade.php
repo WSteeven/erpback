@@ -42,10 +42,14 @@
             text-align: center;
             color: #000000;
             line-height: 1.5cm;
+            font-size: 7pt;
         }
 
         footer .page:after {
             content: counter(page);
+        }
+        footer .izq {
+            text-align: left;
         }
 
         main {
@@ -103,16 +107,16 @@
         <hr>
     </header>
     <footer>
-        <table style="width: 100%;">
+        <table>
             <tr>
-                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                <td>
+                    <p class="izq">
+                        Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
-                    </div>
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
+                    </p>
                 </td>
             </tr>
         </table>
