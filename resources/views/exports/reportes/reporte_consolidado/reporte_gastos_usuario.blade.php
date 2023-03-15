@@ -33,7 +33,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 90px;
+            bottom: 10px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -42,12 +42,22 @@
             text-align: center;
             color: #000000;
             line-height: 1.5cm;
+            font-size: 7pt;
+        }
+        footer table {
+            width: 100%;
         }
 
         footer .page:after {
             content: counter(page);
         }
+        footer .izq {
+            text-align: left;
+        }
 
+        footer p {
+            text-align: right;
+        }
         main {
             position: relative;
             top: 80px;
@@ -103,17 +113,21 @@
         <hr>
     </header>
     <footer>
-        <table style="width: 100%;">
+        <table>
             <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                <td>
+                    <p class="izq">
+                        Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
-                    </div>
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
+                    </p>
+                </td>
+                <td>
+                    <p class="page">
+                        Página
+                    </p>
                 </td>
             </tr>
         </table>

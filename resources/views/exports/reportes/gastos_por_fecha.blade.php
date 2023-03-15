@@ -153,6 +153,7 @@
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
                     </p>
                 </td>
                 <td>
@@ -296,10 +297,15 @@
                                 </div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->detalle_info->descripcion }}</div>
+                                <div align="center">{{ $dato->detalle_info->descripcion}}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->sub_detalle_info->descripcion }}</div>
+                                <div align="center">  @foreach($dato->sub_detalle_info as $sub_detalle)
+                                    {{ $sub_detalle->descripcion }}
+                                    @if (!$loop->last)
+                                       ,
+                                    @endif
+                                 @endforeach</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">{{ $dato->observacion }}</div>

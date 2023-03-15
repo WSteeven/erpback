@@ -258,30 +258,37 @@ class SaldoGrupoController extends Controller
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $titulo = 'REPORTE DE';
+            $subtitulo = '';
             switch ($request->tipo_filtro) {
                 case '1':
                     $proyecto = Proyecto::where('id', $request->proyecto)->first();
-                    $titulo .= ' GASTOS POR PROYECTO ' . $proyecto->codigo_proyecto . ' ';
+                    $titulo .= ' GASTOS POR PROYECTO ';
+                    $subtitulo = 'PROYECTO: ' . $proyecto->codigo_proyecto . ' - ' . $proyecto->nombre;
                     break;
                 case '2':
                     $tarea = Tarea::where('id', $request->tarea)->first();
-                    $titulo .= ' GASTOS POR TAREA ' . $tarea->codigo_tarea . ' ';
+                    $titulo .= ' GASTOS POR TAREA ';
+                    $subtitulo = 'TAREA: ' . $tarea->codigo_tarea . ' - ' . $tarea->nombre_tarea;
                     break;
                 case '3':
                     $detalle = DetalleViatico::where('id', $request->detalle)->first();
                     $titulo .= ' GASTOS POR DETALLE ' . $detalle->descripcion . ' ';
+                    $subtitulo = 'DETALLE: ' . $detalle->descripcion;
                     break;
                 case '4':
                     $sub_detalle = SubDetalleViatico::where('id', $request->sub_detalle)->first();
-                    $titulo .= ' GASTOS POR SUBDETALLE ' . $sub_detalle->descripcion . ' ';
+                    $titulo .= ' GASTOS POR SUBDETALLE ';
+                    $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
                 case '5':
                     $autorizador = User::with('empleado')->where('id', $request->autorizador)->first();
-                    $titulo .= ' GASTOS POR AUTORIZADOR ' . $autorizador->empleado->nombres . ' ' . $autorizador->empleado->apellidos . ' ';
+                    $titulo .= ' GASTOS POR AUTORIZADOR ';
+                    $subtitulo = 'AUTORIZADOR: ' . $autorizador->empleado->nombres . ' ' . $autorizador->empleado->apellidos;
                     break;
                 case '6':
                     $usuario = User::with('empleado')->where('id', $request->usuario)->first();
-                    $titulo .= ' GASTOS POR USUARIO ' . $usuario->empleado->nombres . ' ' . $usuario->empleado->apellidos . ' ';
+                    $titulo .= ' GASTOS POR USUARIO ';
+                    $subtitulo = 'USUARIO: ' . $usuario->empleado->nombres . ' ' . $usuario->empleado->apellidos;
                     break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
@@ -291,6 +298,7 @@ class SaldoGrupoController extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'usuario' => $usuario,
                 'titulo' => $titulo,
+                'subtitulo' => $subtitulo,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new SaldoActualExport($reportes);

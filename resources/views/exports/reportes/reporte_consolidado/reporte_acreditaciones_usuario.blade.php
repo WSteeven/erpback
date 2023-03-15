@@ -33,27 +33,30 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            left: 0px;
-            bottom: -75px;
-            right: 0px;
-            height: 65px;
-            margin-top: 0%;
-            margin-bottom: 0%;
+            bottom: 10px;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            /** Estilos extra personales **/
+            text-align: center;
+            color: #000000;
+            line-height: 1.5cm;
             font-size: 7pt;
         }
-        footer .page:after {
-            content: counter(page);
-        }
-
         footer table {
             width: 100%;
         }
 
-        footer p {
-            text-align: right;
+        footer .page:after {
+            content: counter(page);
         }
         footer .izq {
             text-align: left;
+        }
+
+        footer p {
+            text-align: right;
         }
 
         main {
