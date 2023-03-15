@@ -51,7 +51,7 @@ class PedidoEvent implements ShouldBroadcast
     {
         $notificacion = Notificacion::create([
             'mensaje' => $mensaje,
-            'link' => env('SPA_URL', 'http://localhost:8080') . '/pedidos',
+            'link' => '/pedidos',
             'per_originador_id' => $originador,
             'per_destinatario_id' => $destinatario,
             'tipo_notificacion' => TiposNotificaciones::PEDIDO,
