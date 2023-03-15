@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('empleado_trabajo', function (Blueprint $table) {
+        Schema::create('empleado_subtarea', function (Blueprint $table) {
             $table->id();
 
+            // Normalmente es el lider del grupo pero puede darse el caso de que se designe a un miembro del mismo grupo para que lo suplante de manera temporal entonces aqui puede ir su id de empleado
+            // En estos casos el reemplazo temporal tiene la capacidad de utilizar el material que se ha asignado al lider oficial
             $table->boolean('es_responsable');
 
             $table->unsignedBigInteger('empleado_id');
@@ -35,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('empleado_trabajo');
+        Schema::dropIfExists('empleado_subtarea');
     }
 };

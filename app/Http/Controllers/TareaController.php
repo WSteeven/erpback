@@ -20,21 +20,22 @@ use stdClass;
 class TareaController extends Controller
 {
     private $entidad = 'Tarea';
-    private SubtareaService $subtareaService;
+    // private SubtareaService $subtareaService;
 
     public function __construct()
     {
-        $this->subtareaService = new SubtareaService();
+        // $this->subtareaService = new SubtareaService();
     }
 
-    /**
+    /*********
      * Listar
-     */
+     *********/
     public function index(Request $request)
     {
         $campos = explode(',', $request['campos']);
         // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
+        $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
 
         if ($request['campos']) {
             if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
@@ -42,12 +43,17 @@ class TareaController extends Controller
         } else {
             if (!$esCoordinador) $results = Tarea::filter()->get();
             if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
+            if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
         }
 
         $results = TareaResource::collection($results);
 
         return response()->json(compact('results'));
     }
+
+    /* private function obtenerTareasSinSubtareas() {
+        Tarea::
+    } */
 
     /**
      * Guardar - Coordinador

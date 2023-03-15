@@ -32,8 +32,8 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_GERENTE, User::ROL_EMPLEADO);
         // Coordinador
         $coordinador = User::create([
-            'name' => 'MJARAMILLO',
-            'email' => 'mjaramillo@jpconstrucred.com',
+            'name' => 'AJARAMILLO',
+            'email' => 'ajaramillo@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),
         ])->syncRoles(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
@@ -51,8 +51,8 @@ class UserSeeder extends Seeder
         ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COORDINADOR, User::ROL_BODEGA);
         // Coordinador
         $coordinador_telconet = User::create([
-            'name' => 'DLOJA',
-            'email' => 'dloja@jpconstrucred.com',
+            'name' => 'RLOJA',
+            'email' => 'rloja@jpconstrucred.com',
             'password' => bcrypt('password'),
         ])->assignRole(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
         // Asistente de bodega 1
