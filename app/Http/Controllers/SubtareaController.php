@@ -234,6 +234,17 @@ class SubtareaController extends Controller
     public function suspender(Request $request, Subtarea $subtarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];
+        $subtarea->estado = Subtarea::SUSPENDIDO;
+        $subtarea->save();
+
+        $subtarea->subtareaSuspendido()->attach([
+            $motivo_suspendido_id
+        ]);
+    }
+
+    public function suspenderOld(Request $request, Subtarea $subtarea)
+    {
+        $motivo_suspendido_id = $request['motivo_suspendido_id'];
 
         $subtarea->estado = Subtarea::SUSPENDIDO;
         $subtarea->fecha_hora_suspendido = Carbon::now();

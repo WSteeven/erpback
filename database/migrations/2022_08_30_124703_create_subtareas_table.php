@@ -47,8 +47,8 @@ return new class extends Migration
             $table->unsignedBigInteger('motivo_cancelado_id')->nullable();
             $table->foreign('motivo_cancelado_id')->references('id')->on('motivos_suspendidos')->onDelete('set null')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('motivo_suspendido_id')->nullable();
-            $table->foreign('motivo_suspendido_id')->references('id')->on('motivos_suspendidos')->onDelete('set null')->onUpdate('cascade');
+            // $table->unsignedBigInteger('motivo_suspendido_id')->nullable();
+            // $table->foreign('motivo_suspendido_id')->references('id')->on('motivos_suspendidos')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('subtarea_dependiente_id')->nullable();
 

@@ -7,21 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class PausaSubtarea extends Model implements Auditable
+class SubtareaSuspendido extends Model implements Auditable
 {
     use HasFactory, AuditableModel;
     public $timestamps = false;
-    protected $table = "pausas_subtareas";
+    protected $table = "subtarea_suspendido";
 
     protected $fillable = [
-        'fecha_hora_pausa',
-        'fecha_hora_retorno',
-        'motivo_pausa_id',
+        'fecha_hora_suspendido',
+        'motivo_suspendido_id',
         'subtarea_id'
     ];
 
-    public function motivoPausa()
+    public function motivoSuspendido()
     {
-        return $this->belongsTo(MotivoPausa::class);
+        return $this->belongsTo(MotivoSuspendido::class);
     }
 }
