@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tipo_saldo', function (Blueprint $table) {
+        Schema::create('motivo_gastos', function (Blueprint $table) {
             $table->id();
-            $table->string('descripcion', 250);
-            $table->unsignedBigInteger('id_estatus');
-            $table->foreign('id_estatus')->references('id')->on('estatus');
+            $table->string('nombre', 100);
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipo_saldo');
+        Schema::dropIfExists('motivo_gastos');
     }
 };

@@ -31,7 +31,7 @@ return new class extends Migration
             $table->decimal('total',19,2);
             $table->string('comprobante', 2500);
             $table->string('comprobante2', 2500);
-            $table->string('observacion', 2500);
+            $table->string('observacion', 2500)->nullable();
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('estado');
             $table->string('detalle_estado', 250)->nullable();

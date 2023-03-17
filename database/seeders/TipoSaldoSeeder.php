@@ -15,10 +15,9 @@ class TipoSaldoSeeder extends Seeder
      */
     public function run()
     {
-        TipoSaldo::create(['descripcion'=>'TRANSFERENCIA','transcriptor'=>'ADMINISTRADOR','id_estatus'=>1,'fecha_trans'=>date('Y-m-d')]);
-        TipoSaldo::create(['descripcion'=>'TRANSFERENCIA  VALORES','transcriptor'=>'ADMINISTRADOR','id_estatus'=>1,'fecha_trans'=>date('Y-m-d')]);
-        TipoSaldo::create(['descripcion'=>'CASH','transcriptor'=>'ADMINISTRADOR','id_estatus'=>1,'fecha_trans'=>date('Y-m-d')]);
-        TipoSaldo::create(['descripcion'=>'OTRO','transcriptor'=>'ADMINISTRADOR','id_estatus'=>1,'fecha_trans'=>date('Y-m-d')]);
-
+        TipoSaldo::insert([
+            ['descripcion' => 'TRANSFERENCIA',  'id_estatus' => 1],
+            ['descripcion' => 'EFECTIVO',  'id_estatus' => 1]
+        ]);
     }
 }
