@@ -80,5 +80,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DetalleViaticoSeeder::class);
         $this->call(SubDetalleViaticoSeeder::class);
         // $this->call(PedidoSeeder::class);
+        $this->call(MotivoGastoSeeder::class);
     }
 }

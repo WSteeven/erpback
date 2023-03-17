@@ -250,17 +250,19 @@ class GastoController extends Controller
                 ->get();
             // Obtener el saldo del usuario correspondiente al periodo anterior
             $datos_saldo_usuario_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha_inicio', $fecha_inicio)
-                ->where('fecha_fin', $fecha_fin)
+                ->where('fecha_inicio','<' ,$fecha_inicio)
                 ->orderBy('id', 'DESC')
                 ->get();
-            $nuevo_saldo = ((float)(Count($datos_saldo_usuario_anterior) > 0 ? $datos_saldo_usuario_anterior[0]->saldo_anterior : 0) + (float)(Count($datos_saldo_usuario_depositado) > 0 ? $datos_saldo_usuario_depositado[0]->saldo_depositado : 0));
+            $ultimo_saldo = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+            ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
+            ->orderBy('id', 'desc')
+            ->first();
+            $nuevo_saldo =   $ultimo_saldo->saldo_actual;
             $sub_total = 0;
             $fi = new \DateTime($fecha_inicio);
             $ff = new \DateTime($fecha_fin);
             $diff = $fi->diff($ff);
             $restas_diferencias = 0;
-            if ($diff->days > 6) {
                 $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
                     ->where('fecha', '<=', $fecha_inicio)
                     ->orderBy('id', 'desc')
@@ -295,29 +297,16 @@ class GastoController extends Controller
                     ->get();
                 $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
                 $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->whereBetween('fecha', [$inicio_semana, $fin_semana])
+                    ->where('fecha', '<',$inicio_semana)
                     ->orderBy('id', 'desc')
                     ->first();
                 $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
-                $sal_dep_r = $datos_fecha_rango[0]->saldo_depositado;
+                $sal_dep_r = $diferencia_rango;
                 $restas_diferencias = $diferencia_corte - $diferencia_rango;
-            } else {
-                $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                    ->orderBy('id', 'desc')
-                    ->first();
-                $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
-                $sal_dep_r = Acreditaciones::where('id_usuario', $idUsuarioLogeado)
-                    ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                    ->orderBy('id', 'DESC')
-                    ->sum('monto');
-                $nuevo_saldo = $sal_anterior + $sal_dep_r;
-            }
+
             $usuario_logeado = UserInfoResource::collection($usuario_logeado);
             $sub_total = 0;
             $datos_usuario_logueado =  $this->obtener_usuario($usuario_logeado);
-            Log::channel('testing')->info('Log', ['datos_saldo_depositados_semana', count($datos_saldo_depositados_semana)]);
-            Log::channel('testing')->info('Log', ['datos_reporte', count($datos_reporte)]);
             $reportes = compact(
                 'fecha_inicio',
                 'fecha_fin',
