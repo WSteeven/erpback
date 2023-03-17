@@ -44,8 +44,8 @@ class Subtarea extends Model implements Auditable
         'fecha_hora_ejecucion',
         'fecha_hora_realizado',
         'fecha_hora_finalizacion',
-        'fecha_hora_suspendido',
-        'motivo_suspendido_id',
+        // 'fecha_hora_suspendido',
+        // 'motivo_suspendido_id',
         'fecha_hora_cancelado',
         'motivo_cancelado_id',
 
@@ -86,6 +86,11 @@ class Subtarea extends Model implements Auditable
     {
         $this->attributes['fecha_inicio_trabajo'] = Carbon::parse($value)->format('Y-m-d');
     } */
+    public function attachMotivoSuspendido($id)
+    {
+        $this->motivoSuspendido()->attach($id);
+        $this->touch();
+    }
 
     // Relacion uno a muchos (inversa)
     public function tarea()
@@ -130,15 +135,20 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(PausaSubtarea::class);
     }
 
+    public function motivoSuspendido()
+    {
+        return $this->belongsToMany(MotivoSuspendido::class)->withTimestamps();
+    }
+
     public function subtarea()
     {
         return $this->hasOne(Subtarea::class, 'id', 'subtarea_dependiente');
     }
 
-    public function motivoSuspendido()
+    /* public function motivoSuspendido()
     {
         return $this->belongsTo(MotivoSuspendido::class);
-    }
+    } */
 
     public function motivoCancelado()
     {
@@ -202,5 +212,10 @@ class Subtarea extends Model implements Auditable
     public function scopeFechaFuturo($query)
     {
         return $query->whereDate('fecha_inicio_trabajo', '>', Carbon::today());
+    }
+
+    public function scopeAnterioresNoFinalizados($query)
+    {
+        return $query->whereDate('fecha_inicio_trabajo', '<', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
     }
 }

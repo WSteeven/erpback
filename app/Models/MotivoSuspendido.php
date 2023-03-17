@@ -14,4 +14,9 @@ class MotivoSuspendido extends Model implements Auditable
     protected $table = 'motivos_suspendidos';
     protected $fillable = ['motivo', 'activo'];
     protected $casts = ['activo' => 'boolean'];
+
+    /*public function suspendidoSubtarea()
+    {
+        return $this->belongsToMany(SubtareaSuspendido::class);
+    }*/
 }

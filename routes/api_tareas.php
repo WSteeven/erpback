@@ -58,12 +58,16 @@ Route::prefix('subtareas')->group(function () {
     Route::post('finalizar/{subtarea}', [SubtareaController::class, 'finalizar']);
     Route::post('pausar/{subtarea}', [SubtareaController::class, 'pausar']);
     Route::post('reanudar/{subtarea}', [SubtareaController::class, 'reanudar']);
+    Route::post('corregir/{subtarea}', [SubtareaController::class, 'corregir']);
     Route::post('pendiente/{subtarea}', [SubtareaController::class, 'marcarComoPendiente']);
     Route::post('suspender/{subtarea}', [SubtareaController::class, 'suspender']);
     Route::post('cancelar/{subtarea}', [SubtareaController::class, 'cancelar']);
-    Route::get('pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
+    Route::get('obtener-pausas/{subtarea}', [SubtareaController::class, 'obtenerPausas']);
+    Route::get('obtener-suspendidos/{subtarea}', [SubtareaController::class, 'obtenerSuspendidos']);
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
+
+Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
 
 // Obtener los trabajos asignados de un grupo o empleado individua
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);

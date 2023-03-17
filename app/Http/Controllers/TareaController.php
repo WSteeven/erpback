@@ -173,4 +173,51 @@ class TareaController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy', false);
         return response()->json(compact('mensaje'));
     }
+
+    /**
+     * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
+     */
+    public function actualizarFechasReagendar(Request $request, Tarea $tarea)
+    {
+        // $request->isMethod('patch');
+        $request->validate([
+            'fecha_inicio_trabajo' => 'required|string',
+            'grupo' => 'nullable|numeric|integer',
+            'empleado' => 'nullable|numeric|integer',
+        ]);
+
+        // Adaptacion de foreign keys
+        $fechaInicioTrabajo = Carbon::parse($request['fecha_inicio_trabajo'])->format('Y-m-d');
+        $horaInicioTrabajo = $request['hora_inicio_trabajo'];
+        $horaFinTrabajo = $request['hora_fin_trabajo'];
+
+        $subtarea = $tarea->subtareas()->first();
+
+        // Respuesta
+        $subtarea->fecha_inicio_trabajo = $fechaInicioTrabajo;
+        $subtarea->hora_inicio_trabajo = $horaInicioTrabajo;
+        $subtarea->hora_fin_trabajo = $horaFinTrabajo;
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+
+        // Modificar designacion del trabajo
+        if ($request['grupo'] || $request['empleado']) {
+            $subtarea->modo_asignacion_trabajo = $request['modo_asignacion_trabajo'];
+
+            if ($request['modo_asignacion_trabajo'] == Subtarea::POR_GRUPO) {
+                $subtarea->grupo_id = $request['grupo'];
+                $subtarea->empleado_id = null;
+            } elseif ($request['modo_asignacion_trabajo'] == Subtarea::POR_EMPLEADO) {
+                $subtarea->grupo_id = null;
+                $subtarea->empleado_id = $request['empleado'];
+            }
+        }
+
+        $subtarea->save();
+
+        $modelo = new TareaResource($tarea->refresh());
+        $mensaje = 'Tarea reagendada exitosamente!';
+
+        return response()->json(compact('modelo', 'mensaje'));
+    }
 }

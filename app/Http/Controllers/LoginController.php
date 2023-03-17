@@ -21,18 +21,17 @@ class LoginController extends Controller
 
         $user = User::where('name', $request['name'])->first();
         // Log::channel('testing')->info('Log', ['Diferencia de dias: ' . $user->updated_at->diffInDays(now())]);
-
-        if($user->updated_at->diffInDays(now()) >= 90){
-             throw ValidationException::withMessages([
-                '412' => ['Ha expirado su contraseña, por favor restablecerla!'],
-             ])->status(412);
-            //return response()->json(["mensaje" => "Ha expirado su contraseña, por favor restablecerla!"], 412);
-        }
-
         if (!$user) {
             throw ValidationException::withMessages([
                 '404' => ['Usuario no registrado!'],
             ]);
+        }
+
+        if ($user->updated_at->diffInDays(now()) >= 90) {
+            throw ValidationException::withMessages([
+                '412' => ['Ha expirado su contraseña, por favor restablecerla!'],
+            ])->status(412);
+            //return response()->json(["mensaje" => "Ha expirado su contraseña, por favor restablecerla!"], 412);
         }
 
         if (!$user || !Hash::check($request->password, $user->password)) {
