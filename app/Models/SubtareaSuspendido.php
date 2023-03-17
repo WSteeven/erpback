@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class SubtareaSuspendido extends Model implements Auditable
+class SubtareaSuspendido22 extends Model implements Auditable
 {
     use HasFactory, AuditableModel;
     public $timestamps = false;

@@ -231,15 +231,23 @@ class SubtareaController extends Controller
         $pausa->save();
     }
 
+    public function corregir(Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::EJECUTANDO;
+        $subtarea->save();
+    }
+
     public function suspender(Request $request, Subtarea $subtarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];
         $subtarea->estado = Subtarea::SUSPENDIDO;
         $subtarea->save();
 
-        $subtarea->subtareaSuspendido()->attach([
+        $subtarea->motivoSuspendido()->attach([
             $motivo_suspendido_id
         ]);
+        // $subtarea->touch();
+        return response()->json(['modelo' => new SubtareaResource($subtarea->refresh())]);
     }
 
     public function suspenderOld(Request $request, Subtarea $subtarea)
@@ -261,6 +269,17 @@ class SubtareaController extends Controller
             'fecha_hora_retorno' => $item->fecha_hora_retorno,
             'tiempo_pausado' => $item->fecha_hora_retorno ? CarbonInterval::seconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)))->cascade()->forHumans() : null,
             'motivo' => $item->motivoPausa->motivo,
+        ]);
+        // 'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurridoSeconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)), '') : null,
+
+        return response()->json(compact('results'));
+    }
+
+    public function obtenerSuspendidos(Subtarea $subtarea)
+    {
+        $results = $subtarea->motivoSuspendido->map(fn ($item) => [
+            'fecha_hora_suspendido' => Carbon::parse($item->pivot->created_at)->format('d-m-Y H:i:s'),
+            'motivo' => $item->motivo,
         ]);
         // 'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurridoSeconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)), '') : null,
 

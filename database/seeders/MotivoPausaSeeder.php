@@ -19,6 +19,8 @@ class MotivoPausaSeeder extends Seeder
             ['motivo' => 'DESAYUNO'],
             ['motivo' => 'ALMUERZO'],
             ['motivo' => 'MERIENDA'],
+            ['motivo' => 'LOUNCH LIGHT'],
+            ['motivo' => 'REFRIGERIO'],
         ]);
     }
 }

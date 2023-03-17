@@ -34,7 +34,10 @@ class TrabajoAsignadoController extends Controller
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoEmpleado($empleado));
         } else {
-            if ($grupo_id) array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
+            if ($grupo_id) {
+                array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
+                array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
+            }
             array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
         }
 
