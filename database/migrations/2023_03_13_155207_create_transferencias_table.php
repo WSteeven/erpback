@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('motivo', 100);
             $table->string('cuenta', 20);
             $table->text('comprobante', 20);
+            $table->unsignedBigInteger('id_tarea');
+            $table->foreign('id_tarea')->references('id')->on('tareas');
             $table->foreign('usuario_envia_id')->references('id')->on('users');
             $table->foreign('usuario_recibe_id')->references('id')->on('users');
             $table->timestamps();

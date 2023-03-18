@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Gastos\SubDetalleViaticoResource;
 use App\Models\FondosRotativos\Usuario\Estatus;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
@@ -63,11 +64,8 @@ class SubDetalleViaticoController extends Controller
         $estatus = Estatus::where('descripcion', $request->estatus)->first();
         $datos['autorizacion'] = $request->autorizacion;
         $datos['id_detalle_viatico']= $request->detalle_viatico;
-        $datos['transcriptor']= $user->name;
         $datos['id_estatus'] = $estatus->id;
         $datos['descripcion'] = $request->descripcion;
-        $datos['fecha_trans'] =date('Y-m-d');
-
         $modelo = SubDetalleViatico::create($datos);
         $modelo = new SubDetalleViaticoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

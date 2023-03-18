@@ -101,7 +101,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="/img/logoJP.png" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE GASTOS DEL
@@ -343,7 +343,7 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ number_format($nuevo_saldo - $sub_total + $restas_diferencias, 2, ',', ' ') }}
+                            {{ number_format($nuevo_saldo - $sub_total, 2, ',', ' ') }}
                         </div>
                     </td>
                 </tr>

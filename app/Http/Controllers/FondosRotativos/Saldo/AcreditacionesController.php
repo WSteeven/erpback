@@ -48,7 +48,7 @@ public function __construct()
             $datos['id_tipo_fondo'] = $request->tipo_fondo;
             $datos['id_tipo_saldo'] = $request->tipo_saldo;
             $datos['id_usuario'] = $request->usuario;
-            $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
+            $datos['fecha'] =  date ('Y-m-d H:i:s');
         $modelo = Acreditaciones::create($datos);
         $modelo = new AcreditacionResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

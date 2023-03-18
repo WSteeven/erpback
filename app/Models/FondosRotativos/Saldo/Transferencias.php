@@ -21,6 +21,7 @@ class Transferencias extends Model implements Auditable
         'monto',
         'motivo',
         'cuenta',
+        'id_tarea',
         'comprobante'
     ];
     public function usuario_envia()
