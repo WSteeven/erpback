@@ -220,4 +220,24 @@ class TareaController extends Controller
 
         return response()->json(compact('modelo', 'mensaje'));
     }
+
+    /**
+     * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
+     */
+    public function cancelar(Request $request, Tarea $tarea)
+    {
+        $motivo_suspendido_id = $request['motivo_suspendido_id'];
+
+        $subtarea = $tarea->subtareas()->first();
+
+        $subtarea->estado = Subtarea::CANCELADO;
+        $subtarea->fecha_hora_cancelado = Carbon::now();
+        $subtarea->motivo_cancelado_id = $motivo_suspendido_id;
+        $subtarea->save();
+
+        $modelo = new TareaResource($tarea->refresh());
+        $mensaje = 'Tarea reagendada exitosamente!';
+
+        return response()->json(compact('modelo', 'mensaje'));
+    }
 }

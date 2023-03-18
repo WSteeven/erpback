@@ -68,7 +68,7 @@ class SubtareaResource extends JsonResource
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
-            'tiene_subtareas' => $this->tarea->tiene_subtareas,
+            'tiene_subtareas' => $tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarPuedeEjecutar(),
         ];
@@ -92,7 +92,7 @@ class SubtareaResource extends JsonResource
 
     private function formatTimestamp($timestamp)
     {
-        return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
+        if($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
     }
 
     public function extraerNombres($listado)

@@ -68,6 +68,7 @@ Route::prefix('subtareas')->group(function () {
 });
 
 Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
+Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
 
 // Obtener los trabajos asignados de un grupo o empleado individua
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
