@@ -42,7 +42,7 @@ class TransferenciasController extends Controller
     public function store(Request $request)
     {
         $datos = $request->all();
-        $datos['usuario_envia_id'] = $request->usuario_envia==0?null:$request->usuario_envia;
+        $datos['usuario_envia_id'] = Auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe==0?null:$request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIAS))->execute();

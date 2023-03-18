@@ -28,7 +28,7 @@ class FondoRotativoEvent implements ShouldBroadcast
      */
     public function __construct($gasto)
     {
-        $ruta = $gasto->estado == 3? env('SPA_URL', 'http://localhost:8080').'/autorizar-gasto':env('SPA_URL', 'http://localhost:8080').'/notificaciones';
+        $ruta = $gasto->estado == 3? '/autorizar-gasto':'/notificaciones';
         $this->gasto = $gasto;
         switch ($gasto->estado) {
             case 1:
