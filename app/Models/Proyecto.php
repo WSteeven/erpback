@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Support\Facades\Auth;
 
 class Proyecto extends Model
 {
@@ -46,5 +47,13 @@ class Proyecto extends Model
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+
+    /*********
+     * Scopes
+     *********/
+    public function scopePorCoordinador($query)
+    {
+        return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
 }

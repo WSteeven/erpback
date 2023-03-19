@@ -5,22 +5,28 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProyectoRequest;
 use App\Http\Resources\ProyectoResource;
 use App\Models\Proyecto;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class ProyectoController extends Controller
 {
     private $entidad = 'Proyecto';
 
+    public function listar()
+    {
+        $esCoordinador = Auth::user()->hasRole(User::ROL_COORDINADOR);
+        $esJefeTecnico = Auth::user()->hasRole(User::ROL_JEFE_TECNICO);
+
+        if ($esCoordinador && $esJefeTecnico) return Proyecto::ignoreRequest(['campos'])->filter()->get();
+
+        if ($esCoordinador) return Proyecto::ignoreRequest(['campos'])->filter()->porCoordinador()->get();
+    }
+
     public function index()
     {
-        $cliente = request('cliente');
-        $page = request('page');
-        $results = [];
-
-        $results = ProyectoResource::collection(Proyecto::ignoreRequest(['campos'])->filter()->get());
-
-
+        $results = ProyectoResource::collection($this->listar());
         return response()->json(compact('results'));
     }
 
@@ -30,8 +36,11 @@ class ProyectoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-        $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+
+        // $esCoordinador = Auth::user()->hasRole(User::ROL_COORDINADOR);
+        $esJefeTecnico = Auth::user()->hasRole(User::ROL_JEFE_TECNICO);
+        $datos['coordinador_id'] = $esJefeTecnico ? $request->safe()->only(['coordinador'])['coordinador'] :  Auth::user()->empleado->id;
 
         // Respuesta
         $modelo = Proyecto::create($datos);
