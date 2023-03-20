@@ -45,6 +45,7 @@ class TransferenciasController extends Controller
         $datos['usuario_envia_id'] = Auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe==0?null:$request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;
+        $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIAS))->execute();
         $modelo = Transferencias::create($datos);
         $modelo = new TransferenciaResource($modelo);

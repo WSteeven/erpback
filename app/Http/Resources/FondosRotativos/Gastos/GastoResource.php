@@ -29,6 +29,9 @@ class GastoResource extends JsonResource
             'aut_especial_user' => $this->aut_especial_user->name,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
+            'detalle_estado' => $this->detalle_estado,
+            'sub_detalle_info' => $this->sub_detalle_info != null ? $this->subdetalle_info($this->sub_detalle_info):'',
+            'sub_detalle' => $this->sub_detalle_info != null ? $this->sub_detalle_info->pluck('id'):null,
             'detalle' => $this->detalle,
             'cantidad' => $this->cant,
             'valor_u' => $this->valor_u,
@@ -44,5 +47,17 @@ class GastoResource extends JsonResource
             'id_lugar' => $this->id_lugar,
         ];
         return $modelo;
+    }
+    private function subdetalle_info($subdetalle_info){
+        $descripcion = '';
+        $i=0;
+        foreach($subdetalle_info as $sub_detalle){
+            $descripcion .= $sub_detalle->descripcion;
+            $i++;
+            if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
     }
 }

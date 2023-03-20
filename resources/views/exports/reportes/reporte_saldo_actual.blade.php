@@ -155,6 +155,9 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                                                 <div align="center"><strong>Cargo</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px">
+                                                <div align="center"><strong>Localidad</strong></div>
+                                            </td>
+                                            <td bgcolor="#a9d08e" style="font-size:10px">
                                                 <div align="center"><strong>Usuario</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px">
@@ -174,6 +177,11 @@ $ciclo = [1,2,3,4,5,6,7,8,9,0,1,2,3,4,5];
                                             <td style="font-size:10px">
                                                 <div align="left" style="margin-left:20px;">
                                                 {{$saldo['cargo']}}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="left" style="margin-left:20px;">
+                                                {{$saldo['localidad']}}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px">

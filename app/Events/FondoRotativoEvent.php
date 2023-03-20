@@ -44,8 +44,8 @@ class FondoRotativoEvent implements ShouldBroadcast
             $mensaje = 'Tienes un gasto por aprobar';
                 break;
         }
-        $destinatario = $gasto->estado==3? $this->obtenerEmpleado($gasto->aut_especial)->id:$this->obtenerEmpleado($gasto->id_usuario)->id;
-        $remitente = $gasto->estado==3? $this->obtenerEmpleado($gasto->id_usuario)->id:$this->obtenerEmpleado($gasto->aut_especial)->id;
+        $destinatario = $gasto->estado!=3? $this->obtenerEmpleado($gasto->aut_especial)->id:$this->obtenerEmpleado($gasto->id_usuario)->id;
+        $remitente = $gasto->estado!=3? $this->obtenerEmpleado($gasto->id_usuario)->id:$this->obtenerEmpleado($gasto->aut_especial)->id;
         $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
 
