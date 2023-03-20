@@ -20,9 +20,12 @@ class TransferenciaResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'usuario_envia_info' => $this->usuario_envia->name,
-            'usuario_recive_info' => $this->usuario_recive == null? 'JPConstructred':$this->usuario_recive->name,
+            'usuario_recibe_info' => $this->usuario_recibe == null? 'JPConstructred':$this->usuario_recibe->name,
+            'usuario_recibe' => $this->usuario_recibe_id,
             'usuario_envia_id' => $this->usuario_envia_id,
             'usuario_recive_id' => $this->usuario_recibe_id,
+            'cuenta' => $this->cuenta,
+            'tarea' => $this->id_tarea,
             'monto' => $this->monto,
             'motivo' => $this->motivo,
             'comprobante' => $this->comprobante,

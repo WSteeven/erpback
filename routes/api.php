@@ -257,6 +257,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
     Route::get('fondos-rotativos/gastocontabilidad', [SaldoGrupoController::class, 'gastocontabilidad']);
     Route::get('fondos-rotativos/autorizaciones_gastos', [GastoController::class, 'autorizaciones_gastos']);
+    Route::get('fondos-rotativos/autorizaciones_transferencia', [TransferenciasController::class, 'autorizaciones_transferencia']);
     Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
     Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
+    Route::post('fondos-rotativos/aprobar-transferencia', [TransferenciasController::class, 'aprobar_transferencia']);
+    Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
+
 });
