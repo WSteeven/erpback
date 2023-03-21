@@ -28,6 +28,7 @@ use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
+
 class GastoController extends Controller
 {
     private $entidad = 'gasto';
@@ -225,8 +226,12 @@ class GastoController extends Controller
     public function generar_reporte(Request $request, $tipo)
     {
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $fecha_inicio = $date_inicio->format('Y-m-d');
+            $fecha_fin = $date_fin->format('Y-m-d');
+            Log::channel('testing')->info('Log', ['fechainicio', $request->fecha_inicio]);
+            Log::channel('testing')->info('Log', ['fechafin', $request->fecha_fin]);
             $usuario_logeado = Auth::user();
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
@@ -257,7 +262,7 @@ class GastoController extends Controller
             ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
             ->orderBy('id', 'desc')
             ->first();
-            $nuevo_saldo =   $ultimo_saldo->saldo_actual;
+            $nuevo_saldo =   $ultimo_saldo!=null?$ultimo_saldo->saldo_actual:0;
             $sub_total = 0;
             $fi = new \DateTime($fecha_inicio);
             $ff = new \DateTime($fecha_fin);

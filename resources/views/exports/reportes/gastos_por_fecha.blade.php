@@ -223,7 +223,7 @@
         <div class="page-break"></div>
         </p>
         <p>
-            <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
                 <tr>
                     <td width="5%" bgcolor="#a9d08e">
                         <div align="center"><strong>N&deg;</strong></div>
@@ -249,7 +249,7 @@
                     <td width="25%" bgcolor="#a9d08e">
                         <div align="center"><strong>SUB DETALLE</strong></div>
                     </td>
-                    <td width="24%" bgcolor="#a9d08e">
+                    <td width="24%"  bgcolor="#a9d08e">
                         <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                     </td>
                     <td width="10%" bgcolor="#a9d08e">
@@ -278,7 +278,7 @@
                                 <div align="center">{{ $dato->id }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{  date("d/m/Y", strtotime( $dato['fecha']))}}</div>
+                                <div align="center">{{   date("d/m/Y", strtotime( $dato->fecha_viat))}}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
@@ -307,7 +307,7 @@
                                     @endif
                                  @endforeach</div>
                             </td>
-                            <td style="font-size:10px">
+                            <td style="font-size:10px;word-wrap: break-word;">
                                 <div align="center">{{ $dato->observacion }}</div>
                             </td>
                             <td style="font-size:10px">
