@@ -15,6 +15,7 @@ class Transferencias extends Model implements Auditable
     use Filterable;
     protected $table = 'transferencias_saldos';
     protected $primaryKey = 'id';
+
     protected $fillable = [
         'usuario_envia_id',
         'usuario_recibe_id',
@@ -22,17 +23,25 @@ class Transferencias extends Model implements Auditable
         'motivo',
         'cuenta',
         'id_tarea',
+        'estado',
         'comprobante'
     ];
     public function usuario_envia()
     {
         return $this->belongsTo('App\Models\User', 'usuario_envia_id');
     }
-    public function usuario_recive()
+    public function usuario_recibe()
     {
         return $this->belongsTo('App\Models\User', 'usuario_recibe_id');
     }
     private static $whiteListFilter = [
+        'usuario_envia_id',
+        'usuario_recibe_id',
+        'monto',
         'motivo',
+        'cuenta',
+        'id_tarea',
+        'estado',
+        'comprobante'
     ];
 }

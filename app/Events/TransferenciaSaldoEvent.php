@@ -3,7 +3,7 @@
 namespace App\Events;
 
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -15,40 +15,39 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
-class FondoRotativoEvent implements ShouldBroadcast
+class TransferenciaSaldoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public Gasto $gasto;
+    public Transferencias $transferencia;
     public Notificacion $notificacion;
+
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($gasto)
+    public function __construct($transferencia)
     {
-        $ruta = $gasto->estado == 3? '/autorizar-gasto':'/notificaciones';
-        $this->gasto = $gasto;
-        switch ($gasto->estado) {
+        $ruta = $transferencia->estado == 3? '/autorizar-transferencia':'/notificaciones';
+        $this->transferencia = $transferencia;
+        switch ($transferencia->estado) {
             case 1:
-               $mensaje = 'Te han aprobado un gasto';
+               $mensaje = 'Te han aceptado una Transferencia';
                 break;
             case 2:
-                $mensaje = 'Te han rechazado un gasto';
+                $mensaje = 'Te han rechazado una transferencia';
                 break;
             case 3:
-                $mensaje = 'Tienes un gasto por aprobar';
+                $mensaje = 'Tienes una transferencia por aceptar';
                 break;
             default:
-            $mensaje = 'Tienes un gasto por aprobar';
+            $mensaje = 'Tienes un gasto por aceptar';
                 break;
         }
-        $destinatario = $gasto->estado!=3? $this->obtenerEmpleado($gasto->aut_especial)->id:$this->obtenerEmpleado($gasto->id_usuario)->id;
-        $remitente = $gasto->estado!=3? $this->obtenerEmpleado($gasto->id_usuario)->id:$this->obtenerEmpleado($gasto->aut_especial)->id;
+        $destinatario = $transferencia->estado!=3? $this->obtenerEmpleado($transferencia->usuario_recibe_id)->id:$this->obtenerEmpleado($transferencia->usuario_envia_id)->id;
+        $remitente = $transferencia->estado!=3? $this->obtenerEmpleado($transferencia->usuario_envia_id)->id:$this->obtenerEmpleado($transferencia->usuario_recibe_id)->id;
         $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
-
     public function obtenerEmpleado($id)
     {
         return Empleado::where('usuario_id',$id)->first();
@@ -62,14 +61,12 @@ class FondoRotativoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         //return new PrivateChannel('channel-name');
-        $nombre_chanel =  $this->gasto->estado==3? 'fondo-rotativo-'. $this->gasto->aut_especial:'fondo-rotativo-'. $this->gasto->id_usuario;
+        $nombre_chanel =  $this->transferencia->estado==3? 'transferencia-saldo-'. $this->transferencia->usuario_recibe_id:'transferencia-saldo-'. $this->transferencia->usuario_envia_id;
         Log::channel('testing')->info('Log', ['nombre canal',$nombre_chanel]);
         return new Channel($nombre_chanel );
     }
-
-
     public function broadcastAs()
     {
-        return 'fondo-rotativo-event';
+        return 'transferencia-saldo-event';
     }
 }

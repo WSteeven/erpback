@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
+use App\Events\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\TransferenciaResource;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -27,10 +31,9 @@ class TransferenciasController extends Controller
     public function index()
     {
         $results = [];
-        $results = Transferencias::with('usuario_envia','usuario_recive')->ignoreRequest(['campos'])->filter()->get();
+        $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->get();
         $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
-
     }
 
     /**
@@ -42,16 +45,29 @@ class TransferenciasController extends Controller
     public function store(Request $request)
     {
         $datos = $request->all();
-        $datos['usuario_envia_id'] = $request->usuario_envia==0?null:$request->usuario_envia;
-        $datos['usuario_recibe_id'] = $request->usuario_recibe==0?null:$request->usuario_recibe;
+        $datos['usuario_envia_id'] = Auth()->user()->id;
+        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? null : $request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;
+        $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIAS))->execute();
         $modelo = Transferencias::create($datos);
+        event(new TransferenciaSaldoEvent($modelo));
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
+    public function autorizaciones_transferencia(Request $request)
+    {
+        $user = Auth::user();
+        $usuario = User::where('id', $user->id)->first();
+        // $usuario->hasRole('writer');
+        $results = [];
 
+        $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
+        $results = TransferenciaResource::collection($results);
+
+        return response()->json(compact('results'));
+    }
     /**
      * Display the specified resource.
      *
@@ -72,12 +88,12 @@ class TransferenciasController extends Controller
      * @param  Transferencias  $transferencia
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request,Transferencias $transferencia)
+    public function update(Request $request, Transferencias $transferencia)
     {
         $datos = $request->all();
         $datos['usuario_envia_id'] = auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe_id;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::TRANSFERENCIAS))->execute();
+        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = $transferencia->update($datos);
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -96,5 +112,35 @@ class TransferenciasController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
 
         return response()->json(compact('mensaje'));
+    }
+    /**
+     * It updates the status of the expense to 1, which means it is approved.
+     *
+     * @param Request request The request object.
+     *
+     * @return A JSON object with the success message.
+     */
+    public function aprobar_transferencia(Request $request)
+    {
+        $transferencia = Transferencias::where('id', $request->id)->first();
+        $transferencia->estado = 1;
+        $transferencia->save();
+        event(new TransferenciaSaldoEvent($transferencia));
+        return response()->json(['success' => 'Transferencia realizada correctamente']);
+    }
+    /**
+     * It updates the status of the expense to 1, which means it is rejected.
+     *
+     * @param Request request The request object.
+     *
+     * @return A JSON object with the success message.
+     */
+    public function rechazar_transferencia(Request $request)
+    {
+        $transferencia = Transferencias::where('id', $request->id)->first();
+        $transferencia->estado = 2;
+        $transferencia->save();
+        event(new TransferenciaSaldoEvent($transferencia));
+        return response()->json(['success' => 'Transferencia rechazada']);
     }
 }
