@@ -106,7 +106,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
-                            {{ ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                            {{ ' DEL ' .  date("d/m/Y", strtotime(  $fecha_inicio)) . ' AL ' . date("d/m/Y", strtotime($fecha_fin))  }}</b></div>
                 </td>
             </tr>
         </table>
@@ -176,7 +176,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ $gasto['fecha'] }}</div>
+                                                    <div align="center">{{  date("d/m/Y", strtotime( $gasto['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">{{ $gasto['detalle_estado'] }}</div>

@@ -105,7 +105,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE GASTOS DEL
-                            {{ $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                            {{  date("d/m/Y", strtotime( $fecha_inicio)) . ' AL ' .date("d/m/Y", strtotime($fecha_fin))  }}</b></div>
 
                 </td>
             </tr>
@@ -183,7 +183,7 @@
             @if (sizeof($datos_saldo_depositados_semana) > 0)
                 @foreach ($datos_saldo_depositados_semana as $dato)
                     <tr>
-                        <td style="font-size:10px">{{ $dato->fecha }}</td>
+                        <td style="font-size:10px">{{  date("d/m/Y", strtotime(  $dato->fecha)) }}</td>
                         <td style="font-size:10px">
                             {{ number_format($dato->monto, 2, ',', '.') }}</td>
                         <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
@@ -278,7 +278,7 @@
                                 <div align="center">{{ $dato->id }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->fecha }}</div>
+                                <div align="center">{{  date("d/m/Y", strtotime( $dato['fecha']))}}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
@@ -343,7 +343,7 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ number_format($nuevo_saldo - $sub_total, 2, ',', ' ') }}
+                            {{ number_format($nuevo_saldo, 2, ',', ' ') }}
                         </div>
                     </td>
                 </tr>

@@ -107,7 +107,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE ACREDITACIONES
-                            {{' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                            {{' DEL ' . date("d/m/Y", strtotime( $fecha_inicio)) . ' AL ' .date("d/m/Y", strtotime( $fecha_fin)) }}</b></div>
                 </td>
             </tr>
         </table>
@@ -177,7 +177,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ $acreditacion['fecha'] }}</div>
+                                                    <div align="center">{{ date("d/m/Y", strtotime(  $acreditacion['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">{{ $acreditacion['descripcion_saldo'] }}</div>

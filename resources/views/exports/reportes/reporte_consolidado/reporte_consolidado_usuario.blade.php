@@ -100,7 +100,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE CONSOLIDADO
-                            {{ ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                            {{ ' DEL ' . date("d/m/Y", strtotime( $fecha_inicio)) . ' AL ' . date("d/m/Y", strtotime( $fecha_fin)) }}</b></div>
                 </td>
             </tr>
         </table>
@@ -160,7 +160,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ $fecha_anterior }}</div>
+                                                    <div align="center">{{ date("d/m/Y", strtotime( $fecha_anterior)) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">Saldo Inicial</div>
@@ -183,7 +183,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ $fecha_inicio . ' ' . $fecha_fin }}</div>
+                                                <div align="center">{{ date("d/m/Y", strtotime( $fecha_inicio)) . ' ' . date("d/m/Y", strtotime( $fecha_fin)) }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">Acreditaciones</div>
@@ -206,7 +206,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ $fecha_inicio . ' ' . $fecha_fin }}</div>
+                                                <div align="center">{{ date("d/m/Y", strtotime( $fecha_inicio))  . ' ' . date("d/m/Y", strtotime($fecha_fin))  }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">Gastos</div>
