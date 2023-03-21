@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class TrabajoAsignadoService
 {
+    /*****************************
+     * Trabajo para el dia actual
+     *****************************/
     public function obtenerTrabajoAsignadoGrupo(Empleado $empleado)
     {
         // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('grupo_id', $grupo)->get();
@@ -23,6 +26,17 @@ class TrabajoAsignadoService
         // return SubtareaResource::collection($results);
     }
 
+    /*****************************
+     * Trabajo atrasado
+     *****************************/
+    public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
+    {
+        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->get();
+    }
+
+    /********************
+     * Proximos trabajos
+     ********************/
     public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
     {
         return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();

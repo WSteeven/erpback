@@ -20,21 +20,22 @@ use stdClass;
 class TareaController extends Controller
 {
     private $entidad = 'Tarea';
-    private SubtareaService $subtareaService;
+    // private SubtareaService $subtareaService;
 
     public function __construct()
     {
-        $this->subtareaService = new SubtareaService();
+        // $this->subtareaService = new SubtareaService();
     }
 
-    /**
+    /*********
      * Listar
-     */
+     *********/
     public function index(Request $request)
     {
         $campos = explode(',', $request['campos']);
         // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
+        $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
 
         if ($request['campos']) {
             if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
@@ -42,12 +43,17 @@ class TareaController extends Controller
         } else {
             if (!$esCoordinador) $results = Tarea::filter()->get();
             if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
+            if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
         }
 
         $results = TareaResource::collection($results);
 
         return response()->json(compact('results'));
     }
+
+    /* private function obtenerTareasSinSubtareas() {
+        Tarea::
+    } */
 
     /**
      * Guardar - Coordinador
@@ -166,5 +172,72 @@ class TareaController extends Controller
         $tarea->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy', false);
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
+     */
+    public function actualizarFechasReagendar(Request $request, Tarea $tarea)
+    {
+        // $request->isMethod('patch');
+        $request->validate([
+            'fecha_inicio_trabajo' => 'required|string',
+            'grupo' => 'nullable|numeric|integer',
+            'empleado' => 'nullable|numeric|integer',
+        ]);
+
+        // Adaptacion de foreign keys
+        $fechaInicioTrabajo = Carbon::parse($request['fecha_inicio_trabajo'])->format('Y-m-d');
+        $horaInicioTrabajo = $request['hora_inicio_trabajo'];
+        $horaFinTrabajo = $request['hora_fin_trabajo'];
+
+        $subtarea = $tarea->subtareas()->first();
+
+        // Respuesta
+        $subtarea->fecha_inicio_trabajo = $fechaInicioTrabajo;
+        $subtarea->hora_inicio_trabajo = $horaInicioTrabajo;
+        $subtarea->hora_fin_trabajo = $horaFinTrabajo;
+        $subtarea->estado = Subtarea::AGENDADO;
+        $subtarea->fecha_hora_agendado = Carbon::now();
+
+        // Modificar designacion del trabajo
+        if ($request['grupo'] || $request['empleado']) {
+            $subtarea->modo_asignacion_trabajo = $request['modo_asignacion_trabajo'];
+
+            if ($request['modo_asignacion_trabajo'] == Subtarea::POR_GRUPO) {
+                $subtarea->grupo_id = $request['grupo'];
+                $subtarea->empleado_id = null;
+            } elseif ($request['modo_asignacion_trabajo'] == Subtarea::POR_EMPLEADO) {
+                $subtarea->grupo_id = null;
+                $subtarea->empleado_id = $request['empleado'];
+            }
+        }
+
+        $subtarea->save();
+
+        $modelo = new TareaResource($tarea->refresh());
+        $mensaje = 'Tarea reagendada exitosamente!';
+
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    /**
+     * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
+     */
+    public function cancelar(Request $request, Tarea $tarea)
+    {
+        $motivo_suspendido_id = $request['motivo_suspendido_id'];
+
+        $subtarea = $tarea->subtareas()->first();
+
+        $subtarea->estado = Subtarea::CANCELADO;
+        $subtarea->fecha_hora_cancelado = Carbon::now();
+        $subtarea->motivo_cancelado_id = $motivo_suspendido_id;
+        $subtarea->save();
+
+        $modelo = new TareaResource($tarea->refresh());
+        $mensaje = 'Tarea reagendada exitosamente!';
+
+        return response()->json(compact('modelo', 'mensaje'));
     }
 }

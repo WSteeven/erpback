@@ -25,12 +25,13 @@ class SubtareaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+        $tarea = $this->tarea;
 
         $modelo = [
             'id' => $this->id,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
-            'codigo_subtarea' => $this->codigo_subtarea,
+            'codigo_subtarea' => $this->tarea->tiene_subtareas ? $this->codigo_subtarea : null,
             'codigo_tarea_cliente' => $this->tarea->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
@@ -40,21 +41,22 @@ class SubtareaResource extends JsonResource
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
+            'cliente_final' => $tarea->clienteFinal?->id_cliente_final,
             'es_ventana' => $this->es_ventana,
             'fecha_inicio_trabajo' => Carbon::parse($this->fecha_inicio_trabajo)->format('d-m-Y'),
             'hora_inicio_trabajo' => $this->hora_inicio_trabajo,
             'hora_fin_trabajo' => $this->hora_fin_trabajo,
             'tipo_trabajo' => $this->tipo_trabajo?->descripcion,
-            'fecha_hora_creacion' => $this->fecha_hora_creacion,
-            'fecha_hora_agendado' => $this->fecha_hora_agendado,
-            'fecha_hora_asignacion' => $this->fecha_hora_asignacion,
-            'fecha_hora_ejecucion' => $this->fecha_hora_ejecucion,
-            'fecha_hora_finalizacion' => $this->fecha_hora_finalizacion,
-            'fecha_hora_realizado' => $this->fecha_hora_realizado,
-            'fecha_hora_pendiente' => $this->fecha_hora_pendiente,
-            'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
-            'motivo_suspendido' => $this->motivoSuspendido?->motivo,
-            'fecha_hora_cancelado' => $this->fecha_hora_cancelado,
+            'fecha_hora_creacion' => $this->formatTimestamp($this->fecha_hora_creacion),
+            'fecha_hora_agendado' => $this->formatTimestamp($this->fecha_hora_agendado),
+            'fecha_hora_asignacion' => $this->formatTimestamp($this->fecha_hora_asignacion),
+            'fecha_hora_ejecucion' => $this->formatTimestamp($this->fecha_hora_ejecucion),
+            'fecha_hora_finalizacion' => $this->formatTimestamp($this->fecha_hora_finalizacion),
+            'fecha_hora_realizado' => $this->formatTimestamp($this->fecha_hora_realizado),
+            'fecha_hora_pendiente' => $this->formatTimestamp($this->fecha_hora_pendiente),
+            // 'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
+            // 'motivo_suspendido' => $this->motivoSuspendido?->motivo,
+            'fecha_hora_cancelado' => $this->formatTimestamp($this->fecha_hora_cancelado),
             'motivo_cancelado' => $this->motivoCancelado?->motivo,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
 
@@ -66,7 +68,7 @@ class SubtareaResource extends JsonResource
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
-
+            'tiene_subtareas' => $tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarPuedeEjecutar(),
         ];
@@ -76,6 +78,7 @@ class SubtareaResource extends JsonResource
             $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['tarea'] = $this->tarea_id;
+            $modelo['codigo_tarea'] = $this->tarea->codigo_tarea;
             $modelo['coordinador'] = $this->tarea->coordinador_id;
             $modelo['fiscalizador'] = $this->tarea->fiscalizador_id;
             $modelo['cliente_final'] = $this->tarea->cliente_final_id;
@@ -85,6 +88,11 @@ class SubtareaResource extends JsonResource
         }
 
         return $modelo;
+    }
+
+    private function formatTimestamp($timestamp)
+    {
+        if($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
     }
 
     public function extraerNombres($listado)
@@ -173,11 +181,13 @@ class SubtareaResource extends JsonResource
         else return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
     }
 
-    private function puedeEjecutarHoy() {
+    private function puedeEjecutarHoy()
+    {
         return $this->fecha_inicio_trabajo == Carbon::today()->toDateString();
     }
 
-    private function puedeIniciarHoraTrabajo() {
+    private function puedeIniciarHoraTrabajo()
+    {
         $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
 
         //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);

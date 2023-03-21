@@ -29,7 +29,7 @@ class ProyectoRequest extends FormRequest
             'codigo_proyecto' => 'required|string|unique:proyectos',
             'cliente' => 'required|numeric|integer',
             'canton' => 'required|numeric|integer',
-            'coordinador' => 'required|numeric|integer',
+            'coordinador' => 'nullable|numeric|integer',
             'fiscalizador' => 'nullable|numeric|integer',
             'fecha_inicio' => 'required|string',
             'fecha_fin' => 'required|string',

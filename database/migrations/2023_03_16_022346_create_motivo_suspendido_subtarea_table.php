@@ -13,16 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('empleado_trabajo', function (Blueprint $table) {
+        Schema::create('motivo_suspendido_subtarea', function (Blueprint $table) {
             $table->id();
 
-            $table->boolean('es_responsable');
-
-            $table->unsignedBigInteger('empleado_id');
-            $table->foreign('empleado_id')->references('id')->on('empleados')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedBigInteger('motivo_suspendido_id');
+            $table->foreign('motivo_suspendido_id')->references('id')->on('motivos_suspendidos');
 
             $table->unsignedBigInteger('subtarea_id');
-            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas');
 
             $table->timestamps();
         });
@@ -35,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('empleado_trabajo');
+        Schema::dropIfExists('motivo_suspendido_subtarea');
     }
 };

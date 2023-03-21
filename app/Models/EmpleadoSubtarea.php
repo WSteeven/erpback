@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class EmpleadoTrabajo extends Model implements Auditable
+class EmpleadoSubtarea extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
-    protected $table = 'empleado_trabajo';
+    use HasFactory, AuditableModel;
+    protected $table = 'empleado_subtarea';
     protected $fillable = [
         'es_responsable',
         'empleado_id',
