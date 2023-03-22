@@ -22,6 +22,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\Proyecto;
 use App\Models\Tarea;
+use Carbon\Carbon;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class SaldoGrupoController extends Controller
@@ -409,8 +410,10 @@ class SaldoGrupoController extends Controller
     public function gastocontabilidad(Request $request)
     {
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $fecha_inicio = $date_inicio->format('Y-m-d');
+            $fecha_fin = $date_fin->format('Y-m-d');
             $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])

@@ -22,11 +22,11 @@ return new class extends Migration
             $table->unsignedBigInteger('id_proyecto')->nullable();
             $table->string('ruc', 13);
             $table->string('factura', 25)->nullable();
-            $table->string('numComprobante', 250)->nullable();
+            $table->string('num_comprobante', 250)->nullable();
             $table->string('proveedor', 250);
             $table->unsignedBigInteger('aut_especial');
             $table->unsignedBigInteger('detalle');
-            $table->integer('cant')->length(3);;
+            $table->integer('cantidad')->length(3);
             $table->decimal('valor_u',19,2);
             $table->decimal('total',19,2);
             $table->string('comprobante', 2500);

@@ -382,7 +382,6 @@ class RoleSeeder extends Seeder
         //Gasto
         Permission::firstOrCreate(['name' => 'puede.ver.gasto'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => 'puede.editar.gasto'])->syncRoles([$empleado]);
         //Gasto coordinadores
         Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador]);
@@ -409,11 +408,9 @@ class RoleSeeder extends Seeder
         //Acreditacion
         Permission::firstOrCreate(['name' => 'puede.ver.acreditacion'])->syncRoles([$compras]);
         Permission::firstOrCreate(['name' => 'puede.crear.acreditacion'])->syncRoles([$compras]);
-        Permission::firstOrCreate(['name' => 'puede.editar.acreditacion'])->syncRoles([$compras]);
         //Transferencias
         Permission::firstOrCreate(['name' => 'puede.ver.transferencia'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.transferencia'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => 'puede.editar.transferencia'])->syncRoles([$empleado]);
         //Reporte fondo
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_fondo_fecha'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.reporte_fondo_fecha'])->syncRoles([$empleado]);

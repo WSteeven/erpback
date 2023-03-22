@@ -31,7 +31,7 @@ class GastoFactory extends Factory
             'aut_especial' => fake()->numberBetween(28, 30),
             'detalle' => 1,
             'sub_detalle' => 1,
-            'cant' => $this->cantidad,
+            'caantidad' => $this->cantidad,
             'valor_u' => $this->valor_u,
             'total' => $this->cantidad * $this->valor_u,
             'comprobante' => fake()->imageUrl(150,150),

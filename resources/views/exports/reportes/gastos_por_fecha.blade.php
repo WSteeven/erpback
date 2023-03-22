@@ -311,7 +311,7 @@
                                 <div align="center">{{ $dato->observacion }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->cant }}</div>
+                                <div align="center">{{ $dato->cantidad }}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">

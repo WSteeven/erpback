@@ -19,9 +19,11 @@ class ProyectoController extends Controller
         $esCoordinador = Auth::user()->hasRole(User::ROL_COORDINADOR);
         $esJefeTecnico = Auth::user()->hasRole(User::ROL_JEFE_TECNICO);
 
-        if ($esCoordinador && $esJefeTecnico) return Proyecto::ignoreRequest(['campos'])->filter()->get();
-
         if ($esCoordinador) return Proyecto::ignoreRequest(['campos'])->filter()->porCoordinador()->get();
+        else if ($esCoordinador && $esJefeTecnico) return Proyecto::ignoreRequest(['campos'])->filter()->get();
+        else return Proyecto::ignoreRequest(['campos'])->filter()->get();
+
+
     }
 
     public function index()

@@ -6,6 +6,7 @@ use App\Events\FondoRotativoEvent;
 use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GastoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
@@ -53,11 +54,11 @@ class GastoController extends Controller
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info','sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info','sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
         }
 
@@ -82,72 +83,71 @@ class GastoController extends Controller
      * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(GastoRequest $request)
     {
 
-        $datos = $request->all();
-        $user = Auth::user();
-        $usuario_autorizado = User::where('id', $request->aut_especial)->first();
-        $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        //Asignacion de estatus de gasto
-        if ($datos_detalle->descripcion == '') {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+        //Log::channel('testing')->info('Log', ['lo que se recibe del front', $request->all()]);
+        try {
+            $datos = $request->validated();
+            Log::channel('testing')->info('Log', ['los datos ya validados',]);
+            //Adaptacion de foreign keys
+            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
+            $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
+            $datos['id_tarea'] = $request->num_tarea == 0 ? null : $request->safe()->only(['num_tarea'])['num_tarea'];
+            $datos['id_subtarea'] = $request->subTarea == 0 ? null : $request->safe()->only(['subTarea'])['subTarea'];
+            $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
+            $datos['id_usuario'] = Auth::user()->id;
+            //Asignacion de estatus de gasto
+            $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
+            if ($datos_detalle->descripcion == '') {
+                if ($datos_detalle->autorizacion == 'SI') {
+                    $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+                } else {
+                    $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                }
             } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                if ($datos_detalle->autorizacion == 'SI') {
+                    $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
+                } else {
+                    $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+                }
             }
-        } else {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
+            $datos['estado'] = $datos_estatus_via->id;
+            Log::channel('testing')->info('Log', ['datos paso1', $datos]);
+            //Convierte base 64 a url
+            Log::channel('testing')->info('Log', ['antes de convertir las imagenes']);
+            if($request->comprobante1){
+                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
+            if($datos['comprobante2']){
+                $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
+            }
+            unset($datos['comprobante1']);
+            Log::channel('testing')->info('Log', ['despues de convertir las imagenes', $datos]);
+            //Log::channel('testing')->info('Log', ['datos paso2', $datos]);
+            //Guardar Registro
+            Log::channel('testing')->info('Log', ['antes de crear el gasto']);
+            $gasto = Gasto::create($datos);
+            Log::channel('testing')->info('Log', ['Gato creado', $gasto]);
+            $modelo = new GastoResource($gasto);
+            Log::channel('testing')->info('Log', ['datos paso5', $modelo]);
+            //Guardar en tabla de destalle gasto
+            $gasto->sub_detalle_info()->sync($request->sub_detalle);
+            /* foreach ($request->sub_detalle as $sub_detalle) {
+                Log::channel('testing')->info('Log', ['datos paso6', $sub_detalle]);
+            } */
+            event(new FondoRotativoEvent($gasto));
+            $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
+            $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
+            $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
+            $modelo = new GastoResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            Log::channel('testing')->info('Log', ['datos paso3', $modelo]);
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-
-        //Adaptacion de foreign keys
-        $datos['id_lugar'] = $request->lugar;
-        $datos['id_usuario'] = $user->id;
-        $datos['fecha_viat'] = date('Y-m-d', strtotime($request->fecha_viat));
-        $datos['estado'] = $datos_estatus_via->id;
-        $datos['id_tarea'] = $request->num_tarea !== 0 ? $datos['id_tarea'] = $request->num_tarea : $datos['id_tarea'] = null;
-        $datos['id_subtarea'] = $request->subTarea !== 0 ? $datos['id_subtarea'] = $request->subTarea : $datos['id_subtarea'] = null;
-        $datos['id_proyecto'] = $request->proyecto !== 0 ? $datos['id_proyecto'] = $request->proyecto : $datos['id_proyecto'] = null;
-        //Convierte base 64 a url
-        if ($request->comprobante1 != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
-        if ($request->comprobante2 != null) $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
-        //Guardar Registro
-        $modelo = new Gasto();
-        $modelo->fecha_viat = $datos['fecha_viat'];
-        $modelo->id_lugar = $datos['id_lugar'];
-        $modelo->id_tarea = $datos['id_tarea'];
-        $modelo->id_subtarea = $datos['id_subtarea'];
-        $modelo->id_proyecto = $datos['id_proyecto'];
-        $modelo->id_usuario = $datos['id_usuario'];
-        $modelo->ruc = $datos['ruc'];
-        $modelo->factura = $datos['factura'];
-        $modelo->estado = $datos['estado'];
-        $modelo->numComprobante = $datos['numComprobante'];
-        $modelo->aut_especial = $datos['aut_especial'];
-        $modelo->detalle = $datos['detalle'];
-        $modelo->cant = $datos['cantidad'];
-        $modelo->valor_u = $datos['valor_u'];
-        $modelo->total = $datos['total'];
-        $modelo->comprobante = $datos['comprobante'];
-        $modelo->comprobante2 = $datos['comprobante2'];
-        $modelo->aut_especial = $datos['aut_especial'];
-        $modelo->observacion = $datos['observacion'];
-        $modelo->estado = $datos['estado'];
-        $modelo->detalle_estado = $datos['detalle_estado'];
-        $modelo->save();
-        //Guardar en tabla de destalle gasto
-        $modelo->sub_detalle_info()->sync($datos['sub_detalle']);
-        event(new FondoRotativoEvent($modelo));
-        $max_datos_usuario = SaldoGrupo::where('id_usuario', $user->id)->max('id');
-        $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
-        $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
-        $modelo = new GastoResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -185,7 +185,7 @@ class GastoController extends Controller
         $datos['id_lugar'] = $request->lugar;
         $datos['id_usuario'] = $usuario_autorizado->id;
         $datos['estado'] = $datos_estatus_via->id;
-        $datos['cantidad'] = $request->cant;
+        $datos['caantidadidad'] = $request->caantidad;
 
         //Respuesta
         $activo->update($datos);
@@ -255,59 +255,59 @@ class GastoController extends Controller
                 ->get();
             // Obtener el saldo del usuario correspondiente al periodo anterior
             $datos_saldo_usuario_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha_inicio','<' ,$fecha_inicio)
+                ->where('fecha_inicio', '<', $fecha_inicio)
                 ->orderBy('id', 'DESC')
                 ->get();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-            ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-            ->orderBy('id', 'desc')
-            ->first();
-            $nuevo_saldo =   $ultimo_saldo!=null?$ultimo_saldo->saldo_actual:0;
+                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
+                ->orderBy('id', 'desc')
+                ->first();
+            $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $sub_total = 0;
             $fi = new \DateTime($fecha_inicio);
             $ff = new \DateTime($fecha_fin);
             $diff = $fi->diff($ff);
             $restas_diferencias = 0;
+            $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '<=', $fecha_inicio)
+                ->orderBy('id', 'desc')
+                ->get();
+            if (sizeof($datos_semana) == 0) {
                 $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->where('fecha', '<=', $fecha_inicio)
                     ->orderBy('id', 'desc')
                     ->get();
-                if (sizeof($datos_semana) == 0) {
-                    $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                        ->orderBy('id', 'desc')
-                        ->get();
-                }
-                $inicio_semana = Count($datos_semana) > 0  ? $datos_semana[0]->fecha_inicio : '';
-                $fin_semana = Count($datos_semana) > 0 ? $datos_semana[0]->fecha_fin : '';
-                $datos_depositos_corte =  SaldoGrupo::selectRaw("SUM(saldo_depositado) as saldo_depositado")
-                    ->where('id_usuario', $idUsuarioLogeado)
-                    ->where('fecha', '>=', $inicio_semana)
-                    ->get();
-                $datos_gastos_corte = Gasto::select(DB::raw('SUM(total) as total'))
-                    ->where('id_usuario', $idUsuarioLogeado)
-                    ->where('fecha_viat', '>=', $inicio_semana)
-                    ->where('estado', 1)
-                    ->get();
-                $saldo_depositado = Count($datos_depositos_corte) > 0 ? $datos_depositos_corte[0]->saldo_depositado : 0;
-                $total_gastos = Count($datos_gastos_corte) > 0 ? $datos_gastos_corte[0]->total : 0;
-                $diferencia_corte =  $saldo_depositado - $total_gastos;
-                $datos_fecha_rango = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
-                    ->where('id_usuario', $idUsuarioLogeado)
-                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                    ->get();
-                $datos_rango_gastos = Gasto::select(DB::raw('SUM(total) as total'))
-                    ->where('id_usuario', $idUsuarioLogeado)
-                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                    ->where('estado', 1)
-                    ->get();
-                $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
-                $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->where('fecha', '<',$inicio_semana)
-                    ->orderBy('id', 'desc')
-                    ->first();
-                $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
-                $sal_dep_r = $diferencia_rango;
-                $restas_diferencias = $diferencia_corte - $diferencia_rango;
+            }
+            $inicio_semana = Count($datos_semana) > 0  ? $datos_semana[0]->fecha_inicio : '';
+            $fin_semana = Count($datos_semana) > 0 ? $datos_semana[0]->fecha_fin : '';
+            $datos_depositos_corte =  SaldoGrupo::selectRaw("SUM(saldo_depositado) as saldo_depositado")
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '>=', $inicio_semana)
+                ->get();
+            $datos_gastos_corte = Gasto::select(DB::raw('SUM(total) as total'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha_viat', '>=', $inicio_semana)
+                ->where('estado', 1)
+                ->get();
+            $saldo_depositado = Count($datos_depositos_corte) > 0 ? $datos_depositos_corte[0]->saldo_depositado : 0;
+            $total_gastos = Count($datos_gastos_corte) > 0 ? $datos_gastos_corte[0]->total : 0;
+            $diferencia_corte =  $saldo_depositado - $total_gastos;
+            $datos_fecha_rango = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $datos_rango_gastos = Gasto::select(DB::raw('SUM(total) as total'))
+                ->where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', 1)
+                ->get();
+            $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
+            $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
+                ->where('fecha', '<', $inicio_semana)
+                ->orderBy('id', 'desc')
+                ->first();
+            $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
+            $sal_dep_r = $diferencia_rango;
+            $restas_diferencias = $diferencia_corte - $diferencia_rango;
 
             $usuario_logeado = UserInfoResource::collection($usuario_logeado);
             $sub_total = 0;
