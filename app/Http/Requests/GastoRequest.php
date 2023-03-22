@@ -43,7 +43,7 @@ class GastoRequest extends FormRequest
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',
             'sub_detalle' => 'required|array',
-            'caantidadidad' => 'required|numeric',
+            'cantidad' => 'required|numeric',
             'valor_u' => 'required|numeric',
             'total' => 'required|numeric',
             'observacion' => 'required|string',
