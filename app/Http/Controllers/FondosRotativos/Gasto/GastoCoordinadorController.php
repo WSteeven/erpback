@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
+use App\Events\SolicitudFondosEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Gastos\GastoCoordinadorResource;
 use App\Models\FondosRotativos\Gasto\GastoCoordinador;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
@@ -41,6 +43,8 @@ class GastoCoordinadorController extends Controller
         $user = Auth::user();
         $datos['id_usuario'] = $user->id ;
         $modelo = GastoCoordinador::create($datos);
+        $contabilidad = User::with('empleado')->where('name','IVALAREZO')->first();
+        event(new SolicitudFondosEvent($modelo, $contabilidad));
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }

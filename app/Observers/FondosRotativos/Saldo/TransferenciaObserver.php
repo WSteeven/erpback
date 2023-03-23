@@ -95,6 +95,7 @@ class TransferenciaObserver
         $saldo_envia->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
         $saldo_envia->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
         $saldo_envia->id_usuario = $transferencia->usuario_envia_id;
+        $saldo_envia->tipo_saldo = "Egreso";
         $saldo_envia->save();
         //Actualizacion de saldo Usuario que recibe
         if ($transferencia->usuario_recibe_id != null) {
@@ -106,6 +107,7 @@ class TransferenciaObserver
             $saldo_recibe->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0];
             $saldo_recibe->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1];;
             $saldo_recibe->id_usuario = $transferencia->usuario_recibe_id;
+            $saldo_recibe->tipo_saldo = "Ingreso";
             $saldo_recibe->save();
         }
     }

@@ -90,7 +90,6 @@ class GastoController extends Controller
         //Log::channel('testing')->info('Log', ['lo que se recibe del front', $request->all()]);
         try {
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['los datos ya validados',]);
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
@@ -114,9 +113,7 @@ class GastoController extends Controller
                 }
             }
             $datos['estado'] = $datos_estatus_via->id;
-            Log::channel('testing')->info('Log', ['datos paso1', $datos]);
             //Convierte base 64 a url
-            Log::channel('testing')->info('Log', ['antes de convertir las imagenes']);
             if($request->comprobante1){
                 $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
@@ -124,19 +121,11 @@ class GastoController extends Controller
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             unset($datos['comprobante1']);
-            Log::channel('testing')->info('Log', ['despues de convertir las imagenes', $datos]);
-            //Log::channel('testing')->info('Log', ['datos paso2', $datos]);
             //Guardar Registro
-            Log::channel('testing')->info('Log', ['antes de crear el gasto']);
             $gasto = Gasto::create($datos);
-            Log::channel('testing')->info('Log', ['Gato creado', $gasto]);
             $modelo = new GastoResource($gasto);
-            Log::channel('testing')->info('Log', ['datos paso5', $modelo]);
             //Guardar en tabla de destalle gasto
             $gasto->sub_detalle_info()->sync($request->sub_detalle);
-            /* foreach ($request->sub_detalle as $sub_detalle) {
-                Log::channel('testing')->info('Log', ['datos paso6', $sub_detalle]);
-            } */
             event(new FondoRotativoEvent($gasto));
             $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
             $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
