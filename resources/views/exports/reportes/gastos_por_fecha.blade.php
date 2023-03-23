@@ -153,7 +153,7 @@
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
                     </p>
                 </td>
                 <td>
@@ -213,7 +213,23 @@
             </tr>
             <tr>
                 <td colspan="3" style="font-size:10px">
-                    <div align="right"><strong>NUEVO SALDO:&nbsp;</strong></div>
+                    <div align="right"><strong>TRANSFERENCIAS REALIZADAS:&nbsp;</strong></div>
+                </td>
+                <td style="font-size:10px">
+                    <div align="right"> {{ number_format($transferencia, 2, ',', ' ') }} </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="font-size:10px">
+                    <div align="right"><strong>GASTOS REALIZADOS:&nbsp;</strong></div>
+                </td>
+                <td style="font-size:10px">
+                    <div align="right"> {{ number_format($gastos_realizados, 2, ',', ' ') }} </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="font-size:10px">
+                    <div align="right"><strong>SALDO ACTUAL:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
                     <div align="right"> {{ number_format($nuevo_saldo, 2, ',', ' ') }} </div>

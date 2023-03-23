@@ -2,6 +2,8 @@
 
 namespace App\Models\FondosRotativos\Gasto;
 
+use App\Models\Canton;
+use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,12 +33,16 @@ class GastoCoordinador extends Model implements Auditable
         'observacion',
         'id_usuario',
     ];
-    public function motivo()
+    public function motivo_info()
     {
-        return $this->hasOne(MotivoGasto::class, 'id_motivo','id');
+        return $this->hasOne(MotivoGasto::class, 'id','id_motivo');
     }
-    public function usuario()
+    public function usuario_info()
     {
-        return $this->hasOne(User::class, 'id_usuario','id');
+        return $this->hasOne(User::class, 'id','id_usuario');
+    }
+    public function lugar_info()
+    {
+        return $this->hasOne(Canton::class, 'id','id_lugar');
     }
 }

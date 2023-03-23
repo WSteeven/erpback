@@ -18,16 +18,6 @@ class GastosObserver
      */
     public function created(Gasto $gasto)
     {
-        $datos_detalle = DetalleViatico::where('id', $gasto->detalle)->first();
-        if ($datos_detalle->descripcion == '') {
-            if ($datos_detalle->autorizacion != 'NO') {
-                $this->guardar_gasto($gasto);
-            }
-        } else {
-            if ($datos_detalle->autorizacion == 'NO') {
-                $this->guardar_gasto($gasto);
-            }
-        }
 
     }
 
@@ -39,7 +29,7 @@ class GastosObserver
      */
     public function updated(Gasto $gasto)
     {
-        $this->guardar_gasto($gasto);
+        if($gasto->estado ==1)$this->guardar_gasto($gasto);
     }
 
     /**

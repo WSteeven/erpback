@@ -26,8 +26,7 @@ class AcreditacionObserver
      */
     public function updated(Acreditaciones $acreditaciones)
     {
-        $this->guardar_gasto($acreditaciones);
-    }
+   }
 
     /**
      * Handle the Acreditaciones "deleted" event.

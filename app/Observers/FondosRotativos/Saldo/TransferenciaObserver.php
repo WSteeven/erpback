@@ -16,9 +16,6 @@ class TransferenciaObserver
      */
     public function created(Transferencias $transferencia)
     {
-        if ($transferencia->estado == 1) {
-            $this->guardara_transferencia($transferencia);
-        }
     }
 
     /**

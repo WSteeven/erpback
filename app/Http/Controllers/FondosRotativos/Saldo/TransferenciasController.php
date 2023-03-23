@@ -49,9 +49,11 @@ class TransferenciasController extends Controller
         $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? null : $request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;
         $datos['estado'] = 3;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIAS))->execute();
+        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
-        event(new TransferenciaSaldoEvent($modelo));
+        if($request->usuario_recibe != null){
+            event(new TransferenciaSaldoEvent($modelo));
+        }
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));

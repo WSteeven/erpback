@@ -64,8 +64,8 @@ public function __construct()
     public function show($id)
     {
         $acreditacion = Acreditaciones::findOrFail($id);
-        $acreditacion = new AcreditacionResource($acreditacion);
-        return response()->json(compact('acreditacion'));
+        $modelo = new AcreditacionResource($acreditacion);
+        return response()->json(compact('modelo'));
     }
 
     /**

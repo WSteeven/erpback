@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('ruc', 13);
             $table->string('factura', 25)->nullable();
             $table->string('num_comprobante', 250)->nullable();
-            $table->string('proveedor', 250);
             $table->unsignedBigInteger('aut_especial');
             $table->unsignedBigInteger('detalle');
             $table->integer('cantidad')->length(3);

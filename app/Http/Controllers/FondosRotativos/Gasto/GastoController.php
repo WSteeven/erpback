@@ -14,6 +14,7 @@ use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -300,13 +301,23 @@ class GastoController extends Controller
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', 1)
                 ->get();
+            $gastos_realizados = Gasto ::where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', 1)
+                ->sum('total');
             $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
             $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
                 ->where('fecha', '<', $inicio_semana)
                 ->orderBy('id', 'desc')
                 ->first();
             $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
-            $sal_dep_r = $diferencia_rango;
+            $sal_dep_r = Acreditaciones::where('id_usuario', $idUsuarioLogeado)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+            $transferencia = Transferencias::where('usuario_envia_id', $idUsuarioLogeado)
+                 ->where('estado', 1)
+                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
             $restas_diferencias = $diferencia_corte - $diferencia_rango;
 
             $usuario_logeado = UserInfoResource::collection($usuario_logeado);
@@ -317,8 +328,10 @@ class GastoController extends Controller
                 'fecha_fin',
                 'datos_usuario_logueado',
                 'datos_saldo_depositados_semana',
+                'gastos_realizados',
                 'sal_anterior',
                 'sal_dep_r',
+                'transferencia',
                 'nuevo_saldo',
                 'sub_total',
                 'restas_diferencias',
@@ -357,8 +370,10 @@ class GastoController extends Controller
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $fecha_inicio = $date_inicio->format('Y-m-d');
+            $fecha_fin = $date_fin->format('Y-m-d');
             $tipo_ARCHIVO = $tipo;
             $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;

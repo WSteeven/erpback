@@ -122,7 +122,7 @@
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
+                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
                     </p>
                 </td>
                 <td>

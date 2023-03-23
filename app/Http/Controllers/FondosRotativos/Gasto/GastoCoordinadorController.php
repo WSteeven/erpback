@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FondosRotativos\Gastos\GastoCoordinadorResource;
 use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,8 @@ class GastoCoordinadorController extends Controller
     public function index()
     {
         $results = [];
-        $results= GastoCoordinador::all();
+        $results= GastoCoordinador::with('usuario_info','motivo_info','lugar_info')->get();
+        $results = GastoCoordinadorResource::collection($results);
         return compact('results');
     }
 

@@ -27,7 +27,6 @@ class GastoFactory extends Factory
             'id_proyecto' => fake()->numberBetween(1, 2),
             'ruc' =>  $this->RandomRUC(),
             'factura' => $this->RandomFactura(),
-            'proveedor' => fake()->company(),
             'aut_especial' => fake()->numberBetween(28, 30),
             'detalle' => 1,
             'sub_detalle' => 1,
