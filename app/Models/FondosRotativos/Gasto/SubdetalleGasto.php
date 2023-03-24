@@ -8,12 +8,12 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class SubdetalleGasto extends Model
+class SubdetalleGasto extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'gastos';
+    protected $table = 'subdetalle_gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
         'gasto_id',

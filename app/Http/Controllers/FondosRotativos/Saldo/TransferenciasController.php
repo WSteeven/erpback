@@ -32,7 +32,12 @@ class TransferenciasController extends Controller
     public function index()
     {
         $results = [];
-        $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->get();
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if($usuario_ac->hasRole('CONTABILIDAD'))
+            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->get();
+        else
+            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->id)->orWhere('usuario_recibe_id',Auth::user()->id) ->ignoreRequest(['campos'])->filter()->get();
         $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -53,6 +58,7 @@ class TransferenciasController extends Controller
         $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
+        event(new TransferenciaSaldoEvent($modelo));
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
