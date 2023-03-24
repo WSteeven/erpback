@@ -216,7 +216,7 @@ class UserSeeder extends Seeder
             'name' => 'IVALAREZO',
             'email' => 'isa@jpconstrucred.com',
             'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_CONTABILIDAD);
+        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRADOR_FONDOS);
         $contabilidad->empleado()->create([
             'nombres' => 'ISABEL',
             'apellidos' => 'VALAREZO',
