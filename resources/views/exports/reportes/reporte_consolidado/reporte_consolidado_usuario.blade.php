@@ -191,6 +191,32 @@
                                             </td>
                                         </tr>
                                         <!--Fin Acreditaciones-->
+                                        <!--Transferencias-->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $usuario->name }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Transferencias</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($transferencia, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
+
+
+
+                                        <!--Fin Transferencias-->
                                         <!--Gastos-->
                                         <tr>
                                             <td style="font-size:10px" width="29%">

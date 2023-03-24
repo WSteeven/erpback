@@ -20,6 +20,7 @@ use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Proyecto;
 use App\Models\Tarea;
 use Carbon\Carbon;
@@ -395,6 +396,10 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');
+           $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+                ->where('estado', 1)
+               ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+               ->sum('monto');
             $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + $acreditaciones - $gastos;
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_consolidado';
@@ -406,6 +411,7 @@ class SaldoGrupoController extends Controller
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
                 'gastos' => $gastos,
+                'transferencia' => $transferencia,
                 'total_suma' => $total
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
