@@ -137,7 +137,7 @@ class Subtarea extends Model implements Auditable
 
     public function motivoSuspendido()
     {
-        return $this->belongsToMany(MotivoSuspendido::class)->withTimestamps();
+        return $this->belongsToMany(MotivoSuspendido::class)->withPivot('empleado_id')->withTimestamps();
     }
 
     public function subtarea()

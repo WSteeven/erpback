@@ -290,7 +290,10 @@ class RoleSeeder extends Seeder
         // Modulo de Tareas
         // -----------------
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_tareas'])->syncRoles([$coordinador, $jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_asignado'])->syncRoles([  $coordinador, $administrativo]);
+        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_agendado'])->syncRoles([$empleado]);//$tecnico_lider, $coordinador, $administrativo]);
+        Permission::firstOrCreate(['name' => 'puede.ver.movilizacion_subtarea'])->syncRoles([$empleado]); //reporte-movilizacion-subtarea
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_movilizacion_subtarea'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.mi_bodega'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.subtarea_asignada'])->assignRole($tecnico_lider, $coordinador);
         Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->syncRoles([  $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([ $coordinador]);

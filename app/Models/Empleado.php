@@ -206,4 +206,10 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(Cargo::class);
     }
+
+    public static function extraerNombresApellidos($empleado)
+    {
+        if (!$empleado) return null;
+        return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
 }

@@ -18,7 +18,7 @@ return new class extends Migration
 
             // Normalmente es el lider del grupo pero puede darse el caso de que se designe a un miembro del mismo grupo para que lo suplante de manera temporal entonces aqui puede ir su id de empleado
             // En estos casos el reemplazo temporal tiene la capacidad de utilizar el material que se ha asignado al lider oficial
-            $table->boolean('es_responsable');
+            // $table->boolean('es_responsable');
 
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onUpdate('cascade')->onDelete('cascade');

@@ -26,6 +26,7 @@ use App\Models\User;
 // Logica
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Http\Requests\TransaccionBodegaRequest;
+use App\Models\MaterialEmpleado;
 use Src\App\TransaccionBodegaEgresoService;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -68,6 +69,38 @@ class TransaccionBodegaEgresoController extends Controller
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
             'cantidad_hilos' => Fibra::where('detalle_id', $item->detalle_producto_id)->first()->hilo->nombre,
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+    // Bien - No borrar
+    public function obtenerMaterialesEmpleado(Request $request)
+    {
+        $empleado_id = Auth::user()->empleado->id;
+        $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
+
+        $results = collect($results)->map(fn ($item, $index) => [
+            'item' => $index + 1,
+            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
+            'stock_actual' => intval($item->cantidad_stock),
+            'medida' => 'm',
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+    // Bien - No borrar
+    public function obtenerTodosMateriales(Request $request)
+    {
+        $empleado_id = Auth::user()->empleado->id;
+        $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
+
+        $results = collect($results)->map(fn ($item, $index) => [
+            'item' => $index + 1,
+            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
+            'stock_actual' => intval($item->cantidad_stock),
+            'medida' => 'm',
         ]);
 
         return response()->json(compact('results'));

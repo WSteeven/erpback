@@ -298,28 +298,22 @@ class TransaccionBodega extends Model implements Auditable
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
+                // Si es material para tarea
                 if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
                     $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
                         ->where('tarea_id', $pedido->tarea_id)
                         ->where('empleado_id', $pedido->responsable)
                         ->first();
 
-                    // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->save();
                     } else {
                         Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
-                        // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
-                        //consulta de fibras
-                        //$ids_fibras = Fibra::select('id')->get();
-                        //$fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
+
                         $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
 
-                        //Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
                         Log::channel('testing')->info('Log', ['Fibra seleccionada:', $esFibra]);
-                        //Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
 
                         MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
@@ -327,6 +321,24 @@ class TransaccionBodega extends Model implements Auditable
                             'empleado_id' => $pedido->responsable_id,
                             'detalle_producto_id' => $detallePedido->detalle_id,
                             'es_fibra' => $esFibra, // Pendiente de obtener
+                        ]);
+                    }
+                } else {
+                    $material = MaterialEmpleado::where('detalle_producto_id', $detallePedido->detalle_id)
+                        ->where('empleado_id', $pedido->responsable)
+                        ->first();
+
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
+
+                        MaterialEmpleado::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'empleado_id' => $pedido->responsable_id,
+                            'detalle_producto_id' => $detallePedido->detalle_id,
+                            'es_fibra' => $esFibra,
                         ]);
                     }
                 }
@@ -339,7 +351,7 @@ class TransaccionBodega extends Model implements Auditable
 
     /**
      * If the product has a serial number and is active, then set it to inactive
-     * 
+     *
      * @param id The id of the product
      */
     public static function desactivarDetalle($id)
@@ -352,7 +364,7 @@ class TransaccionBodega extends Model implements Auditable
     }
     /**
      * It finds a record in the database, and if it's not active, it sets it to active and saves it
-     * 
+     *
      * @param id The id of the model you want to update.
      */
     public function activarDetalle($id)

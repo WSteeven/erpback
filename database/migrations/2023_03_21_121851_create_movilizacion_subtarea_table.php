@@ -13,19 +13,19 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('motivo_suspendido_subtarea', function (Blueprint $table) {
+        Schema::create('movilizacion_subtarea', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('motivo_suspendido_id');
-            $table->foreign('motivo_suspendido_id')->references('id')->on('motivos_suspendidos');
+            $table->timestamp('fecha_hora_salida')->nullable();
+            $table->timestamp('fecha_hora_llegada')->nullable();
 
-            $table->unsignedBigInteger('subtarea_id');
-            $table->foreign('subtarea_id')->references('id')->on('subtareas');
-
+            // Foreign keys
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->timestamps();
+            $table->unsignedBigInteger('subtarea_id');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+            // $table->timestamps();
         });
     }
 
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('motivo_suspendido_subtarea');
+        Schema::dropIfExists('movilizacion_subtarea');
     }
 };

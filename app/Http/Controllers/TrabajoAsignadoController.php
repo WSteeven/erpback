@@ -30,7 +30,7 @@ class TrabajoAsignadoController extends Controller
         $results = [];
 
         if (request('estado') == 'PROXIMO') {
-            Log::channel('testing')->info('Log', ['Estado: ', request('estado')]);
+            // Log::channel('testing')->info('Log', ['Estado: ', request('estado')]);
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoEmpleado($empleado));
         } else {

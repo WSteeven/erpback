@@ -311,7 +311,7 @@ class UserSeeder extends Seeder
         ]);
 
         $tecnico = User::create([
-            'name' => 'JUAREZ',
+            'name' => 'BJUAREZ',
             'email' => 'bjuarez@jpconstrucred.com',
             'email_verified_at' => date("Y-m-d"),
             'password' => bcrypt('password'),

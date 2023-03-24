@@ -14,6 +14,7 @@ use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
+use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
@@ -35,6 +36,7 @@ Route::apiResources(
         'registros-tendidos' => RegistroTendidoController::class,
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
+        'movilizacion-subtarea' => MovilizacionSubtareaController::class,
     ],
     [
         'parameters' => [
@@ -68,6 +70,7 @@ Route::prefix('subtareas')->group(function () {
 });
 
 Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
+
 Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
 
 // Obtener los trabajos asignados de un grupo o empleado individua
@@ -82,8 +85,11 @@ Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSe
 // Obtener las bobinas asignadas a un empleado para usarla durante la ejecución de un trabajo
 Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
 
-// Obtener los materiales asignados a un empleado para usarlos durante la ejecución de un trabajo
+// Obtener los materiales excepto bobinas asignados a un empleado para usarlos durante la ejecución de un trabajo
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales']);
+
+Route::get('todos-materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerTodosMateriales']);
+Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
 
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
 Route::apiResource('tendidos', TendidoController::class)->except('show');
@@ -96,3 +102,5 @@ Route::apiResource('emergencias', EmergenciaController::class);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
+
+Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaController::class, 'destinoActual']);

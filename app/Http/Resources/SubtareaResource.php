@@ -6,12 +6,15 @@ use App\Models\Empleado;
 use App\Models\EmpleadoSubtarea;
 use App\Models\Grupo;
 use App\Models\GrupoSubtarea;
+use App\Models\MotivoSuspendido;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class SubtareaResource extends JsonResource
@@ -26,6 +29,8 @@ class SubtareaResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $tarea = $this->tarea;
+        // $ultimaSuspension = $this->motivoSuspendido()->latest()->first(); //->orderBy('created_at', 'desc')->get();
+        $ultimaSuspension = DB::table('motivo_suspendido_subtarea')->where('subtarea_id', $this->id)->latest()->first(); // Obtener el último registro de la tabla pivote
 
         $modelo = [
             'id' => $this->id,
@@ -54,8 +59,8 @@ class SubtareaResource extends JsonResource
             'fecha_hora_finalizacion' => $this->formatTimestamp($this->fecha_hora_finalizacion),
             'fecha_hora_realizado' => $this->formatTimestamp($this->fecha_hora_realizado),
             'fecha_hora_pendiente' => $this->formatTimestamp($this->fecha_hora_pendiente),
-            // 'fecha_hora_suspendido' => $this->fecha_hora_suspendido,
-            // 'motivo_suspendido' => $this->motivoSuspendido?->motivo,
+            'fecha_hora_suspendido' => $ultimaSuspension ? $this->formatTimestamp($ultimaSuspension->created_at) : null,
+            'motivo_suspendido' => $ultimaSuspension ? MotivoSuspendido::find($ultimaSuspension->motivo_suspendido_id)->motivo : null,
             'fecha_hora_cancelado' => $this->formatTimestamp($this->fecha_hora_cancelado),
             'motivo_cancelado' => $this->motivoCancelado?->motivo,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
@@ -63,14 +68,14 @@ class SubtareaResource extends JsonResource
             'estado' => $this->estado,
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
-            'es_responsable' => $this->verificarResponsable(),
+            'es_responsable' => $this->verificarSiEsResponsable(),
             'empleado' => $this->extraerNombresApellidos($this->empleado),
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupo?->nombre,
             'tiene_subtareas' => $tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
-            'puede_ejecutar' => $this->verificarPuedeEjecutar(),
+            'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
         ];
 
         if ($controller_method == 'show') {
@@ -92,7 +97,7 @@ class SubtareaResource extends JsonResource
 
     private function formatTimestamp($timestamp)
     {
-        if($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
+        if ($timestamp) return Carbon::parse($timestamp)->format('d-m-Y H:i:s');
     }
 
     public function extraerNombres($listado)
@@ -138,17 +143,15 @@ class SubtareaResource extends JsonResource
         });
     }
 
-    public function verificarResponsable()
+    public function verificarSiEsResponsable()
     {
-        $usuario = User::find(Auth::id());
+        $usuario = Auth::user();
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
             $esLider = $usuario->hasRole(User::ROL_LIDER_DE_GRUPO);
             $grupo_id = $usuario->empleado->grupo_id;
 
-            if ($esLider) {
-                return $this->grupo_id == $grupo_id && $esLider;
-            }
+            return $this->grupo_id == $grupo_id && $esLider;
         }
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
@@ -173,20 +176,22 @@ class SubtareaResource extends JsonResource
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 
-    private function verificarPuedeEjecutar()
+    private function verificarSiPuedeEjecutar()
     {
-        $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count();
+        // $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count();
+        $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count(); //fechaActual()->count();
+        Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 
-        if ($this->hora_inicio_trabajo) return $this->puedeIniciarHoraTrabajo() && $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
-        else return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutadoHoy;
+        if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+        else return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
     }
 
     private function puedeEjecutarHoy()
     {
-        return $this->fecha_inicio_trabajo == Carbon::today()->toDateString();
+        return $this->fecha_inicio_trabajo <= Carbon::today()->toDateString();
     }
 
-    private function puedeIniciarHoraTrabajo()
+    private function puedeIniciarHora()
     {
         $horaInicio = Carbon::parse($this->hora_inicio_trabajo)->format('H:i:s');
 

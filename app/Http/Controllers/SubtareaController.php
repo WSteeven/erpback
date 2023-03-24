@@ -7,8 +7,10 @@ use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Events\SubtareaEvent;
+use App\Models\Empleado;
 use App\Models\EmpleadoSubtarea;
 use App\Models\GrupoSubtarea;
+use App\Models\MovilizacionSubtarea;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
 use App\Models\Subtarea;
@@ -66,6 +68,8 @@ class SubtareaController extends Controller
         $datos['estado'] = Subtarea::CREADO;
 
         $modelo = Subtarea::create($datos);
+        $empleados_adicionales = collect($datos['empleados_adicionales'])->map(fn ($empleado) => $empleado['id']);
+        $modelo->empleados()->sync($empleados_adicionales);
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
@@ -175,7 +179,7 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_agendado = Carbon::now();
         $subtarea->save();
 
-        event(new SubtareaEvent('Subtarea agendada!'));
+        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
@@ -218,6 +222,13 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();
 
+        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
+
+        if ($movilizacion) {
+            $movilizacion->fecha_hora_llegada = Carbon::now();
+            $movilizacion->save();
+        }
+
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
@@ -244,13 +255,20 @@ class SubtareaController extends Controller
         $subtarea->save();
 
         $subtarea->motivoSuspendido()->attach([
-            $motivo_suspendido_id
+            $motivo_suspendido_id => ['empleado_id' => Auth::user()->empleado->id]
         ]);
+
+        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
+
+        if ($movilizacion) {
+            $movilizacion->fecha_hora_llegada = Carbon::now();
+            $movilizacion->save();
+        }
         // $subtarea->touch();
         return response()->json(['modelo' => new SubtareaResource($subtarea->refresh())]);
     }
 
-    public function suspenderOld(Request $request, Subtarea $subtarea)
+    /* public function suspenderOld(Request $request, Subtarea $subtarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];
 
@@ -260,7 +278,7 @@ class SubtareaController extends Controller
         $subtarea->save();
 
         return response()->json(['modelo' => new SubtareaResource($subtarea->refresh())]);
-    }
+    } */
 
     public function obtenerPausas(Subtarea $subtarea)
     {
@@ -280,6 +298,7 @@ class SubtareaController extends Controller
         $results = $subtarea->motivoSuspendido->map(fn ($item) => [
             'fecha_hora_suspendido' => Carbon::parse($item->pivot->created_at)->format('d-m-Y H:i:s'),
             'motivo' => $item->motivo,
+            'empleado' => Empleado::extraerNombresApellidos(Empleado::find($item->pivot->empleado_id)),
         ]);
         // 'tiempo_pausado' => $item->fecha_hora_retorno ? Utils::tiempoTranscurridoSeconds(Carbon::parse($item->fecha_hora_retorno)->diffInSeconds(Carbon::parse($item->fecha_hora_pausa)), '') : null,
 
