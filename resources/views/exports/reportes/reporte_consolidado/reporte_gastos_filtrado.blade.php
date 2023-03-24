@@ -41,23 +41,11 @@
             text-align: center;
             color: #000000;
             line-height: 1.5cm;
-            font-size: 7pt;
-        }
-        footer table {
-            width: 100%;
         }
 
         footer .page:after {
             content: counter(page);
         }
-        footer .izq {
-            text-align: left;
-        }
-
-        footer p {
-            text-align: right;
-        }
-
         .saldos_depositados {
             margin-top: -15px;
             table-layout: fixed;
@@ -111,21 +99,17 @@
         <hr>
     </header>
     <footer>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>

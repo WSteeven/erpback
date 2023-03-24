@@ -216,8 +216,8 @@ class GastoController extends Controller
     public function generar_reporte(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             Log::channel('testing')->info('Log', ['fechainicio', $request->fecha_inicio]);
@@ -359,8 +359,8 @@ class GastoController extends Controller
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $tipo_ARCHIVO = $tipo;

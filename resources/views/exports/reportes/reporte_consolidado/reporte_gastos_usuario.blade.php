@@ -42,22 +42,12 @@
             text-align: center;
             color: #000000;
             line-height: 1.5cm;
-            font-size: 7pt;
-        }
-        footer table {
-            width: 100%;
         }
 
         footer .page:after {
             content: counter(page);
         }
-        footer .izq {
-            text-align: left;
-        }
 
-        footer p {
-            text-align: right;
-        }
         main {
             position: relative;
             top: 80px;
@@ -106,28 +96,25 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
-                            {{ ' DEL ' .  date("d/m/Y", strtotime(  $fecha_inicio)) . ' AL ' . date("d/m/Y", strtotime($fecha_fin))  }}</b></div>
+                            {{ ' DEL ' .  date("d-m-Y", strtotime(  $fecha_inicio)) . ' AL ' . date("d-m-Y", strtotime($fecha_fin))  }}</b></div>
                 </td>
             </tr>
         </table>
         <hr>
     </header>
     <footer>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td class="page">Página </td>
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>
@@ -176,7 +163,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{  date("d/m/Y", strtotime( $gasto['fecha'])) }}</div>
+                                                    <div align="center">{{  date("d-m-Y", strtotime( $gasto['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">{{ $gasto['detalle_estado'] }}</div>

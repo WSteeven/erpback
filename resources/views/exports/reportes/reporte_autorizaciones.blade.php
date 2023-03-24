@@ -41,6 +41,10 @@
             font-size: 7pt;
         }
 
+        footer .page:after {
+            content: counter(page);
+        }
+
         .firma {
             table-layout: fixed;
             width: 75%;
@@ -51,17 +55,6 @@
             font-size: 7pt;
         }
 
-        footer .page:after {
-            content: counter(page);
-        }
-
-        footer table {
-            width: 100%;
-        }
-
-        footer p {
-            text-align: right;
-        }
 
         .saldos_depositados {
             margin-top: -15px;
@@ -82,9 +75,6 @@
             width: 100%;
             line-height: normal;
             font-size: 7pt;
-        }
-        footer .izq {
-            text-align: left;
         }
         .page-break {
         page-break-after: always;
@@ -113,21 +103,18 @@
         <hr>
     </header>
     <footer>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td class="page">Página </td>
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>
@@ -209,7 +196,7 @@
                 @foreach ($datos_reporte as $dato)
                     @if ($tipo_ARCHIVO == 'pdf')
                         <tr style="font-size:9px">
-                            <td width="5%">{{ date("d/m/Y", strtotime( $dato['fecha']))}}</td>
+                            <td width="5%">{{ date("d-m-Y", strtotime( $dato['fecha']))}}</td>
                             <td width="10%">
                                 {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                             </td>

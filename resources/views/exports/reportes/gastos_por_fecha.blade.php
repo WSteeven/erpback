@@ -105,7 +105,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE GASTOS DEL
-                            {{  date("d/m/Y", strtotime( $fecha_inicio)) . ' AL ' .date("d/m/Y", strtotime($fecha_fin))  }}</b></div>
+                            {{  date("d-m-Y", strtotime( $fecha_inicio)) . ' AL ' .date("d-m-Y", strtotime($fecha_fin))  }}</b></div>
 
                 </td>
             </tr>
@@ -145,21 +145,18 @@
                 </td>
             </tr>
         </table>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td class="page">Página </td>
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Prohibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>
@@ -183,7 +180,7 @@
             @if (sizeof($datos_saldo_depositados_semana) > 0)
                 @foreach ($datos_saldo_depositados_semana as $dato)
                     <tr>
-                        <td style="font-size:10px">{{  date("d/m/Y", strtotime(  $dato->fecha)) }}</td>
+                        <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato->fecha)) }}</td>
                         <td style="font-size:10px">
                             {{ number_format($dato->monto, 2, ',', '.') }}</td>
                         <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
@@ -294,7 +291,7 @@
                                 <div align="center">{{ $dato->id }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{   date("d/m/Y", strtotime( $dato->fecha_viat))}}</div>
+                                <div align="center">{{   date("d-m-Y", strtotime( $dato->fecha_viat))}}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">

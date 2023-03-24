@@ -318,8 +318,8 @@ class SaldoGrupoController extends Controller
     private  function acreditacion($request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
@@ -348,8 +348,8 @@ class SaldoGrupoController extends Controller
     private  function gasto($request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
@@ -378,8 +378,8 @@ class SaldoGrupoController extends Controller
     private  function reporte_consolidado($request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
@@ -418,8 +418,8 @@ class SaldoGrupoController extends Controller
     public function gastocontabilidad(Request $request)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d/m/Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d/m/Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')

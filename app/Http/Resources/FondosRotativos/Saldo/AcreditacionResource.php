@@ -32,7 +32,7 @@ class AcreditacionResource extends JsonResource
         return $modelo;
     }
     private function cambiar_fecha($fecha){
-        $fecha_formateada = Carbon::parse( $fecha)->format('d/m/Y');
+        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
             return $fecha_formateada;
         }
 }
