@@ -12,7 +12,7 @@
         }
 
         body {
-            /* background-image: url('img/logoJPBN_10.png'); */
+            /* background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
             background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
