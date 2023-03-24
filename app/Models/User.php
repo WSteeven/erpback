@@ -39,6 +39,7 @@ class User extends Authenticatable implements Auditable
     const ROL_LIDER_DE_GRUPO = 'LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
+    const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
@@ -50,6 +51,7 @@ class User extends Authenticatable implements Auditable
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
+
 
 
     /**

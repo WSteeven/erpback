@@ -10,6 +10,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -45,15 +46,13 @@ class TransferenciasController extends Controller
     public function store(Request $request)
     {
         $datos = $request->all();
+        $contabilidad = User::where('name','IVALAREZO')->first();
         $datos['usuario_envia_id'] = Auth()->user()->id;
-        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? null : $request->usuario_recibe;
+        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? $contabilidad->id : $request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;
         $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
-        if($request->usuario_recibe != null){
-            event(new TransferenciaSaldoEvent($modelo));
-        }
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));

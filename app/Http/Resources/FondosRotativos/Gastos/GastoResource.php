@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\FondosRotativos\Gastos;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GastoResource extends JsonResource
@@ -17,10 +18,12 @@ class GastoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha_viat' => $this->fecha_viat,
+            'fecha_viat' => $this->cambiar_fecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
+            'lugar_info' => $this->lugar_info->canton,
             'num_tarea' => $this->id_tarea ==null ? 0 : $this->id_tarea,
             'subTarea' => $this->id_subtarea ==null ? 0 : $this->id_subtarea,
+            'subTarea_info' => $this->subtarea_info !=null? $this->subtarea_info->codigo_subtarea.' - '. $this->subtarea_info->titulo:'Sin Subtarea',
             'tarea_info' =>  $this->tarea_info !=null? $this->tarea_info->codigo_tarea.' - '. $this->tarea_info->detalle:'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->proyecto_info!=null? $this->proyecto_info->codigo_proyecto.' - '.$this->proyecto_info->nombre: 'Sin Proyecto',
@@ -61,4 +64,8 @@ class GastoResource extends JsonResource
         }
         return $descripcion;
     }
+    private function cambiar_fecha($fecha){
+        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
+            return $fecha_formateada;
+        }
 }

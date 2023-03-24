@@ -71,6 +71,7 @@ class AcreditacionObserver
         $saldo->fecha_inicio =$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[0];
         $saldo->fecha_fin = $this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[1];;
         $saldo->id_usuario = $acreditacion->id_usuario;
+        $saldo->tipo_saldo = "Ingreso";
         $saldo->save();
     }
     private function calcular_fechas($fecha)

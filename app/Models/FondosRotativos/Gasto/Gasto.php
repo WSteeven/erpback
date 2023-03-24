@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Proyecto;
+use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -89,6 +90,10 @@ class Gasto extends Model implements Auditable
     public function tarea_info()
     {
         return $this->hasOne(Tarea::class, 'id', 'id_tarea');
+    }
+    public function subtarea_info()
+    {
+        return $this->hasOne(Subtarea::class, 'id', 'id_subtarea');
     }
     public function lugar_info()
     {

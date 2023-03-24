@@ -93,6 +93,7 @@ class GastosObserver
         $saldo->fecha_inicio =$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0];
         $saldo->fecha_fin = $this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1];;
         $saldo->id_usuario = $gasto->id_usuario;
+        $saldo->tipo_saldo = "Egreso";
         $saldo->save();
     }
 

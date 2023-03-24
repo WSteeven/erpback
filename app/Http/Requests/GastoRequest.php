@@ -72,7 +72,7 @@ class GastoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $date_viat = Carbon::createFromFormat('d/m/Y', $this->fecha_viat);
+        $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);

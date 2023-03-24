@@ -24,11 +24,14 @@ class TransferenciaResource extends JsonResource
             'usuario_recibe' => $this->usuario_recibe_id,
             'usuario_envia_id' => $this->usuario_envia_id,
             'usuario_recive_id' => $this->usuario_recibe_id,
+            'estado' => $this->estado,
+            'estado_info' => $this->estado_info->descripcion,
             'cuenta' => $this->cuenta,
             'tarea' => $this->id_tarea,
+            'tarea_info' => $this->tarea_info == null? 'SIN TAREA':$this->tarea_info->titulo,
             'monto' => $this->monto,
             'motivo' => $this->motivo,
-            'comprobante' => $this->comprobante,
+            'comprobante' => url($this->comprobante),
         ];
         return $modelo;
     }
