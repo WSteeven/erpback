@@ -21,6 +21,7 @@ class DetalleProductoResource extends JsonResource
         $modelo =  [
             'id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
+            'codigo'=>$this->codigo?$this->codigo->codigo:'',
             'producto' => $this->producto->nombre,
             'producto_id' => $this->producto_id,
             'descripcion' => $this->descripcion,

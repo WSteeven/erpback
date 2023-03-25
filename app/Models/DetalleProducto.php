@@ -52,7 +52,7 @@ class DetalleProducto extends Model implements Auditable
         '*',
     ];
     public function toSearchableArray()
-    {        
+    {
         return [
             'descripcion' => $this->descripcion,
             'serial' => $this->serial,
@@ -73,7 +73,7 @@ class DetalleProducto extends Model implements Auditable
      */
     public function codigo()
     {
-        return $this->hasOne(CodigoCliente::class);
+        return $this->hasOne(CodigoCliente::class, 'detalle_id', 'id');
     }
 
     /**
@@ -96,7 +96,7 @@ class DetalleProducto extends Model implements Auditable
 
     /**
      * Relacion uno a muchos (inversa).
-     * Uno o mas detalles de productos pertenecen a un producto en general 
+     * Uno o mas detalles de productos pertenecen a un producto en general
      */
     public function producto()
     {
@@ -155,7 +155,7 @@ class DetalleProducto extends Model implements Auditable
     /**
      * Relacion uno a muchos.
      * Un detalle de producto tiene un control de stock diferente para cada sucursal.
-     * Obtener los control de stock para un detalle. 
+     * Obtener los control de stock para un detalle.
      */
     public function control_stocks()
     {
@@ -192,7 +192,7 @@ class DetalleProducto extends Model implements Auditable
 
     /**
      * _______________________________
-     * FUNCIONES   
+     * FUNCIONES
      * _______________________________
      */
 }
