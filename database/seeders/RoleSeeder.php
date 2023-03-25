@@ -446,6 +446,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.reporte_contabilidad'])->syncRoles([$contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_contabilidad'])->syncRoles([$contabilidad]);
 
+        //Reporte Solicitud Fondo
+        Permission::firstOrCreate(['name' => 'puede.ver.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
+        //Buscar saldo usuarios
         Permission::firstOrCreate(['name' => 'puede.buscar.saldo.usuarios'])->syncRoles([$contabilidad,$coordinador]);
 
 
