@@ -21,17 +21,19 @@ use Maatwebsite\Excel\Facades\Excel;
 */
 
 Route::get('/qrcode', [PedidoController::class, 'qrview']);
+Route::get('/encabezado', [PedidoController::class, 'encabezado']);
+Route::get('/ejemplo', [PedidoController::class, 'example']);
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 // Route::name('imprimir')->get('/imprimir-pdf', [Controller::class, 'imprimir']);
-Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
+// Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->name('imprimir');
 // Route::name('imprimir')->get('/imprimir-single/{prestamo}', [PrestamoTemporalController::class, 'print']);
 
 //pedidos
-Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir']);
+Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->name('imprimir');
 
 
 Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php

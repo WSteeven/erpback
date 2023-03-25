@@ -25,15 +25,17 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        // Datos demograficos
+        $this->call(ProvinciaSeeder::class);
+        $this->call(CantonSeeder::class);
+        $this->call(ParroquiaSeeder::class);
         // Modulo de Bodega
         $this->call(GrupoSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(CargoSeeder::class);
+        $this->call(SucursalSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(CondicionesProductosFacturasSeeder::class);
-        $this->call(ProvinciaSeeder::class);
-        $this->call(CantonSeeder::class);
-        $this->call(ParroquiaSeeder::class);
         $this->call(AutorizacionSeeder::class);
         $this->call(CategoriaSeeder::class);
         $this->call(DiscoSeeder::class);

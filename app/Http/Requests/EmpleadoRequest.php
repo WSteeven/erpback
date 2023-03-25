@@ -50,7 +50,7 @@ class EmpleadoRequest extends FormRequest
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $user = User::find($this->route()->parameter('empleado.usuario_id'));
 
-            $rules['identificacion'] = [Rule::unique('empleados')->ignore($user)];
+            $rules['identificacion'] = [Rule::unique('empleados')->ignore($user->empleado)];
             $rules['email'] = [Rule::unique('users')->ignore($user)];
             $rules['password'] = 'nullable';
         }
