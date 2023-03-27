@@ -51,7 +51,7 @@ class TransferenciasController extends Controller
     public function store(Request $request)
     {
         $datos = $request->all();
-        $contabilidad = User::where('name','IVALAREZO')->first();
+        $contabilidad = User::where('name','mvalarezo')->first();
         $datos['usuario_envia_id'] = Auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? $contabilidad->id : $request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea;

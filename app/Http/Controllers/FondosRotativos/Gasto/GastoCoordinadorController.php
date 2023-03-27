@@ -60,7 +60,7 @@ class GastoCoordinadorController extends Controller
         $user = Auth::user();
         $datos['id_usuario'] = $user->id;
         $modelo = GastoCoordinador::create($datos);
-        $contabilidad = User::with('empleado')->where('name', 'IVALAREZO')->first();
+        $contabilidad = User::with('empleado')->where('name', 'mvalarezo')->first();
         event(new SolicitudFondosEvent($modelo, $contabilidad));
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
