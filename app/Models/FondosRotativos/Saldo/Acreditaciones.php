@@ -19,8 +19,9 @@ class Acreditaciones extends Model implements Auditable
         'id_tipo_fondo',
         'id_tipo_saldo',
         'id_usuario',
+        'id_saldo',
         'fecha',
-        'descripcion_saldo',
+        'descripcion_acreditacion',
         'monto',
     ];
     private static $whiteListFilter = [

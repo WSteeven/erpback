@@ -295,6 +295,7 @@ class UserSeeder extends Seeder
             [5, 'App\\Models\\User', 10],
             [8, 'App\\Models\\User', 10],
             [14, 'App\\Models\\User', 10],
+            [6, 'App\\Models\\User', 10],
             [3, 'App\\Models\\User', 11],
             [8, 'App\\Models\\User', 11],
             [2, 'App\\Models\\User', 12],
