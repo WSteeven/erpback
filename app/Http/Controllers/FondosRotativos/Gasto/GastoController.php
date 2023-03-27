@@ -69,7 +69,7 @@ class GastoController extends Controller
     {
         $user = Auth::user();
         $usuario = User::where('id', $user->id)->first();
-        $usuario->hasRole('writer');
+       // $usuario->hasRole('writer');
         $results = [];
 
         $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();

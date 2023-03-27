@@ -76,10 +76,20 @@ class GastoRequest extends FormRequest
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);
+        if(is_null($this->aut_especial)){
+            $id_jefe = $this->obtener_usuario(Auth::user()->empleado->jefe_id)->id;
+            $this->merge([
+                'aut_especial' => $id_jefe,
+            ]);
+        }
         if (is_null($this->ruc)) {
             $this->merge([
                 'ruc' => '9999999999999',
             ]);
         }
+    }
+    protected function obtener_usuario($id){
+        $user = User::find($id);
+        return $user;
     }
 }

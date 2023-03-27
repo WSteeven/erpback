@@ -124,7 +124,7 @@ class UserController extends Controller
     public function autorizationUser()
     {
         $user = Auth::user();
-        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
+        $users = User::role('LIDER DE GRUPO')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
     }
     public function recuperarPassword(Request $request){

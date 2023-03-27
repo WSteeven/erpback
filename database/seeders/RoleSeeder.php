@@ -380,12 +380,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
 
         /**
-         * Roles  para fondo rotativo
+         * Permisos  para fondo rotativo
          */
 
         //Gasto
         Permission::firstOrCreate(['name' => 'puede.ver.gasto'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.elegir.autorizador.gasto'])->syncRoles([$empleado]);
         //Gasto coordinadores
         Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador,$jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador,$jefe_tecnico]);
@@ -453,13 +454,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
         //Buscar saldo usuarios
         Permission::firstOrCreate(['name' => 'puede.buscar.saldo.usuarios'])->syncRoles([$contabilidad,$coordinador]);
-
-
-
         //Menus
         Permission::firstOrCreate(['name' => 'puede.ver.menu.detalle_fondo'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.ver.menu.saldos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.fondo'])->syncRoles([$empleado]);
+        /**Fin de permisos para Fondos Rotativos */
 
         //Cambiar Contraseña
         Permission::firstOrCreate(['name' => 'puede.ver.cambiar_contrasena'])->syncRoles([$empleado]);
