@@ -38,7 +38,7 @@ class TareaSeeder extends Seeder
                 'titulo' => 'MANGA INTERURBANA -SARACAY / HINCADO DE POSTE EN MANGA INTERURBANA-SARACAY',
                 'para_cliente_proyecto' => Tarea::PARA_CLIENTE_FINAL,
                 'proyecto_id' => null,
-                'coordinador_id' => 3,
+                'coordinador_id' => 7,
                 'fiscalizador_id' => 27,
                 'cliente_id' => 2,
                 'cliente_final_id' => 3,

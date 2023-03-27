@@ -26,7 +26,7 @@ class PedidoEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(string $mensaje, $pedido, $destinatario)
+    public function __construct(string $mensaje, $url, $pedido, $destinatario)
     {
         $this->mensaje = $mensaje;
         $this->pedido = $pedido;
@@ -36,7 +36,7 @@ class PedidoEvent implements ShouldBroadcast
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
-        $this->notificacion = $this->crearNotificacion($this->mensaje, $this->pedido->solicitante_id, $this->destinatario);
+        $this->notificacion = $this->crearNotificacion($this->mensaje, $url, $this->pedido->solicitante_id, $this->destinatario);
     }
 
 
@@ -47,11 +47,12 @@ class PedidoEvent implements ShouldBroadcast
      * @param originador The user who sent the message
      * @param destinatario The user who will receive the notification.
      */
-    public static function crearNotificacion($mensaje, $originador, $destinatario)
+    public static function crearNotificacion($mensaje, $url, $originador, $destinatario)
     {
+        // '/pedidos'
         $notificacion = Notificacion::create([
             'mensaje' => $mensaje,
-            'link' => '/pedidos',
+            'link' => $url,
             'per_originador_id' => $originador,
             'per_destinatario_id' => $destinatario,
             'tipo_notificacion' => TiposNotificaciones::PEDIDO,

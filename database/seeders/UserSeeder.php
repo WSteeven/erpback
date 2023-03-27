@@ -17,491 +17,500 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        /**
+         * Seeder de usuarios
+         */
+        $datos = [
+            [1, 'ADMINISTRADOR', 'admin@admin.com', NULL, '$2y$10$svQ8LM40t25aw.V.knbGKO1ubEzgDr8tRlVMoSKeudFY/JL0qmibO', NULL, NULL, NULL, '2023-02-24 19:24:13', '2023-02-24 19:24:13'],
+            [2, 'jPAZMINO', 'jpazmino@jpconstrucred.com', NULL, '$2y$10$fgDBI1HnhvX0xJarWeBxB.9sE0cdhOLjovxVIghG3gmJNakoWfu2u', NULL, NULL, NULL, '2023-02-24 19:24:13', '2023-03-01 09:35:49'],
+            [3, 'MJARAMILLO', 'mjaramillo@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$voHW6mwPSrSmn4euNlnSvOeSeKU.xAE5S7IRPNBxtckuwaRW8p5cm', NULL, NULL, NULL, '2023-02-24 19:24:13', '2023-03-01 10:01:55'],
+            [4, 'LPESANTES', 'manuel@jpconstrucred.com', NULL, '$2y$10$EWImQtQZJG9se4r5L9s2h.mst.99yFDsJCSnwqUMrwd.tYn0lGu4e', NULL, NULL, NULL, '2023-02-24 19:24:13', '2023-03-01 09:32:54'],
+            [5, 'BCHAMBA', 'bchamba@jpconstrucred.com', NULL, '$2y$10$Kk2wqSYs2VOl7Vo0bqpjvOMWCYniBH0Jph21cm6v/XQZp0dtG7jJm', NULL, NULL, NULL, '2023-02-24 19:24:13', '2023-03-01 10:06:08'],
+            [6, 'DLOJA', 'dloja@jpconstrucred.com', NULL, '$2y$10$0zcznkhpPtWWB5zRZ27SXOyaOjB9HHhIT.rRPmS.ZAh5DReCK7GCC', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 10:08:06'],
+            [7, 'CALBARRACIN', 'calbarracin@jpconstrucred.com', NULL, '$2y$10$M.bVEGPVWcr24Liu4YWE5Oq.x6ElKZwSPFTDydpMk3C15gPjPNccu', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 10:09:48'],
+            [8, 'JTORRES', 'jtorres@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$xOJihFqcdH7tPdnIXW3rU.rx8GDt6RxSRx6DNMq871TO58abJ1nY.', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 10:12:25'],
+            [9, 'JVEINTIMILLA', 'jveintimilla@jpconstrucred.com', NULL, '$2y$10$YKFu2JWburwr7dFPO/gU0eYMQvYBMobjnT.AOv/NGW4WZSA99h5YS', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 09:56:51'],
+            [10, 'mvalarezo', 'mvalarezo@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$kAaCQRPmP1RyosliZKU1A../SM/.MykLeHazwvV9Yw6wLHtwNPtJO', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 10:14:34'],
+            [11, 'yloja', 'yloja@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$jlMeX7yCjPnbUvpsOUefqeVL1ag9vrIFbG9bYBbeGXEJ4TZk4CaGK', NULL, NULL, NULL, '2023-02-24 19:24:14', '2023-03-01 10:17:42'],
+            [12, 'PAGUILAR', 'pedro@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$h6ddrCXOZBcogRJeGIS3h.I145Pp2zzcpZ90pwo9xb0N7qELB0oFm', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-03-01 10:25:49'],
+            [13, 'cquizhpe', 'cquizhpe@jpconstrucred.com', NULL, '$2y$10$tIIRithS364CYorjFuP62.pQlktYctweMDqXB.O8M1n69JCOPfk22', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-03-01 10:22:59'],
+            [14, 'ASERRANO', 'aserrano@jpconstrucred.com', NULL, '$2y$10$hJwJt.vzQPoKsZfbLPv6Ue3bJ60vBD0qwjktCbTP4Q0qWdT6GsOH2', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-03-01 10:27:49'],
+            [15, 'JPILAY', 'jpilay@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$WRgDXOHNR2t0pWbFhy5M9.IX.Rtfonnw9ckB6OxUsQ/PVpy41Ir1C', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [16, 'ATIGUA', 'atigua@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$oWygmNWTjwdK7Zr4K0yoh.eTIZqiSMNnOCuSwUv3wnFIWjiAbYVCW', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [17, 'CFERNANDEZ', 'cfernandez@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$BUVloSPWyvCPKk.yLnLwO.4.xmHWxacxiwmgug668p7X6cbi9zdQa', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [18, 'OSANCHEZ', 'osanchez@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$dre6IT1yG6xKvT9CLf3ykefyj2KISzK0VK/DX8ADq4YVyE0XubFfy', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [19, 'JUAREZ', 'bjuarez@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$VWAwrMvEJcT58Fhpc0REvutxX4luhUZALwO6f1hwwTdnDgfbVf3pW', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [20, 'RSANCHEZ', 'rsanchez@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$SICHaHXvKKLVtrvA5mNZA.8o3dsJywjdWdbxGu.RX6C488Bmuw7hq', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [21, 'LARMIJOS', 'larmijos@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$97RbFyoqPJ1bEu3bWCykIuu2gf4QrLsI5qxlRzuNAe6rMxs3deb1W', NULL, NULL, NULL, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [22, 'PCARRION', 'pcarrion@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$YgHKCk/FimW/GeRCsnnbUO8IKTg9WnZJNZ5jKSLw8VdDTGzPoRh3m', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-02-24 19:24:16'],
+            [23, 'YLOVERA', 'ylovera@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$nGSmnBlJlfPRNAgOF59wf.Gdc8aCN7XAn9miGRGgp9izewdEy74yq', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-02-24 19:24:16'],
+            [24, 'WCORDOVA', 'wcordova@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$O5C4C.epoxk3NY447VAUf.zgH4ervPR1p17f9ilZKG3Lyd74boIUu', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-03-01 10:36:58'],
+            [25, 'JCUESTA', 'jcuesta@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$.GcOVlO3WJEuW.HihloTWehfvVjE5weOk4rmX2BH0w6EPG2yPYMki', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-02-24 19:24:16'],
+            [26, 'HSIMBAÑA', 'hsimbana@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$yS.7V5McGxDDaEvEMvyRaeivItMPOzUu5iEuw9Dg1EVK4xNGnNCAi', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-03-01 10:38:25'],
+            [27, 'JLEIVER', 'leiver@jpconstrucred.com', '2023-02-24 18:00:00', '$2y$10$cYkzUhAL.1tucdic.CWp7ec0h4XpwHjbOdaYjYTg/.PXJNWnmDQLq', NULL, NULL, NULL, '2023-02-24 19:24:16', '2023-03-01 10:54:55'],
+            [28, 'JBUSTOS', 'jbustos@jpconstrucred.com', NULL, '$2y$10$s00DMMntUyXtBIet0.lPAOn.R4NemgbsGKHvb80pKXhEfgZRCyPQK', NULL, NULL, NULL, '2023-02-23 12:00:40', '2023-03-01 10:39:59'],
+            [29, 'JFAREZ', 'jfarez@jpconstrucred.com', NULL, '$2y$10$9vYgFcZbp8QA6DMd/CZLxeBd4Gxq5KkXReb/6fZGqsUVYaixLaGQq', NULL, NULL, NULL, '2023-02-23 12:16:43', '2023-03-16 20:26:31'],
+            [30, 'NPAZMIñO', 'npazmino@jpconstrucred', NULL, '$2y$10$JIpaHyizS9Q0AWQxu0/dke1gQJAXYiUqswa/MqHsTXAt9A2gZwzxi', NULL, NULL, NULL, '2023-02-23 12:21:52', '2023-03-01 10:53:43'],
+            [31, 'PMENDEZ', 'pmendez@jpconstrucred.com', NULL, '$2y$10$1JmHCOQBoaUlvdw3Daw4q.03cOs0BM8oDrZObTaheUShZhVM.wNz.', NULL, NULL, NULL, '2023-02-23 12:29:22', '2023-03-01 10:56:26'],
+            [32, 'PQUIZHPI', 'pquizhpi@jpconstrucred.com', NULL, '$2y$10$34REUt81WIZc4WLcTs2tZeulqt4i8KKD/Ru5Yuc8bpCD4ItwnbKo6', NULL, NULL, NULL, '2023-02-23 12:31:55', '2023-03-01 10:57:28'],
+            [33, 'ARAMOS', 'aramos@jpconstrucred.com', NULL, '$2y$10$GlWn5hOgYxC1J1UPojrWDu76r33jf1mHuBVTY.tx1GcPHksqigJKq', NULL, NULL, NULL, '2023-02-28 11:23:31', '2023-03-01 10:58:23'],
+            [34, 'BANDRANGO', 'bandrango@jpconstrucred.com', NULL, '$2y$10$Df9eWEanhoLowVjE4Wb9JejJCqBERdP9CIcjE23ian1W.oxup/Ihy', NULL, NULL, NULL, '2023-02-28 11:25:05', '2023-02-28 11:25:05'],
+            [35, 'JCANDO', 'jcando@jpconstrucred.com', NULL, '$2y$10$cM/k3C3fHIdgAjlAVBFRsubZmMjJPsf2CjdtiRaSDMJ0jvgJirjzq', NULL, NULL, NULL, '2023-03-01 04:56:16', '2023-03-01 04:56:16'],
+            [36, 'LURENA', 'lurena@jpconstrucred.com', NULL, '$2y$10$xBB8uqEC0xjW9pGJOPKnHumQcW4UDHgG0RCN8gn6su3miy8QAKZQi', NULL, NULL, NULL, '2023-03-01 11:04:07', '2023-03-01 11:04:07'],
+            [37, 'DINAMAGUA', 'dinamagua@jpconstrucred.com', NULL, '$2y$10$M7yvT061cjYrCfXOKAxAieCXEa/V/iaEyPHRPaxl/ZU0lWGSTvzIu', NULL, NULL, NULL, '2023-03-02 03:26:10', '2023-03-02 03:26:10'],
+            [38, 'JPARRALES', 'jparrales@jpconstrucred.com', NULL, '$2y$10$UrTHNPNRNTZegEgwEewVvuRLYvLDvA3FYDZWrRI.3qtTA4xokiyj6', NULL, NULL, NULL, '2023-03-02 20:16:58', '2023-03-02 20:16:58'],
+            [39, 'ASALAS', 'asalas@jpconstrucred.com', NULL, '$2y$10$rpUB3dwW6DZicYAuLnKBD.qtDtGWf4R4wGflZEiHe84Qwl.N0Aoku', NULL, NULL, NULL, '2023-03-03 03:08:53', '2023-03-03 03:08:53'],
+            [40, 'AMUENTES', 'amuentes@jpconstrucred.com', NULL, '$2y$10$A8zFPcHhISAP9i0dYvYRi.i1xzEHU.jISa6ee644TVuW0Xnu9xC9e', NULL, NULL, NULL, '2023-03-03 20:34:04', '2023-03-03 20:34:04'],
+            [41, 'ASAMANIEGO', 'asamaniego@jpconstrucred.com', NULL, '$2y$10$cqFSz5na8onrls6mpsECjuK2mbPzS/dc3izWRrgIDOIW7dm9ye8ui', NULL, NULL, NULL, '2023-03-03 20:37:02', '2023-03-03 20:37:02'],
+            [42, 'AARMIJOS', 'aarmijos@jpconstrucred.com', NULL, '$2y$10$Bl/zEhfiTJOQRPAXD/iUI.v5BFELW7nHsVTzsHPGFYOoXNDMQbqVu', NULL, NULL, NULL, '2023-03-03 20:50:19', '2023-03-03 20:50:19'],
+            [43, 'SCAICEDO', 'scaicedo@jpconstrucred.com', NULL, '$2y$10$Jbi.XNvfnXvmX7kmJnrxPO2TfXu8pdnj4kqrTT2olfLvKH1d5zzqa', NULL, NULL, NULL, '2023-03-03 20:56:54', '2023-03-03 20:56:54'],
+            [44, 'KCAMACHO', 'kcamacho@jpconstrucred.com', NULL, '$2y$10$hnd3XRC4nzuhwKWp5OZXQubBBzC1T0263yvACOgDh0gOXE22RvUXy', NULL, NULL, NULL, '2023-03-03 20:59:43', '2023-03-03 20:59:43'],
+            [45, 'DGARCES', 'dgarces@jpconstrucred.com', NULL, '$2y$10$7IqEKJlsyCskfU5lWmWsO.TXdy.dCXzPgEj90Dykg3qCWhLjcfSQi', NULL, NULL, NULL, '2023-03-03 21:10:39', '2023-03-03 21:10:39'],
+            [46, 'AORELLANA', 'aorellana@jpconstrucred.com', NULL, '$2y$10$6EmNTRJrAWhEyK9h0AdZT..pb37ILWiV4MnvEBPeuLdPlBp1k2D1S', NULL, NULL, NULL, '2023-03-03 21:18:53', '2023-03-03 21:18:53'],
+            [47, 'JSEGUICHE', 'jseguiche@jpconstrucred.com', NULL, '$2y$10$AoHaDxV3BqZ0sqDDAripauZqhd9SpiyIVgdPlWdRhOkpXQ9aQOnVG', NULL, NULL, NULL, '2023-03-03 21:37:09', '2023-03-03 21:37:09'],
+            [48, 'APANCHI', 'apanchi@jpconstrucred.com', NULL, '$2y$10$6D4JBVFHnIupEEI.KJm6ouY79Xh7PgMhHNFlbsvaNgl7SyGe1/.Q.', NULL, NULL, NULL, '2023-03-03 21:44:22', '2023-03-03 21:44:22'],
+            [49, 'LGONZABAY', 'lgonzabay@jpconstrucred.com', NULL, '$2y$10$rxWBR7uvgMJ.1jWoypO70.1HJJmHlW4uJ4V.RYfOeYP8HEuW9sdk2', NULL, NULL, NULL, '2023-03-03 21:48:59', '2023-03-03 21:48:59'],
+            [50, 'PAPOLO', 'papolo@jpconstrucred.com', NULL, '$2y$10$.Bcff/utBU7LvYpSCjjnKu8n8WBh6nRShj2SUqf/YwC72q74cflfm', NULL, NULL, NULL, '2023-03-03 21:55:23', '2023-03-03 21:55:23'],
+            [51, 'JMACAS', 'jmacas@jpconstrucred.com', NULL, '$2y$10$CZB/NKAwGUwCj/jVZbLta.ge3WeQIEkz2oQARLLk6AdimnRKcYUta', NULL, NULL, NULL, '2023-03-03 21:59:06', '2023-03-03 21:59:06'],
+            [52, 'JOMACAS', 'jomacas@jpconstrucred.com', NULL, '$2y$10$eDgSrfFOcfmYJmU3Uy6Y4udtUE8GEPzbKhv2bRvAK7LEfeqnk2hD2', NULL, NULL, NULL, '2023-03-03 22:01:37', '2023-03-03 22:01:37'],
+            [53, 'JABAD', 'jabad@jpconstrucred.com', NULL, '$2y$10$eDIXDqh76DhoByDLjPvrGercJdHitb7ZIW/ZwCbq/NOIuZYEgnOsO', NULL, NULL, NULL, '2023-03-07 21:00:23', '2023-03-07 21:00:23'],
+            [54, 'JAGUILAR', 'jaguilar@jpconstrucred.com', NULL, '$2y$10$kqgoHg2r.T9P8FKnPfWg8OLa7rudLZgnY.q.o5OqAIUV2R/U85G16', NULL, NULL, NULL, '2023-03-07 21:06:55', '2023-03-07 21:06:55'],
+            [55, 'JANGULO', 'jangulo@jpconstrucred.com', NULL, '$2y$10$VEJN.8yjFE5eNo5rlXDJNuacvXQzq6b1pC/n7MVCZq8AXgICpMnTy', NULL, NULL, NULL, '2023-03-07 21:09:16', '2023-03-07 21:09:16'],
+            [56, 'LBAZURTO', 'lbazurto@jpconstrucred.com', NULL, '$2y$10$mFPuXt72mGXDj.fI5zIkiOtuSkkshvuUeS89Oc9OO4dwAdOk5N6.m', NULL, NULL, NULL, '2023-03-07 21:13:54', '2023-03-07 21:13:54'],
+            [57, 'SBONE', 'sbone@jpconstrucred.com', NULL, '$2y$10$/mBLV4tttpgU9aD4vPadge7Odz1PEarrTkqbxtQNp.lJZaiG7nrYy', NULL, NULL, NULL, '2023-03-07 21:17:27', '2023-03-07 21:17:27'],
+            [58, 'CBRAVO', 'cbravo@jpconstrucred.com', NULL, '$2y$10$jvbOGLnHXzw8Qwv9BuSju.Jisqc8i.zcb.LVq9vyeBXsJzLWdeyiq', NULL, NULL, NULL, '2023-03-07 21:20:25', '2023-03-07 21:20:25'],
+            [59, 'EBRICENO', 'ebriceno@jpconstrucred.com', NULL, '$2y$10$MtieTxy/Lj.MU6RbeCv6TuNUJ6jMztezFZQprOSV./ulcTiXs4G.W', NULL, NULL, NULL, '2023-03-07 21:23:29', '2023-03-07 21:23:29'],
+            [60, 'ACEDENO', 'acedeno@jpconstrucred.com', NULL, '$2y$10$91oFbBBpyc1U0cq05U1QtueMAMUE5Z36Qk2b3i9fF.Zw5AoAge/ZK', NULL, NULL, NULL, '2023-03-07 21:26:21', '2023-03-07 21:26:21'],
+            [61, 'ACHAMBA', 'achamba@jpconstrucred.com', NULL, '$2y$10$gVHY3GcCK7fRZUNMzW9gWOdemxEs6t9xkLtYFyB56eRyBr78ikWF2', NULL, NULL, NULL, '2023-03-07 21:32:03', '2023-03-07 21:32:03'],
+            [62, 'ECONDOY', 'econdoy@jpconstrucred.com', NULL, '$2y$10$Sl0Y7VhHoJjrwxz8RwRIwuCidKXpyhwxAqBImWgUBu.XbYlxpsyQ6', NULL, NULL, NULL, '2023-03-07 21:37:29', '2023-03-07 21:37:29'],
+            [63, 'FCORTEZ', 'fcortez@jpconstrucred.com', NULL, '$2y$10$tq6ErDiOPvNTiRBwfOlU8uqbGbJhb4HBvyeDeLmZUreEr.7grWBpu', NULL, NULL, NULL, '2023-03-07 21:40:58', '2023-03-07 21:40:58'],
+            [64, 'ACRUZ', 'acruz@jpconstrucred.com', NULL, '$2y$10$hzjkyVfkw43E8q6vIwCAWOeY1.r1sFLkWAh6872jQPkoZet7M5tfW', NULL, NULL, NULL, '2023-03-07 21:48:53', '2023-03-07 21:48:53'],
+            [65, 'ADILUCA', 'adiluca@jpconstrucrd.com', NULL, '$2y$10$32GAeSgIXg0Qyh4DYObHcOgvBsyjusdviqSqSq.7zaSkhYeSIIIjW', NULL, NULL, NULL, '2023-03-07 21:52:08', '2023-03-07 21:52:08'],
+            [66, 'DFFERNANDEZ', 'dffernandez@jpcosntrucred.com', NULL, '$2y$10$b4gjHiXR9ii66iNzgZV.Jumh2FztyFhwIhBL0/Mj1bMbSMOQ2Iua2', NULL, NULL, NULL, '2023-03-07 21:55:03', '2023-03-07 21:55:03'],
+            [67, 'EGOMEZE', 'egomez@jpconstrucred.com', NULL, '$2y$10$8Rtfvs3awtNsqqQaiVerMuZ4AGnrENvtJ6oNpP4F.xvMSX3L0mvq.', NULL, NULL, NULL, '2023-03-07 21:57:43', '2023-03-07 21:57:43'],
+            [68, 'JILLESCAS', 'jillescas@jpconstrucred.com', NULL, '$2y$10$wxuclG3Gm0w3ZtfpAvWqjuRapEBzxZbU.0SnBJi5Q9dwovoOhItKy', NULL, NULL, NULL, '2023-03-07 22:02:35', '2023-03-07 22:02:35'],
+            [69, 'NJARA', 'njara@jpconstrucred.com', NULL, '$2y$10$0LWrczXeYBc.v46yrVWEhuE8t8JgcqZff5SlziLU6923tCkEU0Prm', NULL, NULL, NULL, '2023-03-07 22:08:51', '2023-03-07 22:08:51'],
+            [70, 'MLEMA', 'mlema@jpconstrucred.com', NULL, '$2y$10$ADbwDt6/uYrxat4BhkR5KOKjRpx/ZpCc2nF7rQFOn.ZofLWUukv1e', NULL, NULL, NULL, '2023-03-07 22:12:27', '2023-03-07 22:12:27'],
+            [71, 'WLEMA', 'wlema@jpconstrucred.com', NULL, '$2y$10$c0FnuyeEnxcAB3egP6ALIe4Mmqr/CvgGDJCgX4MQ0oxgdAOJuhBHi', NULL, NULL, NULL, '2023-03-07 22:15:31', '2023-03-07 22:15:31'],
+            [72, 'ELOJA', 'eloja@jpconstrucred.com', NULL, '$2y$10$D5Rae.yLgsHB4hPMSSpDmeOFvix0Y1ZpQ.97LUenRJUZm1cNybQ1a', NULL, NULL, NULL, '2023-03-07 22:20:31', '2023-03-07 22:20:31'],
+            [73, 'DLLANGARI', 'dllangari@jpconstrucred.com', NULL, '$2y$10$bLAd8caX7o.wD2Ii9.ekt.Uc40az7UP7f3qOUzTjjLgKUWBG0/8TS', NULL, NULL, NULL, '2023-03-07 22:23:28', '2023-03-07 22:23:28'],
+            [74, 'CLOPEZ', 'clopez@jpcponstrucred.com', NULL, '$2y$10$38/I2le6vMOkmF0i/PZIH.Rngm0fdVB/0yp53VPFDF2jbPWuYi2sC', NULL, NULL, NULL, '2023-03-07 22:30:58', '2023-03-07 22:30:58'],
+            [75, 'LLOPEZ', 'llopez@jpconstrucred.com', NULL, '$2y$10$vem.mMLi9FnahdiJ2zKOduKeER8KqGLdhPZnpvvDET2VbGJTiBU1K', NULL, NULL, NULL, '2023-03-07 22:40:50', '2023-03-07 22:40:50'],
+            [76, 'MPALMA', 'mpalma@jpconstrucred.com', NULL, '$2y$10$CAVSwmGU3eSF69G0sFnE6eaudP5dkXR58/q3ZmRqqcVZbGE7TDU0q', NULL, NULL, NULL, '2023-03-07 22:52:53', '2023-03-07 22:52:53'],
+            [77, 'EPALMA', 'epalma@jpconstrucred.com', NULL, '$2y$10$GwCACzF8dk2xJcbDlW3FE.gAdex4nkJuyKRxYEYECaoVkdFdtQI8G', NULL, NULL, NULL, '2023-03-07 23:01:24', '2023-03-07 23:01:24'],
+            [78, 'KPAUTE', 'kpaute@jpconstrucred.com', NULL, '$2y$10$o19m2tbgat/xiXWQcsICxeefY26rnd4hcMFnrMJLX8XN2UjVvGgaa', NULL, NULL, NULL, '2023-03-07 23:05:12', '2023-03-07 23:05:12'],
+            [79, 'EPEREIRA', 'epereira@jpconstrucred.com', NULL, '$2y$10$7CuRhBEa1jLo6gHj73XwgeeFyl8aX14c4uU./Fct6FdC0OTDYWf/2', NULL, NULL, NULL, '2023-03-07 23:09:20', '2023-03-07 23:09:20'],
+            [80, 'OPUERTAS', 'opuertas@jpconstrucred.com', NULL, '$2y$10$uXdthRRnzr3gSai8i6T1guimWPxv53SRqUHtNiymeYzDnAHZm.0Bm', NULL, NULL, NULL, '2023-03-07 23:11:48', '2023-03-07 23:11:48'],
+            [81, 'FQUITUISACA', 'fquituisaca@jpconstrucred.com', NULL, '$2y$10$ovtEyPym18WyWVNZu0JBNO4bzo50InKvBcqIRs33oBLQpuW/J/UqO', NULL, NULL, NULL, '2023-03-07 23:15:54', '2023-03-07 23:15:54'],
+            [82, 'BREVELO', 'brevelo@jpconstrucred.com', NULL, '$2y$10$x416EaRHVE79ahxLZiyA9uLrtWzzCv9De2x8ar9/IX3P2YhsisNT.', NULL, NULL, NULL, '2023-03-07 23:19:32', '2023-03-07 23:19:32'],
+            [83, 'VRIERA', 'vriera@jpconstrucred.com', NULL, '$2y$10$xl4c7esplS0xGihHAM5LHeu1ELir4D1q3aPN8fxGnVi5n3v1S7via', NULL, NULL, NULL, '2023-03-07 23:21:59', '2023-03-07 23:21:59'],
+            [84, 'OROMERO', 'oromero@jpconstrucred.com', NULL, '$2y$10$ggEmqVz9Xt208WhtU0t1B.12UrT.Tz0CF/Q.p4Gcpzq6tG56/ZZcS', NULL, NULL, NULL, '2023-03-07 23:24:25', '2023-03-07 23:24:25'],
+            [85, 'YRUIZ', 'yruiz@jpconstrucred.com', NULL, '$2y$10$NbgsxdIivBO6eKroZNhA1OGfjcceX5e9cCxJV7kXLwr6JaXYrJNh.', NULL, NULL, NULL, '2023-03-07 23:29:18', '2023-03-07 23:29:18'],
+            [86, 'JSAETAMA', 'jsaetama@jpcosntrucred.com', NULL, '$2y$10$xkPt1WQECb5Yw.NMdv2n8e15U98zxLsUEcupUEtIE6bqQNuHMEayG', NULL, NULL, NULL, '2023-03-07 23:32:35', '2023-03-07 23:32:35'],
+            [87, 'JTENESACA', 'jtenesaca@jpconstrucred.com', NULL, '$2y$10$Sq.3NP0OUvGaiUbkMSQ2yOCfHvfrn9BxfgzBT6LU.Qcjj3TP6j8FC', NULL, NULL, NULL, '2023-03-07 23:37:09', '2023-03-07 23:37:09'],
+            [88, 'ATOAPANTA', 'atoapanta@jpconstrucred.com', NULL, '$2y$10$a/Mvkd9jxCQaIkDHhyyEKeSoKvhD8Z1XFgjyKBNPSmferwl.85lfG', NULL, NULL, NULL, '2023-03-07 23:39:52', '2023-03-07 23:39:52'],
+            [89, 'XVEGA', 'xvega@jpconstrucred.com', NULL, '$2y$10$1KOUOrYKdl.xiKwMpUmP6uj.4vYNfW8rPZH8n.ANsmG8wLeOTMseC', NULL, NULL, NULL, '2023-03-07 23:42:50', '2023-03-07 23:42:50'],
+            [90, 'AZAMBRANO', 'azambrano@jpconstrucred.com', NULL, '$2y$10$KfvBSeyVXZ06RvPzKId28.9nVSn7Tmjj4e5s.m9GVlYvZYP3CTpDO', NULL, NULL, NULL, '2023-03-07 23:55:15', '2023-03-07 23:55:15'],
+            [91, 'EPAZMINO', 'epazmino@jpconstrucred.com', NULL, '$2y$10$Yq2li9D60qtWdr8rb9ofTORl6LzRXoVmdRmiCgOX0/6kwZPey8Wb2', NULL, NULL, NULL, '2023-03-08 00:04:39', '2023-03-08 00:04:39'],
+            [92, 'JCEDENO', 'jcedeno@jpconstrucred.com', NULL, '$2y$10$TYbhd5WQoCfqk9/hWmRHE.2.eHzy6pbXKZVoxLdHi9MtbwtSgoYhm', NULL, NULL, NULL, '2023-03-08 00:16:32', '2023-03-08 00:16:32'],
+            [93, 'LAPOLO', 'lapolo@jpconstrucred.com', NULL, '$2y$10$7U4N2vn0e8PAsLk8QsEM7eML/Ouxf3M737Zo3kMWYr5/GUAvh5TDi', NULL, NULL, NULL, '2023-03-08 00:25:36', '2023-03-08 00:25:36'],
+            [94, 'JIPARRALES', 'jiparrales@jpcosntrucred.com', NULL, '$2y$10$r0m9gjOD3jBc.06d2a.K7OSKOHJrSO/X4RP89INKMZWvSzDvTMc6K', NULL, NULL, NULL, '2023-03-08 20:35:31', '2023-03-08 20:35:31'],
+            [95, 'EMARCILLO', 'emarcillo@jpconstrucred.com', NULL, '$2y$10$ZBRJSG5.Z9T0d4p3/m2cR.9xlZ6vSpHosUlhIi.KRuDz4Pa42thk.', NULL, NULL, NULL, '2023-03-08 20:39:28', '2023-03-08 20:39:28'],
+            [96, 'JCORNEJO', 'jcornejo@jpconstrucred.com', NULL, '$2y$10$F6yiZA/WUt3GRVXoonznAe0S8ZzrJUE26JbWSaT.rdUIJ/9XasrWa', NULL, NULL, NULL, '2023-03-08 20:47:08', '2023-03-08 20:47:08'],
+            [97, 'MZAMBRANO', 'mzambrano@jpconstrucred.com', NULL, '$2y$10$pdVaYfI0NDFBXPF4Raf1E.jI5NldbaIlayleDodQ3nKDSP0hvMGQe', NULL, NULL, NULL, '2023-03-08 20:51:00', '2023-03-08 20:51:00'],
+            [98, 'PTOALA', 'ptoala@jpconstrucred.com', NULL, '$2y$10$D45n64dV9c3ZXJoq5TLIv.gxpECwU4TsvnRwwJKhMweO5qKqIEnre', NULL, NULL, NULL, '2023-03-08 20:53:01', '2023-03-08 20:53:01'],
+            [99, 'VTOALA', 'vtoala@jpconstrucred.com', NULL, '$2y$10$oMdcAcyDzcF5FyurW3eQcuQShriJlvD8J1WSlo01Bmv9k9lHbUWRa', NULL, NULL, NULL, '2023-03-08 20:56:20', '2023-03-08 20:56:20'],
+            [100, 'JSANCHEZ', 'jsanchez@jpconstrucred.com', NULL, '$2y$10$.PyDQn3J/r4N6As7yahyrObvX1SuMu39.HqfIF4bPujLmTV8/I7qS', NULL, NULL, NULL, '2023-03-08 21:00:05', '2023-03-08 21:00:05'],
+            [101, 'JCEGUICHE', 'jcseguiche@jpconstrucred.com', NULL, '$2y$10$qRBugCTDNYiEi4yicGIOOulbztWh52wN.LNdNBX7dN7w/vpgNXgPy', NULL, NULL, NULL, '2023-03-08 21:03:48', '2023-03-08 21:03:48'],
+            [102, 'JPINCAY', 'jpincay@jpconstrucred.com', NULL, '$2y$10$k/cBtZLY6rgWwb9c8Dk3oemHISczMWJMrvYdgWSFDt9HOrmV1v5Jy', NULL, NULL, NULL, '2023-03-08 21:07:37', '2023-03-08 21:07:37'],
+            [103, 'JCHOEZ', 'jchoez@jpconstrucred.com', NULL, '$2y$10$KFcB2TJVOwcjxx.Q/XaE/eM40pkcKQC5dJC2VmXkmJ2UpvVa2KkrO', NULL, NULL, NULL, '2023-03-08 21:09:59', '2023-03-08 21:09:59'],
+            [107, 'JPIN', 'jpin@jpconstrucred.com', NULL, '$2y$10$gAWrqhQsx/tsIX/8/471OuB/S5zv1APJmuIKgyHeP6JOBHE1OM2EC', NULL, NULL, NULL, '2023-03-08 21:17:59', '2023-03-08 21:17:59'],
+            [108, 'DZAMBRANO', 'dzambrano@jpconstrucred.com', NULL, '$2y$10$6cVxScZKN1Fh8YItgPZPnex6hgq0TaGhbm050RP2ShV/IJcThJX6a', NULL, NULL, NULL, '2023-03-08 21:20:19', '2023-03-08 21:20:19'],
+            [109, 'FCASTRO', 'fcastro@jpconstrucred.com', NULL, '$2y$10$Kp/jfQzT51SZdpjIH0w7Tum.NziWJldEjPRcV7oKQwNdZGk7Ai596', NULL, NULL, NULL, '2023-03-08 21:22:33', '2023-03-08 21:22:33'],
+            [110, 'LPEÑAFIEL', 'lpeñafiel@jpconstrucred.com', NULL, '$2y$10$9m/JS86Lw3PwGS/gSyAF/eYbwhjMiVyI8A41vu7xfs/T4oaNJ1sX2', NULL, NULL, NULL, '2023-03-08 21:42:56', '2023-03-08 21:42:56'],
+            [113, 'JAPINCAY', 'japincay@jpconstrucred.com', NULL, '$2y$10$i2Ol18U8NL1py4CPuPKE0ulxsdNholHoT7hEAB7YcjM8VX02qX6bi', NULL, NULL, NULL, '2023-03-08 21:58:16', '2023-03-08 21:58:16'],
+            [114, 'JTOALA', 'jtoala@jpconstrucred.com', NULL, '$2y$10$dTNkoPplaxizVMRMxPqnxegTL30FiXdyyi3p5RD5L8/W9aRbc9//6', NULL, NULL, NULL, '2023-03-08 22:02:34', '2023-03-08 22:02:34'],
+            [115, 'MBRIONES', 'mbriones@jpconstrucred.com', NULL, '$2y$10$iPZGq5WMvC3tonfJr66/auftT/A8uMfLOGNs4wsSHo0.u85uDpgfa', NULL, NULL, NULL, '2023-03-08 22:05:00', '2023-03-08 22:05:00'],
+            [116, 'ISEGUICHE', 'iseguiche@jpconstrucred.com', NULL, '$2y$10$uazZ.bRyJoZb0cCtA.lQuua0OlvXvqbLCdKS9TSk8susmUOl9HtRW', NULL, NULL, NULL, '2023-03-08 22:11:12', '2023-03-08 22:11:12'],
+            [117, 'WPIN', 'wpin@jpconstrucred.com', NULL, '$2y$10$wJ9iK5h2ITpeGUjMl9Z31eo/OMQzI4OYToErl8ebMMHtUe5hEuTOe', NULL, NULL, NULL, '2023-03-08 22:14:21', '2023-03-08 22:14:21'],
+            [118, 'JPALMA', 'jpalma@jpconstrucred.com', NULL, '$2y$10$1mBAnmLJ6z66eUyEnP/6yeFx5kxkyjsAtUY8zFEqqb3x6qrhwY5V6', NULL, NULL, NULL, '2023-03-08 22:16:27', '2023-03-08 22:16:27'],
+            [119, 'RTOALA', 'rtoala@jpconstrucred.com', NULL, '$2y$10$4OZBw6v8TCCZST5HZXx7ZubjxFPCbKEl2SfNzTpcl7YT10knareku', NULL, NULL, NULL, '2023-03-08 22:18:51', '2023-03-08 22:18:51'],
+            [120, 'DALVARADO', 'dalvarado@jpconstrucred.com', NULL, '$2y$10$PI1s6U4nbMIs5S0DmGftWuQYcOw8PL3lSNQATD3M30GapF9vrdY0.', NULL, NULL, NULL, '2023-03-08 22:23:04', '2023-03-08 22:23:04'],
+        ];
 
-        // SuperAdministrador
-        $admin = User::create([
-            'name' => 'ADMINISTRADOR',
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_ADMINISTRADOR);
-        // Gerente
-        $gerente = User::create([
-            'name' => 'PPAZMINO',
-            'email' => 'gerente@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_GERENTE, User::ROL_EMPLEADO);
-        // Coordinador
-        $coordinador = User::create([
-            'name' => 'AJARAMILLO',
-            'email' => 'ajaramillo@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
-        // RR HH
-        $recursos_humanos = User::create([
-            'name' => 'LPESANTES',
-            'email' => 'manuel@jpconstrucred.com',
-            'password' => bcrypt('0706297280'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_RECURSOS_HUMANOS);
-        // Coordinador
-        $coordinador_sto_domingo = User::create([
-            'name' => 'BCHAMBA',
-            'email' => 'bchamba@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COORDINADOR, User::ROL_BODEGA);
-        // Coordinador
-        $coordinador_telconet = User::create([
-            'name' => 'RLOJA',
-            'email' => 'rloja@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->assignRole(User::ROL_COORDINADOR, User::ROL_EMPLEADO);
-        // Asistente de bodega 1
-        $bodeguero1 = User::create([
-            'name' => 'CALBARRACIN',
-            'email' => 'asistentebodega1@jpconstrucred.com',
-            'password' => bcrypt('0703324319'),
-        ])->syncRoles(User::ROL_BODEGA, User::ROL_EMPLEADO);
-        // Asistente de bodega 2
-        $bodeguero2 = User::create([
-            'name' => 'JTORRES',
-            'email' => 'asistentebodega2@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('0705191054'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_BODEGA);
-        // Jefe tecnico
-        $jveintimilla = User::create([
-            'name' => 'JVEINTIMILLA',
-            'email' => 'jveintimilla@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO, User::ROL_COORDINADOR);
+        foreach ($datos as $fila) {
+            DB::insert('INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `two_factor_secret`, `two_factor_recovery_codes`, `remember_token`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?,?)', $fila);
+        }
 
-
-        //Localidad o sucursal
-        $localidad_machala = Sucursal::create(['lugar' => 'MACHALA', 'telefono' => '0965421', 'correo' => 'oficina_matriz@jpconstrucred.com',]);
-        $localidad_sto_domingo = Sucursal::create(['lugar' => 'SANTO DOMINGO', 'telefono' => '0965421', 'correo' => 'oficina_santo_domingo@jpconstrucred.com',]);
-        $localidad_cuenca = Sucursal::create(['lugar' => 'CUENCA', 'telefono' => '0965421', 'correo' => 'oficina_cuenca@jpconstrucred.com',]);
-        $localidad_guayaquil = Sucursal::create(['lugar' => 'GUAYAQUIL', 'telefono' => '0965421', 'correo' => 'oficina_guayaquil@jpconstrucred.com',]);
-
-
-
-        $admin->empleado()->create([
-            'nombres' => 'Superusuario',
-            'apellidos' => 'Administrador',
-        ]);
-
-
-        $gerente->empleado()->create([
-            'nombres' => 'PATRICIO',
-            'apellidos' => 'PAZMIÑO',
-            'identificacion' => '0702875618001',
-            'telefono' => '0987456748',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $jveintimilla->empleado()->create([
-            'nombres' => 'JONATHAN',
-            'apellidos' => 'VEINTIMILLA',
-            'identificacion' => '0745812451001',
-            'telefono' => '0987459218',
-            'fecha_nacimiento' => '2011-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $coordinador->empleado()->create([
-            'nombres' => 'MARILÚ',
-            'apellidos' => 'JARAMILLO',
-            'identificacion' => '0745125487',
-            'telefono' => '0987456',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $recursos_humanos->empleado()->create([
-            'nombres' => 'LUIS MANUEL',
-            'apellidos' => 'PESANTEZ MORA',
-            'identificacion' => '0784956230',
-            'telefono' => '0987456747',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $coordinador_sto_domingo->empleado()->create([
-            'nombres' => 'BRYAN',
-            'apellidos' => 'CHAMBA',
-            'identificacion' => '0745185287',
-            'telefono' => '0987456741',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $coordinador_telconet->empleado()->create([
-            'nombres' => 'DARIO',
-            'apellidos' => 'LOJA',
-            'identificacion' => '0745124163',
-            'telefono' => '0987456785',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $bodeguero1->empleado()->create([
-            'nombres' => 'CRISTIAN',
-            'apellidos' => 'ALBARRACIN',
-            'identificacion' => '0708549625',
-            'telefono' => '0987456112',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $bodeguero2->empleado()->create([
-            'nombres' => 'JUAN JOSE',
-            'apellidos' => 'TORRES',
-            'identificacion' => '0704126352',
-            'telefono' => '0987456965',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        // Departamento de compras
-        $compras = User::create([
-            'name' => 'ILIMA',
-            'email' => 'asistentecompras@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COMPRAS);
-        $compras->empleado()->create([
-            'nombres' => 'INGRID',
-            'apellidos' => 'LIMA',
-            'identificacion' => '0708541325',
-            'telefono' => '0984568596',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        // Personal administrativo
-        $administrativo = User::create([
-            'name' => 'SSARMIENTO',
-            'email' => 'santiago@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
-        $administrativo->empleado()->create([
-            'nombres' => 'SANTIAGO',
-            'apellidos' => 'SARMIENTO',
-            'identificacion' => '0745963251',
-            'telefono' => '0987456235',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '5',
-        ]);
-
-
-        // Activos fijos
-        $activos_fijos = User::create([
-            'name' => 'PAGUILAR',
-            'email' => 'pedro@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('0706751393'),
-        ])->syncRoles([User::ROL_ADMINISTRATIVO, User::ROL_ACTIVOS_FIJOS, User::ROL_BODEGA, User::ROL_EMPLEADO, User::ROL_COMPRAS, User::ROL_JEFE_TECNICO]);
-        $activos_fijos->empleado()->create([
-            'nombres' => 'PEDRO',
-            'apellidos' => 'AGUILAR',
-            'identificacion' => '0702041526',
-            'telefono' => '0989857463',
-            'fecha_nacimiento' => '1993-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        // Contabilidad
-        $contabilidad = User::create([
-            'name' => 'IVALAREZO',
-            'email' => 'isa@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO,User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR_FONDOS);
-        $contabilidad->empleado()->create([
-            'nombres' => 'ISABEL',
-            'apellidos' => 'VALAREZO',
-            'identificacion' => '0780401526',
-            'telefono' => '0987457845',
-            'fecha_nacimiento' => '2000-05-12',
-            'jefe_id' => '2',
-        ]);
-
-        $sso = User::create([
-            'name' => 'ASERRANO',
-            'email' => 'aserrano@jpconstrucred.com',
-            'password' => bcrypt('password'),
-        ])->syncRoles([User::ROL_EMPLEADO, User::ROL_SSO]);
-        $sso->empleado()->create([
-            'nombres' => 'ARNALDO JOSE',
-            'apellidos' => 'SERRANO COELLO',
-            'identificacion' => '0703517029',
-            'telefono' => '0982984348',
-            'fecha_nacimiento' => '1978-08-06',
-            'jefe_id' => '2',
-        ]);
-
-        /** TECNICOS */
-        // Tecnico lider
-        $tecnico = User::create([
-            'name' => 'JPILAY',
-            'email' => 'jpilay@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO,  User::ROL_LIDER_DE_GRUPO);
-        $tecnico->empleado()->create([
-            'nombres' => 'JAIME LEONEL',
-            'apellidos' => 'PILAY PEÑAFIEL',
-            'identificacion' => '0707415236',
-            'telefono' => '0987456332',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => 4,
-            'grupo_id' => 1,
-            'cargo_id' => 5,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'ATIGUA',
-            'email' => 'atigua@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO);
-        $tecnico->empleado()->create([
-            'nombres' => 'ALEXANDER LORENZO',
-            'apellidos' => 'TIGUA PILLASAGUA',
-            'identificacion' => '1315288645',
-            'telefono' => '0987456332',
-            'fecha_nacimiento' => '2010-05-12',
-            'jefe_id' => '6',
-            'grupo_id' => 1,
-            'cargo_id' => 6,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'CFERNANDEZ',
-            'email' => 'cfernandez@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO);
-        $tecnico->empleado()->create([
-            'nombres' => 'CARLOS',
-            'apellidos' => 'FERNANDEZ',
-            'identificacion' => '0707415231',
-            'telefono' => '0987456331',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
-            'grupo_id' => 3,
-            'cargo_id' => 5,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'OSANCHEZ',
-            'email' => 'osanchez@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO,  User::ROL_LIDER_DE_GRUPO);
-        $tecnico->empleado()->create([
-            'nombres' => 'OSCAR OMAR',
-            'apellidos' => 'SANCHEZ QUIROZ',
-            'identificacion' => '0707415232',
-            'telefono' => '0987456332',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => 4,
-            'grupo_id' => 2,
-            'cargo_id' => 5,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'BJUAREZ',
-            'email' => 'bjuarez@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO);
-        $tecnico->empleado()->create([
-            'nombres' => 'BENITO',
-            'apellidos' => 'JUAREZ',
-            'identificacion' => '0707415235',
-            'telefono' => '0987456333',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
-            'grupo_id' => 1,
-            'cargo_id' => 8,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'RSANCHEZ',
-            'email' => 'rsanchez@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO);
-        $tecnico->empleado()->create([
-            'nombres' => 'RICK',
-            'apellidos' => 'SANCHEZ',
-            'identificacion' => '0707415237',
-            'telefono' => '0987456334',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => 4,
-            'grupo_id' => 1,
-            'cargo_id' => 5,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'LARMIJOS',
-            'email' => 'larmijos@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO,  User::ROL_COMPRAS);
-        $tecnico->empleado()->create([
-            'nombres' => 'LEONARLO',
-            'apellidos' => 'ARMIJOS',
-            'identificacion' => '0707415233',
-            'telefono' => '0987456333',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
-            'grupo_id' => 2,
-            'cargo_id' => 6,
-        ]);
-
-        $tecnico = User::create([
-            'name' => 'PCARRION',
-            'email' => 'pcarrion@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO);
-        $tecnico->empleado()->create([
-            'nombres' => 'POLO',
-            'apellidos' => 'CARRIÓN',
-            'identificacion' => '0707415234',
-            'telefono' => '0987456334',
-            'fecha_nacimiento' => '2019-05-12',
-            'jefe_id' => '3',
-            'grupo_id' => 3,
-            'cargo_id' => 6,
-        ]);
 
         /**
-         * -----------
-         * Informatica
-         * -----------
-         * Coordinador
+         * Seeder de empleados
          */
-        $coordinador = User::create([
-            'name' => 'YLOVERA',
-            'email' => 'ylovera@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_COORDINADOR);
-        $coordinador->empleado()->create([
-            'nombres' => 'YEFRAINA',
-            'apellidos' => 'LOVERA',
-            'identificacion' => '0707417879',
-            'telefono' => '0987498564',
-            'fecha_nacimiento' => '2000-05-12',
-            'jefe_id' => '2',
-        ]);
+        $datos = [
+            [1, NULL, 'SUPERUSUARIO', 'ADMINISTRADOR', NULL, NULL, 1, NULL, NULL, 1, 1, NULL, '2023-02-24 19:24:14', '2023-02-24 19:24:14'],
+            [2, '0702875618', 'JEAN PATRICIO', 'PAZMIÑO BARROS', '0988836640', '1974-07-07', 1, NULL, 2, 2, 53, 1, '2023-02-24 19:24:14', '2023-03-01 09:55:20'],
+            [3, '0105017412', 'JONATHAN ADRIAN', 'VEINTIMILLA SEGARRA', '0984731589', '1990-11-04', 1, NULL, 2, 9, 1, 2, '2023-02-24 19:24:14', '2023-03-01 09:56:51'],
+            [4, '0704159078', 'AIDE MARILU', 'JARAMILLO TORO', '0994522716', '1985-06-02', 1, NULL, 3, 3, 53, 3, '2023-02-24 19:24:14', '2023-03-01 10:01:55'],
+            [5, '0706297280', 'LUIS MANUEL', 'PESANTES MORA', '0987456747', '2019-05-12', 1, NULL, 2, 4, 53, 24, '2023-02-24 19:24:14', '2023-03-01 09:32:53'],
+            [6, '2300037435', 'BRYAN LEONARDO', 'CHAMBA MONTES', '0969962394', '1988-06-07', 1, NULL, 3, 5, 218, 3, '2023-02-24 19:24:14', '2023-03-01 10:06:08'],
+            [7, '0704042928', 'RUBEN DARIO', 'LOJA TORRES', '0979169590', '1985-03-28', 1, NULL, 3, 6, 53, 3, '2023-02-24 19:24:14', '2023-03-01 10:08:05'],
+            [8, '0703324319', 'CRISTIAN ANDRES', 'ALBARRACIN VILLAGRAN', '0986541199', '1992-09-19', 1, NULL, 2, 7, 53, 14, '2023-02-24 19:24:14', '2023-03-01 10:09:48'],
+            [9, '0705191054', 'JUAN JOSE', 'TORRES QUEZADA', '0963181888', '1989-01-19', 1, NULL, 8, 8, 53, 15, '2023-02-24 19:24:14', '2023-03-01 10:12:25'],
+            [10, '0703747378', 'MARIUXI ISABEL', 'VALAREZO ARMIJOS', '0959284713', '1979-08-24', 1, NULL, 2, 10, 53, 17, '2023-02-24 19:24:14', '2023-03-01 10:14:34'],
+            [11, '0703324863', 'YANINA VANESSA', 'LOJA TORRES', '0995401176', '1980-05-29', 1, NULL, 2, 11, 53, 25, '2023-02-24 19:24:14', '2023-03-01 10:19:47'],
+            [12, '0706751393', 'PEDRO MORONI', 'AGUILAR FERNANDEZ', '0939556768', '1993-05-08', 1, NULL, 2, 12, 53, 13, '2023-02-24 19:24:15', '2023-03-01 10:25:49'],
+            [13, '1754645388', 'CLAUDIA GABRIELA', 'QUIZHPE BUSTOS', '0982792191', '1997-10-03', 1, NULL, 11, 13, 53, 11, '2023-02-24 19:24:15', '2023-03-01 10:22:59'],
+            [14, '0703517029', 'ARNALDO JOSE', 'SERRANO COELLO', '0982984348', '1978-10-06', 1, NULL, 2, 14, 53, 21, '2023-02-24 19:24:15', '2023-03-01 10:27:49'],
+            [15, '0707415236', 'JAIME LEONEL', 'PILAY PEÑAFIEL', '0987456332', '2019-05-12', 1, 1, 3, 15, 3, 5, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [16, '1315288645', 'ALEXANDER LORENZO', 'TIGUA PILLASAGUA', '0987456332', '2010-05-12', 1, 1, 6, 16, 1, 6, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [17, '0707415231', 'CARLOS', 'FERNANDEZ', '0987456331', '2019-05-12', 1, 3, 3, 17, 3, 5, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [18, '0707415232', 'OSCAR OMAR', 'SANCHEZ QUIROZ', '0987456332', '2019-05-12', 1, 2, 3, 18, 3, 5, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [19, '0707415235', 'BENITO', 'JUAREZ', '0987456333', '2019-05-12', 1, 1, 3, 19, 3, 8, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [20, '0707415237', 'RICK', 'SANCHEZ', '0987456334', '2019-05-12', 1, 1, 3, 20, 3, 10, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [21, '0707415233', 'LEONARLO', 'ARMIJOS', '0987456333', '2019-05-12', 1, 2, 3, 21, 3, 6, '2023-02-24 19:24:15', '2023-02-24 19:24:15'],
+            [22, '0707415234', 'POLO', 'CARRIÓN', '0987456334', '2019-05-12', 1, 3, 3, 22, 3, 6, '2023-02-24 19:24:16', '2023-02-24 19:24:16'],
+            [23, '0707417879', 'YEFRAINA', 'LOVERA', '0987498564', '2000-05-12', 0, NULL, 2, 23, 53, 18, '2023-02-24 19:24:16', '2023-03-01 10:35:51'],
+            [24, '0750360919', 'WILSON STEEVEN', 'CORDOVA ERAS', '0992200572', '1997-06-29', 1, NULL, 2, 24, 53, 18, '2023-02-24 19:24:16', '2023-03-01 10:36:58'],
+            [25, '0705570679', 'JUAN BRYAN', 'CUESTA VERA', '0998474965', '1996-05-12', 1, NULL, 24, 25, 53, 18, '2023-02-24 19:24:16', '2023-03-01 10:37:34'],
+            [26, '0704265099', 'HENRY VINICIO', 'SIMBAÑA CRUZ', '0998474969', '1996-05-12', 1, NULL, 24, 26, 53, 18, '2023-02-24 19:24:16', '2023-03-01 10:38:25'],
+            [27, '0705688331', 'LEIVER JOAO', 'CELI GONZALEZ', '0998474966', '1995-05-12', 1, NULL, 3, 27, 1, 12, '2023-02-24 19:24:16', '2023-03-01 10:54:55'],
+            [28, '0915093223', 'PEDRO JOEL', 'BUSTOS MOREIRA', '0991543939', '1986-01-24', 1, NULL, 3, 28, 75, 3, '2023-02-23 12:00:41', '2023-03-01 10:39:59'],
+            [29, '0705902740', 'JULEYSI MERCEDES', 'FAREZ CARRION', '0967016939', '1993-06-04', 1, NULL, 2, 29, 53, 34, '2023-02-23 12:16:44', '2023-03-15 17:09:57'],
+            [30, '0703959429', 'NICOLAS EDUARDO', 'PAZMIñO BARROS', '0998469566', '1985-10-04', 1, NULL, 3, 30, 53, 20, '2023-02-23 12:21:52', '2023-03-01 10:53:43'],
+            [31, '1104371487', 'PATRICIO RODRIGO', 'MENDEZ', '0990876436', '1984-04-28', 1, NULL, 3, 31, 106, 3, '2023-02-23 12:29:24', '2023-03-01 10:56:26'],
+            [32, '0105361745', 'PABLO SEBASTIAN', 'QUIZHPI MOLINA', '0990316354', '1992-08-16', 1, NULL, 3, 32, 1, 3, '2023-02-23 12:31:55', '2023-03-01 10:57:28'],
+            [33, '0704767805', 'JOSELYN ARIANA', 'RAMOS HIDALGO', '0968801645', '1998-08-06', 1, NULL, 3, 33, 53, 22, '2023-02-28 11:23:31', '2023-03-01 10:58:23'],
+            [34, '0750263279', 'BRIGITTE ESTEFANIA', 'ANDRANGO RODRIGUEZ', '0990362365', '1996-03-14', 1, NULL, 3, 34, 53, 22, '2023-02-28 11:25:05', '2023-03-01 10:59:10'],
+            [35, '0605628726', 'JOSE RAFAEL', 'CANDO CHINCHE', '0987432609', '2023-02-28', 1, NULL, 6, 35, 43, 9, '2023-03-01 04:56:16', '2023-03-01 11:00:16'],
+            [36, '0703459644', 'LUIS ROGELIO', 'UREñA ROMERO', '0939091077', '1980-02-07', 1, NULL, 8, 36, 53, 15, '2023-03-01 11:04:07', '2023-03-01 11:04:07'],
+            [37, '0302180757', 'DIEGO HERNAN', 'IñAMAGUA LALA', '0983030605', '1988-03-30', 1, NULL, 30, 37, 25, 30, '2023-03-02 03:26:10', '2023-03-08 20:22:26'],
+            [38, '1315872604', 'JEAN CARLOS', 'PARRALES COBEñA', '0969989236', '1997-03-29', 1, 19, 7, 38, 140, 7, '2023-03-02 20:16:58', '2023-03-02 20:16:58'],
+            [39, '0804136083', 'ALBERTO DANIEL', 'SALAS REINA', '0958900288', '1969-12-31', 1, NULL, 32, 39, 67, 5, '2023-03-03 03:08:53', '2023-03-03 03:08:53'],
+            [40, '0750291361', 'ALLISON BRIGITTE', 'MUENTES GONZABAY', '0989689263', '2000-02-12', 1, NULL, 11, 40, 53, 26, '2023-03-03 20:34:04', '2023-03-15 19:54:05'],
+            [41, '0704901057', 'ADRIANA NARCISA', 'SAMANIEGO VILLALTA', '0980434961', '1986-02-23', 1, NULL, 11, 41, 53, 26, '2023-03-03 20:37:02', '2023-03-03 20:37:02'],
+            [42, '0706714649', 'ANGEL FERNANDO', 'ARMIJOS RIOS', '0994887502', '1995-03-03', 1, NULL, 3, 42, 53, 22, '2023-03-03 20:50:19', '2023-03-03 20:50:19'],
+            [43, '0703517227', 'SALLY ANDREA', 'CAICEDO PARRA', '0991865148', '1969-12-31', 1, NULL, 11, 43, 53, 27, '2023-03-03 20:56:54', '2023-03-03 20:56:54'],
+            [44, '0705433183', 'KEVIN FERNANDO', 'CAMACHO GARCIA', '0939322275', '1997-02-05', 1, NULL, 3, 44, 53, 22, '2023-03-03 20:59:43', '2023-03-03 20:59:43'],
+            [45, '0706696747', 'DOMENICA ESTEFANIA', 'GARCES VINUEZA', '0995136593', '1998-11-26', 1, NULL, 2, 45, 53, 23, '2023-03-03 21:10:39', '2023-03-15 19:53:20'],
+            [46, '0750590598', 'ASHLEY MILENA', 'ORELLANA FERNANDEZ', '0990373106', '2000-04-10', 1, NULL, 7, 46, 53, 28, '2023-03-03 21:18:53', '2023-03-03 21:19:24'],
+            [47, '1313167536', 'JAIRO IGNACIO', 'SEGUICHE CASTRO', '0980037348', '1969-12-31', 1, NULL, 7, 47, 53, 4, '2023-03-03 21:37:09', '2023-03-03 21:37:09'],
+            [48, '0103794921', 'JONNATHAN ADRIAN', 'PANCHI DIAZ', '0964158612', '1990-09-03', 1, NULL, 6, 48, 53, 30, '2023-03-03 21:44:22', '2023-03-08 20:25:09'],
+            [49, '0912667623', 'LUIS ALBERTO', 'GONZABAY PEÑAFIEL', '0994096304', '1967-11-12', 1, NULL, 28, 49, 75, 9, '2023-03-03 21:48:59', '2023-03-03 21:48:59'],
+            [50, '0706106051', 'PATRICK DANIEL', 'APOLO GALLARDO', '0969937094', '1998-07-11', 1, NULL, 28, 50, 53, 30, '2023-03-03 21:55:23', '2023-03-08 20:16:53'],
+            [51, '0106386071', 'JIMMY JAVIER', 'MACAS CHUCHUCA', '0968621196', '1969-12-31', 1, NULL, 30, 51, 1, 30, '2023-03-03 21:59:06', '2023-03-08 20:24:42'],
+            [52, '0105908818', 'JOSE ANTONIO', 'MACAS CHUCHUCA', '0993472912', '1969-12-31', 1, NULL, 30, 52, 1, 7, '2023-03-03 22:01:37', '2023-03-03 22:01:37'],
+            [53, '1900573393', 'JEFFERSON RAFAEL', 'ABAD ZUMBA', '0979918252', '1994-03-16', 1, NULL, 28, 53, 199, 30, '2023-03-07 21:00:23', '2023-03-08 20:15:03'],
+            [54, '0802584599', 'JONATHAN FRANCISCO', 'AGUILAR ALCIVAR', '0987725124', '1969-12-31', 1, NULL, 32, 54, 70, 30, '2023-03-07 21:06:55', '2023-03-08 20:15:23'],
+            [55, '1250122791', 'JOSE STALYN', 'ANGULO SANCHEZ', '0979676319', '1969-12-31', 1, NULL, 6, 55, 128, 7, '2023-03-07 21:09:16', '2023-03-07 21:09:16'],
+            [56, '1717950206', 'LEONARDO ENRIQUE', 'BAZURTO BRAVO', '0991388121', '1990-07-07', 1, NULL, 32, 56, 218, 30, '2023-03-07 21:13:54', '2023-03-08 20:17:14'],
+            [57, '2100889639', 'STIVEN JEFFERSON', 'BONE MOTTA', '0986230103', '1997-03-08', 1, NULL, 28, 57, 207, 30, '2023-03-07 21:17:27', '2023-03-08 20:17:41'],
+            [58, '1205511106', 'CRISTOPHER JOSUE', 'BRAVO LAZ', '0983732544', '1969-12-31', 1, NULL, 6, 58, 126, 30, '2023-03-07 21:20:25', '2023-03-08 20:18:10'],
+            [59, '1150685509', 'ELVIS AGUSTIN', 'BRICEñO ARMIJOS', '0960921261', '1969-12-31', 1, NULL, 28, 59, 199, 7, '2023-03-07 21:23:29', '2023-03-07 21:23:29'],
+            [60, '1314913813', 'ANGEL DARIO', 'CEDEñO BRAVO', '0989269025', '1969-12-31', 1, NULL, 32, 60, 137, 30, '2023-03-07 21:26:21', '2023-03-08 20:19:04'],
+            [61, '1719337402', 'ANGEL GEOVANNY', 'CHAMBA ENRIQUEZ', '0988656852', '1984-03-12', 1, NULL, 32, 61, 151, 7, '2023-03-07 21:32:03', '2023-03-07 21:32:03'],
+            [62, '0702592650', 'EDWIN LIDER', 'CONDOY BALCAZAR', '0985816309', '1976-07-12', 1, NULL, 6, 62, 122, 30, '2023-03-07 21:37:29', '2023-03-08 20:20:10'],
+            [63, '0105002257', 'FIDEL ANTONIO', 'CORTEZ CASTRO', '0997859044', '1969-12-31', 1, NULL, 30, 63, 3, 30, '2023-03-07 21:40:58', '2023-03-08 20:21:14'],
+            [64, '1150006920', 'ANGHELO JAVIER', 'CRUZ ZUMBA', '0989740941', '1969-12-31', 1, NULL, 28, 64, 106, 7, '2023-03-07 21:48:53', '2023-03-07 21:48:53'],
+            [65, '0954823662', 'ANTHONY NAHUM', 'DI LUCA MORANTE', '0954823662', '1969-12-31', 1, NULL, 6, 65, 122, 7, '2023-03-07 21:52:08', '2023-03-07 21:52:08'],
+            [66, '1207777416', 'DERIAN FRANCISCO', 'FERNANDEZ RAMIREZ', '0993480150', '1995-04-10', 1, NULL, 6, 66, 122, 7, '2023-03-07 21:55:03', '2023-03-07 21:55:03'],
+            [67, '1206948273', 'ERICK JOSHUA', 'GOMEZ LEON', '0960422416', '1969-12-31', 1, NULL, 6, 67, 122, 7, '2023-03-07 21:57:43', '2023-03-07 21:57:43'],
+            [68, '0706632346', 'JONATHAN ALEXANDER', 'ILLESCAS RAMIREZ', '0939248314', '1995-02-09', 1, NULL, 2, 68, 53, 29, '2023-03-07 22:02:35', '2023-03-08 00:05:23'],
+            [69, '1204040917', 'NELSON OMAR', 'JARA PINTO', '0978993567', '1977-01-06', 1, NULL, 6, 69, 126, 7, '2023-03-07 22:08:51', '2023-03-07 22:08:51'],
+            [70, '0604344846', 'MILTON ISAAC', 'LEMA CHULLI', '0992554546', '1969-12-31', 1, NULL, 30, 70, 43, 7, '2023-03-07 22:12:27', '2023-03-07 22:12:27'],
+            [71, '0604843193', 'WILMER FABIAN', 'LEMA CHULLI', '0987163337', '1969-12-31', 1, NULL, 30, 71, 43, 30, '2023-03-07 22:15:31', '2023-03-08 20:23:22'],
+            [72, '0302382940', 'EDGAR FABIAN', 'LOJA CELLERI', '0992761765', '1969-12-31', 1, NULL, 30, 72, 25, 7, '2023-03-07 22:20:31', '2023-03-07 22:20:31'],
+            [73, '1401091127', 'DANNY', 'LLANGARI GUAMAN', '0981860793', '1969-12-31', 1, NULL, 30, 73, 25, 7, '2023-03-07 22:23:28', '2023-03-07 22:23:28'],
+            [74, '1315519874', 'CARLOS ALBERTO', 'CEDEñO LOPEZ', '0979246183', '1969-12-31', 1, NULL, 32, 74, 137, 7, '2023-03-07 22:30:58', '2023-03-07 22:30:58'],
+            [75, '0803712892', 'LUIS MANUEL', 'LOPEZ LARA', '0968669644', '1990-09-07', 1, NULL, 32, 75, 230, 7, '2023-03-07 22:40:50', '2023-03-07 22:54:51'],
+            [76, '1206608869', 'MIGUEL ANGEL', 'PALMA MACIAS', '0998723990', '1995-01-05', 1, NULL, 6, 76, 126, 7, '2023-03-07 22:52:53', '2023-03-07 22:52:53'],
+            [77, '1206786293', 'EDISON MARTIN', 'PALMA RAMOS', '0993705269', '1969-12-31', 1, NULL, 6, 77, 122, 7, '2023-03-07 23:01:24', '2023-03-07 23:01:24'],
+            [78, '0150744449', 'KEVIN ALEXANDER', 'PAUTE GUARQUILLA', '0981598117', '2000-01-07', 1, NULL, 30, 78, 1, 7, '2023-03-07 23:05:12', '2023-03-07 23:05:12'],
+            [79, '2300251333', 'EYDER ESTEBAN', 'PEREIRA NAVAS', '0989953366', '1969-12-31', 1, NULL, 28, 79, 216, 7, '2023-03-07 23:09:20', '2023-03-07 23:09:20'],
+            [80, '1315834687', 'OSCAR ANTONIO', 'PUERTAS PEREIRA', '0981191764', '1969-12-31', 1, NULL, 32, 80, 151, 7, '2023-03-07 23:11:48', '2023-03-07 23:11:48'],
+            [81, '0751212762', 'FREDDY GEOVANNY', 'QUITUISACA SANCHEZ', '0993537327', '1969-12-31', 1, NULL, 30, 81, 53, 7, '2023-03-07 23:15:54', '2023-03-07 23:15:54'],
+            [82, '1105138869', 'BRYAN SANTIAGO', 'REVELO BRAVO', '0985811079', '1969-12-31', 1, NULL, 28, 82, 56, 7, '2023-03-07 23:19:32', '2023-03-07 23:19:32'],
+            [83, '1804646410', 'VICTOR HUGO', 'RIERA GAVILANEZ', '0992329607', '1988-12-06', 1, NULL, 6, 83, 122, 7, '2023-03-07 23:21:59', '2023-03-07 23:21:59'],
+            [84, '0704316900', 'OMAR ALFREDO', 'ROMERO CALLE', '0990115097', '1969-12-31', 1, NULL, 30, 84, 53, 7, '2023-03-07 23:24:25', '2023-03-07 23:24:25'],
+            [85, '1722233382', 'YANDER DAMIAN', 'RUIZ RODRIGUEZ', '0979342939', '1969-12-31', 1, NULL, 32, 85, 151, 7, '2023-03-07 23:29:18', '2023-03-07 23:29:18'],
+            [86, '1900607035', 'JHON EDUARDO', 'SAETAMA SANMARTIN', '0989383969', '1969-12-31', 1, NULL, 28, 86, 106, 30, '2023-03-07 23:32:35', '2023-03-08 20:25:44'],
+            [87, '0603971839', 'JONATHAN ANTONIO', 'TENESACA AZOGUE', '0987136776', '1969-12-31', 1, NULL, 30, 87, 186, 30, '2023-03-07 23:37:09', '2023-03-08 20:26:34'],
+            [88, '0803230838', 'ALEXANDER LEONEL', 'TOAPANTA ARROYO', '0962928264', '1969-12-31', 1, NULL, 32, 88, 230, 7, '2023-03-07 23:39:52', '2023-03-07 23:39:52'],
+            [89, '0704733252', 'FREDDY XAVIER', 'VEGA MOSQUERA', '0986501733', '1985-08-06', 1, NULL, 30, 89, 53, 7, '2023-03-07 23:42:50', '2023-03-07 23:42:50'],
+            [90, '2200547541', 'AGUSTIN PATRICIO', 'ZAMBRANO GUZMAN', '0997757977', '1969-12-31', 1, NULL, 6, 90, 128, 7, '2023-03-07 23:55:15', '2023-03-07 23:55:15'],
+            [91, '0704611102', 'ESTEPHANY NICOLE', 'PAZMIÑO ZAMBRANO', '0989632984', '1997-06-12', 1, NULL, 2, 91, 53, 29, '2023-03-08 00:04:39', '2023-03-08 00:05:40'],
+            [92, '1401099104', 'JORDAN DAVID', 'CEDEÑO VERGARA', '0979024882', '1969-12-31', 1, NULL, 28, 92, 231, 30, '2023-03-08 00:16:32', '2023-03-08 20:19:26'],
+            [93, '0750614679', 'LEONARDO JAVIER', 'APOLO GALLARDO', '0967594781', '2000-05-11', 1, NULL, 28, 93, 56, 7, '2023-03-08 00:25:36', '2023-03-08 00:25:36'],
+            [94, '1315872513', 'JOSTIN JANDRY', 'PARRALES COBEÑA', '0989895269', '1969-12-31', 1, 19, 7, 94, 140, 32, '2023-03-08 20:35:31', '2023-03-08 20:36:38'],
+            [95, '1310561996', 'EDUARDO ALFREDO', 'MARCILLO QUIROZ', '0968658009', '1985-06-10', 1, 19, 7, 95, 140, 32, '2023-03-08 20:39:28', '2023-03-08 20:39:28'],
+            [96, '1316998416', 'JANDRY IVAN', 'CORNEJO FIGUEROA', '0980377088', '1997-07-04', 1, 19, 7, 96, 135, 32, '2023-03-08 20:47:08', '2023-03-08 20:47:08'],
+            [97, '1315284909', 'MIGUEL EDUARDO', 'ZAMBRANO PIVAQUE', '0959600916', '1999-11-10', 1, 19, 7, 97, 140, 33, '2023-03-08 20:51:00', '2023-03-08 20:51:00'],
+            [98, '1309129342', 'PAULO ROSENDO', 'TOALA SEGUICHE', '0991491310', '1969-12-31', 1, 19, 7, 98, 140, 33, '2023-03-08 20:53:01', '2023-03-08 20:53:01'],
+            [99, '1315359404', 'VICENTE ARIEL', 'TOALA PINCAY', '0994659610', '2001-04-04', 1, 19, 7, 99, 140, 33, '2023-03-08 20:56:20', '2023-03-08 20:56:20'],
+            [100, '1314628627', 'JANDRY ADRIAN', 'SANCHEZ QUIROZ', '0978809062', '1998-03-03', 1, 19, 7, 100, 140, 6, '2023-03-08 21:00:05', '2023-03-08 21:00:05'],
+            [101, '1312750829', 'JULIO CESAR', 'SEGUICHE CHOEZ', '0978788486', '1990-07-08', 1, 19, 7, 101, 140, 33, '2023-03-08 21:03:48', '2023-03-08 21:04:12'],
+            [102, '1312672817', 'JOSE ANTONIO', 'PINCAY TOALA', '0980061833', '1987-10-07', 1, 1, 7, 102, 140, 32, '2023-03-08 21:07:37', '2023-03-08 21:07:37'],
+            [103, '1312883398', 'JOSE ALBERTO', 'CHOEZ PILAY', '0998031722', '1969-12-31', 1, 1, 7, 103, 140, 32, '2023-03-08 21:09:59', '2023-03-08 21:09:59'],
+            [104, '1315391183', 'JOSEPH EDUARDO', 'PIN PILAY', '0982295968', '1998-12-06', 1, 1, 7, 107, 140, 33, '2023-03-08 21:17:59', '2023-03-08 21:17:59'],
+            [105, '1314624493', 'DARIO CRISTOBAL', 'ZAMBRANO PINCAY', '0968387781', '1969-12-31', 1, 1, 7, 108, 140, 33, '2023-03-08 21:20:19', '2023-03-08 21:20:19'],
+            [106, '0918121773', 'FELIX JAVIER', 'CASTRO PERALTA', '0980196594', '1969-12-31', 1, 1, 7, 109, 140, 33, '2023-03-08 21:22:33', '2023-03-08 21:22:33'],
+            [107, '1315392470', 'LUIS FRANCISCO', 'PEÑAFIEL SEGUICHE', '0984772297', '1969-12-31', 1, 1, 7, 110, 140, 33, '2023-03-08 21:42:56', '2023-03-08 21:42:56'],
+            [108, '1312757709', 'JORGE ARMANDO', 'PINCAY CHOEZ', '0997935235', '1969-12-31', 1, 1, 7, 113, 140, 33, '2023-03-08 21:58:16', '2023-03-08 21:58:16'],
+            [109, '1315359867', 'JEAN CARLOS', 'TOALA PINARGOTE', '0959603800', '1997-03-11', 1, 18, 7, 114, 140, 32, '2023-03-08 22:02:34', '2023-03-08 22:02:34'],
+            [110, '1251183867', 'MICHAEL STALYN', 'BRIONES MENDOZA', '0981947328', '1969-12-31', 1, 18, 7, 115, 140, 32, '2023-03-08 22:05:00', '2023-03-08 22:05:00'],
+            [111, '1315287134', 'IGNACIO RUBEN', 'SEGUICHE CHOEZ', '0981762512', '1969-12-31', 1, 18, 7, 116, 140, 32, '2023-03-08 22:11:13', '2023-03-08 22:11:13'],
+            [112, '1310703564', 'WILFRIDO ABELARDO', 'PIN PINCAY', '0997835737', '1969-12-31', 1, 18, 7, 117, 140, 33, '2023-03-08 22:14:21', '2023-03-08 22:14:21'],
+            [113, '1315391365', 'JOSE JACINTO', 'PALMA CHOEZ', '0988195245', '1969-12-31', 1, 18, 7, 118, 140, 33, '2023-03-08 22:16:27', '2023-03-08 22:16:27'],
+            [114, '1315359842', 'RONALD STEVEN', 'TOALA PINARGOTE', '0982715121', '1969-12-31', 1, 18, 7, 119, 140, 33, '2023-03-08 22:18:51', '2023-03-08 22:18:51'],
+            [115, '1314837202', 'DIEGO REINALDO', 'ALVARADO QUIJIJE', '0989853697', '1969-12-31', 1, 18, 7, 120, 140, 33, '2023-03-08 22:23:04', '2023-03-08 22:23:04'],
 
-        $tecnico = User::create([
-            'name' => 'WCORDOVA',
-            'email' => 'wcordova@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO, User::ROL_COORDINADOR);
-        $tecnico->empleado()->create([
-            'nombres' => 'WILSON',
-            'apellidos' => 'CORDOVA',
-            'identificacion' => '0750360919',
-            'telefono' => '0992200572',
-            'fecha_nacimiento' => '1997-06-29',
-            'jefe_id' => '2',
-        ]);
+        ];
 
-        $tecnico = User::create([
-            'name' => 'JCUESTA',
-            'email' => 'jcuesta@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
-        $tecnico->empleado()->create([
-            'nombres' => 'JUAN',
-            'apellidos' => 'CUESTA',
-            'identificacion' => '0705570679',
-            'telefono' => '0998474965',
-            'fecha_nacimiento' => '1996-05-12',
-            'jefe_id' => '24',
-        ]);
+        foreach ($datos as $fila) {
+            DB::insert('INSERT INTO `empleados` (`id`, `identificacion`, `nombres`, `apellidos`, `telefono`, `fecha_nacimiento`, `estado`, `grupo_id`, `jefe_id`, `usuario_id`, `canton_id`, `cargo_id`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)', $fila);
+        }
 
-        $tecnico = User::create([
-            'name' => 'HSIMBAÑA',
-            'email' => 'hsimbana@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_ADMINISTRATIVO);
-        $tecnico->empleado()->create([
-            'nombres' => 'HENRY',
-            'apellidos' => 'SIMBAÑA',
-            'identificacion' => '0705570678',
-            'telefono' => '0998474969',
-            'fecha_nacimiento' => '1996-05-12',
-            'jefe_id' => '24',
-        ]);
 
-        $tecnico = User::create([
-            'name' => 'JLEIVER',
-            'email' => 'leiver@jpconstrucred.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_FISCALIZADOR);
-        $tecnico->empleado()->create([
-            'nombres' => 'LEIVER JOAO',
-            'apellidos' => 'CELI GONZALEZ',
-            'identificacion' => '0701234568',
-            'telefono' => '0998474966',
-            'fecha_nacimiento' => '1995-05-12',
-            'jefe_id' => '2',
-        ]);
-        $autorizador = User::create([
-            'name' => 'AARMIJOS',
-            'email' => 'AARMIJOS@JEANPAZMINO.COM',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR, User::ROL_COMPRAS);
-        $autorizador->empleado()->create([
-            'nombres' => 'ANGEL FERNANDO',
-            'apellidos' => 'ARMIJOS RIOS',
-            'identificacion' => '0706714649',
-            'telefono' => '0994887502',
-            'fecha_nacimiento' => '0000-00-00',
-            'jefe_id' => '2',
-            // 'sucursal_id' => $localidad_machala->id,
-        ]);
-        $autorizador = User::create([
-            'name' => 'YLOJA',
-            'email' => 'ASISTENTE_ADMINISTRATIVO@JEANPAZMINO.COM',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR);
-        $autorizador->empleado()->create([
-            'nombres' => 'YANINA VANESSA',
-            'apellidos' => 'LOJA TORRES',
-            'identificacion' => '0703324863',
-            'telefono' => '999910198',
-            'fecha_nacimiento' => '1980-05-29',
-            'jefe_id' => '2',
-            // 'sucursal_id' => $localidad_machala->id,
-        ]);
-        $autorizador = User::create([
-            'name' => 'JPAZMINO',
-            'email' => 'jpazmino@jeanpazmino.com',
-            'email_verified_at' => date("Y-m-d"),
-            'password' => bcrypt('password'),
-        ])->syncRoles(User::ROL_EMPLEADO, User::ROL_AUTORIZADOR, User::ROL_CONTABILIDAD);
-        $autorizador->empleado()->create([
-            'nombres' => 'JEAN PATRICIO',
-            'apellidos' => 'PAZMIÑO BARROS',
-            'identificacion' => '0702875618',
-            'telefono' => '995936695',
-            'fecha_nacimiento' => '1974-07-07',
-            'jefe_id' => '2',
-            // 'sucursal_id' => $localidad_machala->id,
-        ]);
+        /**
+         * Seeder de roles asignados a los usuarios
+         */
+        $datos = [
+            [1, 'App\\Models\\User', 1],
+            [8, 'App\\Models\\User', 2],
+            [9, 'App\\Models\\User', 2],
+            [7, 'App\\Models\\User', 3],
+            [8, 'App\\Models\\User', 3],
+            [8, 'App\\Models\\User', 4],
+            [11, 'App\\Models\\User', 4],
+            [4, 'App\\Models\\User', 5],
+            [7, 'App\\Models\\User', 5],
+            [8, 'App\\Models\\User', 5],
+            [7, 'App\\Models\\User', 6],
+            [8, 'App\\Models\\User', 6],
+            [4, 'App\\Models\\User', 7],
+            [8, 'App\\Models\\User', 7],
+            [4, 'App\\Models\\User', 8],
+            [8, 'App\\Models\\User', 8],
+            [8, 'App\\Models\\User', 9],
+            [10, 'App\\Models\\User', 9],
+            [5, 'App\\Models\\User', 10],
+            [8, 'App\\Models\\User', 10],
+            [3, 'App\\Models\\User', 11],
+            [8, 'App\\Models\\User', 11],
+            [2, 'App\\Models\\User', 12],
+            [3, 'App\\Models\\User', 12],
+            [4, 'App\\Models\\User', 12],
+            [8, 'App\\Models\\User', 12],
+            [6, 'App\\Models\\User', 13],
+            [8, 'App\\Models\\User', 13],
+            [8, 'App\\Models\\User', 14],
+            [12, 'App\\Models\\User', 14],
+            [8, 'App\\Models\\User', 15],
+            [14, 'App\\Models\\User', 15],
+            [8, 'App\\Models\\User', 16],
+            [14, 'App\\Models\\User', 16],
+            [8, 'App\\Models\\User', 17],
+            [14, 'App\\Models\\User', 17],
+            [8, 'App\\Models\\User', 18],
+            [14, 'App\\Models\\User', 18],
+            [8, 'App\\Models\\User', 19],
+            [14, 'App\\Models\\User', 19],
+            [8, 'App\\Models\\User', 20],
+            [8, 'App\\Models\\User', 21],
+            [14, 'App\\Models\\User', 21],
+            [8, 'App\\Models\\User', 22],
+            [14, 'App\\Models\\User', 22],
+            [7, 'App\\Models\\User', 23],
+            [8, 'App\\Models\\User', 23],
+            [3, 'App\\Models\\User', 24],
+            [7, 'App\\Models\\User', 24],
+            [8, 'App\\Models\\User', 24],
+            [3, 'App\\Models\\User', 25],
+            [8, 'App\\Models\\User', 25],
+            [3, 'App\\Models\\User', 26],
+            [8, 'App\\Models\\User', 26],
+            [8, 'App\\Models\\User', 27],
+            [13, 'App\\Models\\User', 27],
+            [7, 'App\\Models\\User', 28],
+            [8, 'App\\Models\\User', 28],
+            [2, 'App\\Models\\User', 29],
+            [3, 'App\\Models\\User', 29],
+            [8, 'App\\Models\\User', 29],
+            [7, 'App\\Models\\User', 30],
+            [8, 'App\\Models\\User', 30],
+            [7, 'App\\Models\\User', 31],
+            [8, 'App\\Models\\User', 31],
+            [7, 'App\\Models\\User', 32],
+            [8, 'App\\Models\\User', 32],
+            [8, 'App\\Models\\User', 33],
+            [14, 'App\\Models\\User', 33],
+            [8, 'App\\Models\\User', 34],
+            [14, 'App\\Models\\User', 34],
+            [8, 'App\\Models\\User', 35],
+            [14, 'App\\Models\\User', 35],
+            [4, 'App\\Models\\User', 36],
+            [8, 'App\\Models\\User', 36],
+            [8, 'App\\Models\\User', 37],
+            [14, 'App\\Models\\User', 37],
+            [8, 'App\\Models\\User', 38],
+            [14, 'App\\Models\\User', 38],
+            [15, 'App\\Models\\User', 38],
+            [8, 'App\\Models\\User', 39],
+            [14, 'App\\Models\\User', 39],
+            [6, 'App\\Models\\User', 40],
+            [8, 'App\\Models\\User', 40],
+            [6, 'App\\Models\\User', 41],
+            [13, 'App\\Models\\User', 41],
+            [8, 'App\\Models\\User', 42],
+            [3, 'App\\Models\\User', 43],
+            [8, 'App\\Models\\User', 43],
+            [3, 'App\\Models\\User', 44],
+            [8, 'App\\Models\\User', 44],
+            [3, 'App\\Models\\User', 45],
+            [8, 'App\\Models\\User', 45],
+            [8, 'App\\Models\\User', 46],
+            [14, 'App\\Models\\User', 46],
+            [8, 'App\\Models\\User', 47],
+            [14, 'App\\Models\\User', 47],
+            [8, 'App\\Models\\User', 48],
+            [14, 'App\\Models\\User', 48],
+            [8, 'App\\Models\\User', 49],
+            [14, 'App\\Models\\User', 49],
+            [8, 'App\\Models\\User', 50],
+            [14, 'App\\Models\\User', 50],
+            [8, 'App\\Models\\User', 51],
+            [14, 'App\\Models\\User', 51],
+            [8, 'App\\Models\\User', 52],
+            [14, 'App\\Models\\User', 52],
+            [8, 'App\\Models\\User', 53],
+            [14, 'App\\Models\\User', 53],
+            [8, 'App\\Models\\User', 54],
+            [14, 'App\\Models\\User', 54],
+            [8, 'App\\Models\\User', 55],
+            [14, 'App\\Models\\User', 55],
+            [8, 'App\\Models\\User', 56],
+            [14, 'App\\Models\\User', 56],
+            [8, 'App\\Models\\User', 57],
+            [14, 'App\\Models\\User', 57],
+            [8, 'App\\Models\\User', 58],
+            [14, 'App\\Models\\User', 58],
+            [8, 'App\\Models\\User', 59],
+            [14, 'App\\Models\\User', 59],
+            [8, 'App\\Models\\User', 60],
+            [14, 'App\\Models\\User', 60],
+            [8, 'App\\Models\\User', 61],
+            [14, 'App\\Models\\User', 61],
+            [8, 'App\\Models\\User', 62],
+            [14, 'App\\Models\\User', 62],
+            [8, 'App\\Models\\User', 63],
+            [14, 'App\\Models\\User', 63],
+            [8, 'App\\Models\\User', 64],
+            [14, 'App\\Models\\User', 64],
+            [8, 'App\\Models\\User', 65],
+            [14, 'App\\Models\\User', 65],
+            [8, 'App\\Models\\User', 66],
+            [14, 'App\\Models\\User', 66],
+            [8, 'App\\Models\\User', 67],
+            [14, 'App\\Models\\User', 67],
+            [8, 'App\\Models\\User', 68],
+            [12, 'App\\Models\\User', 68],
+            [8, 'App\\Models\\User', 69],
+            [14, 'App\\Models\\User', 69],
+            [8, 'App\\Models\\User', 70],
+            [14, 'App\\Models\\User', 70],
+            [8, 'App\\Models\\User', 71],
+            [14, 'App\\Models\\User', 71],
+            [8, 'App\\Models\\User', 72],
+            [14, 'App\\Models\\User', 72],
+            [8, 'App\\Models\\User', 73],
+            [14, 'App\\Models\\User', 73],
+            [8, 'App\\Models\\User', 74],
+            [14, 'App\\Models\\User', 74],
+            [8, 'App\\Models\\User', 75],
+            [14, 'App\\Models\\User', 75],
+            [8, 'App\\Models\\User', 76],
+            [14, 'App\\Models\\User', 76],
+            [8, 'App\\Models\\User', 77],
+            [14, 'App\\Models\\User', 77],
+            [8, 'App\\Models\\User', 78],
+            [14, 'App\\Models\\User', 78],
+            [8, 'App\\Models\\User', 79],
+            [14, 'App\\Models\\User', 79],
+            [8, 'App\\Models\\User', 80],
+            [14, 'App\\Models\\User', 80],
+            [8, 'App\\Models\\User', 81],
+            [14, 'App\\Models\\User', 81],
+            [8, 'App\\Models\\User', 82],
+            [14, 'App\\Models\\User', 82],
+            [8, 'App\\Models\\User', 83],
+            [14, 'App\\Models\\User', 83],
+            [8, 'App\\Models\\User', 84],
+            [14, 'App\\Models\\User', 84],
+            [8, 'App\\Models\\User', 85],
+            [14, 'App\\Models\\User', 85],
+            [8, 'App\\Models\\User', 86],
+            [14, 'App\\Models\\User', 86],
+            [8, 'App\\Models\\User', 87],
+            [14, 'App\\Models\\User', 87],
+            [8, 'App\\Models\\User', 88],
+            [14, 'App\\Models\\User', 88],
+            [8, 'App\\Models\\User', 89],
+            [14, 'App\\Models\\User', 89],
+            [8, 'App\\Models\\User', 90],
+            [14, 'App\\Models\\User', 90],
+            [8, 'App\\Models\\User', 91],
+            [12, 'App\\Models\\User', 91],
+            [8, 'App\\Models\\User', 92],
+            [14, 'App\\Models\\User', 92],
+            [8, 'App\\Models\\User', 93],
+            [14, 'App\\Models\\User', 93],
+            [8, 'App\\Models\\User', 94],
+            [14, 'App\\Models\\User', 94],
+            [8, 'App\\Models\\User', 95],
+            [14, 'App\\Models\\User', 95],
+            [8, 'App\\Models\\User', 96],
+            [14, 'App\\Models\\User', 96],
+            [8, 'App\\Models\\User', 97],
+            [14, 'App\\Models\\User', 97],
+            [8, 'App\\Models\\User', 98],
+            [14, 'App\\Models\\User', 98],
+            [8, 'App\\Models\\User', 99],
+            [14, 'App\\Models\\User', 99],
+            [8, 'App\\Models\\User', 100],
+            [14, 'App\\Models\\User', 100],
+            [8, 'App\\Models\\User', 101],
+            [14, 'App\\Models\\User', 101],
+            [8, 'App\\Models\\User', 102],
+            [14, 'App\\Models\\User', 102],
+            [8, 'App\\Models\\User', 103],
+            [14, 'App\\Models\\User', 103],
+            [8, 'App\\Models\\User', 107],
+            [14, 'App\\Models\\User', 107],
+            [8, 'App\\Models\\User', 108],
+            [14, 'App\\Models\\User', 108],
+            [8, 'App\\Models\\User', 109],
+            [14, 'App\\Models\\User', 109],
+            [8, 'App\\Models\\User', 110],
+            [14, 'App\\Models\\User', 110],
+            [8, 'App\\Models\\User', 113],
+            [14, 'App\\Models\\User', 113],
+            [8, 'App\\Models\\User', 114],
+            [14, 'App\\Models\\User', 114],
+            [8, 'App\\Models\\User', 115],
+            [14, 'App\\Models\\User', 115],
+            [8, 'App\\Models\\User', 116],
+            [14, 'App\\Models\\User', 116],
+            [8, 'App\\Models\\User', 117],
+            [14, 'App\\Models\\User', 117],
+            [8, 'App\\Models\\User', 118],
+            [14, 'App\\Models\\User', 118],
+            [8, 'App\\Models\\User', 119],
+            [14, 'App\\Models\\User', 119],
+            [8, 'App\\Models\\User', 120],
+            [14, 'App\\Models\\User', 120],
+        ];
+
+        foreach ($datos as $fila) {
+            DB::insert('INSERT INTO `model_has_roles` (`role_id`, `model_type`, `model_id`) VALUES(?,?,?)', $fila);
+        }
     }
 }

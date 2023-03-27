@@ -17,6 +17,10 @@ class TransaccionBodega extends Model implements Auditable
     use AuditableModel;
     use Filterable;
 
+    const PENDIENTE = 'PENDIENTE';
+    const ACEPTADA = 'ACEPTADA';
+    const RECHAZADA = 'RECHAZADA';
+
     public $table = 'transacciones_bodega';
     public $fillable = [
         'justificacion',

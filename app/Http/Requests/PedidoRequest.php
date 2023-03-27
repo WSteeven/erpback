@@ -84,12 +84,12 @@ class PedidoRequest extends FormRequest
             $this->merge(['estado' => 1]);
         }
 
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE, User::ROL_ACTIVOS_FIJOS])) {
-            $this->merge([
-                // 'autorizacion' => 2,
-                'per_autoriza' => auth()->user()->empleado->id,
-            ]);
-        }
+        // if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_BODEGA, User::ROL_GERENTE, User::ROL_ACTIVOS_FIJOS])) {
+        //     $this->merge([
+        //         // 'autorizacion' => 2,
+        //         'per_autoriza' => auth()->user()->empleado->id,
+        //     ]);
+        // }
         if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
             $this->merge([
                 'per_autoriza'=>$user_activo_fijo->empleado->id,

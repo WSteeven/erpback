@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+    {{-- Aquí codigo PHP --}}
+@php
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'RESPONSABLE: ' . $responsable . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+@endphp
 
 <head>
     <meta charset="utf-8">
@@ -78,10 +85,7 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'RESPONSABLE: ' . $responsable . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
-@endphp
+
 
 <body>
     <header>
@@ -89,7 +93,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td>
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td>
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE PEDIDO</b></div>
