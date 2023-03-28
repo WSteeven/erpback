@@ -135,6 +135,7 @@
             <tr>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Fecha</strong></td>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Lugar</strong></td>
+                <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Grupo</strong></td>
                 <td style="font-size:10px"width="7%" bgcolor="#a9d08e"><strong>Motivo</strong></td>
                 <td style="font-size:10px"width="9%" bgcolor="#a9d08e"><strong>Monto</strong></td>
                 <td style="font-size:10px" width="80%" bgcolor="#a9d08e"><strong>Descripción de la solicitud</strong></td>
@@ -142,15 +143,20 @@
             @if (sizeof($solicitudes) > 0)
                 @foreach ($solicitudes as $dato)
                     <tr>
-                        <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato->fecha_gasto)) }}</td>
-                        <td style="font-size:10px">{{ $dato->lugar_info->canton }}</td>
-                        <td style="font-size:10px">{{ $dato->motivo_info->nombre }}</td>
-                        <td style="font-size:10px">{{ number_format($dato->monto, 2, ',', '.') }}</td>
-                        <td style="font-size:10px">{{ $dato->observacion }}</td>
+                        <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato['fecha_gasto'])) }}</td>
+                        <td style="font-size:10px">{{ $dato['lugar_info'] }}</td>
+                        <td style="font-size:10px">{{ $dato['grupo_info'] }}</td>
+                        <td style="font-size:10px">
+                            <div align="center">  @foreach($dato['motivo_info'] as $motivo)
+                                {{ $motivo->nombre }}
+                                @if (!$loop->last)
+                                   ,
+                                @endif
+                             @endforeach</div>
+                        </td>
+                         <td style="font-size:10px">{{ number_format($dato['monto'], 2, ',', '.') }}</td>
+                        <td style="font-size:10px">{{ $dato['observacion'] }}</td>
                     </tr>
-                    @if ($solicitudes[count($solicitudes) - 1]->id != $dato->id)
-                        <div class="page-break"></div>
-                    @endif
                 @endforeach
             @else
                 <tr>
