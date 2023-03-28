@@ -410,8 +410,8 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.editar.saldo'])->syncRoles([$bodega, $coordinador, $tecnico_lider, $contabilidad]);
         //Acreditacion
-        Permission::firstOrCreate(['name' => 'puede.ver.acreditacion'])->syncRoles([$compras]);
-        Permission::firstOrCreate(['name' => 'puede.crear.acreditacion'])->syncRoles([$compras]);
+        Permission::firstOrCreate(['name' => 'puede.ver.acreditacion'])->syncRoles([$administrador_fondos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.acreditacion'])->syncRoles([$administrador_fondos]);
         //Transferencias
         Permission::firstOrCreate(['name' => 'puede.ver.transferencia'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.transferencia'])->syncRoles([$empleado]);
