@@ -30,6 +30,13 @@ class Empleado extends Model implements Auditable
         'firma_url',
         'foto_url',
         // 'es_responsable_grupo',
+        'convencional',
+        'telefono_empresa',
+        'extension',
+        'coordenadas',
+        'casa_propia',
+        'vive_con_discapacitados',
+        'responsable_discapacitados',
     ];
 
     private static $whiteListFilter = [
@@ -55,6 +62,9 @@ class Empleado extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
         'estado' => 'boolean',
+        'casa_propia' => 'boolean',
+        'vive_con_discapacitados' => 'boolean',
+        'responsable_discapacitados' => 'boolean',
     ];
 
     public function toSearchableArray()
