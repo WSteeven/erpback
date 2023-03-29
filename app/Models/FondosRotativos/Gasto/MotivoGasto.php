@@ -18,4 +18,7 @@ class MotivoGasto extends Model implements Auditable
     protected $primaryKey = 'id';
     protected $fillable = ['nombre'];
     private static $whiteListFilter = ['nombre'];
+    public function motivos(){
+        return $this->belongsToMany(GastoCoordinador::class,'detalle_motivo_gastos','detalle','id');
+    }
 }

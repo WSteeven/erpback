@@ -37,6 +37,7 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
+        'emergencias' => EmergenciaController::class,
     ],
     [
         'parameters' => [
@@ -69,6 +70,8 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
+Route::get('export-seguimiento/{emergencia}', [EmergenciaController::class, 'exportarSeguimiento']);
+
 Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
 
 Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
@@ -89,6 +92,7 @@ Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales']);
 
 Route::get('todos-materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerTodosMateriales']);
+
 Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
 
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
@@ -96,9 +100,6 @@ Route::apiResource('tendidos', TendidoController::class)->except('show');
 
 // Obtiene un registro de tendido filtrado por subtarea // REVISAR SI QUEDA, se toma como reemplazo en el show de arriba
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
-
-// Emergencias
-Route::apiResource('emergencias', EmergenciaController::class);
 
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);

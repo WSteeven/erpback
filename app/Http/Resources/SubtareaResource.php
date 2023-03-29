@@ -36,7 +36,7 @@ class SubtareaResource extends JsonResource
             'id' => $this->id,
             'tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
-            'codigo_subtarea' => $this->tarea->tiene_subtareas ? $this->codigo_subtarea : null,
+            'codigo_subtarea' => $this->codigo_subtarea, //$this->tarea->tiene_subtareas ? $this->codigo_subtarea : null,
             'codigo_tarea_cliente' => $this->tarea->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'descripcion_completa' => $this->descripcion_completa,
@@ -69,6 +69,7 @@ class SubtareaResource extends JsonResource
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
             'es_responsable' => $this->verificarSiEsResponsable(),
+            'empleado_responsable' => $this->obtenerIdEmpleadoResponsable(), // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
             'empleado' => $this->extraerNombresApellidos($this->empleado),
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
@@ -76,6 +77,8 @@ class SubtareaResource extends JsonResource
             'tiene_subtareas' => $tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
+            'puede_suspender' => $this->puedeEjecutarHoy(),
+            'emergencia' => $this->emergencia_id,
         ];
 
         if ($controller_method == 'show') {
@@ -106,12 +109,6 @@ class SubtareaResource extends JsonResource
         return implode('; ', $nombres);
     }
 
-    /* public function extraerNombresApellidos($listado)
-    {
-        $nombres = $listado->map(fn ($item) => $item->nombres . ' ' . $item->apellidos)->toArray();
-        return implode('; ', $nombres);
-    } */
-
     public function mapGrupoSeleccionado($gruposSeleccionados)
     {
         return $gruposSeleccionados->map(fn ($grupo) => [
@@ -120,12 +117,6 @@ class SubtareaResource extends JsonResource
             'responsable' => $grupo->responsable,
         ]);
     }
-
-    /* private function listarEmpleados()
-    {
-        $empleadosSeleccionados = EmpleadoSubtarea::where('subtarea_id', $this->id)->orderBy('responsable', 'desc')->get();
-        if ($empleadosSeleccionados) return $this->mapEmpleadoSeleccionado($empleadosSeleccionados);
-    }*/
 
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
@@ -141,6 +132,21 @@ class SubtareaResource extends JsonResource
                 'roles' => implode(', ', $empleado->user->getRoleNames()->toArray()),
             ];
         });
+    }
+
+     public function obtenerIdEmpleadoResponsable()
+    {
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
+            $usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            if ($usuarioLider) return $usuarioLider[0]->id;
+        }
+
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+            return $this->empleado_id;
+        }
+
+        return null;
     }
 
     public function verificarSiEsResponsable()
