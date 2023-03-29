@@ -327,7 +327,6 @@ class GastoController extends Controller
                 'datos_saldo_anterior',
                 'datos_reporte',
             );
-            Log::channel('testing')->info('Log', ['variable que se envia a la vista', $reportes]);
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             $vista = 'exports.reportes.gastos_por_fecha';
             $export_excel = new GastoExport($reportes);

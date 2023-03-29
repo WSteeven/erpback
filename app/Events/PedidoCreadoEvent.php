@@ -9,10 +9,9 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
-class PedidoEvent implements ShouldBroadcast
+class PedidoCreadoEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,29 +35,9 @@ class PedidoEvent implements ShouldBroadcast
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
-        $this->notificacion = $this->crearNotificacion($this->mensaje, $url, $this->pedido->solicitante_id, $this->destinatario);
+        $this->notificacion = Notificacion::crearNotificacion($this->mensaje, $url, TiposNotificaciones::PEDIDO,$this->pedido->solicitante_id, $this->destinatario);
     }
 
-
-    /**
-     * It creates a notification with the message, the originator and the recipient
-     *
-     * @param mensaje The message you want to send.
-     * @param originador The user who sent the message
-     * @param destinatario The user who will receive the notification.
-     */
-    public static function crearNotificacion($mensaje, $url, $originador, $destinatario)
-    {
-        // '/pedidos'
-        $notificacion = Notificacion::create([
-            'mensaje' => $mensaje,
-            'link' => $url,
-            'per_originador_id' => $originador,
-            'per_destinatario_id' => $destinatario,
-            'tipo_notificacion' => TiposNotificaciones::PEDIDO,
-        ]);
-        return $notificacion;
-    }
 
     /**
      * Get the channels the event should broadcast on.
@@ -67,8 +46,6 @@ class PedidoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        // return new PrivateChannel('pedidos-tracker');
-        Log::channel('testing')->info('Log', ['Estamos en el broadcastOn de pedidos', $this->pedido]);
         return new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id);
     }
 

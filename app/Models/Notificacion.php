@@ -54,11 +54,15 @@ class Notificacion extends Model implements Auditable
     }
 
     /**
-     * It creates a notification with the message, the originator and the recipient
-     *
-     * @param mensaje The message you want to send.
-     * @param originador The user who sent the message
-     * @param destinatario The user who will receive the notification.
+     * It creates a notification in the database
+     * 
+     * @param mensaje The message to be displayed
+     * @param ruta the route to the page where the notification will be displayed
+     * @param tipo 1 =&gt; 'notificacion', 2 =&gt; 'mensaje', 3 =&gt; 'alerta'
+     * @param originador the user who created the notification
+     * @param destinatario The user who will receive the notification
+     * 
+     * @return The return is a collection of notifications.
      */
     public static function crearNotificacion($mensaje,$ruta,$tipo, $originador, $destinatario){
         $notificacion = Notificacion::create([

@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\PedidoCreadoEvent;
 use App\Events\PedidoEvent;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -24,7 +25,7 @@ class PedidoListener
      * @param  object  $event
      * @return void
      */
-    public function handle(PedidoEvent $event)
+    public function handle(PedidoCreadoEvent $event)
     {
         //
     }

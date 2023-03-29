@@ -4,6 +4,7 @@ namespace App\Http\Resources\FondosRotativos\Gastos;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class GastoCoordinadorResource extends JsonResource
 {
@@ -20,8 +21,10 @@ class GastoCoordinadorResource extends JsonResource
             'id' => $this->id,
             'fecha_gasto' => $this->cambiar_fecha($this->fecha_gasto),
             'lugar' => $this->id_lugar,
-            'motivo' => $this->id_motivo,
-            'motivo_info' => $this->motivo_info->nombre,
+            'grupo' => $this->id_grupo,
+            'grupo_info' => $this->grupo_info->nombre,
+            'motivo_info' => $this->detalle_motivo_info != null ? $this->motivo_info($this->detalle_motivo_info):'',
+            'motivo' => $this->detalle_motivo_info != null ? $this->detalle_motivo_info->pluck('id'):null,
             'lugar_info' => $this->lugar_info->canton,
             'monto' => $this->monto,
             'observacion' => $this->observacion,
@@ -30,6 +33,20 @@ class GastoCoordinadorResource extends JsonResource
         ];
         return $modelo;
     }
+    private function motivo_info($motivo_info){
+        $descripcion = '';
+        $i=0;
+        foreach($motivo_info as $motivo){
+            $descripcion .= $motivo->nombre;
+            $i++;
+            if($i < count($motivo_info)){
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
+    }
+
+
 
    private function cambiar_fecha($fecha){
     $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FondosRotativos\Gasto;
 use App\Events\SolicitudFondosEvent;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GastoCoordinadorRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoCoordinadorResource;
 use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use App\Models\User;
@@ -50,20 +51,23 @@ class GastoCoordinadorController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(GastoCoordinadorRequest $request)
     {
-        $datos = $request->all();
-        $datos['fecha_gasto'] = date('Y-m-d');
-        $datos['id_motivo'] = $request->motivo;
-        $datos['id_lugar'] = $request->lugar;
-        //usuario autenticado
-        $user = Auth::user();
-        $datos['id_usuario'] = $user->id;
-        $modelo = GastoCoordinador::create($datos);
-        $contabilidad = User::with('empleado')->where('name', 'mvalarezo')->first();
-        event(new SolicitudFondosEvent($modelo, $contabilidad));
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
+        try {
+            $datos = $request->validated();
+           // $datos['id_motivo'] = $request->safe()->only(['motivo'])['motivo'];
+            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
+            $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
+            $modelo = GastoCoordinador::create($datos);
+            $modelo->detalle_motivo_info()->sync($request->motivo);
+            $contabilidad = User::with('empleado')->where('name', 'mvalarezo')->first();
+            event(new SolicitudFondosEvent($modelo, $contabilidad));
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
 
     /**
@@ -107,17 +111,16 @@ class GastoCoordinadorController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function reporte(Request $request,$tipo)
+    public function reporte(Request $request, $tipo)
     {
-        try{
+        try {
             $datos = $request->all();
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $results = GastoCoordinador::where('id_usuario',$request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
-            $solicitudes = GastoCoordinadorResource::collection($results);
-            Log::channel('testing')->info('Log', ['solicitudes', $solicitudes]);
+            $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
+            $solicitudes = GastoCoordinador::empaquetar($results);
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
             $export_excel = new GastoExport(null);
@@ -126,6 +129,5 @@ class GastoCoordinadorController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
-
     }
 }
