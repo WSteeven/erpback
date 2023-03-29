@@ -57,7 +57,7 @@ class PedidoController extends Controller
      */
     public function store(PedidoRequest $request)
     {
-        $url_pedido = '/pedidos';
+        $url = '/pedidos';
         Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
             DB::beginTransaction();
@@ -83,13 +83,13 @@ class PedidoController extends Controller
 
             /* Sending a notification to the user who autorized the order. */
             //logica para los eventos de las notificaciones
-            if($pedido->solicitante_id==$pedido->per_autoriza_id && $pedido->autorizacion->nombre===Autorizacion::APROBADO){
+            if ($pedido->solicitante_id == $pedido->per_autoriza_id && $pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 //No se hace nada y se crea la logica
-                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.' indicando que tú eres el responsable de los materiales, el estado del pedido es '.$pedido->autorizacion->nombre;
-                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $pedido->responsable_id));
-            }else{
-                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.' y está '.$pedido->autorizacion->nombre.' de autorización';
-                event(new PedidoCreadoEvent($msg,$url_pedido,  $pedido, $pedido->per_autoriza_id));
+                $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
+                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id));
+            } else {
+                $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
+                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -114,8 +114,8 @@ class PedidoController extends Controller
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
-        $url_pedido = '/pedidos';
-        Log::channel('testing')->info('Log', ['entro en el update del pedido', ]);
+        $url = '/pedidos';
+        Log::channel('testing')->info('Log', ['entro en el update del pedido',]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -127,7 +127,7 @@ class PedidoController extends Controller
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            
+
             // Respuesta
             $pedido->update($datos);
             $modelo = new PedidoResource($pedido->refresh());
@@ -139,19 +139,18 @@ class PedidoController extends Controller
                 $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
-            
-            
-            Log::channel('testing')->info('Log', ['antes de verificar si se aprobó',$pedido ]);
-            if($pedido->autorizacion->nombre===Autorizacion::APROBADO){
-                $msg = 'Hay un pedido recién autorizado en la sucursal '.$pedido->sucursal->lugar.' pendiente de despacho';
-                event(new PedidoAutorizadoEvent($msg,User::ROL_BODEGA, $url_pedido, $pedido ));
 
+
+            Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
+            if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
+                $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
+                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. '.$e->getMessage().' '.$e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. ' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -215,7 +214,8 @@ class PedidoController extends Controller
         return view('qrcode');
     }
 
-    public function encabezado(){
+    public function encabezado()
+    {
         $pdf = Pdf::loadView('pedidos.encabezado_pie_numeracion');
         $pdf->setPaper('A4', 'portrait');
         $pdf->render();
@@ -225,7 +225,8 @@ class PedidoController extends Controller
         return $pdf->stream();
         // return view('pedidos.encabezado_pie_numeracion');
     }
-    public function example(){
+    public function example()
+    {
         $pdf = Pdf::loadView('pedidos.example');
         $pdf->render();
         return $pdf->stream();

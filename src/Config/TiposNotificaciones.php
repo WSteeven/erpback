@@ -8,4 +8,5 @@ enum TiposNotificaciones: string{
     case AUTORIZACION_GASTO = 'AUTORIZACION GASTO';
     case TAREA = 'TAREA';
     case SUBTAREA = 'SUBTAREA';
+    case EGRESO = 'EGRESO';
 }

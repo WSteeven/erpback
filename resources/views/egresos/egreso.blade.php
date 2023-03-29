@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 
+@php
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    if ($persona_entrega->firma_url) {
+        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+    }
+    if ($persona_retira->firma_url) {
+        $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_retira->firma_url, 1)));
+    }
+@endphp
+
 <head>
     <meta charset="utf-8">
     <title>Comprobante N° {{ $transaccion['id'] }}</title>
@@ -77,10 +89,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-@endphp
 
 <body>
     <header>
@@ -88,7 +96,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transaccion['transferencia'])
@@ -107,9 +115,25 @@
     <footer>
         <table class="firma" style="width: 100%;">
             <thead>
-                <th align="center">___________________</th>
+                <th align="center">
+                    @isset($entrega_firma)
+                        <img src="{{ $entrega_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($entrega_firma)
+                        ___________________<br />
+                    @endempty
+                </th>
                 <th align="center"></th>
-                <th align="center">___________________</th>
+                <th align="center">
+                    @if ($transaccion['firmada'])
+                        @isset($retira_firma)
+                            <img src="{{ $retira_firma }}" alt="" width="100%" height="40">
+                        @endisset
+                    @endif
+                    @empty($retira_firma)
+                        ___________________<br />
+                    @endempty
+                </th>
             </thead>
             <tbody>
                 <tr align="center">
@@ -190,7 +214,7 @@
 
         </table>
         <!-- aqui va el listado de productos -->
-        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
+        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
             <thead>
                 <th>Producto</th>
                 <th>Descripcion</th>

@@ -43,6 +43,7 @@ use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComprobanteController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\TableroController;
@@ -138,6 +139,7 @@ Route::apiResources(
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
         'control-stocks' => ControlStockController::class,
+        'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
         'devoluciones' => DevolucionController::class,
         'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
@@ -224,14 +226,23 @@ Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimi
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
+
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//gestionar egresos
+Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
+
+Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
+
+
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
-Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
+Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
+Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); 
 
+Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum'); 
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);

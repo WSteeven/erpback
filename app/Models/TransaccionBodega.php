@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\PedidoAutorizadoEvent;
+use App\Events\PedidoCreadoEvent;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -183,12 +185,20 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
     /**
+     * Relacion uno a muchos (inversa).
+     * Una y solo una persona puede autorizar la transaccion
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+    /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a un pedido.
      */
     public function pedido()
     {
-        return $this->belongsTo(Pedido::class);
+        return $this->belongsTo(Pedido::class, 'pedido_id', 'id');
     }
     /**
      * Relación uno a muchos (inversa).
@@ -207,6 +217,14 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Transferencia::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa).
+     * Una transacción puede tener 0 o 1 comprobante
+     */
+    public function comprobante(){
+        return $this->hasOne(Comprobante::class, 'transaccion_id');
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -214,6 +232,9 @@ class TransaccionBodega extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+     public static function obtenerComprobante($transaccion_id){
+        return Comprobante::where('transaccion_id', $transaccion_id)->first();
+     }
 
     /**
      * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
@@ -288,6 +309,9 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function actualizarPedido($transaccion)
     {
+        $url_pedido = '/pedidos';
+        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
@@ -346,6 +370,16 @@ class TransaccionBodega extends Model implements Auditable
                         ]);
                     }
                 }
+            }
+
+            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial
+            if($pedido->estado_id === $estadoCompleta->id){
+                $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
+                event(new PedidoCreadoEvent($msg, $url_pedido,$pedido, $transaccion->per_atiende_id, $pedido->solicitante_id ));
+            }
+            if($pedido->estado_id === $estadoParcial->id){
+                $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
+                event(new PedidoCreadoEvent($msg, $url_pedido,$pedido, $transaccion->per_atiende_id, $pedido->solicitante_id ));
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
