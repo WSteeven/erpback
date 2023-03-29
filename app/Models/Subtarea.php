@@ -61,6 +61,7 @@ class Subtarea extends Model implements Auditable
         'empleado_id',
         'subtarea_dependiente_id',
         'coordinador_id',
+        'emergencia_id',
     ];
 
     // protected $dateFormat = 'd-m-Y';

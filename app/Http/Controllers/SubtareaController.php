@@ -147,6 +147,8 @@ class SubtareaController extends Controller
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = 'Subtarea reagendada exitosamente!';
 
+        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
+
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -318,11 +320,14 @@ class SubtareaController extends Controller
 
     public function reagendar(Request $request, Subtarea $subtarea)
     {
-        $nuevaFecha = $request['nueva_fecha'];
+        // $nuevaFecha = $request['nueva_fecha'];
 
         $subtarea->estado = Subtarea::CREADO;
         $subtarea->fecha_hora_creacion = Carbon::now();
         $subtarea->save();
+
+        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
+
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
 }

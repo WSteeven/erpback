@@ -66,6 +66,9 @@ return new class extends Migration
             $table->unsignedBigInteger('empleado_id')->nullable();
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
+            $table->unsignedBigInteger('emergencia_id')->nullable();
+            $table->foreign('emergencia_id')->references('id')->on('emergencias')->onDelete('set null')->onUpdate('cascade');
+
             /* $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');*/
 

@@ -140,7 +140,7 @@ class PedidoController extends Controller
 
             if($pedido->autorizacion->nombre===Autorizacion::APROBADO){
                 $msg = 'Tienes un pedido recién autorizado por atender en la sucursal '.$pedido->sucursal->lugar;
-                event(new PedidoEvent($msg,$url_pedido, $pedido,  ))
+                // event(new PedidoEvent($msg,$url_pedido, $pedido,  ))
 
             }
 

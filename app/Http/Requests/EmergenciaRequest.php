@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+//use App\Models\Emergencia;
+use App\Models\Subtarea;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EmergenciaRequest extends FormRequest
 {
@@ -23,26 +26,21 @@ class EmergenciaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'regional' => 'required|string',
-            'atencion' => 'required|string',
-            'tipo_intervencion' => 'required|string',
-            'causa_intervencion' => 'required|string',
-            'fecha_reporte_problema' => 'required|string',
-            'hora_reporte_problema' => 'required|string',
-            'fecha_arribo' => 'required|string',
-            'hora_arribo' => 'required|string',
-            'fecha_fin_reparacion' => 'required|string',
-            'hora_fin_reparacion' => 'required|string',
-            'fecha_retiro_personal' => 'required|string',
-            'hora_retiro_personal' => 'required|string',
-            'tiempo_espera_adicional' => 'nullable|string',
-            'estacion_referencia_afectacion' => 'nullable|string',
-            'distancia_afectacion' => 'nullable|string',
-            'trabajo_realizado' => 'required|array',
-            'observaciones' => 'required|array',
-            'materiales_ocupados' => 'required|array',
-            'trabajo' => 'required|numeric|integer',
+        $rules = [
+            'trabajo_realizado' => 'nullable|array',
+            'observaciones' => 'nullable|array',
+            'materiales_ocupados' => 'nullable|array',
+            'materiales_devolucion' => 'nullable|array',
+            'subtarea' => 'required|numeric|integer',
         ];
+
+        /* if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $id = $this->route()->parameter('id');
+            $subtarea = Subtarea::where('emergencia_id', $id)->first();
+
+            $rules['subtarea'] = [Rule::unique('subtareas')->ignore($subtarea->id)];
+        } */
+
+        return $rules;
     }
 }
