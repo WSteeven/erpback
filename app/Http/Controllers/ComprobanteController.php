@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ComprobanteRequest;
 use App\Http\Resources\ComprobanteResource;
 use App\Models\Comprobante;
+use App\Models\TransaccionBodega;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -41,7 +42,7 @@ class ComprobanteController extends Controller
      */
     public function show(Comprobante $comprobante)
     {
-        Log::channel('testing')->info('Log', ['Show de comprobante:', $comprobante ]);
+        Log::channel('testing')->info('Log', ['Show de comprobante:', $comprobante]);
     }
 
 
@@ -59,6 +60,10 @@ class ComprobanteController extends Controller
         // Log::channel('testing')->info('Log', ['[Despues de update] El comprobante a modificar es:', $comprobante]);
         $datos = $request->validated();
         $comprobante->update($datos);
+
+        if ($comprobante->firmada) {
+            TransaccionBodega::asignarMateriales(TransaccionBodega::find($comprobante->transaccion_id));
+        }
 
         $modelo = new ComprobanteResource($comprobante);
         $mensaje = 'Comprobante actualizado correctamente';

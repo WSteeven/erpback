@@ -172,7 +172,7 @@ class SubtareaResource extends JsonResource
         if ($this->tarea->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
             return $this->tarea->proyecto->canton->canton;
         } else if ($this->tarea->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
-            return $this->tarea->clienteFinal->canton->canton;
+            return $this->tarea->clienteFinal?->canton->canton;
         }
     }
 

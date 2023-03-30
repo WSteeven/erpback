@@ -16,6 +16,7 @@ use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\RutaTareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
@@ -27,6 +28,7 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
@@ -48,6 +50,7 @@ Route::apiResources(
             'registros-tendidos' => 'registro_tendido',
             'motivos-pausas' => 'motivo_pausa',
             'motivos-suspendidos' => 'motivo_suspendido',
+            'rutas-tareas' => 'ruta_tarea'
         ],
     ]
 );

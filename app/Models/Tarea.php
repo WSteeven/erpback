@@ -22,6 +22,10 @@ class Tarea extends Model implements Auditable
     const LLAMADA = 'LLAMADA';
     const CHAT = 'CHAT';
 
+    // ubicacionTrabajo
+    const CLIENTE_FINAL = 'CLIENTE_FINAL';
+    const RUTA = 'RUTA';
+
     protected $table = 'tareas';
     protected $fillable = [
         'codigo_tarea',
@@ -29,6 +33,7 @@ class Tarea extends Model implements Auditable
         'fecha_solicitud',
         'titulo',
         'para_cliente_proyecto',
+        'ubicacion_trabajo',
         'medio_notificacion',
         'observacion',
         'tiene_subtareas',
@@ -38,6 +43,7 @@ class Tarea extends Model implements Auditable
         'fiscalizador_id',
         'cliente_id',
         'cliente_final_id',
+        'ruta_tarea_id',
     ];
 
     protected $casts = ['tiene_subtareas' => 'boolean'];
@@ -112,6 +118,11 @@ class Tarea extends Model implements Auditable
     public function clienteFinal()
     {
         return $this->belongsTo(ClienteFinal::class);
+    }
+
+    public function rutaTarea()
+    {
+        return $this->belongsTo(RutaTarea::class);
     }
 
     public function subtareas()

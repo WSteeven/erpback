@@ -68,7 +68,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PropietarioElementoSeeder::class);
         $this->call(MotivoSuspendidoSeeder::class);
         $this->call(MotivoPausaSeeder::class);
-        // $this->call(TrabajoSeeder::class);
+        $this->call(RutaTareaSeeder::class);
         //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 
