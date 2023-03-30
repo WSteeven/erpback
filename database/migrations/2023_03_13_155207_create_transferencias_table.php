@@ -24,8 +24,8 @@ return new class extends Migration
             $table->text('comprobante', 20);
             $table->unsignedBigInteger('id_tarea')->nullable();
             $table->foreign('id_tarea')->references('id')->on('tareas');
-            $table->foreign('usuario_envia_id')->references('id')->on('users');
-            $table->foreign('usuario_recibe_id')->references('id')->on('users');
+            $table->foreign('usuario_envia_id')->references('id')->on('empleados');
+            $table->foreign('usuario_recibe_id')->references('id')->on('empleados');
             $table->foreign('estado')->references('id')->on('estado_viatico');
             $table->timestamps();
         });

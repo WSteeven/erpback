@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
+use App\Models\Empleado;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
@@ -77,7 +78,7 @@ class Gasto extends Model implements Auditable
 
     public function aut_especial_user()
     {
-        return $this->hasOne(User::class, 'id', 'aut_especial')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'aut_especial');
     }
     public function estado_info()
     {
@@ -101,7 +102,7 @@ class Gasto extends Model implements Auditable
     }
     public function usuario_info()
     {
-        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario');
     }
     public function detalle_estado()
     {

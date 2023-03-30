@@ -11,6 +11,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use PgSql\Lob;
 use Psy\CodeCleaner\AssignThisVariablePass;
 use Src\Shared\ValidarIdentificacion;
 
@@ -63,12 +64,12 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $factura = Gasto::whereNotNull('factura')
+            $factura = Gasto::whereNull('factura')
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',1)
             ->first();
-            $factura_aprobada = Gasto::whereNotNull('factura')
+            $factura_pendiente = Gasto::whereNull('factura')
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',3)
@@ -76,21 +77,21 @@ class GastoRequest extends FormRequest
             if ($factura) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
             }
-            if ($factura_aprobada) {
+            if ($factura_pendiente) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
             }
-           $comprobante = Gasto::whereNotNull('num_comprobante')
+           $comprobante = Gasto::whereNull('num_comprobante')
            ->where('num_comprobante',$this->num_comprobante)
            ->where('estado',1)
            ->first();
             if ($comprobante) {
                 $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
-            $comprobante_aprobado = Gasto::whereNotNull('num_comprobante')
+            $comprobante_pendiente = Gasto::whereNull('num_comprobante')
             ->where('num_comprobante',$this->num_comprobante)
             ->where('estado',3)
             ->first();
-            if ($comprobante_aprobado) {
+            if ($comprobante_pendiente) {
                 $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
             if (substr_count($this->ruc, '9') < 9) {
@@ -105,6 +106,9 @@ class GastoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
+          $this->merge([
+                'factura' => str_replace('_',' ',$this->factura),
+          ]);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);

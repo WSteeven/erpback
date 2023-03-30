@@ -44,21 +44,9 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
             $mensaje = 'Tienes un gasto por aceptar';
                 break;
         }
-        $destinatario = $transferencia->estado!=3? $this->obtenerEmpleado($transferencia->usuario_recibe_id)->id:$this->obtenerEmpleado( $transferencia->usuario_envia_id)->id;
-        $remitente = $transferencia->estado!=3? $this->obtenerEmpleado($transferencia->usuario_envia_id)->id:$this->obtenerEmpleado($transferencia->usuario_recibe_id)->id;
+        $destinatario = $transferencia->estado!=3? $transferencia->usuario_recibe_id: $transferencia->usuario_envia_id;
+        $remitente = $transferencia->estado!=3? $transferencia->usuario_envia_id:$transferencia->usuario_recibe_id;
         $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
-    }
-   /**
-    * It returns the first row of the table Empleado where the column usuario_id is equal to the
-    * parameter
-    *
-    * @param id The id of the user you want to get the employee from.
-    *
-    * @return The first row of the table that matches the condition.
-    */
-    public function obtenerEmpleado($id)
-    {
-        return Empleado::where('usuario_id',$id)->first();
     }
 
     /**
