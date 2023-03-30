@@ -35,11 +35,11 @@ class GastoRequest extends FormRequest
             'fecha_viat' => 'required|date_format:Y-m-d',
             'lugar' => 'required',
             'num_tarea' => 'required',
-            'subTarea' => 'required',
+            'subTarea' => 'nullable',
             'proyecto' => 'required',
             'ruc' => 'nullable|string',
             'factura' => 'nullable|string|max:17',
-            'num_comprobante' => 'nullable|string|max:17|min:10',
+            'num_comprobante' => 'nullable|string|max:13',
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',
             'sub_detalle' => 'required|array',
@@ -61,6 +61,14 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+
+            $gasto = DetalleViatico::where('ruc', $this->ruc)
+            ->where('factura',$this->factura)
+            ->where('estado',3)
+            ->first();
+            if ($gasto) {
+                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+            }
             if (substr_count($this->ruc, '9') < 9) {
                 $validador = new ValidarIdentificacion();
                 $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
