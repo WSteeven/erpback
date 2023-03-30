@@ -21,11 +21,11 @@ trait UppercaseValuesTrait
         
         if($key === 'firma_url') {
             if (is_string($value))
-            $this->attributes[$key] = trim(strtolower($value));
+            $this->attributes[$key] = $value;
         }
         if($key === 'foto_url') {
             if (is_string($value))
-            $this->attributes[$key] = trim(strtolower($value));
+            $this->attributes[$key] = $value;
         }
     }
 }
