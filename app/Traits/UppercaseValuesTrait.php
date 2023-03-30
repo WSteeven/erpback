@@ -18,5 +18,14 @@ trait UppercaseValuesTrait
             if (is_string($value))
                 $this->attributes[$key] = trim(strtolower($value));
         }
+        
+        if($key === 'firma_url') {
+            if (is_string($value))
+            $this->attributes[$key] = trim(strtolower($value));
+        }
+        if($key === 'foto_url') {
+            if (is_string($value))
+            $this->attributes[$key] = trim(strtolower($value));
+        }
     }
 }

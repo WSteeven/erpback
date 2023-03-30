@@ -18,6 +18,7 @@ class TransaccionBodegaResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $detalles = TransaccionBodega::listadoProductos($this->id);
+        $comprobante = TransaccionBodega::obtenerComprobante($this->id);
 
         // Log::channel('testing')->info('Log', ['controller method?:', $controller_method]);
 
@@ -59,6 +60,11 @@ class TransaccionBodegaResource extends JsonResource
             'es_tarea'=>$this->tarea?true:false,
             'es_transferencia'=>$this->transferencia_id?true:false,
             'tiene_pedido'=>$this->pedido_id?true:false,
+
+            'comprobante'=>$comprobante,
+            'firmada'=> $comprobante?->firmada,
+            'estado_comprobante'=>$comprobante?->estado,
+            
         ];
 
         if ($controller_method == 'show') {

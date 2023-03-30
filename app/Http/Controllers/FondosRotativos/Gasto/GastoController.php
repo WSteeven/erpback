@@ -434,4 +434,13 @@ class GastoController extends Controller
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto rechazado']);
     }
+    public function anular_gasto(Request $request)
+    {
+        $gasto = Gasto::where('id', $request->id)->first();
+        $gasto->estado = 4;
+        $gasto->detalle_estado = $request->detalle_estado;
+        $gasto->save();
+        event(new FondoRotativoEvent($gasto));
+        return response()->json(['success' => 'Gasto rechazado']);
+    }
 }

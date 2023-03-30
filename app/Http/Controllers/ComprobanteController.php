@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ComprobanteRequest;
+use App\Http\Resources\ComprobanteResource;
 use App\Models\Comprobante;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ComprobanteController extends Controller
 {
@@ -14,17 +17,9 @@ class ComprobanteController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $results = Comprobante::all();
+        $results = ComprobanteResource::collection($results);
+        return response()->json(compact('results'));
     }
 
     /**
@@ -46,19 +41,9 @@ class ComprobanteController extends Controller
      */
     public function show(Comprobante $comprobante)
     {
-        //
+        Log::channel('testing')->info('Log', ['Show de comprobante:', $comprobante ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Comprobante  $comprobante
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Comprobante $comprobante)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -67,9 +52,17 @@ class ComprobanteController extends Controller
      * @param  \App\Models\Comprobante  $comprobante
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Comprobante $comprobante)
+    public function update(ComprobanteRequest $request, int $comprobante)
     {
-        //
+        // Log::channel('testing')->info('Log', ['[Update] El comprobante a modificar es:', $request->all(), $comprobante]);
+        $comprobante = Comprobante::where('transaccion_id', $comprobante)->first();
+        // Log::channel('testing')->info('Log', ['[Despues de update] El comprobante a modificar es:', $comprobante]);
+        $datos = $request->validated();
+        $comprobante->update($datos);
+
+        $modelo = new ComprobanteResource($comprobante);
+        $mensaje = 'Comprobante actualizado correctamente';
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**

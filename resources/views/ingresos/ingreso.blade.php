@@ -6,8 +6,12 @@
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
-    $atiende_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_atiende->firma_url, 1)));
+    if ($persona_entrega->firma_url) {
+        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+    }
+    if ($persona_atiende->firma_url) {
+        $atiende_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_atiende->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -116,14 +120,24 @@
 
         <table class="firma" style="width: 100%;">
             <thead>
-                <th align="center"><img src="{{ $entrega_firma }}" alt="" width="100%" height="40"
-                        border="0">
+                <th align="center">
+                    @isset($entrega_firma)
+                        <img src="{{ $entrega_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($entrega_firma)
+                        ___________________<br/>
+                    @endempty
                     <b>ENTREGA</b>
                 </th>
                 {{-- <th align="center">___________________</th> --}}
                 <th align="center"></th>
-                <th align="center"><img src="{{ $atiende_firma }}" alt="" width="100%" height="40"
-                        border="0">
+                <th align="center">
+                    @isset($atiende_firma)
+                        <img src="{{ $atiende_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($atiende_firma)
+                        ___________________<br/>
+                    @endempty
                     <b>RECIBE</b>
                 </th>
             </thead>
@@ -137,7 +151,7 @@
                         {{ $persona_atiende->identificacion }}
                     </td>
                 </tr>
-                
+
             </tbody>
         </table>
         <table style="width: 100%;">

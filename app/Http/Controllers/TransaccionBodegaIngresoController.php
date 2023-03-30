@@ -100,15 +100,10 @@ class TransaccionBodegaIngresoController extends Controller
                             Log::channel('testing')->info('Log', ['ESTOY EN EL ELSE-99', $itemInventario]);
                             $itemInventario->update(['cantidad' => $itemInventario->cantidad + $listado['cantidad']]);
                         }
-                        $transaccion->items()->attach(
-                            $itemInventario->id,
-                            [
-                                'cantidad_inicial' => $listado['cantidad'],
-                            ]
-                        );
+                        $transaccion->items()->attach($itemInventario->id,['cantidad_inicial' => $listado['cantidad'],]);
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario
-                    Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
+                    // Inventario::ingresoMasivo($transaccion, $request->condicion, $request->listadoProductosTransaccion);
                 } else {
                     Log::channel('testing')->info('Log', ['PASÓ DE LARGO']);
                     Log::channel('testing')->info('Log', ['REQUEST', $request->listadoProductosTransaccion]);
