@@ -46,7 +46,7 @@ class Tarea extends Model implements Auditable
         'ruta_tarea_id',
     ];
 
-    protected $casts = ['tiene_subtareas' => 'boolean'];
+    protected $casts = ['tiene_subtareas' => 'boolean', 'finalizado' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 

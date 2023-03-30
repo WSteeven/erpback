@@ -33,7 +33,7 @@ class TareaResource extends JsonResource
             'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
             'ubicacion_trabajo' => $this->ubicacion_trabajo,
-            // 'ruta_tarea' => $this->rutaTarea->ruta,
+            'ruta_tarea' => $this->rutaTarea?->ruta,
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
@@ -45,6 +45,7 @@ class TareaResource extends JsonResource
             'medio_notificacion' => $this->medio_notificacion,
             'canton' => $this->obtenerCanton(),
             'subtarea' => new SubtareaResource($primeraSubtarea),
+            'finalizado' => $this->finalizado,
             // Subtarea
              'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
              'tipo_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->tipo_trabajo->descripcion : null) : null,
