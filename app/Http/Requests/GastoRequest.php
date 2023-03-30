@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -62,7 +63,7 @@ class GastoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
 
-            $gasto = DetalleViatico::where('ruc', $this->ruc)
+            $gasto = Gasto::where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',3)
             ->first();
