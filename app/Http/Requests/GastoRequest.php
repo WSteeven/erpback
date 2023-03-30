@@ -62,13 +62,21 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            if($this->comprobante1 == $this->comprobante2)
+            {
+                $validator->errors()->add('comprobante1', 'Los comprobantes no pueden ser del mismo lado, por favor cambie uno de los dos');
+            }
 
-            $gasto = Gasto::where('ruc', $this->ruc)
+            $factura = Gasto::where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',3)
             ->first();
-            if ($gasto) {
+            if ($factura) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+            }
+           $comprobante = Gasto::whereNotNull('num_comprobante')->where('num_comprobante',$this->num_comprobante)->first();
+            if ($comprobante) {
+                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
             if (substr_count($this->ruc, '9') < 9) {
                 $validador = new ValidarIdentificacion();

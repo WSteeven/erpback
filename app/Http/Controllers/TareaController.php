@@ -136,7 +136,7 @@ class TareaController extends Controller
     {
         // Adaptacion de foreign keys
         $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        /* $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
         $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
         // $datos['coordinador_id'] = Auth::id();
@@ -157,7 +157,10 @@ class TareaController extends Controller
                 $tarea->ubicacionTarea()->create($ubicacionTarea);
         } else {
             $tarea->ubicacionTarea()->delete();
-        }
+        } */
+
+        $tarea->finalizado = $request->safe()->only(['finalizado'])['finalizado'];
+        $tarea->save();
 
         // Respuesta
         $modelo = new TareaResource($tarea->refresh());
