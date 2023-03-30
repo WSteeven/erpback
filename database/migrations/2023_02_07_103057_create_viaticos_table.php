@@ -37,8 +37,8 @@ return new class extends Migration
             $table->foreign('estado')->references('id')->on('estado_viatico');
             $table->foreign('detalle')->references('id')->on('detalle_viatico');
             $table->foreign('id_lugar')->references('id')->on('cantones');
-            $table->foreign('aut_especial')->references('id')->on('users');
-            $table->foreign('id_usuario')->references('id')->on('users');
+            $table->foreign('aut_especial')->references('id')->on('empleados');
+            $table->foreign('id_usuario')->references('id')->on('empleados');
             $table->foreign('id_tarea')->references('id')->on('tareas');
             $table->foreign('id_subtarea')->references('id')->on('subtareas');
             $table->foreign('id_proyecto')->references('id')->on('proyectos');

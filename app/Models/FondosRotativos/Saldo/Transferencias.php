@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\Tarea;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -30,7 +31,7 @@ class Transferencias extends Model implements Auditable
     ];
     public function usuario_envia()
     {
-        return $this->belongsTo('App\Models\User', 'usuario_envia_id');
+        return $this->belongsTo(Empleado::class, 'usuario_envia_id');
     }
     public function estado_info()
     {
@@ -42,7 +43,7 @@ class Transferencias extends Model implements Auditable
     }
     public function usuario_recibe()
     {
-        return $this->belongsTo('App\Models\User', 'usuario_recibe_id');
+        return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
     }
     private static $whiteListFilter = [
         'usuario_envia_id',

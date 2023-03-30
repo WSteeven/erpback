@@ -29,7 +29,7 @@ class Acreditaciones extends Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne('App\Models\User', 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario');
     }
     public function tipo_saldo(){
         return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');

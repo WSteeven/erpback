@@ -47,13 +47,13 @@ class FondoRotativoEvent implements ShouldBroadcast
             $mensaje = 'Tienes un gasto por aprobar';
                 break;
         }
-        $destinatario = $gasto->estado!=3? $this->obtenerEmpleado($gasto->aut_especial)->id:$this->obtenerEmpleado($gasto->id_usuario)->id;
-        $remitente = $gasto->estado!=3? $this->obtenerEmpleado($gasto->id_usuario)->id:$this->obtenerEmpleado($gasto->aut_especial)->id;
+        $destinatario = $gasto->estado!=3? $gasto->aut_especial:$gasto->id_usuario;
+        $remitente = $gasto->estado!=3? $gasto->id_usuario:$gasto->aut_especial;
         $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
     public function mostrar_mensaje($gasto)
     {
-        $empleado = $this->obtenerEmpleado($gasto->id_usuario);
+        $empleado = Empleado::find($gasto->id_usuario);
         $modelo = new GastoResource($gasto);
         $detalle = $modelo->detalle_info->descripcion;
         $sub_detalle_info =$this->subdetalle_info($modelo->sub_detalle_info);
@@ -72,10 +72,6 @@ class FondoRotativoEvent implements ShouldBroadcast
         }
         return $descripcion;
     }
-    public function obtenerEmpleado($id)
-    {
-        return Empleado::where('usuario_id',$id)->first();
-    }
 
     /**
      * Get the channels the event should broadcast on.
@@ -86,7 +82,6 @@ class FondoRotativoEvent implements ShouldBroadcast
     {
         //return new PrivateChannel('channel-name');
         $nombre_chanel =  $this->gasto->estado==3? 'fondo-rotativo-'. $this->gasto->aut_especial:'fondo-rotativo-'. $this->gasto->id_usuario;
-        Log::channel('testing')->info('Log', ['nombre canal',$nombre_chanel]);
         return new Channel($nombre_chanel );
     }
 
