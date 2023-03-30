@@ -239,9 +239,9 @@ Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::clas
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
-Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']); 
+Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
 
-Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum'); 
+Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
@@ -271,6 +271,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('fondos-rotativos/autorizaciones_transferencia', [TransferenciasController::class, 'autorizaciones_transferencia']);
     Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
     Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
+    Route::post('fondos-rotativos/anular-gasto', [GastoController::class, 'anular_gasto']);
     Route::post('fondos-rotativos/aprobar-transferencia', [TransferenciasController::class, 'aprobar_transferencia']);
     Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
 

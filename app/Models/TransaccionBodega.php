@@ -221,7 +221,8 @@ class TransaccionBodega extends Model implements Auditable
      * Relacion uno a uno (inversa).
      * Una transacción puede tener 0 o 1 comprobante
      */
-    public function comprobante(){
+    public function comprobante()
+    {
         return $this->hasOne(Comprobante::class, 'transaccion_id');
     }
 
@@ -232,9 +233,10 @@ class TransaccionBodega extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     public static function obtenerComprobante($transaccion_id){
+    public static function obtenerComprobante($transaccion_id)
+    {
         return Comprobante::where('transaccion_id', $transaccion_id)->first();
-     }
+    }
 
     /**
      * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
@@ -304,6 +306,60 @@ class TransaccionBodega extends Model implements Auditable
         return $listado;
     }
 
+    public static function asignarMateriales(TransaccionBodega $transaccion)
+    {
+        try {
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+
+                // Si es material para tarea
+                if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
+                        ->where('tarea_id', $transaccion->tarea_id)
+                        ->where('empleado_id', $transaccion->responsable)
+                        ->first();
+
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+
+                        MaterialEmpleadoTarea::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'tarea_id' => $transaccion->tarea_id,
+                            'empleado_id' => $transaccion->responsable_id,
+                            'detalle_producto_id' => $itemInventario->detalle_id,
+                            'es_fibra' => $esFibra, // Pendiente de obtener
+                        ]);
+                    }
+                } else {
+                    // Stock personal
+                    $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
+                        ->where('empleado_id', $transaccion->responsable)
+                        ->first();
+
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+
+                        MaterialEmpleado::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'empleado_id' => $transaccion->responsable_id,
+                            'detalle_producto_id' => $itemInventario->detalle_id,
+                            'es_fibra' => $esFibra,
+                        ]);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            //
+        }
+    }
+
     /**
      * Funcion para actualizar el pedido y su listado en cada egreso.
      */
@@ -326,60 +382,17 @@ class TransaccionBodega extends Model implements Auditable
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
-                // Si es material para tarea
-                if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
-                        ->where('tarea_id', $pedido->tarea_id)
-                        ->where('empleado_id', $pedido->responsable)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->save();
-                    } else {
-                        Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
-
-                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
-
-                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $esFibra]);
-
-                        MaterialEmpleadoTarea::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'tarea_id' => $pedido->tarea_id,
-                            'empleado_id' => $pedido->responsable_id,
-                            'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => $esFibra, // Pendiente de obtener
-                        ]);
-                    }
-                } else {
-                    $material = MaterialEmpleado::where('detalle_producto_id', $detallePedido->detalle_id)
-                        ->where('empleado_id', $pedido->responsable)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->save();
-                    } else {
-                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
-
-                        MaterialEmpleado::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'empleado_id' => $pedido->responsable_id,
-                            'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => $esFibra,
-                        ]);
-                    }
-                }
+                // aqui va
             }
 
             //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial
-            if($pedido->estado_id === $estadoCompleta->id){
+            if ($pedido->estado_id === $estadoCompleta->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
-                event(new PedidoCreadoEvent($msg, $url_pedido,$pedido, $transaccion->per_atiende_id, $pedido->solicitante_id ));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
             }
-            if($pedido->estado_id === $estadoParcial->id){
+            if ($pedido->estado_id === $estadoParcial->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
-                event(new PedidoCreadoEvent($msg, $url_pedido,$pedido, $transaccion->per_atiende_id, $pedido->solicitante_id ));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);

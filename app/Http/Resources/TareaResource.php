@@ -32,6 +32,8 @@ class TareaResource extends JsonResource
             'observacion' => $this->observacion,
             'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
+            'ubicacion_trabajo' => $this->ubicacion_trabajo,
+            // 'ruta_tarea' => $this->rutaTarea->ruta,
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
@@ -68,6 +70,7 @@ class TareaResource extends JsonResource
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['cliente'] = $this->cliente_id;
+            $modelo['ruta_tarea'] = $this->ruta_tarea_id;
         }
 
         return $modelo;
@@ -93,7 +96,7 @@ class TareaResource extends JsonResource
         if ($this->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
             return $this->proyecto->canton->canton;
         } else if ($this->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
-            return $this->clienteFinal->canton->canton;
+            return $this->clienteFinal?->canton->canton;
         }
     }
 }

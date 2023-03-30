@@ -30,6 +30,7 @@ class GastosObserver
     public function updated(Gasto $gasto)
     {
         if($gasto->estado ==1)$this->guardar_gasto($gasto);
+        if($gasto->estado ==4) $this->revertir_cambios($gasto);
     }
 
     /**
@@ -81,6 +82,20 @@ class GastosObserver
         $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
         $fechaFin = date("Y-m-d", strtotime($fecha. "+$sum days"));
         return array($fechaIni, $fechaFin);
+    }
+    private function revertir_cambios($gasto){
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('id', 'desc')->first();
+            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+            $saldo = new SaldoGrupo();
+            $saldo->fecha = $gasto->fecha_viat;
+            $saldo->saldo_anterior = $total_saldo_actual;
+            $saldo->saldo_depositado = $gasto->total;
+            $saldo->saldo_actual =  $total_saldo_actual+$gasto->total;
+            $saldo->fecha_inicio =$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0];
+            $saldo->fecha_fin = $this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1];;
+            $saldo->id_usuario = $gasto->id_usuario;
+            $saldo->tipo_saldo = "Anulacion";
+            $saldo->save();
     }
     private function guardar_gasto(Gasto $gasto){
         $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('id', 'desc')->first();

@@ -18,5 +18,6 @@ class EstadoViaticoSeeder extends Seeder
         EstadoViatico::create(['descripcion'=>'APROBADO','transcriptor'=>'ADMINISTRADOR','fecha_trans'=>date('Y-m-d')]);
         EstadoViatico::create(['descripcion'=>'RECHAZADO','transcriptor'=>'ADMINISTRADOR','fecha_trans'=>date('Y-m-d')]);
         EstadoViatico::create(['descripcion'=>'POR APROBAR','transcriptor'=>'ADMINISTRADOR','fecha_trans'=>date('Y-m-d')]);
+        EstadoViatico::create(['descripcion'=>'ANULADO','transcriptor'=>'ADMINISTRADOR','fecha_trans'=>date('Y-m-d')]);
     }
 }

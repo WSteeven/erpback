@@ -378,6 +378,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $jefe_tecnico]);
+         // Rutas de tareas
+         Permission::firstOrCreate(['name' => 'puede.ver.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+         Permission::firstOrCreate(['name' => 'puede.crear.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+         Permission::firstOrCreate(['name' => 'puede.editar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+         Permission::firstOrCreate(['name' => 'puede.eliminar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
 
         /**
          * Permisos  para fondo rotativo
