@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tipos_trabajos', function (Blueprint $table) {
+        Schema::create('trabajos_realizados', function (Blueprint $table) {
             $table->id();
-            $table->string('descripcion');
+
+            $table->string('trabajo_realizado');
+            $table->string('fotografia')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('cliente_id');
-            $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('seguimiento_id');
+            $table->foreign('seguimiento_id')->references('id')->on('emergencias')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipos_trabajos');
+        Schema::dropIfExists('trabajos_realizados');
     }
 };
