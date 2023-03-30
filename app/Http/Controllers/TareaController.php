@@ -67,15 +67,16 @@ class TareaController extends Controller
             $datos = $request->validated();
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+            $datos['ruta_tarea_id'] = $request->safe()->only(['ruta_tarea'])['ruta_tarea'];
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
             $datos['coordinador_id'] = Auth::user()->empleado->id;
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
 
-            Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
             $modelo = Tarea::create($datos);
-            Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
 
             $subtarea = $datos['subtarea'];
 
