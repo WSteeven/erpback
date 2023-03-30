@@ -27,5 +27,6 @@ class CategoriaSeeder extends Seeder
         Categoria::create(['nombre'=>'MATERIALES']);
         Categoria::create(['nombre'=>'SUMINISTROS']);
         Categoria::create(['nombre'=>'UNIFORMES']);
+        Categoria::create(['nombre'=>'EQUIPOS PARA ALOJAMIENTO DE PERSONAL']);
     }
 }
