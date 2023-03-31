@@ -102,7 +102,7 @@ class Gasto extends Model implements Auditable
     }
     public function usuario_info()
     {
-        return $this->hasOne(Empleado::class, 'id', 'id_usuario');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user') ;
     }
     public function detalle_estado()
     {
@@ -116,9 +116,9 @@ class Gasto extends Model implements Auditable
         $row = [];
         foreach ($gastos as $gasto) {
             $row['fecha']= $gasto->fecha_viat;
-            $row['usuario_info']= $gasto->usuario_info;
-            $row['usuario'] = $gasto->usuario_info->empleado;
-            $row['grupo'] = $gasto->usuario_info->empleado->grupo==null?'':$gasto->usuario_info->empleado->grupo->descripcion;
+            $row['usuario_info']= $gasto->usuario_info->user;
+            $row['usuario'] = $gasto->usuario_info;
+            $row['grupo'] = $gasto->usuario_info->grupo==null?'':$gasto->usuario_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
             $row['detalle'] = $gasto->detalle_info;

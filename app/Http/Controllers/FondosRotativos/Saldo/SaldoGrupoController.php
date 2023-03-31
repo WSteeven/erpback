@@ -259,37 +259,37 @@ class SaldoGrupoController extends Controller
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
-            $titulo = 'REPORTE DE';
+            $titulo = 'REPORTE ';
             $subtitulo = '';
             switch ($request->tipo_filtro) {
                 case '1':
                     $proyecto = Proyecto::where('id', $request->proyecto)->first();
-                    $titulo .= ' GASTOS POR PROYECTO ';
+                    $titulo .= 'DE GASTOS POR PROYECTO ';
                     $subtitulo = 'PROYECTO: ' . $proyecto->codigo_proyecto . ' - ' . $proyecto->nombre;
                     break;
                 case '2':
                     $tarea = Tarea::where('id', $request->tarea)->first();
-                    $titulo .= ' GASTOS POR TAREA ';
+                    $titulo .= 'DE GASTOS POR TAREA ';
                     $subtitulo = 'TAREA: ' . $tarea->codigo_tarea . ' - ' . $tarea->nombre_tarea;
                     break;
                 case '3':
                     $detalle = DetalleViatico::where('id', $request->detalle)->first();
-                    $titulo .= ' GASTOS POR DETALLE ' . $detalle->descripcion . ' ';
+                    $titulo .= 'DE GASTOS POR DETALLE ';
                     $subtitulo = 'DETALLE: ' . $detalle->descripcion;
                     break;
                 case '4':
                     $sub_detalle = SubDetalleViatico::where('id', $request->sub_detalle)->first();
-                    $titulo .= ' GASTOS POR SUBDETALLE ';
+                    $titulo .= 'DE GASTOS POR SUBDETALLE ';
                     $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
                 case '5':
                     $autorizador = User::with('empleado')->where('id', $request->autorizador)->first();
-                    $titulo .= ' GASTOS POR AUTORIZADOR ';
+                    $titulo .= 'DE GASTOS POR AUTORIZADOR ';
                     $subtitulo = 'AUTORIZADOR: ' . $autorizador->empleado->nombres . ' ' . $autorizador->empleado->apellidos;
                     break;
                 case '6':
                     $usuario = User::with('empleado')->where('id', $request->usuario)->first();
-                    $titulo .= ' GASTOS POR USUARIO ';
+                    $titulo .= 'DE GASTOS POR USUARIO ';
                     $subtitulo = 'USUARIO: ' . $usuario->empleado->nombres . ' ' . $usuario->empleado->apellidos;
                     break;
             }

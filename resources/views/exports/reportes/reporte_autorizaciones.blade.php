@@ -38,21 +38,10 @@
             height: 65px;
             margin-top: 0%;
             margin-bottom: 0%;
-            font-size: 7pt;
         }
 
         footer .page:after {
             content: counter(page);
-        }
-
-        .firma {
-            table-layout: fixed;
-            width: 75%;
-            line-height: normal;
-            font-size: 10pt;
-            margin-top: 0%;
-            margin-bottom: -20px;
-            font-size: 7pt;
         }
 
 
@@ -95,7 +84,7 @@
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE AUTORIZACIONES CON ESTADO
-                        {{ $tipo_reporte->descripcion . ' DEL ' . $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                        {{ $tipo_reporte->descripcion . ' DEL ' . date("d-m-Y", strtotime($fecha_inicio)) . ' AL ' .date("d-m-Y", strtotime( $fecha_fin)) }}</b></div>
 
                 </td>
             </tr>
@@ -201,7 +190,7 @@
                                 {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                             </td>
                             <td width="8%">{{ $dato['grupo'] }}</td>
-                            <td width="8%">{{ $dato['tarea'] ==null?'SIN TAREA': $dato['tarea']->descripcion }}</td>
+                            <td width="8%">{{ $dato['tarea'] ==null?'SIN TAREA': $dato['tarea']->codigo_tarea }}</td>
                             <td width="8%">{{ isset($dato['detalle']) ==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
                             <td width="8%">
                                 @foreach($dato['sub_detalle'] as $sub_detalle)

@@ -220,8 +220,6 @@ class GastoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            Log::channel('testing')->info('Log', ['fechainicio', $request->fecha_inicio]);
-            Log::channel('testing')->info('Log', ['fechafin', $request->fecha_fin]);
             $usuario_logeado = Auth::user();
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
