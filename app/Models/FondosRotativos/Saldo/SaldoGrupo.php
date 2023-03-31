@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\TipoSaldo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\TipoFondo;
@@ -33,7 +34,7 @@ class SaldoGrupo extends  Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
     public static function empaquetarListado($saldos, $tipo)
     {
@@ -49,10 +50,10 @@ class SaldoGrupo extends  Model implements Auditable
                         $row['fecha'] = $saldo->fecha;
                         $row['tipo_saldo'] = $saldo->id_tipo_saldo;
                         $row['usuario'] = $saldo->id_usuario;
-                        $row['usuario_info'] = $saldo->usuario;
-                        $row['cargo'] = $saldo->usuario->empleado->cargo!=null?$saldo->usuario->empleado->cargo->nombre:'';
-                        $row['empleado'] = $saldo->usuario->empleado;
-                        $row['localidad'] = $saldo->usuario->empleado->canton != null ? $saldo->usuario->empleado->canton->canton : '';
+                        $row['usuario_info'] = $saldo->usuario->user;
+                        $row['cargo'] = $saldo->usuario->cargo!=null?$saldo->usuario->cargo->nombre:'';
+                        $row['empleado'] = $saldo->usuario;
+                        $row['localidad'] = $saldo->usuario->empleado->canton != null ? $saldo->usuario->canton->canton : '';
                         $row['descripcion_saldo'] = $saldo->descripcion_saldo;
                         $row['saldo_anterior'] = $saldo->saldo_anterior;
                         $row['saldo_depositado'] = $saldo->saldo_depositado;
@@ -69,10 +70,10 @@ class SaldoGrupo extends  Model implements Auditable
                     $row['fecha'] = $saldos->fecha;
                     $row['tipo_saldo'] = $saldos->id_tipo_saldo;
                     $row['usuario'] = $saldos->id_usuario;
-                    $row['usuario_info'] = $saldos->usuario;
-                    $row['empleado'] = $saldos->usuario->empleado;
-                    $row['cargo'] =  $saldos->usuario->empleado->cargo!=null?$saldos->usuario->empleado->cargo->nombre:'';
-                    $row['localidad'] = $saldos->usuario->empleado->canton != null ? $saldos->usuario->empleado->canton->canton : '';
+                    $row['usuario_info'] = $saldos->usuario->user;
+                    $row['empleado'] = $saldos->usuario;
+                    $row['cargo'] =  $saldos->usuario->cargo!=null?$saldos->usuario->cargo->nombre:'';
+                    $row['localidad'] = $saldos->usuario->canton != null ? $saldos->usuario->canton->canton : '';
                     $row['descripcion_saldo'] = $saldos->descripcion_saldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;

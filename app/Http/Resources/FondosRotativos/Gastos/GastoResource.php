@@ -29,7 +29,7 @@ class GastoResource extends JsonResource
             'proyecto_info' => $this->proyecto_info!=null? $this->proyecto_info->codigo_proyecto.' - '.$this->proyecto_info->nombre: 'Sin Proyecto',
             'ruc' => $this->ruc,
             'factura' => $this->factura,
-            'aut_especial_user' => $this->aut_especial_user->name,
+            'aut_especial_user' => $this->aut_especial_user->nombres .' ' .$this->aut_especial_user->apellidos,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,

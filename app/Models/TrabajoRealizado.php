@@ -9,14 +9,15 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 
-class TipoTrabajo extends Model implements Auditable
+class TrabajoRealizado extends Model implements Auditable
 {
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
-    protected $table = "tipos_trabajos";
+    protected $table = 'trabajos_realizados';
     protected $fillable = [
-        'descripcion',
-        'cliente_id',
+        'trabajo_realizado',
+        'fotografia',
+        'seguimiento_id',
     ];
 
     private static $whiteListFilter = [
@@ -24,8 +25,8 @@ class TipoTrabajo extends Model implements Auditable
     ];
 
     // Relacion uno a muchos (inversa)
-    public function cliente()
+    public function emergencia()
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(Emergencia::class);
     }
 }

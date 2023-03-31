@@ -64,12 +64,12 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $factura = Gasto::whereNull('factura')
+            $factura = Gasto::where('factura','!=',null)
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',1)
             ->first();
-            $factura_pendiente = Gasto::whereNull('factura')
+            $factura_pendiente = Gasto::where('factura','!=',null)
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',3)
@@ -80,14 +80,14 @@ class GastoRequest extends FormRequest
             if ($factura_pendiente) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
             }
-           $comprobante = Gasto::whereNull('num_comprobante')
+           $comprobante = Gasto::where('num_comprobante', '!=',null)
            ->where('num_comprobante',$this->num_comprobante)
            ->where('estado',1)
            ->first();
             if ($comprobante) {
                 $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
-            $comprobante_pendiente = Gasto::whereNull('num_comprobante')
+            $comprobante_pendiente = Gasto::where('num_comprobante', '!=',null)
             ->where('num_comprobante',$this->num_comprobante)
             ->where('estado',3)
             ->first();
