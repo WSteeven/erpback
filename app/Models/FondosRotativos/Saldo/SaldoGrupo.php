@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\TipoSaldo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\TipoFondo;
@@ -33,7 +34,7 @@ class SaldoGrupo extends  Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario');
     }
     public static function empaquetarListado($saldos, $tipo)
     {
