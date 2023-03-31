@@ -65,11 +65,13 @@ class GastoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $factura = Gasto::where('factura','!=',null)
+            ->where('factura','!=','')
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',1)
             ->first();
             $factura_pendiente = Gasto::where('factura','!=',null)
+            ->where('factura','!=','')
             ->where('ruc', $this->ruc)
             ->where('factura',$this->factura)
             ->where('estado',3)

@@ -251,7 +251,7 @@ class SaldoGrupoController extends Controller
                 ->filter($request->all())
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->with(
-                    'usuario_info',
+                    'empleado_info',
                     'detalle_estado',
                     'sub_detalle_info',
                     'proyecto_info'
@@ -353,7 +353,7 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('estado', 1)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -391,7 +391,7 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('estado', 1)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -428,7 +428,7 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $gastos = Gasto::with('usuario_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->orderBy('fecha_viat', 'asc')

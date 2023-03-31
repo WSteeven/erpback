@@ -38,9 +38,9 @@ class GastoCoordinadorController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('usuario_info', 'motivo_info', 'lugar_info')->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->get();
         } else {
-            $results = GastoCoordinador::with('usuario_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->id)->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->id)->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');

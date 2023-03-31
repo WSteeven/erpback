@@ -145,7 +145,7 @@
                         </div>
                     </td>
                     <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $gasto['usuario_info']->name }}
+                        <div align="left">{{ $gasto['empleado_info']->name }}
                         </div>
                     </td>
                     <td style="font-size:10px" width="17%">

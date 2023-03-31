@@ -39,7 +39,7 @@ class GastoCoordinador extends Model implements Auditable
     {
         return $this->hasOne(MotivoGasto::class, 'id','id_motivo');
     }
-    public function usuario_info()
+    public function empleado_info()
     {
         return $this->hasOne(Empleado::class, 'id','id_usuario')->with('user');
     }
@@ -71,7 +71,7 @@ class GastoCoordinador extends Model implements Auditable
             $row['monto'] = $gasto->monto;
             $row['observacion'] = $gasto->observacion;
             $row['usuario'] = $gasto->id_usuario;
-            $row['usuario_info'] = $gasto->usuario_info->user;
+            $row['empleado_info'] = $gasto->empleado_info->user;
 
             $results[$id] = $row;
             $id++;

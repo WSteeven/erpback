@@ -25,7 +25,7 @@ class SaldoGrupoResource extends JsonResource
             'fecha' => $this->fecha,
             'tipo_saldo' => $this->id_tipo_saldo,
             'usuario' => $this->id_usuario,
-            'usuario_info' => $this->usuario,
+            'empleado_info' => $this->usuario,
             'descripcion_saldo' => $this->descripcion_saldo,
             'saldo_anterior' => $this->saldo_anterior,
             'saldo_depositado' => $this->saldo_depositado,

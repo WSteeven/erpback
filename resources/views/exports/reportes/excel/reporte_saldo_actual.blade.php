@@ -110,7 +110,7 @@
                                         </td>
                                         <td style="font-size:10px">
                                             <div align="left" style="margin-left:20px;">
-                                                {{ $saldo['usuario_info']->name}}
+                                                {{ $saldo['empleado_info']->name}}
                                             </div>
                                         </td>
                                         <td style="font-size:10px">
