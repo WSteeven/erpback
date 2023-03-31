@@ -20,6 +20,8 @@ class UnidadMedidaSeeder extends Seeder
         UnidadMedida::create(['nombre'=>'METRO', 'simbolo'=>'M']);  
         UnidadMedida::create(['nombre'=>'METRO LINEAL', 'simbolo'=>'ML']);  
         UnidadMedida::create(['nombre'=>'KILOMETRO', 'simbolo'=>'KM']);  
-        UnidadMedida::create(['nombre'=>'KILOMETRO CUBICO', 'simbolo'=>'KC']);  
+        UnidadMedida::create(['nombre'=>'KILOMETRO CUBICO', 'simbolo'=>'KC']); 
+        UnidadMedida::create(['nombre'=>'LITRO', 'simbolo'=>'L']);
+        UnidadMedida::create(['nombre'=>'KIT', 'simbolo'=>'KIT']);
     }
 }

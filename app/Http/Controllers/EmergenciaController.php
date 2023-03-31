@@ -8,8 +8,11 @@ use App\Http\Resources\EmergenciaResource;
 use App\Models\Emergencia;
 // use App\Models\Emergencia;
 use App\Models\Subtarea;
+use App\Models\TrabajoRealizado;
 use Illuminate\Http\Request;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class EmergenciaController extends Controller
@@ -37,13 +40,22 @@ class EmergenciaController extends Controller
     public function store(EmergenciaRequest $request)
     {
         $datos = $request->validated();
-        //$modelo = new EmergenciaResource($modelo);
+
         $modelo = Emergencia::create($datos);
+
+        foreach($datos['trabajo_realizado'] as $trabajo) {
+            $trabajoRealizado = new TrabajoRealizado();
+            $trabajoRealizado->fotografia = (new GuardarImagenIndividual($trabajo['fotografia'], RutasStorage::SEGUIMIENTO))->execute();
+            $trabajoRealizado->trabajo_realizado = $trabajo['trabajo_realizado'];
+            $trabajoRealizado->seguimiento_id = $modelo->id;
+            $trabajoRealizado->save();
+        }
 
         $subtarea = Subtarea::find($request->safe()->only(['subtarea'])['subtarea']);
         $subtarea->emergencia_id = $modelo->id;
         $subtarea->save();
 
+        $modelo = new EmergenciaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
