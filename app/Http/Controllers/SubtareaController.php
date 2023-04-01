@@ -192,6 +192,8 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_realizado = Carbon::now();
         $subtarea->save();
 
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
@@ -224,12 +226,14 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();
 
-        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+
+        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
 
         if ($movilizacion) {
             $movilizacion->fecha_hora_llegada = Carbon::now();
             $movilizacion->save();
-        }
+        } */
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
@@ -242,6 +246,15 @@ class SubtareaController extends Controller
         $pausa = $subtarea->pausasSubtarea()->orderBy('fecha_hora_pausa', 'desc')->first();
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
+
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+
+        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
+
+        if ($movilizacion) {
+            $movilizacion->fecha_hora_llegada = Carbon::now();
+            $movilizacion->save();
+        } */
     }
 
     public function corregir(Subtarea $subtarea)
@@ -260,12 +273,14 @@ class SubtareaController extends Controller
             $motivo_suspendido_id => ['empleado_id' => Auth::user()->empleado->id]
         ]);
 
-        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+
+        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
 
         if ($movilizacion) {
             $movilizacion->fecha_hora_llegada = Carbon::now();
             $movilizacion->save();
-        }
+        } */
         // $subtarea->touch();
         return response()->json(['modelo' => new SubtareaResource($subtarea->refresh())]);
     }

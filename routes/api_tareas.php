@@ -92,9 +92,6 @@ Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'desig
 // Obtener las bobinas asignadas a un empleado para usarla durante la ejecución de un trabajo
 // Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
 
-// Obtener los materiales para tareas asignados a un empleado
-Route::get('todos-materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerTodosMateriales']);
-
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
 Route::apiResource('tendidos', TendidoController::class)->except('show');
 
@@ -110,7 +107,10 @@ Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaControll
  * Materiales
  *************/
 // Obtener los materiales designados a un empleado para usarlos durante la ejecución de un trabajo
-Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTareas']);
+// Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTareas']);
 
 // Obtener los materiales del stock personal
 Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
+
+// Obtener los materiales para tareas asignados a un empleado
+Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);

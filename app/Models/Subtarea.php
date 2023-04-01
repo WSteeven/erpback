@@ -54,6 +54,7 @@ class Subtarea extends Model implements Auditable
         'fecha_inicio_trabajo',
         'hora_inicio_trabajo',
         'hora_fin_trabajo',
+        'tiempo_estimado',
 
         'tipo_trabajo_id',
         'tarea_id',
@@ -218,5 +219,10 @@ class Subtarea extends Model implements Auditable
     public function scopeAnterioresNoFinalizados($query)
     {
         return $query->whereDate('fecha_inicio_trabajo', '<', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
+    }
+
+    public function scopeNoEstaRealizado($query)
+    {
+        return $query->where('estado', '!=', Subtarea::REALIZADO);
     }
 }

@@ -22,13 +22,15 @@ class MovilizacionSubtareaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'subtarea' => 'required|numeric|integer'
+            'subtarea' => 'required|numeric|integer',
+            'motivo' => 'required|string',
         ]);
 
         $modelo = MovilizacionSubtarea::create([
             'fecha_hora_salida' => Carbon::now(), //Carbon::parse($request['fecha_hora_salida'])->format('Y-m-d'),
             'empleado_id' => Auth::user()->empleado->id,
             'subtarea_id' => $request['subtarea'],
+            'motivo' => $request['motivo'],
         ]);
 
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');

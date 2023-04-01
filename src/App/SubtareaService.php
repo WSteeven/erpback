@@ -5,9 +5,11 @@ namespace Src\App;
 use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
+use App\Models\MovilizacionSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class SubtareaService
@@ -76,5 +78,15 @@ class SubtareaService
     {
         $results = Subtarea::ignoreRequest(['campos'])->filter()->get();
         return SubtareaResource::collection($results);
+    }
+
+    public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea)
+    {
+        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
+
+        if ($movilizacion) {
+            $movilizacion->fecha_hora_llegada = Carbon::now();
+            $movilizacion->save();
+        }
     }
 }

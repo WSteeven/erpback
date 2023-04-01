@@ -43,6 +43,7 @@ return new class extends Migration
             $table->string('hora_inicio_trabajo')->nullable();
             $table->string('hora_fin_trabajo')->nullable();
 
+            $table->string('tiempo_estimado')->nullable();
             $table->json('empleados_designados')->nullable();
 
             // Foreign keys
