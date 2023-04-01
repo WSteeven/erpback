@@ -29,7 +29,7 @@ class GastoCoordinadorResource extends JsonResource
             'monto' => $this->monto,
             'observacion' => $this->observacion,
             'usuario' => $this->id_usuario,
-            'usuario_info' => $this->usuario_info->name,
+            'empleado_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
         ];
         return $modelo;
     }

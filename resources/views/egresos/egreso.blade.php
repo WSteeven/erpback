@@ -6,10 +6,10 @@
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     if ($persona_entrega->firma_url) {
-        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     }
     if ($persona_retira->firma_url) {
-        $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_retira->firma_url, 1)));
+        $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     }
 @endphp
 
@@ -227,7 +227,7 @@
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
-                        <td>Peras</td>
+                        <td>{{$listado['categoria']}}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>
                 @endforeach

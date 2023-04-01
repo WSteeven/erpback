@@ -7,6 +7,7 @@ use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoCoordinadorRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoCoordinadorResource;
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use App\Models\User;
 use Carbon\Carbon;
@@ -37,9 +38,9 @@ class GastoCoordinadorController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('usuario_info', 'motivo_info', 'lugar_info')->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->get();
         } else {
-            $results = GastoCoordinador::with('usuario_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->id)->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->id)->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -121,10 +122,11 @@ class GastoCoordinadorController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
             $solicitudes = GastoCoordinador::empaquetar($results);
+            $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
             $export_excel = new GastoExport(null);
-            $reportes = compact('solicitudes', 'fecha_inicio', 'fecha_fin');
+            $reportes = compact('solicitudes','usuario', 'fecha_inicio', 'fecha_fin');
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);

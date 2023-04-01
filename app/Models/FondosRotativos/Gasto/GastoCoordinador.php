@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
+use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -38,9 +39,9 @@ class GastoCoordinador extends Model implements Auditable
     {
         return $this->hasOne(MotivoGasto::class, 'id','id_motivo');
     }
-    public function usuario_info()
+    public function empleado_info()
     {
-        return $this->hasOne(User::class, 'id','id_usuario');
+        return $this->hasOne(Empleado::class, 'id','id_usuario')->with('user');
     }
     public function grupo_info()
     {
@@ -70,7 +71,7 @@ class GastoCoordinador extends Model implements Auditable
             $row['monto'] = $gasto->monto;
             $row['observacion'] = $gasto->observacion;
             $row['usuario'] = $gasto->id_usuario;
-            $row['usuario_info'] = $gasto->usuario_info->name;
+            $row['empleado_info'] = $gasto->empleado_info->user;
 
             $results[$id] = $row;
             $id++;

@@ -292,6 +292,12 @@ class SubDetalleViaticoSeeder extends Seeder
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
+             [
+                'id_detalle_viatico' => 10,
+                'descripcion' => 'ENVIO A NEDETEL',
+                'autorizacion' => 'SI',
+                'id_estatus' => 1,
+            ],
             [
                 'id_detalle_viatico' => 11,
                 'descripcion' => 'MATERIALES',
@@ -565,6 +571,18 @@ class SubDetalleViaticoSeeder extends Seeder
             [
                 'id_detalle_viatico' => 26,
                 'descripcion' => 'MANO DE OBRA',
+                'autorizacion' => 'SI',
+                'id_estatus' => 1,
+            ],
+            [
+                'id_detalle_viatico' => 27,
+                'descripcion' => 'MANO DE OBRA',
+                'autorizacion' => 'SI',
+                'id_estatus' => 1,
+            ],
+            [
+                'id_detalle_viatico' => 27,
+                'descripcion' => 'MATERIALES',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],

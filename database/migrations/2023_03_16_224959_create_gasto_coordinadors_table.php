@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_grupo');
             $table->foreign('id_lugar')->references('id')->on('cantones');
-            $table->foreign('id_usuario')->references('id')->on('users');
+            $table->foreign('id_usuario')->references('id')->on('empleados');
             $table->foreign('id_grupo')->references('id')->on('grupos');
             $table->timestamps();
         });

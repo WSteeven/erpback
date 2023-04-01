@@ -220,13 +220,11 @@ class GastoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            Log::channel('testing')->info('Log', ['fechainicio', $request->fecha_inicio]);
-            Log::channel('testing')->info('Log', ['fechafin', $request->fecha_fin]);
             $usuario_logeado = Auth::user();
             $id_usuario = $usuario_logeado->id;
             $usuario_logeado = User::where('id', $id_usuario)->get();
             $idUsuarioLogeado = $usuario_logeado[0]->id;
-            $datos_reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $datos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=', $idUsuarioLogeado)
@@ -367,12 +365,12 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = User::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info')
+            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $subtotal = Gasto::with('usuario_info', 'detalle_info', 'sub_detalle_info')
+            $subtotal = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');

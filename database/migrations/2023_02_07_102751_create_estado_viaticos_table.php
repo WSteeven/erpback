@@ -16,8 +16,6 @@ return new class extends Migration
         Schema::create('estado_viatico', function (Blueprint $table) {
             $table->id();
             $table->string('descripcion', 250);
-            $table->string('transcriptor', 12);
-            $table->timestamp('fecha_trans');
             $table->timestamps();
         });
     }

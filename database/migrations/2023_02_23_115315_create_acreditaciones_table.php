@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_tipo_fondo');
             $table ->foreign('id_tipo_saldo')->references('id')->on('tipo_saldo');
             $table ->foreign('id_tipo_fondo')->references('id')->on('tipo_fondo');
-            $table ->foreign('id_usuario')->references('id')->on('users');
+            $table ->foreign('id_usuario')->references('id')->on('empleados');
             $table->timestamps();
         });
     }

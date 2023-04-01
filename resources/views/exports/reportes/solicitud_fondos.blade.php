@@ -131,6 +131,9 @@
     </footer>
     <div id="content">
         <p>
+            <div style="text-align: center; font-weight: bold">{{ $usuario->nombres.' '.$usuario->apellidos }}</div>
+        </p>
+        <p>
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados" >
             <tr>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Fecha</strong></td>

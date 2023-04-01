@@ -166,7 +166,7 @@
                                                     <div align="center">{{ date("d-m-Y", strtotime(  $acreditacion['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
-                                                    <div align="left">{{ $acreditacion['descripcion_saldo'] }}</div>
+                                                    <div align="left">{{ $acreditacion['descripcion_acreditacion'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="10%">
                                                     <div align="right">

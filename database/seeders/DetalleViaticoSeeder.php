@@ -146,6 +146,12 @@ class DetalleViaticoSeeder extends Seeder
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
+            [
+                'descripcion' => 'REPARACION DE NODO',
+                'autorizacion' => 'SI',
+                'id_estatus' => 1,
+
+            ]
         ]);
     }
 }

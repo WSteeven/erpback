@@ -274,5 +274,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/anular-gasto', [GastoController::class, 'anular_gasto']);
     Route::post('fondos-rotativos/aprobar-transferencia', [TransferenciasController::class, 'aprobar_transferencia']);
     Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
+    Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
 
 });
