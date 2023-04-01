@@ -65,16 +65,9 @@ class GastoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $date = Carbon::parse($this->fecha_viat);
-            Log::channel('testing')->info('Log', ['fecha',$date->greaterThan('2023-03-31')]);
-            if ($date->week() !== Carbon::now()->week()) {
-                $validator->errors()->add('fecha_viat', 'La fecha debe de ser dentro de la semana actual');
-            }
-            if ($date->isSunday()) {
-                $validator->errors()->add('fecha_viat', 'La fecha no puede ser domingo');
-            }
-            if (!$date->greaterThan('2023-03-31')) {
+           /* if (!$date->greaterThan('2023-03-31')) {
                 $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
-            }
+            }*/
             $factura = Gasto::where('factura', '!=', null)
                 ->where('factura', '!=', '')
                 ->where('ruc', $this->ruc)

@@ -150,4 +150,12 @@ class TransferenciasController extends Controller
         event(new TransferenciaSaldoEvent($transferencia));
         return response()->json(['success' => 'Transferencia rechazada']);
     }
+    public function anular_transferencia(Request $request)
+    {
+        $transferencia = Transferencias::where('id', $request->id)->first();
+        $transferencia->estado = 4;
+        $transferencia->save();
+        event(new TransferenciaSaldoEvent($transferencia));
+        return response()->json(['success' => 'Transferencia rechazada']);
+    }
 }
