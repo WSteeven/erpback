@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('emergencias', function (Blueprint $table) {
+        Schema::create('seguimientos', function (Blueprint $table) {
             $table->id();
 
             // $table->string('regional');
@@ -31,9 +31,10 @@ return new class extends Migration
             // $table->string('tiempo_espera_adicional');
             // $table->string('estacion_referencia_afectacion');
             // $table->string('distancia_afectacion')->nullable();
-            $table->json('trabajo_realizado');
+            // $table->json('trabajo_realizado');
             $table->json('observaciones')->nullable();
             $table->json('materiales_ocupados')->nullable();
+            $table->json('materiales_stock_ocupados')->nullable();
             $table->json('materiales_devolucion')->nullable();
 
             // Foreign keys
@@ -51,6 +52,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('emergencias');
+        Schema::dropIfExists('seguimientos');
     }
 };

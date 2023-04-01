@@ -21,6 +21,23 @@ class MotivoPausaSeeder extends Seeder
             ['motivo' => 'MERIENDA'],
             ['motivo' => 'LOUNCH LIGHT'],
             ['motivo' => 'REFRIGERIO'],
+            ['Petición de coordinación otra tarea'],
+            ['Cierre de vía '],
+            ['Fin de jornada '],
+            ['Accidentes'],
+            ['Enfermedades'],
+            ['Picadura/Mordedura de insectos/animales'],
+            ['Manifestaciones '],
+            ['Lugar peligroso '],
+            ['Asalto '],
+            ['Falta de materiales '],
+            ['Falta de postes '],
+            ['Sin acceso a Nodo'],
+            ['Espera llegada cliente '],
+            ['Falta de permisos uso ductos '],
+            ['Falta de permisos uso postes '],
+            ['Daño de herramientas '],
+            ['Daño de vehículo'],
         ]);
     }
 }

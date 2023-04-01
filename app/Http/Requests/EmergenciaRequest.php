@@ -30,6 +30,7 @@ class EmergenciaRequest extends FormRequest
             'trabajo_realizado' => 'nullable|array',
             'observaciones' => 'nullable|array',
             'materiales_ocupados' => 'nullable|array',
+            'materiales_stock_ocupados' => 'nullable|array',
             'materiales_devolucion' => 'nullable|array',
             'subtarea' => 'required|numeric|integer',
         ];

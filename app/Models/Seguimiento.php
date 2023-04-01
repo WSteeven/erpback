@@ -9,11 +9,11 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Emergencia extends Model implements Auditable
+class Seguimiento extends Model implements Auditable
 {
     use HasFactory, AuditableModel, UppercaseValuesTrait, Filterable;
 
-    protected $table = 'emergencias';
+    protected $table = 'seguimientos';
 
     protected $fillable = [
         // 'regional',
@@ -31,21 +31,28 @@ class Emergencia extends Model implements Auditable
         // 'tiempo_espera_adicional',
         // 'estacion_referencia_afectacion',
         // 'distancia_afectacion',
-        'trabajo_realizado',
+        // 'trabajo_realizado',
         'observaciones',
-        'materiales_ocupados',
+        'materiales_ocupados', // tarea
+        'materiales_stock_ocupados',
         'materiales_devolucion',
         // 'subtarea_id',
     ];
 
     protected $casts = [
-        'trabajo_realizado' => 'json',
+        // 'trabajo_realizado' => 'json',
         'observaciones' => 'json',
         'materiales_ocupados' => 'json',
+        'materiales_stock_ocupados' => 'json',
         'materiales_devolucion' => 'json',
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function trabajoRealizado()
+    {
+        return $this->hasMany(TrabajoRealizado::class);
+    }
 }

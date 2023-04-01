@@ -43,6 +43,8 @@ return new class extends Migration
             $table->string('hora_inicio_trabajo')->nullable();
             $table->string('hora_fin_trabajo')->nullable();
 
+            $table->json('empleados_designados')->nullable();
+
             // Foreign keys
             $table->unsignedBigInteger('motivo_cancelado_id')->nullable();
             $table->foreign('motivo_cancelado_id')->references('id')->on('motivos_suspendidos')->onDelete('set null')->onUpdate('cascade');
@@ -66,8 +68,8 @@ return new class extends Migration
             $table->unsignedBigInteger('empleado_id')->nullable();
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('emergencia_id')->nullable();
-            $table->foreign('emergencia_id')->references('id')->on('emergencias')->onDelete('set null')->onUpdate('cascade');
+            $table->unsignedBigInteger('seguimiento_id')->nullable();
+            $table->foreign('seguimiento_id')->references('id')->on('seguimientos')->onDelete('set null')->onUpdate('cascade');
 
             /* $table->unsignedBigInteger('coordinador_id');
             $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');*/

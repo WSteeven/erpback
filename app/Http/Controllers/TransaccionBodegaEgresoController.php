@@ -36,6 +36,7 @@ class TransaccionBodegaEgresoController extends Controller
 {
     private $entidad = 'Transacción';
     private $servicio;
+
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaEgresoService();
@@ -46,7 +47,7 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     // Tarea: Obtener materiales designados a un empleado, para tarea
-    public function obtenerMateriales(Request $request)
+    public function obtenerMaterialesEmpleadoTareas(Request $request)
     {
         $request->validate([
             'subtarea_id' => 'required|numeric|integer',
@@ -54,9 +55,9 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
-        $empleado_id = $request['empleado_id']; //Auth::user()->empleado->id;
+        $empleado_id = $request['empleado_id'];
 
-        $results = MaterialEmpleadoTarea::where('es_fibra', false)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
+        $results = MaterialEmpleadoTarea::where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get(); // where('es_fibra', false)
 
         $results = collect($results)->map(fn ($items) => [
             'detalle_producto_id' => intval($items->detalle_producto_id),
@@ -68,8 +69,44 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
+    // Stock personal: solo materiales excepto bobinas
+    public function obtenerMaterialesEmpleado(Request $request)
+    {
+        $empleado_id = $request['empleado_id'];
+        $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
+
+        $results = collect($results)->map(fn ($item, $index) => [
+            'item' => $index + 1,
+            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
+            'detalle_producto_id' => $item->detalle_producto_id,
+            'stock_actual' => intval($item->cantidad_stock),
+            'medida' => 'm',
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+    // Stock personal: materiales y bobinas material para tarea no borrar
+     public function obtenerTodosMateriales(Request $request)
+    {
+        $empleado_id = Auth::user()->empleado->id;
+        $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
+
+        $results = collect($results)->map(fn ($item, $index) => [
+            'item' => $index + 1,
+            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
+            'detalle_producto_id' => $item->detalle_producto_id,
+            'stock_actual' => intval($item->cantidad_stock),
+            'medida' => 'm',
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+
+    // creo que se va
     // Tarea: Obtener bobinas designadas a un empleado, para tarea.
-    public function obtenerBobinas(Request $request)
+    /* public function obtenerBobinas(Request $request)
     {
         $request->validate([
             'subtarea_id' => 'required|numeric|integer',
@@ -78,13 +115,8 @@ class TransaccionBodegaEgresoController extends Controller
         $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
         $empleado_id = Auth::user()->empleado->id;
 
-        // Log::channel('testing')->info('Log', ['Tarea id', $tarea_id]);
-        // Log::channel('testing')->info('Log', ['Empleado id', $empleado_id]);
-
         $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
 
-        // Log::channel('testing')->info('Log', ['Results', $results]);
-        // $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea)->where('grupo_id', $grupo)->get();
         $results = $results->map(fn ($item) => [
             'id' => $item->detalle_producto_id,
             'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
@@ -92,39 +124,7 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         return response()->json(compact('results'));
-    }
-
-    // Stock personal: solo materiales excepto bobinas
-    public function obtenerMaterialesEmpleado(Request $request)
-    {
-        $empleado_id = Auth::user()->empleado->id;
-        $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
-
-        $results = collect($results)->map(fn ($item, $index) => [
-            'item' => $index + 1,
-            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'stock_actual' => intval($item->cantidad_stock),
-            'medida' => 'm',
-        ]);
-
-        return response()->json(compact('results'));
-    }
-
-    // Stock personal: materiales y bobinas
-    public function obtenerTodosMateriales(Request $request)
-    {
-        $empleado_id = Auth::user()->empleado->id;
-        $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-
-        $results = collect($results)->map(fn ($item, $index) => [
-            'item' => $index + 1,
-            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'stock_actual' => intval($item->cantidad_stock),
-            'medida' => 'm',
-        ]);
-
-        return response()->json(compact('results'));
-    }
+    } */
 
     // #################################################################
 

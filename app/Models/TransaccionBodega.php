@@ -317,7 +317,7 @@ class TransaccionBodega extends Model implements Auditable
                 if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
                     $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
                         ->where('tarea_id', $transaccion->tarea_id)
-                        ->where('empleado_id', $transaccion->responsable)
+                        ->where('empleado_id', $transaccion->responsable_id)
                         ->first();
 
                     if ($material) {
@@ -337,8 +337,11 @@ class TransaccionBodega extends Model implements Auditable
                 } else {
                     // Stock personal
                     $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('empleado_id', $transaccion->responsable)
+                        ->where('empleado_id', $transaccion->responsable_id)
                         ->first();
+
+                    Log::channel('testing')->info('Log', compact('itemInventario'));
+                    Log::channel('testing')->info('Log', compact('transaccion'));
 
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];

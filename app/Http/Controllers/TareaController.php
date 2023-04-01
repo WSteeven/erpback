@@ -181,6 +181,7 @@ class TareaController extends Controller
     /**
      * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
      */
+    // creo q se va a borrar
     public function actualizarFechasReagendar(Request $request, Tarea $tarea)
     {
         // $request->isMethod('patch');
@@ -228,6 +229,7 @@ class TareaController extends Controller
     /**
      * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
      */
+    // creo q se va a borrar
     public function cancelar(Request $request, Tarea $tarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];

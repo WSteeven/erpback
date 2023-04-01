@@ -10,11 +10,16 @@ class MovilizacionSubtarea extends Model
 {
     use HasFactory, Filterable;
 
+    // Motivos de movilizacion
+    const IDA_A_TRABAJO = 'IDA';
+    const REGRESO_DE_TRABAJO = 'REGRESO';
+
     public $timestamps = false;
     protected $table = "movilizacion_subtarea";
     protected $fillable = [
         'fecha_hora_salida',
         'fecha_hora_llegada',
+        'motivo',
         'empleado_id',
         'subtarea_id'
     ];

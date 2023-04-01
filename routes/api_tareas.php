@@ -10,13 +10,13 @@ use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
 use App\Http\Controllers\TipoTrabajoController;
-use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RutaTareaController;
+use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
@@ -39,7 +39,7 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
-        'emergencias' => EmergenciaController::class,
+        'seguimientos' => SeguimientoController::class,
     ],
     [
         'parameters' => [
@@ -73,30 +73,27 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
-Route::get('export-seguimiento/{emergencia}', [EmergenciaController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{seguimiento}', [SeguimientoController::class, 'exportarSeguimiento']);
 
-Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
+// Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
 
-Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
+// Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
 
-// Obtener los trabajos asignados de un grupo o empleado individua
+// Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
 
 // Designación de rol lider de grupo durante la creacion de la subtarea
 Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'designarLiderGrupo']);
 
 // Designación de rol secretario de grupo durante la creacion de la subtarea
-Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
+//Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
 
+// Bobina se reemplaza por metros
 // Obtener las bobinas asignadas a un empleado para usarla durante la ejecución de un trabajo
-Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
+// Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
 
-// Obtener los materiales excepto bobinas asignados a un empleado para usarlos durante la ejecución de un trabajo
-Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales']);
-
+// Obtener los materiales para tareas asignados a un empleado
 Route::get('todos-materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerTodosMateriales']);
-
-Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
 
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
 Route::apiResource('tendidos', TendidoController::class)->except('show');
@@ -108,3 +105,12 @@ Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
 
 Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaController::class, 'destinoActual']);
+
+/*************
+ * Materiales
+ *************/
+// Obtener los materiales designados a un empleado para usarlos durante la ejecución de un trabajo
+Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTareas']);
+
+// Obtener los materiales del stock personal
+Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);

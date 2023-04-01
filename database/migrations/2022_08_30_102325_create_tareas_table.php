@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('para_cliente_proyecto', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
             $table->enum('ubicacion_trabajo', [Tarea::CLIENTE_FINAL, Tarea::RUTA]);
             $table->enum('medio_notificacion', [Tarea::CORREO, Tarea::LLAMADA, Tarea::CHAT]);
-            $table->boolean('tiene_subtareas');
+            // $table->boolean('tiene_subtareas');
             $table->boolean('finalizado')->default(false);
 
             // Foreign keys

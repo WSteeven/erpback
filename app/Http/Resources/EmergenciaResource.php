@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmergenciaResource extends JsonResource
@@ -16,11 +17,27 @@ class EmergenciaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'trabajo_realizado' => $this->trabajo_realizado,
+            'trabajo_realizado' => $this->mapTrabajoRealizado(),
             'observaciones' => $this->observaciones,
             'materiales_ocupados' => $this->materiales_ocupados,
+            'materiales_stock_ocupados' => $this->materiales_stock_ocupados,
             'materiales_devolucion' => $this->materiales_devolucion,
             'subtarea' => $this->subtarea_id,
         ];
+    }
+
+    private function mapTrabajoRealizado()
+    {
+        return $this->trabajoRealizado->map(fn ($trabajo) => [
+            'id' => $trabajo->id,
+            'fecha_hora' => Carbon::parse($trabajo->fecha_hora)->format('d-m-Y H:i:s'),
+            'fotografia' => $trabajo->fotografia ? $this->imagenBase64($trabajo->fotografia) : null,
+            'trabajo_realizado' => $trabajo->trabajo_realizado,
+        ]);
+    }
+
+    private function imagenBase64($fotografia)
+    {
+        return 'data:image/png;base64,' . base64_encode(file_get_contents(url($fotografia)));
     }
 }

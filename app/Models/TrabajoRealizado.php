@@ -17,6 +17,7 @@ class TrabajoRealizado extends Model implements Auditable
     protected $fillable = [
         'trabajo_realizado',
         'fotografia',
+        'fecha_hora',
         'seguimiento_id',
     ];
 
@@ -25,8 +26,8 @@ class TrabajoRealizado extends Model implements Auditable
     ];
 
     // Relacion uno a muchos (inversa)
-    public function emergencia()
+    public function seguimiento()
     {
-        return $this->belongsTo(Emergencia::class);
+        return $this->belongsTo(Seguimiento::class);
     }
 }

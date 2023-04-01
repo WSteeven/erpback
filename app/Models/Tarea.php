@@ -36,7 +36,7 @@ class Tarea extends Model implements Auditable
         'ubicacion_trabajo',
         'medio_notificacion',
         'observacion',
-        'tiene_subtareas',
+        // 'tiene_subtareas',
         'finalizado',
         'proyecto_id',
         'coordinador_id',

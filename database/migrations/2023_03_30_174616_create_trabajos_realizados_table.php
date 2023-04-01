@@ -16,12 +16,13 @@ return new class extends Migration
         Schema::create('trabajos_realizados', function (Blueprint $table) {
             $table->id();
 
+            $table->timestamp('fecha_hora');
             $table->string('trabajo_realizado');
             $table->string('fotografia')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('seguimiento_id');
-            $table->foreign('seguimiento_id')->references('id')->on('emergencias')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('seguimiento_id')->references('id')->on('seguimientos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

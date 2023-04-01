@@ -78,7 +78,7 @@ class SubtareaResource extends JsonResource
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
             'puede_suspender' => $this->puedeEjecutarHoy(),
-            'emergencia' => $this->emergencia_id,
+            'seguimiento' => $this->seguimiento_id,
         ];
 
         if ($controller_method == 'show') {

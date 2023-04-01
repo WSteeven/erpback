@@ -29,6 +29,7 @@ class User extends Authenticatable implements Auditable
     const ROL_COMPRAS = 'COMPRAS';
     const ROL_CONTABILIDAD = 'CONTABILIDAD';
     const ROL_COORDINADOR = 'COORDINADOR';
+    const ROL_COORDINADOR_BACKUP = 'COORDINADOR_BACKUP';
     const ROL_EMPLEADO = 'EMPLEADO';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
