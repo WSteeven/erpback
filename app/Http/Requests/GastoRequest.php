@@ -64,35 +64,46 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $factura = Gasto::where('factura','!=',null)
-            ->where('factura','!=','')
-            ->where('ruc', $this->ruc)
-            ->where('factura',$this->factura)
-            ->where('estado',1)
-            ->first();
-            $factura_pendiente = Gasto::where('factura','!=',null)
-            ->where('factura','!=','')
-            ->where('ruc', $this->ruc)
-            ->where('factura',$this->factura)
-            ->where('estado',3)
-            ->first();
+            $date = Carbon::parse($this->fecha_viat);
+            Log::channel('testing')->info('Log', ['fecha',$date->greaterThan('2023-03-31')]);
+            if ($date->week() !== Carbon::now()->week()) {
+                $validator->errors()->add('fecha_viat', 'La fecha debe de ser dentro de la semana actual');
+            }
+            if ($date->isSunday()) {
+                $validator->errors()->add('fecha_viat', 'La fecha no puede ser domingo');
+            }
+            if (!$date->greaterThan('2023-03-31')) {
+                $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
+            }
+            $factura = Gasto::where('factura', '!=', null)
+                ->where('factura', '!=', '')
+                ->where('ruc', $this->ruc)
+                ->where('factura', $this->factura)
+                ->where('estado', 1)
+                ->first();
+            $factura_pendiente = Gasto::where('factura', '!=', null)
+                ->where('factura', '!=', '')
+                ->where('ruc', $this->ruc)
+                ->where('factura', $this->factura)
+                ->where('estado', 3)
+                ->first();
             if ($factura) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
             }
             if ($factura_pendiente) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
             }
-           $comprobante = Gasto::where('num_comprobante', '!=',null)
-           ->where('num_comprobante',$this->num_comprobante)
-           ->where('estado',1)
-           ->first();
+            $comprobante = Gasto::where('num_comprobante', '!=', null)
+                ->where('num_comprobante', $this->num_comprobante)
+                ->where('estado', 1)
+                ->first();
             if ($comprobante) {
                 $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
-            $comprobante_pendiente = Gasto::where('num_comprobante', '!=',null)
-            ->where('num_comprobante',$this->num_comprobante)
-            ->where('estado',3)
-            ->first();
+            $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
+                ->where('num_comprobante', $this->num_comprobante)
+                ->where('estado', 3)
+                ->first();
             if ($comprobante_pendiente) {
                 $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
             }
@@ -108,13 +119,13 @@ class GastoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
-          $this->merge([
-                'factura' => str_replace('_',' ',$this->factura),
-          ]);
+        $this->merge([
+            'factura' => str_replace('_', ' ', $this->factura),
+        ]);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);
-        if(is_null($this->aut_especial)){
+        if (is_null($this->aut_especial)) {
             $id_jefe = $this->obtener_usuario(Auth::user()->empleado->jefe_id)->id;
             $this->merge([
                 'aut_especial' => $id_jefe,
@@ -126,7 +137,8 @@ class GastoRequest extends FormRequest
             ]);
         }
     }
-    protected function obtener_usuario($id){
+    protected function obtener_usuario($id)
+    {
         $user = User::find($id);
         return $user;
     }
