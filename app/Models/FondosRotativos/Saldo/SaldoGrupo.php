@@ -51,7 +51,7 @@ class SaldoGrupo extends  Model implements Auditable
                         $row['tipo_saldo'] = $saldo->id_tipo_saldo;
                         $row['usuario'] = $saldo->id_usuario;
                         $row['empleado_info'] = $saldo->usuario->user;
-                        $row['cargo'] = $saldo->usuario->cargo!=null?$saldo->usuario->cargo->nombre:'';
+                        $row['cargo'] = $saldo->usuario->cargo != null ? $saldo->usuario->cargo->nombre : '';
                         $row['empleado'] = $saldo->usuario;
                         $row['localidad'] = $saldo->usuario->canton != null ? $saldo->usuario->canton->canton : '';
                         $row['descripcion_saldo'] = $saldo->descripcion_saldo;
@@ -63,6 +63,7 @@ class SaldoGrupo extends  Model implements Auditable
                         $results[$id] = $row;
                         $id++;
                     }
+                    usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
                     break;
                 case 'usuario':
                     $row['item'] = 1;
@@ -72,7 +73,7 @@ class SaldoGrupo extends  Model implements Auditable
                     $row['usuario'] = $saldos->id_usuario;
                     $row['empleado_info'] = $saldos->usuario->user;
                     $row['empleado'] = $saldos->usuario;
-                    $row['cargo'] =  $saldos->usuario->cargo!=null?$saldos->usuario->cargo->nombre:'';
+                    $row['cargo'] =  $saldos->usuario->cargo != null ? $saldos->usuario->cargo->nombre : '';
                     $row['localidad'] = $saldos->usuario->canton != null ? $saldos->usuario->canton->canton : '';
                     $row['descripcion_saldo'] = $saldos->descripcion_saldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
@@ -85,5 +86,11 @@ class SaldoGrupo extends  Model implements Auditable
             }
         }
         return $results;
+    }
+    static function  ordenar_por_nombres_apellidos($a, $b)
+    {
+        $nameA = $a['empleado']->nombres . ' ' . $a['empleado']->apellidos;
+        $nameB = $b['empleado']->nombres . ' ' . $b['empleado']->apellidos;
+        return strcmp($nameA, $nameB);
     }
 }
