@@ -47,7 +47,7 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     // Tarea: Obtener materiales designados a un empleado, para tarea
-    public function obtenerMaterialesEmpleadoTareas(Request $request)
+    /* public function obtenerMaterialesEmpleadoTareas(Request $request)
     {
         $request->validate([
             'subtarea_id' => 'required|numeric|integer',
@@ -67,7 +67,7 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         return response()->json(compact('results'));
-    }
+    } */
 
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
@@ -87,10 +87,15 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     // Stock personal: materiales y bobinas material para tarea no borrar
-     public function obtenerTodosMateriales(Request $request)
+     public function obtenerMaterialesEmpleadoTarea(Request $request)
     {
-        $empleado_id = Auth::user()->empleado->id;
-        $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
+        $request->validate([
+            'tarea_id' => 'required|numeric|integer',
+            'empleado_id' => 'required|numeric|integer',
+        ]);
+        // $empleado_id = Auth::user()->empleado->id;
+        // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
+        $results = MaterialEmpleadoTarea::filter()->get();
 
         $results = collect($results)->map(fn ($item, $index) => [
             'item' => $index + 1,

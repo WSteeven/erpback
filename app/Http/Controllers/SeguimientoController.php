@@ -49,12 +49,13 @@ class SeguimientoController extends Controller
 
         $modelo = Seguimiento::create($datos);
 
-        // Guardar fotografias
-        $this->seguimientoService->guardarFotografias($datos, $modelo);
-
         $subtarea = Subtarea::find($request->safe()->only(['subtarea'])['subtarea']);
         $subtarea->seguimiento_id = $modelo->id;
         $subtarea->save();
+
+        // Guardar fotografias
+        $this->seguimientoService->guardarFotografias($datos, $modelo);
+        $this->seguimientoService->descontarMaterialStockOcupadoStore($request);
 
         $modelo = new EmergenciaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -78,6 +79,7 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
 
         $modelo = new EmergenciaResource($seguimiento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

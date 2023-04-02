@@ -50,6 +50,7 @@ class SubtareaRequest extends FormRequest
             'hora_inicio_trabajo' => 'nullable|string',
             'hora_fin_trabajo' => 'nullable|string',
             'tecnicos_grupo_principal' => 'nullable|string',
+            'tiempo_estimado' => 'nullable|string',
             //'tecnicos_otros_grupos' => 'nullable|string',
             'tarea' => 'required|numeric|integer',
             'grupos_seleccionados' => 'nullable|array',

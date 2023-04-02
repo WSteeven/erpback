@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('movilizacion_subtarea', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('modo_asignacion_trabajo', [MovilizacionSubtarea::IDA_A_TRABAJO, MovilizacionSubtarea::REGRESO_DE_TRABAJO]);
+            $table->enum('motivo', [MovilizacionSubtarea::IDA_A_TRABAJO, MovilizacionSubtarea::REGRESO_DE_TRABAJO]);
             $table->timestamp('fecha_hora_salida')->nullable();
             $table->timestamp('fecha_hora_llegada')->nullable();
 

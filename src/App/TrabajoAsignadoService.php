@@ -15,7 +15,7 @@ class TrabajoAsignadoService
     public function obtenerTrabajoAsignadoGrupo(Empleado $empleado)
     {
         // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('grupo_id', $grupo)->get();
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
+        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->noEstaRealizado()->fechaActual()->get();
         // return SubtareaResource::collection($results);
     }
 
