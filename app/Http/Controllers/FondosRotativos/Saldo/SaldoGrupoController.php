@@ -166,7 +166,7 @@ class SaldoGrupoController extends Controller
             $reportes =  ['saldos' => $results];
             $vista = 'exports.reportes.reporte_saldo_actual';
             $export_excel = new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
