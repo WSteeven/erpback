@@ -51,7 +51,7 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
-        $usuario = Auth::user();
+        $usuario = Auth::user()->empleado->id;
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
@@ -67,7 +67,7 @@ class GastoController extends Controller
     }
     public function autorizaciones_gastos(Request $request)
     {
-        $user = Auth::user();
+        $user =  Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
        // $usuario->hasRole('writer');
         $results = [];
@@ -96,7 +96,7 @@ class GastoController extends Controller
             $datos['id_tarea'] = $request->num_tarea == 0 ? null : $request->safe()->only(['num_tarea'])['num_tarea'];
             $datos['id_subtarea'] = $request->subTarea == 0 ? null : $request->safe()->only(['subTarea'])['subTarea'];
             $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
-            $datos['id_usuario'] = Auth::user()->id;
+            $datos['id_usuario'] = Auth::user()->empleado->id;
             //Asignacion de estatus de gasto
             $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
             if ($datos_detalle->descripcion == '') {

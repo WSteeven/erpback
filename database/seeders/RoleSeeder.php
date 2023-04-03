@@ -20,7 +20,7 @@ class RoleSeeder extends Seeder
         // -----------------
         // Roles
         // -----------------
-        Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
+        $administrador=Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
         $activos_fijos = Role::firstOrCreate(['name' => User::ROL_ACTIVOS_FIJOS]);
         $administrativo = Role::firstOrCreate(['name' => User::ROL_ADMINISTRATIVO]);
         $bodega = Role::firstOrCreate(['name' => User::ROL_BODEGA]);
@@ -464,6 +464,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.menu.detalle_fondo'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.ver.menu.saldos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.fondo'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.ver.permisos'])->syncRoles([$administrador]);
         /**Fin de permisos para Fondos Rotativos */
 
         //Cambiar Contraseña
