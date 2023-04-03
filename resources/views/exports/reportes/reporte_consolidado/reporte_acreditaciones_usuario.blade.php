@@ -128,7 +128,7 @@
                         <table width="100%">
                             <tr>
                                 <td bgcolor="#bfbfbf" style="font-size:12px">
-                                    <div align="center"><strong>{{ $usuario->empleado->nombres.' '.$usuario->empleado->apellidos }} </strong></div>
+                                    <div align="center"><strong>{{ $usuario->nombres.' '.$usuario->apellidos }} </strong></div>
                                 </td>
                             </tr>
                             <tr>

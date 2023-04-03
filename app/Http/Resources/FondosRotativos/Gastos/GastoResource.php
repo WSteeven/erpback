@@ -44,6 +44,7 @@ class GastoResource extends JsonResource
             'comprobante2' => $this->comprobante2?url( $this->comprobante2):null,
             'observacion' => $this->observacion,
             'id_usuario' => $this->id_usuario,
+            'empleado_info' => $this->empleado_info->nombres .' ' .$this->empleado_info->apellidos,
             'estado' => $this->estado,
             'estado_info' => $this->estado_info->descripcion,
             'detalle_esta' => $this->detalle,
