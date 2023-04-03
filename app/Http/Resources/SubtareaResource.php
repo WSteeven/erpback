@@ -135,7 +135,7 @@ class SubtareaResource extends JsonResource
         });
     }
 
-     public function obtenerIdEmpleadoResponsable()
+     /*public function obtenerIdEmpleadoResponsable()
     {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
             $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
@@ -148,7 +148,7 @@ class SubtareaResource extends JsonResource
         }
 
         return null;
-    }
+    }*/
 
     public function verificarSiEsResponsable()
     {
@@ -204,5 +204,24 @@ class SubtareaResource extends JsonResource
 
         //return $horaInicio;// > Carbon::now(); //$this->hora_inicio_trabajo >= Str::substr(Carbon::now()->toTimeString(), 0, 5);
         return Carbon::now()->format('H:i:s') >= $horaInicio;
+    }
+
+    public function obtenerIdEmpleadoResponsable()
+    {
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
+            //$usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+
+            $liderIndex = $empleados->search(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            if ($liderIndex >= 0) return $empleados->get($liderIndex)->id;
+
+            //if ($usuarioLider) return $usuarioLider[1]->id;
+        }
+
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+            return $this->empleado_id;
+        }
+
+        return null;
     }
 }
