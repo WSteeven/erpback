@@ -20,6 +20,8 @@ return new class extends Migration
             $table->enum('motivo', [MovilizacionSubtarea::IDA_A_TRABAJO, MovilizacionSubtarea::REGRESO_DE_TRABAJO]);
             $table->timestamp('fecha_hora_salida')->nullable();
             $table->timestamp('fecha_hora_llegada')->nullable();
+            $table->decimal('latitud', 10, 7);
+            $table->decimal('longitud', 10, 7);
 
             // Foreign keys
             $table->unsignedBigInteger('empleado_id');

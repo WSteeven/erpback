@@ -36,7 +36,7 @@ trait UppercaseValuesTrait
 
         if($key === 'fotografia') {
             if (is_string($value))
-            $this->attributes[$key] = trim(strtolower($value));
+            $this->attributes[$key] = trim($value);
         }
     }
 }

@@ -33,7 +33,7 @@ return new class extends Migration
             // $table->string('distancia_afectacion')->nullable();
             // $table->json('trabajo_realizado');
             $table->json('observaciones')->nullable();
-            $table->json('materiales_ocupados')->nullable();
+            $table->json('materiales_tarea_ocupados')->nullable();
             $table->json('materiales_stock_ocupados')->nullable();
             $table->json('materiales_devolucion')->nullable();
 

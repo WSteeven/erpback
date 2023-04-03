@@ -218,6 +218,11 @@ class SubtareaController extends Controller
             'fecha_hora_pausa' => Carbon::now(),
             'motivo_pausa_id' => $motivo_pausa_id,
         ]);
+
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+
+        $modelo = new SubtareaResource($subtarea->refresh());
+        return response()->json(compact('modelo'));
     }
 
     public function ejecutar(Subtarea $subtarea)

@@ -16,33 +16,15 @@ class Seguimiento extends Model implements Auditable
     protected $table = 'seguimientos';
 
     protected $fillable = [
-        // 'regional',
-        // 'atencion',
-        // 'tipo_intervencion',
-        // 'causa_intervencion',
-        // 'fecha_reporte_problema',
-        // 'hora_reporte_problema',
-        // 'fecha_arribo',
-        // 'hora_arribo',
-        // 'fecha_fin_reparacion',
-        // 'hora_fin_reparacion',
-        // 'fecha_retiro_personal',
-        // 'hora_retiro_personal',
-        // 'tiempo_espera_adicional',
-        // 'estacion_referencia_afectacion',
-        // 'distancia_afectacion',
-        // 'trabajo_realizado',
         'observaciones',
-        'materiales_ocupados', // tarea
+        'materiales_tarea_ocupados',
         'materiales_stock_ocupados',
         'materiales_devolucion',
-        // 'subtarea_id',
     ];
 
     protected $casts = [
-        // 'trabajo_realizado' => 'json',
         'observaciones' => 'json',
-        'materiales_ocupados' => 'json',
+        'materiales_tarea_ocupados' => 'json',
         'materiales_stock_ocupados' => 'json',
         'materiales_devolucion' => 'json',
         'created_at' => 'datetime:Y-m-d h:i:s a',

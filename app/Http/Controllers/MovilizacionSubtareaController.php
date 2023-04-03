@@ -24,11 +24,15 @@ class MovilizacionSubtareaController extends Controller
         $request->validate([
             'subtarea' => 'required|numeric|integer',
             'motivo' => 'required|string',
+            'latitud' => 'required|numeric',
+            'longitud' => 'required|numeric',
         ]);
 
         $modelo = MovilizacionSubtarea::create([
             'fecha_hora_salida' => Carbon::now(), //Carbon::parse($request['fecha_hora_salida'])->format('Y-m-d'),
             'empleado_id' => Auth::user()->empleado->id,
+            'latitud' => $request['latitud'],
+            'longitud' => $request['longitud'],
             'subtarea_id' => $request['subtarea'],
             'motivo' => $request['motivo'],
         ]);

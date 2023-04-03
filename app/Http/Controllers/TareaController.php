@@ -27,27 +27,34 @@ class TareaController extends Controller
         // $this->subtareaService = new SubtareaService();
     }
 
+    public function listar()
+    {
+        $campos = explode(',', request('campos'));
+        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
+        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
+        // $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
+
+        if (request('campos')) {
+            if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+            if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
+            else return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+        } else {
+            if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
+            if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
+            else return Tarea::filter()->latest()->get(); // Cualquier usuario en el sistema debe tener acceso a las tareas
+            // if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
+        }
+    }
+
     /*********
      * Listar
      *********/
-    public function index(Request $request)
+    public function index()
     {
-        $campos = explode(',', $request['campos']);
-        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
-        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
-        $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
 
-        if ($request['campos']) {
-            if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
-            if ($esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
-        } else {
-            if (!$esCoordinador) $results = Tarea::filter()->get();
-            if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
-            if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
-        }
-
+        $results = $this->listar();
         $results = TareaResource::collection($results);
-
         return response()->json(compact('results'));
     }
 

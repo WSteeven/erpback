@@ -5,16 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\SeguimientoExport;
 use App\Http\Requests\EmergenciaRequest;
 use App\Http\Resources\EmergenciaResource;
-use App\Models\Emergencia;
 use App\Models\Seguimiento;
-// use App\Models\Emergencia;
 use App\Models\Subtarea;
-use App\Models\TrabajoRealizado;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Src\App\FondosRotativos\ReportePdfExcelService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
-use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\Storage;
 use Src\App\SeguimientoService;
@@ -55,6 +48,7 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $modelo);
+        $this->seguimientoService->descontarMaterialTareaOcupadoStore($request);
         $this->seguimientoService->descontarMaterialStockOcupadoStore($request);
 
         $modelo = new EmergenciaResource($modelo->refresh());
@@ -80,6 +74,7 @@ class SeguimientoController extends Controller
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $seguimiento);
         $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
+        $this->seguimientoService->descontarMaterialTareaOcupadoUpdate($request);
 
         $modelo = new EmergenciaResource($seguimiento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

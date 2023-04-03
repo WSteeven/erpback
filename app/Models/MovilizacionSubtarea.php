@@ -20,6 +20,8 @@ class MovilizacionSubtarea extends Model
         'fecha_hora_salida',
         'fecha_hora_llegada',
         'motivo',
+        'latitud',
+        'longitud',
         'empleado_id',
         'subtarea_id'
     ];

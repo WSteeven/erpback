@@ -29,18 +29,11 @@ class EmergenciaRequest extends FormRequest
         $rules = [
             'trabajo_realizado' => 'nullable|array',
             'observaciones' => 'nullable|array',
-            'materiales_ocupados' => 'nullable|array',
+            'materiales_tarea_ocupados' => 'nullable|array',
             'materiales_stock_ocupados' => 'nullable|array',
             'materiales_devolucion' => 'nullable|array',
             'subtarea' => 'required|numeric|integer',
         ];
-
-        /* if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            $id = $this->route()->parameter('id');
-            $subtarea = Subtarea::where('emergencia_id', $id)->first();
-
-            $rules['subtarea'] = [Rule::unique('subtareas')->ignore($subtarea->id)];
-        } */
 
         return $rules;
     }

@@ -46,7 +46,7 @@ class Tarea extends Model implements Auditable
         'ruta_tarea_id',
     ];
 
-    protected $casts = ['tiene_subtareas' => 'boolean', 'finalizado' => 'boolean'];
+    protected $casts = ['finalizado' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 
@@ -152,5 +152,10 @@ class Tarea extends Model implements Auditable
     public function scopePorCoordinador($query)
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);
+    }
+
+    public function scopeOrderByAgendadoDesc($query)
+    {
+        return $query->orderBy('fecha_hora_agendado', 'desc');
     }
 }

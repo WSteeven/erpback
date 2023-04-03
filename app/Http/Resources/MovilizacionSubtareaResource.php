@@ -27,6 +27,8 @@ class MovilizacionSubtareaResource extends JsonResource
             'grupo' => $empleado->grupo->nombre,
             'subtarea' => $this->subtarea->codigo_subtarea,
             'motivo' => $this->motivo,
+            'latitud' => $this->latitud,
+            'longitud' => $this->longitud,
             'estado' => $this->fecha_hora_llegada ? 'RUTA COMPLETADA' : 'EN CAMINO'
         ];
 
