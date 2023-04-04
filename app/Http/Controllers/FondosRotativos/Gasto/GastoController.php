@@ -196,6 +196,7 @@ class GastoController extends Controller
      */
     public function show(Gasto $gasto)
     {
+
         $modelo = new GastoResource($gasto);
         return response()->json(compact('modelo'), 200);
     }
