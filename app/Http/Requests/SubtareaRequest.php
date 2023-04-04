@@ -54,8 +54,8 @@ class SubtareaRequest extends FormRequest
             //'tecnicos_otros_grupos' => 'nullable|string',
             'tarea' => 'required|numeric|integer',
             'grupos_seleccionados' => 'nullable|array',
-            'empleados_seleccionados' => 'nullable|array',
-            'empleados_adicionales' => 'nullable|array',
+            'empleados_designados' => 'nullable|array',
+            // 'empleados_adicionales' => 'nullable|array',
             'modo_asignacion_trabajo' => 'required|string'
             // 'estado' => 'nullable|numeric|integer',
         ];
