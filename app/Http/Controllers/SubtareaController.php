@@ -68,8 +68,14 @@ class SubtareaController extends Controller
         $datos['estado'] = Subtarea::CREADO;
 
         $modelo = Subtarea::create($datos);
-        $empleados_adicionales = collect($datos['empleados_adicionales'])->map(fn ($empleado) => $empleado['id']);
-        $modelo->empleados()->sync($empleados_adicionales);
+        $empleados_designados = collect($datos['empleados_designados'])->map(
+            fn ($empleado) => [
+                'empleado_id' => $empleado['id'],
+                'es_responsable' => $empleado['es_responsable'],
+            ]
+        );
+
+        $modelo->empleados()->sync($empleados_designados);
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');

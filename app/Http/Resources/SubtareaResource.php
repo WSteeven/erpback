@@ -64,7 +64,7 @@ class SubtareaResource extends JsonResource
             'fecha_hora_cancelado' => $this->formatTimestamp($this->fecha_hora_cancelado),
             'motivo_cancelado' => $this->motivoCancelado?->motivo,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
-
+            'empleados_designados' => $this->empleados ? $this->mapEmpleadoSeleccionado($this->empleados) : null,
             'estado' => $this->estado,
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
@@ -121,15 +121,17 @@ class SubtareaResource extends JsonResource
 
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
-        return $empleadosSubtarea->map(function ($item) {
-            $empleado = Empleado::find($item->empleado_id);
+        return $empleadosSubtarea->map(function ($empleado) {
+            Log::channel('testing')->info('Log', compact('empleado'));
+            // $empleado = Empleado::find($item->empleado_id);
             return [
-                'id' => $item->empleado_id,
+                'id' => $empleado->id,
                 'nombres' => $empleado->nombres,
                 'apellidos' => $empleado->apellidos,
                 'telefono' => $empleado->telefono,
                 'grupo' => $empleado->grupo?->nombre,
-                'responsable' => $item->responsable,
+                'es_responsable' => $empleado->pivot->es_responsable ? true : false,
+                'cargo' => $empleado->cargo?->nombre,
                 'roles' => implode(', ', $empleado->user->getRoleNames()->toArray()),
             ];
         });

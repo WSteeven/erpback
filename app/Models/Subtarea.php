@@ -203,7 +203,7 @@ class Subtarea extends Model implements Auditable
 
     public function empleados()
     {
-        return $this->belongsToMany(Empleado::class);
+        return $this->belongsToMany(Empleado::class)->withPivot('es_responsable');
     }
 
     public function scopeFechaActual($query)
