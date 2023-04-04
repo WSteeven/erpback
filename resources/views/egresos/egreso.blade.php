@@ -6,10 +6,10 @@
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     if ($persona_entrega->firma_url) {
-        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
     }
     if ($persona_retira->firma_url) {
-        $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+        $retira_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_retira->firma_url, 1)));
     }
 @endphp
 
@@ -80,7 +80,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
-            font-size: 12px;
+            font-size: 10px;
         }
 
 
@@ -122,6 +122,7 @@
                     @empty($entrega_firma)
                         ___________________<br />
                     @endempty
+                    <b>ENTREGA</b>
                 </th>
                 <th align="center"></th>
                 <th align="center">
@@ -133,29 +134,23 @@
                     @empty($retira_firma)
                         ___________________<br />
                     @endempty
+                    <b>RECIBE</b>
                 </th>
             </thead>
             <tbody>
                 <tr align="center">
-                    <td><b>ENTREGA</b></td>
-                    <td><b></b></td>
-                    <td><b>RECIBE</b></td>
-                </tr>
-                <tr align="center">
-                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} </td>
+                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} <br>
+                        {{ $persona_entrega->identificacion }}
+                    </td>
                     <td></td>
                     <td>
                         @if ($transaccion['responsable_id'])
-                            {{ $persona_retira->nombres }} {{ $persona_retira->apellidos }}
+                            {{ $persona_retira->nombres }} {{ $persona_retira->apellidos }} <br>
+                            {{ $persona_retira->identificacion }}
                         @else
                             Nombre:
                         @endif
                     </td>
-                </tr>
-                <tr align="center">
-                    <td>{{ $persona_entrega->identificacion }} </td>
-                    <td></td>
-                    <td>{{ $persona_retira->identificacion }}</td>
                 </tr>
             </tbody>
         </table>
