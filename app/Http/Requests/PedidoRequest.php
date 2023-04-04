@@ -54,13 +54,16 @@ class PedidoRequest extends FormRequest
     }
 
     public function withValidator($validator){
-        $validator->after(function ($validator){
-            if(!is_null($this->fecha_limite)){
-                if(date('Y-m-d', strtotime($this->fecha_limite))<now()){
-                    $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+        if(!in_array($this->method(), ['PUT', 'PATCH'])){
+            $validator->after(function ($validator){
+                if(!is_null($this->fecha_limite)){
+                    if(date('Y-m-d', strtotime($this->fecha_limite))<now()){
+                        $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
     protected function prepareForValidation()
     {
@@ -90,6 +93,12 @@ class PedidoRequest extends FormRequest
         //         'per_autoriza' => auth()->user()->empleado->id,
         //     ]);
         // }
+        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ACTIVOS_FIJOS]) && $this->tarea){
+            $this->merge([
+                'autorizacion' => 2,
+                'per_autoriza'=>auth()->user()->empleado->id,
+            ]);
+        }
         if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
             $this->merge([
                 'per_autoriza'=>$user_activo_fijo->empleado->id,
