@@ -58,13 +58,9 @@ class TareaController extends Controller
         return response()->json(compact('results'));
     }
 
-    /* private function obtenerTareasSinSubtareas() {
-        Tarea::
-    } */
-
-    /**
+    /**********
      * Guardar - Coordinador
-     */
+     **********/
     public function store(TareaRequest $request)
     {
         DB::beginTransaction();
@@ -77,18 +73,22 @@ class TareaController extends Controller
             $datos['ruta_tarea_id'] = $request->safe()->only(['ruta_tarea'])['ruta_tarea'];
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-            $datos['coordinador_id'] = Auth::user()->empleado->id;
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
+
+            // Establecer coordinador
+            $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
+            if($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+            else $datos['coordinador_id'] = Auth::user()->empleado->id;
 
             // Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
             $modelo = Tarea::create($datos);
             // Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
 
-            $subtarea = $datos['subtarea'];
+            // $subtarea = $datos['subtarea'];
 
             // Si la tarea no tiene subtareas, se crea una subtarea por defecto
-            if (!$datos['tiene_subtareas'] && $subtarea) {
+            /* if (!$datos['tiene_subtareas'] && $subtarea) {
                 Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', 'dentro de if']);
                 $tarea_id = $modelo->id;
                 // Adpatacion de foreign keys para Subtarea
@@ -114,7 +114,7 @@ class TareaController extends Controller
                 $modeloSubtarea->save();
 
                 // event(new SubtareaEvent('Subtarea agendada!'));
-            }
+            } */
 
             DB::commit();
 

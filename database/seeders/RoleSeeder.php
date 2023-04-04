@@ -330,10 +330,10 @@ class RoleSeeder extends Seeder
         /**
          * Los coordinadores son los encargados de crear los tipos de subtareas que ellos crean convenientes
          */
-        Permission::firstOrCreate(['name' => 'puede.ver.tipos_trabajos'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.crear.tipos_trabajos'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.editar.tipos_trabajos'])->assignRole($coordinador);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_trabajos'])->assignRole($coordinador);
+        Permission::firstOrCreate(['name' => 'puede.ver.tipos_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tipos_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tipos_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_trabajos'])->syncRoles([$coordinador, $jefe_tecnico]);
         // Tendidos
         Permission::firstOrCreate(['name' => 'puede.ver.grupos'])->assignRole($recursos_humanos);
         Permission::firstOrCreate(['name' => 'puede.crear.grupos'])->assignRole($recursos_humanos);

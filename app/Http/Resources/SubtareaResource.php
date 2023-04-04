@@ -135,7 +135,7 @@ class SubtareaResource extends JsonResource
         });
     }
 
-     /*public function obtenerIdEmpleadoResponsable()
+    /*public function obtenerIdEmpleadoResponsable()
     {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
             $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
@@ -185,12 +185,18 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
-        // $existeTrabajoEjecutadoHoy = !!$this->tarea->subtareas()->where('estado', Subtarea::EJECUTANDO)->fechaActual()->count();
-        $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count(); //fechaActual()->count();
-        Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 
-        if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
-        else return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+            // if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+            return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+        }
+
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+            $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+        }
     }
 
     private function puedeEjecutarHoy()
@@ -212,7 +218,7 @@ class SubtareaResource extends JsonResource
             $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
             //$usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
-            $liderIndex = $empleados->search(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
+            $liderIndex = $empleados->search(fn ($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
             if ($liderIndex >= 0) return $empleados->get($liderIndex)->id;
 
             //if ($usuarioLider) return $usuarioLider[1]->id;
