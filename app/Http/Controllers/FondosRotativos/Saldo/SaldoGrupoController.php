@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
@@ -327,8 +328,7 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $usuario = User::with('empleado')
-                ->where('id', $request->usuario)
+            $usuario = Empleado::where('id', $request->usuario)
                 ->first();
             $nombre_reporte = 'reporte_saldoActual';
             $results = Acreditaciones::empaquetar($acreditaciones);

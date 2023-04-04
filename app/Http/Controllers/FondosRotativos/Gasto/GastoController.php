@@ -51,7 +51,7 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
-        $usuario = Auth::user()->empleado->id;
+        $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
@@ -59,6 +59,7 @@ class GastoController extends Controller
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
+            $usuario = Auth::user()->empleado;
             $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
         }

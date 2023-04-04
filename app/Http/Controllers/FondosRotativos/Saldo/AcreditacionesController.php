@@ -76,6 +76,14 @@ class AcreditacionesController extends Controller
         $modelo = new AcreditacionResource($acreditacion);
         return response()->json(compact('modelo'));
     }
+    public function anular_acreditacion(Request $request)
+    {
+        $acreditacion = Acreditaciones::where('id',$request->id)->first();
+        $acreditacion->descripcion_acreditacion = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
+        $acreditacion->save();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje'));
+    }
 
     /**
      * Update the specified resource in storage.
