@@ -16,8 +16,8 @@ class EstadoAcreditacionesSeeder extends Seeder
     public function run()
     {
         $estados = [
-            'Realizado',
-            'Anulado',
+            'REALIZADO',
+            'ANULADO',
         ];
 
         foreach ($estados as $estado) {
