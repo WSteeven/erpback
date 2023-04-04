@@ -22,6 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_usuario');
             $table->unsignedBigInteger('id_tipo_saldo');
             $table->unsignedBigInteger('id_tipo_fondo');
+            $table->unsignedBigInteger('id_estado');
+            $table->foreign('id_estado')->references('id')->on('estado_acreditaciones');
             $table ->foreign('id_tipo_saldo')->references('id')->on('tipo_saldo');
             $table ->foreign('id_tipo_fondo')->references('id')->on('tipo_fondo');
             $table ->foreign('id_usuario')->references('id')->on('empleados');

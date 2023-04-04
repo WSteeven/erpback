@@ -14,6 +14,7 @@ use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -239,6 +240,7 @@ class GastoController extends Controller
                 ->get();
             $datos_saldo_depositados_semana = Acreditaciones::with('tipo_fondo', 'tipo_saldo')->where('id_usuario', $idUsuarioLogeado)
                 ->where('monto', '!=', 0)
+                ->where('id_estado',EstadoAcreditaciones::REALIZADO)
                 ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'DESC')
                 ->get();
@@ -300,6 +302,7 @@ class GastoController extends Controller
                 ->first();
             $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
             $sal_dep_r = Acreditaciones::where('id_usuario', $idUsuarioLogeado)
+            ->where('id_estado',EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $transferencia = Transferencias::where('usuario_envia_id', $idUsuarioLogeado)

@@ -113,38 +113,6 @@
         <hr>
     </header>
     <footer>
-        <table>
-            <tr>
-                <td>
-                    <table class="firma" style="width: 100%;">
-                        <thead>
-                            <th align="center">______________________________________</th>
-                            <th align="center"></th>
-                            <th align="center">______________________________________</th>
-                        </thead>
-                        <tbody>
-                            <tr align="center">
-                                <td><b>RESPONSABLE DE MANEJO DE
-                                        VIATICOS</b></td>
-                                <td><b></b></td>
-                                <td><b>RESPONSABLE CONTROL DE
-                                        VIATICOS</b></td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 60px;">Nombre: </td>
-                                <td></td>
-                                <td style="padding-left: 60px;">Nombre:</td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 60px;">C.I: </td>
-                                <td></td>
-                                <td style="padding-left: 60px;">C.I:</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </table>
         <table style="width: 100%;">
             <tr>
                 <td class="page">Página </td>
@@ -306,7 +274,7 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $dato->aut_especial_user->empleado->nombres . '' . $dato->aut_especial_user->empleado->apellidos }}
+                                    {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">

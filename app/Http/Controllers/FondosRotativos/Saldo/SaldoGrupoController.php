@@ -21,6 +21,7 @@ use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
+use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Proyecto;
 use App\Models\Tarea;
@@ -361,7 +362,7 @@ class SaldoGrupoController extends Controller
             $usuario = User::with('empleado')->where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
-            $reportes =  ['gastos' => $results, 'fecha_inicio' =>$fecha_inicio, 'fecha_fin' =>$fecha_fin, 'usuario' => $usuario];
+            $reportes =  ['gastos' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             $export_excel = new SaldoActualExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
@@ -389,6 +390,7 @@ class SaldoGrupoController extends Controller
                 ->first();
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
+                ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
@@ -396,22 +398,39 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');
-           $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', '=', 1)
+                ->where('id_usuario', '=',  $request->usuario)
+                ->get();
+                Log::channel('testing')->info('Log', ['gastos', $gastos_reporte]);
+            $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->where('estado', 1)
-               ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-               ->sum('monto');
+                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+            $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->orderBy('id', 'desc')
+                ->first();
+                $sub_total = 0;
+            $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + $acreditaciones - $gastos;
-            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $empleado = Empleado::where('id', $request->usuario)->first();
+            $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
+                'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
                 'gastos' => $gastos,
+                'gastos_reporte' => $gastos_reporte,
                 'transferencia' => $transferencia,
+                'nuevo_saldo' => $nuevo_saldo,
+                'sub_total' => $sub_total,
                 'total_suma' => $total
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';

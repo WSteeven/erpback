@@ -7,6 +7,7 @@ use App\Http\Requests\AcreditacionRequest;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\EstadoGasto;
+use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class AcreditacionesController extends Controller
             $datos['id_tipo_fondo'] =  $request->safe()->only(['tipo_fondo'])['tipo_fondo'];
             $datos['id_tipo_saldo'] =  $request->safe()->only(['tipo_saldo'])['tipo_saldo'];
             $datos['id_usuario'] =     $request->safe()->only(['usuario'])['usuario'];
-            Log::channel('testing')->info('Log', ['datos', $datos]);
+            $datos['id_estado'] = EstadoAcreditaciones::REALIZADO;
             $modelo = Acreditaciones::create($datos);
             $modelo = new AcreditacionResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -80,6 +81,7 @@ class AcreditacionesController extends Controller
     {
         $acreditacion = Acreditaciones::where('id',$request->id)->first();
         $acreditacion->descripcion_acreditacion = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
+        $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
         $acreditacion->save();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje'));
