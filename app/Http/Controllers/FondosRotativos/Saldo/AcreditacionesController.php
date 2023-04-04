@@ -32,7 +32,7 @@ class AcreditacionesController extends Controller
     public function index()
     {
         $results = [];
-        $results = Acreditaciones::with('usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = Acreditaciones::with('usuario','estado')->ignoreRequest(['campos'])->filter()->get();
         $results = AcreditacionResource::collection($results);
         return response()->json(compact('results'));
     }

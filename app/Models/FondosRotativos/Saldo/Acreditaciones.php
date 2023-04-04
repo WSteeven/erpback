@@ -24,6 +24,7 @@ class Acreditaciones extends Model implements Auditable
         'fecha',
         'descripcion_acreditacion',
         'monto',
+        'id_estado',
     ];
     private static $whiteListFilter = [
         'fecha',
@@ -31,6 +32,9 @@ class Acreditaciones extends Model implements Auditable
     public function usuario()
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
+    }
+    public function estado(){
+        return $this->hasOne(EstadoAcreditaciones::class, 'id', 'id_estado');
     }
     public function tipo_saldo(){
         return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');
