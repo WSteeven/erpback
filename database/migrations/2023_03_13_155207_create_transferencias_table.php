@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('estado');
             $table->decimal('monto', 10, 2);
             $table->string('motivo', 100);
+            $table->string('observacion', 250)->nullable();
             $table->string('cuenta', 20);
             $table->text('comprobante', 20);
             $table->unsignedBigInteger('id_tarea')->nullable();

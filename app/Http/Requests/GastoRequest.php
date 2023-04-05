@@ -41,7 +41,7 @@ class GastoRequest extends FormRequest
             'subTarea' => 'nullable',
             'proyecto' => 'required',
             'ruc' => 'nullable|string',
-            'factura' => 'nullable|string|max:17',
+            'factura' => 'nullable|string|max:22|min:17',
             'num_comprobante' => 'nullable|string|max:13',
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',

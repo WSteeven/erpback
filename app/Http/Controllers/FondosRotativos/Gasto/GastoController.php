@@ -231,30 +231,30 @@ class GastoController extends Controller
                 ->first();
             $saldo_anterior = $saldo_anterior_data != null ? $saldo_anterior_data->saldo_actual : 0.0;
             $acreditaciones = Acreditaciones::with('usuario')
-                ->where('id_usuario', $request->usuario)
+                ->where('id_usuario', $datos_usuario_logueado->id)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $gastos_realizados = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('estado', 1)
-                ->where('id_usuario', $request->usuario)
+                ->where('id_usuario', $datos_usuario_logueado->id)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');
             $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
-                ->where('id_usuario', '=',  $request->usuario)
+                ->where('id_usuario', '=',  $datos_usuario_logueado->id)
                 ->get();
-            $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+            $transferencia = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+            $ultimo_saldo = SaldoGrupo::where('id_usuario',$datos_usuario_logueado->id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
-                ->first();
+                ->first()-> saldo_actual;
             $datos_saldo_depositados_semana = Acreditaciones::with('usuario')
-            ->where('id_usuario', $request->usuario)
+            ->where('id_usuario', $datos_usuario_logueado->id)
             ->where('id_estado', EstadoAcreditaciones::REALIZADO)
             ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
             ->get();

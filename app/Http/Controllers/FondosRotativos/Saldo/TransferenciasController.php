@@ -54,7 +54,7 @@ class TransferenciasController extends Controller
         $contabilidad = User::where('name','mvalarezo')->first();
         $datos['usuario_envia_id'] = Auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? $contabilidad->id : $request->usuario_recibe;
-        $datos['id_tarea'] = $request->tarea;
+        $datos['id_tarea'] = $request->tarea==0?null:$request->tarea;
         $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
@@ -67,7 +67,6 @@ class TransferenciasController extends Controller
     {
         $user = Auth::user();
         $usuario = User::where('id', $user->id)->first();
-        // $usuario->hasRole('writer');
         $results = [];
 
         $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
