@@ -252,7 +252,8 @@ class GastoController extends Controller
             $ultimo_saldo = SaldoGrupo::where('id_usuario',$datos_usuario_logueado->id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
-                ->first()-> saldo_actual;
+                ->first();
+                $ultimo_saldo = $ultimo_saldo == null ? 0.0 : $ultimo_saldo->saldo_actual;
             $datos_saldo_depositados_semana = Acreditaciones::with('usuario')
             ->where('id_usuario', $datos_usuario_logueado->id)
             ->where('id_estado', EstadoAcreditaciones::REALIZADO)
