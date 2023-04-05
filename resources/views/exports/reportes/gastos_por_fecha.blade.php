@@ -155,9 +155,6 @@
                         </td>
                         <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                     </tr>
-                    @if ($datos_saldo_depositados_semana[count($datos_saldo_depositados_semana) - 1]->id != $dato->id)
-                        <div class="page-break"></div>
-                    @endif
                 @endforeach
             @else
                 <tr>
@@ -166,14 +163,14 @@
             @endif
             <tr>
                 <td style="font-size:10px" colspan="3"><div align="right"><strong>SALDO ANTERIOR:&nbsp;</strong></div><strong></strong></td>
-                <td style="font-size:10px"> <div align="right"> {{ number_format($sal_anterior, 2, ',', ' ') }} </div></td>
+                <td style="font-size:10px"> <div align="right"> {{ number_format($saldo_anterior, 2, ',', ' ') }} </div></td>
             </tr>
             <tr>
                 <td colspan="3" style="font-size:10px">
                     <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="right"> {{ number_format($sal_dep_r, 2, ',', ' ') }} </div>
+                    <div align="right"> {{ number_format($acreditaciones, 2, ',', ' ') }} </div>
                 </td>
             </tr>
             <tr>
@@ -197,7 +194,7 @@
                     <div align="right"><strong>SALDO ACTUAL:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="right"> {{ number_format($nuevo_saldo, 2, ',', ' ') }} </div>
+                    <div align="right"> {{ number_format($ultimo_saldo, 2, ',', ' ') }} </div>
                 </td>
             </tr>
         </table>
@@ -243,14 +240,14 @@
                         <div align="center"><strong>TOTAL</strong></div>
                     </td>
                 </tr>
-                @if (sizeof($datos_reporte) == 0)
+                @if (sizeof($gastos_reporte) == 0)
                     <tr>
                         <td colspan="12">
                             <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                         </td>
                     </tr>
                 @else
-                    @foreach ($datos_reporte as $dato)
+                    @foreach ($gastos_reporte as $dato)
                         @php
                             $sub_total = $sub_total + (float) $dato->total;
                         @endphp
@@ -303,9 +300,6 @@
                                 </div>
                             </td>
                         </tr>
-                        @if ($datos_reporte[count($datos_reporte) - 1]->id != $dato->id)
-                            <div class="page-break"></div>
-                        @endif
                     @endforeach
                 @endif
                 <tr>
@@ -324,7 +318,7 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ number_format($nuevo_saldo, 2, ',', ' ') }}
+                            {{ number_format($ultimo_saldo, 2, ',', ' ') }}
                         </div>
                     </td>
                 </tr>

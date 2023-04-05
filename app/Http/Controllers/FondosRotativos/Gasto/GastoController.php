@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\UserInfoResource;
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
@@ -71,7 +72,7 @@ class GastoController extends Controller
     {
         $user =  Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
-       // $usuario->hasRole('writer');
+        // $usuario->hasRole('writer');
         $results = [];
 
         $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
@@ -116,10 +117,10 @@ class GastoController extends Controller
             }
             $datos['estado'] = $datos_estatus_via->id;
             //Convierte base 64 a url
-            if($request->comprobante1){
+            if ($request->comprobante1) {
                 $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
-            if($datos['comprobante2']){
+            if ($datos['comprobante2']) {
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             unset($datos['comprobante1']);
@@ -219,116 +220,58 @@ class GastoController extends Controller
     public function generar_reporte(Request $request, $tipo)
     {
         try {
+            $datos_usuario_logueado = $request->usuario == null?Empleado::where('usuario_id', auth()->user()->id)->first():Empleado::where('id', $request->usuario)->first();
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $usuario_logeado = Auth::user();
-            $id_usuario = $usuario_logeado->id;
-            $usuario_logeado = User::where('id', $id_usuario)->get();
-            $idUsuarioLogeado = $usuario_logeado[0]->id;
-            $datos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
-                ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                ->where('estado', '=', 1)
-                ->where('id_usuario', '=', $idUsuarioLogeado)
-                ->get();
-            $datos_saldo_usuario_depositado = SaldoGrupo::selectRaw('SUM(saldo_depositado) as saldo_depositado')
-                ->where('id_usuario', $idUsuarioLogeado)
-                ->where(function ($query) use ($fecha_inicio, $fecha_fin) {
-                    $query->whereBetween('fecha_inicio', [$fecha_inicio, $fecha_fin])
-                        ->orWhereBetween('fecha_fin', [$fecha_inicio, $fecha_fin]);
-                })
-                ->get();
-            $datos_saldo_depositados_semana = Acreditaciones::with('tipo_fondo', 'tipo_saldo')->where('id_usuario', $idUsuarioLogeado)
-                ->where('monto', '!=', 0)
-                ->where('id_estado',EstadoAcreditaciones::REALIZADO)
-                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                ->orderBy('id', 'DESC')
-                ->get();
-            // Obtener el saldo del usuario correspondiente al periodo anterior
-            $datos_saldo_usuario_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha_inicio', '<', $fecha_inicio)
-                ->orderBy('id', 'DESC')
-                ->get();
-            $ultimo_saldo = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->whereBetween(DB::raw('date_format(fecha, "%Y-%m-%d")'), [$fecha_inicio, $fecha_fin])
-                ->orderBy('id', 'desc')
+            $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
+            $saldo_anterior_data = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
+                ->where('fecha', $fecha_anterior)
                 ->first();
-            $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
-            $sub_total = 0;
-            $fi = new \DateTime($fecha_inicio);
-            $ff = new \DateTime($fecha_fin);
-            $diff = $fi->diff($ff);
-            $restas_diferencias = 0;
-            $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha', '<=', $fecha_inicio)
-                ->orderBy('id', 'desc')
-                ->get();
-            if (sizeof($datos_semana) == 0) {
-                $datos_semana = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                    ->orderBy('id', 'desc')
-                    ->get();
-            }
-            $inicio_semana = Count($datos_semana) > 0  ? $datos_semana[0]->fecha_inicio : '';
-            $fin_semana = Count($datos_semana) > 0 ? $datos_semana[0]->fecha_fin : '';
-            $datos_depositos_corte =  SaldoGrupo::selectRaw("SUM(saldo_depositado) as saldo_depositado")
-                ->where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha', '>=', $inicio_semana)
-                ->get();
-            $datos_gastos_corte = Gasto::select(DB::raw('SUM(total) as total'))
-                ->where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha_viat', '>=', $inicio_semana)
-                ->where('estado', 1)
-                ->get();
-            $saldo_depositado = Count($datos_depositos_corte) > 0 ? $datos_depositos_corte[0]->saldo_depositado : 0;
-            $total_gastos = Count($datos_gastos_corte) > 0 ? $datos_gastos_corte[0]->total : 0;
-            $diferencia_corte =  $saldo_depositado - $total_gastos;
-            $datos_fecha_rango = SaldoGrupo::select(DB::raw('SUM(saldo_depositado) as saldo_depositado'))
-                ->where('id_usuario', $idUsuarioLogeado)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-            $datos_rango_gastos = Gasto::select(DB::raw('SUM(total) as total'))
-                ->where('id_usuario', $idUsuarioLogeado)
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', 1)
-                ->get();
-            $gastos_realizados = Gasto ::where('id_usuario', $idUsuarioLogeado)
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', 1)
-                ->sum('total');
-            $diferencia_rango = $datos_fecha_rango[0]->saldo_depositado - $datos_rango_gastos[0]->total;
-            $datos_saldo_anterior = SaldoGrupo::where('id_usuario', $idUsuarioLogeado)
-                ->where('fecha', '<', $inicio_semana)
-                ->orderBy('id', 'desc')
-                ->first();
-            $sal_anterior = $datos_saldo_anterior != null ? $datos_saldo_anterior->saldo_anterior : 0;
-            $sal_dep_r = Acreditaciones::where('id_usuario', $idUsuarioLogeado)
-            ->where('id_estado',EstadoAcreditaciones::REALIZADO)
+            $saldo_anterior = $saldo_anterior_data != null ? $saldo_anterior_data->saldo_actual : 0.0;
+            $acreditaciones = Acreditaciones::with('usuario')
+                ->where('id_usuario', $request->usuario)
+                ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $transferencia = Transferencias::where('usuario_envia_id', $idUsuarioLogeado)
-                 ->where('estado', 1)
+            $gastos_realizados = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
+                ->where('estado', 1)
+                ->where('id_usuario', $request->usuario)
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->sum('total');
+            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', '=', 1)
+                ->where('id_usuario', '=',  $request->usuario)
+                ->get();
+            $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+                ->where('estado', 1)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $restas_diferencias = $diferencia_corte - $diferencia_rango;
-
-            $usuario_logeado = UserInfoResource::collection($usuario_logeado);
+            $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->orderBy('id', 'desc')
+                ->first();
+            $datos_saldo_depositados_semana = Acreditaciones::with('usuario')
+            ->where('id_usuario', $request->usuario)
+            ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+            ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+            ->get();
             $sub_total = 0;
-            $datos_usuario_logueado =  $this->obtener_usuario($usuario_logeado);
             $reportes = compact(
                 'fecha_inicio',
                 'fecha_fin',
                 'datos_usuario_logueado',
-                'datos_saldo_depositados_semana',
+                'acreditaciones',
                 'gastos_realizados',
-                'sal_anterior',
-                'sal_dep_r',
                 'transferencia',
-                'nuevo_saldo',
-                'sub_total',
-                'restas_diferencias',
-                'datos_saldo_anterior',
-                'datos_reporte',
+                'saldo_anterior',
+                'ultimo_saldo',
+                'datos_saldo_depositados_semana',
+                'gastos_reporte',
+                'sub_total'
+
             );
             $nombre_reporte = 'reporte_' . $fecha_inicio . '-' . $fecha_fin . 'de' . $datos_usuario_logueado['nombres'] . ' ' . $datos_usuario_logueado['apellidos'];
             $vista = 'exports.reportes.gastos_por_fecha';
