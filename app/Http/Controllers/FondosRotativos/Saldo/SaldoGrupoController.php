@@ -258,7 +258,7 @@ class SaldoGrupoController extends Controller
                     'sub_detalle_info',
                     'proyecto_info'
                 )->get();
-            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $titulo = 'REPORTE ';
@@ -285,14 +285,14 @@ class SaldoGrupoController extends Controller
                     $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
                 case '5':
-                    $autorizador = User::with('empleado')->where('id', $request->autorizador)->first();
+                    $autorizador = Empleado::with('empleado')->where('id', $request->autorizador)->first();
                     $titulo .= 'DE GASTOS POR AUTORIZADOR ';
-                    $subtitulo = 'AUTORIZADOR: ' . $autorizador->empleado->nombres . ' ' . $autorizador->empleado->apellidos;
+                    $subtitulo = 'AUTORIZADOR: ' . $autorizador->nombres . ' ' . $autorizador->apellidos;
                     break;
                 case '6':
-                    $usuario = User::with('empleado')->where('id', $request->usuario)->first();
-                    $titulo .= 'DE GASTOS POR USUARIO ';
-                    $subtitulo = 'USUARIO: ' . $usuario->empleado->nombres . ' ' . $usuario->empleado->apellidos;
+                    $usuario = Empleado::with('empleado')->where('id', $request->usuario)->first();
+                    $titulo .= 'DE GASTOS POR EMPLEADO ';
+                    $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
