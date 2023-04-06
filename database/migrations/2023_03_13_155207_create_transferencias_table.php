@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('observacion', 250)->nullable();
             $table->string('cuenta', 20);
             $table->text('comprobante', 20);
+            $table->date('fecha', 20);
             $table->unsignedBigInteger('id_tarea')->nullable();
             $table->foreign('id_tarea')->references('id')->on('tareas');
             $table->foreign('usuario_envia_id')->references('id')->on('empleados');

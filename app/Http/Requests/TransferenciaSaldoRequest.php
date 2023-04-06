@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TransferenciaSaldoRequest extends FormRequest
@@ -24,6 +25,7 @@ class TransferenciaSaldoRequest extends FormRequest
     public function rules()
     {
         return [
+            'fecha' => 'required',
             'usuario_recibe' => 'required',
             'usuario_envia_id' => 'required',
             'monto' => 'required|numeric',
@@ -32,13 +34,15 @@ class TransferenciaSaldoRequest extends FormRequest
             'tarea' => 'nullable',
             'comprobante' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
+            'observacion' => 'string',
         ];
     }
     protected function prepareForValidation()
     {
-
+        $date = Carbon::now();
         $this->merge([
             'usuario_envia_id' =>  Auth()->user()->empleado->id,
+            'fecha' =>  $date->format('Y-m-d'),
         ]);
     }
 }

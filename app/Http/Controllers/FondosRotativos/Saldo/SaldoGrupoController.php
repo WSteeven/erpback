@@ -252,6 +252,7 @@ class SaldoGrupoController extends Controller
             ])
                 ->filter($request->all())
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where ('id_estado', Gasto::APROBADO)
                 ->with(
                     'empleado_info',
                     'detalle_estado',
@@ -326,6 +327,7 @@ class SaldoGrupoController extends Controller
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
+                ->where('id_estado',EstadoAcreditaciones::REALIZADO)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
@@ -355,11 +357,11 @@ class SaldoGrupoController extends Controller
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
-                ->where('estado', 1)
+                ->where('estado', Gasto::APROBADO)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $usuario = User::with('empleado')->where('id', $request->usuario)->first();
+            $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
@@ -406,7 +408,7 @@ class SaldoGrupoController extends Controller
                 Log::channel('testing')->info('Log', ['gastos', $gastos_reporte]);
             $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->where('estado', 1)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])

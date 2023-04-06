@@ -78,7 +78,7 @@ class GastoRequest extends FormRequest
                 ->where('factura', '!=', '')
                 ->where('ruc', $this->ruc)
                 ->where('factura', $this->factura)
-                ->where('estado', 3)
+                ->where('estado', Gasto::PENDIENTE)
                 ->first();
             if ($factura) {
                 $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');

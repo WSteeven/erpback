@@ -135,7 +135,6 @@ class GastoController extends Controller
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            Log::channel('testing')->info('Log', ['datos paso3', $modelo]);
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
