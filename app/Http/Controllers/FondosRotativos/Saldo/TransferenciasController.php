@@ -4,10 +4,13 @@ namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Events\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TransferenciaRequest;
+use App\Http\Requests\TransferenciaSaldoRequest;
 use App\Http\Resources\FondosRotativos\Saldo\TransferenciaResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -48,13 +51,13 @@ class TransferenciasController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TransferenciaSaldoRequest $request)
     {
-        $datos = $request->all();
+        try {
+        $datos = $request->validated();
         $contabilidad = User::where('name','mvalarezo')->first();
-        $datos['usuario_envia_id'] = Auth()->user()->id;
         $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? $contabilidad->id : $request->usuario_recibe;
-        $datos['id_tarea'] = $request->tarea;
+        $datos['id_tarea'] = $request->tarea==0?null:$request->tarea;
         $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
@@ -62,12 +65,14 @@ class TransferenciasController extends Controller
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
+    } catch (Exception $e) {
+        Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+    }
     }
     public function autorizaciones_transferencia(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
-        // $usuario->hasRole('writer');
         $results = [];
 
         $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
@@ -156,6 +161,6 @@ class TransferenciasController extends Controller
         $transferencia->estado = 4;
         $transferencia->save();
         event(new TransferenciaSaldoEvent($transferencia));
-        return response()->json(['success' => 'Transferencia rechazada']);
+        return response()->json(['success' => 'Transferencia anulada']);
     }
 }

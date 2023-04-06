@@ -158,9 +158,9 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP CONSTRUCRED C. LTDA.
                     </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">GENERADO POR:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
                         {{ $fecha->format('d/m/Y H:i') }}
