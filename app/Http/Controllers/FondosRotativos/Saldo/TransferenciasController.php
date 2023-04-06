@@ -65,7 +65,7 @@ class TransferenciasController extends Controller
     }
     public function autorizaciones_transferencia(Request $request)
     {
-        $user = Auth::user();
+        $user = Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
         $results = [];
 
