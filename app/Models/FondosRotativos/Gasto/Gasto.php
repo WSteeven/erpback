@@ -19,6 +19,10 @@ class Gasto extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    const APROBADO = 1;
+    const RECHAZADO = 2;
+    const PENDIENTE = 3;
+    const ANULADO = 4;
     protected $table = 'gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
