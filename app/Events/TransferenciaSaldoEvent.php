@@ -57,7 +57,6 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         $nombre_chanel =  $this->transferencia->estado==3? 'transferencia-saldo-'. $this->transferencia->usuario_recibe_id:'transferencia-saldo-'. $this->transferencia->usuario_envia_id;
-        Log::channel('testing')->info('Log', ['nombre canal',$nombre_chanel]);
         return new Channel($nombre_chanel );
     }
     public function broadcastAs()
