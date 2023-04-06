@@ -20,7 +20,7 @@ class RoleSeeder extends Seeder
         // -----------------
         // Roles
         // -----------------
-        $administrador=Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
+        $administrador = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR]);
         $activos_fijos = Role::firstOrCreate(['name' => User::ROL_ACTIVOS_FIJOS]);
         $administrativo = Role::firstOrCreate(['name' => User::ROL_ADMINISTRATIVO]);
         $bodega = Role::firstOrCreate(['name' => User::ROL_BODEGA]);
@@ -292,13 +292,13 @@ class RoleSeeder extends Seeder
         // Modulo de Tareas
         // -----------------
         Permission::firstOrCreate(['name' => 'puede.ver.modulo_tareas'])->syncRoles([$coordinador, $coordinador_backup, $jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_agendado'])->syncRoles([$empleado]);//$tecnico_lider, $coordinador, $coordinador_backup, $administrativo]);
+        Permission::firstOrCreate(['name' => 'puede.ver.trabajo_agendado'])->syncRoles([$empleado]); //$tecnico_lider, $coordinador, $coordinador_backup, $administrativo]);
         Permission::firstOrCreate(['name' => 'puede.ver.movilizacion_subtarea'])->syncRoles([$empleado]); //reporte-movilizacion-subtarea
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_movilizacion_subtarea'])->syncRoles([$coordinador, $coordinador_backup, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.ver.mi_bodega'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.subtarea_asignada'])->assignRole($tecnico_lider, $coordinador);
-        Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->syncRoles([  $coordinador]);
-        Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([ $coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.ver.control_avance'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([$coordinador]);
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->syncRoles([$coordinador, $coordinador_backup, $bodega, $empleado, $jefe_tecnico, $gerente, $compras,  $activos_fijos, $administrativo, $recursos_humanos]);
 
         // Proyectos
@@ -379,11 +379,16 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.clientes_finales'])->syncRoles([$coordinador, $coordinador_backup, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.clientes_finales'])->syncRoles([$coordinador, $coordinador_backup, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.clientes_finales'])->syncRoles([$coordinador, $coordinador_backup, $jefe_tecnico]);
-         // Rutas de tareas
-         Permission::firstOrCreate(['name' => 'puede.ver.rutas_tareas'])->syncRoles([$jefe_tecnico]);
-         Permission::firstOrCreate(['name' => 'puede.crear.rutas_tareas'])->syncRoles([$jefe_tecnico]);
-         Permission::firstOrCreate(['name' => 'puede.editar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
-         Permission::firstOrCreate(['name' => 'puede.eliminar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+        // Rutas de tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.rutas_tareas'])->syncRoles([$jefe_tecnico]);
+        // Rutas de tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
 
         /**
          * Permisos  para fondo rotativo
@@ -394,10 +399,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.gasto'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.elegir.autorizador.gasto'])->syncRoles([$empleado]);
         //Gasto coordinadores
-        Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador,$jefe_tecnico]);
-        Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador,$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
         //Motivo gasto
-        Permission::firstOrCreate(['name' => 'puede.ver.motivo_gasto'])->syncRoles([$coordinador,$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.motivo_gasto'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.editar.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.motivo_gasto'])->syncRoles([$administrador_fondos]);
@@ -459,7 +464,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.reporte_solicitud_fondo'])->syncRoles([$contabilidad]);
         //Buscar saldo usuarios
-        Permission::firstOrCreate(['name' => 'puede.buscar.saldo.usuarios'])->syncRoles([$contabilidad,$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.buscar.saldo.usuarios'])->syncRoles([$contabilidad, $coordinador]);
         //Menus
         Permission::firstOrCreate(['name' => 'puede.ver.menu.detalle_fondo'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.ver.menu.saldos'])->syncRoles([$empleado]);

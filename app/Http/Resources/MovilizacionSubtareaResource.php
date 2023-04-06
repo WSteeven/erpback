@@ -29,6 +29,9 @@ class MovilizacionSubtareaResource extends JsonResource
             'motivo' => $this->motivo,
             'latitud' => $this->latitud,
             'longitud' => $this->longitud,
+            'latitud_llegada' => $this->latitud_llegada,
+            'longitud_llegada' => $this->longitud_llegada,
+            'coordinador_registrante_llegada' => $this->coordinador_registrante_llegada,
             'estado' => $this->fecha_hora_llegada ? 'RUTA COMPLETADA' : 'EN CAMINO'
         ];
 

@@ -30,7 +30,7 @@ class ArchivoSubtareaController extends Controller
 
         if (!$trabajo) {
             throw ValidationException::withMessages([
-                'trabajo' => ['El trabajo no existe'],
+                'subtarea' => ['La subtarea no existe'],
             ]);
         }
 
@@ -45,7 +45,7 @@ class ArchivoSubtareaController extends Controller
 
         return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
 
-        return response()->json(['mensaje' => 'No se pudo subir!']);
+        // return response()->json(['mensaje' => 'No se pudo subir!']);
     }
 
 

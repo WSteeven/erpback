@@ -17,6 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->boolean('activo')->default(true);
+
+            // Foreign keys
+            $table->unsignedBigInteger('coordinador_id')->nullable();
+            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

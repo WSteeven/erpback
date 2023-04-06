@@ -192,13 +192,13 @@ class SubtareaController extends Controller
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
 
-    public function realizar(Subtarea $subtarea)
+    public function realizar(Request $request, Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
         $subtarea->save();
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         return response()->json(['modelo' => $subtarea->refresh()]);
     }
@@ -213,6 +213,17 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function ejecutar(Request $request, Subtarea $subtarea)
+    {
+        $subtarea->estado = Subtarea::EJECUTANDO;
+        $subtarea->fecha_hora_ejecucion = Carbon::now();
+        $subtarea->save();
+
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+
+        return response()->json(['modelo' => $subtarea->refresh()]);
+    }
+
     public function pausar(Request $request, Subtarea $subtarea)
     {
         $motivo_pausa_id = $request['motivo_pausa_id'];
@@ -225,31 +236,13 @@ class SubtareaController extends Controller
             'motivo_pausa_id' => $motivo_pausa_id,
         ]);
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
         return response()->json(compact('modelo'));
     }
 
-    public function ejecutar(Subtarea $subtarea)
-    {
-        $subtarea->estado = Subtarea::EJECUTANDO;
-        $subtarea->fecha_hora_ejecucion = Carbon::now();
-        $subtarea->save();
-
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
-
-        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
-
-        if ($movilizacion) {
-            $movilizacion->fecha_hora_llegada = Carbon::now();
-            $movilizacion->save();
-        } */
-
-        return response()->json(['modelo' => $subtarea->refresh()]);
-    }
-
-    public function reanudar(Subtarea $subtarea)
+    public function reanudar(Request $request, Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::EJECUTANDO;
         $subtarea->save();
@@ -258,14 +251,7 @@ class SubtareaController extends Controller
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
-
-        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
-
-        if ($movilizacion) {
-            $movilizacion->fecha_hora_llegada = Carbon::now();
-            $movilizacion->save();
-        } */
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
     }
 
     public function corregir(Subtarea $subtarea)
@@ -284,15 +270,8 @@ class SubtareaController extends Controller
             $motivo_suspendido_id => ['empleado_id' => Auth::user()->empleado->id]
         ]);
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea);
+        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
-        /* $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->first();
-
-        if ($movilizacion) {
-            $movilizacion->fecha_hora_llegada = Carbon::now();
-            $movilizacion->save();
-        } */
-        // $subtarea->touch();
         return response()->json(['modelo' => new SubtareaResource($subtarea->refresh())]);
     }
 

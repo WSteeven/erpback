@@ -22,6 +22,9 @@ class MovilizacionSubtarea extends Model
         'motivo',
         'latitud',
         'longitud',
+        'latitud_llegada',
+        'longitud_llegada',
+        'coordinador_registrante_llegada',
         'empleado_id',
         'subtarea_id'
     ];

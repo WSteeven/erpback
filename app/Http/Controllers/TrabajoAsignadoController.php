@@ -36,8 +36,9 @@ class TrabajoAsignadoController extends Controller
         } else {
             if ($grupo_id) {
                 array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
-                array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
+                // array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
             }
+            // array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoEmpleado($empleado));
             array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
         }
 

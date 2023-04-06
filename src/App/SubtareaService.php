@@ -9,6 +9,7 @@ use App\Models\MovilizacionSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -80,12 +81,18 @@ class SubtareaService
         return SubtareaResource::collection($results);
     }
 
-    public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea)
+    public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)
     {
-        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', Auth::user()->empleado->id)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
+        $idEmpleadoResponsable = Auth::user()->empleado->id;// $request['empleado_responsable_subtarea'];
+        $idCoordinadorRegistranteLlegada = $request['coordinador_registrante_llegada'];
+
+        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', $idEmpleadoResponsable)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
 
         if ($movilizacion) {
             $movilizacion->fecha_hora_llegada = Carbon::now();
+            $movilizacion->coordinador_registrante_llegada = $idCoordinadorRegistranteLlegada;
+            $movilizacion->latitud = $request['latitud'];
+            $movilizacion->longitud = $request['longitud'];
             $movilizacion->save();
         }
     }

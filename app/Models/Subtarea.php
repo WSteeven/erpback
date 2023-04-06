@@ -218,7 +218,7 @@ class Subtarea extends Model implements Auditable
 
     public function scopeAnterioresNoFinalizados($query)
     {
-        return $query->whereDate('fecha_inicio_trabajo', '<', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
+        return $query->whereDate('fecha_inicio_trabajo', '<=', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
     }
 
     public function scopeNoEstaRealizado($query)

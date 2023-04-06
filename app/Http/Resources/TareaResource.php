@@ -30,6 +30,7 @@ class TareaResource extends JsonResource
             'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
             'observacion' => $this->observacion,
+            'novedad' => $this->novedad,
             // 'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
             'ubicacion_trabajo' => $this->ubicacion_trabajo,

@@ -46,6 +46,7 @@ class SubtareaResource extends JsonResource
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
+            'ruta_tarea' => $this->tarea->rutaTarea?->ruta,
             'cliente_final' => $tarea->clienteFinal?->id_cliente_final,
             'es_ventana' => $this->es_ventana,
             'fecha_inicio_trabajo' => Carbon::parse($this->fecha_inicio_trabajo)->format('d-m-Y'),
@@ -80,6 +81,7 @@ class SubtareaResource extends JsonResource
             'puede_suspender' => $this->puedeEjecutarHoy(),
             'seguimiento' => $this->seguimiento_id,
             'tiempo_estimado' => $this->tiempo_estimado,
+            'cantidad_adjuntos' => $this->archivos?->count(),
         ];
 
         if ($controller_method == 'show') {
@@ -192,12 +194,12 @@ class SubtareaResource extends JsonResource
             // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 
             // if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
-            return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+            return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() se quita para q pueda usar el coordinador
         }
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
             $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
-            return $this->puedeEjecutarHoy() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+            return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() igual q arriba
         }
     }
 

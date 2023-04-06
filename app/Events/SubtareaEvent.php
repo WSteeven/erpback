@@ -20,7 +20,7 @@ class SubtareaEvent implements ShouldBroadcast
 
     public string $mensaje;
     public Subtarea $subtarea;
-    public Notificacion $notificacion;
+    // public Notificacion $notificacion;
     public int $destinatario;
 
     /**
@@ -33,10 +33,10 @@ class SubtareaEvent implements ShouldBroadcast
         $this->mensaje = $mensaje;
         $this->subtarea = $subtarea;
         $this->destinatario = $destinatario;
-        $this->notificacion = $this->crearNotificacion($mensaje, $subtarea->id, $destinatario);
+        // $this->notificacion = $this->crearNotificacion($mensaje, $subtarea->id, $destinatario);
     }
 
-    public static function crearNotificacion($mensaje, $originador, $destinatario)
+    /* public static function crearNotificacion($mensaje, $originador, $destinatario)
     {
         $notificacion = Notificacion::create([
             'mensaje' => $mensaje,
@@ -46,7 +46,7 @@ class SubtareaEvent implements ShouldBroadcast
             'tipo_notificacion' => TiposNotificaciones::SUBTAREA,
         ]);
         return $notificacion;
-    }
+    }*/
 
     /**
      * Get the channels the event should broadcast on.

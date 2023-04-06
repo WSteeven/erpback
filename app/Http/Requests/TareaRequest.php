@@ -28,6 +28,7 @@ class TareaRequest extends FormRequest
             'fecha_solicitud' => 'nullable|string',
             'titulo' => 'required|string',
             'observacion' => 'nullable|string',
+            'novedad' => 'nullable|string',
             'para_cliente_proyecto' => 'required|string',
             'ubicacion_trabajo' => 'nullable|string',
             'cliente' => 'nullable|numeric|integer',

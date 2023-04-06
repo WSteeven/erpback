@@ -21,7 +21,7 @@ class TrabajoAsignadoService
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
+        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->get();
         // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('empleado_id', $id_empleado)->get();
         // return SubtareaResource::collection($results);
     }

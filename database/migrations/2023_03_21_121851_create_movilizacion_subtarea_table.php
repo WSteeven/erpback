@@ -22,6 +22,8 @@ return new class extends Migration
             $table->timestamp('fecha_hora_llegada')->nullable();
             $table->decimal('latitud', 10, 7);
             $table->decimal('longitud', 10, 7);
+            $table->decimal('latitud_llegada', 10, 7);
+            $table->decimal('longitud_llegada', 10, 7);
 
             // Foreign keys
             $table->unsignedBigInteger('empleado_id');
@@ -29,6 +31,9 @@ return new class extends Migration
 
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('coordinador_registrante_llegada')->nullable();
+            $table->foreign('coordinador_registrante_llegada')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             // $table->timestamps();
         });
     }
