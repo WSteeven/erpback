@@ -131,10 +131,16 @@
                     <div align="center"><strong>Monto</strong></div>
                 </td>
             </tr>
+            @php
+                $item = 0;
+            @endphp
             @foreach ($saldos as $saldo)
+            @php
+                $item++;
+            @endphp
             <tr>
                 <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;"> {{$saldo['item']}}</div>
+                    <div align="left" style="margin-left:20px;"> {{$item}}</div>
                 </td>
                 <td style="font-size:10px">
                     <div align="left" style="margin-left:20px;">
