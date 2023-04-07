@@ -24,8 +24,9 @@ class DevolucionResource extends JsonResource
             'justificacion'=>$this->justificacion,
             'solicitante'=>$this->solicitante->nombres.' '. $this->solicitante->apellidos,
             'tarea'=>$this->tarea?->titulo,
-            'sucursal'=>$this->sucursal->lugar,
+            'canton'=>$this->canton->canton,
             'estado'=>$this->estado,
+            'stock_personal'=>$this->stock_personal,
             'listadoProductos'=>$detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
@@ -36,7 +37,7 @@ class DevolucionResource extends JsonResource
         if($controller_method=='show'){
             $modelo['solicitante']=$this->solicitante_id;
             $modelo['tarea']=$this->tarea_id;
-            $modelo['sucursal']=$this->sucursal_id;
+            $modelo['canton']=$this->canton_id;
         }
 
         return $modelo;

@@ -27,7 +27,8 @@ class DevolucionRequest extends FormRequest
             'justificacion'=>'required|string',
             'solicitante'=>'required|exists:empleados,id',
             'tarea'=>'sometimes|nullable|exists:tareas,id',
-            'sucursal'=>'sometimes|nullable|exists:sucursales,id',
+            'canton'=>'sometimes|nullable|exists:cantones,id',
+            'stock_personal'=>'boolean',
             'listadoProductos.*.cantidad'=>'required',
             'listadoProductos.*.descripcion'=>'required',
         ];

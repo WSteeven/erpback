@@ -20,7 +20,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->unsignedBigInteger('coordinador_id')->nullable();
-            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+            // $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
             $table->timestamps();
         });
