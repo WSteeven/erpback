@@ -26,6 +26,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Proyecto;
 use App\Models\Tarea;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class SaldoGrupoController extends Controller
@@ -386,10 +387,13 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
-            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
-                ->where('fecha', $fecha_anterior)
-                ->first();
+            $fecha = Carbon::parse($fecha_inicio);
+            $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
+            $saldo_anterior = SaldoGrupo::whereDate('fecha',$fecha_anterior)
+            ->where('id_usuario', $request->usuario)
+            ->first();
+
+            Log::channel('testing')->info('Log', ['saldo_anterior', $saldo_anterior]);
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
@@ -405,8 +409,11 @@ class SaldoGrupoController extends Controller
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=',  $request->usuario)
                 ->get();
-                Log::channel('testing')->info('Log', ['gastos', $gastos_reporte]);
             $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
@@ -416,7 +423,7 @@ class SaldoGrupoController extends Controller
                 ->first();
                 $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
-            $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + $acreditaciones - $gastos;
+            $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 +(-$transferencia+$transferencia_recibida)+ $acreditaciones - $gastos;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
@@ -431,6 +438,7 @@ class SaldoGrupoController extends Controller
                 'gastos' => $gastos,
                 'gastos_reporte' => $gastos_reporte,
                 'transferencia' => $transferencia,
+                'transferencia_recibida' => $transferencia_recibida,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total

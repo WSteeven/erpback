@@ -206,17 +206,36 @@
                                                 <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
-                                                <div align="left">Transferencias</div>
+                                                <div align="left">Transferencias Enviadas</div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
                                                     {{ number_format($transferencia, 2, ',', '.') }}</div>
                                             </td>
                                         </tr>
-
-
-
                                         <!--Fin Transferencias-->
+                                        <!--transferencias recibidas-->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $usuario->name }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Transferencias Recibidas</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
                                         <!--Gastos-->
                                         <tr>
                                             <td style="font-size:10px" width="29%">
@@ -243,7 +262,7 @@
                                         <!--Saldo Final-->
                                         <tr>
                                             <td colspan="4" style="font-size:10px"><div align="right"><strong>TOTAL:</strong></div></td>
-                                            <td style="font-size:10px" align="center"><div align="right"  style="margin-right:20px;">{{  number_format($total_suma, 2, ',', ' ')  }}</div></td>
+                                            <td style="font-size:10px" align="center"><div align="right"  style="margin-right:20px;">{{  number_format($nuevo_saldo, 2, ',', ' ')  }}</div></td>
                                           </tr>
                                         <!--Fin Saldo Final-->
                                     </table>
