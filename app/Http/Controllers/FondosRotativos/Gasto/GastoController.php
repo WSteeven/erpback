@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use PgSql\Lob;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -93,6 +94,7 @@ class GastoController extends Controller
         //Log::channel('testing')->info('Log', ['lo que se recibe del front', $request->all()]);
         try {
             $datos = $request->validated();
+            DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
@@ -134,15 +136,17 @@ class GastoController extends Controller
             $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
+            DB::table('gastos')->where('ruc', '=', $datos['ruc'])->sharedLock()->get();
+            DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
+            DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
-
     /**
      * Update the specified resource in storage.
      *
