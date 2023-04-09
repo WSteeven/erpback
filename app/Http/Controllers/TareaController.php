@@ -167,7 +167,7 @@ class TareaController extends Controller
         } */
 
         $tarea->finalizado = $request->safe()->only(['finalizado'])['finalizado'];
-        $tarea->novedad = $request->safe()->only(['novedad'])['novedad'];
+        $tarea->novedad = $request['novedad']; //->safe()->only(['novedad'])['novedad'];
         $tarea->save();
 
         // Respuesta

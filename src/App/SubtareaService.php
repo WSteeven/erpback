@@ -8,6 +8,7 @@ use App\Models\Empleado;
 use App\Models\MovilizacionSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,13 +78,22 @@ class SubtareaService
 
     public function obtenerTodos()
     {
-        $results = Subtarea::ignoreRequest(['campos'])->filter()->get();
+        $usuario = Auth::user();
+        $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
+            return SubtareaResource::collection($results);
+        }
+
+        $results = Subtarea::ignoreRequest(['campos'])->filter()->latest()->get();
         return SubtareaResource::collection($results);
     }
 
     public function marcarTiempoLlegadaMovilizacion(Subtarea $subtarea, Request $request)
     {
-        $idEmpleadoResponsable = Auth::user()->empleado->id;// $request['empleado_responsable_subtarea'];
+        $idEmpleadoResponsable = $request['empleado_responsable_subtarea'];
         $idCoordinadorRegistranteLlegada = $request['coordinador_registrante_llegada'];
 
         $movilizacion = MovilizacionSubtarea::where('subtarea_id', $subtarea->id)->where('empleado_id', $idEmpleadoResponsable)->where('fecha_hora_llegada', null)->orderBy('fecha_hora_salida', 'desc')->first();
@@ -91,8 +101,8 @@ class SubtareaService
         if ($movilizacion) {
             $movilizacion->fecha_hora_llegada = Carbon::now();
             $movilizacion->coordinador_registrante_llegada = $idCoordinadorRegistranteLlegada;
-            $movilizacion->latitud = $request['latitud'];
-            $movilizacion->longitud = $request['longitud'];
+            $movilizacion->latitud_llegada = $request['latitud_llegada'];
+            $movilizacion->longitud_llegada = $request['longitud_llegada'];
             $movilizacion->save();
         }
     }

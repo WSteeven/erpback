@@ -36,6 +36,8 @@ class ClienteFinalResource extends JsonResource
             $modelo['provincia'] = $this->provincia_id;
             $modelo['canton'] = $this->canton_id;
             $modelo['cliente'] = $this->cliente_id;
+            $modelo['provincia_nombre'] = $this->provincia?->provincia;
+            $modelo['canton_nombre'] = $this->canton?->canton;
         }
 
         return $modelo;

@@ -9,6 +9,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Empleado extends Model implements Auditable
 {
@@ -215,6 +216,11 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+
+    public function subtareasCoordinador(): HasManyThrough
+    {
+        return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
     }
 
     public static function extraerNombresApellidos($empleado)
