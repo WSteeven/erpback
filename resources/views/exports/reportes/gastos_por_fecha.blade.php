@@ -130,8 +130,8 @@
         </table>
     </footer>
     <div id="content">
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
-            <div class="col-md-7" align="center"><b>{{ $datos_usuario_logueado['apellidos'] . ' ' . $datos_usuario_logueado['nombres'] }}</b></div>
+        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;">
+            <div class="col-md-7" align="center"><b>{{ $datos_usuario_logueado['apellidos'] . ' ' . $datos_usuario_logueado['nombres'] . ' ( '.$datos_usuario_logueado['canton']->canton .' ) '  }}</b></div>
         </p>
         <p>
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados">
@@ -293,7 +293,7 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ number_format($dato->valor_unitario, 2, ',', '.') }}</div>
+                                    {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">{{ number_format($dato->total, 2, ',', '.') }}

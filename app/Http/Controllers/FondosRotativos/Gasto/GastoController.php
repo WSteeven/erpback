@@ -17,6 +17,7 @@ use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\Notificacion;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -365,6 +366,14 @@ class GastoController extends Controller
         $gasto->estado = 1;
         $gasto->detalle_estado = $request->detalle_estado;
         $gasto->save();
+        $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
+        ->where('per_destinatario_id', $gasto->aut_especial)
+        ->where('tipo_notificacion', 'AUTORIZACION GASTO')
+        ->where('leida', 0)
+        ->whereDate('created_at', $gasto->created_at)
+        ->first();
+        $notificacion->leida = 1;
+        $notificacion->save();
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto autorizado correctamente']);
     }

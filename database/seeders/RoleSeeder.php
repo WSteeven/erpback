@@ -402,7 +402,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.crear.gasto_coordinador'])->syncRoles([$coordinador, $jefe_tecnico]);
         //Motivo gasto
-        Permission::firstOrCreate(['name' => 'puede.ver.motivo_gasto'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.ver.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.crear.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.editar.motivo_gasto'])->syncRoles([$administrador_fondos]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.motivo_gasto'])->syncRoles([$administrador_fondos]);

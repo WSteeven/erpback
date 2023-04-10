@@ -62,6 +62,7 @@ class TransferenciasController extends Controller
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
         event(new TransferenciaSaldoEvent($modelo));
+        event(new TransferenciaSaldoEvent($modelo,true));
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));

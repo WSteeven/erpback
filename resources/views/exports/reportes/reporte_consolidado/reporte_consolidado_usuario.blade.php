@@ -368,7 +368,7 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ number_format($dato->valor_unitario, 2, ',', '.') }}</div>
+                                {{ number_format($dato->valor_u_unitario, 2, ',', '.') }}</div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">{{ number_format($dato->total, 2, ',', '.') }}

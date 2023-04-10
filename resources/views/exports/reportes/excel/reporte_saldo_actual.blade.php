@@ -86,6 +86,9 @@
                                          <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center" width="100%"><strong>Cargo</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>Localidad</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="100%">
                                             <div align="center"><strong>Usuario</strong></div>
                                         </td>
@@ -106,6 +109,11 @@
                                           <td style="font-size:10px">
                                             <div align="left" style="margin-left:20px;">
                                                {{$saldo['cargo']}}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="left" style="margin-left:20px;">
+                                            {{$saldo['localidad']}}
                                             </div>
                                         </td>
                                         <td style="font-size:10px">
