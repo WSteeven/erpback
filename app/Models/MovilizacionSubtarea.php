@@ -24,6 +24,7 @@ class MovilizacionSubtarea extends Model
         'longitud',
         'latitud_llegada',
         'longitud_llegada',
+        'estado_subtarea_llegada',
         'coordinador_registrante_llegada',
         'empleado_id',
         'subtarea_id'
@@ -39,5 +40,9 @@ class MovilizacionSubtarea extends Model
 
     public function subtarea() {
         return $this->belongsTo(Subtarea::class);
+    }
+
+    public function coordinadorRegistranteLlegada() {
+        return $this->belongsTo(Empleado::class, 'coordinador_registrante_llegada', 'id');
     }
 }

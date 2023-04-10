@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\MovilizacionSubtarea;
+use App\Models\Subtarea;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->decimal('longitud', 10, 7);
             $table->decimal('latitud_llegada', 10, 7);
             $table->decimal('longitud_llegada', 10, 7);
+            $table->enum('estado_subtarea_llegada', [Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO]);
 
             // Foreign keys
             $table->unsignedBigInteger('empleado_id');

@@ -18,6 +18,7 @@ class MovilizacionSubtareaResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $empleado = $this->empleado;
+        $coordinador = $this->coordinadorRegistranteLlegada;
 
         $modelo = [
             'fecha_hora_salida' => Carbon::parse($this->fecha_hora_salida)->format('d-m-Y H:i:s'),
@@ -31,8 +32,9 @@ class MovilizacionSubtareaResource extends JsonResource
             'longitud' => $this->longitud,
             'latitud_llegada' => $this->latitud_llegada,
             'longitud_llegada' => $this->longitud_llegada,
-            'coordinador_registrante_llegada' => $this->coordinador_registrante_llegada,
-            'estado' => $this->fecha_hora_llegada ? 'RUTA COMPLETADA' : 'EN CAMINO'
+            'coordinador_registrante_llegada' => $coordinador?->nombres . ' ' . $coordinador?->apellidos,
+            'estado' => $this->fecha_hora_llegada ? 'RUTA COMPLETADA' : 'EN CAMINO',
+            'estado_subtarea_llegada' => $this->estado_subtarea_llegada,
         ];
 
         if ($controller_method == 'show') {

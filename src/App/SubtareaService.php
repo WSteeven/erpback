@@ -101,6 +101,7 @@ class SubtareaService
         if ($movilizacion) {
             $movilizacion->fecha_hora_llegada = Carbon::now();
             $movilizacion->coordinador_registrante_llegada = $idCoordinadorRegistranteLlegada;
+            $movilizacion->estado_subtarea_llegada = $request['estado_subtarea_llegada'];
             $movilizacion->latitud_llegada = $request['latitud_llegada'];
             $movilizacion->longitud_llegada = $request['longitud_llegada'];
             $movilizacion->save();
