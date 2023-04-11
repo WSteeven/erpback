@@ -30,6 +30,7 @@ use App\Http\Resources\TransaccionBodegaResource;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
+use App\Models\Producto;
 use Src\App\TransaccionBodegaEgresoService;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -75,19 +76,25 @@ class TransaccionBodegaEgresoController extends Controller
         $empleado_id = $request['empleado_id'];
         $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
 
-        $results = collect($results)->map(fn ($item, $index) => [
-            'item' => $index + 1,
-            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'detalle_producto_id' => $item->detalle_producto_id,
-            'stock_actual' => intval($item->cantidad_stock),
-            'medida' => 'm',
-        ]);
+        $results = collect($results)->map(function ($item, $index) {
+            $detalle = DetalleProducto::find($item->detalle_producto_id);
+            return [
+                'item' => $index + 1,
+                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'detalle_producto' => $detalle->descripcion,
+                'detalle_producto_id' => $item->detalle_producto_id,
+                'categoria' => $detalle->producto->categoria->nombre,
+                'stock_actual' => intval($item->cantidad_stock),
+                'medida' => 'm',
+            ];
+        });
+
 
         return response()->json(compact('results'));
     }
 
     // Stock personal: materiales y bobinas material para tarea no borrar
-     public function obtenerMaterialesEmpleadoTarea(Request $request)
+    public function obtenerMaterialesEmpleadoTarea(Request $request)
     {
         $request->validate([
             'tarea_id' => 'required|numeric|integer',
@@ -97,13 +104,18 @@ class TransaccionBodegaEgresoController extends Controller
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
         $results = MaterialEmpleadoTarea::filter()->get();
 
-        $results = collect($results)->map(fn ($item, $index) => [
-            'item' => $index + 1,
-            'detalle_producto' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'detalle_producto_id' => $item->detalle_producto_id,
-            'stock_actual' => intval($item->cantidad_stock),
-            'medida' => 'm',
-        ]);
+        $results = collect($results)->map(function ($item, $index) {
+            $detalle = DetalleProducto::find($item->detalle_producto_id);
+            return [
+                'item' => $index + 1,
+                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'detalle_producto' => $detalle->descripcion,
+                'detalle_producto_id' => $item->detalle_producto_id,
+                'categoria' => $detalle->producto->categoria->nombre,
+                'stock_actual' => intval($item->cantidad_stock),
+                'medida' => 'm',
+            ];
+        });
 
         return response()->json(compact('results'));
     }
