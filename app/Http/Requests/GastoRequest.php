@@ -54,7 +54,7 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
         ];
-        if ($this->has('placa')) {
+       if (!is_null($this->placa) ) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'lugar' => 'required',
