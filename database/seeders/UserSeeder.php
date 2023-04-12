@@ -136,6 +136,17 @@ class UserSeeder extends Seeder
             [118, 'JPALMA', 'jpalma@jpconstrucred.com', NULL, '$2y$10$1mBAnmLJ6z66eUyEnP/6yeFx5kxkyjsAtUY8zFEqqb3x6qrhwY5V6', NULL, NULL, NULL, '2023-03-09 10:16:27', '2023-03-09 10:16:27'],
             [119, 'RTOALA', 'rtoala@jpconstrucred.com', NULL, '$2y$10$4OZBw6v8TCCZST5HZXx7ZubjxFPCbKEl2SfNzTpcl7YT10knareku', NULL, NULL, NULL, '2023-03-09 10:18:51', '2023-03-09 10:18:51'],
             [120, 'DALVARADO', 'dalvarado@jpconstrucred.com', NULL, '$2y$10$PI1s6U4nbMIs5S0DmGftWuQYcOw8PL3lSNQATD3M30GapF9vrdY0.', NULL, NULL, NULL, '2023-03-09 10:23:04', '2023-03-09 10:23:04'],
+            [121, 'JFREIRE', 'jfreire@jpconstrucred.com', NULL, '$2y$10$sBhz42gnZR82niG9a3YuD.gOvvGKPnmlKMrpHF/mIBaPNApmJGjTe', NULL, NULL, NULL, '2023-04-03 13:28:05', '2023-04-03 13:28:05'],
+            [122, 'WBARROS', 'wbarros@jpconstrucred.com', NULL, '$2y$10$2pDMQIp1LodlfHkcGz0s0OKgi77bI9FZ7y74JT.RwNP/fIFKHzhau', NULL, NULL, NULL, '2023-04-03 13:36:39', '2023-04-03 13:36:39'],
+            [123, 'DINTRIAGO', 'dintriago@jpconstrucred.com', NULL, '$2y$10$uq4g34l03A3Ejiqn/jgXZO0yEtHg0BDCr65Z3ihyhG6wfHUsXFMtC', NULL, NULL, NULL, '2023-04-03 14:42:32', '2023-04-03 14:42:32'],
+            [124, 'DQUINGA', 'dquinga@jpconstrucred.com', NULL, '$2y$10$/HudWinKQGXXaHBVpoOVbu4vrvcH7vLkY5eCoUuu8vPV4Z.DJ.1Ay', NULL, NULL, NULL, '2023-04-03 14:58:09', '2023-04-03 14:58:09'],
+            [125, 'PJARAMILLO', 'pjaramillo@jpconstrucred.com', NULL, '$2y$10$/ixLRkVl42gr431p3XHF5OrEpVhEPvM1IhR7N8pm9/i2id7AIPnxS', NULL, NULL, NULL, '2023-04-03 15:28:23', '2023-04-03 15:28:23'],
+            [126, 'JVARGAS', 'jvargas@jpconstrucred.com', NULL, '$2y$10$MPSQH6B3BFRI5bdkkaHZW.7r7SwQXMitVNtI55Bvt8/QWsu4wxfxW', NULL, NULL, NULL, '2023-04-04 03:59:51', '2023-04-04 03:59:51'],
+            [127, 'DMUYOLEMA', 'dmuyolema@jpconstrucred.com', NULL, '$2y$10$/bv9Ml8i5bxqwKTRkgt.m.6KIMKFqK7oLLl3NYlav3wmOljH2NCSC', NULL, NULL, NULL, '2023-04-05 01:22:49', '2023-04-05 01:22:49'],
+            [128, 'VPEREZ', 'vperez@jpconstrucred.com', NULL, '$2y$10$kKW8pAM7cEaWcSPNZIqTzOURzzyEFdzDSsenP1Ly5gNoH8GBJiAk6', NULL, NULL, NULL, '2023-04-05 01:29:27', '2023-04-05 01:29:27'],
+            [129, 'JRIVAS', 'jrivas@jpconstrucred.com', NULL, '$2y$10$zuWrxyycfUZmBE.MvnQ54.ff7l.gHWmeiuLA8oc1NYHegIlhfk/H6', NULL, NULL, NULL, '2023-04-05 01:38:25', '2023-04-05 01:38:25'],
+            [130, 'IGUERRERO', 'iguerrero@jpconstrucred.com', NULL, '$2y$10$O24q8bHjvmrR8CeRcrz8ueOXtNxy.SRLZnMNTHUQja9L2Ej2IKhGq', NULL, NULL, NULL, '2023-04-11 14:59:08', '2023-04-11 14:59:08'],
+            [131, 'BGUERRERO', 'bguerrero@jpconstrucred.com', NULL, '$2y$10$veDftfXf1x5l1g4ufWpmI.QRrmBm8IgYC83wJKmTstwi8IWvzFhVq', NULL, NULL, NULL, '2023-04-11 15:02:00', '2023-04-11 15:02:00'],
         ];
 
         foreach ($datos as $fila) {
@@ -262,6 +273,17 @@ class UserSeeder extends Seeder
             [113, '1315391365', 'JOSE JACINTO', 'PALMA CHOEZ', '0988195245', '1969-12-31', 1, 18, 7, 118, 140, 33, NULL, '/storage/firmas/v5oc8JrZSk.png', NULL, NULL, NULL, NULL, 1, 0, 0, '2023-03-09 10:16:27', '2023-03-30 03:51:15'],
             [114, '1315359842', 'RONALD STEVEN', 'TOALA PINARGOTE', '0982715121', '1969-12-31', 1, 18, 7, 119, 140, 33, NULL, '/storage/firmas/kccfsykU9a.png', NULL, NULL, NULL, NULL, 1, 0, 0, '2023-03-09 10:18:51', '2023-03-30 03:38:41'],
             [115, '1314837202', 'DIEGO REINALDO', 'ALVARADO QUIJIJE', '0989853697', '1969-12-31', 1, 18, 7, 120, 140, 33, NULL, '/storage/firmas/4W8Rk6LoOh.png', NULL, NULL, NULL, NULL, 1, 0, 0, '2023-03-09 10:23:04', '2023-03-30 03:53:06'],
+            [116, '0750223430', 'JEFFERSON PACLITO', 'FREIRE TORRES', '0939575686', '1969-12-31', 1, NULL, 11, 121, 53, 29, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-03 13:28:05', '2023-04-03 13:50:23'],
+            [117, '1711974616', 'WELLINGTON FERNANDO', 'BARROS SANCHEZ', '0995840090', '1977-06-12', 1, NULL, 2, 122, 53, 3, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-03 13:36:39', '2023-04-03 13:49:05'],
+            [118, '1316192598', 'DARIO FERNANDO', 'INTRIAGO MENDOZA', '0997379187', '1998-10-05', 1, NULL, 28, 123, 137, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-03 14:42:32', '2023-04-06 15:56:11'],
+            [119, '1805470562', 'DENNIS ADRIAN', 'QUINGA MOPOSITA', '0987559995', '1969-12-31', 1, 4, 30, 124, 186, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-03 14:58:09', '2023-04-03 14:58:41'],
+            [120, '1712374345', 'PATRICIO GONZALO', 'JARAMILLO SHAURY', '0995925710', '1986-04-06', 0, 34, 28, 125, 218, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-03 15:28:23', '2023-04-10 19:48:51'],
+            [121, '0604817049', 'JUAN HERIBERTO', 'VARGAS ANGüISACA', '0978980395', '2001-07-01', 1, 4, 30, 126, NULL, 30, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-04 03:59:51', '2023-04-04 03:59:51'],
+            [122, '0603796202', 'DARWIN EUGENIO', 'MUYOLEMA VALDIVIEZO', '0998880543', '1969-12-31', 1, NULL, 30, 127, 43, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-05 01:22:49', '2023-04-05 01:23:36'],
+            [123, '1315390748', 'VICENTE BRYAN', 'PEREZ SEGUICHE', '0980090383', '2000-05-04', 1, NULL, 38, 128, 140, 33, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-05 01:29:27', '2023-04-05 01:29:27'],
+            [124, '1315032696', 'JAIRO GABRIEL', 'RIVAS ALVARADO', '0990208581', '1969-12-31', 1, NULL, 7, 129, 140, 33, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-05 01:38:25', '2023-04-05 01:38:25'],
+            [125, '0706783560', 'IVAN ARGELIO', 'GUERRERO PRADO', '0989963358', '1996-04-13', 1, NULL, 31, 130, 56, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-11 14:59:08', '2023-04-11 15:13:38'],
+            [126, '0706216678', 'BRYAN JOSE', 'GUERRERO PRADO', '0939774316', '1998-08-21', 1, NULL, 31, 131, 56, 31, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 0, '2023-04-11 15:02:00', '2023-04-11 15:18:34'],
         ];
 
         foreach ($datos as $fila) {

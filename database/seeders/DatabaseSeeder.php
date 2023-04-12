@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
         $this->call(HiloSeeder::class);
         $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
-        $this->call(CodigoClienteSeeder::class);
+        // $this->call(CodigoClienteSeeder::class);
         $this->call(FibraSeeder::class);
         // $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
@@ -72,9 +72,9 @@ class DatabaseSeeder extends Seeder
         //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 
-        // $this->call(TransaccionBodegaSeeder::class);
+        $this->call(PedidoSeeder::class);
+        $this->call(TransaccionBodegaSeeder::class);
         // ImagenProducto::factory(10)->create();
-        // $this->call(PedidoSeeder::class);
         $this->call(EstatusSeeder::class);
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);
