@@ -10,24 +10,16 @@ use Illuminate\Support\Facades\Log;
 class TrabajoAsignadoService
 {
     /*****************************
-     * Trabajo para el dia actual
+     * Trabajo actual y atrasado
      *****************************/
-    public function obtenerTrabajoAsignadoGrupo(Empleado $empleado)
+    public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
     {
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->noEstaRealizado()->fechaActual()->get();
+        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->noEsStandby()->get();
     }
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->get();
-    }
-
-    /*****************************
-     * Trabajo atrasado
-     *****************************/
-    public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
-    {
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->get();
+        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->noEsStandby()->get();
     }
 
     /********************
@@ -35,11 +27,11 @@ class TrabajoAsignadoService
      ********************/
     public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
     {
-        return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
+        return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->noEsStandby()->get();
     }
 
     public function obtenerFuturoTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
+        return $empleado->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->noEsStandby()->get();
     }
 }

@@ -214,7 +214,7 @@ class Subtarea extends Model implements Auditable
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
-    
+
     public function scopeFechaActual($query)
     {
         return $query->whereDate('fecha_inicio_trabajo', '=', Carbon::today());
@@ -233,5 +233,10 @@ class Subtarea extends Model implements Auditable
     public function scopeNoEstaRealizado($query)
     {
         return $query->where('estado', '!=', Subtarea::REALIZADO);
+    }
+
+    public function scopeNoEsStandby($query)
+    {
+        return $query->whereNotIn('tipo_trabajo_id', TipoTrabajo::select('id')->where('descripcion', 'STANDBY'));
     }
 }

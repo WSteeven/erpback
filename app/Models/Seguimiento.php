@@ -37,4 +37,10 @@ class Seguimiento extends Model implements Auditable
     {
         return $this->hasMany(TrabajoRealizado::class);
     }
+
+    // Relacion uno a muchos
+    public function archivos()
+    {
+        return $this->hasMany(ArchivoSeguimiento::class);
+    }
 }

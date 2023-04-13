@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchivoSeguimientoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\ControlAsistenciaController;
@@ -40,6 +41,7 @@ Route::apiResources(
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
         'seguimientos' => SeguimientoController::class,
+        'archivos-seguimientos' => ArchivoSeguimientoController::class,
     ],
     [
         'parameters' => [
@@ -50,7 +52,8 @@ Route::apiResources(
             'registros-tendidos' => 'registro_tendido',
             'motivos-pausas' => 'motivo_pausa',
             'motivos-suspendidos' => 'motivo_suspendido',
-            'rutas-tareas' => 'ruta_tarea'
+            'rutas-tareas' => 'ruta_tarea',
+            'archivos-seguimientos' => 'archivo_seguimiento',
         ],
     ]
 );
