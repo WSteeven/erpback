@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index()
     {
         $results = User::where('id', '<>', 1)->orderBy('id', 'asc')->get();
-        Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
+        // Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
 
         return response()->json(['modelo' => UserResource::collection($results)]);
     }

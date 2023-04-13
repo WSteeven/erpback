@@ -13,7 +13,7 @@ class EstadoTransaccion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable;
     use AuditableModel;
-    
+
     protected $table = 'estados_transacciones_bodega';
     protected $fillable=['nombre'];
     protected $casts = [
@@ -23,17 +23,18 @@ class EstadoTransaccion extends Model implements Auditable
     const PENDIENTE ='PENDIENTE';
     const COMPLETA ='COMPLETA';
     const PARCIAL ='PARCIAL';
-    
+    const ANULADA ='NO REALIZADA';
+
     private static $whiteListFilter = [
         '*',
     ];
-    
+
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-    
+
     /* public function transacciones()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'tiempo_estado_transaccion','transaccion_id', 'estado_id')
@@ -68,5 +69,5 @@ class EstadoTransaccion extends Model implements Auditable
 
 
 
-    
+
 }

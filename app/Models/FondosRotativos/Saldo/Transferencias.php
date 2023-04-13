@@ -25,9 +25,11 @@ class Transferencias extends Model implements Auditable
         'monto',
         'motivo',
         'cuenta',
+        'observacion',
         'id_tarea',
         'estado',
-        'comprobante'
+        'comprobante',
+        'fecha'
     ];
     public function usuario_envia()
     {
@@ -51,8 +53,10 @@ class Transferencias extends Model implements Auditable
         'monto',
         'motivo',
         'cuenta',
+        'observacion',
         'id_tarea',
         'estado',
-        'comprobante'
+        'comprobante',
+        'fecha'
     ];
 }

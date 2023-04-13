@@ -269,6 +269,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;
             $row['categoria'] = $item->detalle->producto->categoria->nombre;
+            $row['serial'] = $item->detalle->serial;
             $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
             $row['despachado'] = $item->pivot->cantidad_final;

@@ -34,7 +34,7 @@ class GastoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'fecha_viat' => 'required|date_format:Y-m-d',
             'lugar' => 'required',
             'num_tarea' => 'required',
@@ -54,6 +54,31 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
         ];
+       if (!is_null($this->placa) ) {
+            $rules = [
+                'fecha_viat' => 'required|date_format:Y-m-d',
+                'lugar' => 'required',
+                'num_tarea' => 'required',
+                'subTarea' => 'nullable',
+                'proyecto' => 'required',
+                'ruc' => 'nullable|string',
+                'factura' => 'nullable|string|max:22|min:17',
+                'num_comprobante' => 'nullable|string|max:13',
+                'aut_especial' => 'required',
+                'detalle' => 'required|exists:detalle_viatico,id',
+                'sub_detalle' => 'required|array',
+                'cantidad' => 'required|numeric',
+                'valor_u' => 'required|numeric',
+                'total' => 'required|numeric',
+                'observacion' => 'required|string',
+                'comprobante1' => 'required|string',
+                'comprobante2' => 'required|string',
+                'detalle_estado' => 'nullable|srtring',
+                'placa' => 'required|string',
+                'kilometraje' => 'required|integer'
+            ];
+        }
+        return $rules;
     }
     /**
      * Configure the validator instance.
@@ -65,7 +90,7 @@ class GastoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $date = Carbon::parse($this->fecha_viat);
-           /* if (!$date->greaterThan('2023-03-31')) {
+            /* if (!$date->greaterThan('2023-03-31')) {
                 $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
             }*/
             $factura = Gasto::where('factura', '!=', null)

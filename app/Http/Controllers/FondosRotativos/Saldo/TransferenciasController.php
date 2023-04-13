@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
+use App\Events\TransferenciaSaldoContabilidadEvent;
 use App\Events\TransferenciaSaldoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TransferenciaRequest;
@@ -62,7 +63,7 @@ class TransferenciasController extends Controller
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
         $modelo = Transferencias::create($datos);
         event(new TransferenciaSaldoEvent($modelo));
-        event(new TransferenciaSaldoEvent($modelo,true));
+        event(new TransferenciaSaldoContabilidadEvent($modelo));
         $modelo = new TransferenciaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
