@@ -214,6 +214,7 @@
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
+                <th>Condición</th>
                 <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
@@ -223,6 +224,7 @@
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{$listado['categoria']}}</td>
+                        <td>{{$listado['condiciones']}}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>
                 @endforeach

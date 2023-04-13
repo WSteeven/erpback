@@ -151,7 +151,6 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-    //public function prueba2($id){
     public function materialesDespachados($id)
     {
         $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
@@ -160,9 +159,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function prueba($id)
     {
-        // Log::channel('testing')->info('Log', ['Dato recibido en prueba', $id]);
         $results = $this->servicio->obtenerTransaccionesPorTarea($id);
-        // Log::channel('testing')->info('Log', ['Longitud es', count($results)]);
         $results = TransaccionBodega::listadoProductosTarea($results);
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -178,7 +175,7 @@ class TransaccionBodegaEgresoController extends Controller
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->get();
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));

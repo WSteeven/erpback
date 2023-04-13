@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
+use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\Tarea;
@@ -80,21 +82,39 @@ class TransaccionBodegaRequest extends FormRequest
         $validator->after(function ($validator) {
             if ($this->route()->uri() === 'api/transacciones-ingresos') {
                 foreach ($this->listadoProductosTransaccion as $listado) {
-                    if (!$this->ingreso_masivo) {
-                        if (array_key_exists('condiciones', $listado)) {
-                            Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
-                        } else {
-                            $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
+                    if(!array_key_exists('cantidad', $listado)) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'Ingresa la cantidad del ítem ' . $listado['descripcion']);
+                    else if($listado['cantidad']<=0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'].' debe ser mayor que 0');
+                    else{
+                        $esFibra = !!Fibra::find($listado['id']);
+                        $itemInventario = !!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
+                        Log::channel('testing')->info('Log', ['Datos recibidos', $itemInventario]);
+                        //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
+                        if($listado['serial'] && $listado['cantidad']>1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'].' debe ser 1');
+                        if($listado['serial'] && $itemInventario && !$esFibra)$validator->errors()->add('listadoProductosTransaccion.*.descripcion', 'Ya existe el ítem ' . $listado['descripcion'].' registrado en una bodega. Revisa el inventario');
+                        //valida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
+                        if (!$this->ingreso_masivo) {
+                            if (array_key_exists('condiciones', $listado)) {
+                                Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
+                            } else {
+                                $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
+                            }
                         }
                     }
                 }
             } else {
+                /**
+                 * CORREGIR LOS EGRESOS, VERIFICAR QUE FUNCIONE BIEN 
+                 * 
+                 * 
+                 * 
+                 * 
+                 */
                 foreach ($this->listadoProductosTransaccion as $listado) {
                     // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
                     $itemInventario = Inventario::find($listado['id']);
                     if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' debe ser mayor a cero');
                     if ($listado['cantidad'] > $itemInventario->cantidad) {
-                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventarioEn inventario:' . $itemInventario->cantidad);
+                        $validator->errors()->add('listadoProductoTransaccion.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
                     }
                 }
             }

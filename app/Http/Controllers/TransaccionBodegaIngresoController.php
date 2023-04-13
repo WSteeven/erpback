@@ -30,10 +30,8 @@ use Src\Shared\Utils;
 class TransaccionBodegaIngresoController extends Controller
 {
     private $entidad = 'Transacción';
-    private $servicio;
     public function __construct()
     {
-        $this->servicio = new TransaccionBodegaIngresoService();
         $this->middleware('can:puede.ver.transacciones_ingresos')->only('index', 'show');
         $this->middleware('can:puede.crear.transacciones_ingresos')->only('store');
         $this->middleware('can:puede.editar.transacciones_ingresos')->only('update');
@@ -51,8 +49,7 @@ class TransaccionBodegaIngresoController extends Controller
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-            // $results = $this->servicio->filtrarTransaccionesIngresoBodegueroSinPaginacion($tipo, $estado);
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->get();
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
