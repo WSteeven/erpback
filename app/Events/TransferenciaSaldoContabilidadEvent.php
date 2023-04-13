@@ -40,7 +40,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                 $mensaje = $usuario_recibe->nombres.' '.$usuario_recibe->apellidos.'Acepto Transferencia';
                 break;
             case 2:
-                $mensaje = 'Han rechazadoa  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_envia->apellidos . ' por un monto de $' . $transferencia->monto;
+                $mensaje = 'Han rechazadoa  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
                 break;
             case 3:
                 $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_envia->apellidos . ' por un monto de $' . $transferencia->monto;
@@ -58,7 +58,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     }
     public function notificar($mensaje, $ruta, $destinatario, $remitente)
     {
-        Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
     }
     /**
      * Get the channels the event should broadcast on.

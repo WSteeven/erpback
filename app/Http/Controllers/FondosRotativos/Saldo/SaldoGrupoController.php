@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
+use App\Exports\ConsolidadoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
@@ -413,10 +414,20 @@ class SaldoGrupoController extends Controller
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
+            $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
+            ->with('usuario_recibe', 'usuario_envia')
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
             $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
+            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
+            ->with('usuario_recibe', 'usuario_envia')
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -439,12 +450,14 @@ class SaldoGrupoController extends Controller
                 'gastos_reporte' => $gastos_reporte,
                 'transferencia' => $transferencia,
                 'transferencia_recibida' => $transferencia_recibida,
+                'transferencias_enviadas' => $transferencias_enviadas,
+                'transferencias_recibidas' => $transferencias_recibidas,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
-            $export_excel = new SaldoActualExport($reportes);
+            $export_excel = new ConsolidadoExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
