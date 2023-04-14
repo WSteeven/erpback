@@ -112,6 +112,10 @@ class Gasto extends Model implements Auditable
     {
         return $this->hasOne(EstadoViatico::class, 'id', 'detalle_estado');
     }
+    public function gasto_vehiculo_info()
+    {
+        return $this->hasOne(GastoVehiculo::class, 'id_gasto', 'id');
+    }
 
     public static function empaquetar($gastos)
     {
