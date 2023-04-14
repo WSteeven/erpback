@@ -30,11 +30,11 @@ class TrabajoAsignadoController extends Controller
         $results = [];
 
         if (request('estado') == 'PROXIMO') {
-            if ($grupo_id) array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
+            // if ($grupo_id) array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoEmpleado($empleado));
 
         } else {
-            if ($grupo_id) array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
+            // if ($grupo_id) array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
         }
 

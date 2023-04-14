@@ -65,7 +65,7 @@ class SubtareaResource extends JsonResource
             'fecha_hora_cancelado' => $this->formatTimestamp($this->fecha_hora_cancelado),
             'motivo_cancelado' => $this->motivoCancelado?->motivo,
             'modo_asignacion_trabajo' => $this->modo_asignacion_trabajo,
-            'empleados_designados' => $this->empleados ? $this->mapEmpleadoSeleccionado($this->empleados) : null,
+            'empleados_designados' => $this->obtenerEmpleadosDesignados(), //$this->empleados ? $this->mapEmpleadoSeleccionado($this->empleados) : null,
             'estado' => $this->estado,
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
@@ -96,6 +96,7 @@ class SubtareaResource extends JsonResource
             $modelo['subtarea_dependiente'] = $this->subtarea_dependiente_id;
             $modelo['empleado'] = $this->empleado_id;
             $modelo['grupo'] = $this->grupo_id;
+            $modelo['grupo_nombre'] = $this->grupo?->nombre;
         }
 
         return $modelo;
@@ -121,6 +122,17 @@ class SubtareaResource extends JsonResource
         ]);
     }
 
+    public function obtenerEmpleadosDesignados()
+    {
+        if ($this->empleados_designados) {
+            $empleados = Empleado::whereIn('id', $this->empleados_designados)->get();
+            return $this->mapEmpleadoSeleccionado($empleados);
+        } else {
+            $empleadosGrupo = Empleado::where('grupo_id', $this->grupo_id)->get();
+            return $this->mapEmpleadoSeleccionado($empleadosGrupo);
+        }
+    }
+
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
         return $empleadosSubtarea->map(function ($empleado) {
@@ -132,29 +144,16 @@ class SubtareaResource extends JsonResource
                 'apellidos' => $empleado->apellidos,
                 'telefono' => $empleado->telefono,
                 'grupo' => $empleado->grupo?->nombre,
-                'es_responsable' => $empleado->pivot->es_responsable ? true : false,
+                'es_responsable' => $empleado->id == $this->empleado_id, //$empleado->pivot->es_responsable ? true : false,
                 'cargo' => $empleado->cargo?->nombre,
                 'roles' => implode(', ', $empleado->user->getRoleNames()->toArray()),
             ];
         });
     }
 
-    /*public function obtenerIdEmpleadoResponsable()
-    {
-        if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-            $empleados = Empleado::where('grupo_id', $this->grupo_id)->get();
-            $usuarioLider  = $empleados->filter(fn($empleado) => $empleado->user->hasRole(User::ROL_LIDER_DE_GRUPO));
-            if ($usuarioLider) return $usuarioLider[0]->id;
-        }
+    // update subtareas set empleado_id = 47 where grupo_id = 18;
 
-        if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
-            return $this->empleado_id;
-        }
-
-        return null;
-    }*/
-
-    public function verificarSiEsResponsable()
+    public function verificarSiEsResponsableOld()
     {
         $usuario = Auth::user();
 
@@ -170,6 +169,29 @@ class SubtareaResource extends JsonResource
         }
 
         return false;
+    }
+
+    public function verificarSiEsResponsable()
+    {
+        $usuario = Auth::user();
+
+        /*if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+            // solucion temporal porque éste campo está vacio y no deberia de estarlo
+            if (!$this->empleado_id) {
+                $esLider = $usuario->hasRole(User::ROL_LIDER_DE_GRUPO);
+                $grupo_id = $usuario->empleado->grupo_id;
+                return $this->grupo_id == $grupo_id && $esLider;
+            }
+
+            return $this->empleado_id == $usuario->empleado->id;
+        }
+
+        if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+            return $this->empleado_id == $usuario->empleado->id;
+        } */
+
+        return $this->empleado_id == $usuario->empleado->id;
+        // return false;
     }
 
     private function obtenerCanton()
@@ -189,12 +211,30 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
+        // if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
+        // $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        // $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
+
+        // if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
+        // return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() se quita para q pueda usar el coordinador desde el front se valida el resto
+        // }
+
+        // if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
+        $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() igual q arriba
+        // }
+    }
+
+    private function verificarSiPuedeEjecutarOld()
+    {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
             $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            // $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 
             // if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
-            return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() se quita para q pueda usar el coordinador
+            return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() se quita para q pueda usar el coordinador desde el front se valida el resto
         }
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {

@@ -56,6 +56,7 @@ class Subtarea extends Model implements Auditable
         'hora_inicio_trabajo',
         'hora_fin_trabajo',
         'tiempo_estimado',
+        'empleados_designados',
 
         'tipo_trabajo_id',
         'tarea_id',
@@ -72,6 +73,7 @@ class Subtarea extends Model implements Auditable
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
         'tiene_subtrabajos' => 'boolean',
+        'empleados_designados' => 'json',
         // 'fecha_inicio_trabajo' => 'datetime:d-m-Y',
         // 'created_at' => 'datetime:Y-m-d h:i:s a',
     ];

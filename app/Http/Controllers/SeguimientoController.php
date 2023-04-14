@@ -73,8 +73,8 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $seguimiento);
-        $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
         $this->seguimientoService->descontarMaterialTareaOcupadoUpdate($request);
+        $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
 
         $modelo = new EmergenciaResource($seguimiento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

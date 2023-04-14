@@ -52,19 +52,20 @@ class SubtareaController extends Controller
         $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
         $datos['fecha_hora_creacion'] = Carbon::now();
         $datos['fecha_inicio_trabajo'] = Carbon::parse($request->safe()->only(['fecha_inicio_trabajo'])['fecha_inicio_trabajo'])->format('Y-m-d');
+        $datos['empleados_designados'] = $request['empleados_designados'];
 
         // Calcular estados
         $datos['estado'] = Subtarea::CREADO;
 
         $modelo = Subtarea::create($datos);
-        $empleados_designados = collect($datos['empleados_designados'])->map(
+        /*$empleados_designados = collect($datos['empleados_designados'])->map(
             fn ($empleado) => [
                 'empleado_id' => $empleado['id'],
                 'es_responsable' => $empleado['es_responsable'],
             ]
-        );
+        );*/
 
-        $modelo->empleados()->sync($empleados_designados);
+        // $modelo->empleados()->sync($empleados_designados);
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
@@ -128,7 +129,8 @@ class SubtareaController extends Controller
 
             if ($request['modo_asignacion_trabajo'] == Subtarea::POR_GRUPO) {
                 $subtarea->grupo_id = $request['grupo'];
-                $subtarea->empleado_id = null;
+                $subtarea->empleado_id = $request['empleado'];
+                $subtarea->empleados_designados = $request['empleados_designados'];
             } elseif ($request['modo_asignacion_trabajo'] == Subtarea::POR_EMPLEADO) {
                 $subtarea->grupo_id = null;
                 $subtarea->empleado_id = $request['empleado'];
