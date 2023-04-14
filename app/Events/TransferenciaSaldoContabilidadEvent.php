@@ -43,14 +43,14 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                 $mensaje = 'Han rechazadoa  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
                 break;
             case 3:
-                $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_envia->apellidos . ' por un monto de $' . $transferencia->monto;
+                $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
                 break;
             default:
                 $mensaje = 'Tienes un transferencia por aceptar';
                 break;
         }
         // recorrer usuarios de Rol CONTABILIDAD
-        $empleados_contabilidad = User::role('AUTORIZADOR')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
+        $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
         $empleados_contabilidad = UserInfoResource::collection($empleados_contabilidad);
         foreach ($empleados_contabilidad as $empleado) {
             $this->notificar($mensaje, $ruta,$destinatario, $empleado->id);
@@ -67,7 +67,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $nombre_chanel =  'transferencia-saldo-contabilidad' . 6;
+        $nombre_chanel =  'transferencia-saldo-contabilidad-' . 6;
         return new Channel($nombre_chanel);
     }
     public function broadcastAs()

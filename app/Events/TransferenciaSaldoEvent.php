@@ -31,11 +31,9 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
     public function __construct($transferencia)
     {
         $ruta = $transferencia->estado == 3 ? '/autorizar-transferencia' : '/transferencia';
+        $mensaje = '';
         $this->transferencia = $transferencia;
         $destinatario = $transferencia->estado != 3 ? $transferencia->usuario_recibe_id : $transferencia->usuario_envia_id;
-        $remitente = 0;
-        $mensaje = '';
-
         $remitente = $transferencia->estado != 3 ? $transferencia->usuario_envia_id : $transferencia->usuario_recibe_id;
         switch ($transferencia->estado) {
             case 1:

@@ -333,7 +333,7 @@ class GastoController extends Controller
             $tipo_ARCHIVO = $tipo;
             $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;
-            $usuario = User::where('id', $id_usuario)->first();
+            $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
             $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
@@ -345,6 +345,7 @@ class GastoController extends Controller
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);
+            Log::channel('testing')->info('Log', ['reporte', $reporte_empaquetado]);
             $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
             $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');

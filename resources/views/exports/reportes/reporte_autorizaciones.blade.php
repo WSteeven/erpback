@@ -4,7 +4,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -58,16 +58,17 @@
             line-height: normal;
             font-size: 10pt;
         }
-        .observacion
-        {
+
+        .observacion {
             table-layout: fixed;
             width: 100%;
             line-height: normal;
             font-size: 7pt;
         }
+
         .page-break {
-        page-break-after: always;
-    }
+            page-break-after: always;
+        }
     </style>
     @php
         $fecha = new Datetime();
@@ -80,11 +81,14 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                   <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img
+                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE AUTORIZACIONES CON ESTADO
-                        {{ $tipo_reporte->descripcion . ' DEL ' . date("d-m-Y", strtotime($fecha_inicio)) . ' AL ' .date("d-m-Y", strtotime( $fecha_fin)) }}</b></div>
+                            {{ $tipo_reporte->descripcion . ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</b>
+                    </div>
 
                 </td>
             </tr>
@@ -96,7 +100,8 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
+                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
@@ -109,147 +114,126 @@
         </table>
     </footer>
     <div id="content">
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
-            <div class="col-md-7" align="center"><b>{{ $usuario->nombres . ' ' . $usuario->apellidos }}</b></div>
-        </p>
-        <p>
-            <table width="100%" border="1" cellspacing="0" bordercolor="#666666">
-                @if ($tipo_ARCHIVO == 'pdf')
-                    <tr>
-                        <td width="5%" bgcolor="#a9d08e">
-                            <div align="center"><strong>FECHA</strong></div>
-                        </td>
-                        <td width="10%" bgcolor="#a9d08e">
-                            <div align="center"><strong>USUARIO</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>GRUPO</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>TAREA</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>DETALLE</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>SUB DETALLE</strong></div>
-                        </td>
-                        <td width="33%" bgcolor="#a9d08e">
-                            <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
-                        </td>
-                        <td width="22%" bgcolor="#a9d08e">
-                            <div align="center"><strong>DETALLE DEL ESTADO</strong></div>
-                        </td>
-                        <td width="6%" bgcolor="#a9d08e">
-                            <div align="center"><strong>TOTAL</strong></div>
-                        </td>
-                    </tr>
-                @else
-                    <tr>
-                        <td width="5%" bgcolor="#a9d08e">
-                            <div align="center"><strong>FECHA</strong></div>
-                        </td>
-                        <td width="5%" bgcolor="#a9d08e">
-                            <div align="center"><strong>FECHA INGRESO</strong></div>
-                        </td>
-                        <td width="5%" bgcolor="#a9d08e">
-                            <div align="center"><strong>FECHA PROCESO</strong></div>
-                        </td>
-                        <td width="10%" bgcolor="#a9d08e">
-                            <div align="center"><strong>USUARIO</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>GRUPO</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>TAREA</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>DETALLE</strong></div>
-                        </td>
-                        <td width="8%" bgcolor="#a9d08e">
-                            <div align="center"><strong>SUB DETALLE</strong></div>
-                        </td>
-                        <td width="28%" bgcolor="#a9d08e">
-                            <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
-                        </td>
-                        <td width="17%" bgcolor="#a9d08e">
-                            <div align="center"><strong>DETALLE DEL ESTADO</strong></div>
-                        </td>
-                        <td width="6%" bgcolor="#a9d08e">
-                            <div align="center"><strong>TOTAL</strong></div>
-                        </td>
-                    </tr>
-                @endif
-
-                @foreach ($datos_reporte as $dato)
-                    @if ($tipo_ARCHIVO == 'pdf')
-                        <tr style="font-size:9px">
-                            <td width="5%">{{ date("d-m-Y", strtotime( $dato['fecha']))}}</td>
-                            <td width="10%">
-                                {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
-                            </td>
-                            <td width="8%">{{ $dato['grupo'] }}</td>
-                            <td width="8%">{{ $dato['tarea'] ==null?'SIN TAREA': $dato['tarea']->codigo_tarea }}</td>
-                            <td width="8%">{{ isset($dato['detalle']) ==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
-                            <td width="8%">
-                                @foreach($dato['sub_detalle'] as $sub_detalle)
-                                {{ $sub_detalle['descripcion'] }}
-                                @if (!$loop->last)
-                                   ,
-                                @endif
-                             @endforeach
-                            </td>
-                            <td width="33%">{{ $dato['observacion'] }}</td>
-                            <td width="22%">{{ $dato['detalle_estado'] }}</td>
-                            <td width="6%" align="center">
-                                {{ number_format($dato['total'], 2, ',', ' ') }}</td>
-                        </tr>
-                    @else
-                        <tr style="font-size:9px">
-                            <td width="5%">{{ $dato['fecha'] }}</td>
-                            <td width="5%">{{-- $dato->fecha_ingreso --}}</td>
-                            <td width="5%">{{-- $dato->fecha_proc --}}</td>
-                            <td width="10%">
-                                {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
-                            </td>
-                            <td width="8%">{{ $dato['grupo']}}</td>
-                            <td width="8%">{{$dato['tarea']==null?'SIN TAREA': $dato['tarea']->descripcion }}</td>
-                            <td width="8%">{{isset($dato['detalle'])==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
-                            <td width="8%">
-                                @foreach($dato['sub_detalle'] as $sub_detalle)
-                                {{ $sub_detalle['descripcion'] }}
-                                @if (!$loop->last)
-                                   ,
-                                @endif
-                             @endforeach
-                            </td>
-                            <td width="22%">{{ $dato['observacion'] }}</td>
-                            <td width="23%">{{ $dato['detalle_estado'] }}</td>
-                            <td width="6%" align="center">
-                                {{ number_format($dato['total'], 2, ',', ' ') }}</td>
-                        </tr>
-                    @endif
-                @endforeach
-                @if (is_int($resto / $div))
-            </table>
-        </p>
-        <p>
-            <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-            @endif
-
+        <p style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
+            <div class="col-md-7"
+            align="center"><b>{{ $usuario->nombres . ' ' . $usuario->apellidos }}</b>
+    </div>
+    </p>
+    <p>
+    <table width="100%" border="1" cellspacing="0" bordercolor="#666666">
+        @if ($tipo_ARCHIVO == 'pdf')
             <tr>
-                <td width="95%" style="font-size:10px" colspan="'.$colspan.'">
-                    <div align="right"><strong>TOTAL</strong></div>
+                <td width="5%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
                 </td>
-                <td width="5%"style="font-size:10px">
-                    <div align="center">{{ number_format($subtotal, 2, ',', ' ') }}</div>
+                <td width="10%" bgcolor="#a9d08e">
+                    <div align="center"><strong>USUARIO</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>GRUPO</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TAREA</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DETALLE</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>SUB DETALLE</strong></div>
+                </td>
+                <td width="33%" bgcolor="#a9d08e">
+                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+                <td width="22%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DETALLE DEL ESTADO</strong></div>
+                </td>
+                <td width="6%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TOTAL</strong></div>
                 </td>
             </tr>
+        @else
+            <tr>
+                <td width="5%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                <td width="5%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA INGRESO</strong></div>
+                </td>
+                <td width="5%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA PROCESO</strong></div>
+                </td>
+                <td width="10%" bgcolor="#a9d08e">
+                    <div align="center"><strong>USUARIO</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>GRUPO</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TAREA</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DETALLE</strong></div>
+                </td>
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>SUB DETALLE</strong></div>
+                </td>
+                <td width="28%" bgcolor="#a9d08e">
+                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DETALLE DEL ESTADO</strong></div>
+                </td>
+                <td width="6%" bgcolor="#a9d08e">
+                    <div align="center"><strong>TOTAL</strong></div>
+                </td>
+            </tr>
+        @endif
 
-        </table>
-        </p>
+        @foreach ($datos_reporte as $dato)
+            <tr style="font-size:9px">
+                <td width="5%">{{ date('d-m-Y', strtotime($dato['fecha'])) }}</td>
+                <td width="10%">
+                    {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
+                </td>
+                <td width="8%">{{ $dato['grupo'] }}</td>
+                <td width="8%">{{ $dato['tarea'] == null ? 'SIN TAREA' : $dato['tarea']->codigo_tarea }}</td>
+                <td width="8%">{{ $dato['detalle'] }}</td>
+                <td width="8%">
+                    @foreach ($dato['sub_detalle'] as $sub_detalle)
+                        {{ $sub_detalle->descripcion }}
+                        @if (!$loop->last)
+                            ,
+                        @endif
+                    @endforeach
+                </td>
+                <td width="33%">{{ $dato['observacion'] }}</td>
+                <td width="22%">{{ $dato['detalle_estado'] }}</td>
+                <td width="6%" align="center">{{ number_format($dato['total'], 2, ',', ' ') }}</td>
+            </tr>
+        @endforeach
+        <tr>
+            <td colspan="9">
+                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                    style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;">
+
+                    <tr>
+                        <td width="95%" style="font-size:10px" colspan="'.$colspan.'">
+                            <div align="right"><strong>TOTAL</strong></div>
+                        </td>
+                        <td width="5%"style="font-size:10px">
+                            <div align="center">{{ number_format($subtotal, 2, ',', ' ') }}</div>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+
+    </table>
+    </p>
+    <p>
+
+    </p>
     </div>
 
 </body>

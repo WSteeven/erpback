@@ -125,7 +125,7 @@ class Gasto extends Model implements Auditable
             $row['grupo'] = $gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
-            $row['detalle'] = $gasto->detalle_info;
+            $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
             $row['observacion'] = $gasto->observacion;
             $row['detalle_estado'] = $gasto->detalle_estado;
