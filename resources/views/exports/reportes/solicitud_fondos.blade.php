@@ -163,7 +163,7 @@
                 @endforeach
             @else
                 <tr>
-                    <td style="font-size:10px" colspan="5">NO SE REALIZARON SOLICITUDES DE FONDOS.</td>
+                    <td style="font-size:10px" colspan="6">NO SE REALIZARON SOLICITUDES DE FONDOS.</td>
                 </tr>
             @endif
         </table>

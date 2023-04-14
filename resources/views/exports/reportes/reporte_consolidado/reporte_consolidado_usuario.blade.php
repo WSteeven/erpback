@@ -273,7 +273,7 @@
                 </td>
             </tr>
         </table>
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
+        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
             <div class="col-md-7" align="center"><b>Detalle de Gastos</b></div>
         </p>
         <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
@@ -388,7 +388,7 @@
             </tr>
         </table>
         <br>
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
+        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
             <div class="col-md-7" align="center"><b>Transferencias Enviadas</b></div>
         </p>
         <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
@@ -473,7 +473,7 @@
             @endif
         </table>
         <br>
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
+        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
             <div class="col-md-7" align="center"><b>Transferencias Recibidas</b></div>
         </p>
         <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">

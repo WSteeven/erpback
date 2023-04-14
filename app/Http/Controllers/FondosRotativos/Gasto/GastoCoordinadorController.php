@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Events\SolicitudFondosEvent;
 use App\Exports\GastoExport;
+use App\Exports\SolicitudFondosExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoCoordinadorRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoCoordinadorResource;
@@ -125,8 +126,8 @@ class GastoCoordinadorController extends Controller
             $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
-            $export_excel = new GastoExport(null);
             $reportes = compact('solicitudes','usuario', 'fecha_inicio', 'fecha_fin');
+            $export_excel = new SolicitudFondosExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);

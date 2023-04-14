@@ -154,8 +154,15 @@
                                                 <td width="8%">{{-- $detalle_grupo=$datos_grupo[0]->descripcion --}}
                                                 </td>
                                                 <td width="8%">{{ $dato['tarea']->codigo_tarea }}</td>
-                                                <td width="8%">{{ $dato['detalle']->descripcion }}</td>
-                                                <td width="8%">{{ $dato['sub_detalle']->descripcion }}</td>
+                                                <td width="8%">{{isset($dato['detalle'])==1 ? 'SIN DETALLE': $dato['detalle']->descripcion  }}</td>
+                                                <td width="8%">
+                                                    @foreach($dato['sub_detalle'] as $sub_detalle)
+                                                    {{ $sub_detalle['descripcion'] }}
+                                                    @if (!$loop->last)
+                                                       ,
+                                                    @endif
+                                                 @endforeach
+                                                </td>
                                                 <td width="22%">{{ $dato['observacion'] }}</td>
                                                 <td width="23%">{{ $dato['detalle_estado'] }}</td>
                                                 <td width="6%" align="center">
