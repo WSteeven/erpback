@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Exports\ConsolidadoExport;
+use App\Exports\GastoFiltradoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
@@ -254,7 +255,7 @@ class SaldoGrupoController extends Controller
             ])
                 ->filter($request->all())
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where ('id_estado', Gasto::APROBADO)
+                ->where ('estado', Gasto::APROBADO)
                 ->with(
                     'empleado_info',
                     'detalle_estado',
@@ -288,12 +289,12 @@ class SaldoGrupoController extends Controller
                     $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
                 case '5':
-                    $autorizador = Empleado::with('empleado')->where('id', $request->autorizador)->first();
+                    $autorizador = Empleado::where('id', $request->autorizador)->first();
                     $titulo .= 'DE GASTOS POR AUTORIZADOR ';
                     $subtitulo = 'AUTORIZADOR: ' . $autorizador->nombres . ' ' . $autorizador->apellidos;
                     break;
                 case '6':
-                    $usuario = Empleado::with('empleado')->where('id', $request->usuario)->first();
+                    $usuario = Empleado::where('id', $request->usuario)->first();
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     break;
@@ -308,7 +309,7 @@ class SaldoGrupoController extends Controller
                 'subtitulo' => $subtitulo,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
-            $export_excel = new SaldoActualExport($reportes);
+            $export_excel = new GastoFiltradoExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);

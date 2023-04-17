@@ -41,7 +41,7 @@ class TransferenciaSaldoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $saldo_actual = SaldoGrupo::where('id_usuario', Auth()->user()->id)->orderBy('id', 'desc')->first();
+            $saldo_actual = SaldoGrupo::where('id_usuario', Auth()->user()->empleado->id)->orderBy('id', 'desc')->first();
             $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
             if ($this->monto > $saldo_actual) {
                 $validator->errors()->add('monto', 'El monto a transferir no puede ser mayor al saldo disponible');

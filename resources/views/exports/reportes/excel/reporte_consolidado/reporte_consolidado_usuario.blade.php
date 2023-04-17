@@ -70,7 +70,8 @@
                         <tr>
                             <td bgcolor="#bfbfbf" style="font-size:12px">
                                 <div align="center"><strong>REPORTE CONSOLIDADO
-                                    {{ ' DEL ' . date("d-m-Y", strtotime( $fecha_inicio)) . ' AL ' . date("d-m-Y", strtotime( $fecha_fin)) }}</strong></div>
+                                        {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</strong>
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -94,33 +95,10 @@
                                         </td>
                                     </tr>
                                     <!--Saldo Inicial-->
-                                        <tr>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">
-                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_anterior)) }}</div>
-                                            </td>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">Saldo Inicial</div>
-                                            </td>
-                                            <td style="font-size:10px" width="10%">
-                                                <div align="right">
-                                                    {{ number_format($saldo_anterior, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                    <!--Fin Saldo Inicial-->
-                                    <!--Acreditaciones-->
                                     <tr>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">
-                                                {{ $empleado->nombres.' '.$empleado->apellidos }}
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
@@ -128,7 +106,32 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
-                                            <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio)) . ' ' . date("d-m-Y", strtotime( $fecha_fin)) }}</div>
+                                            <div align="center">{{ date('d-m-Y', strtotime($fecha_anterior)) }}</div>
+                                        </td>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">Saldo Inicial</div>
+                                        </td>
+                                        <td style="font-size:10px" width="10%">
+                                            <div align="right">
+                                                {{ number_format($saldo_anterior, 2, ',', '.') }}</div>
+                                        </td>
+                                    </tr>
+                                    <!--Fin Saldo Inicial-->
+                                    <!--Acreditaciones-->
+                                    <tr>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="15%">
+                                            <div align="left">{{ $usuario->name }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="17%">
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">Acreditaciones</div>
@@ -143,7 +146,7 @@
                                     <tr>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">
-                                                {{ $empleado->nombres.' '.$empleado->apellidos }}
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
@@ -151,7 +154,9 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
-                                            <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">Transferencias Enviadas</div>
@@ -166,7 +171,7 @@
                                     <tr>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">
-                                                {{ $empleado->nombres.' '.$empleado->apellidos }}
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
@@ -174,7 +179,9 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
-                                            <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">Transferencias Recibidas</div>
@@ -188,7 +195,7 @@
                                     <tr>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">
-                                                {{ $empleado->nombres.' '.$empleado->apellidos }}
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
@@ -196,7 +203,9 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
-                                            <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
                                             <div align="left">Gastos</div>
@@ -209,9 +218,14 @@
                                     <!--Fin Gastos-->
                                     <!--Saldo Final-->
                                     <tr>
-                                        <td colspan="4" style="font-size:10px"><div align="right"><strong>TOTAL:</strong></div></td>
-                                        <td style="font-size:10px" align="center"><div align="right"  style="margin-right:20px;">{{  number_format($nuevo_saldo, 2, ',', ' ')  }}</div></td>
-                                      </tr>
+                                        <td colspan="4" style="font-size:10px">
+                                            <div align="right"><strong>TOTAL:</strong></div>
+                                        </td>
+                                        <td style="font-size:10px" align="center">
+                                            <div align="right" style="margin-right:20px;">
+                                                {{ number_format($nuevo_saldo, 2, ',', ' ') }}</div>
+                                        </td>
+                                    </tr>
                                     <!--Fin Saldo Final-->
                                 </table>
                             </td>
@@ -221,42 +235,44 @@
                                 <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
                                     style="margin-top:8 ">
                                     <tr>
-                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;" colspan="12">
-                                                <div class="col-md-7"  align="center">Detalle de Gastos</div>
+                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="12">
+                                            <div class="col-md-7" align="center">Detalle de Gastos</div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>N&deg;</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
                                             <div align="center"><strong>TAREA</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong># FACTURA</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>RUC</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
-                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong></div>
+                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong>
+                                            </div>
                                         </td>
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>DETALLE</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>SUB DETALLE</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
                                             <div align="center"><strong>CANT.</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e">
+                                        <td bgcolor="#a9d08e">
                                             <div align="center"><strong>V. UNI.</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
@@ -279,7 +295,9 @@
                                                     <div align="center">{{ $dato->fecha }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center"> {{ $dato->tarea != null ? $dato->tareacodigo_tarea : 'Sin Tarea' }}</div>
+                                                    <div align="center">
+                                                        {{ $dato->tarea != null ? $dato->tareacodigo_tarea : 'Sin Tarea' }}
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->factura }}</div>
@@ -288,18 +306,22 @@
                                                     <div align="center">{{ $dato->ruc }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">   {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}</div>
+                                                    <div align="center">
+                                                        {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{$dato->detalle_info->descripcion}}</div>
+                                                    <div align="center">{{ $dato->detalle_info->descripcion }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">  @foreach($dato->sub_detalle_info as $sub_detalle)
-                                                        {{ $sub_detalle->descripcion }}
-                                                        @if (!$loop->last)
-                                                           ,
-                                                        @endif
-                                                     @endforeach</div>
+                                                    <div align="center">
+                                                        @foreach ($dato->sub_detalle_info as $sub_detalle)
+                                                            {{ $sub_detalle->descripcion }}
+                                                            @if (!$loop->last)
+                                                                ,
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->observacion }}</div>
@@ -332,10 +354,12 @@
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                    class="gastos">
                                     <tr>
-                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;" colspan="7">
-                                                <div class="col-md-7"  align="center">Transferencias Enviadas</div>
+                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="7">
+                                            <div class="col-md-7" align="center">Transferencias Enviadas</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -357,7 +381,7 @@
                                         <td width="35%" bgcolor="#a9d08e">
                                             <div align="center"><strong>MOTIVO</strong></div>
                                         </td>
-                                        <td width="24%"  bgcolor="#a9d08e">
+                                        <td width="24%" bgcolor="#a9d08e">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
                                     </tr>
@@ -368,64 +392,68 @@
                                             </td>
                                         </tr>
                                     @else
-                                    @foreach ($transferencias_enviadas as $transferencia_enviada)
+                                        @foreach ($transferencias_enviadas as $transferencia_enviada)
+                                            <tr>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->fecha }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->usuario_envia->nombres . ' ' . $transferencia_enviada->usuario_envia->apellidos }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->usuario_recibe->nombres . ' ' . $transferencia_enviada->usuario_recibe->apellidos }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->monto }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->cuenta }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->motivo }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_enviada->observacion }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         <tr>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->fecha}}
-                                                </div>
+                                            <td>&nbsp;</td>
+                                            <td colspan="5" style="font-size:10px">
+                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS
+                                                        ENVIADAS:&nbsp;</strong></div>
                                             </td>
                                             <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->usuario_envia->nombres . ' ' . $transferencia_enviada->usuario_envia->apellidos}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->usuario_recibe->nombres . ' ' . $transferencia_enviada->usuario_recibe->apellidos}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->monto}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->cuenta}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->motivo}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_enviada->observacion}}
+                                                <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td colspan="5" style="font-size:10px">
-                                            <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}</div>
-                                        </td>
-                                    </tr>
                                     @endif
                                 </table>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                    class="gastos">
                                     <tr>
-                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;" colspan="7">
-                                                <div class="col-md-7"  align="center">Transferencias Recibidas</div>
+                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="7">
+                                            <div class="col-md-7" align="center">Transferencias Recibidas</div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -447,7 +475,7 @@
                                         <td width="35%" bgcolor="#a9d08e">
                                             <div align="center"><strong>MOTIVO</strong></div>
                                         </td>
-                                        <td width="24%"  bgcolor="#a9d08e">
+                                        <td width="24%" bgcolor="#a9d08e">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
                                     </tr>
@@ -458,54 +486,56 @@
                                             </td>
                                         </tr>
                                     @else
-                                    @foreach ($transferencias_recibidas as $transferencia_recibida)
+                                        @foreach ($transferencias_recibidas as $transferencia_recibida_data)
+                                            <tr>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->fecha }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->monto }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->cuenta }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->motivo }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $transferencia_recibida_data->observacion }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
                                         <tr>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->fecha}}
-                                                </div>
+                                            <td>&nbsp;</td>
+                                            <td colspan="5" style="font-size:10px">
+                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS
+                                                        RECIBIDAS:&nbsp;</strong></div>
                                             </td>
                                             <td style="font-size:10px">
                                                 <div align="center">
-                                                    {{ $transferencia_recibida->usuario_envia->nombres . ' ' . $transferencia_recibida->usuario_envia->apellidos}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->usuario_recibe->nombres . ' ' . $transferencia_recibida->usuario_recibe->apellidos}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->monto}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->cuenta}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->motivo}}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ $transferencia_recibida->observacion}}
-                                                </div>
+                                                    {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
                                             </td>
                                         </tr>
-                                    @endforeach
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td colspan="5" style="font-size:10px">
-                                            <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">{{ number_format($transferencia_recibida, 2, ',', ' ') }}</div>
-                                        </td>
-                                    </tr>
                                     @endif
                                 </table>
                             </td>
