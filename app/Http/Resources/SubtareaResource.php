@@ -43,6 +43,7 @@ class SubtareaResource extends JsonResource
             'observacion' => $this->observacion,
             'es_dependiente' => $this->es_dependiente,
             'subtarea_dependiente' => $this->subtareaDependiente?->codigo_subtarea,
+            'subtarea_dependiente_id' => $this->subtarea_dependiente_id,
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
