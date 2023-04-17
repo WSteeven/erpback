@@ -268,7 +268,7 @@ class GastoController extends Controller
                 ->get();
             $transferencia = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
