@@ -507,41 +507,41 @@
                     </td>
                 </tr>
             @else
-            @foreach ($transferencias_recibidas as $transferencia_recibida)
+            @foreach ($transferencias_recibidas as $transferencia_recibida_data)
                 <tr>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->fecha}}
+                            {{ $transferencia_recibida_data->fecha}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->usuario_envia->nombres . ' ' . $transferencia_recibida->usuario_envia->apellidos}}
+                            {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->usuario_recibe->nombres . ' ' . $transferencia_recibida->usuario_recibe->apellidos}}
+                            {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->monto}}
+                            {{ $transferencia_recibida_data->monto}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->cuenta}}
+                            {{ $transferencia_recibida_data->cuenta}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->motivo}}
+                            {{ $transferencia_recibida_data->motivo}}
                         </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ $transferencia_recibida->observacion}}
+                            {{ $transferencia_recibida_data->observacion}}
                         </div>
                     </td>
                 </tr>
@@ -552,7 +552,7 @@
                     <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="center">{{ number_format($transferencia_recibida, 2, ',', ' ') }}</div>
+                    <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
                 </td>
             </tr>
             @endif
