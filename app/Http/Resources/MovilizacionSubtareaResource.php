@@ -25,7 +25,7 @@ class MovilizacionSubtareaResource extends JsonResource
             'fecha_hora_llegada' => $this->fecha_hora_llegada ? Carbon::parse($this->fecha_hora_llegada)->format('d-m-Y H:i:s') : null,
             'tiempo_transcurrido' => $this->fecha_hora_llegada ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_llegada)->diffInSeconds(Carbon::parse($this->fecha_hora_salida)))->cascade()->forHumans() : null,
             'empleado' => $empleado->nombres . ' ' . $empleado->apellidos,
-            'grupo' => $empleado->grupo->nombre,
+            'grupo' => $empleado->grupo?->nombre,
             'subtarea' => $this->subtarea->codigo_subtarea,
             'motivo' => $this->motivo,
             'latitud' => $this->latitud,
