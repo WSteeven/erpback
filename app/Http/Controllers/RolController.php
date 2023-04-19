@@ -21,13 +21,11 @@ class RolController extends Controller
      */
     public function index(Request $request)
     {
-        $campos = explode(',', $request['campos']);
+        $page = $request['page'];
         $results = [];
-        /* if($request['campos']){
-            $results = Role::
-        }else{ */
-        $results = RolResource::collection(Role::all($campos));
-        // }
+
+        $results = Role::all();
+        $results = RolResource::collection($results);
         return response()->json(compact('results'));
     }
 
