@@ -77,7 +77,7 @@ class TareaController extends Controller
 
             // Establecer coordinador
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
-            if($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+            if ($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             else $datos['coordinador_id'] = Auth::user()->empleado->id;
 
             // Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
@@ -139,40 +139,22 @@ class TareaController extends Controller
     /**
      * Actualizar
      */
-    public function update(TareaRequest $request, Tarea $tarea)
+    public function update(Request $request, Tarea $tarea)
     {
+        if ($request->isMethod('patch')) {
+            $tarea->update($request->except(['id']));
+        }
+
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        /* $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        // $datos['coordinador_id'] = Auth::id();
-        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+        // $datos = $request->validated();
 
-        unset($datos['codigo_tarea']);
-        $tarea->update($datos);
-
-        // Ubicacion tarea manual
-        $ubicacionTarea = $request['ubicacion_tarea'];
-        if ($ubicacionTarea && !$datos['cliente_final_id']) {
-            $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
-            $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
-            unset($ubicacionTarea['canton'], $ubicacionTarea['provincia']);
-            if ($tarea->ubicacionTarea)
-                $tarea->ubicacionTarea()->update($ubicacionTarea);
-            else
-                $tarea->ubicacionTarea()->create($ubicacionTarea);
-        } else {
-            $tarea->ubicacionTarea()->delete();
-        } */
-
-        $tarea->finalizado = $request->safe()->only(['finalizado'])['finalizado'];
-        $tarea->novedad = $request['novedad']; //->safe()->only(['novedad'])['novedad'];
-        $tarea->save();
+        // $tarea->finalizado = $request->safe()->only(['finalizado'])['finalizado'];
+        // $tarea->novedad = $request['novedad'];
+        // $tarea->save();
 
         // Respuesta
         $modelo = new TareaResource($tarea->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', false);
+        $mensaje = 'Tarea finalizada exitosamente'; //Utils::obtenerMensaje($this->entidad, 'update', false);
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -192,7 +174,6 @@ class TareaController extends Controller
     // creo q se va a borrar
     public function actualizarFechasReagendar(Request $request, Tarea $tarea)
     {
-        // $request->isMethod('patch');
         $request->validate([
             'fecha_inicio_trabajo' => 'required|string',
             'grupo' => 'nullable|numeric|integer',
@@ -253,5 +234,13 @@ class TareaController extends Controller
         $mensaje = 'Tarea reagendada exitosamente!';
 
         return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    public function verificarTodasSubtareasFinalizadas(Request $request)
+    {
+        $tarea = Tarea::find($request['tarea_id']);
+        $totalSubtareasNoFinalizadas = $tarea->subtareas()->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO])->count();
+        $estan_finalizadas = $totalSubtareasNoFinalizadas == 0;
+        return response()->json(compact('estan_finalizadas'));
     }
 }
