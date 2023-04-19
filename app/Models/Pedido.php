@@ -145,6 +145,7 @@ class Pedido extends Model implements Auditable
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
             $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['serial'] = $detalle->serial;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $row['despachado'] = $detalle->pivot->despachado;
             $results[$id] = $row;

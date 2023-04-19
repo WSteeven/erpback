@@ -154,7 +154,12 @@ class GastoController extends Controller
             $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
-            DB::table('gastos')->where('ruc', '=', $datos['ruc'])->sharedLock()->get();
+            DB::table('gastos')
+                ->where('ruc', '=', $datos['ruc'])
+                ->where('factura', '=', $datos['factura'])
+                ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->sharedLock()
+                ->get();
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -268,7 +273,7 @@ class GastoController extends Controller
                 ->get();
             $transferencia = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -389,8 +394,10 @@ class GastoController extends Controller
             ->where('leida', 0)
             ->whereDate('created_at', $gasto->created_at)
             ->first();
-        $notificacion->leida = 1;
-        $notificacion->save();
+        if ($notificacion != null) {
+            $notificacion->leida = 1;
+            $notificacion->save();
+        }
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto autorizado correctamente']);
     }
