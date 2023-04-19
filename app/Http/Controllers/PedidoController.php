@@ -170,6 +170,7 @@ class PedidoController extends Controller
      */
     public function showPreview(Pedido $pedido)
     {
+        // Log::channel('testing')->info('Log', ['El pedido consultado es: ', $pedido]);
         $modelo = new PedidoResource($pedido);
 
         return response()->json(compact('modelo'), 200);
