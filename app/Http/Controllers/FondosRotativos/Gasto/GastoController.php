@@ -154,7 +154,12 @@ class GastoController extends Controller
             $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
-            DB::table('gastos')->where('ruc', '=', $datos['ruc'])->sharedLock()->get();
+            DB::table('gastos')
+                ->where('ruc', '=', $datos['ruc'])
+                ->where('factura', '=', $datos['factura'])
+                ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->sharedLock()
+                ->get();
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -383,14 +388,16 @@ class GastoController extends Controller
         $gasto->estado = 1;
         $gasto->detalle_estado = $request->detalle_estado;
         $gasto->save();
-        /*$notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
+        $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
             ->where('per_destinatario_id', $gasto->aut_especial)
             ->where('tipo_notificacion', 'AUTORIZACION GASTO')
             ->where('leida', 0)
             ->whereDate('created_at', $gasto->created_at)
             ->first();
-        $notificacion->leida = 1;
-        $notificacion->save();*/
+        if ($notificacion != null) {
+            $notificacion->leida = 1;
+            $notificacion->save();
+        }
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto autorizado correctamente']);
     }
