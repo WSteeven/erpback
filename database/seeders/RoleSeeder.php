@@ -471,6 +471,8 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.fondo'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.ver.permisos'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.ver.menu.solicitud_fondo'])->syncRoles([$administrador_fondos]);
+        Permission::firstOrCreate(['name' => 'puede.ver.autorizar_gasto'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.ver.autorizar_transferencia'])->syncRoles([$empleado]);
         /**Fin de permisos para Fondos Rotativos */
 
         //Cambiar Contraseña

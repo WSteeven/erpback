@@ -383,14 +383,14 @@ class GastoController extends Controller
         $gasto->estado = 1;
         $gasto->detalle_estado = $request->detalle_estado;
         $gasto->save();
-        $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
+        /*$notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
             ->where('per_destinatario_id', $gasto->aut_especial)
             ->where('tipo_notificacion', 'AUTORIZACION GASTO')
             ->where('leida', 0)
             ->whereDate('created_at', $gasto->created_at)
             ->first();
         $notificacion->leida = 1;
-        $notificacion->save();
+        $notificacion->save();*/
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto autorizado correctamente']);
     }
