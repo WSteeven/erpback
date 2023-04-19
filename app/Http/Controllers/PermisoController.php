@@ -48,13 +48,10 @@ class PermisoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function asignarPermisos(Request $request)
-    {
-        $rol = Role::find($request['id_rol']);
-        Log::channel('testing')->info('Log', ['rol',$request['id_rol']]);
-        $rol->permissions()->sync($request['permisos']);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje'));
+    public function asignarPermisos(Request $request, Role $rol){
+        $request->validate(['permissions'=>'exists:permissions,id']);
+        $rol->permissions()->sync($request->permissions);
+        return response()->json(['mensaje'=>'Se actualizaron los permisos del rol','rol'=>$rol->name, 'permisos'=>$rol->getPermissionNames()]);
     }
 
     /**
