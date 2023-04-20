@@ -7,6 +7,7 @@ use App\Http\Requests\RolRequest;
 use App\Http\Resources\RolesResource;
 use App\Http\Resources\RolResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Src\Shared\Utils;
 
@@ -51,8 +52,9 @@ class RolController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Role $rol)
+    public function show($id_rol)
     {
+        $rol = Role::findOrFail($id_rol);
         $modelo = new RolResource($rol);
         return response()->json(compact('modelo'));
     }
@@ -67,7 +69,10 @@ class RolController extends Controller
     public function update(RolRequest $request, Role $rol)
     {
         //Respuesta
-        $rol->update($request->validated());
+        $data = $request->validated();
+        $rol = Role::findOrFail($request->id);
+        $rol->name = $data['name'];
+        $rol->save();
         $modelo = new RolResource($rol->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
@@ -80,8 +85,9 @@ class RolController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Role $rol)
+    public function destroy($id)
     {
+        $rol = Role::findOrFail($id);
         $rol->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
