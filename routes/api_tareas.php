@@ -76,24 +76,16 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
+// verificarTodasSubtareasFinalizadas
+Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);
+
 Route::get('export-seguimiento/{seguimiento}', [SeguimientoController::class, 'exportarSeguimiento']);
-
-// Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
-
-// Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
 
 // Designación de rol lider de grupo durante la creacion de la subtarea
 Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'designarLiderGrupo']);
-
-// Designación de rol secretario de grupo durante la creacion de la subtarea
-//Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
-
-// Bobina se reemplaza por metros
-// Obtener las bobinas asignadas a un empleado para usarla durante la ejecución de un trabajo
-// Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
 
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
 Route::apiResource('tendidos', TendidoController::class)->except('show');
@@ -109,9 +101,6 @@ Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaControll
 /*************
  * Materiales
  *************/
-// Obtener los materiales designados a un empleado para usarlos durante la ejecución de un trabajo
-// Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTareas']);
-
 // Obtener los materiales del stock personal
 Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
 

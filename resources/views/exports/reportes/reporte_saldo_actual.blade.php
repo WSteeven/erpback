@@ -116,7 +116,7 @@
                     <div align="center"><strong>Item</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
-                    <div align="center"><strong>Nombres y Apellidos</strong></div>
+                    <div align="center"><strong>Apellidos y Nombres</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>Cargo</strong></div>
@@ -144,7 +144,7 @@
                 </td>
                 <td style="font-size:10px">
                     <div align="left" style="margin-left:20px;">
-                        {{ $saldo['empleado']->nombres.' '.$saldo['empleado']->apellidos }}
+                        {{ $saldo['empleado']->apellidos.' '.$saldo['empleado']->nombres }}
                     </div>
                 </td>
                 <td style="font-size:10px">

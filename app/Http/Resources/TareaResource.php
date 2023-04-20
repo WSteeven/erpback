@@ -96,9 +96,9 @@ class TareaResource extends JsonResource
     private function obtenerCanton()
     {
         if ($this->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
-            return $this->proyecto->canton->canton;
+            return $this->proyecto->canton?->canton;
         } else if ($this->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
-            return $this->clienteFinal?->canton->canton;
+            return $this->clienteFinal?->canton?->canton;
         }
     }
 }

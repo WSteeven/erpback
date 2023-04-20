@@ -33,14 +33,7 @@
                                         <td width="17%">
                                         </td>
                                         <td width="83%" style="font-size:16px; font-weight:bold">
-                                            <div align="center">JEAN PATRICIO PAZMI&Ntilde;O BARROS</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td width="17%">
-                                        </td>
-                                        <td width="83%" style="font-size:16px; font-weight:bold">
-                                            <div align="center">RUC:0702875618001</div>
+                                            <div align="center">JPCONSTRUCRED C.LTDA</div>
                                         </td>
                                     </tr>
                                     <tr>

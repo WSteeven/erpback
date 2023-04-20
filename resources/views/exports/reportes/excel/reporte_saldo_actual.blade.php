@@ -49,15 +49,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="100%" style="font-size:16px; font-weight:bold">
-                            <div align="center">JEAN PATRICIO PAZMI&Ntilde;O BARROS</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td width="100%">
-                            <div align="center"></div>
-                        </td>
-                        <td width="100%" style="font-size:16px; font-weight:bold">
-                            <div align="center">RUC:0702875618001</div>
+                            <div align="center">JPCONSTRUCRED C.LTDA</div>
                         </td>
                     </tr>
                     <tr>
@@ -81,7 +73,7 @@
                                             <div align="center"><strong>Item</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="100%">
-                                            <div align="center"><strong>Nombres y Apellidos</strong></div>
+                                            <div align="center"><strong>Apellidos y Nombres</strong></div>
                                         </td>
                                          <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center" width="100%"><strong>Cargo</strong></div>
@@ -103,7 +95,7 @@
                                         </td>
                                         <td style="font-size:10px">
                                             <div align="left" style="margin-left:20px;">
-                                                {{ $saldo['empleado']->nombres.' '.$saldo['empleado']->apellidos }}
+                                                {{ $saldo['empleado']->apellidos.' '.$saldo['empleado']->nombres }}
                                             </div>
                                         </td>
                                           <td style="font-size:10px">
