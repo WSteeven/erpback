@@ -506,5 +506,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_suspendidos'])->syncRoles([$jefe_tecnico]);
+        //Roles
+        Permission::firstOrCreate(['name' => 'puede.ver.roles'])->syncRoles([$administrador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.roles'])->syncRoles([$administrador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.roles'])->syncRoles([$administrador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.roles'])->syncRoles([$administrador]);
     }
 }
