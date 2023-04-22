@@ -93,7 +93,13 @@ class PedidoRequest extends FormRequest
         //         'per_autoriza' => auth()->user()->empleado->id,
         //     ]);
         // }
-        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ACTIVOS_FIJOS]) && $this->tarea){
+        if(auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS])){
+            $this->merge([
+                'autorizacion' => 2,
+                'per_autoriza'=>auth()->user()->empleado->id,
+            ]);
+        }
+        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]) && $this->tarea){
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza'=>auth()->user()->empleado->id,

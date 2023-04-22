@@ -347,7 +347,7 @@ class Inventario extends Model implements Auditable
 
             //primero restar productos de un cliente
             foreach ($elementos as $elemento) {
-                $condicion = Condicion::where('nombre', $elemento['condicion'])->first();
+                $condicion = Condicion::where('nombre', $elemento['condiciones'])->first();
                 $item = Inventario::find($elemento['id']);
                 $detalle = DetalleProducto::find($item->detalle_id);
                 Log::channel('testing')->info('Log', ['El detalle es', $detalle]);

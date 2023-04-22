@@ -99,6 +99,7 @@ use Carbon\Carbon;
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
+Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
 Route::post('usuarios/login', [LoginController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
