@@ -41,7 +41,7 @@ class TransferenciasController extends Controller
         if($usuario_ac->hasRole('CONTABILIDAD'))
             $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->get();
         else
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->id)->orWhere('usuario_recibe_id',Auth::user()->id) ->ignoreRequest(['campos'])->filter()->get();
+            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id',Auth::user()->empleado->id) ->ignoreRequest(['campos'])->filter()->get();
         $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
     }
