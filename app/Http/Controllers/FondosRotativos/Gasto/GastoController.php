@@ -155,9 +155,17 @@ class GastoController extends Controller
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
             DB::table('gastos')
+            ->where('ruc', '=', $datos['ruc'])
+            ->where('factura', '=', $datos['factura'])
+            ->where('num_comprobante', '=', $datos['num_comprobante'])
+            ->where('estado', '=', 1)
+            ->sharedLock()
+            ->get();
+            DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
                 ->where('factura', '=', $datos['factura'])
                 ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->where('estado', '=', 3)
                 ->sharedLock()
                 ->get();
             DB::commit();
