@@ -218,6 +218,11 @@ class Empleado extends Model implements Auditable
         return $this->belongsTo(Cargo::class);
     }
 
+    public function tareasCoordinador()
+    {
+        return $this->hasMany(Tarea::class, 'coordinador_id');
+    }
+
     public function subtareasCoordinador(): HasManyThrough
     {
         return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');

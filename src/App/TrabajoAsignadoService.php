@@ -12,10 +12,10 @@ class TrabajoAsignadoService
     /*****************************
      * Trabajo actual y atrasado
      *****************************/
-    public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
+    /* public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
     {
         return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->noEsStandby()->get();
-    }
+    } */
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
@@ -25,10 +25,10 @@ class TrabajoAsignadoService
     /********************
      * Proximos trabajos
      ********************/
-    public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
+    /* public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
     {
         return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->noEsStandby()->get();
-    }
+    } */
 
     public function obtenerFuturoTrabajoAsignadoEmpleado(Empleado $empleado)
     {
