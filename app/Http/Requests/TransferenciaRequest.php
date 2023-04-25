@@ -66,7 +66,7 @@ class TransferenciaRequest extends FormRequest
     public function prepareForValidation()
     {
         $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
-        if (!in_array($this->method(), ['PUT', 'PATCH'])) {
+        if (!in_array($this->method(), ['PUT', 'PATCH']) && is_null($this->autorizacion)) {
             $this->merge([
                 'autorizacion' => 1, //pendiente
                 'solicitante' => auth()->user()->empleado->id,

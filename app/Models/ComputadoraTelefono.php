@@ -25,6 +25,12 @@ class ComputadoraTelefono extends Model implements Auditable
         'imei',
     ];
 
+    //obtener la llave primaria
+    public function getKeyName()
+    {
+        return 'detalle_id';
+    }
+
 
     /**
      * Relación uno a uno.
