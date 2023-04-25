@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
+use App\Models\Empleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
@@ -31,10 +32,8 @@ class TareaController extends Controller
     public function listar()
     {
         $campos = explode(',', request('campos'));
-        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
-        // $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
 
         if (request('campos')) {
             if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
@@ -44,7 +43,6 @@ class TareaController extends Controller
             if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
             if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
             else return Tarea::filter()->latest()->get(); // Cualquier usuario en el sistema debe tener acceso a las tareas
-            // if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
         }
     }
 
@@ -53,7 +51,6 @@ class TareaController extends Controller
      *********/
     public function index()
     {
-
         $results = $this->listar();
         $results = TareaResource::collection($results);
         return response()->json(compact('results'));
@@ -225,12 +222,14 @@ class TareaController extends Controller
     public function transferirMisTareasActivas(Request $request)
     {
         $request->validate([
-            'coordinador_id' => 'required|numeric|integer',
+            'actual_coordinador' => 'required|numeric|integer',
+            'nuevo_coordinador' => 'required|numeric|integer',
         ]);
 
-        $idCoordinador = request('coordinador_id');
+        $nuevoCoordinador = request('nuevo_coordinador');
+        $actualCoordinador = request('actual_coordinador');
 
-        $tareas = $coordinadorA = Auth::user()->empleado->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $idCoordinador]);
+        $tareas = Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $nuevoCoordinador]);
 
         Log::channel('testing')->info('Log', compact('tareas'));
         return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
