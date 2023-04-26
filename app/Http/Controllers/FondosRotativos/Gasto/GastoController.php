@@ -130,6 +130,20 @@ class GastoController extends Controller
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             unset($datos['comprobante1']);
+            DB::table('gastos')
+            ->where('ruc', '=', $datos['ruc'])
+            ->where('factura', '=', $datos['factura'])
+            ->where('num_comprobante', '=', $datos['num_comprobante'])
+            ->where('estado', '=', 1)
+            ->lockForUpdate()
+            ->get();
+            DB::table('gastos')
+                ->where('ruc', '=', $datos['ruc'])
+                ->where('factura', '=', $datos['factura'])
+                ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->where('estado', '=', 3)
+                ->lockForUpdate()
+                ->get();
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
