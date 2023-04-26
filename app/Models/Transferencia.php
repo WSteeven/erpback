@@ -130,9 +130,8 @@ class Transferencia extends Model implements Auditable
             /* $detalle = DetalleInventarioTransferencia::withSum('devoluciones', 'cantidad')
             ->where('traspaso_id', $item->pivot->traspaso_id)
             ->where('inventario_id', $item->pivot->inventario_id)->first(); */
-            $row['inventario_id'] = $item->id;//id de inventario
+            $row['id'] = $item->id;//id de inventario
             $row['producto'] = $item->detalle->producto->nombre;
-            $row['id'] = $item->detalle->id;//id de detalle
             $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;
             $row['serial'] = $item->detalle->serial;

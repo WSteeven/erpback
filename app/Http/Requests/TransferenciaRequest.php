@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Inventario;
 use App\Models\Transferencia;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -60,9 +61,15 @@ class TransferenciaRequest extends FormRequest
         ];
     }
 
-    /* public function withValidator($validator){
-
-    } */
+    public function withValidator($validator){
+        $validator->after(function($validator){
+            foreach($this->listadoProductos as $listado){
+                $itemInventario = Inventario::find($listado['id']);
+                if($listado['cantidades']>$itemInventario->cantidad) $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el inventario. En inventario: ' . $itemInventario->cantidad);
+                if($listado['cantidades']<=0) $validator->errors()->add('listadoProductos.*.cantidades', 'La cantidad para el item ' . $listado['descripcion'] . ' debe ser mayor a cero');
+            }
+        });
+    }
     public function prepareForValidation()
     {
         $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
@@ -72,10 +79,17 @@ class TransferenciaRequest extends FormRequest
                 'solicitante' => auth()->user()->empleado->id,
                 'estado' => Transferencia::PENDIENTE,
                 'per_autoriza' => $user_activo_fijo->empleado->id //autoriza el de activos fijos
-
+                
+            ]);
+        }else{
+            $this->merge([
+                'autorizacion'=>2,
+                'solicitante'=>auth()->user()->empleado->id,
+                'estado' => Transferencia::TRANSITO,
+                'per_autoriza'=>$user_activo_fijo->empleado->id,
             ]);
         }
-
+        
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             // $rules['estado'] = '';
             if ($this->autorizacion == 2) {
