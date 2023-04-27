@@ -26,8 +26,10 @@ class ClienteFinalResource extends JsonResource
             'parroquia' => $this->parroquia,
             'direccion' => $this->direccion,
             'referencia' => $this->referencia,
-            'coordenada_latitud' => $this->coordenada_latitud,
-            'coordenada_longitud' => $this->coordenada_longitud,
+            'cedula' => $this->cedula,
+            'correo' => $this->correo,
+            'coordenadas' => $this->coordenadas,
+            'activo' => $this->activo,
             'provincia' => $this->provincia?->provincia,
             'canton' => $this->canton?->canton,
         ];

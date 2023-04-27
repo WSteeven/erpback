@@ -34,8 +34,10 @@ class ClienteFinalRequest extends FormRequest
             "parroquia" => 'nullable|string',
             "direccion" => 'nullable|string',
             "referencia" => 'nullable|string',
-            "coordenada_latitud" => 'nullable|numeric',
-            'coordenada_longitud' => 'nullable|numeric',
+            "coordenadas" => 'nullable|string',
+            'correo' => 'nullable|string',
+            'cedula' => 'nullable|string',
+            'activo' => 'nullable|boolean',
             "provincia" => 'nullable|numeric|integer',
             "canton" => 'nullable|numeric|integer',
         ];
