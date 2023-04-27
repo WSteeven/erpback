@@ -56,8 +56,8 @@ class InventarioController extends Controller
                 })->where('sucursal_id', $request['sucursal_id'])->get();
             $results = InventarioResource::collection($results);
         }
-        if ($search && $request['cliente_id'] && $request['sucursal_id']) {
-            // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
+        if ($search && $request['cliente_id'] && $request['sucursal_id'] && $request->boolean('zeros')) {
+            //  Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
             $results = Inventario::search($search ?? '')
                 ->query(function ($query) {
                     $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
@@ -65,10 +65,25 @@ class InventarioController extends Controller
                 })->where('cliente_id', $request['cliente_id'])
                 ->where('sucursal_id', $request['sucursal_id'])->get();
             $results = InventarioResource::collection($results);
+        } else {
+            // Log::channel('testing')->info('Log', ['else linea 69', $request->all()]);
+            $results = Inventario::search($search ?? '')
+                ->query(function ($query) {
+                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+                })->where('cliente_id', $request['cliente_id'])
+                ->where('sucursal_id', $request['sucursal_id'])
+                ->where('cantidad', '>', 0)->get();
+            $results = InventarioResource::collection($results);
         }
         //si no entra en ningun if
-        if (!$request->hasAny(['search'])) {
-            $results = Inventario::filter()->get();
+        if (!$request->hasAny(['search']) && $request->boolean('zeros')) {
+            // Log::channel('testing')->info('Log', ['if 81', $request->all()]);
+            $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
+            $results = InventarioResource::collection($results);
+        } else {
+            if($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->filter()->get();
+            else $results = Inventario::filter()->get();
             $results = InventarioResource::collection($results);
         }
         // if ($sucursal) {
@@ -157,7 +172,7 @@ class InventarioController extends Controller
         $results = [];
         $results = Inventario::where('detalle_id', $request->detalle_id)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->get();
         $results = InventarioResource::collection($results);
-        
+
         return response()->json(compact('results'));
     }
     /**
@@ -168,7 +183,7 @@ class InventarioController extends Controller
         Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
         $results = [];
         $results = Inventario::whereIn('id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
-        Log::channel('testing')->info('Log', ['Resultados obtenidos',$results]);
+        Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));
@@ -181,7 +196,7 @@ class InventarioController extends Controller
         Log::channel('testing')->info('Log', ['request recibida en buscarProductosSegunDetalleID de inventario', $request->all()]);
         $results = [];
         $results = Inventario::whereIn('detalle_id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
-        Log::channel('testing')->info('Log', ['Resultados obtenidos',$results]);
+        Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));

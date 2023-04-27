@@ -86,12 +86,12 @@ class DetalleProductoRequest extends FormRequest
         }
         if (is_null($this->custodia)) {
             $this->merge([
-                'custodia' => $this->punta_inicial - $this->punta_final,
+                'custodia' => abs($this->punta_inicial - $this->punta_final),
             ]);
         }
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $this->merge([
-                'custodia' => $this->punta_inicial - $this->punta_final,
+                'custodia' => abs($this->punta_inicial - $this->punta_final),
             ]);
         }
     }

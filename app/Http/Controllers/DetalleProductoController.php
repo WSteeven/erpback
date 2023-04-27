@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
+use App\Models\ComputadoraTelefono;
 use App\Models\DetalleProducto;
 use App\Models\DetallesProducto;
 use Exception;
@@ -118,7 +119,7 @@ class DetalleProductoController extends Controller
      */
     public function update(DetalleProductoRequest $request, DetalleProducto $detalle)
     {
-        // Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
+        Log::channel('testing')->info('Log', ['request recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
@@ -134,23 +135,43 @@ class DetalleProductoController extends Controller
             //Respuesta
             $detalle->update($datos);
             if ($request->categoria === 'INFORMATICA') {
-                $detalle->computadora()->update([
-                    'memoria_id' => $datos['ram'],
-                    'disco_id' => $datos['disco'],
-                    'procesador_id' => $datos['procesador'],
-                    'imei' => $datos['imei'],
-                ]);
+                if ($detalle->computadora()->first()) {
+                    $detalle->computadora()->update([
+                        'memoria_id' => $datos['ram'],
+                        'disco_id' => $datos['disco'],
+                        'procesador_id' => $datos['procesador'],
+                        'imei' => $datos['imei'],
+                    ]);
+                } else {
+                    $detalle->computadora()->create([
+                        'memoria_id' => $datos['ram'],
+                        'disco_id' => $datos['disco'],
+                        'procesador_id' => $datos['procesador'],
+                        'imei' => $datos['imei'],
+                    ]);
+                }
                 DB::commit();
             }
             if ($request->es_fibra) {
-                $detalle->fibra()->update([
-                    'span_id' => $datos['span'],
-                    'tipo_fibra_id' => $datos['tipo_fibra'],
-                    'hilo_id' => $datos['hilos'],
-                    'punta_inicial' => $datos['punta_inicial'],
-                    'punta_final' => $datos['punta_final'],
-                    'custodia' => $datos['custodia'],
-                ]);
+                if ($detalle->fibra()->first()) {
+                    $detalle->fibra()->update([
+                        'span_id' => $datos['span'],
+                        'tipo_fibra_id' => $datos['tipo_fibra'],
+                        'hilo_id' => $datos['hilos'],
+                        'punta_inicial' => $datos['punta_inicial'],
+                        'punta_final' => $datos['punta_final'],
+                        'custodia' => $datos['custodia'],
+                    ]);
+                } else {
+                    $detalle->fibra()->create([
+                        'span_id' => $datos['span'],
+                        'tipo_fibra_id' => $datos['tipo_fibra'],
+                        'hilo_id' => $datos['hilos'],
+                        'punta_inicial' => $datos['punta_inicial'],
+                        'punta_final' => $datos['punta_final'],
+                        'custodia' => $datos['custodia'],
+                    ]);
+                }
                 DB::commit();
             }
             DB::commit();

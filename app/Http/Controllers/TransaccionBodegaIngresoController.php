@@ -107,13 +107,13 @@ class TransaccionBodegaIngresoController extends Controller
 
                         //cuando se produce una devolucion de tarea se resta el material del stock de tarea del empleado
                         if ($transaccion->devolucion_id) {
-                            if($transaccion->tarea_id){
+                            if ($transaccion->tarea_id) {
                                 $materialTarea = MaterialEmpleadoTarea::where('empleado_id', $transaccion->solicitante_id)
                                     ->where('tarea_id', $transaccion->tarea_id)
                                     ->where('detalle_producto_id', $detalle->id)->first();
                                 $materialTarea->cantidad_stock -= $listado['cantidad'];
                                 $materialTarea->save();
-                            }else{
+                            } else {
                                 $material = MaterialEmpleado::where('empleado_id', $transaccion->solicitante_id)
                                     ->where('detalle_producto_id', $detalle->id)->first();
                                 $material->cantidad_stock -= $listado['cantidad'];
@@ -130,7 +130,7 @@ class TransaccionBodegaIngresoController extends Controller
                         Log::channel('testing')->info('Log', ['item del listado para ingresar cuando no es ingreso masivo', $listado]);
                         $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
                         $producto = Producto::where('nombre', $listado['producto'])->first();
-                        $detalle = DetalleProducto::find($listado['id']);
+                        $transaccion->transferencia_id ? $detalle = DetalleProducto::find($listado['detalle_id']) : $detalle = DetalleProducto::find($listado['id']);
                         // $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
                         $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
@@ -258,10 +258,11 @@ class TransaccionBodegaIngresoController extends Controller
     /**
      * Anular una transacción de ingreso y revertir el stock del inventario
      */
-    public function anular(TransaccionBodega $transaccion){
+    public function anular(TransaccionBodega $transaccion)
+    {
         // Log::channel('testing')->info('Log', ['Estamos en el metodo de anular el ingreso']);
         $estadoAnulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
-        if($transaccion->estado_id!==$estadoAnulado->id){
+        if ($transaccion->estado_id !== $estadoAnulado->id) {
             try {
                 DB::beginTransaction();
                 $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
@@ -281,7 +282,7 @@ class TransaccionBodegaIngresoController extends Controller
                 Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
             }
-        }else{
+        } else {
             // Log::channel('testing')->info('Log', ['La transacción está anulada, ya no se anulará nuevamente']);
             $mensaje = 'La transacción está anulada, ya no se anulará nuevamente';
             $modelo = new TransaccionBodegaResource($transaccion->refresh());

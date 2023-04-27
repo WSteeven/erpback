@@ -36,6 +36,24 @@ class SaldoGrupo extends  Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
+    public static function empaquetarCombinado($arreglo){
+        $results = [];
+        $id = 0;
+        $row = [];
+        if (isset($arreglo)) {
+            foreach ($arreglo as $saldo) {
+                $row['item'] = $id + 1;
+                $row['fecha'] = isset($saldo->fecha_viat)? date("d-m-Y", strtotime( $saldo->fecha_viat)):date('d-m-Y', strtotime($saldo['fecha']));
+                $row['descripcion'] = '';
+                $row['ingreso'] = 0;
+                $row['gasto'] = 0;
+                $row['saldo'] = 0;
+                $results[$id] = $row;
+                $id++;
+            }
+        }
+        return $results;
+    }
     public static function empaquetarListado($saldos, $tipo)
     {
         $results = [];

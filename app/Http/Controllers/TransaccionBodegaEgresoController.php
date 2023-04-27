@@ -210,11 +210,11 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
-            Log::channel('testing')->info('Log', ['Se créo la transaccion', $transaccion]);
+            // Log::channel('testing')->info('Log', ['Se créo la transaccion', $transaccion]);
 
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
@@ -227,29 +227,28 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            Log::channel('testing')->info('Log', ['Se pasó el foreach de guardar detalles', $transaccion]);
+            // Log::channel('testing')->info('Log', ['Se pasó el foreach de guardar detalles', $transaccion]);
 
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
                 TransaccionBodega::actualizarPedido($transaccion);
             }
-            Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
+            // Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
-            //creamos el comprobante
-            $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
-            Log::channel('testing')->info('Log', ['Pasamos crear el comprobante']);
-
-
             $modelo = new TransaccionBodegaResource($transaccion);
-            Log::channel('testing')->info('Log', ['transaccion pasada por el resource', $modelo]);
+            
+            //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante, 
+            if(!$transaccion->transferencia_id){
+                //creamos el comprobante
+                $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
+                //lanzar el evento de la notificación
+                $msg = 'Se ha generado un despacho de materiales a tu nombre, con transacción N°' . $transaccion->id . ', solicitado por ' . $modelo->solicitante->nombres . ' ' . $modelo->solicitante->apellidos . '. Por favor verifica y firma el movimiento';
+                event(new TransaccionEgresoEvent($msg, $url, $transaccion));
+            }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            Log::channel('testing')->info('Log', ['Se guardaron los cambios y se prepara para enviar al front, estamos un paso antes de crear el comprobante']);
-
-            //lanzar el evento de la notificación
-            $msg = 'Se ha generado un despacho de materiales a tu nombre, con transacción N°' . $transaccion->id . ', solicitado por ' . $modelo->solicitante->nombres . ' ' . $modelo->solicitante->apellidos . '. Por favor verifica y firma el movimiento';
-            event(new TransaccionEgresoEvent($msg, $url, $transaccion));
+            
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
