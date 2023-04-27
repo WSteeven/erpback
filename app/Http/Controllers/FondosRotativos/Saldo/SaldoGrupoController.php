@@ -439,8 +439,10 @@ class SaldoGrupoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             //Unir todos los reportes
-            $reportes = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray());
-            Log::channel('testing')->info('Log', ['reportes', $reportes]);
+            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray());
+            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos);
+            $reportes_unidos = collect($reportes_unidos)->sortBy('fecha')->toArray();
+            Log::channel('testing')->info('Log', ['reportes unidos', $reportes_unidos]);
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -458,8 +460,10 @@ class SaldoGrupoController extends Controller
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
+                'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
                 'gastos_reporte' => $gastos_reporte,
+                'reportes_unidos' => $reportes_unidos,
                 'transferencia' => $transferencia,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,

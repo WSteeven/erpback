@@ -214,7 +214,6 @@
                                             </td>
                                         </tr>
                                         <!--Fin Transferencias-->
-                                        <!--transferencias recibidas-->
                                         <tr>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
@@ -294,43 +293,33 @@
                     <div align="center"><strong>SALDO</strong></div>
                 </td>
             </tr>
-            @if (sizeof($gastos_reporte) == 0)
+            @if (sizeof($reportes_unidos) == 0)
                 <tr>
                     <td colspan="12">
                         <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                     </td>
                 </tr>
             @else
-                @foreach ($gastos_reporte as $dato)
-                    @php
-                        $sub_total = $sub_total + (float) $dato->total;
-                    @endphp
+                @foreach ($reportes_unidos as $dato)
                     <tr>
                         <td style="font-size:10px">
-                            <div align="center">{{   date("d-m-Y", strtotime( $dato->fecha_viat))}}</div>
+                            <div align="center">{{$dato['fecha']}}</div>
                         </td>
 
                         <td style="font-size:10px">
-                            <div align="center">{{ $dato->detalle_info->descripcion}}</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ $dato->detalle_info->descripcion.' '.}}  @foreach($dato->sub_detalle_info as $sub_detalle)
-                                {{ $sub_detalle->descripcion }}
-                                @if (!$loop->last)
-                                   ,
-                                @endif
-                             @endforeach</div>
-                        </td>
-                        <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
+                            <div align="center">{{$dato['descripcion']}}
                             </div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
+                            <div align="center">{{ number_format($dato['ingreso'], 2, ',', '.') }}
                             </div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
+                            <div align="center">{{ number_format($dato['gasto'], 2, ',', '.') }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">{{ number_format($dato['saldo'], 2, ',', '.') }}
                             </div>
                         </td>
                     </tr>
