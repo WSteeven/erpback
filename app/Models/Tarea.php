@@ -22,6 +22,10 @@ class Tarea extends Model implements Auditable
     const LLAMADA = 'LLAMADA';
     const CHAT = 'CHAT';
 
+    // ubicacionTrabajo
+    const CLIENTE_FINAL = 'CLIENTE_FINAL';
+    const RUTA = 'RUTA';
+
     protected $table = 'tareas';
     protected $fillable = [
         'codigo_tarea',
@@ -29,17 +33,21 @@ class Tarea extends Model implements Auditable
         'fecha_solicitud',
         'titulo',
         'para_cliente_proyecto',
+        'ubicacion_trabajo',
         'medio_notificacion',
         'observacion',
-        'tiene_subtareas',
+        'novedad',
+        // 'tiene_subtareas',
+        'finalizado',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',
         'cliente_id',
         'cliente_final_id',
+        'ruta_tarea_id',
     ];
 
-    protected $casts = ['tiene_subtareas' => 'boolean'];
+    protected $casts = ['finalizado' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 
@@ -113,6 +121,11 @@ class Tarea extends Model implements Auditable
         return $this->belongsTo(ClienteFinal::class);
     }
 
+    public function rutaTarea()
+    {
+        return $this->belongsTo(RutaTarea::class);
+    }
+
     public function subtareas()
     {
         return $this->hasMany(Subtarea::class);
@@ -140,5 +153,10 @@ class Tarea extends Model implements Auditable
     public function scopePorCoordinador($query)
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);
+    }
+
+    public function scopeOrderByAgendadoDesc($query)
+    {
+        return $query->orderBy('fecha_hora_agendado', 'desc');
     }
 }

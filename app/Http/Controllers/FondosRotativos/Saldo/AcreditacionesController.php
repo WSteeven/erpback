@@ -3,17 +3,21 @@
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AcreditacionRequest;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\EstadoGasto;
+use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AcreditacionesController extends Controller
 {
-private $entidad = 'Acreditacion';
-public function __construct()
+    private $entidad = 'Acreditacion';
+    public function __construct()
     {
         $this->middleware('can:puede.ver.acreditacion')->only('index', 'show');
         $this->middleware('can:puede.crear.acreditacion')->only('store');
@@ -28,7 +32,7 @@ public function __construct()
     public function index()
     {
         $results = [];
-        $results = Acreditaciones::with('usuario')->ignoreRequest(['campos'])->filter()->get();
+        $results = Acreditaciones::with('usuario','estado')->ignoreRequest(['campos'])->filter()->get();
         $results = AcreditacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -37,21 +41,27 @@ public function __construct()
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\AcreditacionRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(AcreditacionRequest $request)
     {
-        $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
-        //Adaptacion de campos
-            $datos = $request->all();
-            $datos['id_tipo_fondo'] = $request->tipo_fondo;
-            $datos['id_tipo_saldo'] = $request->tipo_saldo;
-            $datos['id_usuario'] = $request->usuario;
-            $datos['fecha'] =  date ('Y-m-d H:i:s');
-        $modelo = Acreditaciones::create($datos);
-        $modelo = new AcreditacionResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        try {
+            $datos = $request->validated();
+            $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
+            //Adaptacion de campos
+            $datos['id_tipo_fondo'] =  $request->safe()->only(['tipo_fondo'])['tipo_fondo'];
+            $datos['id_tipo_saldo'] =  $request->safe()->only(['tipo_saldo'])['tipo_saldo'];
+            $datos['id_usuario'] =     $request->safe()->only(['usuario'])['usuario'];
+            $datos['id_estado'] = EstadoAcreditaciones::REALIZADO;
+            $modelo = Acreditaciones::create($datos);
+            $modelo = new AcreditacionResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -64,8 +74,17 @@ public function __construct()
     public function show($id)
     {
         $acreditacion = Acreditaciones::findOrFail($id);
-        $acreditacion = new AcreditacionResource($acreditacion);
-        return response()->json(compact('acreditacion'));
+        $modelo = new AcreditacionResource($acreditacion);
+        return response()->json(compact('modelo'));
+    }
+    public function anular_acreditacion(Request $request)
+    {
+        $acreditacion = Acreditaciones::where('id',$request->id)->first();
+        $acreditacion->descripcion_acreditacion = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
+        $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
+        $acreditacion->save();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje'));
     }
 
     /**
@@ -80,11 +99,11 @@ public function __construct()
         $acreditacion = Acreditaciones::findOrFail($id);
         $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
         //Adaptacion de campos
-            $datos = $request->all();
-            $datos['id_tipo_fondo'] = $request->tipo_fondo;
-            $datos['id_tipo_saldo'] = $request->tipo_saldo;
-            $datos['id_usuario'] = $request->usuario;
-            $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
+        $datos = $request->all();
+        $datos['id_tipo_fondo'] = $request->tipo_fondo;
+        $datos['id_tipo_saldo'] = $request->tipo_saldo;
+        $datos['id_usuario'] = $request->usuario;
+        $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
         $modelo = $acreditacion->update($datos);
         $modelo = new AcreditacionResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

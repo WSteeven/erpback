@@ -4,7 +4,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -41,23 +41,11 @@
             text-align: center;
             color: #000000;
             line-height: 1.5cm;
-            font-size: 7pt;
-        }
-        footer table {
-            width: 100%;
         }
 
         footer .page:after {
             content: counter(page);
         }
-        footer .izq {
-            text-align: left;
-        }
-
-        footer p {
-            text-align: right;
-        }
-
         .saldos_depositados {
             margin-top: -15px;
             table-layout: fixed;
@@ -100,7 +88,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>{{ $titulo }}</b></div>
@@ -111,21 +99,17 @@
         <hr>
     </header>
     <footer>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>
@@ -161,7 +145,7 @@
                         </div>
                     </td>
                     <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $gasto['usuario_info']->name }}
+                        <div align="left">{{ $gasto['empleado_info']->name }}
                         </div>
                     </td>
                     <td style="font-size:10px" width="17%">

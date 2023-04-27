@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class MaterialEmpleadoTarea extends Model
 {
-    use HasFactory;
+    use HasFactory, Filterable;
 
     protected $table = 'materiales_empleados_tareas';
 
@@ -19,6 +20,8 @@ class MaterialEmpleadoTarea extends Model
         'empleado_id',
         'detalle_producto_id',
     ];
+
+    private static $whiteListFilter = ['*'];
 
     public function scopeResponsable($query)
     {

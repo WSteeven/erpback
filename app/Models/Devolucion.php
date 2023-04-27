@@ -22,13 +22,15 @@ class Devolucion extends Model implements Auditable
         'justificacion',
         'solicitante_id',
         'tarea_id',
-        'sucursal_id',
+        'canton_id',
+        'stock_personal',
         'causa_anulacion',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'stock_personal'=>'boolean',
     ];
 
     const CREADA = 'CREADA';
@@ -46,10 +48,10 @@ class Devolucion extends Model implements Auditable
      * Relación muchos a muchos(inversa).
      * Una devolución tiene varios detalles
      */
-    public function productos()
+    public function detalles()
     {
-        return $this->belongsToMany(Producto::class, 'detalle_devolucion_producto', 'devolucion_id', 'producto_id')
-            ->withPivot('descripcion','serial','cantidad')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
+            ->withPivot('cantidad')->withTimestamps();
     }
 
 
@@ -66,9 +68,9 @@ class Devolucion extends Model implements Auditable
      * Relacion uno a uno(inversa)
      * Una o varias devoluciones pertenecen a una sucursal
      */
-    public function sucursal()
+    public function canton()
     {
-        return $this->belongsTo(Sucursal::class);
+        return $this->belongsTo(Canton::class);
     }
 
     /**
@@ -90,17 +92,17 @@ class Devolucion extends Model implements Auditable
      */
     public static function listadoProductos(int $id)
     {
-        $detalles = Devolucion::find($id)->productos()->get();
+        $detalles = Devolucion::find($id)->detalles()->get();
         $results = [];
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
             Log::channel('testing')->info('Log', ['Detalle en el listado de devolucion:', $detalle]);
             $row['id'] = $detalle->id;
-            $row['producto'] = $detalle->nombre;
-            $row['descripcion'] = $detalle->pivot->descripcion;
+            $row['producto'] = $detalle->producto->nombre;
+            $row['descripcion'] = $detalle->descripcion;
             $row['serial'] = $detalle->pivot->serial;
-            $row['categoria'] = $detalle->categoria->nombre;
+            $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $results[$id] = $row;
             $id++;

@@ -22,9 +22,12 @@ return new class extends Migration
             $table->string('fecha_solicitud')->nullable();
             $table->string('titulo');
             $table->text('observacion')->nullable();
+            $table->text('novedad')->nullable();
             $table->enum('para_cliente_proyecto', [Tarea::PARA_PROYECTO, Tarea::PARA_CLIENTE_FINAL]);
+            $table->enum('ubicacion_trabajo', [Tarea::CLIENTE_FINAL, Tarea::RUTA]);
             $table->enum('medio_notificacion', [Tarea::CORREO, Tarea::LLAMADA, Tarea::CHAT]);
-            $table->boolean('tiene_subtareas');
+            // $table->boolean('tiene_subtareas');
+            $table->boolean('finalizado')->default(false);
 
             // Foreign keys
             $table->unsignedBigInteger('cliente_id')->nullable(); // cliente principal
@@ -32,6 +35,9 @@ return new class extends Migration
 
             $table->unsignedBigInteger('cliente_final_id')->nullable();
             $table->foreign('cliente_final_id')->references('id')->on('clientes_finales')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('ruta_tarea_id')->nullable();
+            $table->foreign('ruta_tarea_id')->references('id')->on('rutas_tareas')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('fiscalizador_id')->nullable();
             $table->foreign('fiscalizador_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

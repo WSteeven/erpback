@@ -17,14 +17,18 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('usuario_envia_id');
             $table->unsignedBigInteger('usuario_recibe_id')->nullable();
+            $table->unsignedBigInteger('estado');
             $table->decimal('monto', 10, 2);
             $table->string('motivo', 100);
+            $table->string('observacion', 250)->nullable();
             $table->string('cuenta', 20);
             $table->text('comprobante', 20);
-            $table->unsignedBigInteger('id_tarea');
+            $table->date('fecha', 20);
+            $table->unsignedBigInteger('id_tarea')->nullable();
             $table->foreign('id_tarea')->references('id')->on('tareas');
-            $table->foreign('usuario_envia_id')->references('id')->on('users');
-            $table->foreign('usuario_recibe_id')->references('id')->on('users');
+            $table->foreign('usuario_envia_id')->references('id')->on('empleados');
+            $table->foreign('usuario_recibe_id')->references('id')->on('empleados');
+            $table->foreign('estado')->references('id')->on('estado_viatico');
             $table->timestamps();
         });
     }

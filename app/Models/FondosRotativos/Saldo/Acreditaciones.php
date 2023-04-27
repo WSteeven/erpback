@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\TipoFondo;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,16 +20,21 @@ class Acreditaciones extends Model implements Auditable
         'id_tipo_fondo',
         'id_tipo_saldo',
         'id_usuario',
+        'id_saldo',
         'fecha',
-        'descripcion_saldo',
+        'descripcion_acreditacion',
         'monto',
+        'id_estado',
     ];
     private static $whiteListFilter = [
         'fecha',
     ];
     public function usuario()
     {
-        return $this->hasOne('App\Models\User', 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
+    }
+    public function estado(){
+        return $this->hasOne(EstadoAcreditaciones::class, 'id', 'id_estado');
     }
     public function tipo_saldo(){
         return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');
@@ -49,10 +55,10 @@ class Acreditaciones extends Model implements Auditable
                 $row['fecha'] = $acreditacion->fecha;
                 $row['tipo_saldo'] = $acreditacion->tipo_saldo->descripcion;
                 $row['tipo_fondo'] = $acreditacion->tipo_fondo->descripcion;
-                $row['usuario'] = $acreditacion->usuario;
-                $row['cargo'] = $acreditacion->usuario->empleado->cargo==null?'':$acreditacion->usuario->empleado->cargo->nombre;
-                $row['empleado'] = $acreditacion->usuario->empleado;
-                $row['descripcion_saldo'] = $acreditacion->descripcion_saldo;
+                $row['usuario'] = $acreditacion->usuario->user;
+                $row['cargo'] = $acreditacion->usuario->cargo==null?'':$acreditacion->usuario->cargo->nombre;
+                $row['empleado'] = $acreditacion->usuario;
+                $row['descripcion_acreditacion'] = $acreditacion->descripcion_acreditacion;
                 $row['monto'] = $acreditacion->monto;
                 $results[$id] = $row;
                 $id++;

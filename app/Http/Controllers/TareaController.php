@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
+use App\Models\Empleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\UbicacionTarea;
@@ -27,37 +29,36 @@ class TareaController extends Controller
         // $this->subtareaService = new SubtareaService();
     }
 
+    public function listar()
+    {
+        $campos = explode(',', request('campos'));
+        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
+        $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
+
+        if (request('campos')) {
+            if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+            if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
+            else return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
+        } else {
+            if ($esCoordinadorBackup) return Tarea::filter()->latest()->get();
+            if ($esCoordinador) return Tarea::filter()->porCoordinador()->latest()->get();
+            else return Tarea::filter()->latest()->get(); // Cualquier usuario en el sistema debe tener acceso a las tareas
+        }
+    }
+
     /*********
      * Listar
      *********/
-    public function index(Request $request)
+    public function index()
     {
-        $campos = explode(',', $request['campos']);
-        // $esCoordinador = Auth::user()->empleado->cargo->nombre == User::coor;
-        $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
-        $esJefeTecnico = User::find(Auth::id())->hasRole(User::ROL_JEFE_TECNICO);
-
-        if ($request['campos']) {
-            if (!$esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->get($campos);
-            if ($esCoordinador) $results = Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->get($campos);
-        } else {
-            if (!$esCoordinador) $results = Tarea::filter()->get();
-            if ($esCoordinador) $results = Tarea::filter()->porCoordinador()->get();
-            if ($esCoordinador && $esJefeTecnico) $results = Tarea::filter()->get();
-        }
-
+        $results = $this->listar();
         $results = TareaResource::collection($results);
-
         return response()->json(compact('results'));
     }
 
-    /* private function obtenerTareasSinSubtareas() {
-        Tarea::
-    } */
-
-    /**
+    /**********
      * Guardar - Coordinador
-     */
+     **********/
     public function store(TareaRequest $request)
     {
         DB::beginTransaction();
@@ -67,46 +68,19 @@ class TareaController extends Controller
             $datos = $request->validated();
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
+            $datos['ruta_tarea_id'] = $request->safe()->only(['ruta_tarea'])['ruta_tarea'];
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-            $datos['coordinador_id'] = Auth::user()->empleado->id;
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
 
-            Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
+            // Establecer coordinador
+            $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
+            if ($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+            else $datos['coordinador_id'] = Auth::user()->empleado->id;
+
+            // Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
 
             $modelo = Tarea::create($datos);
-            Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', $datos]);
-
-            $subtarea = $datos['subtarea'];
-
-            // Si la tarea no tiene subtareas, se crea una subtarea por defecto
-            if (!$datos['tiene_subtareas'] && $subtarea) {
-                Log::channel('testing')->info('Log', ['Datos de Tarea despues de guardar', 'dentro de if']);
-                $tarea_id = $modelo->id;
-                // Adpatacion de foreign keys para Subtarea
-                $subtarea['codigo_subtarea'] = Tarea::find($tarea_id)->codigo_tarea . '-' . (Subtarea::where('tarea_id', $tarea_id)->count() + 1);
-                $subtarea['tipo_trabajo_id'] = $subtarea['tipo_trabajo'];
-                $subtarea['tarea_id'] = $tarea_id;
-                $subtarea['grupo_id'] = $subtarea['grupo'];
-                $subtarea['empleado_id'] = $subtarea['empleado'];
-                $subtarea['fecha_inicio_trabajo'] = Carbon::parse($subtarea['fecha_inicio_trabajo'])->format('Y-m-d');
-                $subtarea['fecha_hora_creacion'] = Carbon::now();
-                $subtarea['estado'] = Subtarea::CREADO;
-
-                // Primera subtarea
-                $modeloSubtarea = Subtarea::create($subtarea);
-
-                // Asignar
-                $modeloSubtarea->estado = Subtarea::ASIGNADO;
-                $modeloSubtarea->fecha_hora_asignacion = Carbon::now();
-
-                // Agendar
-                $modeloSubtarea->estado = Subtarea::AGENDADO;
-                $modeloSubtarea->fecha_hora_agendado = Carbon::now();
-                $modeloSubtarea->save();
-
-                // event(new SubtareaEvent('Subtarea agendada!'));
-            }
 
             DB::commit();
 
@@ -131,36 +105,15 @@ class TareaController extends Controller
     /**
      * Actualizar
      */
-    public function update(TareaRequest $request, Tarea $tarea)
+    public function update(Request $request, Tarea $tarea)
     {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-        $datos['cliente_final_id'] = $request->safe()->only(['cliente_final'])['cliente_final'];
-        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
-        // $datos['coordinador_id'] = Auth::id();
-        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-
-        unset($datos['codigo_tarea']);
-        $tarea->update($datos);
-
-        // Ubicacion tarea manual
-        $ubicacionTarea = $request['ubicacion_tarea'];
-        if ($ubicacionTarea && !$datos['cliente_final_id']) {
-            $ubicacionTarea['provincia_id'] = $ubicacionTarea['provincia'];
-            $ubicacionTarea['canton_id'] = $ubicacionTarea['canton'];
-            unset($ubicacionTarea['canton'], $ubicacionTarea['provincia']);
-            if ($tarea->ubicacionTarea)
-                $tarea->ubicacionTarea()->update($ubicacionTarea);
-            else
-                $tarea->ubicacionTarea()->create($ubicacionTarea);
-        } else {
-            $tarea->ubicacionTarea()->delete();
+        if ($request->isMethod('patch')) {
+            $tarea->update($request->except(['id']));
         }
 
         // Respuesta
         $modelo = new TareaResource($tarea->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update', false);
+        $mensaje = 'Tarea finalizada exitosamente';
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -177,9 +130,9 @@ class TareaController extends Controller
     /**
      * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
      */
+    // creo q se va a borrar
     public function actualizarFechasReagendar(Request $request, Tarea $tarea)
     {
-        // $request->isMethod('patch');
         $request->validate([
             'fecha_inicio_trabajo' => 'required|string',
             'grupo' => 'nullable|numeric|integer',
@@ -224,6 +177,7 @@ class TareaController extends Controller
     /**
      * Aqui ingresan únicamente aquellas tareas que no tienen subtareas
      */
+    // creo q se va a borrar
     public function cancelar(Request $request, Tarea $tarea)
     {
         $motivo_suspendido_id = $request['motivo_suspendido_id'];
@@ -239,5 +193,45 @@ class TareaController extends Controller
         $mensaje = 'Tarea reagendada exitosamente!';
 
         return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    public function verificarTodasSubtareasFinalizadas(Request $request)
+    {
+        $tarea = Tarea::find($request['tarea_id']);
+        $totalSubtareasNoFinalizadas = $tarea->subtareas()->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO, Subtarea::SUSPENDIDO])->count();
+        $estan_finalizadas = $totalSubtareasNoFinalizadas == 0;
+        return response()->json(compact('estan_finalizadas'));
+    }
+
+    public function verificarMaterialTareaDevuelto()
+    {
+        // $idEmpleado = request('empleado_id');
+        $idTarea = request('tarea_id');
+
+        $materiales = MaterialEmpleadoTarea::where('tarea_id', $idTarea)->get();
+        $materialesConStock = $materiales->filter(fn ($material) => $material->cantidad_stock > 0);
+        $materiales_devueltos = $materialesConStock->count() == 0;
+        Log::channel('testing')->info('Log', compact('materialesConStock'));
+        Log::channel('testing')->info('Log', compact('materiales_devueltos'));
+        return response()->json(compact('materiales_devueltos'));
+    }
+
+    /**
+     * Coordinador A transfiere sus tareas activas a Coordinador B, usualmente porque coordinador A sale de vacaciones.
+     */
+    public function transferirMisTareasActivas(Request $request)
+    {
+        $request->validate([
+            'actual_coordinador' => 'required|numeric|integer',
+            'nuevo_coordinador' => 'required|numeric|integer',
+        ]);
+
+        $nuevoCoordinador = request('nuevo_coordinador');
+        $actualCoordinador = request('actual_coordinador');
+
+        $tareas = Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $nuevoCoordinador]);
+
+        Log::channel('testing')->info('Log', compact('tareas'));
+        return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
     }
 }

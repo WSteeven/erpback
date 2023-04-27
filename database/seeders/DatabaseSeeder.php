@@ -25,15 +25,17 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        // Datos demograficos
+        $this->call(ProvinciaSeeder::class);
+        $this->call(CantonSeeder::class);
+        $this->call(ParroquiaSeeder::class);
         // Modulo de Bodega
         $this->call(GrupoSeeder::class);
         $this->call(RoleSeeder::class);
         $this->call(CargoSeeder::class);
+        $this->call(SucursalSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(CondicionesProductosFacturasSeeder::class);
-        $this->call(ProvinciaSeeder::class);
-        $this->call(CantonSeeder::class);
-        $this->call(ParroquiaSeeder::class);
         $this->call(AutorizacionSeeder::class);
         $this->call(CategoriaSeeder::class);
         $this->call(DiscoSeeder::class);
@@ -46,11 +48,11 @@ class DatabaseSeeder extends Seeder
         $this->call(HiloSeeder::class);
         $this->call(SpanSeeder::class);
         $this->call(DetalleProductoSeeder::class);
-        $this->call(CodigoClienteSeeder::class);
+        // $this->call(CodigoClienteSeeder::class);
         $this->call(FibraSeeder::class);
-        $this->call(ComputadoraTelefonoSeeder::class);
+        // $this->call(ComputadoraTelefonoSeeder::class);
         $this->call(InventarioSeeder::class);
-        $this->call(DevolucionSeeder::class);
+        // $this->call(DevolucionSeeder::class);
         $this->call(PerchaUbicacionPropietarioSeeder::class);
         $this->call(TipoTransaccionSeeder::class);
         $this->call(MotivoSeeder::class);
@@ -66,17 +68,18 @@ class DatabaseSeeder extends Seeder
         $this->call(PropietarioElementoSeeder::class);
         $this->call(MotivoSuspendidoSeeder::class);
         $this->call(MotivoPausaSeeder::class);
-        // $this->call(TrabajoSeeder::class);
+        $this->call(RutaTareaSeeder::class);
         //$this->call(MaterialGrupoTareaSeeder::class);
         //$this->call(ControlMaterialesSubtareasSeeder::class);
 
-        // $this->call(TransaccionBodegaSeeder::class);
+        $this->call(PedidoSeeder::class);
+        $this->call(TransaccionBodegaSeeder::class);
         // ImagenProducto::factory(10)->create();
-       // $this->call(PedidoSeeder::class);
         $this->call(EstatusSeeder::class);
         $this->call(TipoFondoSeeder::class);
         $this->call(TipoSaldoSeeder::class);
         $this->call(EstadoViaticoSeeder::class);
+        $this->call(EstadoAcreditacionesSeeder::class);
         $this->call(DetalleViaticoSeeder::class);
         $this->call(SubDetalleViaticoSeeder::class);
         // $this->call(PedidoSeeder::class);

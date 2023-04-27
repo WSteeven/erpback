@@ -28,7 +28,9 @@ class TareaRequest extends FormRequest
             'fecha_solicitud' => 'nullable|string',
             'titulo' => 'required|string',
             'observacion' => 'nullable|string',
+            'novedad' => 'nullable|string',
             'para_cliente_proyecto' => 'required|string',
+            'ubicacion_trabajo' => 'nullable|string',
             'cliente' => 'nullable|numeric|integer',
             'coordinador' => 'nullable|numeric|integer',
             'fiscalizador' => 'nullable|numeric|integer',
@@ -36,7 +38,9 @@ class TareaRequest extends FormRequest
             'cliente_final' => 'nullable|numeric|integer',
             'medio_notificacion' => 'required|string',
             'tiene_subtareas' => 'required|boolean',
-            'subtarea' => 'nullable'
+            'subtarea' => 'nullable',
+            'ruta_tarea' => 'nullable|numeric|integer',
+            'finalizado' => 'nullable|boolean',
         ];
     }
 }

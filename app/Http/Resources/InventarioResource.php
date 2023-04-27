@@ -29,9 +29,10 @@ class InventarioResource extends JsonResource
             'categoria'=>$this->detalle->producto->categoria->nombre,
             'cliente'=>$this->cliente_id,
             'cliente_id'=> $this->cliente->empresa->razon_social,
+            'serial'=>$this->detalle->serial,
             'sucursal'=>$this->sucursal_id,
             'sucursal_id'=>$this->sucursal->lugar,
-            'condicion'=> $this->condicion->nombre,
+            'condiciones'=> $this->condicion->nombre,
             'cantidad'=> $this->cantidad,
             'por_recibir'=> $this->por_recibir,
             'por_entregar'=> $this->por_entregar,
@@ -43,7 +44,7 @@ class InventarioResource extends JsonResource
             $modelo['detalle_id']=$this->detalle_id;
             $modelo['sucursal_id']=$this->sucursal_id;
             $modelo['cliente_id']=$this->cliente_id;
-            $modelo['condicion']=$this->condicion_id;
+            $modelo['condiciones']=$this->condicion_id;
         }
 
         return $modelo;

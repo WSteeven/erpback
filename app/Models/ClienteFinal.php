@@ -13,29 +13,36 @@ class ClienteFinal extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
 
-    protected $table = "clientes_finales";
+    protected $table = 'clientes_finales';
     protected $fillable = [
-        "id_cliente_final",
-        "nombres",
-        "apellidos",
-        "nombres",
-        "apellidos",
-        "celular",
-        "parroquia",
-        "direccion",
-        "referencia",
-        "coordenada_latitud",
-        'coordenada_longitud',
-        "provincia_id",
-        "canton_id",
+        'id_cliente_final',
+        'nombres',
+        'apellidos',
+        'nombres',
+        'apellidos',
+        'celular',
+        'parroquia',
+        'direccion',
+        'referencia',
+        'cedula',
+        'correo',
+        'coordenadas',
+        'activo',
+        'provincia_id',
+        'canton_id',
         'cliente_id',
     ];
+    protected $casts = [
+        'activo' => 'boolean',
+    ];
 
-    public function provincia() {
+    public function provincia()
+    {
         return $this->belongsTo(Provincia::class);
     }
 
-    public function canton() {
+    public function canton()
+    {
         return $this->belongsTo(Canton::class);
     }
 

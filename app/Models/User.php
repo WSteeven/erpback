@@ -29,6 +29,7 @@ class User extends Authenticatable implements Auditable
     const ROL_COMPRAS = 'COMPRAS';
     const ROL_CONTABILIDAD = 'CONTABILIDAD';
     const ROL_COORDINADOR = 'COORDINADOR';
+    const ROL_COORDINADOR_BACKUP = 'COORDINADOR_BACKUP';
     const ROL_EMPLEADO = 'EMPLEADO';
     const ROL_GERENTE = 'GERENTE';
     const ROL_JEFE_TECNICO = 'JEFE TECNICO';
@@ -39,6 +40,7 @@ class User extends Authenticatable implements Auditable
     const ROL_LIDER_DE_GRUPO = 'LIDER DE GRUPO';
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
+    const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
@@ -50,6 +52,7 @@ class User extends Authenticatable implements Auditable
     const JEFE_TECNICO = 'JEFE TECNICO';
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
+
 
 
     /**
@@ -97,7 +100,7 @@ class User extends Authenticatable implements Auditable
     // Relacion uno a uno
     public function empleado()
     {
-        return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo','grupo');
+        return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo','grupo','canton');
     }
 
     // Permite a vue acceder a los roles y permisos

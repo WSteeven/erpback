@@ -16,8 +16,6 @@ return new class extends Migration
         Schema::create('tipos_trabajos', function (Blueprint $table) {
             $table->id();
             $table->string('descripcion');
-            // $table->string('imagenes_adicionales')->nullable();
-            // $table->string('campos_adicionales')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('cliente_id');

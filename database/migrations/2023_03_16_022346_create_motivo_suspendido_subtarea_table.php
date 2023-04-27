@@ -22,6 +22,9 @@ return new class extends Migration
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas');
 
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

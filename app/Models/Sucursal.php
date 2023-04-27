@@ -12,7 +12,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 class Sucursal extends Model implements Auditable
 {
     use HasFactory;
-    //use UppercaseValuesTrait;
+    use UppercaseValuesTrait;
     use AuditableModel;
     use Filterable;
 

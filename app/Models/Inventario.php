@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-
+use Src\App\WhereRelationLikeCondition\InventarioCondicionWRLC;
 
 class Inventario extends Model implements Auditable
 {
@@ -42,16 +42,30 @@ class Inventario extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /**
+     * Eloquent Filtering
+     */
     private static $whiteListFilter = ['*'];
+    private $aliasListFilter = [
+        'cliente.empresa.razon_social'=>'cliente',
+        'sucursal.lugar'=>'sucursal',
+        'condicion.nombre'=>'condicion',
+        'detalle.descripcion'=>'descripcion',
+    ];
+    public function EloquentFilterCustomDetection(): array{
+        return [
+            InventarioCondicionWRLC::class,
 
-    public function toSearchableArray()
+        ];
+    }
+
+    /* public function toSearchableArray()
     {
         return [
             'detalles_productos.descripcion' => '',
             // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
-
         ];
-    }
+    } */
 
     /**
      * ______________________________________________________________________________________
@@ -265,6 +279,7 @@ class Inventario extends Model implements Auditable
 
     public static function devolverProductos(int $sucursal, int $cliente_devuelve, array $elementos)
     {
+        Log::channel('testing')->info('Log', ['Recibido en el metodo devolverProductos', $sucursal, $cliente_devuelve, $elementos]);
         try {
             DB::beginTransaction();
             foreach ($elementos as $elemento) {
@@ -275,7 +290,8 @@ class Inventario extends Model implements Auditable
                     ->where('cliente_id', $cliente_devuelve)
                     ->where('sucursal_id', $sucursal)
                     ->where('condicion_id', $itemRecibe->condicion_id)->first();
-
+                
+                    Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
                 $itemDevuelve->por_entregar -= $elemento['devolucion'];
                 $itemDevuelve->cantidad -= $elemento['devolucion'];
                 $itemDevuelve->save();
@@ -331,6 +347,7 @@ class Inventario extends Model implements Auditable
 
             //primero restar productos de un cliente
             foreach ($elementos as $elemento) {
+                $condicion = Condicion::where('nombre', $elemento['condiciones'])->first();
                 $item = Inventario::find($elemento['id']);
                 $detalle = DetalleProducto::find($item->detalle_id);
                 Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
@@ -346,7 +363,11 @@ class Inventario extends Model implements Auditable
 
 
                 //luego insertar productos en otro cliente
-                $item = Inventario::where('detalle_id', $detalle->id)->where('cliente_id', $hasta_cliente)->first();
+                $item = Inventario::where('detalle_id', $detalle->id)
+                    ->where('sucursal_id', $sucursal)
+                    ->where('cliente_id', $hasta_cliente)
+                    ->where('condicion_id', $condicion->id)
+                    ->first();
                 Log::channel('testing')->info('Log', ['El item encontrado es', $item]);
                 if ($item) {
                     $item->por_entregar += $elemento['cantidades'];
@@ -358,7 +379,7 @@ class Inventario extends Model implements Auditable
                     } */
                     $item->save();
                 } else {
-                    $datos = self::estructurarItem($detalle->id, $sucursal, $hasta_cliente, 1, $elemento['cantidades']);
+                    $datos = self::estructurarItem($detalle->id, $sucursal, $hasta_cliente, $condicion->id, $elemento['cantidades']);
                     Log::channel('testing')->info('Log', ['item no encontrado en el inventario, se creará uno nuevo con los siguientes datos', $datos]);
                     $itemCreado = Inventario::create($datos);
                     Log::channel('testing')->info('Log', ['El item creado es', $itemCreado]);

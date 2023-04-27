@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArchivoSeguimientoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\ControlAsistenciaController;
@@ -10,11 +11,13 @@ use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
 use App\Http\Controllers\TipoTrabajoController;
-use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
+use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\RutaTareaController;
+use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
@@ -26,6 +29,7 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
         'tipos-elementos' => TipoElementoController::class,
@@ -35,6 +39,9 @@ Route::apiResources(
         'registros-tendidos' => RegistroTendidoController::class,
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
+        'movilizacion-subtarea' => MovilizacionSubtareaController::class,
+        'seguimientos' => SeguimientoController::class,
+        'archivos-seguimientos' => ArchivoSeguimientoController::class,
     ],
     [
         'parameters' => [
@@ -45,6 +52,8 @@ Route::apiResources(
             'registros-tendidos' => 'registro_tendido',
             'motivos-pausas' => 'motivo_pausa',
             'motivos-suspendidos' => 'motivo_suspendido',
+            'rutas-tareas' => 'ruta_tarea',
+            'archivos-seguimientos' => 'archivo_seguimiento',
         ],
     ]
 );
@@ -67,23 +76,20 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
-Route::put('tareas/actualizar-fechas-reagendar/{tarea}', [TareaController::class, 'actualizarFechasReagendar']);
-Route::post('tareas/cancelar/{tarea}', [TareaController::class, 'cancelar']);
+// Verificar que se pueden finalizar las subtareas
+Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);
+Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verificarMaterialTareaDevuelto']);
 
-// Obtener los trabajos asignados de un grupo o empleado individua
+// Transferir mis tareas activas
+Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
+
+Route::get('export-seguimiento/{seguimiento}', [SeguimientoController::class, 'exportarSeguimiento']);
+
+// Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
 
 // Designación de rol lider de grupo durante la creacion de la subtarea
 Route::put('designar-lider-grupo/{empleado}', [EmpleadoController::class, 'designarLiderGrupo']);
-
-// Designación de rol secretario de grupo durante la creacion de la subtarea
-Route::post('designar-secretario-grupo', [EmpleadoController::class, 'designarSecretarioGrupo']);
-
-// Obtener las bobinas asignadas a un empleado para usarla durante la ejecución de un trabajo
-Route::get('bobinas-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerBobinas']);
-
-// Obtener los materiales asignados a un empleado para usarlos durante la ejecución de un trabajo
-Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMateriales']);
 
 // GET - POST - PUT del inicio de un tendido de FO (No son los registros)
 Route::apiResource('tendidos', TendidoController::class)->except('show');
@@ -91,8 +97,16 @@ Route::apiResource('tendidos', TendidoController::class)->except('show');
 // Obtiene un registro de tendido filtrado por subtarea // REVISAR SI QUEDA, se toma como reemplazo en el show de arriba
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
-// Emergencias
-Route::apiResource('emergencias', EmergenciaController::class);
-
 // Reportes de material
 Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
+
+Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaController::class, 'destinoActual']);
+
+/*************
+ * Materiales
+ *************/
+// Obtener los materiales del stock personal
+Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
+
+// Obtener los materiales para tareas asignados a un empleado
+Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);

@@ -79,7 +79,7 @@ class TransferenciaController extends Controller
 
             //Guardamos el listado de productos en el detalle
             foreach($request->listadoProductos as $listado){
-                $transferencia->items()->attach($listado['id'], ['cantidad'=>$listado['cantidades']]);
+                $transferencia->items()->attach($listado['inventario_id'], ['cantidad'=>$listado['cantidades']]);
             }
             //metodo para transferir productos de una bodega a otra.
             //Inventario::transferirProductos();
@@ -132,7 +132,7 @@ class TransferenciaController extends Controller
             //Guardamos el listado de productos en el detalle
             $transferencia->items()->detach();
             foreach($request->listadoProductos as $listado){
-                $transferencia->items()->attach($listado['id'], ['cantidad'=>$listado['cantidades']]);
+                $transferencia->items()->attach($listado['inventario_id'], ['cantidad'=>$listado['cantidades']]);
             }
             //metodo para transferir productos de una bodega a otra.
             //Inventario::transferirProductos();

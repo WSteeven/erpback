@@ -2,6 +2,9 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Models\Empleado;
+use App\Models\FondosRotativos\Gasto\EstadoViatico;
+use App\Models\Tarea;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,24 +18,45 @@ class Transferencias extends Model implements Auditable
     use Filterable;
     protected $table = 'transferencias_saldos';
     protected $primaryKey = 'id';
+
     protected $fillable = [
         'usuario_envia_id',
         'usuario_recibe_id',
         'monto',
         'motivo',
         'cuenta',
+        'observacion',
         'id_tarea',
-        'comprobante'
+        'estado',
+        'comprobante',
+        'fecha'
     ];
     public function usuario_envia()
     {
-        return $this->belongsTo('App\Models\User', 'usuario_envia_id');
+        return $this->belongsTo(Empleado::class, 'usuario_envia_id');
     }
-    public function usuario_recive()
+    public function estado_info()
     {
-        return $this->belongsTo('App\Models\User', 'usuario_recibe_id');
+        return $this->hasOne(EstadoViatico::class, 'id','estado');
+    }
+    public function tarea_info()
+    {
+        return $this->hasOne(Tarea::class, 'id','id_tarea');
+    }
+    public function usuario_recibe()
+    {
+        return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
     }
     private static $whiteListFilter = [
+        'usuario_envia_id',
+        'usuario_recibe_id',
+        'monto',
         'motivo',
+        'cuenta',
+        'observacion',
+        'id_tarea',
+        'estado',
+        'comprobante',
+        'fecha'
     ];
 }

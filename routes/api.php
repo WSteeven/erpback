@@ -43,6 +43,7 @@ use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ComprobanteController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\TableroController;
@@ -52,7 +53,6 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
-use App\Http\Controllers\EmergenciaController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
@@ -99,6 +99,7 @@ use Carbon\Carbon;
 Route::get('tablero', [TableroController::class, 'index']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
+Route::post('crear-permiso', [PermisoRolController::class, 'crearPermisoRol']);
 Route::post('usuarios/login', [LoginController::class, 'login']);
 Route::post('usuarios/recuperar-password', [UserController::class, 'recuperarPassword']);
 Route::post('usuarios/reset-password', [UserController::class, 'resetearPassword']);
@@ -138,6 +139,7 @@ Route::apiResources(
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
         'control-stocks' => ControlStockController::class,
+        'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
         'devoluciones' => DevolucionController::class,
         'detalles-productos-transacciones' => DetalleProductoTransaccionController::class,
@@ -224,14 +226,25 @@ Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimi
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
+//anular ingreso
+Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
+
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//gestionar egresos
+Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
+
+Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
+
+
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
-Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']); //->name('imprimir-transaccion');
+Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
+Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
 
+Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
@@ -251,12 +264,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
     Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
     Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
+    Route::post('fondos-rotativos/reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
+   // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
     Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
     Route::post('fondos-rotativos/consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
     Route::get('fondos-rotativos/gastocontabilidad', [SaldoGrupoController::class, 'gastocontabilidad']);
     Route::get('fondos-rotativos/autorizaciones_gastos', [GastoController::class, 'autorizaciones_gastos']);
+    Route::get('fondos-rotativos/autorizaciones_transferencia', [TransferenciasController::class, 'autorizaciones_transferencia']);
     Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
     Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
+    Route::post('fondos-rotativos/anular-gasto', [GastoController::class, 'anular_gasto']);
+    Route::post('fondos-rotativos/aprobar-transferencia', [TransferenciasController::class, 'aprobar_transferencia']);
+    Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
+    Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
+    Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
+
 });

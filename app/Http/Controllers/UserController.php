@@ -24,7 +24,7 @@ class UserController extends Controller
     public function index()
     {
         $results = User::where('id', '<>', 1)->orderBy('id', 'asc')->get();
-        Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
+        // Log::channel('testing')->info('Log', ['Resultados consultados: ', $results]);
 
         return response()->json(['modelo' => UserResource::collection($results)]);
     }
@@ -124,7 +124,8 @@ class UserController extends Controller
     public function autorizationUser()
     {
         $user = Auth::user();
-        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->orderby('users.name', 'asc')->get();
+        $jefe = Empleado::where('id',$user->empleado->jefe_id)->first()->usuario_id;
+        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->where('users.id','!=',$jefe)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
     }
     public function recuperarPassword(Request $request){

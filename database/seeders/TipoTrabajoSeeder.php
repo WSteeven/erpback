@@ -104,22 +104,6 @@ class TipoTrabajoSeeder extends Seeder
                 'descripcion' => 'TRASLADO',
                 'cliente_id' => 3
             ],
-            [
-                'descripcion' => 'ALIMENTACIÓN',
-                'cliente_id' => 1,
-            ],
-            [
-                'descripcion' => 'ALIMENTACIÓN',
-                'cliente_id' => 2,
-            ],
-            [
-                'descripcion' => 'ALIMENTACIÓN',
-                'cliente_id' => 3,
-            ],
-            [
-                'descripcion' => 'ALIMENTACIÓN',
-                'cliente_id' => 4,
-            ],
         ]);
     }
 }

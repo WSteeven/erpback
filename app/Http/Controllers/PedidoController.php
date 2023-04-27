@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PedidoAutorizadoEvent;
+use App\Events\PedidoCreadoEvent;
 use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
@@ -13,7 +15,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Spatie\Permission\Models\Role;
 use Src\Shared\Utils;
 
 class PedidoController extends Controller
@@ -55,6 +57,7 @@ class PedidoController extends Controller
      */
     public function store(PedidoRequest $request)
     {
+        $url = '/pedidos';
         Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
             DB::beginTransaction();
@@ -80,13 +83,13 @@ class PedidoController extends Controller
 
             /* Sending a notification to the user who autorized the order. */
             //logica para los eventos de las notificaciones
-            if($pedido->solicitante_id==$pedido->per_autoriza_id && $pedido->autorizacion->nombre===Autorizacion::APROBADO){
+            if ($pedido->solicitante_id == $pedido->per_autoriza_id && $pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 //No se hace nada y se crea la logica
-                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.'indicando que tú eres el responsable de los materiales, el estado del pedido es '.$pedido->autorizacion->nombre;
-                event(new PedidoEvent($msg, $pedido, $pedido->responsable_id));
-            }else{
-                $msg = 'Pedido N°'.$pedido->id.' '.$pedido->solicitante->nombres.' '.$pedido->solicitante->apellidos. ' ha realizado un pedido en la sucursal '.$pedido->sucursal->lugar.' y está '.$pedido->autorizacion->nombre.' de autorización';
-                event(new PedidoEvent($msg, $pedido, $pedido->per_autoriza_id));
+                $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
+                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id));
+            } else {
+                $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
+                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -111,6 +114,8 @@ class PedidoController extends Controller
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
+        $url = '/pedidos';
+        Log::channel('testing')->info('Log', ['entro en el update del pedido',]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -133,13 +138,19 @@ class PedidoController extends Controller
             foreach ($request->listadoProductos as $listado) {
                 $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
-
             DB::commit();
+
+
+            Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
+            if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
+                $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
+                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido));
+            }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. '.$e->getMessage().' '.$e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro. ' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -159,6 +170,7 @@ class PedidoController extends Controller
      */
     public function showPreview(Pedido $pedido)
     {
+        // Log::channel('testing')->info('Log', ['El pedido consultado es: ', $pedido]);
         $modelo = new PedidoResource($pedido);
 
         return response()->json(compact('modelo'), 200);
@@ -170,19 +182,10 @@ class PedidoController extends Controller
     public function imprimir(Pedido $pedido)
     {
         $resource = new PedidoResource($pedido);
-        // Log::channel('testing')->info('Log', ['pedido es', $pedido]);
-        // Log::channel('testing')->info('Log', ['pedido es', $resource]);
-        // Log::channel('testing')->info('Log', ['pedido es', $modelo]);
-        // $modelo = ['pedido'=>json_decode($resource->toJson(), true)];
-        // $dompdf= new Dompdf();
-        // $dompdf->setPaper('A4', 'landscape');
-        // $dompdf->loadHtmlFile('pedidos.pedido', $resource->resolve());
-        // $dompdf->render();
-        // $dompdf->stream();
-
         try {
             $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
             $pdf->setPaper('A5', 'landscape');
+            $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
             $file = $pdf->output(); //SE GENERA EL PDF
             $filename = "pedido_" . $resource->id . "_" . time() . ".pdf";
@@ -210,5 +213,23 @@ class PedidoController extends Controller
     public function qrview()
     {
         return view('qrcode');
+    }
+
+    public function encabezado()
+    {
+        $pdf = Pdf::loadView('pedidos.encabezado_pie_numeracion');
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->render();
+        // $pdf->output();
+        // $pdf->stream();
+
+        return $pdf->stream();
+        // return view('pedidos.encabezado_pie_numeracion');
+    }
+    public function example()
+    {
+        $pdf = Pdf::loadView('pedidos.example');
+        $pdf->render();
+        return $pdf->stream();
     }
 }

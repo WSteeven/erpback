@@ -10,6 +10,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Subtarea extends Model implements Auditable
 {
@@ -54,6 +55,8 @@ class Subtarea extends Model implements Auditable
         'fecha_inicio_trabajo',
         'hora_inicio_trabajo',
         'hora_fin_trabajo',
+        'tiempo_estimado',
+        'empleados_designados',
 
         'tipo_trabajo_id',
         'tarea_id',
@@ -61,6 +64,7 @@ class Subtarea extends Model implements Auditable
         'empleado_id',
         'subtarea_dependiente_id',
         'coordinador_id',
+        'seguimiento_id',
     ];
 
     // protected $dateFormat = 'd-m-Y';
@@ -69,6 +73,7 @@ class Subtarea extends Model implements Auditable
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
         'tiene_subtrabajos' => 'boolean',
+        'empleados_designados' => 'json',
         // 'fecha_inicio_trabajo' => 'datetime:d-m-Y',
         // 'created_at' => 'datetime:Y-m-d h:i:s a',
     ];
@@ -137,7 +142,7 @@ class Subtarea extends Model implements Auditable
 
     public function motivoSuspendido()
     {
-        return $this->belongsToMany(MotivoSuspendido::class)->withTimestamps();
+        return $this->belongsToMany(MotivoSuspendido::class)->withPivot('empleado_id')->withTimestamps();
     }
 
     public function subtarea()
@@ -201,7 +206,15 @@ class Subtarea extends Model implements Auditable
 
     public function empleados()
     {
-        return $this->belongsToMany(Empleado::class);
+        return $this->belongsToMany(Empleado::class)->withPivot('es_responsable');
+    }
+
+    /*********
+     * Scopes
+     *********/
+    public function scopePorCoordinador($query)
+    {
+        return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
 
     public function scopeFechaActual($query)
@@ -216,6 +229,16 @@ class Subtarea extends Model implements Auditable
 
     public function scopeAnterioresNoFinalizados($query)
     {
-        return $query->whereDate('fecha_inicio_trabajo', '<', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
+        return $query->whereDate('fecha_inicio_trabajo', '<=', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
+    }
+
+    public function scopeNoEstaRealizado($query)
+    {
+        return $query->where('estado', '!=', Subtarea::REALIZADO);
+    }
+
+    public function scopeNoEsStandby($query)
+    {
+        return $query->whereNotIn('tipo_trabajo_id', TipoTrabajo::select('id')->where('descripcion', 'STANDBY'));
     }
 }

@@ -9,6 +9,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Empleado extends Model implements Auditable
 {
@@ -30,6 +31,13 @@ class Empleado extends Model implements Auditable
         'firma_url',
         'foto_url',
         // 'es_responsable_grupo',
+        'convencional',
+        'telefono_empresa',
+        'extension',
+        'coordenadas',
+        'casa_propia',
+        'vive_con_discapacitados',
+        'responsable_discapacitados',
     ];
 
     private static $whiteListFilter = [
@@ -55,6 +63,9 @@ class Empleado extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
         'estado' => 'boolean',
+        'casa_propia' => 'boolean',
+        'vive_con_discapacitados' => 'boolean',
+        'responsable_discapacitados' => 'boolean',
     ];
 
     public function toSearchableArray()
@@ -205,5 +216,21 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+
+    public function tareasCoordinador()
+    {
+        return $this->hasMany(Tarea::class, 'coordinador_id');
+    }
+
+    public function subtareasCoordinador(): HasManyThrough
+    {
+        return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
+    }
+
+    public static function extraerNombresApellidos($empleado)
+    {
+        if (!$empleado) return null;
+        return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }

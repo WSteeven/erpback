@@ -233,6 +233,12 @@ class EmpleadoController extends Controller
             ]);
         }
 
+        if ($empleado->grupo_id != $request['grupo']) {
+            throw ValidationException::withMessages([
+                '403' => ['No se puede designar como líder porque no pertence al grupo seleccionado.'],
+            ]);
+        }
+
         DB::transaction(function () use ($request, $empleado) {
             // Buscar lider del grupo actual
             $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();

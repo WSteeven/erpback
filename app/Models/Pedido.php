@@ -145,6 +145,7 @@ class Pedido extends Model implements Auditable
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
             $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['serial'] = $detalle->serial;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $row['despachado'] = $detalle->pivot->despachado;
             $results[$id] = $row;
@@ -168,13 +169,15 @@ class Pedido extends Model implements Auditable
             $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)
                 ->where(function ($query) {
                     $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                        ->orWhere('responsable_id', auth()->user()->empleado->id);
                 })->get();
         } elseif ($estado === $estadoTransaccion->nombre) {
             $results = Pedido::where('estado_id', $estadoTransaccion->id)
                 ->where(function ($query) {
                     $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                        ->orWhere('responsable_id', auth()->user()->empleado->id);
                 })->get();
         }
         return $results;

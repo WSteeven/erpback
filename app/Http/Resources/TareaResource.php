@@ -21,7 +21,7 @@ class TareaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        $primeraSubtarea = $this->subtareas?->first();
+        // $primeraSubtarea = $this->subtareas?->first();
 
         $modelo = [
             'id' => $this->id,
@@ -30,8 +30,11 @@ class TareaResource extends JsonResource
             'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
             'observacion' => $this->observacion,
-            'tiene_subtareas' => $this->tiene_subtareas,
+            'novedad' => $this->novedad,
+            // 'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
+            'ubicacion_trabajo' => $this->ubicacion_trabajo,
+            'ruta_tarea' => $this->rutaTarea?->ruta,
             'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
@@ -39,12 +42,13 @@ class TareaResource extends JsonResource
             'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
             'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
-            'cantidad_subtareas' => $this->tiene_subtareas ? $this->subtareas->count() : null,
+            'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
             'medio_notificacion' => $this->medio_notificacion,
             'canton' => $this->obtenerCanton(),
-            'subtarea' => new SubtareaResource($primeraSubtarea),
+            // 'subtarea' => new SubtareaResource($primeraSubtarea),
+            'finalizado' => $this->finalizado,
             // Subtarea
-             'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
+             /* 'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
              'tipo_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->tipo_trabajo->descripcion : null) : null,
              'fecha_solicitud' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_solicitud : null) : null,
              'es_ventana' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->es_ventana : null) : null,
@@ -59,7 +63,7 @@ class TareaResource extends JsonResource
              'fecha_hora_finalizacion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
              'fecha_hora_' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
              'grupo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->grupo?->nombre : null) : null,
-             'empleado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $this->extraerNombresApellidos($primeraSubtarea->empleado) : null) : null,
+             'empleado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $this->extraerNombresApellidos($primeraSubtarea->empleado) : null) : null, */
         ];
 
         if ($controller_method == 'show') {
@@ -68,6 +72,7 @@ class TareaResource extends JsonResource
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['cliente'] = $this->cliente_id;
+            $modelo['ruta_tarea'] = $this->ruta_tarea_id;
         }
 
         return $modelo;
@@ -91,9 +96,9 @@ class TareaResource extends JsonResource
     private function obtenerCanton()
     {
         if ($this->para_cliente_proyecto === Tarea::PARA_PROYECTO) {
-            return $this->proyecto->canton->canton;
+            return $this->proyecto->canton?->canton;
         } else if ($this->para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) {
-            return $this->clienteFinal->canton->canton;
+            return $this->clienteFinal?->canton?->canton;
         }
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\PedidoAutorizadoEvent;
+use App\Events\PedidoCreadoEvent;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +18,10 @@ class TransaccionBodega extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
     use Filterable;
+
+    const PENDIENTE = 'PENDIENTE';
+    const ACEPTADA = 'ACEPTADA';
+    const RECHAZADA = 'RECHAZADA';
 
     public $table = 'transacciones_bodega';
     public $fillable = [
@@ -179,12 +185,20 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
     }
     /**
+     * Relacion uno a muchos (inversa).
+     * Una y solo una persona puede autorizar la transaccion
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+    /**
      * Relación uno a muchos (inversa).
      * Una o varias transacciones pertenecen a un pedido.
      */
     public function pedido()
     {
-        return $this->belongsTo(Pedido::class);
+        return $this->belongsTo(Pedido::class, 'pedido_id', 'id');
     }
     /**
      * Relación uno a muchos (inversa).
@@ -203,6 +217,15 @@ class TransaccionBodega extends Model implements Auditable
         return $this->belongsTo(Transferencia::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa).
+     * Una transacción puede tener 0 o 1 comprobante
+     */
+    public function comprobante()
+    {
+        return $this->hasOne(Comprobante::class, 'transaccion_id');
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -210,6 +233,10 @@ class TransaccionBodega extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+    public static function obtenerComprobante($transaccion_id)
+    {
+        return Comprobante::where('transaccion_id', $transaccion_id)->first();
+    }
 
     /**
      * It gets the items of a transaction, then it gets the sum of the items returned and the sum of
@@ -242,6 +269,7 @@ class TransaccionBodega extends Model implements Auditable
             $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;
             $row['categoria'] = $item->detalle->producto->categoria->nombre;
+            $row['serial'] = $item->detalle->serial;
             $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
             $row['despachado'] = $item->pivot->cantidad_final;
@@ -279,11 +307,71 @@ class TransaccionBodega extends Model implements Auditable
         return $listado;
     }
 
+    public static function asignarMateriales(TransaccionBodega $transaccion)
+    {
+        try {
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+
+                // Si es material para tarea
+                if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
+                        ->where('tarea_id', $transaccion->tarea_id)
+                        ->where('empleado_id', $transaccion->responsable_id)
+                        ->first();
+
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+
+                        MaterialEmpleadoTarea::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'tarea_id' => $transaccion->tarea_id,
+                            'empleado_id' => $transaccion->responsable_id,
+                            'detalle_producto_id' => $itemInventario->detalle_id,
+                            'es_fibra' => $esFibra, // Pendiente de obtener
+                        ]);
+                    }
+                } else {
+                    // Stock personal
+                    $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
+                        ->where('empleado_id', $transaccion->responsable_id)
+                        ->first();
+
+                    Log::channel('testing')->info('Log', compact('itemInventario'));
+                    Log::channel('testing')->info('Log', compact('transaccion'));
+
+                    if ($material) {
+                        $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->save();
+                    } else {
+                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+
+                        MaterialEmpleado::create([
+                            'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'empleado_id' => $transaccion->responsable_id,
+                            'detalle_producto_id' => $itemInventario->detalle_id,
+                            'es_fibra' => $esFibra,
+                        ]);
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            //
+        }
+    }
+
     /**
      * Funcion para actualizar el pedido y su listado en cada egreso.
      */
     public static function actualizarPedido($transaccion)
     {
+        $url_pedido = '/pedidos';
+        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
@@ -298,38 +386,17 @@ class TransaccionBodega extends Model implements Auditable
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
 
-                if ($pedido->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    // Log::channel('testing')->info('Log', ['Pedido: ' => $pedido]);
-                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detallePedido->detalle_id)
-                        ->where('tarea_id', $pedido->tarea_id)
-                        ->where('empleado_id', $pedido->responsable)
-                        ->first();
+                // aqui va
+            }
 
-                    // Log::channel('testing')->info('Log', ['Material ya existe: ' => $material]);
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->save();
-                    } else {
-                        Log::channel('testing')->info('Log', ['Antes de iniciar calculos de ', 'Fibras']);
-                        // Log::channel('testing')->info('Log', ['Material se crea: ' => '...']);
-                        //consulta de fibras
-                        //$ids_fibras = Fibra::select('id')->get();
-                        //$fibra = DetalleProducto::whereIn('id', $ids_fibras)->where('id', $detallePedido->detalle_id)->first();
-                        $esFibra = !!Fibra::where('detalle_id', $detallePedido->detalle_id)->first();
-
-                        //Log::channel('testing')->info('Log', ['Ids de fibra:', $ids_fibras]);
-                        Log::channel('testing')->info('Log', ['Fibra seleccionada:', $esFibra]);
-                        //Log::channel('testing')->info('Log', ['Fibra seleccionada Boolean:', !!$fibra]);
-
-                        MaterialEmpleadoTarea::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'tarea_id' => $pedido->tarea_id,
-                            'empleado_id' => $pedido->responsable_id,
-                            'detalle_producto_id' => $detallePedido->detalle_id,
-                            'es_fibra' => $esFibra, // Pendiente de obtener
-                        ]);
-                    }
-                }
+            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial
+            if ($pedido->estado_id === $estadoCompleta->id) {
+                $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
+            }
+            if ($pedido->estado_id === $estadoParcial->id) {
+                $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
@@ -339,7 +406,7 @@ class TransaccionBodega extends Model implements Auditable
 
     /**
      * If the product has a serial number and is active, then set it to inactive
-     * 
+     *
      * @param id The id of the product
      */
     public static function desactivarDetalle($id)
@@ -352,7 +419,7 @@ class TransaccionBodega extends Model implements Auditable
     }
     /**
      * It finds a record in the database, and if it's not active, it sets it to active and saves it
-     * 
+     *
      * @param id The id of the model you want to update.
      */
     public function activarDetalle($id)

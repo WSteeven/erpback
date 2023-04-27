@@ -82,6 +82,7 @@
 @php
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRASPASO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
+    $logo = 'data:image/png;base64,'.base64_encode(file_get_contents('img/logoJP.png'));
 @endphp
 
 <body>
@@ -90,7 +91,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{$logo}}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE TRASPASO ENTRE CLIENTES</b></div>

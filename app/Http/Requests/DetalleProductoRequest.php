@@ -48,7 +48,7 @@ class DetalleProductoRequest extends FormRequest
 
             'color' => 'sometimes|nullable|string',
             'talla' => 'sometimes|nullable|string',
-            'tipo' => ['sometimes','nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
+            'tipo' => ['sometimes', 'nullable', Rule::in([DetalleProducto::HOMBRE, DetalleProducto::MUJER])],
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -66,7 +66,17 @@ class DetalleProductoRequest extends FormRequest
             'serial.unique' => 'Ya existe un detalle registrado con el mismo número de serie. Asegurate que el :attribute ingresado sea correcto'
         ];
     }
-
+    protected function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $detalle = DetalleProducto::where('descripcion', $this->descripcion)->where('serial', $this->serial)->first();
+            Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
+            if (!is_null($detalle)) {
+                Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
+                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial)!==$detalle->serial) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+            }
+        });
+    }
     protected function prepareForValidation()
     {
         if (is_null($this->precio_compra)) {
@@ -76,12 +86,12 @@ class DetalleProductoRequest extends FormRequest
         }
         if (is_null($this->custodia)) {
             $this->merge([
-                'custodia' => $this->punta_inicial - $this->punta_final,
+                'custodia' => abs($this->punta_inicial - $this->punta_final),
             ]);
         }
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $this->merge([
-                'custodia' => $this->punta_inicial - $this->punta_final,
+                'custodia' => abs($this->punta_inicial - $this->punta_final),
             ]);
         }
     }

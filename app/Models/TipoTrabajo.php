@@ -17,9 +17,8 @@ class TipoTrabajo extends Model implements Auditable
     protected $fillable = [
         'descripcion',
         'cliente_id',
-        // 'imagenes_adicionales',
-        //'campos_adicionales'
     ];
+
     private static $whiteListFilter = [
         '*',
     ];

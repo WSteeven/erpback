@@ -4,7 +4,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -101,11 +101,11 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="/img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE GASTOS DEL
-                            {{ $fecha_inicio . ' AL ' . $fecha_fin }}</b></div>
+                            {{  date("d-m-Y", strtotime( $fecha_inicio)) . ' AL ' .date("d-m-Y", strtotime($fecha_fin))  }}</b></div>
 
                 </td>
             </tr>
@@ -113,60 +113,25 @@
         <hr>
     </header>
     <footer>
-        <table>
+        <table style="width: 100%;">
             <tr>
-                <td>
-                    <table class="firma" style="width: 100%;">
-                        <thead>
-                            <th align="center">______________________________________</th>
-                            <th align="center"></th>
-                            <th align="center">______________________________________</th>
-                        </thead>
-                        <tbody>
-                            <tr align="center">
-                                <td><b>RESPONSABLE DE MANEJO DE
-                                        VIATICOS</b></td>
-                                <td><b></b></td>
-                                <td><b>RESPONSABLE CONTROL DE
-                                        VIATICOS</b></td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 60px;">Nombre: </td>
-                                <td></td>
-                                <td style="padding-left: 60px;">Nombre:</td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 60px;">C.I: </td>
-                                <td></td>
-                                <td style="padding-left: 60px;">C.I:</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        <table>
-            <tr>
-                <td>
-                    <p class="izq">
-                        Generado por:
+                <td class="page">Página </td>
+                <td style="line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                        Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d/m/Y H:i') }}
-                        Propiedad de  JPCONSTRUCRED CIA LTDA - Proibida su distribucion
-                    </p>
-                </td>
-                <td>
-                    <p class="page">
-                        Página
-                    </p>
+                        {{ $fecha->format('d-m-Y H:i') }}
+                    </div>
                 </td>
             </tr>
         </table>
     </footer>
     <div id="content">
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;>
-            <div class="col-md-7" align="center"><b>{{ $datos_usuario_logueado['apellidos'] . ' ' . $datos_usuario_logueado['nombres'] }}</b></div>
+        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:15px;margin-top: -6px;">
+            <div class="col-md-7" align="center"><b>{{ $datos_usuario_logueado['apellidos'] . ' ' . $datos_usuario_logueado['nombres'] . ' ( '.$datos_usuario_logueado['canton']->canton .' ) '  }}</b></div>
         </p>
         <p>
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados">
@@ -183,16 +148,13 @@
             @if (sizeof($datos_saldo_depositados_semana) > 0)
                 @foreach ($datos_saldo_depositados_semana as $dato)
                     <tr>
-                        <td style="font-size:10px">{{ $dato->fecha }}</td>
+                        <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato->fecha)) }}</td>
                         <td style="font-size:10px">
                             {{ number_format($dato->monto, 2, ',', '.') }}</td>
                         <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
                         </td>
                         <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                     </tr>
-                    @if ($datos_saldo_depositados_semana[count($datos_saldo_depositados_semana) - 1]->id != $dato->id)
-                        <div class="page-break"></div>
-                    @endif
                 @endforeach
             @else
                 <tr>
@@ -201,29 +163,45 @@
             @endif
             <tr>
                 <td style="font-size:10px" colspan="3"><div align="right"><strong>SALDO ANTERIOR:&nbsp;</strong></div><strong></strong></td>
-                <td style="font-size:10px"> <div align="right"> {{ number_format($sal_anterior, 2, ',', ' ') }} </div></td>
+                <td style="font-size:10px"> <div align="right"> {{ number_format($saldo_anterior, 2, ',', ' ') }} </div></td>
             </tr>
             <tr>
                 <td colspan="3" style="font-size:10px">
                     <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="right"> {{ number_format($sal_dep_r, 2, ',', ' ') }} </div>
+                    <div align="right"> {{ number_format($acreditaciones, 2, ',', ' ') }} </div>
                 </td>
             </tr>
             <tr>
                 <td colspan="3" style="font-size:10px">
-                    <div align="right"><strong>NUEVO SALDO:&nbsp;</strong></div>
+                    <div align="right"><strong>TRANSFERENCIAS REALIZADAS:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
-                    <div align="right"> {{ number_format($nuevo_saldo, 2, ',', ' ') }} </div>
+                    <div align="right"> {{ number_format($transferencia, 2, ',', ' ') }} </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="font-size:10px">
+                    <div align="right"><strong>GASTOS REALIZADOS:&nbsp;</strong></div>
+                </td>
+                <td style="font-size:10px">
+                    <div align="right"> {{ number_format($gastos_realizados, 2, ',', ' ') }} </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="font-size:10px">
+                    <div align="right"><strong>SALDO ACTUAL:&nbsp;</strong></div>
+                </td>
+                <td style="font-size:10px">
+                    <div align="right"> {{ number_format($ultimo_saldo, 2, ',', ' ') }} </div>
                 </td>
             </tr>
         </table>
         <div class="page-break"></div>
         </p>
         <p>
-            <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
                 <tr>
                     <td width="5%" bgcolor="#a9d08e">
                         <div align="center"><strong>N&deg;</strong></div>
@@ -249,7 +227,7 @@
                     <td width="25%" bgcolor="#a9d08e">
                         <div align="center"><strong>SUB DETALLE</strong></div>
                     </td>
-                    <td width="24%" bgcolor="#a9d08e">
+                    <td width="24%"  bgcolor="#a9d08e">
                         <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                     </td>
                     <td width="10%" bgcolor="#a9d08e">
@@ -262,14 +240,14 @@
                         <div align="center"><strong>TOTAL</strong></div>
                     </td>
                 </tr>
-                @if (sizeof($datos_reporte) == 0)
+                @if (sizeof($gastos_reporte) == 0)
                     <tr>
                         <td colspan="12">
                             <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                         </td>
                     </tr>
                 @else
-                    @foreach ($datos_reporte as $dato)
+                    @foreach ($gastos_reporte as $dato)
                         @php
                             $sub_total = $sub_total + (float) $dato->total;
                         @endphp
@@ -278,7 +256,7 @@
                                 <div align="center">{{ $dato->id }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->fecha }}</div>
+                                <div align="center">{{   date("d-m-Y", strtotime( $dato->fecha_viat))}}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
@@ -293,7 +271,7 @@
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ $dato->aut_especial_user->empleado->nombres . '' . $dato->aut_especial_user->empleado->apellidos }}
+                                    {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
                                 </div>
                             </td>
                             <td style="font-size:10px">
@@ -307,24 +285,21 @@
                                     @endif
                                  @endforeach</div>
                             </td>
-                            <td style="font-size:10px">
+                            <td style="font-size:10px;word-wrap: break-word;">
                                 <div align="center">{{ $dato->observacion }}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">{{ $dato->cant }}</div>
+                                <div align="center">{{ $dato->cantidad }}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">
-                                    {{ number_format($dato->valor_unitario, 2, ',', '.') }}</div>
+                                    {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                             </td>
                             <td style="font-size:10px">
                                 <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
                                 </div>
                             </td>
                         </tr>
-                        @if ($datos_reporte[count($datos_reporte) - 1]->id != $dato->id)
-                            <div class="page-break"></div>
-                        @endif
                     @endforeach
                 @endif
                 <tr>
@@ -343,7 +318,7 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">
-                            {{ number_format($nuevo_saldo - $sub_total, 2, ',', ' ') }}
+                            {{ number_format($ultimo_saldo, 2, ',', ' ') }}
                         </div>
                     </td>
                 </tr>

@@ -24,20 +24,17 @@ class TrabajoAsignadoController extends Controller
      */
     public function index()
     {
-        $empleado = User::find(Auth::id())->empleado;
+        $empleado = Auth::user()->empleado;
         $grupo_id = $empleado->grupo_id;
 
         $results = [];
 
         if (request('estado') == 'PROXIMO') {
-            Log::channel('testing')->info('Log', ['Estado: ', request('estado')]);
-            array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
+            // if ($grupo_id) array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerFuturoTrabajoAsignadoEmpleado($empleado));
+
         } else {
-            if ($grupo_id) {
-                array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
-                array_push($results, ...$this->servicio->obtenerTrabajoAsignadoGrupo($empleado));
-            }
+            // if ($grupo_id) array_push($results, ...$this->servicio->obtenerTrabajoAtrasadoAgendadoGrupo($empleado));
             array_push($results, ...$this->servicio->obtenerTrabajoAsignadoEmpleado($empleado));
         }
 

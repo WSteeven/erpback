@@ -10,42 +10,28 @@ use Illuminate\Support\Facades\Log;
 class TrabajoAsignadoService
 {
     /*****************************
-     * Trabajo para el dia actual
+     * Trabajo actual y atrasado
      *****************************/
-    public function obtenerTrabajoAsignadoGrupo(Empleado $empleado)
+    /* public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
     {
-        // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('grupo_id', $grupo)->get();
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
-        // return SubtareaResource::collection($results);
-    }
+        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->noEsStandby()->get();
+    } */
 
     public function obtenerTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaActual()->get();
-        // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('empleado_id', $id_empleado)->get();
-        // return SubtareaResource::collection($results);
-    }
-
-    /*****************************
-     * Trabajo atrasado
-     *****************************/
-    public function obtenerTrabajoAtrasadoAgendadoGrupo(Empleado $empleado)
-    {
-        return $empleado->grupo->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->get();
+        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->anterioresNoFinalizados()->noEsStandby()->get();
     }
 
     /********************
      * Proximos trabajos
      ********************/
-    public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
+    /* public function obtenerFuturoTrabajoAsignadoGrupo(Empleado $empleado)
     {
-        return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
-    }
+        return $empleado->grupo->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->noEsStandby()->get();
+    } */
 
     public function obtenerFuturoTrabajoAsignadoEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->get();
-        // $results = Subtarea::filter()->where('fecha_hora_asignacion', '!=', null)->where('empleado_id', $id_empleado)->get();
-        // return SubtareaResource::collection($results);
+        return $empleado->subtareas()->where('fecha_hora_agendado', '!=', null)->fechaFuturo()->noEsStandby()->get();
     }
 }

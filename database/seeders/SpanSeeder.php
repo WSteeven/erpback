@@ -20,5 +20,6 @@ class SpanSeeder extends Seeder
         Span::create(['nombre'=>250]);
         Span::create(['nombre'=>300]);
         Span::create(['nombre'=>600]);
+        Span::create(['nombre'=>500]);
     }
 }

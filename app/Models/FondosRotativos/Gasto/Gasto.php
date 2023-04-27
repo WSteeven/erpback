@@ -3,7 +3,9 @@
 namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
+use App\Models\Empleado;
 use App\Models\Proyecto;
+use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -17,6 +19,10 @@ class Gasto extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    const APROBADO = 1;
+    const RECHAZADO = 2;
+    const PENDIENTE = 3;
+    const ANULADO = 4;
     protected $table = 'gastos';
     protected $primaryKey = 'id';
     protected $fillable = [
@@ -27,12 +33,10 @@ class Gasto extends Model implements Auditable
         'id_proyecto',
         'ruc',
         'factura',
-        'numComprobante',
-        'proveedor',
+        'num_comprobante',
         'aut_especial',
         'detalle',
-        'sub_detalle',
-        'cant',
+        'cantidad',
         'valor_u',
         'total',
         'comprobante',
@@ -50,10 +54,9 @@ class Gasto extends Model implements Auditable
         'id_proyecto',
         'ruc',
         'factura',
-        'proveedor',
         'aut_especial',
         'detalle',
-        'cant',
+        'cantidad',
         'valor_u',
         'total',
         'comprobante',
@@ -79,7 +82,7 @@ class Gasto extends Model implements Auditable
 
     public function aut_especial_user()
     {
-        return $this->hasOne(User::class, 'id', 'aut_especial')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'aut_especial');
     }
     public function estado_info()
     {
@@ -93,17 +96,25 @@ class Gasto extends Model implements Auditable
     {
         return $this->hasOne(Tarea::class, 'id', 'id_tarea');
     }
+    public function subtarea_info()
+    {
+        return $this->hasOne(Subtarea::class, 'id', 'id_subtarea');
+    }
     public function lugar_info()
     {
         return $this->hasOne(Canton::class, 'id', 'id_lugar');
     }
-    public function usuario_info()
+    public function empleado_info()
     {
-        return $this->hasOne(User::class, 'id', 'id_usuario')->with('empleado');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user') ;
     }
     public function detalle_estado()
     {
         return $this->hasOne(EstadoViatico::class, 'id', 'detalle_estado');
+    }
+    public function gasto_vehiculo_info()
+    {
+        return $this->hasOne(GastoVehiculo::class, 'id_gasto', 'id');
     }
 
     public static function empaquetar($gastos)
@@ -113,12 +124,12 @@ class Gasto extends Model implements Auditable
         $row = [];
         foreach ($gastos as $gasto) {
             $row['fecha']= $gasto->fecha_viat;
-            $row['usuario_info']= $gasto->usuario_info;
-            $row['usuario'] = $gasto->usuario_info->empleado;
-            $row['grupo'] = $gasto->usuario_info->empleado->grupo==null?'':$gasto->usuario_info->empleado->grupo->descripcion;
+            $row['empleado_info']= $gasto->empleado_info->user;
+            $row['usuario'] = $gasto->empleado_info;
+            $row['grupo'] = $gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
-            $row['detalle'] = $gasto->detalle_info;
+            $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
             $row['observacion'] = $gasto->observacion;
             $row['detalle_estado'] = $gasto->detalle_estado;

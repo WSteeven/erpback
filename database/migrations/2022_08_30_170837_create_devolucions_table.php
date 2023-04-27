@@ -19,7 +19,8 @@ return new class extends Migration
             $table->text('justificacion');
             $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('tarea_id')->nullable();
-            $table->unsignedBigInteger('sucursal_id');
+            $table->unsignedBigInteger('canton_id');
+            $table->boolean('stock_personal')->default(false);
             $table->text('causa_anulacion')->nullable();
             $table->enum('estado', [Devolucion::CREADA, Devolucion::ANULADA])->default(Devolucion::CREADA);
 
@@ -27,7 +28,7 @@ return new class extends Migration
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('sucursal_id')->references('id')->on('sucursales')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('canton_id')->references('id')->on('cantones')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

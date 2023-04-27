@@ -39,8 +39,8 @@ class ModeloController extends Controller
             $results->appends(['offset' => $request['offset']]);
         } else {
             $results = Modelo::all();
-            ModeloResource::collection($results);
         }
+        $results = ModeloResource::collection($results);
         return response()->json(compact('results'));
     }
 

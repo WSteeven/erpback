@@ -23,6 +23,11 @@ class Fibra extends Model implements Auditable
         'custodia',
     ];
 
+    public function getKeyName()
+    {
+        return 'detalle_id';
+    }
+
     /**
      * Relacion uno a uno (inversa).
      * Una fibra es un detalle de producto

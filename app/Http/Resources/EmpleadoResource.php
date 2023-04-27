@@ -31,12 +31,20 @@ class EmpleadoResource extends JsonResource
             'cargo' => $this->cargo?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
-            'roles' => implode(', ', $this->user->getRoleNames()->filter(fn($rol) => $rol !== 'EMPLEADO')->toArray()),
+            'roles' => implode(', ', $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()),
+            // 'roles' => $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray(),
             'cargo' => $this->cargo?->nombre,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'foto_url' => $this->foto_url ? url($this->foto_url) : null,
             // 'es_responsable_grupo' => $this->es_responsable_grupo,
             // 'es_lider' => $this->esTecnicoLider(),
+            'convencional' => $this->convencional? $this->convencional:null,
+            'telefono_empresa' => $this->telefono_empresa?$this->telefono_empresa:null,
+            'extension' => $this->extension?$this->extension:null,
+            'coordenadas' => $this->coordenadas?$this->coordenadas:null,
+            'casa_propia' => $this->casa_propia,
+            'vive_con_discapacitados' => $this->vive_con_discapacitados,
+            'responsable_discapacitados' => $this->responsable_discapacitados,
         ];
 
         if ($controller_method == 'show') {

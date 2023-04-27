@@ -22,12 +22,12 @@ class DetalleViaticoSeeder extends Seeder
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'ARRIENDO DE BODEGA EVENTUAL',
+                'descripcion' => 'ARRIENDO EVENTUALES POR PROYECTOS',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'ALQUILER HERRAMIENTAS Y EQUIPOS',
+                'descripcion' => 'HERRAMIENTAS Y EQUIPOS',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
@@ -37,12 +37,12 @@ class DetalleViaticoSeeder extends Seeder
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'COMBUSTIBLE',
+                'descripcion' => 'BUS URBANO',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'COMPRA DE COLCHONES',
+                'descripcion' => 'COMBUSTIBLE',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
@@ -67,7 +67,7 @@ class DetalleViaticoSeeder extends Seeder
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'GUARDIANÍA MATERIALES O VEHÍCULO',
+                'descripcion' => 'GUARDIANÍA',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
@@ -132,25 +132,26 @@ class DetalleViaticoSeeder extends Seeder
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'NO POSEE',
+                'descripcion' => 'MANTENIMIENTO Y REPARACION DE VEHÍCULO',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'MANTENIMIENTO DE VEHICULO',
+                'descripcion' => 'TRAMITES ADMINISTRATIVOS DE VEHICULO',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'REPARACION Y MANTENIMIENTO DE VEHICULO',
+                'descripcion' => 'OBRAS CIVILES',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
             ],
             [
-                'descripcion' => 'OBRAS CIVILES - MANTENIMIENTO',
+                'descripcion' => 'REPARACION DE NODO',
                 'autorizacion' => 'SI',
                 'id_estatus' => 1,
-            ],
+
+            ]
         ]);
     }
 }

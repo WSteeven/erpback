@@ -49,15 +49,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
-                            <div align="center">JEAN PATRICIO PAZMI&Ntilde;O BARROS</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td width="17%">
-                            <div align="center"></div>
-                        </td>
-                        <td width="83%" style="font-size:16px; font-weight:bold">
-                            <div align="center">RUC:0702875618001</div>
+                            <div align="center">JPCONSTRUCRED C.LTDA</div>
                         </td>
                     </tr>
                 </table>
@@ -82,24 +74,24 @@
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+                                <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados">
                                     <tr>
                                         <td colspan="4" style="font-size:10px" bgcolor="#a9d08e"><strong>SALDOS
                                                 DEPOSITADOS</strong></td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size:10px"><strong>Fecha</strong></td>
-                                        <td style="font-size:10px"><strong>Monto</strong></td>
-                                        <td style="font-size:10px"><strong>Tipo Saldo</strong></td>
-                                        <td style="font-size:10px" width="100%"><strong>Descripción</strong></td>
+                                        <td style="font-size:10px" width="8%"><strong>Fecha</strong></td>
+                                        <td style="font-size:10px"width="7%"><strong>Monto</strong></td>
+                                        <td style="font-size:10px"width="9%"><strong>Tipo Saldo</strong></td>
+                                        <td style="font-size:10px" width="80%"><strong>Descripción</strong></td>
                                     </tr>
                                     @if (sizeof($datos_saldo_depositados_semana) > 0)
                                         @foreach ($datos_saldo_depositados_semana as $dato)
                                             <tr>
-                                                <td style="font-size:10px">{{ $dato->fecha }}</td>
+                                                <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato->fecha)) }}</td>
                                                 <td style="font-size:10px">
                                                     {{ number_format($dato->monto, 2, ',', '.') }}</td>
-                                                <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
+                                                <td style="font-size:10px">{{$dato->tipo_fondo!=null? $dato->tipo_fondo->descripcion:'' }}
                                                 </td>
                                                 <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                                             </tr>
@@ -109,7 +101,42 @@
                                             <td style="font-size:10px" colspan="4">NO SE REALIZARON DEPOSITOS.</td>
                                         </tr>
                                     @endif
-
+                                    <tr>
+                                        <td style="font-size:10px" colspan="3"><div align="right"><strong>SALDO ANTERIOR:&nbsp;</strong></div><strong></strong></td>
+                                        <td style="font-size:10px"> <div align="right"> {{ number_format($saldo_anterior, 2, ',', ' ') }} </div></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="font-size:10px">
+                                            <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($acreditaciones, 2, ',', ' ') }} </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="font-size:10px">
+                                            <div align="right"><strong>TRANSFERENCIAS REALIZADAS:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($transferencia, 2, ',', ' ') }} </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="font-size:10px">
+                                            <div align="right"><strong>GASTOS REALIZADOS:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($gastos_realizados, 2, ',', ' ') }} </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="font-size:10px">
+                                            <div align="right"><strong>SALDO ACTUAL:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($ultimo_saldo, 2, ',', ' ') }} </div>
+                                        </td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>
@@ -117,33 +144,6 @@
                             <td>
                                 <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
                                     style="margin-top:8 ">
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td colspan="10" style="font-size:10px">
-                                            <div align="right"><strong>SALDO ANTERIOR:</strong></div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center"> {{ number_format($sal_anterior, 2, ',', ' ') }} </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td colspan="10" style="font-size:10px">
-                                            <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center"> {{ number_format($sal_dep_r, 2, ',', ' ') }} </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td colspan="10" style="font-size:10px">
-                                            <div align="right"><strong>NUEVO SALDO:&nbsp;</strong></div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center"> {{ number_format($nuevo_saldo, 2, ',', ' ') }} </div>
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>N&deg;</strong></div>
@@ -182,14 +182,14 @@
                                             <div align="center"><strong>TOTAL</strong></div>
                                         </td>
                                     </tr>
-                                    @if (sizeof($datos_reporte) == 0)
+                                    @if (sizeof($gastos_reporte) == 0)
                                         <tr>
                                             <td colspan="12">
                                                 <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                                             </td>
                                         </tr>
                                     @else
-                                        @foreach ($datos_reporte as $dato)
+                                        @foreach ($gastos_reporte as $dato)
                                             @php
                                                 $sub_total = $sub_total + (float) $dato->total;
                                             @endphp
@@ -210,13 +210,18 @@
                                                     <div align="center">{{ $dato->ruc }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">   {{ $dato->aut_especial_user->empleado->nombres . '' . $dato->aut_especial_user->empleado->apellidos }}</div>
+                                                    <div align="center">   {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->detalle_info->descripcion }}</div>
+                                                    <div align="center">{{$dato->detalle_info->descripcion}}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->sub_detalle_info->descripcion }}</div>
+                                                    <div align="center">  @foreach($dato->sub_detalle_info as $sub_detalle)
+                                                        {{ $sub_detalle->descripcion }}
+                                                        @if (!$loop->last)
+                                                           ,
+                                                        @endif
+                                                     @endforeach</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->observacion }}</div>
@@ -226,7 +231,7 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ number_format($dato->valor_unitario, 2, ',', '.') }}</div>
+                                                        {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
@@ -258,7 +263,7 @@
                                         </td>
                                         <td style="font-size:10px">
                                             <div align="center">
-                                                {{ number_format($nuevo_saldo - $sub_total + $restas_diferencias, 2, ',', ' ') }}
+                                                {{ number_format($ultimo_saldo, 2, ',', ' ') }}
                                             </div>
                                         </td>
                                     </tr>

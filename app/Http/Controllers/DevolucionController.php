@@ -75,7 +75,7 @@ class DevolucionController extends Controller
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-            $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+            $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
             // Respuesta
             $devolucion = Devolucion::create($datos);
@@ -83,12 +83,7 @@ class DevolucionController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
-                $producto = Producto::where('nombre', $listado['producto'])->first();
-                $devolucion->productos()->attach($producto->id, [
-                    'descripcion' => $listado['descripcion'],
-                    'serial' => $listado['serial'],
-                    'cantidad' => $listado['cantidad']
-                ]);
+                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
         } catch (Exception $e) {
@@ -117,7 +112,7 @@ class DevolucionController extends Controller
         $datos = $request->validated();
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-        $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         // Respuesta
         $devolucion->update($datos);

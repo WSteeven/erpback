@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('gasto_id');
             $table->unsignedBigInteger('subdetalle_gasto_id');
             $table->foreign('gasto_id')->references('id')->on('gastos');
-            $table->foreign('subdetalle_gasto_id')->references('id')->on('subdetalle_gastos');
+            $table->foreign('subdetalle_gasto_id')->references('id')->on('sub_detalle_viatico');
             $table->timestamps();
         });
     }

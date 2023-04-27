@@ -45,12 +45,19 @@ class EmpleadoRequest extends FormRequest
             'firma_url' => 'nullable|string',
             'foto_url' => 'nullable|string',
             // 'es_responsable_grupo' => 'nullable|boolean',
+            'convencional' => 'nullable|string',
+            'telefono_empresa' => 'nullable|string',
+            'extension' => 'nullable|string',
+            'coordenadas' => 'nullable|string',
+            'casa_propia' => 'nullable|boolean',
+            'vive_con_discapacitados' => 'nullable|boolean',
+            'responsable_discapacitados' => 'nullable|boolean',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $user = User::find($this->route()->parameter('empleado.usuario_id'));
 
-            $rules['identificacion'] = [Rule::unique('empleados')->ignore($user)];
+            $rules['identificacion'] = [Rule::unique('empleados')->ignore($user->empleado)];
             $rules['email'] = [Rule::unique('users')->ignore($user)];
             $rules['password'] = 'nullable';
         }
@@ -69,7 +76,8 @@ class EmpleadoRequest extends FormRequest
             // }
         });
     }
-    public function prepareForValidation(){
+    public function prepareForValidation()
+    {
         $this->merge([
             'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
         ]);

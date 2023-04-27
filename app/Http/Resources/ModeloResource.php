@@ -19,6 +19,7 @@ class ModeloResource extends JsonResource
             'id'=>$this->id,
             'nombre'=>$this->nombre,
             'marca'=>$this->marca->nombre,
+            'marca_id'=>$this->marca_id,
         ];
 
         if($controller_method=='show'){

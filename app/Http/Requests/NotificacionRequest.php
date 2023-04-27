@@ -24,11 +24,11 @@ class NotificacionRequest extends FormRequest
     public function rules()
     {
         return [
-            'mensaje'=>'required',
-        'link'=>'nullable|sometimes',
-        'per_originador'=>'required',
-        'per_destinatario'=>'required',
-        'leida'=>'boolean'
+            'mensaje' => 'required',
+            'link' => 'nullable|sometimes',
+            'per_originador' => 'nullable',
+            'per_destinatario' => 'nullable',
+            'leida' => 'boolean'
         ];
     }
 }

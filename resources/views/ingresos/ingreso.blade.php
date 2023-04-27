@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
 
+@php
+    ini_set('max_execution_time', 300); //poner el tiempo maximo de ejecucion en 5 minutes
+    $fecha = new Datetime();
+    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    if ($persona_entrega->firma_url) {
+        $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
+    }
+    if ($persona_atiende->firma_url) {
+        $atiende_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_atiende->firma_url, 1)));
+    }
+@endphp
+
 <head>
     <meta charset="utf-8">
     <title>Comprobante N° {{ $transaccion['id'] }}</title>
@@ -53,7 +66,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         div {
@@ -69,7 +82,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
-            font-size: 12px;
+            font-size: 10px;
             /* position: inherit; */
             /* top: 140px; */
         }
@@ -80,10 +93,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-@endphp
 
 <body>
     <header>
@@ -91,7 +100,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     @if ($transaccion['transferencia'])
@@ -108,36 +117,48 @@
         <hr>
     </header>
     <footer>
+
         <table class="firma" style="width: 100%;">
             <thead>
-                <th align="center"><img src="{{url($persona_entrega->firma_url)}}" alt=""></th>
+                <th align="center">
+                    @isset($entrega_firma)
+                        <img src="{{ $entrega_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($entrega_firma)
+                        ___________________<br/>
+                    @endempty
+                    <b>ENTREGA</b>
+                </th>
                 {{-- <th align="center">___________________</th> --}}
                 <th align="center"></th>
-                <th align="center">{{$persona_entrega->firma_url}}</th>
+                <th align="center">
+                    @isset($atiende_firma)
+                        <img src="{{ $atiende_firma }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($atiende_firma)
+                        ___________________<br/>
+                    @endempty
+                    <b>RECIBE</b>
+                </th>
             </thead>
             <tbody>
                 <tr align="center">
-                    <td><b>ENTREGA</b></td>
-                    <td><b></b></td>
-                    <td><b>RECIBE</b></td>
-                </tr>
-                <tr align="center">
-                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} </td=>
+                    <td>{{ $persona_entrega->nombres }} {{ $persona_entrega->apellidos }} <br>
+                        {{ $persona_entrega->identificacion }}
+                    </td>
                     <td></td>
-                    <td>{{ $persona_atiende->nombres }} {{ $persona_atiende->apellidos }} </td>
+                    <td>{{ $persona_atiende->nombres }} {{ $persona_atiende->apellidos }} <br>
+                        {{ $persona_atiende->identificacion }}
+                    </td>
                 </tr>
-                <tr align="center">
-                    <td>{{ $persona_entrega->identificacion }} </td>
-                    <td></td>
-                    <td>{{ $persona_atiende->identificacion }}</td>
-                </tr>
+
             </tbody>
         </table>
         <table style="width: 100%;">
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP CONSTRUCRED C. LTDA.
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -188,7 +209,7 @@
 
         </table>
         <!-- aqui va el listado de productos -->
-        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 98%;" align="center">
+        <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
             <thead>
                 <th>Producto</th>
                 <th>Descripcion</th>
@@ -196,7 +217,7 @@
                 <th>Condición</th>
                 <th>Cantidad</th>
             </thead>
-            <tbody style="font-size: 14px;">
+            <tbody style="font-size: 10px;">
                 {{-- @foreach ($ciclo as $c) --}}
                 @foreach ($transaccion['listadoProductosTransaccion'] as $listado)
                     <tr>

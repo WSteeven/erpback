@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\NotificacionRequest;
 use App\Http\Resources\NotificacionResource;
 use App\Models\Notificacion;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -28,11 +30,18 @@ class NotificacionController extends Controller
     public function index(Request $request)
     {
         $campos = explode(',', $request['campos']);
-        if($request['campos']){
-            $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
-        }else{
-            $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+
+        if ($request['campos']) {
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = Notificacion::ignoreRequest(['campos'])->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
+            } else {
+                $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(10)->get($campos);
+            }
+        } else {
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->filter()->orderBy('id', 'desc')->get();
+            else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
+
 
         return response()->json(compact('results'));
     }
@@ -96,8 +105,9 @@ class NotificacionController extends Controller
     /**
      * Marcar como leída una notificacion
      */
-    public function leida(Notificacion $notificacion){
-        $notificacion->leida =true;
+    public function leida(Notificacion $notificacion)
+    {
+        $notificacion->leida = true;
         $notificacion->save();
         $modelo = $notificacion;
 

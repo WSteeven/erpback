@@ -19,13 +19,21 @@ class TransferenciaResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'usuario_envia_info' => $this->usuario_envia->name,
-            'usuario_recive_info' => $this->usuario_recive == null? 'JPConstructred':$this->usuario_recive->name,
+            'fecha' => $this->fecha,
+            'cuenta' => $this->cuenta,
+            'usuario_envia_info' => $this->usuario_envia->nombres.' '.$this->usuario_envia->apellidos,
+            'usuario_recibe_info' =>  $this->usuario_recibe->nombres.' '.$this->usuario_recibe->apellidos,
+            'usuario_recibe' => $this->usuario_recibe_id,
             'usuario_envia_id' => $this->usuario_envia_id,
             'usuario_recive_id' => $this->usuario_recibe_id,
+            'estado' => $this->estado,
+            'estado_info' => $this->estado_info->descripcion,
+            'cuenta' => $this->cuenta,
+            'tarea' => $this->id_tarea,
+            'tarea_info' => $this->tarea_info == null? 'SIN TAREA':$this->tarea_info->titulo,
             'monto' => $this->monto,
             'motivo' => $this->motivo,
-            'comprobante' => $this->comprobante,
+            'comprobante' => url($this->comprobante),
         ];
         return $modelo;
     }
