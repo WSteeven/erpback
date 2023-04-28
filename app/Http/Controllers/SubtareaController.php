@@ -188,6 +188,7 @@ class SubtareaController extends Controller
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
+        event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo'));
     }
 
@@ -200,6 +201,9 @@ class SubtareaController extends Controller
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
+
+        event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
+
         return response()->json(compact('modelo'));
     }
 
@@ -217,6 +221,7 @@ class SubtareaController extends Controller
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
+        event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo'));
     }
 
@@ -232,6 +237,7 @@ class SubtareaController extends Controller
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
+        event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo'));
     }
 
@@ -250,6 +256,7 @@ class SubtareaController extends Controller
         // event(new SubtareaEvent('Subtarea suspendida!', $subtarea, 1));
 
         $modelo = new SubtareaResource($subtarea->refresh());
+        event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo'));
     }
 

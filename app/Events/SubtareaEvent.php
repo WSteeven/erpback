@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Empleado;
+use App\Models\MotivoSuspendido;
 use App\Models\Notificacion;
 use App\Models\Subtarea;
 use Illuminate\Broadcasting\Channel;
@@ -15,6 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
+use Illuminate\Support\Facades\DB;
 
 class SubtareaEvent implements ShouldBroadcast
 {
@@ -35,7 +37,7 @@ class SubtareaEvent implements ShouldBroadcast
         $this->subtarea = $subtarea;
         $this->rolReceptor = $rolReceptor;
 
-        $ruta = env('SPA_URL', 'https://sistema.jpconstrucred.com') . '/tarea';
+        $ruta = '/trabajo-agendado';
 
         $originador = $this->obtenerRemitente($rolReceptor);
         $destinatario = $this->obtenerDestinatario($rolReceptor);
@@ -43,18 +45,6 @@ class SubtareaEvent implements ShouldBroadcast
 
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::SUBTAREA, $originador, $destinatario, $subtarea);
     }
-
-    /* public static function crearNotificacion($mensaje, $originador, $destinatario)
-    {
-        $notificacion = Notificacion::create([
-            'mensaje' => $mensaje,
-            'link' => 'subtareas',
-            'per_originador_id' => $originador,
-            'per_destinatario_id' => $destinatario,
-            'tipo_notificacion' => TiposNotificaciones::SUBTAREA,
-        ]);
-        return $notificacion;
-    }*/
 
     /**
      * Get the channels the event should broadcast on.
@@ -64,7 +54,7 @@ class SubtareaEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         // return new PrivateChannel('channel-name');
-        $canal = 'subtareas-tracker-15'; //. $this->obtenerDestinatario($this->rolReceptor);
+        $canal = 'subtareas-tracker-' . $this->obtenerDestinatario($this->rolReceptor);
         return new Channel($canal);
     }
 
@@ -112,7 +102,17 @@ class SubtareaEvent implements ShouldBroadcast
     {
         switch ($this->subtarea->estado) {
             case Subtarea::AGENDADO:
-                return Empleado::extraerNombresApellidos($this->subtarea->tarea->coordinador) . ' le ha agendado la subtarea ' . $this->subtarea->codigo_subtarea;
+                return Empleado::extraerNombresApellidos($this->subtarea->tarea->coordinador) . ' le ha agendado la subtarea ' . $this->subtarea->codigo_subtarea . '.';
+            case Subtarea::EJECUTANDO:
+                return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha comenzado a EJECUTAR la subtarea ' . $this->subtarea->codigo_subtarea . '.';
+            case Subtarea::PAUSADO:
+                return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha PAUSADO la subtarea ' . $this->subtarea->codigo_subtarea . '.';
+            case Subtarea::REALIZADO:
+                return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha REALIZADO la subtarea ' . $this->subtarea->codigo_subtarea . '.';
+            case Subtarea::SUSPENDIDO:
+                $motivo = DB::table('motivo_suspendido_subtarea')->where('subtarea_id', $this->subtarea->id)->latest()->first();
+                Log::channel('testing')->info('Log', compact('motivo'));
+                return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha SUSPENDIDO la subtarea ' . $this->subtarea->codigo_subtarea . '. por el motivo "' . MotivoSuspendido::find($motivo->motivo_suspendido_id)->motivo . '"';
         }
     }
 }
