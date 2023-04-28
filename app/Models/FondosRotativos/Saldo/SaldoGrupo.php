@@ -7,6 +7,7 @@ use App\Models\FondosRotativos\Saldo\TipoSaldo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\TipoFondo;
 use App\Models\User;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use Illuminate\Support\Facades\Auth;
+
 class SaldoGrupo extends  Model implements Auditable
 {
     use HasFactory;
@@ -37,57 +39,83 @@ class SaldoGrupo extends  Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
-    public static function empaquetarCombinado($arreglo){
+    public static function empaquetarCombinado($arreglo, $empleado,$fecha, $saldo_anterior)
+    {
         $results = [];
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
+            $results[$id] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
+            $id+= 1;
             foreach ($arreglo as $saldo) {
+                $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                $gasto = SaldoGrupo::gasto($saldo, $empleado);
                 $row['item'] = $id + 1;
-                $row['fecha'] = isset($saldo->fecha_viat)? date("d-m-Y", strtotime( $saldo->fecha_viat)):date('d-m-Y', strtotime($saldo['fecha']));
+                $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat']: $saldo['fecha'];
+                $row['fecha_creacion'] = $saldo['created_at'];
                 $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
-                $row['ingreso'] = SaldoGrupo::ingreso($saldo);
-                $row['gasto'] = SaldoGrupo::gasto($saldo);
-                $row['saldo'] = SaldoGrupo::saldo($saldo);
+                $row['ingreso'] = $ingreso;
+                $row['gasto'] = $gasto;
                 $results[$id] = $row;
                 $id++;
             }
         }
         return $results;
     }
-    private static function ingreso($saldo){
-        if(isset($saldo['descripcion_acreditacion'])){
-           return $saldo['monto'];
+    private static function saldoAnterior($id, $fecha, $saldo_anterior){
+        $row = [];
+        $row['item'] = $id + 1;
+        $row['fecha'] =$fecha;
+        $row['fecha_creacion'] = $saldo_anterior == null ? $fecha :$saldo_anterior->created_at;
+        $row['descripcion'] = 'Saldo Anterior';
+        $row['ingreso'] = 0;
+        $row['gasto'] = 0;
+        $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
+        return $row;
+    }
+    private static function ingreso($saldo, $empleado)
+    {
+        if (isset($saldo['descripcion_acreditacion'])) {
+            return $saldo['monto'];
+        }
+        if (isset($saldo['usuario_recibe_id'])) {
+            if ($saldo['usuario_recibe_id'] == $empleado)
+                return $saldo['monto'];
         }
         return 0;
     }
-    private static function gasto($saldo){
-        if(isset( $saldo['detalle_info']['descripcion'])){
-           return $saldo['total'];
+    private static function gasto($saldo, $empleado)
+    {
+        if (isset($saldo['detalle_info']['descripcion'])) {
+            return $saldo['total'];
         }
-
+        if (isset($saldo['usuario_envia_id'])) {
+            if ($saldo['usuario_envia_id'] == $empleado)
+                return $saldo['monto'];
+        }
+        return 0;
     }
-    private static function saldo($saldo){}
     private static function descripcion_saldo($saldo)
     {
-        if(isset($saldo['descripcion_acreditacion'])){
-            return 'Acreditacion: '.$saldo['descripcion_acreditacion'];
+        if (isset($saldo['descripcion_acreditacion'])) {
+            return 'Acreditacion: ' . $saldo['descripcion_acreditacion'];
         }
-        if(isset($saldo['motivo'])){
+        if (isset($saldo['motivo'])) {
             $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-            return 'Transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos ;
+            return 'Transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
         }
-        if(isset( $saldo['detalle_info']['descripcion'])){
+        if (isset($saldo['detalle_info']['descripcion'])) {
             $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-            return $saldo['detalle_info']['descripcion'].': '.$sub_detalle_info;
+            return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
         }
         return '';
     }
-    private static function subdetalle_info($subdetalle_info){
+    private static function subdetalle_info($subdetalle_info)
+    {
         $descripcion = '';
-        $i=0;
-        foreach($subdetalle_info as $sub_detalle){
+        $i = 0;
+        foreach ($subdetalle_info as $sub_detalle) {
             $descripcion .= $sub_detalle['descripcion'];
             $i++;
             if ($i !== count($subdetalle_info)) {
@@ -149,10 +177,11 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return $results;
     }
-    static function  ordenar_por_nombres_apellidos($a, $b)
+    private static function  ordenar_por_nombres_apellidos($a, $b)
     {
         $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
     }
+
 }

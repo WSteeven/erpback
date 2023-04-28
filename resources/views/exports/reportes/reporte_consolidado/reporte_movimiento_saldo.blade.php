@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte Movimiento de Saldo</title>
+    <title>REPORTE ESTADO DE CUENTA</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -95,8 +95,7 @@
                     <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE CONSOLIDADO
-                            {{ ' DEL ' . date("d-m-Y", strtotime( $fecha_inicio)) . ' AL ' . date("d-m-Y", strtotime( $fecha_fin)) }}</b></div>
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE ESTADO DE CUENTA</b></div>
                 </td>
             </tr>
         </table>
@@ -123,151 +122,22 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
             <tr height="29">
                 <td height="15">
-                    <div align="center">
-                        <table width="100%">
-                            <tr>
-                                <td height="55px;">
-                                    <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
-                                        <tr>
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                                <div align="center"><strong>Nombres y Apellidos</strong></div>
-                                            </td>
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                                                <div align="center"><strong>Usuario</strong></div>
-                                            </td>
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
-                                                <div align="center"><strong>Fecha Consolidado</strong></div>
-                                            </td>
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                                <div align="center"><strong>Descripci&oacute;n</strong></div>
-                                            </td>
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                                                <div align="center"><strong>Monto</strong></div>
-                                            </td>
-                                        </tr>
-                                        <!--Saldo Inicial-->
-                                            <tr>
-                                                <td style="font-size:10px" width="29%">
-                                                    <div align="left">
-                                                        {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px" width="15%">
-                                                    <div align="left">{{ $usuario->name }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px" width="17%">
-                                                    <div align="center">{{ date("d-m-Y", strtotime( $fecha_anterior)) }}</div>
-                                                </td>
-                                                <td style="font-size:10px" width="29%">
-                                                    <div align="left">Saldo Inicial</div>
-                                                </td>
-                                                <td style="font-size:10px" width="10%">
-                                                    <div align="right">
-                                                        {{ number_format($saldo_anterior, 2, ',', '.') }}</div>
-                                                </td>
-                                            </tr>
-                                        <!--Fin Saldo Inicial-->
-                                        <!--Acreditaciones-->
-                                        <tr>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">
-                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio)) . ' ' . date("d-m-Y", strtotime( $fecha_fin)) }}</div>
-                                            </td>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">Acreditaciones</div>
-                                            </td>
-                                            <td style="font-size:10px" width="10%">
-                                                <div align="right">
-                                                    {{ number_format($acreditaciones, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                        <!--Fin Acreditaciones-->
-                                        <!--Transferencias-->
-                                        <tr>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">
-                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
-                                            </td>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">Transferencias Enviadas</div>
-                                            </td>
-                                            <td style="font-size:10px" width="10%">
-                                                <div align="right">
-                                                    {{ number_format($transferencia, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                        <!--Fin Transferencias-->
-                                        <tr>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">
-                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
-                                            </td>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">Transferencias Recibidas</div>
-                                            </td>
-                                            <td style="font-size:10px" width="10%">
-                                                <div align="right">
-                                                    {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                        <!--Gastos-->
-                                        <tr>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">
-                                                    {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
-                                                </div>
-                                            </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
-                                            </td>
-                                            <td style="font-size:10px" width="29%">
-                                                <div align="left">Gastos</div>
-                                            </td>
-                                            <td style="font-size:10px" width="10%">
-                                                <div align="right">
-                                                    {{ number_format($gastos, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                        <!--Fin Gastos-->
-                                        <!--Saldo Final-->
-                                        <tr>
-                                            <td colspan="4" style="font-size:10px"><div align="right"><strong>TOTAL:</strong></div></td>
-                                            <td style="font-size:10px" align="center"><div align="right"  style="margin-right:20px;">{{  number_format($nuevo_saldo, 2, ',', ' ')  }}</div></td>
-                                          </tr>
-                                        <!--Fin Saldo Final-->
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
+                    <div align="left">
+                        <b>Fecha: </b>{{ date("d-m-Y", strtotime( $fecha_inicio)) . ' ' . date("d-m-Y", strtotime( $fecha_fin)) }}
+                    </div>
+                </td>
+            </tr>
+            <tr height="29">
+                <td height="15">
+                    <div align="left">
+                        <b>Empleado:</b> {{ $empleado->nombres.' '.$empleado->apellidos }}
+                    </div>
+                </td>
+            </tr>
+            <tr height="29">
+                <td height="15">
+                    <div align="left">
+                        <b>Saldo Actual:</b>  {{  number_format($nuevo_saldo, 2, ',', ' ')  }}
                     </div>
                 </td>
             </tr>
@@ -297,10 +167,16 @@
                     </td>
                 </tr>
             @else
+                @php
+                $saldo_act = $saldo_anterior;
+                @endphp
                 @foreach ($reportes_unidos as $dato)
+                    @php
+                        $saldo_act = $saldo_act + $dato['ingreso'] - $dato['gasto'];
+                    @endphp
                     <tr>
                         <td style="font-size:10px">
-                            <div align="center">{{$dato['fecha']}}</div>
+                            <div align="center">{{   date("d-m-Y", strtotime( $dato['fecha']))}}</div>
                         </td>
 
                         <td style="font-size:10px">
@@ -316,7 +192,7 @@
                             </div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ number_format($dato['saldo'], 2, ',', '.') }}
+                            <div align="center">{{ isset($dato['saldo'])? number_format($dato['saldo'], 2, ',', '.') :number_format($saldo_act, 2, ',', '.') }}
                             </div>
                         </td>
                     </tr>
