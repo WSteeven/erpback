@@ -209,6 +209,11 @@ class Subtarea extends Model implements Auditable
         return $this->belongsToMany(Empleado::class)->withPivot('es_responsable');
     }
 
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
     /*********
      * Scopes
      *********/

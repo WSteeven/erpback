@@ -64,16 +64,21 @@ class Notificacion extends Model implements Auditable
      * 
      * @return The return is a collection of notifications.
      */
-    public static function crearNotificacion($mensaje,$ruta,$tipo, $originador, $destinatario){
-        $notificacion = Notificacion::create([
-            'mensaje'=>$mensaje,
-            'link'=>$ruta,
-            'per_originador_id'=>$originador,
-            'per_destinatario_id'=>$destinatario,
-            'tipo_notificacion'=>$tipo,
+    public static function crearNotificacion($mensaje, $ruta, $tipo, $originador, $destinatario, $entidad)
+    {
+        //$notificacion = Notificacion::create([
+            $notificacion = $entidad->notificaciones()->create([
+            'mensaje' => $mensaje,
+            'link' => $ruta,
+            'per_originador_id' => $originador,
+            'per_destinatario_id' => $destinatario,
+            'tipo_notificacion' => $tipo,
         ]);
         return $notificacion;
     }
 
-
+    public function notificable()
+    {
+        return $this->morphTo();
+    }
 }

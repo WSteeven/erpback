@@ -142,7 +142,7 @@ class SubtareaController extends Controller
         $modelo = new SubtareaResource($subtarea->refresh());
         $mensaje = 'Subtarea reagendada exitosamente!';
 
-        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
+        // event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -173,7 +173,7 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_agendado = Carbon::now();
         $subtarea->save();
 
-        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
+        event(new SubtareaEvent($subtarea, User::ROL_TECNICO));
 
         $modelo = new SubtareaResource($subtarea->refresh());
         return response()->json(compact('modelo'));
@@ -247,7 +247,7 @@ class SubtareaController extends Controller
 
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
-        event(new SubtareaEvent('Subtarea suspendida!', $subtarea, 1));
+        // event(new SubtareaEvent('Subtarea suspendida!', $subtarea, 1));
 
         $modelo = new SubtareaResource($subtarea->refresh());
         return response()->json(compact('modelo'));
@@ -272,7 +272,7 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_creacion = Carbon::now();
         $subtarea->save();
 
-        event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
+        // event(new SubtareaEvent('Subtarea agendada!', $subtarea, 1));
 
         $modelo = new SubtareaResource($subtarea->refresh());
         return response()->json(compact('modelo'));
