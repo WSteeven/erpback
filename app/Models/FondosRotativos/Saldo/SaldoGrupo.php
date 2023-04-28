@@ -51,7 +51,7 @@ class SaldoGrupo extends  Model implements Auditable
                 $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                 $gasto = SaldoGrupo::gasto($saldo, $empleado);
                 $row['item'] = $id + 1;
-                $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat']: $saldo['fecha'];
+                $row['fecha'] = $saldo['created_at'];//isset($saldo['fecha_viat']) ? $saldo['fecha_viat']: $saldo['fecha'];
                 $row['fecha_creacion'] = $saldo['created_at'];
                 $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
                 $row['ingreso'] = $ingreso;
@@ -75,8 +75,9 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function ingreso($saldo, $empleado)
     {
-        if (isset($saldo['descripcion_acreditacion'])) {
-            return $saldo['monto'];
+        if(isset($saldo['tipo_saldo'])){
+            if($saldo['tipo_saldo'] == 'Encuadre')
+                return $saldo['saldo_depositado'];
         }
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)
