@@ -440,9 +440,8 @@ class SaldoGrupoController extends Controller
                 ->get();
             //Unir todos los reportes
             $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray());
-            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos);
-            $reportes_unidos = collect($reportes_unidos)->sortBy('fecha')->toArray();
-            Log::channel('testing')->info('Log', ['reportes unidos', $reportes_unidos]);
+            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario,$fecha_anterior , $saldo_anterior);
+            $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
