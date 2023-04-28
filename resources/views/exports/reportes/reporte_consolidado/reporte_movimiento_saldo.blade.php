@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte Consolidado</title>
+    <title>Reporte Movimiento de Saldo</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -272,9 +272,6 @@
                 </td>
             </tr>
         </table>
-        <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
-            <div class="col-md-7" align="center"><b>Detalle de Gastos</b></div>
-        </p>
         <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
             <tr>
                 <td width="15%" bgcolor="#a9d08e">
