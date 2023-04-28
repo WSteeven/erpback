@@ -80,4 +80,8 @@ class GastoCoordinador extends Model implements Auditable
         return $results;
 
     }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 }

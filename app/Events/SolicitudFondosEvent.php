@@ -33,7 +33,7 @@ class SolicitudFondosEvent implements ShouldBroadcast
         $this->solicitud = $solicitud;
         $this->destinatario = $contabilidad->id ;
         $remitente = $this->obtenerEmpleado($this->solicitud->id_usuario)->id;
-        $this->notificacion = Notificacion::crearNotificacion('Te han realizado una solicitud de Fondos Rotativos','/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente,$contabilidad->empleado->id);
+        $this->notificacion = Notificacion::crearNotificacion('Te han realizado una solicitud de Fondos Rotativos','/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente,$contabilidad->empleado->id,$solicitud);
     }
 
     public function obtenerEmpleado($id)

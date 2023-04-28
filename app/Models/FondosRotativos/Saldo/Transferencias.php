@@ -47,6 +47,10 @@ class Transferencias extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
     }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
     private static $whiteListFilter = [
         'usuario_envia_id',
         'usuario_recibe_id',

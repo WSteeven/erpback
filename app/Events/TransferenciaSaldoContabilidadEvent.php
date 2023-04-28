@@ -58,7 +58,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     }
     public function notificar($mensaje, $ruta, $destinatario, $remitente)
     {
-        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia);
     }
     /**
      * Get the channels the event should broadcast on.

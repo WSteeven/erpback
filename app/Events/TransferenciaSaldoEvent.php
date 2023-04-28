@@ -49,7 +49,7 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
                 $mensaje = 'Tienes un gasto por aceptar';
                 break;
         }
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia);
     }
 
     /**
