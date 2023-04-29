@@ -137,10 +137,12 @@ class GastoController extends Controller
             ->where('estado', '=', 1)
             ->lockForUpdate()
             ->get();
-            if (count($bloqueo_gastos_aprob)>0) {
-                throw ValidationException::withMessages([
-                    '404' => ['comprobante o factura ya existe'],
-                ]);
+            if ($request->detalle != 21) {
+                if (count($bloqueo_gastos_aprob) > 0) {
+                    throw ValidationException::withMessages([
+                        '404' => ['comprobante o factura ya existe'],
+                    ]);
+                }
             }
             $bloqueo_gastos_pend= DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
@@ -149,11 +151,13 @@ class GastoController extends Controller
                 ->where('estado', '=', 3)
                 ->lockForUpdate()
                 ->get();
-                if (count($bloqueo_gastos_pend)>0) {
+             if ($request->detalle != 21) {
+                if (count($bloqueo_gastos_pend) > 0) {
                     throw ValidationException::withMessages([
                         '404' => ['comprobante o factura ya existe'],
                     ]);
                 }
+            }
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
@@ -179,12 +183,12 @@ class GastoController extends Controller
             $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
             DB::table('gastos')
-            ->where('ruc', '=', $datos['ruc'])
-            ->where('factura', '=', $datos['factura'])
-            ->where('num_comprobante', '=', $datos['num_comprobante'])
-            ->where('estado', '=', 1)
-            ->sharedLock()
-            ->get();
+                ->where('ruc', '=', $datos['ruc'])
+                ->where('factura', '=', $datos['factura'])
+                ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->where('estado', '=', 1)
+                ->sharedLock()
+                ->get();
             DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
                 ->where('factura', '=', $datos['factura'])
