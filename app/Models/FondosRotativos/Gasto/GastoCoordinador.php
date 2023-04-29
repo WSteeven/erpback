@@ -5,6 +5,7 @@ namespace App\Models\FondosRotativos\Gasto;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\Grupo;
+use App\Models\Notificacion;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -79,5 +80,9 @@ class GastoCoordinador extends Model implements Auditable
         }
         return $results;
 
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }

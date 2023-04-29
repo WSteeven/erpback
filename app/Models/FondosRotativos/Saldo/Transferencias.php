@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
+use App\Models\Notificacion;
 use App\Models\Tarea;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -46,6 +47,10 @@ class Transferencias extends Model implements Auditable
     public function usuario_recibe()
     {
         return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
     private static $whiteListFilter = [
         'usuario_envia_id',

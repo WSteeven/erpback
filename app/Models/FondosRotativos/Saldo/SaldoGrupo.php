@@ -75,9 +75,8 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function ingreso($saldo, $empleado)
     {
-        if(isset($saldo['tipo_saldo'])){
-            if($saldo['tipo_saldo'] == 'Encuadre')
-                return $saldo['saldo_depositado'];
+        if (isset($saldo['descripcion_acreditacion'])) {
+            return $saldo['monto'];
         }
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)

@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
@@ -115,6 +116,10 @@ class Gasto extends Model implements Auditable
     public function gasto_vehiculo_info()
     {
         return $this->hasOne(GastoVehiculo::class, 'id_gasto', 'id');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 
     public static function empaquetar($gastos)
