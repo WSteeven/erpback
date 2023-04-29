@@ -5,6 +5,7 @@ namespace App\Models\FondosRotativos\Gasto;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\Grupo;
+use App\Models\Notificacion;
 use App\Models\User;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

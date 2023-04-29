@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
+use App\Models\Notificacion;
 use App\Models\Tarea;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

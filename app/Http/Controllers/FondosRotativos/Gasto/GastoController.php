@@ -428,7 +428,7 @@ class GastoController extends Controller
             ->where('per_destinatario_id', $gasto->aut_especial)
             ->where('tipo_notificacion', 'AUTORIZACION GASTO')
             ->where('leida', 0)
-            ->whereDate('created_at', $gasto->created_at)
+            ->whereDate('notificable_id', $gasto->id)
             ->first();
         if ($notificacion != null) {
             $notificacion->leida = 1;
