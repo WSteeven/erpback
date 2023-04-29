@@ -11,6 +11,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
 {
@@ -78,9 +79,41 @@ class Subtarea extends Model implements Auditable
         // 'created_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    /*******************
+     * Eloquent Filter
+     *******************/
     private static $whiteListFilter = [
-        '*'
+        '*',
+        /* 'cliente.empresa.razon_social',
+        'proyecto.codigo_proyecto',
+        'tipo_trabajo.descripcion', */
+        // 'canton',
+        'tarea.coordinador.nombres',
+        // 'tarea.codigo_tarea',
+        //'proyecto.canton.canton'
     ];
+
+    private $aliasListFilter = [
+        /* 'cliente.empresa.razon_social' => 'cliente',
+        'proyecto.codigo_proyecto' => 'proyecto',
+        'tipo_trabajo.descripcion' => 'tipo_trabajo', */
+        'tarea.coordinador.nombres' => 'coordinador',   
+        // 'tarea.codigo_tarea' => 'tarea',
+        //'proyecto.canton.canton' => 'canton',
+    ];
+
+    public function EloquentFilterCustomDetection(): array
+    {
+        return [
+            /* TrabajoClienteWRLC::class,
+            TrabajoProyectoWRLC::class,
+            TrabajoTipoTrabajoWRLC::class,
+            TrabajoFechaHoraCreacionWRLC::class,
+            TrabajoCantonWRLC::class, */
+            TrabajoCoordinadorWRLC::class,
+            // TrabajoTareaWRLC::class,
+        ];
+    }
 
     /* public function setFechaInicioTrabajoAttribute($value)
     {
@@ -234,7 +267,7 @@ class Subtarea extends Model implements Auditable
 
     public function scopeAnterioresNoFinalizados($query)
     {
-        return $query->whereDate('fecha_inicio_trabajo', '<=', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO]);
+        return $query->whereDate('fecha_inicio_trabajo', '<=', Carbon::today())->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO]);
     }
 
     public function scopeNoEstaRealizado($query)
