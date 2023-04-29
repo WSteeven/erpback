@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
 use App\Exports\ConsolidadoExport;
+use App\Exports\EstadoCuentaExport;
 use App\Exports\GastoFiltradoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
@@ -468,7 +469,7 @@ class SaldoGrupoController extends Controller
                 'sub_total' => $sub_total,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
-            $export_excel = new ConsolidadoExport($reportes);
+            $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
