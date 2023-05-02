@@ -26,10 +26,10 @@ class TransaccionEgresoEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($mensaje, $url, $transaccion)
+    public function __construct($mensaje, $url, $transaccion, $informativa)
     {
         $this->transaccion = $transaccion;
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::EGRESO, $transaccion->solicitante_id, $transaccion->responsable_id );
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::EGRESO, $transaccion->solicitante_id, $transaccion->responsable_id, $transaccion, $informativa);
     }
 
     /**

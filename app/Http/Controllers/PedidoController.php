@@ -87,10 +87,10 @@ class PedidoController extends Controller
             if ($pedido->solicitante_id == $pedido->per_autoriza_id && $pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 //No se hace nada y se crea la logica
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
-                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id));
+                event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
-                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id));
+                event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -143,9 +143,11 @@ class PedidoController extends Controller
 
 
             Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
+            Log::channel('testing')->info('Log', ['Verificar las notificaciones',$pedido->latestNotificacion()]);
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
+                $pedido->latestNotificacion()->update(['leida'=>true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido));
+                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
             return response()->json(compact('mensaje', 'modelo'));

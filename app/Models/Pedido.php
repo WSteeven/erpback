@@ -127,6 +127,18 @@ class Pedido extends Model implements Auditable
     }
 
     /**
+     * Relación polimorfica a una notificación.
+     * Un pedido puede tener una o varias notificaciones.
+     */
+    public function notificaciones(){
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function latestNotificacion(){
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES
      * ______________________________________________________________________________________
