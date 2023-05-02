@@ -249,6 +249,12 @@ Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
 
+//Reportes inventario
+Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
+Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
+Route::get('reporte-inventario/kardex/{id}', [InventarioController::class, 'kardex']);
+
+
 Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
@@ -282,3 +288,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
 
 });
+
+
+/**
+ * Auditorias
+ */
+Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('auth:sanctum');

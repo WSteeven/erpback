@@ -44,7 +44,6 @@ class PedidoCreadoEvent implements ShouldBroadcast
     {
         return [
             new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id),
-            new Channel('pedidos-atendidos-tracker-' . $this->pedido->solicitante_id),
         ];
     }
 

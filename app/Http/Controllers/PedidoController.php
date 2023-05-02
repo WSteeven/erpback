@@ -9,6 +9,7 @@ use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\Pedido;
+use App\Models\Producto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -231,5 +232,14 @@ class PedidoController extends Controller
         $pdf = Pdf::loadView('pedidos.example');
         $pdf->render();
         return $pdf->stream();
+    }
+
+    public function auditoria(){
+        $producto = Producto::find(1);
+        // $results = $producto->audits; //obtiene todos los eventos de un registro
+        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento
+        $results = $producto->audits()->latest()->first()->getMetadata(); //obtiene los metadatos de un evento
+        $results = $producto->audits()->latest()->first()->getModified(); //obtiene las propiedades modificadas del registro afectado
+        return response()->json(compact('results'));
     }
 }
