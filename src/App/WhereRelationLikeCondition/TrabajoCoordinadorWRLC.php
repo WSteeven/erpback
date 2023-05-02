@@ -15,7 +15,7 @@ class TrabajoCoordinadorWRLC
      */
     public static function detect($field, $params, $is_override_method = false): ?string
     {
-        if (!empty($params['like']) && $field == 'coordinador.nombres') {
+        if (!empty($params['like']) && $field == 'tarea.coordinador.nombres') {
             $method = TrabajoCoordinadorWRLCQ::class;
         }
 

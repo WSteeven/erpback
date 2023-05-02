@@ -17,7 +17,7 @@ class TrabajoCoordinadorWRLCQ extends BaseClause
      */
     public function apply($query): Builder
     {
-        return $query->whereHas('coordinador', function ($q) {
+        return $query->tarea()->whereHas('coordinador', function ($q) {
             $q->where('nombres', 'like', "%" . $this->values['like'] . "%")->orWhere('apellidos', 'like', "%" . $this->values['like'] . "%");
         });
     }

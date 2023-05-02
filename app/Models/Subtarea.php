@@ -46,11 +46,8 @@ class Subtarea extends Model implements Auditable
         'fecha_hora_ejecucion',
         'fecha_hora_realizado',
         'fecha_hora_finalizacion',
-        // 'fecha_hora_suspendido',
-        // 'motivo_suspendido_id',
         'fecha_hora_cancelado',
         'motivo_cancelado_id',
-
         'es_dependiente',
         'es_ventana',
         'fecha_inicio_trabajo',
@@ -58,7 +55,6 @@ class Subtarea extends Model implements Auditable
         'hora_fin_trabajo',
         'tiempo_estimado',
         'empleados_designados',
-
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -68,15 +64,11 @@ class Subtarea extends Model implements Auditable
         'seguimiento_id',
     ];
 
-    // protected $dateFormat = 'd-m-Y';
-
     protected $casts = [
         'es_dependiente' => 'boolean',
         'es_ventana' => 'boolean',
         'tiene_subtrabajos' => 'boolean',
         'empleados_designados' => 'json',
-        // 'fecha_inicio_trabajo' => 'datetime:d-m-Y',
-        // 'created_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
     /*******************
@@ -97,7 +89,7 @@ class Subtarea extends Model implements Auditable
         /* 'cliente.empresa.razon_social' => 'cliente',
         'proyecto.codigo_proyecto' => 'proyecto',
         'tipo_trabajo.descripcion' => 'tipo_trabajo', */
-        'tarea.coordinador.nombres' => 'coordinador',   
+        'tarea.coordinador.nombres' => 'coordinador',
         // 'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
     ];
