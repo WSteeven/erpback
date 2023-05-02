@@ -73,7 +73,6 @@ class EmpleadoController extends Controller
      */
     public function store(EmpleadoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida: ', $request->all()]);
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
@@ -98,7 +97,7 @@ class EmpleadoController extends Controller
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-            Log::channel('testing')->info('Log', ['Datos validados 2:', $datos]);
+
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -118,7 +117,7 @@ class EmpleadoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage()]);
+            // Log::channel('testing')->info('Log', ['ERROR', $e->getMessage()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
 
@@ -244,7 +243,6 @@ class EmpleadoController extends Controller
             $empleadosGrupoActual = Empleado::where('grupo_id', $request['grupo'])->get();
             $liderActual = $empleadosGrupoActual->filter(fn ($item) => $item->user->hasRole(User::ROL_LIDER_DE_GRUPO));
 
-            Log::channel('testing')->info('Log', ['Lider actual ', $liderActual->first()]);
             if ($liderActual) $liderActual->first()->user->removeRole(User::ROL_LIDER_DE_GRUPO);
             // if ($liderActual[0]) $liderActual[0]->user->removeRole(User::ROL_LIDER_DE_GRUPO);
 

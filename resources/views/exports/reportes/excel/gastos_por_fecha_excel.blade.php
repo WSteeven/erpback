@@ -207,7 +207,7 @@
                                                     <div align="center">{{ $dato->factura }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->ruc }}</div>
+                                                    <div align="center">{{ $dato->ruc.' .' }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">   {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}</div>

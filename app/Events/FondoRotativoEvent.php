@@ -49,7 +49,7 @@ class FondoRotativoEvent implements ShouldBroadcast
         }
         $destinatario = $gasto->estado!=3? $gasto->aut_especial:$gasto->id_usuario;
         $remitente = $gasto->estado!=3? $gasto->id_usuario:$gasto->aut_especial;
-        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente);
+      $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$gasto);
     }
     public function mostrar_mensaje($gasto)
     {

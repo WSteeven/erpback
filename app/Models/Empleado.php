@@ -228,7 +228,7 @@ class Empleado extends Model implements Auditable
         return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
     }
 
-    public static function extraerNombresApellidos($empleado)
+    public static function extraerNombresApellidos(Empleado $empleado)
     {
         if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
