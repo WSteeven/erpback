@@ -130,13 +130,13 @@ class GastoController extends Controller
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             unset($datos['comprobante1']);
-            $bloqueo_gastos_aprob= DB::table('gastos')
-            ->where('ruc', '=', $datos['ruc'])
-            ->where('factura', '=', $datos['factura'])
-            ->where('num_comprobante', '=', $datos['num_comprobante'])
-            ->where('estado', '=', 1)
-            ->lockForUpdate()
-            ->get();
+            $bloqueo_gastos_aprob = DB::table('gastos')
+                ->where('ruc', '=', $datos['ruc'])
+                ->where('factura', '=', $datos['factura'])
+                ->where('num_comprobante', '=', $datos['num_comprobante'])
+                ->where('estado', '=', 1)
+                ->lockForUpdate()
+                ->get();
             if ($request->detalle != 21) {
                 if (count($bloqueo_gastos_aprob) > 0) {
                     throw ValidationException::withMessages([
@@ -144,14 +144,14 @@ class GastoController extends Controller
                     ]);
                 }
             }
-            $bloqueo_gastos_pend= DB::table('gastos')
+            $bloqueo_gastos_pend = DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
                 ->where('factura', '=', $datos['factura'])
                 ->where('num_comprobante', '=', $datos['num_comprobante'])
                 ->where('estado', '=', 3)
                 ->lockForUpdate()
                 ->get();
-             if ($request->detalle != 21) {
+            if ($request->detalle != 21) {
                 if (count($bloqueo_gastos_pend) > 0) {
                     throw ValidationException::withMessages([
                         '404' => ['comprobante o factura ya existe'],
@@ -307,10 +307,25 @@ class GastoController extends Controller
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=',  $datos_usuario_logueado->id)
                 ->get();
-            $transferencia = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
+
+            $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
+                ->with('usuario_recibe', 'usuario_envia')
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            $transferencia_enviada = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
+            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
+                ->with('usuario_recibe', 'usuario_envia')
+                ->where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -328,7 +343,10 @@ class GastoController extends Controller
                 'datos_usuario_logueado',
                 'acreditaciones',
                 'gastos_realizados',
-                'transferencia',
+                'transferencia_enviada',
+                'transferencias_enviadas',
+                'transferencia_recibida',
+                'transferencias_recibidas',
                 'saldo_anterior',
                 'ultimo_saldo',
                 'datos_saldo_depositados_semana',

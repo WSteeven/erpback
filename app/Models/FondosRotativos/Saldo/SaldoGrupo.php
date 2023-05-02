@@ -39,21 +39,23 @@ class SaldoGrupo extends  Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
     }
-    public static function empaquetarCombinado($arreglo, $empleado,$fecha, $saldo_anterior)
+    public static function empaquetarCombinado($arreglo, $empleado, $fecha, $saldo_anterior)
     {
         $results = [];
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
             $results[$id] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
-            $id+= 1;
+            $id += 1;
+            $fecha_anterior = null;
             foreach ($arreglo as $saldo) {
-                $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                $fecha_anterior = isset( SaldoGrupo::gasto($saldo, $empleado)['fecha']) ? SaldoGrupo::gasto($saldo, $empleado)['fecha'] : $saldo['fecha'];
+                $ingreso = SaldoGrupo::ingreso($saldo, $empleado, $fecha_anterior);
+                $gasto = SaldoGrupo::gasto($saldo, $empleado)['valor'];
                 $row['item'] = $id + 1;
-                $row['fecha'] = $saldo['created_at'];//isset($saldo['fecha_viat']) ? $saldo['fecha_viat']: $saldo['fecha'];
+                $row['fecha'] = $saldo['created_at'];
                 $row['fecha_creacion'] = $saldo['created_at'];
-                $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
+                $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo,$fecha_anterior);
                 $row['ingreso'] = $ingreso;
                 $row['gasto'] = $gasto;
                 $results[$id] = $row;
@@ -62,21 +64,37 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return $results;
     }
-    private static function saldoAnterior($id, $fecha, $saldo_anterior){
+    private static function saldoAnterior($id, $fecha, $saldo_anterior)
+    {
         $row = [];
         $row['item'] = $id + 1;
-        $row['fecha'] =$fecha;
-        $row['fecha_creacion'] = $saldo_anterior == null ? $fecha :$saldo_anterior->created_at;
+        $row['fecha'] = $fecha;
+        $row['fecha_creacion'] = $saldo_anterior == null ? $fecha : $saldo_anterior->created_at;
         $row['descripcion'] = 'Saldo Anterior';
         $row['ingreso'] = 0;
         $row['gasto'] = 0;
         $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
         return $row;
     }
-    private static function ingreso($saldo, $empleado)
+    private static function ingreso($saldo, $empleado, $fecha_anterior)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return $saldo['monto'];
+        }
+        if (isset($saldo['saldo_depositado'])) {
+            if ($saldo['tipo_saldo'] == 'Encuadre') {
+                return $saldo['saldo_depositado'];
+            }
+        }
+        if (isset($saldo['detalle_info']['descripcion'])) {
+            $fecha_actual = Carbon::parse( $fecha_anterior);
+            $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
+            if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
+                // La fecha del gasto está dentro de la semana actual
+                if ($saldo['estado'] == 4) {
+                    return $saldo['total'];
+                }
+            }
         }
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)
@@ -86,16 +104,22 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function gasto($saldo, $empleado)
     {
+        $gasto=[];
+        $gasto['valor']=0;
         if (isset($saldo['detalle_info']['descripcion'])) {
-            return $saldo['total'];
+            if ($saldo['estado'] == 1) {
+                $gasto['valor']= $saldo['total'];
+                $gato['fecha']= $saldo['fecha_viat'];
+            }
         }
         if (isset($saldo['usuario_envia_id'])) {
-            if ($saldo['usuario_envia_id'] == $empleado)
-                return $saldo['monto'];
+            if ($saldo['usuario_envia_id'] == $empleado){
+                $gasto['valor']= $saldo['monto'];
+            }
         }
-        return 0;
+        return $gasto;
     }
-    private static function descripcion_saldo($saldo)
+    private static function descripcion_saldo($saldo,$fecha_anterior)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return 'Acreditacion: ' . $saldo['descripcion_acreditacion'];
@@ -105,9 +129,26 @@ class SaldoGrupo extends  Model implements Auditable
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
             return 'Transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
         }
+        if (isset($saldo['tipo_saldo'])) {
+            if ($saldo['tipo_saldo'] == 'Encuadre') {
+                return $saldo['tipo_saldo'];
+            }
+        }
         if (isset($saldo['detalle_info']['descripcion'])) {
-            $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-            return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+            if ($saldo['estado'] == 1) {
+                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+            }
+            $fecha_actual = $fecha_anterior;//Carbon::parse($fecha_anterior);
+            $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
+            if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
+                // La fecha del gasto está dentro de la semana actual
+                if ($saldo['estado'] == 4) {
+                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                return 'Anulacion de gasto: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
+            }
+
         }
         return '';
     }
@@ -183,5 +224,4 @@ class SaldoGrupo extends  Model implements Auditable
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
     }
-
 }

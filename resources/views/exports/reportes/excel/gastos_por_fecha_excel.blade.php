@@ -115,10 +115,18 @@
                                     </tr>
                                     <tr>
                                         <td colspan="3" style="font-size:10px">
-                                            <div align="right"><strong>TRANSFERENCIAS REALIZADAS:&nbsp;</strong></div>
+                                            <div align="right"><strong>TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
-                                            <div align="right"> {{ number_format($transferencia, 2, ',', ' ') }} </div>
+                                            <div align="right"> {{ number_format($transferencia_enviada, 2, ',', ' ') }} </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" style="font-size:10px">
+                                            <div align="right"><strong>TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($transferencia_recibida, 2, ',', ' ') }} </div>
                                         </td>
                                     </tr>
                                     <tr>
