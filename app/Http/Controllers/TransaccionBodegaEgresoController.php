@@ -30,6 +30,7 @@ use App\Http\Resources\TransaccionBodegaResource;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
+use App\Models\Pedido;
 use App\Models\Producto;
 use Src\App\TransaccionBodegaEgresoService;
 
@@ -231,6 +232,8 @@ class TransaccionBodegaEgresoController extends Controller
 
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
+                $pedido = Pedido::find($transaccion->pedido_id);
+                $pedido->latestNotificacion()->update(['leida'=>true]);
                 TransaccionBodega::actualizarPedido($transaccion);
             }
             // Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
@@ -238,17 +241,17 @@ class TransaccionBodegaEgresoController extends Controller
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
             $modelo = new TransaccionBodegaResource($transaccion);
-            
-            //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante, 
+
+            //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
             if(!$transaccion->transferencia_id){
                 //creamos el comprobante
                 $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
                 //lanzar el evento de la notificación
                 $msg = 'Se ha generado un despacho de materiales a tu nombre, con transacción N°' . $transaccion->id . ', solicitado por ' . $modelo->solicitante->nombres . ' ' . $modelo->solicitante->apellidos . '. Por favor verifica y firma el movimiento';
-                event(new TransaccionEgresoEvent($msg, $url, $transaccion));
+                event(new TransaccionEgresoEvent($msg, $url, $transaccion, false));
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            
+
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);

@@ -33,11 +33,14 @@ class FondoRotativoEvent implements ShouldBroadcast
     {
         $ruta = $gasto->estado == 3? '/autorizar-gasto':'/gasto';
         $this->gasto = $gasto;
+        $informativa = false;
         switch ($gasto->estado) {
             case 1:
+                $informativa = true;
                $mensaje = 'Te han aprobado un gasto';
                 break;
             case 2:
+                $informativa = true;
                 $mensaje = 'Te han rechazado un gasto por el siguiente motivo: '.$gasto->detalle_estado;
                 break;
             case 3:
@@ -49,7 +52,7 @@ class FondoRotativoEvent implements ShouldBroadcast
         }
         $destinatario = $gasto->estado!=3? $gasto->aut_especial:$gasto->id_usuario;
         $remitente = $gasto->estado!=3? $gasto->id_usuario:$gasto->aut_especial;
-      $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$gasto);
+      $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$gasto,$informativa);
     }
     public function mostrar_mensaje($gasto)
     {

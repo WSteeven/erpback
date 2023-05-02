@@ -7,6 +7,8 @@ use App\Http\Resources\DetalleProductoResource;
 use App\Models\ComputadoraTelefono;
 use App\Models\DetalleProducto;
 use App\Models\DetallesProducto;
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
+use App\Models\Inventario;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,21 +31,30 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
         $search = $request['search'];
+        $sucursal = $request['sucursal_id'];
         $page = $request['page'];
-        $campos = explode(',', $request['campos']);
+        if($request->campos)$campos = explode(',', $request['campos']);
         $results = [];
-        if ($request['campos']) {
+        if (!empty($campos)) {
+            Log::channel('testing')->info('Log', ['Que tiene campos:', $campos]);
+            Log::channel('testing')->info('Log', ['Pasó por el if de campos:']);
             $results = DetalleProducto::ignoreRequest(['campos', 'search'])->filter()->get($campos);
-            // $results = DetalleProductoResource::collection($results);
             // return response()->json(compact('results'));
         } else if ($page) {
+            Log::channel('testing')->info('Log', ['Pasó por el if de page:']);
             $results = DetalleProducto::simplePaginate($request['offset']);
-            // DetalleProductoResource::collection($results);
-            // $results->appends(['offset' => $request['offset']]);
         } else if ($search) {
+            Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
             $results = DetalleProducto::search($search)->get();
-        } else {
+        } else if($sucursal){
+            Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
+            if($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
+            else $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+            $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
+        }else {
+            Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
             // $results = DetalleProductoResource::collection($results);
         }

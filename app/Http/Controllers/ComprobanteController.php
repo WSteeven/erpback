@@ -62,7 +62,9 @@ class ComprobanteController extends Controller
         $comprobante->update($datos);
 
         if ($comprobante->firmada) {
-            TransaccionBodega::asignarMateriales(TransaccionBodega::find($comprobante->transaccion_id));
+            $transaccion = TransaccionBodega::find($comprobante->transaccion_id);
+            $transaccion->latestNotificacion()->update(['leida'=>true]);
+            TransaccionBodega::asignarMateriales($transaccion);
         }
 
         $modelo = new ComprobanteResource($comprobante);

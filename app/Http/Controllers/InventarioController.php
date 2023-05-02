@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\InventarioExport;
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
+use App\Models\DetalleProductoTransaccion;
 use App\Models\Inventario;
+use App\Models\Motivo;
+use App\Models\TipoTransaccion;
+use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 
 class InventarioController extends Controller
@@ -206,6 +214,69 @@ class InventarioController extends Controller
     {
         $results = VistaInventarioPercha::consultarItemsInventarioPercha();
         $results = VistaInventarioPerchaResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+    /*******************************************
+     * REPORTES
+     ******************************************/
+    /**
+     * Imprimir reporte de inventario
+     * @param string $id sucursal_id
+     */
+    public function reporteInventarioPdf($id){
+        $items = Inventario::where('sucursal_id', $id)->where('cantidad','>', 0)->get();
+        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $items]);
+        $resource = InventarioResource::collection($items);
+        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
+        try {
+            $pdf = Pdf::loadView('reportes.inventario_sucursal', $resource->resolve());
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled'=>true]);
+            $pdf->render();
+            $file = $pdf->output();
+
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+        }
+    }
+    /**
+     * Imprimir reporte de inventario
+     * @param string $id sucursal_id
+     */
+    public function reporteInventarioExcel($id){
+        return Excel::download(new InventarioExport($id), 'reporte.xlsx');
+    }
+
+    public function kardex($id){
+        $results = [];
+        $cont = 0;
+        $row = [];
+        $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
+        $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $itemsInventario = Inventario::where('detalle_id', $id)->get();
+        Log::channel('testing')->info('Log', ['ItemInventario', $itemsInventario, 'ID', $id]);
+        foreach ($itemsInventario as $itemInventario){
+            $movimientos = DetalleProductoTransaccion::where('inventario_id', $itemInventario['id'])->get();
+            Log::channel('testing')->info('Log', ['Movimiento', $movimientos]);
+            foreach($movimientos as $movimiento){
+                Log::channel('testing')->info('Log', ['Movimiento', $movimiento]);
+                $row['id']= $movimiento->inventario->detalle->id;
+                $row['detalle']= $movimiento->inventario->detalle->descripcion;
+                $row['num_transaccion']= $movimiento->transaccion->id;
+                $row['motivo']= $movimiento->transaccion->motivo->nombre;
+                $row['tipo']= $movimiento->transaccion->motivo->tipoTransaccion->nombre;
+                $row['cantidad']= $movimiento->cantidad_inicial;
+                $row['cant_anterior']= $cont==0?0:$row['cant_actual'];
+                $row['cant_actual']= $cont==0?$movimiento->cantidad_inicial:($row['tipo']=='INGRESO'?$row['cant_actual']+$movimiento->cantidad_inicial:$row['cant_actual']-$movimiento->cantidad_inicial);
+                $row['fecha']= date('d/m/Y', strtotime($movimiento->created_at));
+                $results[$cont]=$row;
+                $cont++;
+                // Log::channel('testing')->info('Log', ['Resultados 2 for', $results]);
+            }
+            // Log::channel('testing')->info('Log', ['Resultados 1 for', $results]);
+        }
         return response()->json(compact('results'));
     }
 }

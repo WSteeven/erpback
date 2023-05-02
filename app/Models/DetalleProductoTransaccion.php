@@ -49,9 +49,9 @@ class DetalleProductoTransaccion extends Model implements Auditable
      * Relacion uno a uno(inversa).
      * Un detalle_producto_transaccion pertenece a un detalle_producto.
      */
-    public function detalle()
+    public function inventario()
     {
-        return $this->belongsTo(DetalleProducto::class);
+        return $this->belongsTo(Inventario::class);
     }
 
     /**

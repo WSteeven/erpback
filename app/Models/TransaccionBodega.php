@@ -226,6 +226,17 @@ class TransaccionBodega extends Model implements Auditable
         return $this->hasOne(Comprobante::class, 'transaccion_id');
     }
 
+    /**
+     * Relación polimorfica a una notificación.
+     * Una transaccion puede tener una o varias notificaciones.
+     */
+    public function notificaciones(){
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    public function latestNotificacion(){
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -389,15 +400,16 @@ class TransaccionBodega extends Model implements Auditable
                 // aqui va
             }
 
-            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial
+            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial //ojo con esto porque no se está ejecutando en el flujo correcto, primero se ejecuta esto y luego el observer; y debe ser al contrario.
             if ($pedido->estado_id === $estadoCompleta->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
-                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
             if ($pedido->estado_id === $estadoParcial->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
-                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
+            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido]);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
         }
