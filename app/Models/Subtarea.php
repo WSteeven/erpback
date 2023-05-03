@@ -246,7 +246,6 @@ class Subtarea extends Model implements Auditable
     {
         return $query->where('coordinador_id', Auth::user()->empleado->id);
     }
-
     public function scopeFechaActual($query)
     {
         return $query->whereDate('fecha_inicio_trabajo', '=', Carbon::today());
