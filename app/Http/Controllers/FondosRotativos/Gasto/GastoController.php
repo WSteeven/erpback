@@ -94,11 +94,9 @@ class GastoController extends Controller
      */
     public function store(GastoRequest $request)
     {
-
-        //Log::channel('testing')->info('Log', ['lo que se recibe del front', $request->all()]);
+        DB::beginTransaction();
         try {
             $datos = $request->validated();
-            DB::beginTransaction();
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
@@ -137,7 +135,8 @@ class GastoController extends Controller
                 ->where('estado', '=', 1)
                 ->lockForUpdate()
                 ->get();
-            if ($request->detalle != 21) {
+                $detalles_sin_comprobante = [21,24];
+                if (array_search($request->detalle, $detalles_sin_comprobante) === false) {
                 if (count($bloqueo_gastos_aprob) > 0) {
                     throw ValidationException::withMessages([
                         '404' => ['comprobante o factura ya existe'],
@@ -151,7 +150,7 @@ class GastoController extends Controller
                 ->where('estado', '=', 3)
                 ->lockForUpdate()
                 ->get();
-            if ($request->detalle != 21) {
+            if (array_search($request->detalle, $detalles_sin_comprobante) === false)  {
                 if (count($bloqueo_gastos_pend) > 0) {
                     throw ValidationException::withMessages([
                         '404' => ['comprobante o factura ya existe'],
@@ -201,10 +200,11 @@ class GastoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
     /**
      * Update the specified resource in storage.
