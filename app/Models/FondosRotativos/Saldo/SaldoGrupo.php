@@ -47,22 +47,50 @@ class SaldoGrupo extends  Model implements Auditable
         if (isset($arreglo)) {
             $results[$id] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
             $id += 1;
-            $fecha_anterior = null;
+            $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
-                $fecha_anterior = isset( SaldoGrupo::gasto($saldo, $empleado)['fecha']) ? SaldoGrupo::gasto($saldo, $empleado)['fecha'] : $saldo['fecha'];
-                $ingreso = SaldoGrupo::ingreso($saldo, $empleado, $fecha_anterior);
-                $gasto = SaldoGrupo::gasto($saldo, $empleado)['valor'];
-                $row['item'] = $id + 1;
-                $row['fecha'] = $saldo['created_at'];
-                $row['fecha_creacion'] = $saldo['created_at'];
-                $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo,$fecha_anterior);
-                $row['ingreso'] = $ingreso;
-                $row['gasto'] = $gasto;
-                $results[$id] = $row;
-                $id++;
+                if (isset($saldo['detalle_info']['descripcion'])) {
+                    if ($saldo['estado'] == 4) {
+                        $fecha_anterior = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : $saldo['created_at'];
+                    }
+                    $fecha_actual = Carbon::parse($fecha_anterior);
+                    $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
+                    if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
+                        // La fecha del gasto está dentro de la semana actual
+                        if ($saldo['estado'] == 4) {
+                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                            $results[$id] = $row;
+                            $id++;
+                        } else {
+                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                            $results[$id] = $row;
+                            $id++;
+                        }
+                    }
+                } else {
+                    $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                    $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                    $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                    $results[$id] = $row;
+                    $id++;
+                }
             }
         }
         return $results;
+    }
+    private static function guardar_arreglo($id,$ingreso,$gasto,$saldo){
+        $row = [];
+        $row['item'] = $id + 1;
+        $row['fecha'] = $saldo['created_at'];
+        $row['fecha_creacion'] = $saldo['created_at'];
+        $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
+        $row['ingreso'] = $ingreso;
+        $row['gasto'] = $gasto;
+        return $row;
     }
     private static function saldoAnterior($id, $fecha, $saldo_anterior)
     {
@@ -76,7 +104,7 @@ class SaldoGrupo extends  Model implements Auditable
         $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
         return $row;
     }
-    private static function ingreso($saldo, $empleado, $fecha_anterior)
+    private static function ingreso($saldo, $empleado)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return $saldo['monto'];
@@ -87,15 +115,11 @@ class SaldoGrupo extends  Model implements Auditable
             }
         }
         if (isset($saldo['detalle_info']['descripcion'])) {
-            $fecha_actual = Carbon::parse( $fecha_anterior);
-            $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
-            if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
-                // La fecha del gasto está dentro de la semana actual
-                if ($saldo['estado'] == 4) {
-                    return $saldo['total'];
-                }
+            if ($saldo['estado'] == 4) {
+                return $saldo['total'];
             }
         }
+
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)
                 return $saldo['monto'];
@@ -104,22 +128,19 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function gasto($saldo, $empleado)
     {
-        $gasto=[];
-        $gasto['valor']=0;
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1) {
-                $gasto['valor']= $saldo['total'];
-                $gato['fecha']= $saldo['fecha_viat'];
+                return  $saldo['total'];
             }
         }
         if (isset($saldo['usuario_envia_id'])) {
-            if ($saldo['usuario_envia_id'] == $empleado){
-                $gasto['valor']= $saldo['monto'];
+            if ($saldo['usuario_envia_id'] == $empleado) {
+                return $saldo['monto'];
             }
         }
-        return $gasto;
+        return 0;
     }
-    private static function descripcion_saldo($saldo,$fecha_anterior)
+    private static function descripcion_saldo($saldo)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return 'Acreditacion: ' . $saldo['descripcion_acreditacion'];
@@ -139,16 +160,11 @@ class SaldoGrupo extends  Model implements Auditable
                 $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
                 return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
-            $fecha_actual = $fecha_anterior;//Carbon::parse($fecha_anterior);
-            $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
-            if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
-                // La fecha del gasto está dentro de la semana actual
-                if ($saldo['estado'] == 4) {
-                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-                return 'Anulacion de gasto: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
-                }
-            }
 
+            if ($saldo['estado'] == 4) {
+                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                return 'Anulacion de gasto: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+            }
         }
         return '';
     }

@@ -423,11 +423,11 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', '=',  $request->usuario)
                 ->get();
             //Gastos Anulados
-          /*  $gastos_anulados_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $gastos_anulados_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
             ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
             ->where('estado', '=', 4)
             ->where('id_usuario', '=',  $request->usuario)
-            ->get();*/
+            ->get();
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -445,12 +445,12 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            /*$encuadres_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+            $encuadres_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
             ->where('tipo_saldo', 'Encuadre')
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();*/
+                ->get();
             //Unir todos los reportes
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray());
+            $reportes_unidos = array_merge($gastos_reporte->toArray(),$gastos_anulados_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario,$fecha_anterior , $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
@@ -461,7 +461,7 @@ class SaldoGrupoController extends Controller
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
-            $nombre_reporte = 'reporte_consolidado';
+            $nombre_reporte = 'reporte_estado_cuenta';
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
