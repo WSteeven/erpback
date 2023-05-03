@@ -511,5 +511,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.editar.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.roles'])->syncRoles([$administrador]);
+        // --------------------------
+        // Modulo de Recursos Humanos
+        // --------------------------
+        //Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.permiso_nomina'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.permiso_nomina'])->syncRoles([$empleado]);
+
     }
 }
