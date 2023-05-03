@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('estado_permiso_empleados', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
             $table->timestamps();
         });
     }
