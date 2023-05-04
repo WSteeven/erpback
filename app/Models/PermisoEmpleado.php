@@ -14,17 +14,25 @@ class PermisoEmpleado extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'permiso_empleados';
+    const APROBADO = 1;
+    const RECHAZADO = 2;
+    const PENDIENTE = 3;
+    const CANCELADO = 4;
     protected $fillable = [
-        'motivo_id','fecha_inicio','fecha_fin','justificacion','estado_permiso_id'
+        'motivo_id','fecha_inicio','fecha_fin','justificacion','estado_permiso_id', 'empleado_id'
     ];
 
     private static $whiteListFilter = [
         'id',
-        'nombre',
+        'empleado',
         'motivo',
         'estado_permiso',
         'justificacion',
         'fecha_inicio',
         'fecha_fin',
     ];
+    public function empleado()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_id','id');
+    }
 }

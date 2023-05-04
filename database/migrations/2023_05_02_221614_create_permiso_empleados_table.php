@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('justificacion');
             $table->unsignedBigInteger('estado_permiso_id');
             $table->foreign('estado_permiso_id')->references('id')->on('estado_permiso_empleados');
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->timestamps();
         });
     }
