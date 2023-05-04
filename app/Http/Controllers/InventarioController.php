@@ -247,6 +247,7 @@ class InventarioController extends Controller
      */
     public function reporteInventarioExcel($id){
         return Excel::download(new InventarioExport($id), 'reporte.xlsx');
+        // return (new InventarioExport($id))->download('reporte.xlsx', Excel::XLSX);
     }
 
     public function kardex($id){

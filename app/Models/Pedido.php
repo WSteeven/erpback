@@ -29,6 +29,10 @@ class Pedido extends Model implements Auditable
         'tarea_id',
         'sucursal_id',
         'estado_id',
+        'evidencia1',
+        'evidencia2',
+        'per_retira_id',
+        'cliente_id',
     ];
 
     protected $casts = [
@@ -89,6 +93,15 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
+    
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos son retirados por una persona
+     */
+    public function retira()
+    {
+        return $this->belongsTo(Empleado::class, 'per_retira_id', 'id');
+    }
 
     /**
      * Relacion uno a muchos (inversa).
@@ -97,6 +110,15 @@ class Pedido extends Model implements Auditable
     public function autoriza()
     {
         return $this->belongsTo(Empleado::class, 'per_autoriza_id', 'id');
+    }
+    
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos son autorizados por una persona
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class, 'cliente_id', 'id');
     }
 
     /**

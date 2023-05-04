@@ -20,4 +20,5 @@ enum RutasStorage: string
     case TRANSFERENCIASALDO = 'public/transferenciasSaldo';
     case SEGUIMIENTO = 'public/seguimiento'; // fotografias
     case ARCHIVOS_SEGUIMIENTO = 'public/archivos_seguimiento';
+	case PEDIDOS = 'public/pedidos/evidencias';
 }
