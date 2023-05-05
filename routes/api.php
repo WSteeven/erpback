@@ -74,9 +74,10 @@ use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
-use App\Http\Controllers\RecursosHumanos\EstadoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\MotivoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TrabajoController;
 use Illuminate\Support\Facades\Route;
@@ -86,6 +87,7 @@ use App\Models\Canton;
 use App\Models\MotivoPermisoEmpleado;
 use App\Models\Notificacion;
 use App\Models\Parroquia;
+use App\Models\TipoContrato;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -195,6 +197,7 @@ Route::apiResources(
         'recursos-humanos/motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
         'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
         'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
+        'recursos-humanos/tipo_contrato' => TipoContratoController::class,
     ],
     [
         'parameters' => [

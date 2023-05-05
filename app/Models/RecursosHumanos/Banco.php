@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

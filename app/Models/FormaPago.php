@@ -8,13 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-
-class MotivoPermisoEmpleado extends Model implements Auditable
+class FormaPago extends Model
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'motivo_permiso_empleados';
+    protected $table = 'forma_pagos';
     protected $fillable = [
         'nombre'
     ];

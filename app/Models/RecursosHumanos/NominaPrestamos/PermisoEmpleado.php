@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,8 +32,17 @@ class PermisoEmpleado extends Model implements Auditable
         'fecha_inicio',
         'fecha_fin',
     ];
-    public function empleado()
+    public function motivo_info()
+    {
+        return $this->belongsTo(MotivoPermisoEmpleado::class, 'motivo_id','id');
+    }
+    public function estado_permiso_info()
+    {
+        return $this->belongsTo(EstadoPermisoEmpleado::class, 'estado_permiso_id','id');
+    }
+    public function empleado_info()
     {
         return $this->belongsTo(Empleado::class, 'empleado_id','id');
     }
+
 }

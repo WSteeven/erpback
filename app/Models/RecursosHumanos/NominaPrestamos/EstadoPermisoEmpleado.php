@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class EstadoPermisoEmpleado extends Model
+class EstadoPermisoEmpleado extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;

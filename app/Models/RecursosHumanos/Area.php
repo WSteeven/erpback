@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\RecursosHumanos;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,13 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-
-class Sede extends Model implements Auditable
+class Area extends Model  implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'sedes';
+    protected $table = 'areas';
     protected $fillable = [
         'nombre'
     ];
@@ -23,4 +22,6 @@ class Sede extends Model implements Auditable
         'id',
         'nombre',
     ];
+
+
 }

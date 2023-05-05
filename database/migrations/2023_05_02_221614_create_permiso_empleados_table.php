@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreign('estado_permiso_id')->references('id')->on('estado_permiso_empleados');
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
+            $table->string('observacion')->nullable();
             $table->timestamps();
         });
     }

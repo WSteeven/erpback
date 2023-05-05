@@ -13,7 +13,7 @@ class TipoContrato extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'tipo_contratos';
+    protected $table = 'tipo_contrato';
     protected $fillable = [
         'nombre'
     ];

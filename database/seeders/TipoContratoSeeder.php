@@ -16,9 +16,10 @@ class TipoContratoSeeder extends Seeder
     public function run()
     {
         TipoContrato::insert(
-            ['nombre' => 'Indefinido'],
+            [['nombre' => 'Indefinido'],
             ['nombre' => 'Emergente'],
-            ['nombre' => 'Obra o Tipo de Negociación']
+            ['nombre' => 'Obra o Servicio Determinado'],
+            ['nombre' => 'Contrato de trabajo eventual']]
         );
     }
 }

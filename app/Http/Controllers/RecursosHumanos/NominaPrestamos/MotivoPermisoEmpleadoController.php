@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\RecursosHumanos;
+namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Models\MotivoPermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleado;
 use Illuminate\Http\Request;
 
 class MotivoPermisoEmpleadoController extends Controller

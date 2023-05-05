@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sedes', function (Blueprint $table) {
+        Schema::create('forma_pagos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
+            $table->string('nombre', 50);
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sedes');
+        Schema::dropIfExists('forma_pagos');
     }
 };

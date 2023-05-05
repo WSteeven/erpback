@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\RecursosHumanos;
+namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Models\EstadoPermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleado;
+
 use Illuminate\Http\Request;
 
 class EstadoPermisoEmpleadoController extends Controller

@@ -21,8 +21,6 @@ return new class extends Migration
             $table->boolean('tiene_discapacidad');
             $table->text('observacion');
             $table->unsignedBigInteger('sede_id')->nullable();
-            $table->foreign('sede_id')->references('id')->on('sedes');
-            $table->unsignedBigInteger('banco_id')->nullable();
             $table->foreign('banco_id')->references('id')->on('bancos');
             $table->unsignedBigInteger('estado_civil_id')->nullable();
             $table->foreign('estado_civil_id')->references('id')->on('estado_civil');
