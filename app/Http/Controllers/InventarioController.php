@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\InventarioExport;
+use App\Exports\KardexExport;
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
+use App\Http\Resources\InventarioResourceExcel;
 use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\DetalleProductoTransaccion;
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
@@ -90,8 +93,8 @@ class InventarioController extends Controller
             $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
             $results = InventarioResource::collection($results);
         } else {
-            if($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->filter()->get();
-            else $results = Inventario::filter()->get();
+            if ($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->filter()->get();
+            else $results = Inventario::ignoreRequest(['search'])->filter()->get();
             $results = InventarioResource::collection($results);
         }
         // if ($sucursal) {
@@ -113,14 +116,14 @@ class InventarioController extends Controller
         $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
         // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
         //Respuesta
-        Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
+        // Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
         $item = Inventario::where('detalle_id', $request->detalle_id)
             ->where('sucursal_id', $request->sucursal_id)
             ->where('cliente_id', $request->cliente_id)
             ->where('condicion_id', $request->condicion)
             ->first();
         if ($item) {
-            Log::channel('testing')->info('Log', ['item encontrado', $item]);
+            // Log::channel('testing')->info('Log', ['item encontrado', $item]);
             $datos['cantidad'] = $request->cantidad + $item->cantidad;
             $item->update($datos);
             $modelo = $item->refresh();
@@ -176,7 +179,7 @@ class InventarioController extends Controller
      */
     public function buscar(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request recibida en buscar de inventario', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request recibida en buscar de inventario', $request->all()]);
         $results = [];
         $results = Inventario::where('detalle_id', $request->detalle_id)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->get();
         $results = InventarioResource::collection($results);
@@ -188,10 +191,10 @@ class InventarioController extends Controller
      */
     public function buscarProductosSegunId(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request recibida en buscarProductos de inventario', $request->all()]);
         $results = [];
         $results = Inventario::whereIn('id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
-        Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
+        // Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));
@@ -201,10 +204,10 @@ class InventarioController extends Controller
      */
     public function buscarProductosSegunDetalleId(Request $request)
     {
-        Log::channel('testing')->info('Log', ['request recibida en buscarProductosSegunDetalleID de inventario', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request recibida en buscarProductosSegunDetalleID de inventario', $request->all()]);
         $results = [];
         $results = Inventario::whereIn('detalle_id', $request->detalles)->where('sucursal_id', $request->sucursal_id)->where('cliente_id', $request->cliente_id)->where('cantidad', '>', 0)->get();
-        Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
+        // Log::channel('testing')->info('Log', ['Resultados obtenidos', $results]);
         $results = InventarioResource::collection($results);
 
         return response()->json(compact('results'));
@@ -224,15 +227,18 @@ class InventarioController extends Controller
      * Imprimir reporte de inventario
      * @param string $id sucursal_id
      */
-    public function reporteInventarioPdf($id){
-        $items = Inventario::where('sucursal_id', $id)->where('cantidad','>', 0)->get();
-        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $items]);
-        $resource = InventarioResource::collection($items);
-        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
+    public function reporteInventarioPdf($id)
+    {
+        $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '>', 0)
+            ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+        $resource = InventarioResourceExcel::collection($items);
+        // Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
         try {
-            $pdf = Pdf::loadView('reportes.inventario_sucursal', $resource->resolve());
-            $pdf->setPaper('A4', 'portrait');
-            $pdf->setOption(['isRemoteEnabled'=>true]);
+            $reporte = $resource->resolve();
+            // Log::channel('testing')->info('Log', ['Elementos pasados por el resource', $reporte]);
+            $pdf = Pdf::loadView('bodega.reportes.inventario_sucursal', compact(['reporte']));
+            $pdf->setPaper('A4', 'landscape');
+            $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
             $file = $pdf->output();
 
@@ -245,39 +251,78 @@ class InventarioController extends Controller
      * Imprimir reporte de inventario
      * @param string $id sucursal_id
      */
-    public function reporteInventarioExcel($id){
+    public function reporteInventarioExcel($id)
+    {
         return Excel::download(new InventarioExport($id), 'reporte.xlsx');
         // return (new InventarioExport($id))->download('reporte.xlsx', Excel::XLSX);
     }
 
-    public function kardex($id){
+    public function kardex(Request $request)
+    {
+        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         $cont = 0;
         $row = [];
         $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
         $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $itemsInventario = Inventario::where('detalle_id', $id)->get();
-        Log::channel('testing')->info('Log', ['ItemInventario', $itemsInventario, 'ID', $id]);
-        foreach ($itemsInventario as $itemInventario){
-            $movimientos = DetalleProductoTransaccion::where('inventario_id', $itemInventario['id'])->get();
-            Log::channel('testing')->info('Log', ['Movimiento', $movimientos]);
-            foreach($movimientos as $movimiento){
-                Log::channel('testing')->info('Log', ['Movimiento', $movimiento]);
-                $row['id']= $movimiento->inventario->detalle->id;
-                $row['detalle']= $movimiento->inventario->detalle->descripcion;
-                $row['num_transaccion']= $movimiento->transaccion->id;
-                $row['motivo']= $movimiento->transaccion->motivo->nombre;
-                $row['tipo']= $movimiento->transaccion->motivo->tipoTransaccion->nombre;
-                $row['cantidad']= $movimiento->cantidad_inicial;
-                $row['cant_anterior']= $cont==0?0:$row['cant_actual'];
-                $row['cant_actual']= $cont==0?$movimiento->cantidad_inicial:($row['tipo']=='INGRESO'?$row['cant_actual']+$movimiento->cantidad_inicial:$row['cant_actual']-$movimiento->cantidad_inicial);
-                $row['fecha']= date('d/m/Y', strtotime($movimiento->created_at));
-                $results[$cont]=$row;
-                $cont++;
-                // Log::channel('testing')->info('Log', ['Resultados 2 for', $results]);
-            }
-            // Log::channel('testing')->info('Log', ['Resultados 1 for', $results]);
+        $ids_itemsInventario = Inventario::where('detalle_id', $request->detalle)->orderBy('updated_at', 'desc')->get('id');
+        if ($request->fecha_inicio && $request->fecha_fin) {
+            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'primer if']);
+            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])
+                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
+                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
-        return response()->json(compact('results'));
+        if ($request->fecha_inicio && !$request->fecha_fin) {
+            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'segundo if', date('Y-m-d h:i:s')]);
+            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+                ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])
+                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
+                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+        }
+        if (!$request->fecha_inicio && !$request->fecha_fin) {
+            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'tercer if']);
+            $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
+                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
+                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+        }
+        // Log::channel('testing')->info('Log', ['Listado de movimientos', $movimientos]);
+        foreach ($movimientos as $movimiento) {
+            // Log::channel('testing')->info('Log', ['Movimiento', $movimiento]);
+            $row['id'] = $movimiento->inventario->detalle->id;
+            $row['detalle'] = $movimiento->inventario->detalle->descripcion;
+            $row['num_transaccion'] = $movimiento->transaccion->id;
+            $row['motivo'] = $movimiento->transaccion->motivo->nombre;
+            $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
+            $row['cantidad'] = $movimiento->cantidad_inicial;
+            $row['cant_anterior'] = $cont == 0 ? 0 : $row['cant_actual'];
+            $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
+            $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+            $results[$cont] = $row;
+            $cont++;
+        }
+        rsort($results); //aqui se ordena el array en forma descendente
+        switch ($request->tipo_rpt) {
+            case 'excel':
+                try {
+                    return Excel::download(new KardexExport(collect($results)), 'kardex.xlsx');
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                }
+                break;
+            case 'pdf':
+                try {
+                    $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results'));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                    $file = $pdf->output();
+                    return $file;
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                }
+                break;
+            default:
+                return response()->json(compact('results'));
+        }
     }
 }

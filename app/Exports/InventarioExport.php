@@ -2,21 +2,16 @@
 
 namespace App\Exports;
 
-use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Models\Inventario;
-use Doctrine\DBAL\Types\DateType;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
-use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
 class InventarioExport extends DefaultValueBinder implements FromCollection,WithHeadings, WithStrictNullComparison, WithCustomValueBinder
 {
@@ -47,22 +42,6 @@ class InventarioExport extends DefaultValueBinder implements FromCollection,With
     }
 
     
-    /* public function columnFormats(): array
-    {
-        return [
-            'id' => NumberFormat::FORMAT_NUMBER,
-            'producto'=>NumberFormat::FORMAT_TEXT,
-            'descripcion'=>NumberFormat::FORMAT_TEXT,
-            'categoria'=>NumberFormat::FORMAT_TEXT,
-            'cliente'=>NumberFormat::FORMAT_TEXT,
-            'serial'=>NumberFormat::FORMAT_TEXT,
-            'sucursal'=>NumberFormat::FORMAT_TEXT,
-            'condiciones'=>NumberFormat::FORMAT_TEXT,
-            'por recibir'=>NumberFormat::FORMAT_NUMBER,
-            'cantidad'=>NumberFormat::FORMAT_NUMBER,
-            'por entregar'=>NumberFormat::FORMAT_NUMBER,
-        ];
-    } */
     
     public function bindValue(Cell $cell, $value)
     {
