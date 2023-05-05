@@ -17,6 +17,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class PedidoController extends Controller
@@ -68,9 +70,15 @@ class PedidoController extends Controller
             $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+
+            if($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            
 
             // Respuesta
             $pedido = Pedido::create($datos);
@@ -125,9 +133,17 @@ class PedidoController extends Controller
             $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+
+            if($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            else unset($datos['evidencia1']);
+            
+            if($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            else unset($datos['evidencia2']);
 
             // Respuesta
             $pedido->update($datos);
