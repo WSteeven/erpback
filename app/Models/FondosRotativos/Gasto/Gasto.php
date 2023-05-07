@@ -52,6 +52,7 @@ class Gasto extends Model implements Auditable
         'factura',
         'fecha_viat',
         'id_tarea',
+        'subdetalle',
         'id_proyecto',
         'ruc',
         'factura',
@@ -131,7 +132,7 @@ class Gasto extends Model implements Auditable
             $row['fecha']= $gasto->fecha_viat;
             $row['empleado_info']= $gasto->empleado_info->user;
             $row['usuario'] = $gasto->empleado_info;
-            $row['grupo'] = $gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
+            $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
             $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
