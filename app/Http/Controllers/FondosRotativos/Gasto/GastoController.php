@@ -128,35 +128,51 @@ class GastoController extends Controller
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             unset($datos['comprobante1']);
+            $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante',  $datos['num_comprobante'])
+            ->where('estado', 1)
+            ->lockForUpdate()
+            ->get();
+            if (count($bloqueo_comprobante_aprob) > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['comprobante  ya existe'],
+                ]);
+            }
             $bloqueo_gastos_aprob = DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
+                ->where('ruc', '!=', '9999999999999')
                 ->where('factura', '=', $datos['factura'])
-                ->where('num_comprobante', '=', $datos['num_comprobante'])
                 ->where('estado', '=', 1)
                 ->lockForUpdate()
                 ->get();
-                $detalles_sin_comprobante = [21,24];
-                if (array_search($request->detalle, $detalles_sin_comprobante) === false) {
                 if (count($bloqueo_gastos_aprob) > 0) {
                     throw ValidationException::withMessages([
-                        '404' => ['comprobante o factura ya existe'],
+                        '404' => ['factura ya existe'],
                     ]);
                 }
+            $bloqueo_comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante',  $datos['num_comprobante'])
+            ->where('estado', 3)
+            ->lockForUpdate()
+            ->get();
+            if (count($bloqueo_comprobante_pendiente) > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['comprobante  ya existe'],
+                ]);
             }
             $bloqueo_gastos_pend = DB::table('gastos')
                 ->where('ruc', '=', $datos['ruc'])
+                ->where('ruc', '!=', '9999999999999')
                 ->where('factura', '=', $datos['factura'])
-                ->where('num_comprobante', '=', $datos['num_comprobante'])
                 ->where('estado', '=', 3)
                 ->lockForUpdate()
                 ->get();
-            if (array_search($request->detalle, $detalles_sin_comprobante) === false)  {
                 if (count($bloqueo_gastos_pend) > 0) {
                     throw ValidationException::withMessages([
-                        '404' => ['comprobante o factura ya existe'],
+                        '404' => ['factura ya existe'],
                     ]);
                 }
-            }
+
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
