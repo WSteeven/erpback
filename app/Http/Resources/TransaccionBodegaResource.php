@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\TransaccionBodega;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
+use Src\Config\MotivosTransaccionesBodega;
 
 class TransaccionBodegaResource extends JsonResource
 {
@@ -33,12 +34,12 @@ class TransaccionBodegaResource extends JsonResource
             'observacion_est' =>  $this->observacion_est,
             'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : 'N/A',
             'devolucion' => $this->devolucion?->justificacion,
-            'pedido' => $this->pedido?->justificacion,
+            'pedido' => $this->pedido_id,
             'responsable'=>$this->responsable?$this->responsable->nombres . ' ' . $this->responsable->apellidos : null,
             'responsable_id'=>$this->responsable_id,
             'transferencia' => $this->transferencia?->justificacion,
             'solicitante_id' => $this->solicitante_id,
-            'tipo' => $this->tipo?->nombre,
+            'tipo' => $this->motivo?->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
             'sucursal' => $this->sucursal->lugar,
             'sucursal_id' => $this->sucursal_id,
@@ -60,7 +61,7 @@ class TransaccionBodegaResource extends JsonResource
             'es_tarea'=>$this->tarea?true:false,
             'es_transferencia'=>$this->transferencia_id?true:false,
             'tiene_pedido'=>$this->pedido_id?true:false,
-
+            // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
             'comprobante'=>$comprobante,
             'firmada'=> $comprobante?->firmada,
             'estado_comprobante'=>$comprobante?->estado,

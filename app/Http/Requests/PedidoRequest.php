@@ -34,10 +34,14 @@ class PedidoRequest extends FormRequest
             'responsable' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'per_autoriza' => 'required|numeric|exists:empleados,id',
+            'per_retira' => 'sometimes|nullable|numeric|exists:empleados,id',
+            'cliente' => 'sometimes|nullable|numeric|exists:clientes,id',
             'tarea' => 'sometimes|nullable|numeric|exists:tareas,id',
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'listadoProductos.*.cantidad' => 'required',
+            'evidencia1' => 'nullable|string',
+            'evidencia2' => 'nullable|string',
         ];
     }
     public function attributes()
@@ -53,23 +57,25 @@ class PedidoRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator){
-        if(!in_array($this->method(), ['PUT', 'PATCH'])){
-            $validator->after(function ($validator){
-                if(!is_null($this->fecha_limite)){
-                    if(date('Y-m-d', strtotime($this->fecha_limite))<now()){
+    public function withValidator($validator)
+    {
+        if (!in_array($this->method(), ['PUT', 'PATCH'])) {
+            $validator->after(function ($validator) {
+                if (!is_null($this->fecha_limite)) {
+                    if (date('Y-m-d', strtotime($this->fecha_limite)) < now()) {
                         $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
                     }
                 }
             });
         }
-
     }
     protected function prepareForValidation()
     {
-        $user_activo_fijo = User::whereHas("roles", function($q){ $q->where("name", User::ROL_ACTIVOS_FIJOS); })->first();
+        $user_activo_fijo = User::whereHas("roles", function ($q) {
+            $q->where("name", User::ROL_ACTIVOS_FIJOS);
+        })->first();
         Log::channel('testing')->info('Log', ['el activo fijo es:', $user_activo_fijo]);
-        if(!is_null($this->fecha_limite)){
+        if (!is_null($this->fecha_limite)) {
             $this->merge([
                 'fecha_limite' => date('Y-m-d', strtotime($this->fecha_limite)),
             ]);
@@ -93,31 +99,31 @@ class PedidoRequest extends FormRequest
         //         'per_autoriza' => auth()->user()->empleado->id,
         //     ]);
         // }
-        if(auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS])){
+        if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS])) {
             $this->merge([
                 'autorizacion' => 2,
-                'per_autoriza'=>auth()->user()->empleado->id,
+                'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
-        if(auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]) && $this->tarea){
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]) && $this->tarea) {
             $this->merge([
                 'autorizacion' => 2,
-                'per_autoriza'=>auth()->user()->empleado->id,
+                'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
-        if(auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])){
+        if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])) {
             $this->merge([
-                'per_autoriza'=>$user_activo_fijo->empleado->id,
+                'per_autoriza' => $user_activo_fijo->empleado->id,
             ]);
         }
 
-        if(is_null($this->responsable)){
-            $this->merge(['responsable'=>$this->solicitante]);
+        if (is_null($this->responsable)) {
+            $this->merge(['responsable' => $this->solicitante]);
         }
-        if($this->autorizacion===3){
+        if ($this->autorizacion === 3) {
             $this->merge([
-                'estado'=>4,
-                'observacion_est'=>'NO REALIZADO'
+                'estado' => 4,
+                'observacion_est' => 'NO REALIZADO'
             ]);
         }
     }

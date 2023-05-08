@@ -415,6 +415,26 @@ class TransaccionBodega extends Model implements Auditable
         }
     }
 
+    /**
+     * This function verifies if a given reason for a material transaction matches the specified type
+     * and ID.
+     * 
+     * @param id The ID of the motivo (reason) to be verified.
+     * @param tipo The "tipo" parameter is a variable that represents the type of transaction being
+     * performed. It is used to filter the "Motivo" model to find a specific reason for the
+     * transaction.
+     * @param motivo The "motivo" parameter is a string that represents the reason or cause for a
+     * transaction. In this function, it is used to search for a specific "Motivo" object in the
+     * database that matches the given name and transaction type.
+     * 
+     * @return a boolean value indicating whether the id parameter matches the id of the Motivo object
+     * that has the given nombre and tipo_transaccion_id parameters.
+     */
+    public static function verificarEgresoLiquidacionMateriales($id, $tipo, $motivo){
+        $motivoSeleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
+        return $motivoSeleccionado->id===$id;
+    }
+
 
     /**
      * If the product has a serial number and is active, then set it to inactive

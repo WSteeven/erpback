@@ -29,3 +29,4 @@ class InventarioResourceExcel extends JsonResource
         ];
     }
 }
+// 'serial'=>$this->detalle->serial?$this->detalle->serial.'.':'',

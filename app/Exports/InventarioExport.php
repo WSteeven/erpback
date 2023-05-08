@@ -2,15 +2,20 @@
 
 namespace App\Exports;
 
-use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Models\Inventario;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
-class InventarioExport implements FromCollection, WithHeadings, WithStrictNullComparison
+class InventarioExport extends DefaultValueBinder implements FromCollection,WithHeadings, WithStrictNullComparison, WithCustomValueBinder
 {
+    use Exportable;
     /**
     * @return \Illuminate\Support\Collection
     */
@@ -34,6 +39,18 @@ class InventarioExport implements FromCollection, WithHeadings, WithStrictNullCo
             'cantidad',
             'por entregar',
         ];
+    }
+
+    
+    
+    public function bindValue(Cell $cell, $value)
+    {
+        if(is_numeric($value) && $value>9999){
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+        return parent::bindValue($cell, $value);
     }
     public function collection()
     {

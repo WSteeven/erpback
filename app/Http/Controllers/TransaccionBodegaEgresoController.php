@@ -233,7 +233,7 @@ class TransaccionBodegaEgresoController extends Controller
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
                 $pedido = Pedido::find($transaccion->pedido_id);
-                $pedido->latestNotificacion()->update(['leida'=>true]);
+                $pedido->latestNotificacion()->update(['leida' => true]);
                 TransaccionBodega::actualizarPedido($transaccion);
             }
             // Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
@@ -243,7 +243,7 @@ class TransaccionBodegaEgresoController extends Controller
             $modelo = new TransaccionBodegaResource($transaccion);
 
             //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
-            if(!$transaccion->transferencia_id){
+            if (!$transaccion->transferencia_id) {
                 //creamos el comprobante
                 $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
                 //lanzar el evento de la notificación
@@ -251,7 +251,6 @@ class TransaccionBodegaEgresoController extends Controller
                 event(new TransaccionEgresoEvent($msg, $url, $transaccion, false));
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de egreso', $e->getMessage(), $e->getLine()]);
@@ -421,6 +420,17 @@ class TransaccionBodegaEgresoController extends Controller
             })->get();
         Log::channel('testing')->info('Log', ['egresos son:', $datos]);
 
+        $results = TransaccionBodegaResource::collection($datos);
+        return response()->json(compact('results'));
+    }
+
+    public function filtrarEgresos(Request $request)
+    {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE])) {
+            $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
+                $q->where('estado', request('estado'));
+            })->get();
+        }
         $results = TransaccionBodegaResource::collection($datos);
         return response()->json(compact('results'));
     }
