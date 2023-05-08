@@ -20,8 +20,6 @@ return new class extends Migration
             $table->string('num_cuenta_bancaria');
             $table->boolean('tiene_discapacidad');
             $table->text('observacion');
-            $table->unsignedBigInteger('sede_id')->nullable();
-            $table->foreign('banco_id')->references('id')->on('bancos');
             $table->unsignedBigInteger('estado_civil_id')->nullable();
             $table->foreign('estado_civil_id')->references('id')->on('estado_civil');
             $table->unsignedBigInteger('area_id')->nullable();
