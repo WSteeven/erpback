@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Resources\EmpleadoResource;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -11,6 +10,9 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Src\App\WhereRelationLikeCondition\Subtarea\CodigoTareaWRLC;
+use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
+use Src\App\WhereRelationLikeCondition\Subtarea\FechaSolicitudWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
@@ -80,7 +82,9 @@ class Subtarea extends Model implements Auditable
         'tipo_trabajo.descripcion', */
         // 'canton',
         'tarea.coordinador.nombres',
-        // 'tarea.codigo_tarea',
+        'cantidad_adjuntos',
+        'fecha_solicitud',
+        'tarea.codigo_tarea',
         //'proyecto.canton.canton'
     ];
 
@@ -89,7 +93,7 @@ class Subtarea extends Model implements Auditable
         'proyecto.codigo_proyecto' => 'proyecto',
         'tipo_trabajo.descripcion' => 'tipo_trabajo', */
         'tarea.coordinador.nombres' => 'coordinador',
-        // 'tarea.codigo_tarea' => 'tarea',
+        'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
     ];
 
@@ -102,7 +106,9 @@ class Subtarea extends Model implements Auditable
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
             TrabajoCoordinadorWRLC::class,
-            // TrabajoTareaWRLC::class,
+            CantidadAdjuntosWRLC::class,
+            FechaSolicitudWRLC::class,
+            CodigoTareaWRLC::class,
         ];
     }
 
