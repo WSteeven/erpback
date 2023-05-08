@@ -23,7 +23,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(string $mensaje, $url, $pedido, $solicitante,  $destinatario)
+    public function __construct(string $mensaje, $url, $pedido, $solicitante,  $destinatario, $informativa)
     {
         $this->pedido = $pedido;
 
@@ -31,7 +31,7 @@ class PedidoCreadoEvent implements ShouldBroadcast
         // $this->notificacion = $this->crearNotificacion('Tienes un pedido por aprobar', $this->pedido->solicitante_id, $this->pedido->per_autoriza_id);
 
         /* Creating a notification with the message, the originator and the recipient */
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::PEDIDO, $solicitante, $destinatario);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::PEDIDO, $solicitante, $destinatario, $pedido, $informativa);
     }
 
 
@@ -44,7 +44,6 @@ class PedidoCreadoEvent implements ShouldBroadcast
     {
         return [
             new Channel('pedidos-tracker-' . $this->pedido->per_autoriza_id),
-            new Channel('pedidos-atendidos-tracker-' . $this->pedido->solicitante_id),
         ];
     }
 

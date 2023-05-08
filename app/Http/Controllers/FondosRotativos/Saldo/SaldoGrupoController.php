@@ -197,7 +197,7 @@ class SaldoGrupoController extends Controller
                     return $this->reporte_consolidado($request, $tipo);
                     break;
                 case '4':
-                    return $this->reporte_movimiento($request, $tipo);
+                    return $this->reporte_estado_cuenta($request, $tipo);
                     break;
             }
         } catch (Exception $e) {
@@ -224,7 +224,7 @@ class SaldoGrupoController extends Controller
                     return $this->reporte_consolidado($request, $tipo);
                     break;
                 case '4':
-                    return $this->reporte_movimiento($request, $tipo);
+                    return $this->reporte_estado_cuenta($request, $tipo);
                     break;
             }
         } catch (Exception $e) {
@@ -248,27 +248,55 @@ class SaldoGrupoController extends Controller
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
             $request['aut_especial'] = $request['autorizador'];
-            $gastos = Gasto::ignoreRequest([
-                'tipo_saldo',
-                'tipo_filtro',
-                'sub_detalle',
-                'usuario', 'tarea',
-                'autorizador',
-                'fecha_inicio',
-                'fecha_fin',
-                'estado',
-                'detalle',
-                'proyecto',
-            ])
-                ->filter($request->all())
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', Gasto::APROBADO)
-                ->with(
-                    'empleado_info',
-                    'detalle_estado',
-                    'sub_detalle_info',
-                    'proyecto_info'
-                )->get();
+            if ($request->subdetalle != null) {
+                $gastos = Gasto::ignoreRequest([
+                    'tipo_saldo',
+                    'tipo_filtro',
+                    'sub_detalle',
+                    'subdetalle',
+                    'usuario', 'tarea',
+                    'autorizador',
+                    'fecha_inicio',
+                    'fecha_fin',
+                    'estado',
+                    'proyecto',
+                ])
+                    ->filter($request->all())
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                    ->where('estado', Gasto::APROBADO)
+                    ->whereHas('sub_detalle_info', function ($query) use ($request) {
+                        $query->where('subdetalle_gastos.id', $request->subdetalle);
+                    })->with(
+                        'empleado_info',
+                        'detalle_info',
+                        'detalle_estado',
+                        'sub_detalle_info',
+                        'proyecto_info'
+                    )->get();
+            } else {
+                $gastos = Gasto::ignoreRequest([
+                    'tipo_saldo',
+                    'tipo_filtro',
+                    'sub_detalle',
+                    'usuario', 'tarea',
+                    'autorizador',
+                    'fecha_inicio',
+                    'fecha_fin',
+                    'estado',
+                    'proyecto',
+                ])
+                    ->filter($request->all())
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                    ->where('estado', Gasto::APROBADO)
+                    ->with(
+                        'empleado_info',
+                        'detalle_estado',
+                        'sub_detalle_info',
+                        'proyecto_info'
+                    )->get();
+            }
+
+
             $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
@@ -291,7 +319,7 @@ class SaldoGrupoController extends Controller
                     $subtitulo = 'DETALLE: ' . $detalle->descripcion;
                     break;
                 case '4':
-                    $sub_detalle = SubDetalleViatico::where('id', $request->sub_detalle)->first();
+                    $sub_detalle = SubDetalleViatico::where('id', $request->subdetalle)->first();
                     $titulo .= 'DE GASTOS POR SUBDETALLE ';
                     $subtitulo = 'SUBDETALLE: ' . $sub_detalle->descripcion;
                     break;
@@ -382,7 +410,7 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private function reporte_movimiento(Request $request, $tipo)
+    private function reporte_estado_cuenta(Request $request, $tipo)
     {
 
         try {
@@ -422,6 +450,12 @@ class SaldoGrupoController extends Controller
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=',  $request->usuario)
                 ->get();
+            //Gastos Anulados
+            $gastos_anulados_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', '=', 4)
+                ->where('id_usuario', '=',  $request->usuario)
+                ->get();
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -439,9 +473,13 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
+            $encuadres_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('tipo_saldo', 'Encuadre')
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
             //Unir todos los reportes
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray());
-            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario,$fecha_anterior , $saldo_anterior);
+            $reportes_unidos = array_merge($gastos_reporte->toArray(), $gastos_anulados_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
+            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -451,7 +489,7 @@ class SaldoGrupoController extends Controller
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
-            $nombre_reporte = 'reporte_consolidado';
+            $nombre_reporte = 'reporte_estado_cuenta';
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,

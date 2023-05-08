@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\App\WhereRelationLikeCondition;
+namespace Src\App\WhereRelationLikeCondition\Subtarea;
 
-use Src\App\WhereRelationLikeConditionQuery\TrabajoCoordinadorWRLCQ;
+use Src\App\WhereRelationLikeConditionQuery\CantidadAdjuntosWRLCQ;
 
-class TrabajoCoordinadorWRLC
+class CantidadAdjuntosWRLC
 {
     /**
      * @param $field
@@ -15,8 +15,8 @@ class TrabajoCoordinadorWRLC
      */
     public static function detect($field, $params, $is_override_method = false): ?string
     {
-        if (!empty($params['like']) && $field == 'tarea.coordinador.nombres') {
-            $method = TrabajoCoordinadorWRLCQ::class;
+        if ($field == 'cantidad_adjuntos') {
+            $method = CantidadAdjuntosWRLCQ::class;
         }
 
         return $method ?? null;

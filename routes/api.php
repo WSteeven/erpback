@@ -234,7 +234,8 @@ Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionControlle
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 
-Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
+Route::get('comprobantes-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarComprobante'])->middleware('auth:sanctum');
+Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filtrarEgresos'])->middleware('auth:sanctum');
 
 
 //show-preview
@@ -248,6 +249,12 @@ Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::cla
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
+
+//Reportes inventario
+Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
+Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
+Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']);
+
 
 Route::get('all-items', [InventarioController::class, 'vista']);
 
@@ -282,3 +289,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
 
 });
+
+
+/**
+ * Auditorias
+ */
+Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('auth:sanctum');

@@ -6,15 +6,15 @@ use App\Http\Resources\SubtareaResource;
 use App\Http\Requests\SubtareaRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Events\SubtareaEvent;
-use App\Models\Empleado;
 use Src\App\SubtareaService;
 use Illuminate\Http\Request;
+use Carbon\CarbonInterval;
+use App\Models\Empleado;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
 use Src\Shared\Utils;
 use Carbon\Carbon;
-use Carbon\CarbonInterval;
 
 class SubtareaController extends Controller
 {
@@ -58,14 +58,6 @@ class SubtareaController extends Controller
         $datos['estado'] = Subtarea::CREADO;
 
         $modelo = Subtarea::create($datos);
-        /*$empleados_designados = collect($datos['empleados_designados'])->map(
-            fn ($empleado) => [
-                'empleado_id' => $empleado['id'],
-                'es_responsable' => $empleado['es_responsable'],
-            ]
-        );*/
-
-        // $modelo->empleados()->sync($empleados_designados);
 
         $modelo = new SubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');

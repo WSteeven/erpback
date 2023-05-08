@@ -35,6 +35,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
         $destinatario = $transferencia->estado!=3? $transferencia->usuario_recibe_id: $transferencia->usuario_envia_id;
         $usuario_envia = Empleado::where('id', $transferencia->usuario_envia_id)->first();
         $usuario_recibe = Empleado::where('id', $transferencia->usuario_recibe_id)->first();
+        $informativa = false;
         switch ($transferencia->estado) {
             case 1:
                 $mensaje = $usuario_recibe->nombres.' '.$usuario_recibe->apellidos.'Acepto Transferencia';
@@ -46,6 +47,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                 $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
                 break;
             default:
+            $informativa = true;
                 $mensaje = 'Tienes un transferencia por aceptar';
                 break;
         }
@@ -53,12 +55,12 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
         $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
         $empleados_contabilidad = UserInfoResource::collection($empleados_contabilidad);
         foreach ($empleados_contabilidad as $empleado) {
-            $this->notificar($mensaje, $ruta,$destinatario, $empleado->id);
+            $this->notificar($mensaje, $ruta,$destinatario, $empleado->id,$informativa);
         }
     }
-    public function notificar($mensaje, $ruta, $destinatario, $remitente)
+    public function notificar($mensaje, $ruta, $destinatario, $remitente, $informativa = false)
     {
-        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia,$informativa);
     }
     /**
      * Get the channels the event should broadcast on.

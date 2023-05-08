@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Events\PedidoCreadoEvent;
 use App\Models\DetallePedidoProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Pedido;
@@ -35,14 +36,7 @@ class DetallePedidoProductoObserver
         // $resultados = DB::table('detalle_pedido_producto')->where('pedido_id', '=', $detallePedidoProducto->pedido_id)->whereRaw('cantidad!=despachado')->get();
         // $resultados = DetallePedidoProducto::where('pedido_id', '=', $detallePedidoProducto->pedido_id)->where('cantidad', '<>', 'despachado')->count();
         $resultados = DB::select('select count(*) as cantidad from detalle_pedido_producto dpp where dpp.pedido_id=' . $detallePedidoProducto->pedido_id . ' and dpp.cantidad!=dpp.despachado');
-        // Log::channel('testing')->info('Log', ['Resultados', $resultados]);
         Log::channel('testing')->info('Log', ['Resultados', $resultados[0]->cantidad]);
-        // $results = collect($resultados)->map(fn($items)=>[
-        //     'cantidad'=>intval($items->cantidad),
-        // ]);
-        // Log::channel('testing')->info('Log', ['Results var', $results]);
-        // Log::channel('testing')->info('Log', ['Results var', $results->count()]);
-        // Log::channel('testing')->info('Log', ['Cantidad de resultados', $resultados[0]['cantidad']]);
         $pedido = Pedido::find($detallePedidoProducto->pedido_id);
         if ($resultados[0]->cantidad>0) {
             Log::channel('testing')->info('Log', ['todavia no esta completada']);

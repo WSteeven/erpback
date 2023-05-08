@@ -32,14 +32,17 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
     {
         $ruta = $transferencia->estado == 3 ? '/autorizar-transferencia' : '/transferencia';
         $mensaje = '';
+        $informativa = false;
         $this->transferencia = $transferencia;
         $destinatario = $transferencia->estado != 3 ? $transferencia->usuario_recibe_id : $transferencia->usuario_envia_id;
         $remitente = $transferencia->estado != 3 ? $transferencia->usuario_envia_id : $transferencia->usuario_recibe_id;
         switch ($transferencia->estado) {
             case 1:
+                $informativa = true;
                 $mensaje = 'Te han aceptado una Transferencia';
                 break;
             case 2:
+                $informativa = true;
                 $mensaje = 'Te han rechazado una transferencia';
                 break;
             case 3:
@@ -49,7 +52,7 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
                 $mensaje = 'Tienes un gasto por aceptar';
                 break;
         }
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia,$informativa);
     }
 
     /**

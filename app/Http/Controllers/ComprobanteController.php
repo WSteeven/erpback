@@ -8,6 +8,7 @@ use App\Models\Comprobante;
 use App\Models\TransaccionBodega;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\Config\MotivosTransaccionesBodega;
 
 class ComprobanteController extends Controller
 {
@@ -62,7 +63,9 @@ class ComprobanteController extends Controller
         $comprobante->update($datos);
 
         if ($comprobante->firmada) {
-            TransaccionBodega::asignarMateriales(TransaccionBodega::find($comprobante->transaccion_id));
+            $transaccion = TransaccionBodega::find($comprobante->transaccion_id);
+            $transaccion->latestNotificacion()->update(['leida' => true]);
+            if (!TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales)) TransaccionBodega::asignarMateriales($transaccion);
         }
 
         $modelo = new ComprobanteResource($comprobante);

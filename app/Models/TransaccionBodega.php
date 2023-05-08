@@ -226,6 +226,17 @@ class TransaccionBodega extends Model implements Auditable
         return $this->hasOne(Comprobante::class, 'transaccion_id');
     }
 
+    /**
+     * Relación polimorfica a una notificación.
+     * Una transaccion puede tener una o varias notificaciones.
+     */
+    public function notificaciones(){
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    public function latestNotificacion(){
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -389,18 +400,39 @@ class TransaccionBodega extends Model implements Auditable
                 // aqui va
             }
 
-            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial
+            //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial //ojo con esto porque no se está ejecutando en el flujo correcto, primero se ejecuta esto y luego el observer; y debe ser al contrario.
             if ($pedido->estado_id === $estadoCompleta->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega y está completado';
-                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
             if ($pedido->estado_id === $estadoParcial->id) {
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
-                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id));
+                event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
+            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido]);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
         }
+    }
+
+    /**
+     * This function verifies if a given reason for a material transaction matches the specified type
+     * and ID.
+     * 
+     * @param id The ID of the motivo (reason) to be verified.
+     * @param tipo The "tipo" parameter is a variable that represents the type of transaction being
+     * performed. It is used to filter the "Motivo" model to find a specific reason for the
+     * transaction.
+     * @param motivo The "motivo" parameter is a string that represents the reason or cause for a
+     * transaction. In this function, it is used to search for a specific "Motivo" object in the
+     * database that matches the given name and transaction type.
+     * 
+     * @return a boolean value indicating whether the id parameter matches the id of the Motivo object
+     * that has the given nombre and tipo_transaccion_id parameters.
+     */
+    public static function verificarEgresoLiquidacionMateriales($id, $tipo, $motivo){
+        $motivoSeleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
+        return $motivoSeleccionado->id===$id;
     }
 
 

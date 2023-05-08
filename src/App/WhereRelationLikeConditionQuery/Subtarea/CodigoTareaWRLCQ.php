@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\App\WhereRelationLikeConditionQuery;
+namespace Src\App\WhereRelationLikeConditionQuery\Subtarea;
 
 use eloquentFilter\QueryFilter\Queries\BaseClause;
 use Illuminate\Database\Eloquent\Builder;
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Class WhereRelationLikeConditionQuery.
  */
-class TrabajoTareaWRLCQ extends BaseClause
+class CodigoTareaWRLCQ extends BaseClause
 {
     /**
      * @param $query

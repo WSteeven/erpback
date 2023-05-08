@@ -137,7 +137,7 @@ class SubtareaResource extends JsonResource
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
         return $empleadosSubtarea->map(function ($empleado) {
-            Log::channel('testing')->info('Log', compact('empleado'));
+            // Log::channel('testing')->info('Log', compact('empleado'));
             // $empleado = Empleado::find($item->empleado_id);
             return [
                 'id' => $empleado->id,

@@ -26,11 +26,11 @@ class PedidoAutorizadoEvent implements ShouldBroadcast
      * @return void
      */
 
-    public function __construct($mensaje, $canal, $url)
+    public function __construct($mensaje, $canal, $url, $pedido, $informativa)
     {
         $this->canalId = $canal;
 
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::PEDIDO, null, null);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $url, TiposNotificaciones::PEDIDO, null, null, $pedido, $informativa);
     }
 
     /**

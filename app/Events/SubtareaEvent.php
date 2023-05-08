@@ -43,7 +43,7 @@ class SubtareaEvent implements ShouldBroadcast
         $destinatario = $this->obtenerDestinatario($rolReceptor);
         $mensaje = $this->obtenerMensaje();
 
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::SUBTAREA, $originador, $destinatario, $subtarea);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::SUBTAREA, $originador, $destinatario, $subtarea, true);
     }
 
     /**

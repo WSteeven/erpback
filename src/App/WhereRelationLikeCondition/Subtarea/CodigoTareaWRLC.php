@@ -1,10 +1,10 @@
 <?php
 
-namespace Src\App\WhereRelationLikeCondition;
+namespace Src\App\WhereRelationLikeCondition\Subtarea;
 
-use Src\App\WhereRelationLikeConditionQuery\TrabajoTareaWRLCQ;
+use Src\App\WhereRelationLikeConditionQuery\Subtarea\CodigoTareaWRLCQ;
 
-class TrabajoTareaWRLC
+class CodigoTareaWRLC
 {
     /**
      * @param $field
@@ -16,7 +16,7 @@ class TrabajoTareaWRLC
     public static function detect($field, $params, $is_override_method = false): ?string
     {
         if (!empty($params['like']) && $field == 'tarea.codigo_tarea') {
-            $method = TrabajoTareaWRLCQ::class;
+            $method = CodigoTareaWRLCQ::class;
         }
 
         return $method ?? null;

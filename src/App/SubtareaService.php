@@ -82,11 +82,14 @@ class SubtareaService
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
 
+        // Monitor
         if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
-            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
+            // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
         }
 
+        // Control de tareas
         $results = Subtarea::ignoreRequest(['campos'])->filter()->latest()->get();
         return SubtareaResource::collection($results);
     }
