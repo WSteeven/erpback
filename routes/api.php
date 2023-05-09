@@ -77,9 +77,11 @@ use App\Http\Controllers\RamController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\TrabajoController;
+use App\Http\Requests\RolPagoRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -198,6 +200,7 @@ Route::apiResources(
         'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
         'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'recursos-humanos/tipo_contrato' => TipoContratoController::class,
+        'recursos-humanos/rol_pago' => RolPagosController::class,
     ],
     [
         'parameters' => [

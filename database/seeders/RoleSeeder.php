@@ -532,7 +532,9 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.tipo_contrato'])->syncRoles([$recursos_humanos]);
         Permission::firstOrCreate(['name' => 'puede.editar.tipo_contrato'])->syncRoles([$recursos_humanos]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipo_contrato'])->syncRoles([$recursos_humanos]);
-
+        //Rol de pagos
+        Permission::firstOrCreate(['name' => 'puede.ver.rol_pago'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.rol_pago'])->syncRoles([$recursos_humanos]);
 
     }
 }
