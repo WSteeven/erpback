@@ -18,6 +18,8 @@ class FechaSolicitudWRLCQ extends BaseClause
      */
     public function apply($query): Builder
     {
+        Log::channel('testing')->info('Log', ['Coordinador: ', $this->values]);
+
         $valor = $this->values['value'];
         $operador = $this->values['operator'];
 

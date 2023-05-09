@@ -200,7 +200,7 @@ class SaldoGrupo extends  Model implements Auditable
                             $row['cargo'] = $saldo->usuario->cargo != null ? $saldo->usuario->cargo->nombre : '';
                             $row['empleado'] = $saldo->usuario;
                             $row['localidad'] = $saldo->usuario->canton != null ? $saldo->usuario->canton->canton : '';
-                            $row['descripcion_saldo'] = $saldo->descripcion_saldo;
+                         //   $row['descripcion_saldo'] = $saldo->descripcion_saldo;
                             $row['saldo_anterior'] = $saldo->saldo_anterior;
                             $row['saldo_depositado'] = $saldo->saldo_depositado;
                             $row['saldo_actual'] = $saldo->saldo_actual;
