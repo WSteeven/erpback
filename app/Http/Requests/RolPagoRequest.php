@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Empleado;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,7 +15,7 @@ class RolPagoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,38 +27,46 @@ class RolPagoRequest extends FormRequest
     {
         return [
             'fecha' => 'required',
-            'empleado' => 'required|number',
+            'empleado' => 'required',
             'salario' => 'required|string',
-            'dias' => 'required|number',
-            'sueldo' => 'required|number',
-            'decimo_tercero' => 'required|number',
-            'decimo_cuarto' => 'required|number',
-            'fondos_reserva' => 'required|number',
-            'alimentacion' => 'required|number',
-            'horas_extras' => 'required|number',
-            'total_ingreso' => 'required|number',
-            'comisiones' => 'required|number',
-            'iess' => 'required|number',
-            'anticipo' => 'required|number',
-            'prestamo_quirorafario' => 'required|number',
-            'prestamo_hipotecario' => 'required|number',
-            'extension_conyugal' => 'required|number',
-            'prestamo_empresarial' => 'required|number',
-            'sancion_pecuniaria' => 'required|number',
-            'total_egreso' => 'required|number',
+            'dias' => 'required',
+            'sueldo' => 'required',
+            'decimo_tercero' => 'required',
+            'decimo_cuarto' => 'required',
+            'fondos_reserva' => 'required',
+            'alimentacion' => 'required',
+            'horas_extras' => 'required',
+            'total_ingreso' => 'required',
+            'comisiones' => 'required',
+            'iess' => 'required',
+            'anticipo' => 'required',
+            'prestamo_quirorafario' => 'required',
+            'prestamo_hipotecario' => 'required',
+            'extension_conyugal' => 'required',
+            'prestamo_empresarial' => 'required',
+            'sancion_pecuniaria' => 'required',
+            'total_egreso' => 'required',
         ];
     }
     protected function prepareForValidation()
     {
+        $empleado =Empleado::find($this->empleado);
+        $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
+        $fechaFin = $fechaInicio->copy()->addMonths(13);
         $sueldo_basico = 450;
         $horas_extras = 0;
         $comision =0;
         $sueldo = ($this->salario/30)*$this->dias;
         $decimo_tercero = ($this->salario/360)*$this->dias;
         $decimo_cuarto = ($sueldo_basico/360)*$this->dias;
-        $fondos_reserva = $sueldo*8.33;
+        $fondos_reserva = 0;
+        if ($fechaFin->diffInMonths($fechaInicio) == 13) {
+            // Han pasado 13 meses
+            $fondos_reserva = $sueldo*8.33;
+        }
+
         $ingresos = $sueldo+$decimo_tercero+$decimo_cuarto+$fondos_reserva+$this->alimentacion+$horas_extras;
-        $iess = ($sueldo+$horas_extras+$comision)*0.945;
+        $iess = ($sueldo+$horas_extras+$comision)*0.0945;
         $anticipo = $sueldo *0.40;
         $prestamo_quirorafario = 0;
         $prestamo_hipotecario = 0;

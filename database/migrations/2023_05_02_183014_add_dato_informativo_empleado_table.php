@@ -19,6 +19,8 @@ return new class extends Migration
             $table->double('salario');
             $table->string('num_cuenta_bancaria');
             $table->boolean('tiene_discapacidad');
+            $table->string('fecha_ingreso')->nullable();
+            $table->string('fecha_salida')->nullable();
             $table->text('observacion');
             $table->unsignedBigInteger('estado_civil_id')->nullable();
             $table->foreign('estado_civil_id')->references('id')->on('estado_civil');

@@ -18,7 +18,7 @@ class RolPagosController extends Controller
     public function __construct()
     {
         $this->middleware('can:puede.ver.rol_pago')->only('index', 'show');
-        $this->middleware('can:puede.crear.rol_pago')->only('store');
+       $this->middleware('can:puede.crear.rol_pago')->only('store');
     }
 
     public function index(Request $request)
@@ -28,14 +28,6 @@ class RolPagosController extends Controller
         $results = RolPagoResource::collection($results);
         return response()->json(compact('results'));
 
-    }
-
-    public function create(Request $request)
-    {
-        $rolPago = new RolPago();
-        $rolPago->nombre = $request->nombre;
-        $rolPago->save();
-        return $rolPago;
     }
 
     public function store(RolPagoRequest $request)
