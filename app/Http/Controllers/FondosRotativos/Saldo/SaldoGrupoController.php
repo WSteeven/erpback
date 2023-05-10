@@ -248,6 +248,9 @@ class SaldoGrupoController extends Controller
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
             $request['aut_especial'] = $request['autorizador'];
+            if($request->tipo_filtro == 8){
+                $request['ruc'] = '9999999999999';
+            }
             if ($request->subdetalle != null) {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -332,6 +335,11 @@ class SaldoGrupoController extends Controller
                     $usuario = Empleado::where('id', $request->usuario)->first();
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
+                    break;
+                case '6':
+                    $ruc = Gasto::where('ruc', $request->ruc)->first();
+                    $titulo .= 'DE GASTOS POR RUC ';
+                    $subtitulo = 'RUC: ' . $ruc->ruc ;
                     break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';

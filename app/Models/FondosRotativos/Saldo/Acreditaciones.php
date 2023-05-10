@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\TipoFondo;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ class Acreditaciones extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     protected $table = 'acreditaciones';
     protected $fillable = [
         'id_tipo_fondo',

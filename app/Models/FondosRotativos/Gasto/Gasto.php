@@ -9,6 +9,7 @@ use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class Gasto extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     const APROBADO = 1;
     const RECHAZADO = 2;
     const PENDIENTE = 3;
