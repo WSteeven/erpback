@@ -1,38 +1,39 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Reporte de Gastos</title>
     <style>
+        @page {
+            margin: 2px 15px 5px 15px;
+        }
+
         body {
-            font-family: sans-serif;
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
 
-        @page {
-            margin: 100px 25px;
-        }
-
+        /** Definir las reglas del encabezado **/
         header {
             position: fixed;
-            left: 0px;
-            top: -75px;
-            right: 0px;
-            height: 90px;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            /** Estilos extra personales **/
             text-align: center;
+            line-height: 1.5cm;
         }
 
-        header h1 {
-            margin: 5px 0;
-        }
-
-        header h2 {
-            margin: 0 0 10px 0;
-        }
-
+        /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 10px;
+            bottom: 5px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -46,53 +47,48 @@
         footer .page:after {
             content: counter(page);
         }
-        .saldos_depositados {
-            margin-top: -15px;
-            table-layout: fixed;
+
+        main {
+            position: relative;
+            top: 80px;
+            left: 0cm;
+            right: 0cm;
+            margin-bottom: 4.3cm;
+            font-size: 12px;
+        }
+
+        div {
+            color: #000000 !important;
+        }
+
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+
+        .row {
             width: 100%;
-            line-height: normal;
-        }
-
-        .gastos {
-            table-layout: fixed;
-            width: 100%;
-            line-height: normal;
-            font-size: 10pt;
-        }
-
-        .observacion {
-            table-layout: fixed;
-            width: 100%;
-            line-height: normal;
-            font-size: 7pt;
-        }
-
-        footer .izq {
-            text-align: left;
-        }
-
-
-
-        .page-break {
-            page-break-after: always;
         }
     </style>
-    @php
-        $fecha = new Datetime();
-        $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-    @endphp
+</head>
+@php
+    $fecha = new Datetime();
+    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
+@endphp
 
 <body>
     <header>
         <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img
+                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b>{{ $titulo }}</b></div>
-
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">{{ $titulo }}</b></div>
                 </td>
             </tr>
         </table>
@@ -102,7 +98,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
+                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
@@ -114,11 +111,17 @@
             </tr>
         </table>
     </footer>
-    <div id="content">
-        <p>
-            <div style="font-size:12px; text-align: center; padding-bottom: 4%"">
-                <strong>{{$subtitulo}} </strong>
-            </div>
+    <main>
+        @php
+            $total = 0;
+        @endphp
+        @if ($subtitulo != '')
+            <p
+                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
+            <div align="center" style=" background-color:#bfbfbf;"><strong>{{ $subtitulo }} </strong></div>
+            </p>
+            <br>
+        @endif
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
@@ -127,17 +130,28 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
                     <div align="center"><strong>Usuario</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                     <div align="center"><strong>Fecha</strong></div>
                 </td>
+                @if ($subtitulo == '' && $tipo_filtro != 3)
+                    <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                        <div align="center"><strong>Descripcion del Gasto</strong></div>
+                    </td>
+                @endif
                 <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>Descripci&oacute;n</strong></div>
+                    <div align="center"><strong>Comentario&oacute;n</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                    <div align="center"><strong>Autorizador</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
                     <div align="center"><strong>Monto</strong></div>
                 </td>
             </tr>
             @foreach ($gastos as $gasto)
+                @php
+                    $total = number_format($gasto['total'], 2) + $total;
+                @endphp
                 <tr>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
@@ -148,11 +162,23 @@
                         <div align="left">{{ $gasto['empleado_info']->name }}
                         </div>
                     </td>
-                    <td style="font-size:10px" width="17%">
-                        <div align="center">{{ $gasto['fecha'] }}</div>
+                    <td style="font-size:10px" width="13%">
+                        <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                     </td>
+                    @if ($subtitulo == '' && $tipo_filtro != 3)
+                        <td style="font-size:10px" width="29%">
+                            <div align="left">
+                                {{ $gasto['sub_detalle_desc'] }}
+                            </div>
+                        </td>
+                    @endif
                     <td style="font-size:10px" width="29%">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                    </td>
+                    <td style="font-size:10px" width="29%">
+                        <div align="left">
+                            {{ $gasto['autorizador'] }}
+                        </div>
                     </td>
                     <td style="font-size:10px" width="10%">
                         <div align="right">
@@ -160,10 +186,20 @@
                     </td>
                 </tr>
             @endforeach
+            <tr>
+                <td colspan="6" style="font-size:10px" width="29%">
+                    <div align="right"><strong>Total</strong></div>
+                </td>
+                <td style="font-size:10px" width="10%">
+                    <div align="right">
+                        <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                    </div>
+                </td>
+            </tr>
         </table>
-        </p>
-    </div>
 
+
+    </main>
 </body>
 
 </html>

@@ -337,13 +337,14 @@ class SaldoGrupoController extends Controller
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     break;
-                case '6':
+                case '7':
                     $ruc = Gasto::where('ruc', $request->ruc)->first();
                     $titulo .= 'DE GASTOS POR RUC ';
                     $subtitulo = 'RUC: ' . $ruc->ruc ;
                     break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
+            $tipo_filtro = $request->tipo_filtro;
             $reportes =  [
                 'gastos' => $results,
                 'fecha_inicio' => $request->fecha_inicio,
@@ -351,10 +352,11 @@ class SaldoGrupoController extends Controller
                 'usuario' => $usuario,
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
+                'tipo_filtro' => $tipo_filtro,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

@@ -37,7 +37,9 @@
 </head>
 
 <body>
-
+    @php
+        $total = 0;
+    @endphp
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <tr>
@@ -91,6 +93,9 @@
                                         </td>
                                     </tr>
                                     @foreach ($gastos as $gasto)
+                                        @php
+                                            $total = number_format($gasto['total'], 2) + $total;
+                                        @endphp
                                         <tr>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
@@ -102,13 +107,14 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="13%">
-                                                <div align="center">{{  date("d-m-Y", strtotime( $gasto['fecha'])) }}</div>
+                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
+                                                </div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
                                                     {{ $gasto['sub_detalle_desc'] }}
                                                 </div>
-                                               </td>
+                                            </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                             </td>
@@ -123,6 +129,16 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    <tr>
+                                        <td colspan="6" style="font-size:10px" width="29%">
+                                            <div align="right"><strong>Total</strong></div>
+                                        </td>
+                                        <td style="font-size:10px" width="10%">
+                                            <div align="right">
+                                                <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>

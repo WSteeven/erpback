@@ -11,8 +11,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -83,11 +83,14 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img
+                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b style="font-size: 75%">REPORTE DE GASTOS
-                        {{ ' DEL ' .  date("d-m-Y", strtotime(  $fecha_inicio)) . ' AL ' . date("d-m-Y", strtotime($fecha_fin))  }}</b></div>
+                            {{ ' DEL ' . date('d-m-Y', strtotime($fecha_inicio)) . ' AL ' . date('d-m-Y', strtotime($fecha_fin)) }}</b>
+                    </div>
                 </td>
             </tr>
         </table>
@@ -97,7 +100,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
+                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
@@ -110,9 +114,13 @@
         </table>
     </footer>
     <main>
-        @if($usuario != '')
-            <p  style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
-                <div align="center" style=" background-color:#bfbfbf;"><strong>{{ $usuario}} </strong></div>
+        @php
+            $total = 0;
+        @endphp
+        @if ($usuario != '')
+            <p
+                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
+            <div align="center" style=" background-color:#bfbfbf;"><strong>{{ $usuario }} </strong></div>
             </p>
             <br>
         @endif
@@ -141,6 +149,9 @@
                 </td>
             </tr>
             @foreach ($gastos as $gasto)
+                @php
+                    $total = number_format($gasto['total'], 2) + $total;
+                @endphp
                 <tr>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
@@ -152,13 +163,13 @@
                         </div>
                     </td>
                     <td style="font-size:10px" width="13%">
-                        <div align="center">{{  date("d-m-Y", strtotime( $gasto['fecha'])) }}</div>
+                        <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                     </td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['sub_detalle_desc'] }}
                         </div>
-                       </td>
+                    </td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
@@ -173,6 +184,16 @@
                     </td>
                 </tr>
             @endforeach
+            <tr>
+                <td colspan="6" style="font-size:10px" width="29%">
+                    <div align="right"><strong>Total</strong></div>
+                </td>
+                <td style="font-size:10px" width="10%">
+                    <div align="right">
+                        <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                    </div>
+                </td>
+            </tr>
         </table>
 
 
