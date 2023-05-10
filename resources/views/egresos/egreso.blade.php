@@ -4,7 +4,11 @@
 @php
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    if ($cliente->logo_url) {
+        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
+    } else {
+        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    }
     if ($persona_entrega->firma_url) {
         $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
     }
@@ -158,7 +162,12 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP CONSTRUCRED C. LTDA.
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
+                        @if ($cliente->logo_url)
+                            {{ $cliente->razon_social }}
+                        @else
+                            JP CONSTRUCRED C. LTDA.
+                        @endif
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">GENERADO POR:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -223,8 +232,8 @@
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
-                        <td>{{$listado['categoria']}}</td>
-                        <td>{{$listado['condiciones']}}</td>
+                        <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['condiciones'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>
                 @endforeach

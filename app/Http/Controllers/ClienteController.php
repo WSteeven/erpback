@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class ClienteController extends Controller
@@ -59,6 +61,8 @@ class ClienteController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
+            if($datos['logo_url']) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
+
             //Respuesta
             $modelo = Cliente::create($datos);
             $modelo = new ClienteResource($modelo);
@@ -94,6 +98,9 @@ class ClienteController extends Controller
             //Adaptacion de claves foraneas
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
+
+            if($datos['logo_url'] && Utils::esBase64($datos['logo_url'])) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
+            else unset($datos['logo_url']);
 
             // Respuesta
             $cliente->update($datos);

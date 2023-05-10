@@ -34,14 +34,10 @@ trait UppercaseValuesTrait
             $this->attributes[$key] = $value;
         }
 
-        if($key === 'fotografia') {
-            if (is_string($value))$this->attributes[$key] = trim($value);
-        }
-        if($key === 'evidencia1'){
-            if(is_string($value)) $this->attributes[$key] = trim($value);
-        }
-        if($key === 'evidencia2'){
-            if(is_string($value)) $this->attributes[$key] = trim($value);
-        }
+        if($key === 'fotografia' && is_string($value))$this->attributes[$key] = trim($value);
+        if($key === 'evidencia1' && is_string($value)) $this->attributes[$key] = trim($value);
+        if($key === 'evidencia2' && is_string($value)) $this->attributes[$key] = trim($value);
+        if($key === 'logo_url' && is_string($value)) $this->attributes[$key] = trim($value);
+
     }
 }
