@@ -78,7 +78,7 @@ class PedidoController extends Controller
 
             if($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             if($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
-            
+
 
             // Respuesta
             $pedido = Pedido::create($datos);
@@ -141,7 +141,7 @@ class PedidoController extends Controller
 
             if($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia1']);
-            
+
             if($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia2']);
 
@@ -227,6 +227,17 @@ class PedidoController extends Controller
         return view('pedidos.pedido', [$resource->resolve(), 'usuario' => auth()->user()->empleado]);
     }
 
+    public function anular(Request $request, Pedido $pedido){
+        $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
+        $request->validate(['motivo' =>['required', 'string']]);
+        $pedido->causa_anulacion = $request['motivo'];
+        $pedido->autorizacion_id =$autorizacion->id;
+        $pedido->save();
+
+        $modelo = new PedidoResource($pedido->refresh());
+        return response()->json(compact('modelo'));
+
+    }
 
     //retorna un qr
     public function qrview()
