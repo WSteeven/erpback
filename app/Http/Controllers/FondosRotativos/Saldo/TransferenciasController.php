@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -57,7 +58,7 @@ class TransferenciasController extends Controller
         try {
         $datos = $request->validated();
         $contabilidad = User::where('name','mvalarezo')->first();
-        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? $contabilidad->id : $request->usuario_recibe;
+        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? 10 : $request->usuario_recibe;
         $datos['id_tarea'] = $request->tarea==0?null:$request->tarea;
         $datos['estado'] = 3;
         if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
@@ -69,6 +70,9 @@ class TransferenciasController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     } catch (Exception $e) {
         Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        throw ValidationException::withMessages([
+            'Error al insertar registro' => [$e->getMessage()],
+        ]);
     }
     }
     public function autorizaciones_transferencia(Request $request)

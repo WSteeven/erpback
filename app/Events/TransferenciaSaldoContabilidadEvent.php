@@ -15,6 +15,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
@@ -32,35 +33,54 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     {
         $ruta = '/transferencia';
         $this->transferencia = $transferencia;
-        $destinatario = $transferencia->estado!=3? $transferencia->usuario_recibe_id: $transferencia->usuario_envia_id;
+        $destinatario = $transferencia->estado != 3 ? $transferencia->usuario_recibe_id : $transferencia->usuario_envia_id;
         $usuario_envia = Empleado::where('id', $transferencia->usuario_envia_id)->first();
         $usuario_recibe = Empleado::where('id', $transferencia->usuario_recibe_id)->first();
         $informativa = false;
-        switch ($transferencia->estado) {
-            case 1:
-                $mensaje = $usuario_recibe->nombres.' '.$usuario_recibe->apellidos.'Acepto Transferencia';
-                break;
-            case 2:
-                $mensaje = 'Han rechazadoa  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
-                break;
-            case 3:
-                $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
-                break;
-            default:
-            $informativa = true;
-                $mensaje = 'Tienes un transferencia por aceptar';
-                break;
+        $mensaje = '';
+        if ($transferencia->usuario_recibe_id != 10) {
+            switch ($transferencia->estado) {
+                case 1:
+                    $mensaje = $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . 'Acepto Transferencia';
+                    break;
+                case 2:
+                    $mensaje = 'Han rechazado  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                    break;
+                case 3:
+                    $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                    break;
+                default:
+                    $informativa = true;
+                    $mensaje = 'Tienes un transferencia por aceptar';
+                    break;
+            }
+        } else {
+            switch ($transferencia->estado) {
+                case 1:
+                    $mensaje = 'Devolución Aceptada';
+                    break;
+                case 2:
+                    $mensaje = 'Han rechazado  devolucion  a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                    break;
+                case 3:
+                    $mensaje = 'Han realizado una  devolucion  por un monto de $' . $transferencia->monto;
+                    break;
+                default:
+                    $informativa = true;
+                    $mensaje = 'Tienes un devolucion por aceptar';
+                    break;
+            }
         }
-        // recorrer usuarios de Rol CONTABILIDAD
-        $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
-        $empleados_contabilidad = UserInfoResource::collection($empleados_contabilidad);
-        foreach ($empleados_contabilidad as $empleado) {
-            $this->notificar($mensaje, $ruta,$destinatario, $empleado->id,$informativa);
-        }
+         // recorrer usuarios de Rol CONTABILIDAD
+         $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
+         $empleados_contabilidad = UserInfoResource::collection($empleados_contabilidad);
+         foreach ($empleados_contabilidad as $empleado) {
+             $empleado->id != 146 ?  $this->notificar($mensaje, $ruta, $empleado->id, $destinatario, $informativa): $this->notificar($mensaje, $ruta, 10, $destinatario, $informativa);
+         }
     }
     public function notificar($mensaje, $ruta, $destinatario, $remitente, $informativa = false)
     {
-        $this->notificacion = Notificacion::crearNotificacion($mensaje,$ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia,$informativa);
+        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente, $this->transferencia, $informativa);
     }
     /**
      * Get the channels the event should broadcast on.
