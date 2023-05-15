@@ -9,6 +9,7 @@ use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -20,6 +21,7 @@ class Gasto extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     const APROBADO = 1;
     const RECHAZADO = 2;
     const PENDIENTE = 3;
@@ -52,6 +54,7 @@ class Gasto extends Model implements Auditable
         'factura',
         'fecha_viat',
         'id_tarea',
+        'subdetalle',
         'id_proyecto',
         'ruc',
         'factura',
@@ -131,11 +134,13 @@ class Gasto extends Model implements Auditable
             $row['fecha']= $gasto->fecha_viat;
             $row['empleado_info']= $gasto->empleado_info->user;
             $row['usuario'] = $gasto->empleado_info;
-            $row['grupo'] = $gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
+            $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
+            $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
             $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
+            $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
             $row['observacion'] = $gasto->observacion;
             $row['detalle_estado'] = $gasto->detalle_estado;
             $row['total']= $gasto->total;
@@ -145,5 +150,18 @@ class Gasto extends Model implements Auditable
         }
         return $results;
 
+    }
+    private static function subdetalle_inform($subdetalle_info)
+    {
+        $descripcion = '';
+        $i = 0;
+        foreach ($subdetalle_info as $sub_detalle) {
+            $descripcion .= $sub_detalle['descripcion'];
+            $i++;
+            if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
     }
 }

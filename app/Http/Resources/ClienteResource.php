@@ -24,6 +24,7 @@ class ClienteResource extends JsonResource
             'parroquia' => $this->parroquia?->parroquia,
             'requiere_bodega' => $this->requiere_bodega,
             'estado' => $this->estado,
+            'logo_url' => $this->logo_url? url($this->logo_url):null,
         ];
 
         if ($controller_method == 'show') {

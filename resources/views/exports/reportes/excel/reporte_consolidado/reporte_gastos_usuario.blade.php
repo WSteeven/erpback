@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte</title>
+    <title>Reporte de Gastos</title>
     <style>
         @page {
             margin: 100px 25px;
@@ -63,7 +63,7 @@
                     <table width="100%">
                         <tr>
                             <td bgcolor="#bfbfbf" style="font-size:12px">
-                                <div align="center"><strong>{{ $titulo }}</strong></div>
+                                <div align="center"><strong>{{ $usuario }}</strong></div>
                             </td>
                         </tr>
                         <tr>
@@ -79,11 +79,9 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                             <div align="center"><strong>Fecha</strong></div>
                                         </td>
-                                        @if ($subtitulo == '' && $tipo_filtro != 3)
-                                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                                                <div align="center"><strong>Descripcion del Gasto</strong></div>
-                                            </td>
-                                        @endif
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                            <div align="center"><strong>Descripcion del Gasto</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
                                             <div align="center"><strong>Comentario&oacute;n</strong></div>
                                         </td>
@@ -112,13 +110,11 @@
                                                 <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
                                                 </div>
                                             </td>
-                                            @if ($subtitulo == '' && $tipo_filtro != 3)
-                                                <td style="font-size:10px" width="29%">
-                                                    <div align="left">
-                                                        {{ $gasto['sub_detalle_desc'] }}
-                                                    </div>
-                                                </td>
-                                            @endif
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $gasto['sub_detalle_desc'] }}
+                                                </div>
+                                            </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                             </td>

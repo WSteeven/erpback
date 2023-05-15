@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Empleado extends Model implements Auditable
 {
@@ -266,6 +268,8 @@ class Empleado extends Model implements Auditable
     public function subtareasCoordinador(): HasManyThrough
     {
         return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
+        //Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
+        //return DB::table('subtareas')->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->where('tareas.coordinador_id', 3);
     }
 
     public static function extraerNombresApellidos(Empleado $empleado)

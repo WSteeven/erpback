@@ -7,6 +7,7 @@ use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\Notificacion;
 use App\Models\User;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,7 @@ class GastoCoordinador extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     protected $table = 'gastos_coordinador';
     protected $primaryKey = 'id';
     protected $fillable = [

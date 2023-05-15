@@ -34,7 +34,7 @@ class SubtareaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'tarea' => $this->tarea->codigo_tarea,
+            'codigo_tarea' => $this->tarea->codigo_tarea,
             'tarea_id' => $this->tarea_id,
             'codigo_subtarea' => $this->codigo_subtarea, //$this->tarea->tiene_subtareas ? $this->codigo_subtarea : null,
             'codigo_tarea_cliente' => $this->tarea->codigo_tarea_cliente,
@@ -137,7 +137,7 @@ class SubtareaResource extends JsonResource
     public function mapEmpleadoSeleccionado($empleadosSubtarea)
     {
         return $empleadosSubtarea->map(function ($empleado) {
-            Log::channel('testing')->info('Log', compact('empleado'));
+            // Log::channel('testing')->info('Log', compact('empleado'));
             // $empleado = Empleado::find($item->empleado_id);
             return [
                 'id' => $empleado->id,

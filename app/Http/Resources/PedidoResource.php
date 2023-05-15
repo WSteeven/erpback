@@ -33,6 +33,10 @@ class PedidoResource extends JsonResource
             'autorizacion' => $this->autorizacion->nombre,
             'per_autoriza' => $this->autoriza->nombres . ' ' . $this->autoriza->apellidos,
             'per_autoriza_id' => $this->per_autoriza_id,
+            'per_retira' => is_null($this->per_retira_id)?'':$this->retira->nombres.' '.$this->retira->apellidos,
+            'per_retira_id' => $this->per_retira_id,
+            'cliente' => $this->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->cliente_id,
             'tarea' => $this->tarea?->titulo,
             'tarea_id' => $this->tarea_id,
             'sucursal' => $this->sucursal->lugar,
@@ -41,11 +45,16 @@ class PedidoResource extends JsonResource
             'listadoProductos' => $detalles,
             'created_at' => date('d-m-Y', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
+            'evidencia1'=>$this->evidencia1 ? url($this->evidencia1) : null,
+            'evidencia2'=>$this->evidencia2 ? url($this->evidencia2) : null,
 
             'tiene_fecha_limite'=>$this->fecha_limite?true:false,
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
             'tiene_observacion_est' => $this->observacion_est ? true : false,
+            'retira_tercero' => $this->per_retira_id ? true : false,
+            'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2 ? true : false,
+            'para_cliente' => $this->cliente ? true : false,
         ];
 
         if ($controller_method == 'show') {
@@ -53,6 +62,8 @@ class PedidoResource extends JsonResource
             $modelo['responsable'] = $this->responsable_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['per_autoriza'] = $this->per_autoriza_id;
+            $modelo['per_retira'] = $this->per_retira_id;
+            $modelo['cliente'] = $this->cliente_id;
             $modelo['tarea'] = $this->tarea_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['estado'] = $this->estado_id;

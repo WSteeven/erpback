@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TransaccionBodegaRequest;
+use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\Cliente;
 use App\Models\Condicion;
 use App\Models\DetalleDevolucionProducto;
 use App\Models\DetalleProducto;
@@ -308,14 +310,15 @@ class TransaccionBodegaIngresoController extends Controller
     public function imprimir(TransaccionBodega $transaccion)
     {
         $resource = new TransaccionBodegaResource($transaccion);
+        $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->solicitante_id);
         $persona_atiende = Empleado::find($transaccion->per_atiende_id);
         Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $transaccion]);
         Log::channel('testing')->info('Log', ['transaccion que se va a imprimir', $resource]);
         try {
-            Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende]]);
+            Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende, 'cliente' => $cliente]]);
             $transaccion = $resource->resolve();
-            $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende']));
+            $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende', 'cliente']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();

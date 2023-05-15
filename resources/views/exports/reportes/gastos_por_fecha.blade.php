@@ -286,7 +286,8 @@
                                 <div align="center">{{ $dato->detalle_info->descripcion}}</div>
                             </td>
                             <td style="font-size:10px">
-                                <div align="center">  @foreach($dato->sub_detalle_info as $sub_detalle)
+                                <div align="center">
+                                     @foreach($dato->sub_detalle_info as $sub_detalle)
                                     {{ $sub_detalle->descripcion }}
                                     @if (!$loop->last)
                                        ,

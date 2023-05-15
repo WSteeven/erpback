@@ -28,7 +28,8 @@ class ClienteRequest extends FormRequest
             'empresa' =>     'exists:empresas,id|required|unique:clientes,empresa_id,NULL,id,parroquia_id,' . $this->parroquia_id,
             'parroquia' =>   'exists:parroquias,id|required|unique:clientes,empresa_id',//NULL, empresa_id' . $this->empresa_id,
             'requiere_bodega' => 'boolean',
-            'estado' => 'boolean'
+            'estado' => 'boolean',
+            'logo_url' => 'nullable|string',
         ];
         /* if(in_array($this->method(), ['PUT', 'PATCH'])){
             $cliente = $this->route()->parameter('cliente');
