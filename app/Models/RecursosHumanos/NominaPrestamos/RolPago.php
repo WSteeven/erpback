@@ -17,6 +17,7 @@ class RolPago extends Model implements Auditable
     protected $table = 'rol_pago';
     protected $fillable = [
         'empleado_id',
+        'mes',
         'salario',
         'dias',
         'sueldo',
@@ -34,11 +35,13 @@ class RolPago extends Model implements Auditable
         'extension_conyugal',
         'prestamo_empresarial',
         'sancion_pecuniaria',
-        'total_egreso'
+        'total_egreso',
+        'total'
 
     ];
     private static $whiteListFilter = [
         'id',
+        'mes',
         'empleado',
         'salario',
         'dias',
@@ -57,7 +60,8 @@ class RolPago extends Model implements Auditable
         'extension_conyugal',
         'prestamo_empresarial',
         'sancion_pecuniaria',
-        'total_egreso'
+        'total_egreso',
+        'total'
     ];
 
     public function empleado_info()

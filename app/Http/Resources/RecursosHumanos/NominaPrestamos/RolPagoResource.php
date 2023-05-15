@@ -40,7 +40,7 @@ class RolPagoResource extends JsonResource
             'prestamo_empresarial' => $this->prestamo_empresarial,
             'sancion_pecuniaria' => $this->sancion_pecuniaria,
             'total_egreso' => $this->total_egreso,
-            'total' => $this->total_ingreso - $this->total_egreso,
+            'total' => $this->total,
         ];
         return $modelo;
     }
