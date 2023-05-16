@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Http\Resources\UserInfoResource;
+use App\Http\Resources\UserResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
@@ -71,12 +72,18 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
                     break;
             }
         }
-         // recorrer usuarios de Rol CONTABILIDAD
-         $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
-         $empleados_contabilidad = UserInfoResource::collection($empleados_contabilidad);
-         foreach ($empleados_contabilidad as $empleado) {
-             $empleado->id != 146 ?  $this->notificar($mensaje, $ruta, $empleado->id, $destinatario, $informativa): $this->notificar($mensaje, $ruta, 10, $destinatario, $informativa);
-         }
+        // recorrer usuarios de Rol CONTABILIDAD
+        $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
+        foreach ($empleados_contabilidad as $empleado) {
+            if ($this->obtener_id_empleado($empleado->id) != null) {
+                $this->notificar($mensaje, $ruta, $this->obtener_id_empleado($empleado->id), $destinatario, $informativa);
+            }
+        }
+    }
+    public function obtener_id_empleado($id)
+    {
+        $empleado = Empleado::where('id', $id)->where('estado',1)->first();
+        return $empleado == null ? null : $empleado->id;
     }
     public function notificar($mensaje, $ruta, $destinatario, $remitente, $informativa = false)
     {
