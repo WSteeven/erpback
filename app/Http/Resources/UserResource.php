@@ -31,6 +31,7 @@ class UserResource extends JsonResource
             'grupo_id' => $this->empleado->grupo_id,
             'grupo' => $this->empleado->grupo?->nombre,
             'rol'=>$this->getRoleNames(),
+            'permisos'=>$this->getAllPermissions(),
             'estado' => $this->empleado->estado,
             'es_lider' => $this->esTecnicoLider(),
         ];

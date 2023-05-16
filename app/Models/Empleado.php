@@ -198,6 +198,15 @@ class Empleado extends Model implements Auditable
     }
 
     /**
+     * Realación muchos a muchos.
+     * Un empleado registra varias bitacoras
+     */
+    public function bitacoras(){
+        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
+        ->withPivot('fecha','hora_salida','hora_llegada', 'km_inicial', 'km_final','tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+    }
+
+    /**
      * Relacion uno a muchos
      * Un empleado es solicitante de varias transferencias
      */

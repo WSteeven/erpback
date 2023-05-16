@@ -40,4 +40,12 @@ class Modelo extends Model implements Auditable
     {
         return $this->belongsTo(Marca::class);
     }
+
+    /**
+     * Relación uno a uno.
+     * Un modelo está en varios vehículos.
+     */
+    public function vehiculos(){
+        return $this->hasOne(Vehiculo::class);
+    }
 }

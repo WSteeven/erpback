@@ -149,6 +149,7 @@ class EmpleadoController extends Controller
      */
     public function show(Empleado $empleado)
     {
+        // Log::channel('testing')->info('Log', ['Consultaste un empleado', $empleado]);
         $modelo = new EmpleadoResource($empleado);
         return response()->json(compact('modelo'));
     }
