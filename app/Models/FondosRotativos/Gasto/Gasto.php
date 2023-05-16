@@ -134,11 +134,13 @@ class Gasto extends Model implements Auditable
             $row['fecha']= $gasto->fecha_viat;
             $row['empleado_info']= $gasto->empleado_info->user;
             $row['usuario'] = $gasto->empleado_info;
+            $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
             $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
             $row['tarea'] = $gasto->tarea_info;
             $row['proyecto'] = $gasto->proyecto_info;
             $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
+            $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
             $row['observacion'] = $gasto->observacion;
             $row['detalle_estado'] = $gasto->detalle_estado;
             $row['total']= $gasto->total;
@@ -148,5 +150,18 @@ class Gasto extends Model implements Auditable
         }
         return $results;
 
+    }
+    private static function subdetalle_inform($subdetalle_info)
+    {
+        $descripcion = '';
+        $i = 0;
+        foreach ($subdetalle_info as $sub_detalle) {
+            $descripcion .= $sub_detalle['descripcion'];
+            $i++;
+            if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
     }
 }

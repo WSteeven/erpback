@@ -27,7 +27,6 @@ class TransferenciaSaldoRequest extends FormRequest
     {
         return [
             'fecha' => 'required',
-            'usuario_recibe' => 'required',
             'usuario_envia_id' => 'required',
             'monto' => 'required|numeric',
             'motivo' => 'required|string',
