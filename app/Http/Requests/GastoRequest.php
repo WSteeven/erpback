@@ -54,7 +54,7 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
         ];
-       if (!is_null($this->placa) ) {
+       if (!is_null($this->vehiculo) ) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'lugar' => 'required',
@@ -74,7 +74,7 @@ class GastoRequest extends FormRequest
                 'comprobante1' => 'required|string',
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|srtring',
-                'placa' => 'required|string',
+                'vehiculo' => 'required|integer',
                 'kilometraje' => 'required|integer'
             ];
         }
