@@ -22,4 +22,5 @@ enum RutasStorage: string
     case SEGUIMIENTO = 'public/seguimiento'; // fotografias
     case ARCHIVOS_SEGUIMIENTO = 'public/archivos_seguimiento';
 	case PEDIDOS = 'public/pedidos/evidencias';
+	case CLIENTES = 'public/clientes/logos';
 }
