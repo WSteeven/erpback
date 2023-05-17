@@ -46,6 +46,7 @@ class TareaResource extends JsonResource
             'medio_notificacion' => $this->medio_notificacion,
             'canton' => $this->obtenerCanton(),
             // 'subtarea' => new SubtareaResource($primeraSubtarea),
+            'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
             // Subtarea
              /* 'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
