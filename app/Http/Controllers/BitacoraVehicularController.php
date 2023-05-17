@@ -7,22 +7,20 @@ use Illuminate\Http\Request;
 
 class BitacoraVehicularController extends Controller
 {
+    private $entidad = 'Bitacora Vehicular';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.bitacoras_vehiculos')->only('index', 'show');
+        $this->middleware('can:puede.crear.bitacoras_vehiculos')->only('store');
+        $this->middleware('can:puede.editar.bitacoras_vehiculos')->only('update');
+        $this->middleware('can:puede.eliminar.bitacoras_vehiculos')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
     {
         //
     }
@@ -45,17 +43,6 @@ class BitacoraVehicularController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(BitacoraVehicular $bitacoraVehicular)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(BitacoraVehicular $bitacoraVehicular)
     {
         //
     }

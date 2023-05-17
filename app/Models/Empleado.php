@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Empleado extends Model implements Auditable
 {
