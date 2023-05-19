@@ -18,6 +18,10 @@ use Illuminate\Support\Facades\Log;
 use Src\App\SubtareaService;
 use Src\Shared\Utils;
 use stdClass;
+use Illuminate\Validation\ValidationException;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
+use Src\Shared\GuardarArchivo;
 
 class TareaController extends Controller
 {
@@ -108,6 +112,11 @@ class TareaController extends Controller
     public function update(Request $request, Tarea $tarea)
     {
         if ($request->isMethod('patch')) {
+            if ($request['imagen_informe']) {
+                $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
+                $request['imagen_informe'] = $guardar_imagen->execute();
+                // Log::channel('testing')->info('Log', compact('request'));
+            }
             $tarea->update($request->except(['id']));
         }
 
@@ -211,8 +220,8 @@ class TareaController extends Controller
         $materiales = MaterialEmpleadoTarea::where('tarea_id', $idTarea)->get();
         $materialesConStock = $materiales->filter(fn ($material) => $material->cantidad_stock > 0);
         $materiales_devueltos = $materialesConStock->count() == 0;
-        Log::channel('testing')->info('Log', compact('materialesConStock'));
-        Log::channel('testing')->info('Log', compact('materiales_devueltos'));
+        //        Log::channel('testing')->info('Log', compact('materialesConStock'));
+        //      Log::channel('testing')->info('Log', compact('materiales_devueltos'));
         return response()->json(compact('materiales_devueltos'));
     }
 
@@ -231,7 +240,7 @@ class TareaController extends Controller
 
         $tareas = Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $nuevoCoordinador]);
 
-        Log::channel('testing')->info('Log', compact('tareas'));
+        // Log::channel('testing')->info('Log', compact('tareas'));
         return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
     }
 }
