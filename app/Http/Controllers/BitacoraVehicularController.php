@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BitacoraVehicularRequest;
+use App\Http\Resources\BitacoraVehicularResource;
 use App\Models\BitacoraVehicular;
 use App\Models\Empleado;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class BitacoraVehicularController extends Controller
 {
@@ -26,9 +31,11 @@ class BitacoraVehicularController extends Controller
     {
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
             $results = BitacoraVehicular::all();
-        else{
-            $empleado = Empleado::where('usuario_id', auth()->user()->id)->first();
-            $results = $empleado->bitacoras();
+        else {
+            $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
+            Log::channel('testing')->info('Log', ['Resultados BitacoraVehicularController', $results]);
+            // $results = $empleado;
+            $results = BitacoraVehicularResource::collection($results);
         }
         return response()->json(compact('results'));
     }
@@ -39,9 +46,40 @@ class BitacoraVehicularController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(BitacoraVehicularRequest $request)
     {
-        //
+        Log::channel('testing')->info('Log', ['metodo store del controlador BitacoraVehicularController', $request->all()]);
+        //Adaptación de foreign keys
+        $datos = $request->validated();
+        $datos['fecha'] = date('Y-m-d', strtotime($request->fecha)); //$request->safe()->only(['vehiculo'])['vehiculo'];
+        $datos['vehiculo_id'] = $request->safe()->only(['vehiculo'])['vehiculo'];
+        $datos['chofer_id'] = $request->safe()->only(['chofer'])['chofer'];
+
+        //Respuesta
+        try {
+            $chofer = Empleado::find($request->chofer);
+            $chofer->bitacoras()->attach(
+                $request->vehiculo,
+                [
+                    'fecha' => $datos['fecha'],
+                    'hora_salida' => $datos['hora_salida'],
+                    'hora_llegada' => $datos['hora_llegada'],
+                    'km_inicial' => $datos['km_inicial'],
+                    'km_final' => $datos['km_final'],
+                    'tanque_inicio' => $datos['tanque_inicio'],
+                    'tanque_final' => $datos['tanque_final'],
+                    'firmada' => $datos['firmada'],
+                ]
+            );
+            // $bitacora = BitacoraVehicular::;
+            Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
+            $modelo = new BitacoraVehicularResource($chofer->ultimaBitacora);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar la bitacora', $ex->getMessage(), $ex->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error: ' . $ex->getMessage()], 422);
+        }
+        return response()->json(compact('mensaje', 'modelo'), 200);
     }
 
     /**
@@ -50,9 +88,11 @@ class BitacoraVehicularController extends Controller
      * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
      * @return \Illuminate\Http\Response
      */
-    public function show(BitacoraVehicular $bitacoraVehicular)
+    public function show(BitacoraVehicular $bitacora)
     {
-        //
+        Log::channel('testing')->info('Log', ['metodo show de bitacora: ...', $bitacora]);
+        $modelo = new BitacoraVehicularResource($bitacora);
+        return response()->json(compact('modelo'));
     }
 
     /**

@@ -53,6 +53,16 @@ class Notificacion extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'per_destinatario_id', 'id');
     }
 
+    //Relación polimorfica
+    public function notificable()
+    {
+        return $this->morphTo();
+    }
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
     /**
      * It creates a notification in the database
      *
@@ -69,19 +79,15 @@ class Notificacion extends Model implements Auditable
     public static function crearNotificacion($mensaje, $ruta, $tipo, $originador, $destinatario, $entidad, $informativa)
     {
         //$notificacion = Notificacion::create([
-            $notificacion = $entidad->notificaciones()->create([
+        $notificacion = $entidad->notificaciones()->create([
             'mensaje' => $mensaje,
             'link' => $ruta,
             'per_originador_id' => $originador,
             'per_destinatario_id' => $destinatario,
             'tipo_notificacion' => $tipo,
-            'informativa'=>$informativa,
+            'informativa' => $informativa,
         ]);
         return $notificacion;
     }
 
-    public function notificable()
-    {
-        return $this->morphTo();
-    }
 }
