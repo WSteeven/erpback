@@ -91,6 +91,7 @@ class PermisoController extends Controller
      */
     public function store(PermisoRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Request recibida en el store del controlador de permisos', $request->all()]);
         //Respuesta
         $modelo = Permission::create($request->validated());
         $modelo = new PermisoResource($modelo);

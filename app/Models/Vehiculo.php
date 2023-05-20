@@ -22,13 +22,30 @@ class Vehiculo extends Model implements Auditable
         'anio_fabricacion',
         'cilindraje',
         'rendimiento',
+        'traccion',
+        'aire_acondicionado',
+        'capacidad_tanque',
         'modelo_id',
         'combustible_id',
     ];
 
+    //Tracciones
+    const SENCILLA_DELANTERA='4X2 FWD';
+    const SENCILLA_TRASERA='4X2 RWD';
+    const AWD='AWD';
+    const FOUR_WD='4WD';
+    const TODOTERRENO='4X4';
+    
+    //Transmisiones
+    // const MANUAL='MANUAL';
+    // const AUTOMATICA='AUTOMATICA';
+    // const SECUENCIAL='SECUENCIAL';
+    // const CVT='CONITNUA VARIABLE (CVT)';
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'aire_acondicionado' => 'boolean',
     ];
 
     private static $whiteListFilter = [

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BitacoraVehicular;
+use App\Models\Empleado;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BitacoraVehicularController extends Controller
@@ -22,7 +24,13 @@ class BitacoraVehicularController extends Controller
      */
     public function index()
     {
-        //
+        if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS))
+            $results = BitacoraVehicular::all();
+        else{
+            $empleado = Empleado::where('usuario_id', auth()->user()->id)->first();
+            $results = $empleado->bitacoras();
+        }
+        return response()->json(compact('results'));
     }
 
     /**
