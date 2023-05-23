@@ -10,6 +10,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class BitacoraVehicularController extends Controller
@@ -33,8 +34,6 @@ class BitacoraVehicularController extends Controller
             $results = BitacoraVehicular::all();
         else {
             $results = BitacoraVehicular::where('chofer_id', auth()->user()->empleado->id)->get();
-            Log::channel('testing')->info('Log', ['Resultados BitacoraVehicularController', $results]);
-            // $results = $empleado;
             $results = BitacoraVehicularResource::collection($results);
         }
         return response()->json(compact('results'));
@@ -47,11 +46,8 @@ class BitacoraVehicularController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(BitacoraVehicularRequest $request)
-    {
-        Log::channel('testing')->info('Log', ['metodo store del controlador BitacoraVehicularController', $request->all()]);
-        //Adaptación de foreign keys
+    {   //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['fecha'] = date('Y-m-d', strtotime($request->fecha)); //$request->safe()->only(['vehiculo'])['vehiculo'];
         $datos['vehiculo_id'] = $request->safe()->only(['vehiculo'])['vehiculo'];
         $datos['chofer_id'] = $request->safe()->only(['chofer'])['chofer'];
 
@@ -71,7 +67,7 @@ class BitacoraVehicularController extends Controller
                     'firmada' => $datos['firmada'],
                 ]
             );
-            // $bitacora = BitacoraVehicular::;
+            // $bitacora = BitacoraVehicular::create($datos);
             Log::channel('testing')->info('Log', ['BitacoraVehicularRecienCreada', $chofer->ultimaBitacora]);
             $modelo = new BitacoraVehicularResource($chofer->ultimaBitacora);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
@@ -113,8 +109,17 @@ class BitacoraVehicularController extends Controller
      * @param  \App\Models\BitacoraVehicular  $bitacoraVehicular
      * @return \Illuminate\Http\Response
      */
-    public function destroy(BitacoraVehicular $bitacoraVehicular)
+    public function destroy(BitacoraVehicular $bitacora)
     {
-        //
+        if (!$bitacora->firmada) {
+            $bitacora->delete();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+            return response()->json(compact('mensaje'), 200);
+        } else {
+            throw ValidationException::withMessages([
+                'firmada' => ['No se puede eliminar una bitacora firmada!']
+            ]);
+            // return response()->json(['mensaje' => 'No se puede eliminar un registro ya firmado '], 422);
+        }
     }
 }

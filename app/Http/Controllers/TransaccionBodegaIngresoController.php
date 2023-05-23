@@ -10,6 +10,7 @@ use App\Models\Condicion;
 use App\Models\DetalleDevolucionProducto;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
+use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
@@ -121,6 +122,9 @@ class TransaccionBodegaIngresoController extends Controller
                                 $material->cantidad_stock -= $listado['cantidad'];
                                 $material->save();
                             }
+                            $devolucion = Devolucion::find($transaccion->devolucion_id);
+                            $devolucion->estado_bodega = EstadoTransaccion::COMPLETA;
+                            $devolucion->save();
                         }
                     }
                     //Llamamos a la funcion de insertar cada elemento en el inventario

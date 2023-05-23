@@ -24,7 +24,7 @@ class BitacoraVehicularRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'fecha' => 'string|required',
+            'fecha' => 'date|required|date_format:Y-m-d',
             'hora_salida' => 'string|required',
             'hora_llegada' => 'string|required',
             'km_inicial' => 'string|required',
@@ -42,6 +42,7 @@ class BitacoraVehicularRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
+            'fecha' => date('Y-m-d', strtotime($this->fecha)),
             'chofer' => auth()->user()->empleado->id,
             'chofer_id' => auth()->user()->empleado->id
         ]);
