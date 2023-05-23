@@ -127,9 +127,11 @@
                     <div align="center">
                         <table width="100%">
                             <tr>
+                                @if(isset($usuario->nombres))
                                 <td bgcolor="#bfbfbf" style="font-size:12px">
                                     <div align="center"><strong>{{ $usuario->nombres.' '.$usuario->apellidos }} </strong></div>
                                 </td>
+                                @endif
                             </tr>
                             <tr>
                                 <td height="55px;">
