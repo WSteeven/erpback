@@ -124,7 +124,8 @@ class UserController extends Controller
     public function autorizationUser()
     {
         $user = Auth::user();
-        $jefe = Empleado::where('id',$user->empleado->jefe_id)->first()->usuario_id;
+        $jefe = Empleado::where('id',$user->empleado->jefe_id)->first();
+        $jefe = $jefe!==null?$jefe->usuario_id:0;
         $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->where('users.id','!=',$jefe)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
     }

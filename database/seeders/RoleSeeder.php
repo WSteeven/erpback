@@ -521,5 +521,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.editar.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
+        Permission::firstOrCreate(['name' => 'puede.ver.campo.autorizador'])->syncRoles([$jefe_tecnico, $tecnico]);
+
     }
 }
