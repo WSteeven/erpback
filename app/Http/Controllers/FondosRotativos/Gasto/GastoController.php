@@ -22,6 +22,7 @@ use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use App\Models\User;
+use App\Models\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -502,6 +503,8 @@ class GastoController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
+            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
+            $datos['placa'] = Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();

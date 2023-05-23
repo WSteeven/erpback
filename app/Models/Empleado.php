@@ -12,8 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Empleado extends Model implements Auditable
 {
@@ -197,6 +195,15 @@ class Empleado extends Model implements Auditable
     public function pedidos()
     {
         return $this->hasMany(Pedido::class);
+    }
+
+    /**
+     * Realación muchos a muchos.
+     * Un empleado registra varias bitacoras
+     */
+    public function bitacoras(){
+        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
+        ->withPivot('fecha','hora_salida','hora_llegada', 'km_inicial', 'km_final','tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
 
     /**

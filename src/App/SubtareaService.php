@@ -6,12 +6,14 @@ use App\Http\Requests\SubtareaRequest;
 use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
 use App\Models\MovilizacionSubtarea;
+use App\Models\Seguimiento;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 
 class SubtareaService
@@ -108,6 +110,27 @@ class SubtareaService
             $movilizacion->latitud_llegada = $request['latitud_llegada'];
             $movilizacion->longitud_llegada = $request['longitud_llegada'];
             $movilizacion->save();
+        }
+    }
+
+    public function puedeRealizar(Subtarea $subtarea)
+    {
+        $seguimiento = Seguimiento::find($subtarea->seguimiento_id);
+
+        if (!$seguimiento) throw ValidationException::withMessages([
+            'falta_seguimiento' => ['Debe registrar actividades en el seguimiento!'],
+        ]);
+
+        if ($seguimiento->trabajoRealizado->count() < 3)
+            throw ValidationException::withMessages([
+                'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
+            ]);
+
+        if ($subtarea->tarea->cliente_id == 3) {
+            if ($seguimiento->archivos->count() === 0)
+                throw ValidationException::withMessages([
+                    'archivo_requerido' => ['Debe subir al menos un archivo en el formulario de seguimiento!'],
+                ]);
         }
     }
 }

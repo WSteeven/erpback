@@ -37,7 +37,7 @@ class Tarea extends Model implements Auditable
         'medio_notificacion',
         'observacion',
         'novedad',
-        // 'tiene_subtareas',
+        'imagen_informe',
         'finalizado',
         'proyecto_id',
         'coordinador_id',

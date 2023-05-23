@@ -127,7 +127,7 @@ class TransferenciaObserver
         $saldo_envia->tipo_saldo = "Egreso";
         $saldo_envia->save();
         //Actualizacion de saldo Usuario que recibe
-        if ($transferencia->usuario_recibe_id != null) {
+        if ($transferencia->usuario_recibe_id != null && $transferencia->usuario_recibe_id != 10) {
             $saldo_recibe = new SaldoGrupo();
             $saldo_recibe->fecha = $transferencia->created_at;
             $saldo_recibe->saldo_anterior = $total_saldo_actual_usuario_recibe;

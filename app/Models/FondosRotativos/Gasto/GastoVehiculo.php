@@ -19,12 +19,14 @@ class GastoVehiculo extends  Model implements Auditable
     protected $fillable = [
         'id_gasto',
         'placa',
+        'id_vehiculo',
         'kilometraje',
     ];
     private static $whiteListFilter = [
         'gasto',
         'id_gasto',
         'placa',
+        'vehiculo',
         'kilometraje',
     ];
     public function gasto_info()

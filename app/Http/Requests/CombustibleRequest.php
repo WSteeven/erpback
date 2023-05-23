@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RolRequest extends FormRequest
+class CombustibleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,8 @@ class RolRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|unique:roles,name'
+            'nombre' => 'string|required',
+            'precio' => 'required|decimal:1,4',
         ];
-    }
-    public function prepareForValidation()
-    {
-        $this->merge([
-            'name' => strtoupper($this->name),
-            'guard_name' => 'web'
-        ]);
     }
 }
