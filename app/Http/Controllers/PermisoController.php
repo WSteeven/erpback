@@ -30,7 +30,7 @@ class PermisoController extends Controller
     }
     public function listarPermisosRoles(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
         $roles = explode(',', $request->id_rol);
         $results = [];
         $empleado = Empleado::find($request->empleado_id);
@@ -41,7 +41,7 @@ class PermisoController extends Controller
 
                 break;
             case 'NO ASIGNADOS':
-                $permisos_asignados = $empleado->user->permissions;//Permisos asignados por roles
+                $permisos_asignados = $empleado->user->permissions; //Permisos asignados por roles
                 $permisos_no_asignados = Permission::whereNotIn('id', $permisos_asignados->pluck('id')->toArray())->get();
                 $results = $permisos_no_asignados;
                 break;
@@ -91,9 +91,9 @@ class PermisoController extends Controller
      */
     public function store(PermisoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida en el store del controlador de permisos', $request->all()]);
         //Respuesta
-        $modelo = Permission::create($request->validated());
+        $request->validated();
+        $modelo = Permission::create($request->all());
         $modelo = new PermisoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

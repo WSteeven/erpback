@@ -26,6 +26,7 @@ class DevolucionResource extends JsonResource
             'tarea'=>$this->tarea?->titulo,
             'canton'=>$this->canton->canton,
             'estado'=>$this->estado,
+            'estado_bodega'=>$this->estado_bodega,
             'es_para_stock'=>$this->stock_personal,
             'listadoProductos'=>$detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
