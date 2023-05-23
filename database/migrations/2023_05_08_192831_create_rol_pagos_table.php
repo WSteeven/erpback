@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('rol_pago', function (Blueprint $table) {
             $table->id();
-            $table->date('fecha');
+            $table->string('mes',7);
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->decimal('salario',8,2);
