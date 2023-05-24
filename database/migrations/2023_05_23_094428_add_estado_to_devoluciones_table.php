@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\EstadoTransaccion;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,9 +14,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('gasto_vehiculos', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_vehiculo')->after('kilometraje')->nullable();
-            $table->foreign('id_vehiculo')->references('id')->on('vehiculos')->onDelete('cascade');
+        Schema::table('devoluciones', function (Blueprint $table) {
+            $table->enum('estado_bodega', [EstadoTransaccion::PENDIENTE, EstadoTransaccion::COMPLETA, EstadoTransaccion::PARCIAL, EstadoTransaccion::ANULADA])->default(EstadoTransaccion::PENDIENTE)->after('estado');
         });
     }
 
@@ -26,8 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('gasto_vehiculos', function (Blueprint $table) {
-            $table->dropColumn('id_vehiculo');
+        Schema::table('devoluciones', function (Blueprint $table) {
+            //
         });
     }
 };

@@ -154,5 +154,10 @@ class GastoRequest extends FormRequest
                 'ruc' => '9999999999999',
             ]);
         }
+        if (is_null($this->kilometraje)) {
+            $this->merge([
+                'kilometraje' => 0,
+            ]);
+        }
     }
 }

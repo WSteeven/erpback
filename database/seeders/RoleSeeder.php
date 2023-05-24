@@ -521,5 +521,29 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.editar.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.vehiculos'])->syncRoles([$administrador, $activos_fijos]);
+
+        // -----------------
+        // Modulo de Tickets
+        // -----------------
+        // Tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tickets'])->syncRoles([$empleado]);
+
+        // Departamentos
+        Permission::firstOrCreate(['name' => 'puede.ver.departamentos'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.departamentos'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.departamentos'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.departamentos'])->syncRoles([$recursos_humanos]);
+
+        // Tipos de tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.tipos_tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tipos_tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$empleado]);
+
+        Permission::firstOrCreate(['name' => 'puede.ver.campo.autorizador'])->syncRoles([$jefe_tecnico, $tecnico]);
+
     }
 }

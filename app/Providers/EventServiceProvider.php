@@ -41,6 +41,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\PedidoEvent' => [
             'App\Listeners\PedidoListener',
         ],
+        'App\Events\TareaEvent' => [
+            'App\Listeners\TareaListener',
+        ],
     ];
 
     /**

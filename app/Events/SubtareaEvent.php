@@ -85,15 +85,10 @@ class SubtareaEvent implements ShouldBroadcast
 
     private function obtenerDestinatario(string $rolReceptor)
     {
-        Log::channel('testing')->info('Log', compact('rolReceptor'));
         switch ($rolReceptor) {
             case User::ROL_TECNICO:
-                Log::channel('testing')->info('Log', ['mensaje' => 'es tecnico']);
-                Log::channel('testing')->info('Log', ['id empleado' => $this->subtarea->empleado_id]);
                 return $this->subtarea->empleado_id;
             case User::ROL_COORDINADOR:
-                Log::channel('testing')->info('Log', ['mensaje' => 'es coordinador']);
-                Log::channel('testing')->info('Log', ['id coordinador' => $this->subtarea->tarea->coordinador_id]);
                 return $this->subtarea->tarea->coordinador_id;
         }
     }
@@ -111,7 +106,6 @@ class SubtareaEvent implements ShouldBroadcast
                 return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha REALIZADO la subtarea ' . $this->subtarea->codigo_subtarea . '.';
             case Subtarea::SUSPENDIDO:
                 $motivo = DB::table('motivo_suspendido_subtarea')->where('subtarea_id', $this->subtarea->id)->latest()->first();
-                Log::channel('testing')->info('Log', compact('motivo'));
                 return Empleado::extraerNombresApellidos($this->subtarea->empleado) . ' ha SUSPENDIDO la subtarea ' . $this->subtarea->codigo_subtarea . '. por el motivo "' . MotivoSuspendido::find($motivo->motivo_suspendido_id)->motivo . '"';
         }
     }
