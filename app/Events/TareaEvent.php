@@ -38,7 +38,7 @@ class TareaEvent implements ShouldBroadcast
 
         $ruta = '/gasto';
         $coordinador = Empleado::extraerNombresApellidos(Empleado::find($emisor));
-        $mensaje = $coordinador . ' ha finalizado la tarea ' . $tarea->codigo_tarea . '. La tarea será visible hasta el ' . Carbon::parse($tarea->updated_at)->addHour()->format('d-m-Y H:i:s') . '.';
+        $mensaje = $coordinador . ' ha finalizado la tarea ' . $tarea->codigo_tarea . '. La tarea será visible hasta el ' . Carbon::parse($tarea->updated_at)->addHour(24)->format('d-m-Y H:i:s') . '.';
 
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::TAREA, $emisor, $destinatario, $tarea, true);
     }
