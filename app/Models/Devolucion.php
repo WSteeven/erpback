@@ -25,6 +25,8 @@ class Devolucion extends Model implements Auditable
         'canton_id',
         'stock_personal',
         'causa_anulacion',
+        'estado',
+        'estado_bodega',
     ];
 
     protected $casts = [

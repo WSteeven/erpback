@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Vehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -33,14 +34,17 @@ class VehiculoRequest extends FormRequest
             'rendimiento' => 'sometimes|numeric',
             'modelo' => 'required|exists:modelos,id',
             'combustible' => 'required|exists:combustibles,id',
+            'traccion' => ['required', Rule::in([Vehiculo::AWD, Vehiculo::TODOTERRENO, Vehiculo::SENCILLA_DELANTERA, Vehiculo::SENCILLA_TRASERA, Vehiculo::FOUR_WD])],
+            'aire_acondicionado' => 'required|boolean',
+            'capacidad_tanque' => 'required|numeric',
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $vehiculo = $this->route()->parameter('vehiculo');
 
-            $rules['placa']=['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
-            $rules['num_chasis']=['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
-            $rules['num_motor']=['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
+            $rules['placa'] = ['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
+            $rules['num_chasis'] = ['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
+            $rules['num_motor'] = ['required', 'string', Rule::unique('vehiculos')->ignore($vehiculo)];
         }
 
         return $rules;
