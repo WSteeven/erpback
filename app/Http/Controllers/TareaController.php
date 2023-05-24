@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TareaEvent;
 use App\Http\Requests\TareaRequest;
 use App\Http\Resources\TareaResource;
 use App\Models\Empleado;
@@ -11,6 +12,7 @@ use App\Models\Tarea;
 use App\Models\UbicacionTarea;
 use App\Models\User;
 use Carbon\Carbon;
+//use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,13 @@ class TareaController extends Controller
         $campos = explode(',', request('campos'));
         $esCoordinador = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
+
+        // mejorar codigo
+        if (request('formulario')) {
+            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+            })->latest()->get();
+        }
 
         if (request('campos')) {
             if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
@@ -123,6 +132,12 @@ class TareaController extends Controller
         // Respuesta
         $modelo = new TareaResource($tarea->refresh());
         $mensaje = 'Tarea finalizada exitosamente';
+
+        $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
+
+        foreach ($destinatarios as $destinatario) {
+            event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
+        }
         return response()->json(compact('modelo', 'mensaje'));
     }
 

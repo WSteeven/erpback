@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class Tarea extends Model implements Auditable
@@ -147,6 +148,11 @@ class Tarea extends Model implements Auditable
         return $this->hasMany(Pedido::class);
     }
 
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
     /*********
      * Scopes
      *********/
@@ -158,5 +164,11 @@ class Tarea extends Model implements Auditable
     public function scopeOrderByAgendadoDesc($query)
     {
         return $query->orderBy('fecha_hora_agendado', 'desc');
+    }
+
+    public function scopeDisponibleUnaHoraFinalizar($query) {
+        // $activeUsers = DB::table('tareas')->select('id')->where('finali', 1);
+
+        return $query->where('updated_at', '>=', Carbon::now()->subHour());
     }
 }
