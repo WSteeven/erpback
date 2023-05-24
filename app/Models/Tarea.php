@@ -169,6 +169,6 @@ class Tarea extends Model implements Auditable
     public function scopeDisponibleUnaHoraFinalizar($query) {
         // $activeUsers = DB::table('tareas')->select('id')->where('finali', 1);
 
-        return $query->where('updated_at', '>=', Carbon::now()->subHour());
+        return $query->where('updated_at', '>=', Carbon::now()->subHour(24));
     }
 }
