@@ -79,6 +79,7 @@ class EmpleadoController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
+        // $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
 
         if ($datos['foto_url']) {
             $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
@@ -164,6 +165,7 @@ class EmpleadoController extends Controller
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
+        //$datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
