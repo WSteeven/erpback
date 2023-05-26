@@ -160,7 +160,7 @@
                                                     <div align="center">{{ date("d-m-Y", strtotime( $fecha_anterior)) }}</div>
                                                 </td>
                                                 <td style="font-size:10px" width="29%">
-                                                    <div align="left">Saldo Inicial</div>
+                                                    <div align="left">Saldo Inicial (+)</div>
                                                 </td>
                                                 <td style="font-size:10px" width="10%">
                                                     <div align="right">
@@ -183,7 +183,7 @@
                                                 <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio)) . ' ' . date("d-m-Y", strtotime( $fecha_fin)) }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
-                                                <div align="left">Acreditaciones</div>
+                                                <div align="left">Acreditaciones (+)</div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
@@ -206,7 +206,7 @@
                                                 <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
-                                                <div align="left">Transferencias Enviadas</div>
+                                                <div align="left">Transferencias Enviadas (-)</div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
@@ -229,7 +229,7 @@
                                                 <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
-                                                <div align="left">Transferencias Recibidas</div>
+                                                <div align="left">Transferencias Recibidas (+)</div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
@@ -251,7 +251,7 @@
                                                 <div align="center">{{ date("d-m-Y", strtotime( $fecha_inicio))  . ' ' . date("d-m-Y", strtotime($fecha_fin))  }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
-                                                <div align="left">Gastos</div>
+                                                <div align="left">Gastos (-)</div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
