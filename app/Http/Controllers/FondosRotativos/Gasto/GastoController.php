@@ -179,6 +179,7 @@ class GastoController extends Controller
             $modelo = new GastoResource($gasto);
             //Guardar en tabla de destalle gasto
             $gasto->sub_detalle_info()->sync($request->sub_detalle);
+            $gasto->empleado_beneficiario_info()->sync($request->beneficiarios);
             $datos['id_gasto'] = $gasto->id;
             //Busca si existe detalle de gasto 6 o 16
             if ($request->detalle == 6 || $request->detalle == 16) {
