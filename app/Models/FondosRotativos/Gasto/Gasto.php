@@ -82,7 +82,10 @@ class Gasto extends Model implements Auditable
     {
         return $this->belongsToMany(SubDetalleViatico::class,'subdetalle_gastos', 'gasto_id', 'subdetalle_gasto_id');
     }
-
+    public function empleado_beneficiario_info()
+    {
+        return $this->belongsToMany(BeneficiarioGasto::class,'beneficiario_gastos', 'gasto_id', 'empleado_id');
+    }
 
     public function aut_especial_user()
     {
@@ -141,6 +144,7 @@ class Gasto extends Model implements Auditable
             $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
             $row['sub_detalle'] = $gasto->sub_detalle_info;
             $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
+            $row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
             $row['observacion'] = $gasto->observacion;
             $row['detalle_estado'] = $gasto->detalle_estado;
             $row['total']= $gasto->total;
@@ -150,6 +154,19 @@ class Gasto extends Model implements Auditable
         }
         return $results;
 
+    }
+    private static function empleado_inform($empleado_info)
+    {
+        $descripcion = '';
+        $i = 0;
+        foreach ($empleado_info as $empleado) {
+            $descripcion .= $empleado['nombres'] . ' ' . $empleado['apellidos'];
+            $i++;
+            if ($i !== count($empleado)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
     }
     private static function subdetalle_inform($subdetalle_info)
     {

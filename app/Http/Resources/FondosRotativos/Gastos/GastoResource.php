@@ -34,6 +34,8 @@ class GastoResource extends JsonResource
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
             'sub_detalle_info' => $this->sub_detalle_info != null ? $this->subdetalle_info($this->sub_detalle_info):'',
+            'beneficiarios' => null,//$this->empleado_beneficiario_info != null ? $this->empleado_beneficiario_info->pluck('id'):null,
+            'beneficiarios_info' => $this->beneficiarios_info,
             'sub_detalle' => $this->sub_detalle_info != null ? $this->sub_detalle_info->pluck('id'):null,
             'placa' => $this->gasto_vehiculo_info != null ?$this->gasto_vehiculo_info->placa:'',
             'kilometraje' =>$this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->kilometraje:'',
