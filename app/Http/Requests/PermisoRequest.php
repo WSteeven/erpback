@@ -27,4 +27,12 @@ class PermisoRequest extends FormRequest
             'name' => 'required|string|unique:permissions,name'
         ];
     }
+
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'name' => strtolower($this->name),
+            'guard_name' => 'web'
+        ]);
+    }
 }

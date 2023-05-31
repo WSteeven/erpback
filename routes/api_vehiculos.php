@@ -17,7 +17,7 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'bitacoras_vehiculos' => 'bitacora',
+            'bitacoras-vehiculos' => 'bitacora',
         ],
         'middleware' => ['auth:sanctum']
     ]

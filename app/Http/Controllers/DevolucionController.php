@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Devolucion;
+use App\Models\EstadoTransaccion;
 use App\Models\Producto;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use PhpParser\Node\Stmt\TryCatch;
 use Src\Shared\Utils;
 
@@ -38,7 +41,7 @@ class DevolucionController extends Controller
         $results = [];
 
         if ($request['campos']) {
-            $results = Devolucion::where('estado', Devolucion::CREADA)->get($campos);
+            $results = Devolucion::where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get($campos);
             $results = DevolucionResource::collection($results);
             return response()->json(compact('results'));
         } else
@@ -51,10 +54,10 @@ class DevolucionController extends Controller
                 DevolucionResource::collection($results);
             }
         } else {
-            if(auth()->user()->hasRole(User::ROL_BODEGA)){
-                $results = Devolucion::ignoreRequest(['campos'])->filter()->get();
-            }else{
-                $results = Devolucion::ignoreRequest(['campos'])->filter()->where('solicitante_id', auth()->user()->empleado->id)->get();
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = Devolucion::ignoreRequest(['campos'])->filter()->orderBy('updated_at', 'desc')->get();
+            } else {
+                $results = Devolucion::ignoreRequest(['campos'])->filter()->where('solicitante_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
             }
         }
 
@@ -151,25 +154,31 @@ class DevolucionController extends Controller
         $request->validate(['motivo' => ['required', 'string']]);
         $devolucion->causa_anulacion = $request['motivo'];
         $devolucion->estado = Devolucion::ANULADA;
+        $devolucion->estado_bodega = EstadoTransaccion::ANULADA;
         $devolucion->save();
+
+        $modelo = new DevolucionResource($devolucion->refresh());
+
+        return response()->json(compact('modelo'));
     }
 
-    public function imprimir(Devolucion $devolucion) {
+    public function imprimir(Devolucion $devolucion)
+    {
         $resource = new DevolucionResource($devolucion);
         Log::channel('testing')->info('Log', ['devolucion que se va a imprimir', $resource]);
         try {
             $pdf = Pdf::loadView('devoluciones.devolucion', $resource->resolve());
             $pdf->setPaper('A5', 'landscape');
-        $pdf->render();
-        $file = $pdf->output();
+            $pdf->render();
+            $file = $pdf->output();
 
-        return $file;
+            return $file;
 
-        //usar esto en caso de querer guardar los pdfs generados en el servidor backend
+            //usar esto en caso de querer guardar los pdfs generados en el servidor backend
 
-        // $filename = "pedido_".$resource->id."_".time().".pdf";
-        // $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'devoluciones'.DIRECTORY_SEPARATOR.$filename;
-        // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
+            // $filename = "pedido_".$resource->id."_".time().".pdf";
+            // $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'devoluciones'.DIRECTORY_SEPARATOR.$filename;
+            // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
         }

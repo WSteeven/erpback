@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('gasto_vehiculos', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_vehiculo')->after('kilometraje')->nullable();
-            $table->foreign('id_vehiculo')->references('id')->on('vehiculos')->onDelete('cascade');
+        Schema::table('bitacora_vehiculos', function(Blueprint $table){
+            $table->renameColumn('tanque_incio', 'tanque_inicio');
         });
     }
 
@@ -26,8 +25,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('gasto_vehiculos', function (Blueprint $table) {
-            $table->dropColumn('id_vehiculo');
-        });
+        //
     }
 };
