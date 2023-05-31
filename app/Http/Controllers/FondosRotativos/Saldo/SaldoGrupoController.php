@@ -188,6 +188,7 @@ class SaldoGrupoController extends Controller
      */
     public function consolidado(Request $request, $tipo)
     {
+        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         try {
             switch ($request->tipo_saldo) {
                 case '1':
@@ -454,9 +455,12 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoGrupo::whereDate('fecha', $fecha_anterior)
-                ->where('id_usuario', $request->usuario)
-                ->first();
+
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->latest()->first();
+            $fecha = Carbon::parse($saldo_anterior->fecha);
+            $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
@@ -563,10 +567,11 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoGrupo::whereDate('fecha', $fecha_anterior)
-                ->where('id_usuario', $request->usuario)
-                ->first();
-
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'desc')->limit(1)->first();
+            $fecha = Carbon::parse($saldo_anterior->fecha);
+            $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
