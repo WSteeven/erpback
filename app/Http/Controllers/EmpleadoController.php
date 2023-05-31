@@ -127,11 +127,11 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-public function salario($id){
-    $empleado = Empleado::find($id);
-    return response()->json($empleado->salario);
-
-}
+    public function salario($id)
+    {
+        $empleado = Empleado::find($id);
+        return response()->json(compact('empleado'));
+    }
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([

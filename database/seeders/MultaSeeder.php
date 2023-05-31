@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\RecursosHumanos\NominaPrestamos\ConceptoEgreso;
+use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ConceptoEgresoSeeder extends Seeder
+class MultaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,9 +15,9 @@ class ConceptoEgresoSeeder extends Seeder
      */
     public function run()
     {
-        ConceptoEgreso::insert([['nombre'=> 'Efectivo'],
-       ['nombre'=> 'Cheque'],
-       ['nombre'=> 'Nota de Debito'],
-       ]);
+        Multas::insert([
+            ['nombre' => 'De acuerdo a reglamento Interno'],
+            ['nombre' => 'Citacion de Transito']
+        ]);
     }
 }

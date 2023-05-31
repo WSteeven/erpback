@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('concepto_egresos', function (Blueprint $table) {
+        Schema::create('multas', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('concepto_egresos');
+        Schema::dropIfExists('multas');
     }
 };

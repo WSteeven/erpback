@@ -291,8 +291,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
     Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
     Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
-    ///Recursos Humanos
-    Route::get('recursos-humanos/salario/{id}', [EmpleadoController::class, 'salario']);
 
 });
 

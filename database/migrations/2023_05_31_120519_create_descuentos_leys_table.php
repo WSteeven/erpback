@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('concepto_ingresos', function (Blueprint $table) {
+        Schema::create('descuento_ley', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->boolean('calculable_iess')->default(false);
+            $table->string('nombre', 100);
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('concepto_ingresos');
+        Schema::dropIfExists('descuentos_leys');
     }
 };
