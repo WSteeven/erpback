@@ -148,6 +148,7 @@
                     <div align="center"><strong>Monto</strong></div>
                 </td>
             </tr>
+
             @foreach ($gastos as $gasto)
                 @php
                     $total = number_format($gasto['total'], 2) + $total;
