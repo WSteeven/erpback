@@ -67,6 +67,7 @@ use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\Pais;
 use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
@@ -253,15 +254,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
-    Route::get('provincias', fn () => ['results' => Provincia::all()]);
-    Route::get('cantones', fn () => ['results' => Canton::all()]);
+    Route::get('paises', fn () => ['results' => Pais::all()]);
+    Route::get('provincias', fn (Request $request) => ['results' => Provincia::filter()->get()]);
+    Route::get('cantones', fn () => ['results' => Canton::filter()->get()]);
     Route::get('parroquias', fn () => ['results' => Parroquia::all()]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
     Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
     Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::post('fondos-rotativos/reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
-   // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
+    // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
     Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
@@ -276,7 +278,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
     Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
     Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
-
 });
 
 
