@@ -27,11 +27,10 @@ class Empleado extends Model implements Auditable
         'estado',
         'grupo_id',
         'cargo_id',
-        // 'departamento_id',
+        'departamento_id',
         'es_tecnico',
         'firma_url',
         'foto_url',
-        // 'es_responsable_grupo',
         'convencional',
         'telefono_empresa',
         'extension',
@@ -52,6 +51,7 @@ class Empleado extends Model implements Auditable
         'canton_id',
         'grupo_id',
         'cargo_id',
+        'departamento_id',
         'estado',
         'es_tecnico',
     ];
@@ -232,10 +232,10 @@ class Empleado extends Model implements Auditable
         return $this->belongsTo(Cargo::class);
     }
 
-    /* public function departamento()
+    public function departamento()
     {
         return $this->belongsTo(Departamento::class);
-    } */
+    }
 
     public function tareasCoordinador()
     {

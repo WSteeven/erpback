@@ -43,6 +43,7 @@ class User extends Authenticatable implements Auditable
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR VEHICULOS';
+    const ROL_ADMINISTRADOR_TICKETS = 'ADMINISTRADOR TICKETS';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';

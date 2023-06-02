@@ -23,4 +23,5 @@ enum RutasStorage: string
     case ARCHIVOS_SEGUIMIENTO = 'public/archivos_seguimiento';
 	case PEDIDOS = 'public/pedidos/evidencias';
 	case CLIENTES = 'public/clientes/logos';
+    case TICKETS = 'public/tickets';
 }
