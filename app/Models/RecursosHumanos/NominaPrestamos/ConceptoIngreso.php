@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ConceptoIngreso extends Model
+class ConceptoIngreso extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;

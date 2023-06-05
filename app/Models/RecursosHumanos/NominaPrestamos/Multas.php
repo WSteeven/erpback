@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class Multas extends Model
+class Multas extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
