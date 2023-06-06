@@ -33,6 +33,7 @@ class Empresa extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'agente_retencion'=>'boolean'
     ];
 
     private static $whiteListFilter = ['*'];

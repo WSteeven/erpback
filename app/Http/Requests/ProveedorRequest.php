@@ -24,15 +24,36 @@ class ProveedorRequest extends FormRequest
     public function rules()
     {
         return [
-            'empresa' => 'required|exists:empresas,id|unique:proveedores,empresa_id,NULL,id', 
-            'estado'=>'boolean'
+            'empresa' => 'required|exists:empresas,id',
+            'sucursal' => 'required|string',
+            'parroquia' => 'required|exists:parroquias,id',
+            'direccion' => 'required|string',
+            'celular' => 'nullable|string',
+            'telefono' => 'nullable|string',
+            'estado' => 'boolean'
         ];
     }
 
     public function messages()
     {
         return [
-            'empresa'=>'Ya existe un proveedor registrado con esta razón social'
+            'empresa' => 'Ya existe un proveedor registrado con esta razón social'
         ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if (is_null($this->celular)) {
+                $this->merge([
+                    $this->celular => '-',
+                ]);
+            }
+        });
+    }
+    public function prepareForValidation()
+    {
+        if (is_null($this->celular)) {
+            $this->merge([$this->celular => '12345']);
+        }
     }
 }

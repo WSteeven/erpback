@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProveedorRequest;
 use App\Http\Resources\ProveedorResource;
 use App\Models\Proveedor;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ProveedorController extends Controller
@@ -32,17 +34,24 @@ class ProveedorController extends Controller
      * Guardar
      */
     public function store(ProveedorRequest $request)
-    {
+    {try {
         //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['empresa_id']=$request->safe()->only(['empresa'])['empresa'];
+        $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+        $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
         
+        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
         //Respuesta
         $modelo = Proveedor::create($datos);
         $modelo = new ProveedorResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
+    } catch (Exception $e) {
+        $mensaje = 'Hubo un erorr'. $e->getMessage();
+        return response()->json(compact('mensaje'),500);
+        //throw $th;
+    }
     }
 
 
@@ -61,8 +70,13 @@ class ProveedorController extends Controller
      */
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
+        //Adaptación de foreign keys
+        $datos = $request->validated();
+        $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+        $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
+
         //Respuesta
-        $proveedor->update($request->validated());
+        $proveedor->update($datos);
         $modelo = new ProveedorResource($proveedor->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

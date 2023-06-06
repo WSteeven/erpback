@@ -28,8 +28,16 @@ class Provincia extends Model implements Auditable
     /**
      * Get the cantones of the provincia.
      */
-    public function cantones(){
+    public function cantones()
+    {
         return $this->hasMany(Canton::class);
     }
 
+    /**
+     * Get the country than owns the province.
+     */
+    public  function pais()
+    {
+        return $this->belongsTo(Pais::class);
+    }
 }

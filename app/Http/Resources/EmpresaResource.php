@@ -24,6 +24,8 @@ class EmpresaResource extends JsonResource
             'celular' => $this->celular,
             'telefono' => $this->telefono,
             'correo' => $this->correo,
+            'pais' => $this->canton?->provincia->pais->pais,
+            'provincia' => $this->canton?->provincia->provincia,
             'canton' => $this->canton?->canton,
             'ciudad' => $this->ciudad,
             'direccion' => $this->direccion,
@@ -32,6 +34,8 @@ class EmpresaResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
+            $modelo['pais'] = $this->canton?->provincia->pais_id;
+            $modelo['provincia'] = $this->canton?->provincia_id;
             $modelo['canton'] = $this->canton_id;
         }
         return $modelo;

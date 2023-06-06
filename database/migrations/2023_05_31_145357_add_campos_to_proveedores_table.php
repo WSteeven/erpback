@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('sucursal');
             $table->unsignedBigInteger('parroquia_id');
             $table->text('direccion');
-            $table->string('celular');
-            $table->string('telefono');
+            $table->string('celular')->nullable();
+            $table->string('telefono')->nullable();
         });
     }
 

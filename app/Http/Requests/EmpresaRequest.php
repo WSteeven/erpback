@@ -38,7 +38,7 @@ class EmpresaRequest extends FormRequest
             'canton' => 'integer|exists:cantones,id',
             'ciudad' => 'string|nullable',
             'direccion' => 'string|nullable',
-            'agente_retencion' => 'boolean|required|default:false',
+            'agente_retencion' => 'boolean|required',
             'tipo_negocio'=>['required', Rule::in([Empresa::RIMPE_IVA, Empresa::RIMPE_SIN_IVA])]
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

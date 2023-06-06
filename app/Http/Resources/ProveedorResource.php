@@ -20,6 +20,12 @@ class ProveedorResource extends JsonResource
             'id'=>$this->id,
             'empresa'=>$this->empresa_id,
             'razon_social'=>$this->empresa->razon_social,
+            'sucursal'=>$this->sucursal,
+            'ubicacion'=>$this->parroquia?$this->parroquia?->canton->provincia->provincia.' - '.$this->parroquia?->canton->canton.' - '.$this->parroquia?->parroquia:null,
+            'parroquia'=>$this->parroquia_id,
+            'direccion'=>$this->direccion,
+            'celular'=>$this->celular,
+            'telefono'=>$this->telefono,
             'estado'=>$this->estado,
 
         ];

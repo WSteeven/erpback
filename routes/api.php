@@ -62,6 +62,7 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\ParroquiaResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -256,8 +257,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
     Route::get('paises', fn () => ['results' => Pais::all()]);
     Route::get('provincias', fn (Request $request) => ['results' => Provincia::filter()->get()]);
-    Route::get('cantones', fn () => ['results' => Canton::filter()->get()]);
-    Route::get('parroquias', fn () => ['results' => Parroquia::all()]);
+    Route::get('cantones', fn () => ['results' => Canton::ignoreRequest(['campos'])->filter()->get()]);
+    Route::get('parroquias', fn (Request $request) => ['results' => ParroquiaResource::collection(Parroquia::filter()->get())]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
     Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpresaRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Models\Empresa;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class EmpresaController extends Controller
@@ -36,8 +37,11 @@ class EmpresaController extends Controller
      */
     public function store(EmpresaRequest $request)
     {
+        // Adaptación de foreign keys
+        $datos = $request->validated();
+        $datos['canton_id']=$request->safe()->only(['canton'])['canton'];
         //Respuesta
-        $modelo = Empresa::create($request->validated());
+        $modelo = Empresa::create($datos);
         $modelo = new EmpresaResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -60,8 +64,14 @@ class EmpresaController extends Controller
      */
     public function update(EmpresaRequest $request, Empresa  $empresa)
     {
+        // Adaptación de foreign keys
+        Log::channel('testing')->info('Log', ['Antes de validar', $request->all()]);
+        $datos = $request->validated();
+        Log::channel('testing')->info('Log', ['Despues de validar', $request->all()]);
+        $datos['canton_id']=$request->safe()->only(['canton'])['canton'];
+        
         //Respuesta
-        $empresa->update($request->validated());
+        $empresa->update($datos);
         $modelo = new EmpresaResource($empresa->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
