@@ -13,13 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('prestamo_hipotecario', function (Blueprint $table) {
+        Schema::create('extension_covertura_saluds', function (Blueprint $table) {
             $table->id();
             $table->string('mes',7);
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
-            $table->string('nut');
-            $table->decimal('valor', 10, 2);
+            $table->string('dependiente');
+            $table->string('origen');
+            $table->decimal('materia_grabada', 10, 2);
+            $table->decimal('aporte', 10, 2);
+            $table->decimal('aporte_porcentaje', 10, 2);
+            $table->boolean('aprobado');
+            $table->string('observacion');
             $table->timestamps();
         });
     }
@@ -31,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('prestamo_hipotecarios');
+        Schema::dropIfExists('extension_covertura_saluds');
     }
 };

@@ -8,23 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class PrestamoHipotecario extends Model implements Auditable
+class ExtensionCoverturaSalud extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
     protected $table = 'prestamo_hipotecario';
     protected $fillable = [
-        'mes','empleado_id','nut','valor'
+        'mes','empleado_id','dependiente','origen','materia_grabada','aporte','aporte_porcentaje','aprobado','observacion'
     ];
     protected $casts = [
-        'valor' => 'decimal:2'
+        'aporte' => 'decimal:2'
     ];
     private static $whiteListFilter = [
         'id',
         'empleado',
         'mes',
-        'nut',
-        'valor',
+        'dependiente',
+        'origen',
+        'materia_grabada',
+        'aporte',
+        'aporte_porcentaje',
+        'aprobado',
+        'observacion'
     ];
 }
