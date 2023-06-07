@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('extension_covertura_saluds', function (Blueprint $table) {
+        Schema::create('extension_covertura_salud', function (Blueprint $table) {
             $table->id();
             $table->string('mes',7);
             $table->unsignedBigInteger('empleado_id');

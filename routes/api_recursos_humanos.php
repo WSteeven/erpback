@@ -28,7 +28,7 @@ Route::apiResources(
 );
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('salario/{id}', [EmpleadoController::class,'salario']);
+    Route::get('datos_empleado/{id}', [EmpleadoController::class,'datos_empleado']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class,'prestamos_hipotecario_empleado']);
     Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class,'prestamos_quirorafario_empleado']);
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class,'extension_covertura_salud_empleado']);

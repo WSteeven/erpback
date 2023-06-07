@@ -127,7 +127,7 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function salario($id)
+    public function datos_empleado($id)
     {
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));

@@ -28,7 +28,7 @@ class ExtensionCoverturaSaludController extends Controller
     }
 
     public function extension_covertura_salud_empleado(Request $request){
-       $prestamo= ExtensionCoverturaSalud::where('empleado_id',$request->empleado)->where('mes',$request->mes)->sum('aporte');
+       $valor= ExtensionCoverturaSalud::where('empleado_id',$request->empleado)->where('mes',$request->mes)->sum('aporte');
        return response()->json(compact('valor'));
     }
 
