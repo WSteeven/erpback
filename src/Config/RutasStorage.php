@@ -24,4 +24,5 @@ enum RutasStorage: string
     case JUSTIFICACION_PERMISO_EMPLEADO  = 'public/justificacion_permiso_empleado';
 	case PEDIDOS = 'public/pedidos/evidencias';
 	case CLIENTES = 'public/clientes/logos';
+    case TICKETS = 'public/tickets';
 }

@@ -41,6 +41,7 @@ class EmpleadoRequest extends FormRequest
             'roles' => 'required|exists:roles,name',
             'estado' => 'sometimes|boolean',
             'cargo' => 'required|exists:cargos,id',
+            'departamento' => 'required|exists:departamentos,id',
             'grupo' => 'nullable|exists:grupos,id',
             'firma_url' => 'nullable|string',
             'foto_url' => 'nullable|string',

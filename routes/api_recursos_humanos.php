@@ -9,10 +9,13 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MultaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
+use App\Http\Controllers\DepartamentoController;
 use Illuminate\Support\Facades\Route;
 
+// Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagosController::class,
         'concepto_ingreso' => ConceptoIngresoController::class,
         'descuentos_generales' => DescuentosGeneralesController::class,
@@ -34,3 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class,'extension_covertura_salud_empleado']);
 
 });
+
+
+
+
