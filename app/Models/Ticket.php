@@ -14,8 +14,9 @@ class Ticket extends Model implements Auditable
     use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait;
 
     // Estados de un ticket
-    const SIN_ASIGNAR = 'SIN ASIGNAR';
+    const RECHAZADO = 'RECHAZADO';
     const ASIGNADO = 'ASIGNADO';
+    const REASIGNADO = 'REASIGNADO';
     const EJECUTANDO = 'EJECUTANDO';
     const PAUSADO = 'PAUSADO';
     const CANCELADO = 'CANCELADO';
@@ -79,5 +80,20 @@ class Ticket extends Model implements Auditable
     public function archivos()
     {
         return $this->hasMany(ArchivoTicket::class);
+    }
+
+    public function archivosSeguimientos()
+    {
+        return $this->hasMany(ArchivoSeguimientoTicket::class);
+    }
+
+    public function pausasTicket()
+    {
+        return $this->hasMany(PausaTicket::class);
+    }
+
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }

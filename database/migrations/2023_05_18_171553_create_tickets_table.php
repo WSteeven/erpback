@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->enum('prioridad', [Ticket::ALTA, Ticket::MEDIA, Ticket::BAJA, Ticket::EMERGENCIA]);
             $table->timestamp('fecha_hora_limite')->nullable();
-            $table->enum('estado', [Ticket::SIN_ASIGNAR, Ticket::ASIGNADO, Ticket::EJECUTANDO, Ticket::PAUSADO, Ticket::CANCELADO, Ticket::FINALIZADO_SIN_SOLUCION, Ticket::FINALIZADO_SOLUCIONADO, Ticket::CALIFICADO]);
+            $table->enum('estado', [Ticket::RECHAZADO, Ticket::ASIGNADO, Ticket::REASIGNADO, Ticket::EJECUTANDO, Ticket::PAUSADO, Ticket::CANCELADO, Ticket::FINALIZADO_SIN_SOLUCION, Ticket::FINALIZADO_SOLUCIONADO, Ticket::CALIFICADO]);
             $table->text('observaciones_solicitante')->nullable();
             $table->integer('calificacion_solicitante')->nullable();
 
@@ -36,11 +36,11 @@ return new class extends Migration
             $table->unsignedBigInteger('solicitante_id');
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('responsable_id');
-            $table->foreign('responsable_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('responsable_id')->nullable();
+            $table->foreign('responsable_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('departamento_responsable_id');
-            $table->foreign('departamento_responsable_id')->references('id')->on('departamentos')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('departamento_responsable_id')->nullable();
+            $table->foreign('departamento_responsable_id')->references('id')->on('departamentos')->onDelete('set null')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tipo_ticket_id');
             $table->foreign('tipo_ticket_id')->references('id')->on('tipos_tickets')->onDelete('cascade')->onUpdate('cascade');

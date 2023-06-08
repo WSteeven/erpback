@@ -9,4 +9,5 @@ enum TiposNotificaciones: string{
     case TAREA = 'TAREA';
     case SUBTAREA = 'SUBTAREA';
     case EGRESO = 'EGRESO';
+    case TICKET = 'TICKET';
 }

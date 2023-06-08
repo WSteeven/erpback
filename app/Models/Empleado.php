@@ -223,6 +223,11 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Subtarea::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'responsable_id', 'id');
+    }
+
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.
@@ -251,7 +256,7 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        if (!$empleado) return null;
+        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }
