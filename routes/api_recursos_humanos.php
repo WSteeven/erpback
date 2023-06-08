@@ -10,6 +10,8 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioCont
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -18,6 +20,8 @@ Route::apiResources(
         'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagosController::class,
         'concepto_ingreso' => ConceptoIngresoController::class,
+        'horas_extras_tipo' => HorasExtrasTipoController::class,
+        'horas_extras_subtipo' => HorasExtrasSubTipoController::class,
         'descuentos_generales' => DescuentosGeneralesController::class,
         'descuentos_ley' => DescuentosLeyController::class,
         'multa' => MultaController::class,
@@ -31,13 +35,8 @@ Route::apiResources(
 );
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('datos_empleado/{id}', [EmpleadoController::class,'datos_empleado']);
-    Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class,'prestamos_hipotecario_empleado']);
-    Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class,'prestamos_quirorafario_empleado']);
-    Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class,'extension_covertura_salud_empleado']);
-
+    Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
+    Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
+    Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class, 'prestamos_quirorafario_empleado']);
+    Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extension_covertura_salud_empleado']);
 });
-
-
-
-

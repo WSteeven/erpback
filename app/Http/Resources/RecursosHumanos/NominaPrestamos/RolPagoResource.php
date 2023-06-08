@@ -4,7 +4,6 @@ namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Log;
 
 class RolPagoResource extends JsonResource
 {
@@ -21,31 +20,35 @@ class RolPagoResource extends JsonResource
             'id' => $this->id,
             'fecha' => $this->cambiar_fecha($this->created_at),
             'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
-            'salario' => $this->salario,
+            'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
             'dias' => $this->dias,
             'sueldo' => $this->sueldo,
-            'decimo_tercero' => $this->decimo_tercero,
-            'decimo_cuarto' => $this->decimo_cuarto,
-            'fondos_reserva' => $this->fondos_reserva,
-            'alimentacion' => $this->alimentacion,
-            'horas_extras' => $this->horas_extras,
+            'ingresos' => $this->Ingresos($this->ingreso_rol_pago),
             'total_ingreso' => $this->total_ingreso,
-            'comisiones' => $this->comisiones,
-            'iess' => $this->iess,
-            'anticipo' => $this->anticipo,
-            'prestamo_quirorafario' => $this->prestamo_quirorafario,
-            'prestamo_hipotecario' => $this->prestamo_hipotecario,
-            'extension_conyugal' => $this->extension_conyugal,
-            'prestamo_empresarial' => $this->prestamo_empresarial,
-            'sancion_pecuniaria' => $this->sancion_pecuniaria,
             'total_egreso' => $this->total_egreso,
             'total' => $this->total,
         ];
         return $modelo;
     }
-   private function cambiar_fecha($fecha){
-    $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
+    private function Ingresos($ingresos)
+    {
+        if ($ingresos->isEmpty()) {
+            return null;
+        }
+
+        $ingresosArray = $ingresos->map(function ($ingreso) {
+            $clave = $ingreso['concepto_ingreso_info']->nombre;
+            $valor = $ingreso->monto;
+            return $clave . ': ' . $valor;
+        })->toArray();
+
+        $ingresosString = implode(', ', $ingresosArray);
+
+        return $ingresosString;
+    }
+    private function cambiar_fecha($fecha)
+    {
+        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
         return $fecha_formateada;
     }
 }

@@ -18,23 +18,9 @@ class RolPago extends Model implements Auditable
     protected $fillable = [
         'empleado_id',
         'mes',
-        'salario',
         'dias',
         'sueldo',
-        'decimo_tercero',
-        'decimo_cuarto',
-        'fondos_reserva',
-        'alimentacion',
-        'horas_extras',
         'total_ingreso',
-        'comisiones',
-        'iess',
-        'anticipo',
-        'prestamo_quirorafario',
-        'prestamo_hipotecario',
-        'extension_conyugal',
-        'prestamo_empresarial',
-        'sancion_pecuniaria',
         'total_egreso',
         'total'
 
@@ -43,23 +29,9 @@ class RolPago extends Model implements Auditable
         'id',
         'mes',
         'empleado',
-        'salario',
         'dias',
         'sueldo',
-        'decimo_tercero',
-        'decimo_cuarto',
-        'fondos_reserva',
-        'alimentacion',
-        'horas_extras',
         'total_ingreso',
-        'comisiones',
-        'iess',
-        'anticipo',
-        'prestamo_quirorafario',
-        'prestamo_hipotecario',
-        'extension_conyugal',
-        'prestamo_empresarial',
-        'sancion_pecuniaria',
         'total_egreso',
         'total'
     ];
@@ -68,4 +40,14 @@ class RolPago extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
+
+    public function egreso_rol_pago()
+    {
+        return $this->belongsToMany(EgresoRolPago::class,'egreso_rol_pago', 'id_rol_pago', 'id');
+    }
+    public function ingreso_rol_pago()
+    {
+        return $this->hasMany(IngresoRolPago::class,'id_rol_pago', 'id')->with('concepto_ingreso_info');
+    }
+
 }

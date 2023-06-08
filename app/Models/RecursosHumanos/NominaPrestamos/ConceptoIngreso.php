@@ -24,4 +24,8 @@ class ConceptoIngreso extends Model implements Auditable
         'nombre',
         'calculable_iess'
     ];
+    public function ingreso_rol_pago_info()
+    {
+        return $this->hasMany(IngresoRolPago::class, 'id', 'concepto');
+    }
 }

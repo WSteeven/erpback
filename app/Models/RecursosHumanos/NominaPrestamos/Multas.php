@@ -22,4 +22,8 @@ class Multas extends Model implements Auditable
         'id',
         'nombre',
     ];
+    public function egreso_rol_pago()
+    {
+        return $this->morphMany(EgresoRolPago::class, 'descuento');
+    }
 }

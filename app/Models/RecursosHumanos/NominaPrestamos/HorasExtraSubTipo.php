@@ -8,23 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class DescuentosGenerales extends Model implements Auditable
+class HorasExtraSubTipo extends Model  implements Auditable
 {
+    use HasFactory;
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'descuentos_generales';
+    protected $table = 'horas_extra_sub_tipos';
     protected $fillable = [
-        'nombre'
+        'nombre','hora_extra_id'
     ];
 
     private static $whiteListFilter = [
         'id',
         'nombre',
+        'hora_extra'
     ];
-    public function egreso_rol_pago()
+    public function horas_extras_info()
     {
-        return $this->morphMany(EgresoRolPago::class, 'descuento');
+        return $this->hasOne(HorasExtraTipo::class, 'id', 'hora_extra_id');
     }
-
 }

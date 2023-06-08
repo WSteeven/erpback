@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Banco;
+use App\Models\RecursosHumanos\Banco ;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

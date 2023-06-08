@@ -26,8 +26,11 @@ class RolPagoRequest extends FormRequest
     public function rules()
     {
         return [
+            'empleado' => 'required',
             'mes' => 'required',
-            'roles' => 'required',
+            'dias'=> 'required',
+            'ingresos' => 'required',
+            'egresos' => 'required'
         ];
     }
     protected function prepareForValidation()
