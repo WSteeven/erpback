@@ -27,6 +27,10 @@ class ProveedorResource extends JsonResource
             'celular'=>$this->celular,
             'telefono'=>$this->telefono,
             'estado'=>$this->estado,
+            //listados
+            'tipos_ofrece'=>$this->servicios_ofertados,
+            'categorias_ofrece'=>$this->categorias_ofertadas,
+            // 'departamentos'=>$this->estado,
 
         ];
     }

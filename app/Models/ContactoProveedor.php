@@ -15,6 +15,15 @@ class ContactoProveedor extends Model implements Auditable
     use UppercaseValuesTrait;
 
     protected $table = 'contactos_proveedores';
+    protected $fillable = [
+        "nombres",
+        "apellidos",
+        "celular",
+        "ext",
+        "correo",
+        "tipo_contacto",
+        "proveedor_id",
+    ];
 
     const TECNICO = 'TECNICO'; //contacto tecnico
     const FINANCIERO = 'FINANCIERO'; //contacto financiero

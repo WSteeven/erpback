@@ -45,12 +45,16 @@ class Proveedor extends Model implements Auditable
         return $this->belongsTo(Parroquia::class);
     }
     public function servicios_ofertados(){
-        return $this->belongsToMany(OfertaProveedor::class, 'detalle_oferta_proveedor','oferta_id','proveedor_id')
+        return $this->belongsToMany(OfertaProveedor::class, 'detalle_oferta_proveedor','proveedor_id', 'oferta_id')
         ->withTimestamps();
     }
     public function categorias_ofertadas(){
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','categoria_id','proveedor_id')
+        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','proveedor_id','categoria_id')
         ->withTimestamps();
     }
+    /* public function departamentos_califican(){
+        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','categoria_id','proveedor_id')
+        ->withTimestamps();
+    } */
 
 }

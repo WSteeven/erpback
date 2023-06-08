@@ -30,7 +30,11 @@ class ProveedorRequest extends FormRequest
             'direccion' => 'required|string',
             'celular' => 'nullable|string',
             'telefono' => 'nullable|string',
-            'estado' => 'boolean'
+            'estado' => 'boolean',
+            //listados de relaciones muchos a muchos
+            'tipos_ofrece.*' => 'required',
+            'categorias_ofrece.*' => 'required',
+            'departamentos.*' => 'required',
         ];
     }
 
