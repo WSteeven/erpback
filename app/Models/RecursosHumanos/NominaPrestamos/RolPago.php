@@ -20,7 +20,10 @@ class RolPago extends Model implements Auditable
         'mes',
         'dias',
         'sueldo',
+        'decimo_tercero',
+        'decimo_cuarto',
         'total_ingreso',
+        'iess',
         'total_egreso',
         'total'
 
@@ -43,7 +46,7 @@ class RolPago extends Model implements Auditable
 
     public function egreso_rol_pago()
     {
-        return $this->belongsToMany(EgresoRolPago::class,'egreso_rol_pago', 'id_rol_pago', 'id');
+        return $this->hasMany(EgresoRolPago::class,'id_rol_pago', 'id')->with('descuento');
     }
     public function ingreso_rol_pago()
     {
