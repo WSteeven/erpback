@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('actividad_realizada_seguimiento_tickets', function (Blueprint $table) {
+        Schema::create('actividades_realizadas_seguimientos_tickets', function (Blueprint $table) {
             $table->id();
 
             $table->timestamp('fecha_hora');
-            $table->text('trabajo_realizado');
+            $table->text('actividad_realizada');
+            $table->string('observacion')->nullable();
             $table->string('fotografia')->nullable();
 
             // Foreign keys
@@ -35,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('actividad_realizada_seguimiento_tickets');
+        Schema::dropIfExists('actividades_realizadas_seguimientos_tickets');
     }
 };
