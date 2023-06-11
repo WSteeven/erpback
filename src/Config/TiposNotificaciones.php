@@ -10,4 +10,5 @@ enum TiposNotificaciones: string{
     case SUBTAREA = 'SUBTAREA';
     case EGRESO = 'EGRESO';
     case TICKET = 'TICKET';
+    case PERMISO_EMPLEADO = 'PERMISO EMPLEADO';
 }
