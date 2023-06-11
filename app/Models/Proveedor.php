@@ -44,6 +44,10 @@ class Proveedor extends Model implements Auditable
     public function parroquia(){
         return $this->belongsTo(Parroquia::class);
     }
+
+    public function contactos(){
+        return $this->hasMany(ContactoProveedor::class);
+    }
     public function servicios_ofertados(){
         return $this->belongsToMany(OfertaProveedor::class, 'detalle_oferta_proveedor','proveedor_id', 'oferta_id')
         ->withTimestamps();

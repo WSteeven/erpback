@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ContactoProveedorRequest;
+use App\Http\Resources\AuditResource;
 use App\Http\Resources\ContactoProveedorResource;
 use App\Models\ContactoProveedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use OwenIt\Auditing\Models\Audit;
 use Src\Shared\Utils;
 
 class ContactoProveedorController extends Controller
@@ -24,8 +26,8 @@ class ContactoProveedorController extends Controller
     /**
      * Listar
      */
-    public function index(){
-        $results = ContactoProveedorResource::collection(ContactoProveedor::all());
+    public function index(Request $request){
+        $results = ContactoProveedorResource::collection(ContactoProveedor::filter()->get());
         return response()->json(compact('results'));
     }
 
@@ -59,9 +61,9 @@ class ContactoProveedorController extends Controller
     /**
      * Consultar
      */
-    public function show(ContactoProveedor $proveedor)
+    public function show(ContactoProveedor $contacto)
     {
-        $modelo = new ContactoProveedorResource($proveedor);
+        $modelo = new ContactoProveedorResource($contacto);
         return response()->json(compact('modelo'));
     }
 
@@ -69,15 +71,15 @@ class ContactoProveedorController extends Controller
     /**
      * Actualizar
      */
-    public function update(ContactoProveedorRequest $request, ContactoProveedor  $proveedor)
+    public function update(ContactoProveedorRequest $request, ContactoProveedor  $contacto)
     {
         //Adaptación de foreign keys
         $datos = $request->validated();
         $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
 
         //Respuesta
-        $proveedor->update($datos);
-        $modelo = new ContactoProveedorResource($proveedor->refresh());
+        $contacto->update($datos);
+        $modelo = new ContactoProveedorResource($contacto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -87,10 +89,30 @@ class ContactoProveedorController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(ContactoProveedor $proveedor)
+    public function destroy(ContactoProveedor $contacto)
     {
-        $proveedor->delete();
+        $contacto->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    public function auditoria(Request $request){
+        if($request->id){
+            $contactoProveedor = ContactoProveedor::find($request->id);
+            $results = $contactoProveedor->audits()->orderBy('updated_at', 'desc')->get(); 
+        }else{
+            $results = Audit::where('auditable_type', ContactoProveedor::class)->with('user')->orderBy('created_at', 'desc')->get();
+        }
+        $results = AuditResource::collection($results);
+        // $contacto = ContactoProveedor::first();
+        // $results['usuario que realiza'] = $contacto->audits()->with('user')->get();
+        // $results['metadatos'] = $contacto->audits()->latest()->first()->getMetadata();
+        // $results['modificados'] = $contacto->audits()->latest()->first()->getModified();
+        // $results['modificados-json'] = $contacto->audits()->latest()->first()->getModified(true);
+        // $results = $producto->audits; //obtiene todos los eventos de un registro
+        // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento
+        // $results = $producto->audits()->latest()->first()->getMetadata(); //obtiene los metadatos de un evento
+        // $results = $producto->audits()->latest()->first()->getModified(); //obtiene las propiedades modificadas del registro afectado
+        return response()->json(compact('results'));
     }
 }

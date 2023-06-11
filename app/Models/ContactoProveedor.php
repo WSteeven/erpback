@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -13,6 +14,7 @@ class ContactoProveedor extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use UppercaseValuesTrait;
+    use Filterable;
 
     protected $table = 'contactos_proveedores';
     protected $fillable = [
@@ -28,4 +30,14 @@ class ContactoProveedor extends Model implements Auditable
     const TECNICO = 'TECNICO'; //contacto tecnico
     const FINANCIERO = 'FINANCIERO'; //contacto financiero
 
+
+    private static $whiteListFilter = ['*'];
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    public function proveedor(){
+        return $this->belongsTo(Proveedor::class);
+    }
 }

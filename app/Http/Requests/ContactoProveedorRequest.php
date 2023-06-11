@@ -13,7 +13,7 @@ class ContactoProveedorRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,13 @@ class ContactoProveedorRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            "nombres" => 'required|string',
+            "apellidos" => 'required|string',
+            "celular" => 'nullable|sometimes|string',
+            "ext" => 'nullable|sometimes|string',
+            "correo" => 'nullable|sometimes|string',
+            "tipo_contacto" => 'required|string',
+            "proveedor" => 'required|exists:proveedores,id',
         ];
     }
 }

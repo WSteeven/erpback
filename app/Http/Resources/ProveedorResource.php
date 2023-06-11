@@ -31,6 +31,7 @@ class ProveedorResource extends JsonResource
             'tipos_ofrece'=>$this->servicios_ofertados,
             'categorias_ofrece'=>$this->categorias_ofertadas,
             // 'departamentos'=>$this->estado,
+            'contactos'=>ContactoProveedorResource::collection($this->contactos),
 
         ];
     }
