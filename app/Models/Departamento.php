@@ -24,5 +24,22 @@ class Departamento extends Model implements Auditable
     private static $whiteListFilter = [
         'nombre',
         'activo',
+        'responsable_id',
     ];
+
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
+    public function calificaciones_proveedores()
+    {
+        return $this->belongsToMany(Proveedor::class, 'detalle_departamento_proveedor', 'departamento_id', 'proveedor_id')
+            ->withPivot(['calificacion', 'fecha_calificacion'])
+            ->withTimestamps();
+    }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProveedorRequest;
 use App\Http\Resources\ProveedorResource;
+use App\Models\Departamento;
 use App\Models\Proveedor;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +38,7 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         try {
             DB::beginTransaction();
             //Adaptación de foreign keys
@@ -55,8 +58,8 @@ class ProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            $mensaje = '('.$e->getLine().') Hubo un erorr: '. $e->getMessage();
-            return response()->json(compact('mensaje'),500);
+            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
+            return response()->json(compact('mensaje'), 500);
             //throw $th;
         }
     }
@@ -77,17 +80,34 @@ class ProveedorController extends Controller
      */
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
-        //Adaptación de foreign keys
-        $datos = $request->validated();
-        $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
-        $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
-
-        //Respuesta
-        $proveedor->update($datos);
-        $modelo = new ProveedorResource($proveedor->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-
-        return response()->json(compact('mensaje', 'modelo'));
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
+        try {
+            DB::beginTransaction();
+            //Adaptación de foreign keys
+            $datos = $request->validated();
+            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
+            
+            //Respuesta
+            $proveedor->update($datos);
+            
+            //attaching related models
+            $proveedor->servicios_ofertados()->sync($request->tipos_ofrece);
+            $proveedor->categorias_ofertadas()->sync($request->categorias_ofrece);
+            $proveedor->departamentos_califican()->sync($request->departamentos);
+            if(!in_array($departamento_contable->id, $request->departamentos)){
+                $proveedor->departamentos_califican()->attach($departamento_contable->id);
+            }
+            $modelo = new ProveedorResource($proveedor->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error:', $e->getLine(), $e->getMessage()]);
+            return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()]);
+        }
     }
 
 

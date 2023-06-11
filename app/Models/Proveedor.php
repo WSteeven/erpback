@@ -56,9 +56,10 @@ class Proveedor extends Model implements Auditable
         return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','proveedor_id','categoria_id')
         ->withTimestamps();
     }
-    /* public function departamentos_califican(){
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','categoria_id','proveedor_id')
+    public function departamentos_califican(){
+        return $this->belongsToMany(Departamento::class, 'detalle_departamento_proveedor','departamento_id','proveedor_id')
+        ->withPivot(['calificacion','fecha_calificacion'])
         ->withTimestamps();
-    } */
+    }
 
 }

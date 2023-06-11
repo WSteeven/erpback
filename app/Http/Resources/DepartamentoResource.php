@@ -18,6 +18,7 @@ class DepartamentoResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'activo' => $this->activo,
+            'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
         ];
     }
 }

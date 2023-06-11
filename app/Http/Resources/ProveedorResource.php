@@ -16,23 +16,27 @@ class ProveedorResource extends JsonResource
     {
         // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
-        return $modelo = [
-            'id'=>$this->id,
-            'empresa'=>$this->empresa_id,
-            'razon_social'=>$this->empresa->razon_social,
-            'sucursal'=>$this->sucursal,
-            'ubicacion'=>$this->parroquia?$this->parroquia?->canton->provincia->provincia.' - '.$this->parroquia?->canton->canton.' - '.$this->parroquia?->parroquia:null,
-            'parroquia'=>$this->parroquia_id,
-            'direccion'=>$this->direccion,
-            'celular'=>$this->celular,
-            'telefono'=>$this->telefono,
-            'estado'=>$this->estado,
-            //listados
-            'tipos_ofrece'=>$this->servicios_ofertados,
-            'categorias_ofrece'=>$this->categorias_ofertadas,
-            // 'departamentos'=>$this->estado,
-            'contactos'=>ContactoProveedorResource::collection($this->contactos),
+        $modelo = [
+            'id' => $this->id,
+            'empresa' => $this->empresa_id,
+            'razon_social' => $this->empresa->razon_social,
+            'sucursal' => $this->sucursal,
+            'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,
+            'parroquia' => $this->parroquia_id,
+            'direccion' => $this->direccion,
+            'celular' => $this->celular,
+            'telefono' => $this->telefono,
+            'estado' => $this->estado,
 
         ];
+
+        if ($controller_method == 'show') {
+            //listados
+            $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn($item)=>$item->id);
+            $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn($item)=>$item->id);
+            $modelo['departamentos'] = $this->departamentos_califican->map(fn($item)=>$item->id);
+            $modelo['contactos'] = ContactoProveedorResource::collection($this->contactos);
+        }
+        return $modelo;
     }
 }
