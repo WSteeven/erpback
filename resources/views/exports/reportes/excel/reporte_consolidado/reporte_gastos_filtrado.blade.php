@@ -37,7 +37,9 @@
 </head>
 
 <body>
-
+    @php
+        $total = 0;
+    @endphp
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <tr>
@@ -67,17 +69,6 @@
                         <tr>
                             <td>
                                 <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
-                                    <tr class="row" style="width:auto">
-                                        <td style="width: 100%">
-                                            <div class="col-md-7" align="center"><b>{{ $titulo }}</b></div>
-
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="col-md-7" align="center"><b>{{ $subtitulo }}</b></div>
-                                        </td>
-                                    </tr>
                                     <tr>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
                                             <div align="center"><strong>Nombres y Apellidos</strong></div>
@@ -85,17 +76,28 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
                                             <div align="center"><strong>Usuario</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                             <div align="center"><strong>Fecha</strong></div>
                                         </td>
+                                        @if ($subtitulo == '' && $tipo_filtro != 3)
+                                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                                <div align="center"><strong>Descripcion del Gasto</strong></div>
+                                            </td>
+                                        @endif
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                            <div align="center"><strong>Descripci&oacute;n</strong></div>
+                                            <div align="center"><strong>Comentario&oacute;n</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                            <div align="center"><strong>Autorizador</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
                                             <div align="center"><strong>Monto</strong></div>
                                         </td>
                                     </tr>
                                     @foreach ($gastos as $gasto)
+                                        @php
+                                            $total = number_format($gasto['total'], 2) + $total;
+                                        @endphp
                                         <tr>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
@@ -106,11 +108,24 @@
                                                 <div align="left">{{ $gasto['empleado_info']->name }}
                                                 </div>
                                             </td>
-                                            <td style="font-size:10px" width="17%">
-                                                <div align="center">{{ $gasto['fecha'] }}</div>
+                                            <td style="font-size:10px" width="13%">
+                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
+                                                </div>
                                             </td>
+                                            @if ($subtitulo == '' && $tipo_filtro != 3)
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $gasto['sub_detalle_desc'] }}
+                                                    </div>
+                                                </td>
+                                            @endif
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $gasto['autorizador'] }}
+                                                </div>
                                             </td>
                                             <td style="font-size:10px" width="10%">
                                                 <div align="right">
@@ -118,6 +133,16 @@
                                             </td>
                                         </tr>
                                     @endforeach
+                                    <tr>
+                                        <td colspan="6" style="font-size:10px" width="29%">
+                                            <div align="right"><strong>Total</strong></div>
+                                        </td>
+                                        <td style="font-size:10px" width="10%">
+                                            <div align="right">
+                                                <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>

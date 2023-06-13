@@ -39,7 +39,10 @@ class RolController extends Controller
     public function store(RolRequest $request)
     {
         //Respuesta
-        $modelo = Role::create($request->validated());
+        $request->validated();
+        // $datos['guard_name'] = 'web';
+        Log::channel('testing')->info('Log', ['Request ', $request->all()]);
+        $modelo = Role::create($request->all());
         $modelo = new RolResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -69,10 +72,11 @@ class RolController extends Controller
     public function update(RolRequest $request, Role $rol)
     {
         //Respuesta
-        $data = $request->validated();
-        $rol = Role::findOrFail($request->id);
-        $rol->name = $data['name'];
-        $rol->save();
+        $request->validated();
+        Log::channel('testing')->info('Log', ['Request ', $request->all()]);
+        $rol = Role::find($request->id);
+        Log::channel('testing')->info('Log', ['Rol ', $rol]);
+        $rol->update($request->all());
         $modelo = new RolResource($rol->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

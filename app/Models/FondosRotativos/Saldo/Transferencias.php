@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\Notificacion;
 use App\Models\Tarea;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class Transferencias extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     protected $table = 'transferencias_saldos';
     protected $primaryKey = 'id';
 

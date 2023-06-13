@@ -28,6 +28,8 @@ use App\Models\User;
 // Logica
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Http\Requests\TransaccionBodegaRequest;
+use App\Http\Resources\ClienteResource;
+use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
@@ -369,15 +371,14 @@ class TransaccionBodegaEgresoController extends Controller
     {
         Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
         $resource = new TransaccionBodegaResource($transaccion);
-        Log::channel('testing')->info('Log', ['Recurso a imprimir', $resource]);
+        $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->per_atiende_id);
         $persona_retira = Empleado::find($transaccion->responsable_id);
         try {
             $transaccion = $resource->resolve();
 
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray()]]);
-            // $pdf = Pdf::loadView('egresos.egreso', [$resource->resolve(), $persona_retira->toArray(), $persona_entrega->toArray()]);
-            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira']));
+            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
+            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();

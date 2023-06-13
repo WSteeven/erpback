@@ -383,21 +383,15 @@ class TransaccionBodega extends Model implements Auditable
         $url_pedido = '/pedidos';
         $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
+
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $itemInventario = Inventario::find($detalle['inventario_id']);
-                // Log::channel('testing')->info('Log', ['item del inventario es:', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
-                // Log::channel('testing')->info('Log', ['detalle es:', $detallePedido]);
-                // Log::channel('testing')->info('Log', ['detalle despachado es:', $detallePedido->despachado]);
-                // Log::channel('testing')->info('Log', ['Pedido:', $pedido]);
-                // Log::channel('testing')->info('Log', ['Detalle producto es:', DetalleProducto::find($detallePedido->detalle_id)]);
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
-
-                // aqui va
             }
 
             //aqui se lanza la notificacion dependiendo si el pedido está completo o parcial //ojo con esto porque no se está ejecutando en el flujo correcto, primero se ejecuta esto y luego el observer; y debe ser al contrario.
@@ -418,7 +412,7 @@ class TransaccionBodega extends Model implements Auditable
     /**
      * This function verifies if a given reason for a material transaction matches the specified type
      * and ID.
-     * 
+     *
      * @param id The ID of the motivo (reason) to be verified.
      * @param tipo The "tipo" parameter is a variable that represents the type of transaction being
      * performed. It is used to filter the "Motivo" model to find a specific reason for the
@@ -426,7 +420,7 @@ class TransaccionBodega extends Model implements Auditable
      * @param motivo The "motivo" parameter is a string that represents the reason or cause for a
      * transaction. In this function, it is used to search for a specific "Motivo" object in the
      * database that matches the given name and transaction type.
-     * 
+     *
      * @return a boolean value indicating whether the id parameter matches the id of the Motivo object
      * that has the given nombre and tipo_transaccion_id parameters.
      */

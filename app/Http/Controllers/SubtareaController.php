@@ -173,6 +173,9 @@ class SubtareaController extends Controller
 
     public function realizar(Request $request, Subtarea $subtarea)
     {
+        // Validar si se puede realizar
+        $this->servicio->puedeRealizar($subtarea);
+
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
         $subtarea->save();
@@ -312,4 +315,8 @@ class SubtareaController extends Controller
 
         return response()->json(compact('results'));
     }
+
+    /* public function puedeRealizar(Subtarea $subtarea) {
+        return $this->servicio->puedeRealizar($subtarea);
+    } */
 }

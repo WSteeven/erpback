@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Laravel\Scout\Searchable;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class Empleado extends Model implements Auditable
 {
@@ -29,10 +27,10 @@ class Empleado extends Model implements Auditable
         'estado',
         'grupo_id',
         'cargo_id',
+        'departamento_id',
         'es_tecnico',
         'firma_url',
         'foto_url',
-        // 'es_responsable_grupo',
         'convencional',
         'telefono_empresa',
         'extension',
@@ -53,6 +51,7 @@ class Empleado extends Model implements Auditable
         'canton_id',
         'grupo_id',
         'cargo_id',
+        'departamento_id',
         'estado',
         'es_tecnico',
     ];
@@ -198,6 +197,19 @@ class Empleado extends Model implements Auditable
     }
 
     /**
+     * Realación muchos a muchos.
+     * Un empleado registra varias bitacoras
+     */
+    public function bitacoras()
+    {
+        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
+            ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+    }
+    public function ultimaBitacora(){
+        return $this->hasOne(BitacoraVehicular::class, 'chofer_id', 'id')->latestOfMany();
+    }
+
+    /**
      * Relacion uno a muchos
      * Un empleado es solicitante de varias transferencias
      */
@@ -218,6 +230,11 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+
+    public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
     }
 
     public function tareasCoordinador()

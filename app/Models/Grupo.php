@@ -23,6 +23,7 @@ class Grupo extends Model implements Auditable
 
     private static $whiteListFilter = [
         'nombre',
+        'activo',
     ];
 
     /*public function tareas()

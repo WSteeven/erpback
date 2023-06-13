@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\FondosRotativos\Saldo;
 
+use App\Exports\AcreditacionesExport;
 use App\Exports\ConsolidadoExport;
 use App\Exports\EstadoCuentaExport;
+use App\Exports\GastoConsolidadoExport;
 use App\Exports\GastoFiltradoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
@@ -30,6 +32,7 @@ use App\Models\Proyecto;
 use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class SaldoGrupoController extends Controller
@@ -185,6 +188,7 @@ class SaldoGrupoController extends Controller
      */
     public function consolidado(Request $request, $tipo)
     {
+        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         try {
             switch ($request->tipo_saldo) {
                 case '1':
@@ -248,6 +252,9 @@ class SaldoGrupoController extends Controller
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
             $request['aut_especial'] = $request['autorizador'];
+            if ($request->tipo_filtro == 8) {
+                $request['ruc'] = '9999999999999';
+            }
             if ($request->subdetalle != null) {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -333,8 +340,14 @@ class SaldoGrupoController extends Controller
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     break;
+                case '7':
+                    $ruc = Gasto::where('ruc', $request->ruc)->first();
+                    $titulo .= 'DE GASTOS POR RUC ';
+                    $subtitulo = 'RUC: ' . $ruc->ruc;
+                    break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
+            $tipo_filtro = $request->tipo_filtro;
             $reportes =  [
                 'gastos' => $results,
                 'fecha_inicio' => $request->fecha_inicio,
@@ -342,10 +355,11 @@ class SaldoGrupoController extends Controller
                 'usuario' => $usuario,
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
+                'tipo_filtro' => $tipo_filtro,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -364,20 +378,32 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $acreditaciones = Acreditaciones::with('usuario')
-                ->where('id_estado', EstadoAcreditaciones::REALIZADO)
-                ->where('id_usuario', $request->usuario)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->get();
-            $usuario = Empleado::where('id', $request->usuario)
-                ->first();
+            $acreditaciones = null;
+            $usuario = null;
+            if ($request->usuario == null) {
+                $acreditaciones = Acreditaciones::with('usuario')
+                    ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+            } else {
+                $acreditaciones = Acreditaciones::with('usuario')
+                    ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                    ->where('id_usuario', $request->usuario)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $usuario = Empleado::where('id', $request->usuario)
+                    ->first();
+            }
             $nombre_reporte = 'reporte_saldoActual';
             $results = Acreditaciones::empaquetar($acreditaciones);
             $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
-            $export_excel = new SaldoActualExport($reportes);
+            $export_excel = new AcreditacionesExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
@@ -394,18 +420,27 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
-                ->where('estado', Gasto::APROBADO)
-                ->where('id_usuario', $request->usuario)
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->get();
-            $usuario = Empleado::where('id', $request->usuario)->first();
+            if ($request->usuario == null) {
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
+                    ->where('estado', Gasto::APROBADO)
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $usuario = '';
+            } else {
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
+                    ->where('estado', Gasto::APROBADO)
+                    ->where('id_usuario', $request->usuario)
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $empleado = Empleado::where('id', $request->usuario)->first();
+                $usuario = $empleado->nombres . '' . ' ' . $empleado->apellidos;
+            }
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
-            $export_excel = new SaldoActualExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            $export_excel = new GastoConsolidadoExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -420,9 +455,12 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoGrupo::whereDate('fecha', $fecha_anterior)
-                ->where('id_usuario', $request->usuario)
-                ->first();
+
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->latest()->first();
+            $fecha = Carbon::parse($saldo_anterior->fecha);
+            $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
@@ -529,11 +567,14 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoGrupo::whereDate('fecha', $fecha_anterior)
-                ->where('id_usuario', $request->usuario)
-                ->first();
+            $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                ->where('fecha', '<=', $fecha_anterior)
+                ->orderBy('created_at', 'desc')->limit(1)->first();
+            if ($saldo_anterior != null) {
+                $fecha =  Carbon::parse($saldo_anterior->fecha);
+                $fecha_anterior =  $fecha->format('Y-m-d');
+            }
 
-            Log::channel('testing')->info('Log', ['saldo_anterior', $saldo_anterior]);
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)

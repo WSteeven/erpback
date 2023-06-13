@@ -27,4 +27,11 @@ class RolRequest extends FormRequest
             'name' => 'required|string|unique:roles,name'
         ];
     }
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'name' => strtoupper($this->name),
+            'guard_name' => 'web'
+        ]);
+    }
 }

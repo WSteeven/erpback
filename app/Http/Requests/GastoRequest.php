@@ -40,6 +40,7 @@ class GastoRequest extends FormRequest
             'num_tarea' => 'required',
             'subTarea' => 'nullable',
             'proyecto' => 'required',
+           // 'beneficiarios' => 'required',
             'ruc' => 'nullable|string',
             'factura' => 'nullable|string|max:22|min:17',
             'num_comprobante' => 'nullable|string|max:13',
@@ -54,13 +55,14 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
         ];
-       if (!is_null($this->placa) ) {
+       if (!is_null($this->vehiculo) ) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'lugar' => 'required',
                 'num_tarea' => 'required',
                 'subTarea' => 'nullable',
                 'proyecto' => 'required',
+              //  'beneficiarios' => 'required',
                 'ruc' => 'nullable|string',
                 'factura' => 'nullable|string|max:22|min:17',
                 'num_comprobante' => 'nullable|string|max:13',
@@ -74,7 +76,7 @@ class GastoRequest extends FormRequest
                 'comprobante1' => 'required|string',
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|srtring',
-                'placa' => 'required|string',
+                'vehiculo' => 'required|integer',
                 'kilometraje' => 'required|integer'
             ];
         }
@@ -152,6 +154,11 @@ class GastoRequest extends FormRequest
         if (is_null($this->ruc)) {
             $this->merge([
                 'ruc' => '9999999999999',
+            ]);
+        }
+        if (is_null($this->kilometraje)) {
+            $this->merge([
+                'kilometraje' => 0,
             ]);
         }
     }

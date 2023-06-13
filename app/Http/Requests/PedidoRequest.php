@@ -111,6 +111,12 @@ class PedidoRequest extends FormRequest
                 'per_autoriza' => auth()->user()->empleado->id,
             ]);
         }
+        if ($this->para_cliente && in_array($this->method(), ['POST'])) {
+            $this->merge([
+                'autorizacion' => 2,
+                'per_autoriza' => auth()->user()->empleado->id,
+            ]);
+        }
         if (auth()->user()->hasRole([User::ROL_RECURSOS_HUMANOS, User::ROL_SSO])) {
             $this->merge([
                 'per_autoriza' => $user_activo_fijo->empleado->id,

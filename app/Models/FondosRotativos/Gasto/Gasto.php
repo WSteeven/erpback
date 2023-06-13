@@ -9,9 +9,12 @@ use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\User;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -20,6 +23,7 @@ class Gasto extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    use UppercaseValuesTrait;
     const APROBADO = 1;
     const RECHAZADO = 2;
     const PENDIENTE = 3;
@@ -80,7 +84,10 @@ class Gasto extends Model implements Auditable
     {
         return $this->belongsToMany(SubDetalleViatico::class,'subdetalle_gastos', 'gasto_id', 'subdetalle_gasto_id');
     }
-
+    public function empleado_beneficiario_info()
+    {
+        return $this->belongsToMany(BeneficiarioGasto::class,'beneficiario_gastos', 'gasto_id', 'empleado_id');
+    }
 
     public function aut_especial_user()
     {
@@ -125,26 +132,61 @@ class Gasto extends Model implements Auditable
 
     public static function empaquetar($gastos)
     {
-        $results = [];
-        $id = 0;
-        $row = [];
-        foreach ($gastos as $gasto) {
-            $row['fecha']= $gasto->fecha_viat;
-            $row['empleado_info']= $gasto->empleado_info->user;
-            $row['usuario'] = $gasto->empleado_info;
-            $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
-            $row['tarea'] = $gasto->tarea_info;
-            $row['proyecto'] = $gasto->proyecto_info;
-            $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
-            $row['sub_detalle'] = $gasto->sub_detalle_info;
-            $row['observacion'] = $gasto->observacion;
-            $row['detalle_estado'] = $gasto->detalle_estado;
-            $row['total']= $gasto->total;
-            $results[$id] = $row;
-            $id++;
+        try{
+            $results = [];
+            $id = 0;
+            $row = [];
+            foreach ($gastos as $gasto) {
+                Log::channel('testing')->info('Log', ['gasto', $gasto]);
+                $row['fecha']= $gasto->fecha_viat;
+                $row['empleado_info']= $gasto->empleado_info->user;
+                $row['usuario'] = $gasto->empleado_info;
+                $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
+                $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
+                $row['tarea'] = $gasto->tarea_info;
+                $row['proyecto'] = $gasto->proyecto_info;
+                $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
+                $row['sub_detalle'] = $gasto->sub_detalle_info;
+                $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
+               // $row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
+                $row['observacion'] = $gasto->observacion;
+                $row['detalle_estado'] = $gasto->detalle_estado;
+                $row['total']= $gasto->total;
+                $results[$id] = $row;
+                $id++;
 
+            }
+            return $results;
+        }catch(Exception $e){
+            Log::channel('testing')->info('Log', ['error modelo', $e->getMessage(), $e->getLine()]);
         }
-        return $results;
 
+
+    }
+    private static function empleado_inform($empleado_info)
+    {
+        $descripcion = '';
+        $i = 0;
+        foreach ($empleado_info as $empleado) {
+            $descripcion .= $empleado['nombres'] . ' ' . $empleado['apellidos'];
+            $i++;
+            if ($i !== count($empleado)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
+    }
+    private static function subdetalle_inform($subdetalle_info)
+    {
+        $descripcion = '';
+        $i = 0;
+        foreach ($subdetalle_info as $sub_detalle) {
+            $descripcion .= $sub_detalle['descripcion'];
+            $i++;
+            if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
     }
 }

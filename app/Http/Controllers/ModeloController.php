@@ -49,7 +49,7 @@ class ModeloController extends Controller
      */
     public function store(ModeloRequest $request)
     {
-        Log::channel('testing')->info('Log', ['request_recibida', $request]);
+        // Log::channel('testing')->info('Log', ['request_recibida', $request]);
         
         //Adaptacion de foreign keys
         $datos = $request->validated();

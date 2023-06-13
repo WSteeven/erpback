@@ -10,7 +10,8 @@ enum RutasStorage: string
 		// Public
 	case SERVICIOS = 'public/servicios';
 	case POPUP = 'public/popup';
-	case SUBTAREAS = 'public/subtareas';
+    case TAREAS = 'public/tareas';
+    case SUBTAREAS = 'public/subtareas';
 	case REGISTROS_TENDIDOS = 'public/registrosTendidos';
 	case FOTOS_PERFILES = 'public/fotosPerfiles';
 	case FIRMAS = 'public/firmas';
@@ -21,4 +22,6 @@ enum RutasStorage: string
     case SEGUIMIENTO = 'public/seguimiento'; // fotografias
     case ARCHIVOS_SEGUIMIENTO = 'public/archivos_seguimiento';
 	case PEDIDOS = 'public/pedidos/evidencias';
+	case CLIENTES = 'public/clientes/logos';
+    case TICKETS = 'public/tickets';
 }

@@ -22,6 +22,7 @@ use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use App\Models\User;
+use App\Models\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -178,13 +179,35 @@ class GastoController extends Controller
             $modelo = new GastoResource($gasto);
             //Guardar en tabla de destalle gasto
             $gasto->sub_detalle_info()->sync($request->sub_detalle);
+            //$gasto->empleado_beneficiario_info()->sync($request->beneficiarios);
             $datos['id_gasto'] = $gasto->id;
-            //Busca si existe detalle de gasto 6
-            if ($request->detalle == 6) {
-                //busca en arreglo sub_detalle si existe el id 36 y 37
+            //Busca si existe detalle de gasto 6 o 16
+            if ($request->detalle == 6 || $request->detalle == 16 || $request->detalle == 24) {
+                //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
                 $sub_detalle = $request->sub_detalle;
                 $sub_detalle = array_map('intval', $sub_detalle);
                 $sub_detalle = array_flip($sub_detalle);
+                if (array_key_exists(65, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(66, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(97, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(84, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(85, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(86, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(87, $sub_detalle)) {
+                    $this->guardar_gasto_vehiculo($request, $gasto);
+                }
                 if (array_key_exists(96, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
@@ -502,6 +525,8 @@ class GastoController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
+            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
+            $datos['placa'] = Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
