@@ -32,6 +32,8 @@ return new class extends Migration
             $table->timestamp('fecha_hora_cancelado')->nullable();
             $table->timestamp('fecha_hora_calificado')->nullable();
 
+            $table->text('motivo_ticket_no_solucionado')->nullable();
+
             // Foreign keys
             $table->unsignedBigInteger('solicitante_id');
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

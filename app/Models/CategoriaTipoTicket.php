@@ -7,26 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class TipoTicket extends Model implements Auditable
+class CategoriaTipoTicket extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'tipos_tickets';
-    protected $fillable = ['nombre', 'activo', 'categoria_tipo_ticket_id'];
+    protected $table = 'categorias_tipos_tickets';
+    protected $fillable = ['nombre', 'departamento_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'activo' => 'boolean',
     ];
 
-    private static $whiteListFilter = [
-        '*',
-    ];
-
-    /* public function departamento()
+    public function departamento()
     {
         return $this->belongsTo(Departamento::class);
-    } */
+    }
 }

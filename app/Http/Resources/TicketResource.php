@@ -36,7 +36,9 @@ class TicketResource extends JsonResource
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
+            'calificaciones' => $this->calificacionesTickets,
         ];
 
 
