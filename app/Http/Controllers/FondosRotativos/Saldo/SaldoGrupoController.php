@@ -570,8 +570,11 @@ class SaldoGrupoController extends Controller
             $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->where('fecha', '<=', $fecha_anterior)
                 ->orderBy('created_at', 'desc')->limit(1)->first();
-            $fecha = Carbon::parse($saldo_anterior->fecha);
-            $fecha_anterior =  $fecha->format('Y-m-d');
+            if ($saldo_anterior != null) {
+                $fecha =  Carbon::parse($saldo_anterior->fecha);
+                $fecha_anterior =  $fecha->format('Y-m-d');
+            }
+
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
