@@ -13,15 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('prestamo_empresarials', function (Blueprint $table) {
+        Schema::create('prestamo_empresarial', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('solicitante');
             $table->foreign('solicitante')->references('id')->on('empleados');
             $table->date('fecha');
-            $table->decimal('valor',8,2);
-            $table->integer('utilidad',4);
-            $table->decimal('valor_utilidad',8,2);
+            $table->decimal('monto',8,2);
+            $table->integer('utilidad',4)->nullable();
+            $table->decimal('valor_utilidad',8,2)->nullable();
             $table->unsignedBigInteger('id_forma_pago');
+            $table->foreign('id_forma_pago')->references('id')->on('forma_pagos');
             $table->decimal('plazo',8,2);
             $table->enum('estado',['ACTIVO','FINALIZADO']);
             $table->timestamps();
