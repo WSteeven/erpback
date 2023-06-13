@@ -27,12 +27,12 @@ class LoginController extends Controller
             ]);
         }
 
-        if ($user->updated_at->diffInDays(now()) >= 90) {
+       /* if ($user->updated_at->diffInDays(now()) >= 90) {
             throw ValidationException::withMessages([
                 '412' => ['Ha expirado su contraseña, por favor restablecerla!'],
             ])->status(412);
             //return response()->json(["mensaje" => "Ha expirado su contraseña, por favor restablecerla!"], 412);
-        }
+        }*/
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
