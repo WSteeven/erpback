@@ -12,6 +12,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -27,7 +28,8 @@ Route::apiResources(
         'multa' => MultaController::class,
         'prestamos_hipotecario' => PrestamoHipotecarioController::class,
         'prestamos_quirorafario' => PrestamoQuirirafarioController::class,
-        'extension_covertura_salud' => ExtensionCoverturaSaludController::class
+        'extension_covertura_salud' => ExtensionCoverturaSaludController::class,
+        'prestamo_empresarial' => PrestamoEmpresarialController::class
     ],
     [
         'parameters' => [],

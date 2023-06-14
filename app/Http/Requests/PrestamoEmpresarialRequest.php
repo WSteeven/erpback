@@ -13,7 +13,7 @@ class PrestamoEmpresarialRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,20 @@ class PrestamoEmpresarialRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'fecha' => 'required|date_format:Y-m-d',
+            'monto' => 'required|numeric',
+            'utilidad' => 'required|date_format:Y',
+            'valor_utilidad' => 'required|numeric',
+            'id_forma_pago' => 'required|numeric',
+            'plazo' => 'required|string',
+            'estado' => 'required|string',
         ];
+    }
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'id_forma_pago' => $this->forma_pago,
+            'estado' => 'ACTIVO'
+        ]);
     }
 }
