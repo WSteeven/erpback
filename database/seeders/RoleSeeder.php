@@ -536,8 +536,11 @@ class RoleSeeder extends Seeder
         //Rol de pagos
         Permission::firstOrCreate(['name' => 'puede.ver.rol_pago'])->syncRoles([$recursos_humanos]);
         Permission::firstOrCreate(['name' => 'puede.crear.rol_pago'])->syncRoles([$recursos_humanos]);
-
-
+        //Prestmos Empresariales
+        Permission::firstOrCreate(['name' => 'puede.ver.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
         /**
          * Modulo de vehículos
          */
