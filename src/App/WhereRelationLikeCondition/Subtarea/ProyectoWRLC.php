@@ -1,13 +1,13 @@
 <?php
 
-namespace Src\App\WhereRelationLikeCondition;
+namespace Src\App\WhereRelationLikeCondition\Subtarea;
 
-use Src\App\WhereRelationLikeConditionQuery\TrabajoProyectoWRLCQ;
+use Src\App\WhereRelationLikeConditionQuery\Subtarea\ProyectoWRLCQ;
 
 /**
  * Class WhereRelationLikeCondition.
  */
-class TrabajoProyectoWRLC //implements DetectorConditionsContract
+class ProyectoWRLC //implements DetectorConditionsContract
 {
     /**
      * @param $field
@@ -19,7 +19,7 @@ class TrabajoProyectoWRLC //implements DetectorConditionsContract
     public static function detect($field, $params, $is_override_method = false): ?string
     {
         if (!empty($params['like']) && $field == 'proyecto.codigo_proyecto') {
-            $method = TrabajoProyectoWRLCQ::class;
+            $method = ProyectoWRLCQ::class;
         }
 
         return $method ?? null;

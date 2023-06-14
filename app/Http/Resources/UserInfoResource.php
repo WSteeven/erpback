@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserInfoResource extends JsonResource
@@ -15,25 +16,28 @@ class UserInfoResource extends JsonResource
      */
     public function toArray($request)
     {
+        $empleado = $this->empleado;
+
         return [
             'id' => $this->empleado->id,
-            'usuario' => $this->empleado->nombres. ' ' . $this->empleado->apellidos,
-            'nombres' => $this->empleado->nombres,
-            'apellidos' => $this->empleado->apellidos,
+            'usuario' => Empleado::extraerNombresApellidos($empleado),
+            'nombres' => $empleado->nombres,
+            'apellidos' => $empleado->apellidos,
             'email' => $this->email,
-            'identificacion' => $this->empleado->identificacion,
-            'telefono' => $this->empleado->telefono,
-            'fecha_nacimiento' => $this->empleado->fecha_nacimiento,
-            'jefe_id' => $this->empleado->jefe_id,
+            'identificacion' => $empleado->identificacion,
+            'telefono' => $empleado->telefono,
+            'fecha_nacimiento' => $empleado->fecha_nacimiento,
+            'jefe_id' => $empleado->jefe_id,
             'usuario_id' => $this->id,
-            'sucursal_id' => $this->empleado->sucursal_id,
-            'grupo_id' => $this->empleado->grupo_id,
-            'grupo' => $this->empleado->grupo?->nombre,
+            'sucursal_id' => $empleado->sucursal_id,
+            'grupo_id' => $empleado->grupo_id,
+            'grupo' => $empleado->grupo?->nombre,
             'roles' => $this->getRoleNames(), // ->toArray()),
-            'estado' => $this->empleado->estado,
+            'estado' => $empleado->estado,
             'es_lider' => $this->esTecnicoLider(),
             'permisos' => $this->obtenerPermisos($this->id),
-            'cargo' => $this->empleado->cargo?->nombre,
+            'cargo' => $empleado->cargo?->nombre,
+            'departamento' => $empleado->departamento_id,
         ];
     }
 }
