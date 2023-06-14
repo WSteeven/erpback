@@ -44,7 +44,7 @@ class EmpleadoController extends Controller
 
         $user = User::find(auth()->id());
 
-        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])){//, User::ROL_ADMINISTRADOR])) {
+        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) { //, User::ROL_ADMINISTRADOR])) {
             // if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }

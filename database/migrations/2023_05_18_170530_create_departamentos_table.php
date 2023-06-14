@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('nombre')->unique();
             $table->boolean('activo')->default(true);
 
+            $table->unsignedBigInteger('responsable_id')->nullable();
+            $table->foreign('responsable_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

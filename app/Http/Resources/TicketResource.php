@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Empleado;
+use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,10 +30,15 @@ class TicketResource extends JsonResource
             'observaciones_solicitante' => $this->observaciones_solicitante,
             'calificacion_solicitante' => $this->calificacion_solicitante,
             'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
-            'responsable' => Empleado::extraerNombresApellidos($this->responsable),
-            'departamento_responsable' => $this->departamentoResponsable->nombre,
+            'solicitante_id' => $this->solicitante_id,
+            'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
+            'responsable_id' => $this->responsable_id,
+            'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
+            'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
+            'calificaciones' => $this->calificacionesTickets,
         ];
 
 
