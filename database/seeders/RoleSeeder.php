@@ -575,6 +575,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$administrador_tickets]);
 
+        // Categorias tipos de tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.crear.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.editar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+
         // Motivos cancelados tickets
         Permission::firstOrCreate(['name' => 'puede.ver.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.crear.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);

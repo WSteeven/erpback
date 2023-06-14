@@ -33,4 +33,13 @@ trait SubtareasFilter
             $q->where('codigo_tarea', 'like', "%" . $value . "%");
         });
     }
+
+    public function proyecto(Builder $builder, $value)
+    {
+        return $builder->whereHas('tarea', function ($query) use ($value) {
+            $query->whereHas('proyecto', function ($q) use ($value) {
+                return $q->where('codigo_proyecto', 'like', "%" . $value . "%");
+            });
+        });
+    }
 }

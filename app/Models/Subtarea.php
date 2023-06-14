@@ -17,6 +17,7 @@ use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\FechaSolicitudWRLC;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
@@ -82,10 +83,10 @@ class Subtarea extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
         /* 'cliente.empresa.razon_social',
-        'proyecto.codigo_proyecto',
         'tipo_trabajo.descripcion', */
         // 'canton',
         //'tarea.coordinador.nombres',
+        // 'proyecto.codigo_proyecto',
         'cantidad_adjuntos',
         'tarea.fecha_solicitud',
         //'tarea.codigo_tarea',
@@ -94,11 +95,11 @@ class Subtarea extends Model implements Auditable
 
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
-        'proyecto.codigo_proyecto' => 'proyecto',
         'tipo_trabajo.descripcion' => 'tipo_trabajo', */
         //'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
+        // 'proyecto.codigo_proyecto' => 'proyecto',
         'tarea.fecha_solicitud' => 'fecha_solicitud'
     ];
 
@@ -106,11 +107,11 @@ class Subtarea extends Model implements Auditable
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoProyectoWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
             //TrabajoCoordinadorWRLC::class,
+            ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
             //CodigoTareaWRLC::class,
