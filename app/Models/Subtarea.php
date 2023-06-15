@@ -111,7 +111,7 @@ class Subtarea extends Model implements Auditable
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
             //TrabajoCoordinadorWRLC::class,
-            ProyectoWRLC::class,
+            // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
             //CodigoTareaWRLC::class,
