@@ -11,6 +11,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Src\App\WhereRelationLikeCondition\Subtarea\CodigoTareaWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
@@ -89,6 +90,7 @@ class Subtarea extends Model implements Auditable
         // 'proyecto.codigo_proyecto',
         'cantidad_adjuntos',
         'tarea.fecha_solicitud',
+        // 'grupo',
         //'tarea.codigo_tarea',
         //'proyecto.canton.canton'
     ];
@@ -100,7 +102,7 @@ class Subtarea extends Model implements Auditable
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
         // 'proyecto.codigo_proyecto' => 'proyecto',
-        'tarea.fecha_solicitud' => 'fecha_solicitud'
+        'tarea.fecha_solicitud' => 'fecha_solicitud',
     ];
 
     public function EloquentFilterCustomDetection(): array
@@ -140,14 +142,15 @@ class Subtarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function grupo()
+    public function grupoResponsable(): BelongsTo
     {
-        return $this->belongsTo(Grupo::class);
+        // Log::channel('testing')->info('Log', ['Coordinador: ', 'Dentro de la relacion ...']);
+        return $this->belongsTo(Grupo::class, 'grupo_id', 'id');
     }
 
-    public function empleado()
+    public function empleadoResponsable()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
     // Relacion uno a muchos (inversa)
@@ -285,7 +288,7 @@ class Subtarea extends Model implements Auditable
     public function scopeSubtareasCoordinador($query, $coordinador) //HasManyThrough
     {
         // return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
-        Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
+        // Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
         return DB::table('subtareas')->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->where('tareas.coordinador_id', $coordinador);
     }
 }

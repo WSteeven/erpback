@@ -4,6 +4,7 @@ namespace App\ModelFilters;
 
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 trait SubtareasFilter
 {
@@ -40,6 +41,22 @@ trait SubtareasFilter
             $query->whereHas('proyecto', function ($q) use ($value) {
                 return $q->where('codigo_proyecto', 'like', "%" . $value . "%");
             });
+        });
+    }
+
+    public function grupo(Builder $builder, $value)
+    {
+        // Log::channel('testing')->info('Log', ['Coordinador: ', 'Dentro de grupo ...']);
+        return $builder->whereHas('grupoResponsable', function ($query) use ($value) {
+            $query->where('nombre', 'like', '%' . $value . '%');
+        });
+    }
+
+    public function empleado(Builder $builder, $value)
+    {
+        // Log::channel('testing')->info('Log', ['Coordinador: ', 'Dentro de grupo ...']);
+        return $builder->whereHas('empleadoResponsable', function ($query) use ($value) {
+            $query->where('nombres', 'like', '%' . $value . '%')->orWhere('apellidos', 'like', '%' . $value . '%');
         });
     }
 }
