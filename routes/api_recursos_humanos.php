@@ -13,6 +13,7 @@ use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
+use App\Http\Controllers\RecursosHumanos\RubroController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -29,7 +30,8 @@ Route::apiResources(
         'prestamos_hipotecario' => PrestamoHipotecarioController::class,
         'prestamos_quirorafario' => PrestamoQuirirafarioController::class,
         'extension_covertura_salud' => ExtensionCoverturaSaludController::class,
-        'prestamo_empresarial' => PrestamoEmpresarialController::class
+        'prestamo_empresarial' => PrestamoEmpresarialController::class,
+        'rubro'=>RubroController::class,
     ],
     [
         'parameters' => [],
@@ -41,4 +43,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
     Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class, 'prestamos_quirorafario_empleado']);
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extension_covertura_salud_empleado']);
+    Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
 });

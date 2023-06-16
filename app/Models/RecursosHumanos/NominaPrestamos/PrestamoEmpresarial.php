@@ -25,6 +25,11 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'plazo',
         'estado'
     ];
+    public function plazo_prestamo_empresarial_info()
+    {
+        return $this->hasMany(PlazoPrestamoEmpresarial::class,'id_prestamo_empresarial','id');
+    }
+
 
     private static $whiteListFilter = [
         'id',

@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('prestamo_empresarial', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary(); // Nueva columna autoincremental como clave primaria
+            $table->unsignedBigInteger('id')->autoIncrement(); // Nueva columna autoincremental como clave primaria
             $table->unsignedBigInteger('solicitante');
             $table->foreign('solicitante')->references('id')->on('empleados');
             $table->date('fecha');
