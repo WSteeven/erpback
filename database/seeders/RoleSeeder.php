@@ -536,8 +536,11 @@ class RoleSeeder extends Seeder
         //Rol de pagos
         Permission::firstOrCreate(['name' => 'puede.ver.rol_pago'])->syncRoles([$recursos_humanos]);
         Permission::firstOrCreate(['name' => 'puede.crear.rol_pago'])->syncRoles([$recursos_humanos]);
-
-
+        //Prestmos Empresariales
+        Permission::firstOrCreate(['name' => 'puede.ver.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
         /**
          * Modulo de vehículos
          */
@@ -574,6 +577,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$administrador_tickets]);
+
+        // Categorias tipos de tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.crear.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.editar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
 
         // Motivos cancelados tickets
         Permission::firstOrCreate(['name' => 'puede.ver.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
