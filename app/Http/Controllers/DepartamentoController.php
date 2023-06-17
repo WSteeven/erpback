@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DepartamentoRequest;
 use App\Http\Resources\DepartamentoResource;
 use App\Models\Departamento;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class DepartamentoController extends Controller
@@ -14,19 +16,20 @@ class DepartamentoController extends Controller
     public function listar()
     {
         $campos = explode(',', request('campos'));
-
+        
         if (request('campos')) {
             return Departamento::ignoreRequest(['campos'])->filter()->latest()->get($campos);
         } else {
             return DepartamentoResource::collection(Departamento::filter()->latest()->get());
         }
     }
-
+    
     /*********
      * Listar
      *********/
-    public function index()
+    public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
         $results = $this->listar();
         return response()->json(compact('results'));
     }

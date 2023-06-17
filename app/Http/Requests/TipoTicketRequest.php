@@ -26,6 +26,7 @@ class TipoTicketRequest extends FormRequest
     {
         $rules = [
             'nombre' => 'required|string|unique:tipos_tickets',
+            'departamento' => 'required|numeric|integer',
             'activo' => 'required|boolean',
         ];
 

@@ -14,7 +14,7 @@ class TipoTicket extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'tipos_tickets';
-    protected $fillable = ['nombre', 'activo'];
+    protected $fillable = ['nombre', 'activo', 'categoria_tipo_ticket_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -22,7 +22,11 @@ class TipoTicket extends Model implements Auditable
     ];
 
     private static $whiteListFilter = [
-        'nombre',
-        'activo',
+        '*',
     ];
+
+    /* public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
+    } */
 }

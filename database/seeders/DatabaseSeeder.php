@@ -84,5 +84,9 @@ class DatabaseSeeder extends Seeder
         $this->call(SubDetalleViaticoSeeder::class);
         // $this->call(PedidoSeeder::class);
         $this->call(MotivoGastoSeeder::class);
+        $this->call(DepartamentoSeeder::class);
+        $this->call(MotivoPausaTicketSeeder::class);
+        $this->call(CategoriaTipoTicketSeeder::class);
+        $this->call(TipoTicketSeeder::class);
     }
 }

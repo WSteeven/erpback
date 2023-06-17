@@ -72,10 +72,10 @@ class SubtareaResource extends JsonResource
             'canton' => $this->obtenerCanton(),
             'es_responsable' => $this->verificarSiEsResponsable(),
             'empleado_responsable' => $this->obtenerIdEmpleadoResponsable(), // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
-            'empleado' => $this->extraerNombresApellidos($this->empleado),
+            'empleado' => $this->extraerNombresApellidos($this->empleadoResponsable),
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
-            'grupo' => $this->grupo?->nombre,
+            'grupo' => $this->grupoResponsable?->nombre,
             'tiene_subtareas' => $tarea->tiene_subtareas,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
@@ -97,7 +97,7 @@ class SubtareaResource extends JsonResource
             $modelo['subtarea_dependiente'] = $this->subtarea_dependiente_id;
             $modelo['empleado'] = $this->empleado_id;
             $modelo['grupo'] = $this->grupo_id;
-            $modelo['grupo_nombre'] = $this->grupo?->nombre;
+            $modelo['grupo_nombre'] = $this->grupoResponsable?->nombre;
         }
 
         return $modelo;
@@ -222,7 +222,7 @@ class SubtareaResource extends JsonResource
         // }
 
         // if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
-        $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        $existeTrabajoEjecutado = !!$this->empleadoResponsable->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
         return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() igual q arriba
         // }
     }
@@ -230,7 +230,7 @@ class SubtareaResource extends JsonResource
     private function verificarSiPuedeEjecutarOld()
     {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-            $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            $existeTrabajoEjecutado = !!$this->grupoResponsable->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             // $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 
@@ -239,7 +239,7 @@ class SubtareaResource extends JsonResource
         }
 
         if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
-            $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            $existeTrabajoEjecutado = !!$this->empleadoResponsable->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() igual q arriba
         }
     }

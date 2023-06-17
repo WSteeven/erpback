@@ -512,7 +512,35 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.editar.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.roles'])->syncRoles([$administrador]);
-
+        // --------------------------
+        // Modulo de Recursos Humanos
+        // --------------------------
+        //Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.permiso_nomina'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.permiso_nomina'])->syncRoles([$empleado]);
+        //Estado Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.estado_permiso_empleado'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        //Motivo Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.motivo_permiso_empleado'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        //Tipos de Contrato
+        Permission::firstOrCreate(['name' => 'puede.ver.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        //Rol de pagos
+        Permission::firstOrCreate(['name' => 'puede.ver.rol_pago'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.rol_pago'])->syncRoles([$recursos_humanos]);
+        //Prestmos Empresariales
+        Permission::firstOrCreate(['name' => 'puede.ver.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
         /**
          * Modulo de vehículos
          */
@@ -549,6 +577,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.tipos_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$administrador_tickets]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$administrador_tickets]);
+
+        // Categorias tipos de tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.crear.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.editar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets]);
 
         // Motivos cancelados tickets
         Permission::firstOrCreate(['name' => 'puede.ver.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
