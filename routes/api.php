@@ -62,6 +62,7 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -205,6 +206,14 @@ Route::apiResources(
 );
 
 /**
+ * Rutas para obtener empleados por cierto rol
+ */
+Route::get('empleados-roles', function (Request $request){
+    $roles = explode(',', $request->roles);
+    $results = UserResource::collection(User::role($roles)->with('empleado')->get());
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+/**
  * Rutas para imprimir PDFs
  */
 Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -219,8 +228,10 @@ Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngr
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
-Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//reportes
+Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 
