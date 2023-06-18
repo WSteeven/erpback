@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\RecursosHumanos\Area;
+use App\Models\RecursosHumanos\Banco;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -223,6 +225,11 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Subtarea::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'responsable_id', 'id');
+    }
+
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.
@@ -231,6 +238,44 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(Cargo::class);
     }
+    /**
+     * Relación uno a uno.
+     * Un empleado pertenece a una sola area.
+     */
+    public function area()
+    {
+        return $this->belongsTo(Area::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene un solo estado civil.
+     */
+    public function estadoCivil()
+    {
+        return $this->belongsTo(EstadoCivil::class);
+    }
+        /**
+     * Relación uno a uno.
+     * Un empleado tiene uncuente aen un banco.
+     */
+    public function banco()
+    {
+        return $this->belongsTo(Banco::class);
+    }
+         /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de contrato
+     */
+    public function tipoContrato()
+    {
+        return $this->belongsTo(TipoContrato::class);
+    }
+         /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de sangre
+     */
+
+
 
     public function departamento()
     {
@@ -251,7 +296,7 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        if (!$empleado) return null;
+        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }

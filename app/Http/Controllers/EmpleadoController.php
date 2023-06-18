@@ -44,7 +44,7 @@ class EmpleadoController extends Controller
 
         $user = User::find(auth()->id());
 
-        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])){//, User::ROL_ADMINISTRADOR])) {
+        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) { //, User::ROL_ADMINISTRADOR])) {
             // if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
             return $this->servicio->obtenerTodosSinEstado();
         }
@@ -127,7 +127,11 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-
+    public function datos_empleado($id)
+    {
+        $empleado = Empleado::find($id);
+        return response()->json(compact('empleado'));
+    }
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([

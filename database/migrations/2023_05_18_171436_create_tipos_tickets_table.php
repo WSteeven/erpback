@@ -19,6 +19,9 @@ return new class extends Migration
             $table->string('nombre');
             $table->boolean('activo')->default(true);
 
+            $table->unsignedBigInteger('categoria_tipo_ticket_id')->nullable();
+            $table->foreign('categoria_tipo_ticket_id')->references('id')->on('categorias_tipos_tickets')->onDelete('set null')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

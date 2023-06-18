@@ -38,7 +38,11 @@ class TipoTicketController extends Controller
     public function store(TipoTicketRequest $request)
     {
         //Respuesta
-        $modelo = TipoTicket::create($request->validated());
+        $datos = $request->validated();
+
+        $datos['departamento_id'] = $datos['departamento'];
+
+        $modelo = TipoTicket::create($datos);
         $modelo = new TipoTicketResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

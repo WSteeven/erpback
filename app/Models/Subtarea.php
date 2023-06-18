@@ -11,12 +11,14 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Src\App\WhereRelationLikeCondition\Subtarea\CodigoTareaWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\CantidadAdjuntosWRLC;
 use Src\App\WhereRelationLikeCondition\Subtarea\FechaSolicitudWRLC;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\WhereRelationLikeCondition\Subtarea\ProyectoWRLC;
 use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
@@ -82,35 +84,36 @@ class Subtarea extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
         /* 'cliente.empresa.razon_social',
-        'proyecto.codigo_proyecto',
         'tipo_trabajo.descripcion', */
         // 'canton',
         //'tarea.coordinador.nombres',
+        // 'proyecto.codigo_proyecto',
         'cantidad_adjuntos',
         'tarea.fecha_solicitud',
+        // 'grupo',
         //'tarea.codigo_tarea',
         //'proyecto.canton.canton'
     ];
 
     private $aliasListFilter = [
         /* 'cliente.empresa.razon_social' => 'cliente',
-        'proyecto.codigo_proyecto' => 'proyecto',
         'tipo_trabajo.descripcion' => 'tipo_trabajo', */
         //'tarea.coordinador.nombres' => 'coordinador',
         //'tarea.codigo_tarea' => 'tarea',
         //'proyecto.canton.canton' => 'canton',
-        'tarea.fecha_solicitud' => 'fecha_solicitud'
+        // 'proyecto.codigo_proyecto' => 'proyecto',
+        'tarea.fecha_solicitud' => 'fecha_solicitud',
     ];
 
     public function EloquentFilterCustomDetection(): array
     {
         return [
             /* TrabajoClienteWRLC::class,
-            TrabajoProyectoWRLC::class,
             TrabajoTipoTrabajoWRLC::class,
             TrabajoFechaHoraCreacionWRLC::class,
             TrabajoCantonWRLC::class, */
             //TrabajoCoordinadorWRLC::class,
+            // ProyectoWRLC::class,
             CantidadAdjuntosWRLC::class,
             FechaSolicitudWRLC::class,
             //CodigoTareaWRLC::class,
@@ -139,14 +142,15 @@ class Subtarea extends Model implements Auditable
     }
 
     // Relacion uno a muchos (inversa)
-    public function grupo()
+    public function grupoResponsable(): BelongsTo
     {
-        return $this->belongsTo(Grupo::class);
+        // Log::channel('testing')->info('Log', ['Coordinador: ', 'Dentro de la relacion ...']);
+        return $this->belongsTo(Grupo::class, 'grupo_id', 'id');
     }
 
-    public function empleado()
+    public function empleadoResponsable()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
     // Relacion uno a muchos (inversa)
@@ -284,7 +288,7 @@ class Subtarea extends Model implements Auditable
     public function scopeSubtareasCoordinador($query, $coordinador) //HasManyThrough
     {
         // return $this->hasManyThrough(Subtarea::class, Tarea::class, 'coordinador_id');
-        Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
+        // Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
         return DB::table('subtareas')->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->where('tareas.coordinador_id', $coordinador);
     }
 }
