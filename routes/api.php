@@ -75,6 +75,7 @@ use App\Models\Canton;
 use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -218,8 +219,12 @@ Route::apiResources(
  * Rutas para obtener empleados por cierto rol
  */
 Route::get('empleados-roles', function (Request $request){
-    $roles = explode(',', $request->roles);
-    $results = UserResource::collection(User::role($roles)->with('empleado')->get());
+    $results = [];
+    $roles = [];
+    if(!is_null($request->roles)){
+        $roles = explode(',', $request->roles);
+        $results = UserResource::collection(User::role('BODEGA')->with('empleado')->get());
+    }
     return response()->json(compact('results'));
 })->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
 /**
