@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class PlazoPrestamoEmpresarial extends Model
+class PlazoPrestamoEmpresarial extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
@@ -19,7 +19,7 @@ class PlazoPrestamoEmpresarial extends Model
         'fecha_pago',
         'valor_a_pagar',
         'id_prestamo_empresarial',
-        'estado_couta'
+        'pago_couta'
     ];
 
     private static $whiteListFilter = [
@@ -28,7 +28,7 @@ class PlazoPrestamoEmpresarial extends Model
         'fecha_pago',
         'valor_a_pagar',
         'prestamo_empresarial',
-        'estado_couta'
+        'pago_couta'
     ];
     public function prestamo_info()
     {

@@ -4,15 +4,18 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PrestamoEmpresarialRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 use function PHPSTORM_META\map;
 
 class PrestamoEmpresarialController extends Controller
 {
+    private $entidad = 'Prestamo Empresarial';
     public function __construct()
     {
         $this->middleware('can:puede.ver.prestamo_empresarial')->only('index', 'show');
@@ -25,18 +28,23 @@ class PrestamoEmpresarialController extends Controller
     {
         $results = [];
         $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+        $results = PrestamoEmpresarialResource::collection($results);
         return response()->json(compact('results'));
     }
     public function show(Request $request, PrestamoEmpresarial $prestamoEmpresarial)
     {
-        return response()->json(compact('prestamoEmpresarial'));
+        $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
+        return response()->json(compact('modelo'), 200);
     }
     public function store(PrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
         $prestamoEmpresarial=PrestamoEmpresarial::create($datos);
         $this->crear_plazos($prestamoEmpresarial,$request->plazos);
-        return $prestamoEmpresarial;
+        $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
+
     }
     public function update(PrestamoEmpresarialRequest $request, PrestamoEmpresarial $prestamoEmpresarial)
     {
@@ -55,7 +63,7 @@ class PrestamoEmpresarialController extends Controller
             $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_pago']);
             return [
                 'id_prestamo_empresarial' => $prestamoEmpresarial->id,
-                'estado_couta' => false,
+                'pago_couta' => false,
                 'num_cuota'=> $plazo['num_cuota'],
                 'fecha_pago' => $fecha->format('Y-m-d'),
                 'valor_a_pagar'=>$plazo['valor_a_pagar']

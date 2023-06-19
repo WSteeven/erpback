@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('valor_a_pagar');
             $table->unsignedBigInteger('id_prestamo_empresarial');
             $table->foreign('id_prestamo_empresarial')->references('id')->on('prestamo_empresarial');
-            $table->boolean('estado_couta');
+            $table->boolean('pago_couta');
             $table->timestamps();
         });
     }

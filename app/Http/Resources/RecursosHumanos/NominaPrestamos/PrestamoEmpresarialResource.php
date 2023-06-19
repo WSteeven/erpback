@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class PrestamoEmpresarialResource extends JsonResource
@@ -17,19 +18,25 @@ class PrestamoEmpresarialResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'solicitante' => $this->empleado_id,
-            'solicitante_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
+            'solicitante' => $this->solicitante,
+            'solicitante_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
             'fecha' =>  $this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
-            'utilidad' => $this->utilidad ,
+            'utilidad' => $this->utilidad,
             'valor_utilidad' => $this->valor_utilidad,
             'forma_pago' => $this->id_forma_pago,
             'forma_pago_info' => $this->forma_pago_info->nombre,
             'plazo' => $this->plazo,
-            'estado' => $this->estado_permiso_id,
+            'plazos' => $this->plazo_prestamo_empresarial_info,
+            'estado' => $this->estado,
 
 
         ];
         return $modelo;
+    }
+    private function cambiar_fecha($fecha)
+    {
+        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
+        return $fecha_formateada;
     }
 }
