@@ -14,7 +14,7 @@ class CategoriaTipoTicketController extends Controller
 
     public function index()
     {
-        $results = CategoriaTipoTicket::all();
+        $results = CategoriaTipoTicket::latest()->get();
         $results = CategoriaTipoTicketResource::collection($results);
         return response()->json(compact('results'));
     }

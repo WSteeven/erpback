@@ -27,6 +27,7 @@ class DepartamentoRequest extends FormRequest
         $rules = [
             'nombre' => 'required|string|unique:departamentos',
             'activo' => 'required|boolean',
+            'responsable' => 'required|numeric|integer',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

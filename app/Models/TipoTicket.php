@@ -25,8 +25,8 @@ class TipoTicket extends Model implements Auditable
         '*',
     ];
 
-    /* public function departamento()
+    public function categoriaTipoTicket()
     {
-        return $this->belongsTo(Departamento::class);
-    } */
+        return $this->belongsTo(CategoriaTipoTicket::class);
+    }
 }
