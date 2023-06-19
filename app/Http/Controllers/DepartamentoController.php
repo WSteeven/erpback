@@ -16,14 +16,14 @@ class DepartamentoController extends Controller
     public function listar()
     {
         $campos = explode(',', request('campos'));
-        
+
         if (request('campos')) {
             return Departamento::ignoreRequest(['campos'])->filter()->latest()->get($campos);
         } else {
             return DepartamentoResource::collection(Departamento::filter()->latest()->get());
         }
     }
-    
+
     /*********
      * Listar
      *********/
@@ -64,8 +64,11 @@ class DepartamentoController extends Controller
      *************/
     public function update(DepartamentoRequest $request, Departamento  $departamento)
     {
+        $datos = $request->validated();
+        $datos['responsable_id'] = $datos['responsable'];
+
         // Respuesta
-        $departamento->update($request->validated());
+        $departamento->update($datos);
         $modelo = new DepartamentoResource($departamento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

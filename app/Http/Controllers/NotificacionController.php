@@ -38,7 +38,7 @@ class NotificacionController extends Controller
                 $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(10)->get($campos);
             }
         } else {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->filter()->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
             else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
 
