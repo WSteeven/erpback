@@ -34,7 +34,7 @@ class TicketEvent implements ShouldBroadcast
         $this->destinatario = $destinatario;
         $this->emisor = $emisor;
 
-        $ruta = '/tickets';
+        $ruta = '/tickets-asignados';
         $mensaje = $this->obtenerMensaje();
 
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::TICKET, $emisor, $destinatario, $ticket, true);

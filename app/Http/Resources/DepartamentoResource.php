@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DepartamentoResource extends JsonResource
@@ -18,6 +19,7 @@ class DepartamentoResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'activo' => $this->activo,
+            'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
         ];
     }
 }
