@@ -37,7 +37,7 @@ class TransaccionBodegaResource extends JsonResource
             'pedido' => $this->pedido_id,
             'responsable'=>$this->responsable?$this->responsable->nombres . ' ' . $this->responsable->apellidos : null,
             'responsable_id'=>$this->responsable_id,
-            'transferencia' => $this->transferencia?->justificacion,
+            'transferencia' => $this->transferencia_id,
             'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->motivo?->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
@@ -65,7 +65,7 @@ class TransaccionBodegaResource extends JsonResource
             'comprobante'=>$comprobante,
             'firmada'=> $comprobante?->firmada,
             'estado_comprobante'=>$comprobante?->estado,
-            
+
         ];
 
         if ($controller_method == 'show') {

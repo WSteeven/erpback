@@ -88,12 +88,13 @@ class InventarioController extends Controller
             $results = InventarioResource::collection($results);
         }
         //si no entra en ningun if
-        if (!$request->hasAny(['search']) && $request->boolean('zeros')) {
-            // Log::channel('testing')->info('Log', ['if 81', $request->all()]);
+        if (!$request->hasAny(['search']) && !$request->boolean('zeros')) {
+            Log::channel('testing')->info('Log', ['if search 92', $request->all()]);
             $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
             $results = InventarioResource::collection($results);
         } else {
-            if ($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->filter()->get();
+            Log::channel('testing')->info('Log', ['if search 96', $request->all()]);
+            if ($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->OrWhere('por_recibir', '<>',0)->OrWhere('por_entregar', '<>',0)->filter()->get();
             else $results = Inventario::ignoreRequest(['search'])->filter()->get();
             $results = InventarioResource::collection($results);
         }

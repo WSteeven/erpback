@@ -86,8 +86,8 @@ class TransaccionBodegaRequest extends FormRequest
                     else if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser mayor que 0');
                     else {
                         $esFibra = !!Fibra::find($listado['id']);
-                        $itemInventario = !!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
-                        Log::channel('testing')->info('Log', ['Datos recibidos', $itemInventario]);
+                        $itemInventario = $this->transferencia? !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first():!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
+                        // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {
                             if ($listado['serial'] && $listado['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
@@ -96,7 +96,7 @@ class TransaccionBodegaRequest extends FormRequest
                         //valida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
                         if (!$this->ingreso_masivo) {
                             if (array_key_exists('condiciones', $listado)) {
-                                Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
+                                // Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
                             } else {
                                 $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
                             }
@@ -105,11 +105,11 @@ class TransaccionBodegaRequest extends FormRequest
                 }
             } else {
                 /**
-                 * CORREGIR LOS EGRESOS, VERIFICAR QUE FUNCIONE BIEN 
-                 * 
-                 * 
-                 * 
-                 * 
+                 * CORREGIR LOS EGRESOS, VERIFICAR QUE FUNCIONE BIEN
+                 *
+                 *
+                 *
+                 *
                  */
                 foreach ($this->listadoProductosTransaccion as $listado) {
                     // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
