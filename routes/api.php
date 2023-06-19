@@ -246,6 +246,7 @@ Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionControlle
 //reportes
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
+Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 
