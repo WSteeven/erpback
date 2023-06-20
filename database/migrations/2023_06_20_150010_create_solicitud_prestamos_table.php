@@ -14,7 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('solicitud_prestamos', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id')->autoIncrement(); // Nueva columna autoincremental como clave primaria
+            $table->unsignedBigInteger('solicitante');
+            $table->foreign('solicitante')->references('id')->on('empleados');
+            $table->date('fecha');
+            $table->decimal('monto', 8, 2);
+            $table->decimal('plazo', 8, 2);
+            $table->text('observacion');
+            $table->enum('estado', ['PENDIENTE','RECHAZADO','AUTORIZADO']);
             $table->timestamps();
         });
     }
