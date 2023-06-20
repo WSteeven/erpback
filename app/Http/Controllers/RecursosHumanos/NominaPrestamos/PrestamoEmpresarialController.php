@@ -11,9 +11,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
-
-use function PHPSTORM_META\map;
-
 class PrestamoEmpresarialController extends Controller
 {
     private $entidad = 'Prestamo Empresarial';
