@@ -106,7 +106,7 @@ class ProveedorController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Error:', $e->getLine(), $e->getMessage()]);
-            return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()]);
+            return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
     }
 

@@ -28,6 +28,21 @@ class CriterioCalificacion extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    /**
+     * ______________________________________________________________________________________
+     * RELACIONES CON OTRAS TABLAS
+     * ______________________________________________________________________________________
+     */
+    
+     public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
+    }
 
 
+    
+    public function oferta()
+    {
+        return $this->belongsTo(OfertaProveedor::class);
+    }
 }

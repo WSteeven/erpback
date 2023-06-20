@@ -26,7 +26,7 @@ class CriterioCalificacionController extends Controller
      */
     public function index()
     {
-        $results = CriterioCalificacionResource::collection(CriterioCalificacion::all());
+        $results = CriterioCalificacionResource::collection(CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get());
         return response()->json(compact('results'));
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Departamento;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CriterioCalificacionRequest extends FormRequest
@@ -27,8 +28,17 @@ class CriterioCalificacionRequest extends FormRequest
             'nombre' => 'required|string',
             'descripcion' => 'required|string',
             'ponderacion_referencia' => 'required|numeric',
-            'departamento_id' => 'required|exists:departamentos,id',
-            'oferta_id' => 'required|exists:ofertas_proveedores,id',
+            'departamento' => 'required|exists:departamentos,id',
+            'oferta' => 'required|exists:ofertas_proveedores,id',
         ];
+    }
+    
+    public function prepareForValidation(){
+        $departamento = Departamento::where('responsable_id', auth()->user()->empleado->id)->first();
+        if($departamento){
+            $this->merge([
+                'departamento' => $departamento->id
+            ]);
+        }
     }
 }

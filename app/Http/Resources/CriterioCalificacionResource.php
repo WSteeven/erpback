@@ -16,6 +16,7 @@ class CriterioCalificacionResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
+            'id' => $this->id,
             'nombre' => $this->nombre,
             'descripcion' => $this->descripcion,
             'ponderacion_referencia' => $this->ponderacion_referencia,
