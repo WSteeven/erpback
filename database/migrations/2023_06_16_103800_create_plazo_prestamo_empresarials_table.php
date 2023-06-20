@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('plazo_prestamo_empresarial', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('num_cuota');
-            $table->date('fecha_pago');
+            $table->date('fecha_vencimiento');
+            $table->date('fecha_pago')->nullable();
             $table->decimal('valor_a_pagar');
             $table->unsignedBigInteger('id_prestamo_empresarial');
             $table->foreign('id_prestamo_empresarial')->references('id')->on('prestamo_empresarial');

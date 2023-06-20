@@ -19,7 +19,7 @@ class PlazoPrestamoEmpresarialResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'num_cuota' => $this->num_cuota,
-            'fecha_pago' => $this->cambiar_fecha($this->fecha_pago),
+            'fecha_vencimiento' => $this->cambiar_fecha($this->fecha_vencimiento),
             'valor_a_pagar' =>  $this->valor_a_pagar,
             'estado_couta' => $this->estado_couta,
         ];

@@ -9,6 +9,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 use function PHPSTORM_META\map;
@@ -39,17 +40,20 @@ class PrestamoEmpresarialController extends Controller
     public function store(PrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
-        $prestamoEmpresarial=PrestamoEmpresarial::create($datos);
-        $this->crear_plazos($prestamoEmpresarial,$request->plazos);
+        $prestamoEmpresarial = PrestamoEmpresarial::create($datos);
+        $this->crear_plazos($prestamoEmpresarial, $request->plazos);
         $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
-
     }
     public function update(PrestamoEmpresarialRequest $request, PrestamoEmpresarial $prestamoEmpresarial)
     {
-        $prestamoEmpresarial->nombre = $request->nombre;
-        $prestamoEmpresarial->save();
+        $datos = $request->validated();
+        $prestamoEmpresarial->update($datos);
+        $this->modificar_plazo($prestamoEmpresarial, $request->plazos);
+        $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
         return $prestamoEmpresarial;
     }
     public function destroy(Request $request, PrestamoEmpresarial $prestamoEmpresarial)
@@ -57,20 +61,37 @@ class PrestamoEmpresarialController extends Controller
         $prestamoEmpresarial->delete();
         return response()->json(compact('prestamoEmpresarial'));
     }
-    public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial,$plazos)
+    public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
     {
         $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
-            $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_pago']);
+            $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_vencimiento']);
             return [
                 'id_prestamo_empresarial' => $prestamoEmpresarial->id,
                 'pago_couta' => false,
-                'num_cuota'=> $plazo['num_cuota'],
-                'fecha_pago' => $fecha->format('Y-m-d'),
-                'valor_a_pagar'=>$plazo['valor_a_pagar']
+                'num_cuota' => $plazo['num_cuota'],
+                'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'valor_a_pagar' => $plazo['valor_a_pagar']
             ];
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazosActualizados);
-
     }
-
+    public function modificar_plazo(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
+    {
+        // Crear un arreglo con los datos actualizados para cada plazo
+        $plazosActualizados = collect($plazos)->map(function ($plazo) {
+            return [
+                'id' =>  $plazo['id'],
+                'pago_couta' =>  $plazo['pago_couta'],
+                'num_cuota' => $plazo['num_cuota'],
+                'fecha_vencimiento' => $plazo['fecha_vencimiento'],
+                'fecha_pago' => $plazo['fecha_pago'],
+                'valor_a_pagar' => $plazo['valor_a_pagar']
+            ];
+        })->toArray();
+        // Realizar la actualización masiva
+        foreach ($plazosActualizados as $plazoActualizado) {
+            $id = $plazoActualizado['id'];
+            PlazoPrestamoEmpresarial::where('id', $id)->update($plazoActualizado);
+        }
+    }
 }
