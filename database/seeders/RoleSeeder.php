@@ -36,6 +36,7 @@ class RoleSeeder extends Seeder
         $administrador_fondos = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_FONDOS]);
         $administrador_tickets_1 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_1]);
         $administrador_tickets_2 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_2]);
+        $administrador_sistema = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_SISTEMA]);
 
         // Roles de cuadrillas
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_LIDER_DE_GRUPO]);

@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class TicketResource extends JsonResource
 {
@@ -41,6 +42,7 @@ class TicketResource extends JsonResource
             'ticket_interno' => $this->ticket_interno,
             'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
             'calificaciones' => $this->calificacionesTickets,
+            'pendiente_calificar' => $this->verificarPendienteCalificar(),
         ];
 
 
@@ -53,5 +55,10 @@ class TicketResource extends JsonResource
         }
 
         return $modelo;
+    }
+
+    public function verificarPendienteCalificar()
+    {
+        return !$this->calificacionesTickets()->where('calificador_id', Auth::user()->empleado->id)->exists();
     }
 }
