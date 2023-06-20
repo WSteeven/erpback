@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransaccionBodegaIngresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
@@ -26,6 +27,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Config\TiposReportesIngresos;
 use Src\Shared\Utils;
@@ -336,43 +338,33 @@ class TransaccionBodegaIngresoController extends Controller
     /**
      * Reportes
      */
-    public function reportes(Request $request){
-        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
-
+    public function reportes(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         $results = [];
         $registros = [];
-        $cont = 0;
-        switch($request->accion){
+        switch ($request->accion) {
             case 'excel':
                 Log::channel('testing')->info('Log', ['Entró en excel']);
                 $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
-                $ingresos = [];
-                foreach($results as $index =>$r){
-                    $items = DetalleProductoTransaccion::where('transaccion_id', $r->id)->get();
-                    foreach($items as $i => $item){
-                        Log::channel('testing')->info('Log', [$item]);
-                        $row['inventario_id'] = $item->inventario_id;
-                        $row['descripcion'] = $item->inventario->detalle->descripcion;
-                        $row['estado'] = $item->inventario->condicion->nombre;
-                        $row['propietario'] = $item->inventario->cliente->empresa->razon_social;
-                        $row['bodega'] = $item->inventario->sucursal->lugar;
-                        $row['solicitante'] = $item->transaccion->solicitante->nombres.' '.$item->transaccion->solicitante->nombres;
-                        $row['per_atiende'] = $item->transaccion->atiende->nombres.' '.$item->transaccion->atiende->nombres;
-                        $row['transaccion_id'] = $item->transaccion_id;
-                        $row['justificacion'] = $item->transaccion->justificacion;
-                        $row['cantidad'] = $item->transaccion_id;
-                        $registros[$cont]=$row;
-                        $cont++;
-                    }
-                    $ingresos[$index]=$items;
-                }
-                // Log::channel('testing')->info('Log', ['Resultados en excel', $results]);
-                // Log::channel('testing')->info('Log', ['Detalles', $ingresos]);
-                Log::channel('testing')->info('Log', ['Registros', $registros]);
+                $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
+                //imprimir el excel
+                return Excel::download(new TransaccionBodegaIngresoExport(collect($registros)), 'reporte.xlsx');
                 break;
             case 'pdf':
                 Log::channel('testing')->info('Log', ['Entró en pdf']);
-                $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
+                try {
+                    $results = $this->servicio->filtrarIngresoPorTipoFiltro($request);
+                    $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
+                    $reporte = $registros;
+                    $peticion = $request->all();
+                    $pdf = Pdf::loadView('bodega.reportes.ingresos_bodega', compact(['reporte','peticion']));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                    return $pdf->output();
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                }
                 break;
             default:
                 //cuando llega el consultar

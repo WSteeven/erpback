@@ -52,10 +52,10 @@ trait SubtareasFilter
         });
     }
 
-    public function empleado(Builder $builder, $value)
+    public function empleado_responsable(Builder $builder, $value)
     {
         // Log::channel('testing')->info('Log', ['Coordinador: ', 'Dentro de grupo ...']);
-        return $builder->whereHas('empleadoResponsable', function ($query) use ($value) {
+        return $builder->whereHas('empleado', function ($query) use ($value) {
             $query->where('nombres', 'like', '%' . $value . '%')->orWhere('apellidos', 'like', '%' . $value . '%');
         });
     }

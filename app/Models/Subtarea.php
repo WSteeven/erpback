@@ -148,7 +148,7 @@ class Subtarea extends Model implements Auditable
         return $this->belongsTo(Grupo::class, 'grupo_id', 'id');
     }
 
-    public function empleadoResponsable()
+    public function empleado()
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }

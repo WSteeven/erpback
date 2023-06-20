@@ -61,9 +61,11 @@ class TicketEvent implements ShouldBroadcast
             case Ticket::EJECUTANDO:
                 return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . '.';
             case Ticket::PAUSADO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . '.';
+                // $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivo;
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . '.';// MOTIVO: ' . $motivo;
             case Ticket::RECHAZADO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . '.';
+                $motivo = $this->ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . '. MOTIVO: ' . $motivo;
             case Ticket::FINALIZADO_SOLUCIONADO || Ticket::FINALIZADO_SOLUCIONADO:
                 return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha FINALIZADO el ticket ' . $this->ticket->codigo . '.';
         }
