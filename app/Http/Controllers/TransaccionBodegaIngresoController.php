@@ -340,7 +340,7 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function reportes(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         $results = [];
         $registros = [];
         switch ($request->accion) {

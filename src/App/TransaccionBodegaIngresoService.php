@@ -510,13 +510,11 @@ class TransaccionBodegaIngresoService
 
 
     public static function filtrarIngresoPorTipoFiltro($request){
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
         switch($request->tipo){
             case 0: //persona que solicita el ingreso
-                Log::channel('testing')->info('Log', ['Entró en solicitante']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('solicitante_id', $request->solicitante)
                     ->whereBetween('created_at',
                         [
@@ -525,7 +523,6 @@ class TransaccionBodegaIngresoService
                         ])->orderBy('id', 'desc')->get();
                 break;
             case 1://bodeguero
-                Log::channel('testing')->info('Log', ['Entró en bodeguero']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('per_atiende_id', $request->per_atiende)
                     ->whereBetween('created_at',
                     [
@@ -534,7 +531,6 @@ class TransaccionBodegaIngresoService
                     ])->orderBy('id', 'desc')->get(); //sort descending
                 break;
             case 2: //motivos
-                Log::channel('testing')->info('Log', ['Entró en motivos']);
                 $results = TransaccionBodega::where('motivo_id', $request->motivo)
                     ->whereBetween('created_at',
                     [
@@ -543,7 +539,6 @@ class TransaccionBodegaIngresoService
                     ])->orderBy('id', 'desc')->get();
                 break;
             case 3: //bodega o sucursal
-                Log::channel('testing')->info('Log', ['Entró en bodega o sucursal']);
                 $request->sucursal!=0?$results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
                     ->whereBetween('created_at',
                     [
@@ -556,7 +551,6 @@ class TransaccionBodegaIngresoService
                     ])->orderBy('id', 'desc')->get();
                 break;
             case 4:// devolucion
-                Log::channel('testing')->info('Log', ['Entró en devolucion']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->devolucion)
                     ->whereBetween('created_at',
                     [
@@ -565,7 +559,6 @@ class TransaccionBodegaIngresoService
                     ])->orderBy('id', 'desc')->get();
                 break;
             case 5: //tarea
-                Log::channel('testing')->info('Log', ['Entró en tarea']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->tarea)
                     ->whereBetween('created_at',
                     [
@@ -574,7 +567,6 @@ class TransaccionBodegaIngresoService
                     ])->orderBy('id', 'desc')->get();
                 break;
             case 6: //transferencia
-                Log::channel('testing')->info('Log', ['Entró en transferencia']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('transferencia_id', $request->transferencia)
                 ->whereBetween('created_at',
                 [
@@ -583,7 +575,6 @@ class TransaccionBodegaIngresoService
                 ])->orderBy('id', 'desc')->get();
                 break;
             default:
-                Log::channel('testing')->info('Log', ['Entró en default']);
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();// todos los ingresos
             break;
         }

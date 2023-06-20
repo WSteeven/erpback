@@ -8,8 +8,7 @@
 
 <head>
     <meta charset="utf-8">
-    {{-- <title>Reporte de ingresos a bodega{{ $fecha }}</title> --}}
-    <title>Reporte de ingresos a bodega</title>
+    <title>Reporte de egresos a bodega</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -97,7 +96,7 @@
                     <div class="col-md-3"><img src="{{ $logo }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
-                    <div class="col-md-7" align="center"><b>REPORTE DE INGRESOS - [{{ $peticion['fecha_inicio'] }}
+                    <div class="col-md-7" align="center"><b>REPORTE DE EGRESOS - [{{ $peticion['fecha_inicio'] }}
                             @if (is_null($peticion['fecha_fin']))
                                 ]
                             @else
@@ -142,7 +141,7 @@
                 <th>Estado</th>
                 <th>Propietario</th>
                 <th>Bodega</th>
-                <th>Solicitante</th>
+                <th>Responsable</th>
                 <th>Persona que atiende</th>
                 <th>Id Transacción</th>
                 <th>Justificación</th>
@@ -158,7 +157,7 @@
                         <td>{{ $rpt['estado'] }}</td>
                         <td>{{ $rpt['propietario'] }}</td>
                         <td>{{ $rpt['bodega'] }}</td>
-                        <td>{{ $rpt['solicitante'] }}</td>
+                        <td>{{ $rpt['responsable'] }}</td>
                         <td>{{ $rpt['per_atiende'] }}</td>
                         <td>{{ $rpt['transaccion_id'] }}</td>
                         <td>{{ $rpt['justificacion'] }}</td>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 // Dependencias
 
 use App\Events\TransaccionEgresoEvent;
+use App\Exports\TransaccionBodegaEgresoExport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,7 @@ use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -50,28 +52,6 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    // Tarea: Obtener materiales designados a un empleado, para tarea
-    /* public function obtenerMaterialesEmpleadoTareas(Request $request)
-    {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-            'empleado_id' => 'required|numeric|integer',
-        ]);
-
-        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
-        $empleado_id = $request['empleado_id'];
-
-        $results = MaterialEmpleadoTarea::where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get(); // where('es_fibra', false)
-
-        $results = collect($results)->map(fn ($items) => [
-            'detalle_producto_id' => intval($items->detalle_producto_id),
-            'stock_actual' => intval($items->cantidad_stock),
-            'detalle_producto' => DetalleProducto::find($items->detalle_producto_id)->descripcion,
-            'medida' => 'm',
-        ]);
-
-        return response()->json(compact('results'));
-    } */
 
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
@@ -123,30 +103,6 @@ class TransaccionBodegaEgresoController extends Controller
         return response()->json(compact('results'));
     }
 
-
-    // creo que se va
-    // Tarea: Obtener bobinas designadas a un empleado, para tarea.
-    /* public function obtenerBobinas(Request $request)
-    {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-        ]);
-
-        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
-        $empleado_id = Auth::user()->empleado->id;
-
-        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
-
-        $results = $results->map(fn ($item) => [
-            'id' => $item->detalle_producto_id,
-            'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'cantidad_hilos' => Fibra::where('detalle_id', $item->detalle_producto_id)->first()->hilo->nombre,
-        ]);
-
-        return response()->json(compact('results'));
-    } */
-
-    // #################################################################
 
     public function materialesDespachadosSinBobinaRespaldo($id)
     {
@@ -213,11 +169,9 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
-            // Log::channel('testing')->info('Log', ['Se créo la transaccion', $transaccion]);
 
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
@@ -230,7 +184,6 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            // Log::channel('testing')->info('Log', ['Se pasó el foreach de guardar detalles', $transaccion]);
 
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
@@ -238,7 +191,6 @@ class TransaccionBodegaEgresoController extends Controller
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 TransaccionBodega::actualizarPedido($transaccion);
             }
-            // Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
@@ -267,7 +219,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function show(TransaccionBodega $transaccion)
     {
-        // Log::channel('testing')->info('Log', ['Transaccion en el show de ingreso', $transaccion]);
         $modelo = new TransaccionBodegaResource($transaccion);
         return response()->json(compact('modelo'));
     }
@@ -294,7 +245,6 @@ class TransaccionBodegaEgresoController extends Controller
 
         //Aquí el coordinador o jefe inmediato autoriza la transaccion de sus subordinados y modifica los datos del listado
         if ($transaccion->per_autoriza_id === auth()->user()->empleado->id) {
-            Log::channel('testing')->info('Log', ['La persona que autoriza es igual al empleado actual?', true]);
             try {
                 DB::beginTransaction();
                 if ($request->obs_autorizacion) {
@@ -317,7 +267,7 @@ class TransaccionBodegaEgresoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } else {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
+                // Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
                 try {
                     DB::beginTransaction();
                     if ($request->obs_estado) {
@@ -369,7 +319,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
-        Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
         $resource = new TransaccionBodegaResource($transaccion);
         $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->per_atiende_id);
@@ -390,6 +339,45 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
         }
     }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        $results = [];
+        $registros = [];
+        switch ($request->accion) {
+            case 'excel':
+                $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+
+                return Excel::download(new TransaccionBodegaEgresoExport(collect($registros)), 'reporte.xlsx');
+                break;
+            case 'pdf':
+                try {
+                    $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                    $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+                    $reporte = $registros;
+                    $peticion = $request->all();
+                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion']));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                    return $pdf->output();
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                }
+                break;
+            default:
+                $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                break;
+        }
+
+        $results = TransaccionBodegaResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+
 
     public function obtenerTransaccionPorTarea(int $tarea_id)
     {
@@ -414,12 +402,10 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function filtrarComprobante(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['[Metodo filtrar de transacciones egresos']);
         $datos = TransaccionBodega::with('comprobante')->where('responsable_id', auth()->user()->empleado->id)
             ->whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();
-        Log::channel('testing')->info('Log', ['egresos son:', $datos]);
 
         $results = TransaccionBodegaResource::collection($datos);
         return response()->json(compact('results'));
