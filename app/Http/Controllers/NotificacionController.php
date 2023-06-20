@@ -33,13 +33,19 @@ class NotificacionController extends Controller
 
         if ($request['campos']) {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                $results = Notificacion::ignoreRequest(['campos'])->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
+                $results = Notificacion::ignoreRequest(['campos'])
+                    ->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
+                    ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
+                    ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(10)->get($campos);
             } else {
                 $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(10)->get($campos);
             }
         } else {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')->filter()->orderBy('id', 'desc')->get();
-            else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+                $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
+                    ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
+                    ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+            } else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
 
 

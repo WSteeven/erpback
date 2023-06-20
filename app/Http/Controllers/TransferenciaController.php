@@ -18,7 +18,6 @@ use Src\Shared\Utils;
 class TransferenciaController extends Controller
 {
     private $entidad = 'Transacción';
-    private $servicio;
     public function __construct()
     {
         $this->servicio = new TransferenciaService();

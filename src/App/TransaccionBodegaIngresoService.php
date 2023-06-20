@@ -4,9 +4,11 @@ namespace Src\App;
 
 use App\Models\Autorizacion;
 use App\Models\EstadoTransaccion;
+use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TransaccionBodegaIngresoService
 {
@@ -256,7 +258,7 @@ class TransaccionBodegaIngresoService
     }
 
     /*********************************************************************************************
-    Filtros sin paginación 
+    Filtros sin paginación
     ***********************************************************************************************/
     /**
      * DESUSO
@@ -504,5 +506,78 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
         }
+    }
+
+
+    public static function filtrarIngresoPorTipoFiltro($request){
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $results = [];
+        switch($request->tipo){
+            case 0: //persona que solicita el ingreso
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('solicitante_id', $request->solicitante)
+                    ->whereBetween('created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                        ])->orderBy('id', 'desc')->get();
+                break;
+            case 1://bodeguero
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('per_atiende_id', $request->per_atiende)
+                    ->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),//start date
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s") //end date
+                    ])->orderBy('id', 'desc')->get(); //sort descending
+                break;
+            case 2: //motivos
+                $results = TransaccionBodega::where('motivo_id', $request->motivo)
+                    ->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                    ])->orderBy('id', 'desc')->get();
+                break;
+            case 3: //bodega o sucursal
+                $request->sucursal!=0?$results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
+                    ->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                    ])->orderBy('id', 'desc')->get():$results = TransaccionBodega::whereIn('motivo_id', $motivos)->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                    ])->orderBy('id', 'desc')->get();
+                break;
+            case 4:// devolucion
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->devolucion)
+                    ->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                    ])->orderBy('id', 'desc')->get();
+                break;
+            case 5: //tarea
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->tarea)
+                    ->whereBetween('created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                    ])->orderBy('id', 'desc')->get();
+                break;
+            case 6: //transferencia
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('transferencia_id', $request->transferencia)
+                ->whereBetween('created_at',
+                [
+                    date('Y-m-d', strtotime($request->fecha_inicio)),
+                    $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
+                ])->orderBy('id', 'desc')->get();
+                break;
+            default:
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();// todos los ingresos
+            break;
+        }
+        return $results;
     }
 }

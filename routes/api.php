@@ -68,19 +68,15 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoControll
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
-use App\Http\Controllers\TrabajoController;
-use App\Http\Requests\RolPagoRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
-use App\Models\MotivoPermisoEmpleado;
-use App\Models\Notificacion;
-use App\Models\Empleado;
 use App\Models\Parroquia;
-use App\Models\TipoContrato;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -222,6 +218,18 @@ Route::apiResources(
 );
 
 /**
+ * Rutas para obtener empleados por cierto rol
+ */
+Route::get('empleados-roles', function (Request $request){
+    $results = [];
+    $roles = [];
+    if(!is_null($request->roles)){
+        $roles = explode(',', $request->roles);
+        $results = UserResource::collection(User::role('BODEGA')->with('empleado')->get());
+    }
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+/**
  * Rutas para imprimir PDFs
  */
 Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -236,8 +244,11 @@ Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngr
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
-Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//reportes
+Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
+Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 

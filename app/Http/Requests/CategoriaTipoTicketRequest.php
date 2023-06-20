@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class DepartamentoRequest extends FormRequest
+class CategoriaTipoTicketRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,17 +24,17 @@ class DepartamentoRequest extends FormRequest
      */
     public function rules()
     {
+
         $rules = [
-            'nombre' => 'required|string|unique:departamentos',
-            'activo' => 'required|boolean',
-            'responsable' => 'required|numeric|integer',
+            'nombre' => 'required|string|unique:tipos_tickets',
+            'departamento' => 'required|numeric|integer',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            $id = $this->route('departamento')->id;
-            $rules['nombre'] = [Rule::unique('departamentos')->ignore($id)];
+            $id = $this->route('categoria_tipo_ticket')->id;
+            $rules['nombre'] = [Rule::unique('categorias_tipos_tickets')->ignore($id)];
         }
 
         return $rules;
-    }
+        }
 }

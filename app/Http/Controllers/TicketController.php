@@ -89,7 +89,7 @@ class TicketController extends Controller
         $mensaje = 'Responsable cambiado exitosamente!';
 
         if (Auth::user()->empleado->id == $idResponsableAnterior) {
-            event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->responsable_id));
+            // event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->responsable_id));
             ActividadRealizadaSeguimientoTicket::create([
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
@@ -203,12 +203,14 @@ class TicketController extends Controller
             'motivo' => 'required',
         ]);
 
-        event(new TicketEvent($ticket, $ticket->responsable_id, $ticket->solicitante_id));
+        $idResponsableAnterior = $ticket->responsable_id;
 
         $ticket->estado = Ticket::RECHAZADO;
         $ticket->responsable_id = NULL;
         $ticket->departamento_responsable_id = NULL;
         $ticket->save();
+
+        event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -240,8 +242,14 @@ class TicketController extends Controller
             'ticket_id' => $ticket->id,
         ]);
 
+        if ($this->ticketCalificado($ticket)) {
+            $ticket->estado = Ticket::CALIFICADO;
+            $ticket->save();
+        }
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket calificado exitosamente!';
+
 
         /* if ($request['solicitante_o_responsable'] === CalificacionTicket::SOLICITANTE)
             event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
@@ -251,9 +259,10 @@ class TicketController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-    /*public function obtenerCalificacionTicket(Request $request) {
-
-    }*/
+    public function ticketCalificado(Ticket $ticket)
+    {
+        return $ticket->calificacionesTickets->count() == 2;
+    }
 
     /*******************
      * Obtener listados

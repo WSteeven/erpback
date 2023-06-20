@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Devolucion;
+use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -26,6 +27,10 @@ class DevolucionResource extends JsonResource
             'tarea'=>$this->tarea?->titulo,
             'canton'=>$this->canton->canton,
             'estado'=>$this->estado,
+            'observacion_aut' => $this->observacion_aut,
+            'autorizacion' => $this->autorizacion?->nombre,
+            'per_autoriza' => $this->autoriza?->nombres . ' ' . $this->autoriza?->apellidos,
+            'per_autoriza_id' => $this->per_autoriza_id,
             'estado_bodega'=>$this->estado_bodega,
             'es_para_stock'=>$this->stock_personal,
             'listadoProductos'=>$detalles,
@@ -33,14 +38,18 @@ class DevolucionResource extends JsonResource
             'updated_at' => $this->updated_at,
 
             'es_tarea'=>$this->tarea?true:false,
+            'tiene_observacion_aut' => $this->observacion_aut ? true : false,
         ];
 
         if($controller_method=='show'){
             $modelo['solicitante']=$this->solicitante_id;
             $modelo['tarea']=$this->tarea_id;
             $modelo['canton']=$this->canton_id;
+            $modelo['per_autoriza']=$this->per_autoriza_id;
         }
 
         return $modelo;
     }
+
+    
 }
