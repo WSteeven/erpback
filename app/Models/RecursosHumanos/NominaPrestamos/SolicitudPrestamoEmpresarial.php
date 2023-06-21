@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Autorizacion;
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

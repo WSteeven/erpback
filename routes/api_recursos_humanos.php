@@ -13,6 +13,7 @@ use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +33,7 @@ Route::apiResources(
         'extension_covertura_salud' => ExtensionCoverturaSaludController::class,
         'prestamo_empresarial' => PrestamoEmpresarialController::class,
         'rubro'=>RubroController::class,
+        'solicitud_prestamo_empresarial' => SolicitudPrestamoEmpresarialController::class
     ],
     [
         'parameters' => [],
