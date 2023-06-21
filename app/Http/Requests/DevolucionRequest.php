@@ -32,7 +32,7 @@ class DevolucionRequest extends FormRequest
             'solicitante' => 'required|exists:empleados,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'canton' => 'sometimes|nullable|exists:cantones,id',
-            'estado_bodega' => ['sometimes', Rule::in([EstadoTransaccion::PENDIENTE, EstadoTransaccion::ANULADA, EstadoTransaccion::COMPLETA, EstadoTransaccion::PARCIAL])],
+            'estado_bodega' => ['sometimes', Rule::in([EstadoTransaccion::PENDIENTE, EstadoTransaccion::ANULADA, EstadoTransaccion::COMPLETA, EstadoTransaccion::PARCIAL, null])],
             'stock_personal' => 'boolean',
             'observacion_aut' => 'nullable|string',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
@@ -75,6 +75,10 @@ class DevolucionRequest extends FormRequest
     }
     protected function prepareForValidation() //esto se ejecuta antes de validar las rules
     {
+        $this->merge([
+            'estado_bodega' => EstadoTransaccion::PENDIENTE
+        ]);
+
         if (is_null($this->per_autoriza) || $this->per_autoriza === '') {
             $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
         }
