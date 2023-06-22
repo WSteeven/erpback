@@ -39,7 +39,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
         $this->merge([
             'solicitante'=> Auth::user()->empleado->id,
             'fecha'=>$fecha->format('Y-m-d'),
-            'estado' => 1
+            'estado' =>$this->estado==null? 1:$this->estado
         ]);
     }
 

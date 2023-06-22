@@ -7,6 +7,7 @@ use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class SolicitudPrestamoEmpresarialController extends Controller
@@ -43,7 +44,11 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         $datos = $request->validated();
+        $datos['estado'] = $request->estado;
+        Log::channel('testing')->info('Log', ['datos', $datos]);
+
         $SolicitudPrestamoEmpresarial->update($datos);
+
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
