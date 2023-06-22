@@ -25,6 +25,7 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
@@ -256,30 +257,11 @@ class SaldoGrupoController extends Controller
                 $request['ruc'] = '9999999999999';
             }
             if ($request->subdetalle != null) {
-                $gastos = Gasto::ignoreRequest([
-                    'tipo_saldo',
-                    'tipo_filtro',
-                    'sub_detalle',
-                    'subdetalle',
-                    'usuario', 'tarea',
-                    'autorizador',
-                    'fecha_inicio',
-                    'fecha_fin',
-                    'estado',
-                    'proyecto',
-                ])
-                    ->filter($request->all())
-                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                    ->where('estado', Gasto::APROBADO)
-                    ->whereHas('sub_detalle_info', function ($query) use ($request) {
-                        $query->where('subdetalle_gastos.id', $request->subdetalle);
-                    })->with(
-                        'empleado_info',
-                        'detalle_info',
-                        'detalle_estado',
-                        'sub_detalle_info',
-                        'proyecto_info'
-                    )->get();
+                $gastos = Gasto::with('sub_detalle_info', 'gasto_vehiculo_info')
+                ->whereHas('sub_detalle_info', function($q){
+                    $q->where('subdetalle_gasto_id', request('subdetalle'));
+                })
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
             } else {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -356,6 +338,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
+                'subdetalle'=>$request->subdetalle
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
