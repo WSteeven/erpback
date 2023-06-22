@@ -19,12 +19,12 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'solicitante' => $this->solicitante,
-            'solicitante_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
+            'solicitante_info' => $this->empleado_info!=null?$this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos:'',
             'fecha' =>  $this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
             'plazo' => $this->plazo,
             'estado' => $this->estado,
-            'estado_info' => $this->estado_info->nombre,
+            'estado_info' =>  $this->estado_info!=null ? $this->estado_info->nombre:'',
         ];
         return $modelo;
     }

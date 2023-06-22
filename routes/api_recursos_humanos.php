@@ -15,6 +15,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoControll
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
+use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -43,6 +44,7 @@ Route::apiResources(
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
+    Route::put('aprobar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'aprobar_prestamo_empresarial']);
     Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class, 'prestamos_quirorafario_empleado']);
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extension_covertura_salud_empleado']);
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
