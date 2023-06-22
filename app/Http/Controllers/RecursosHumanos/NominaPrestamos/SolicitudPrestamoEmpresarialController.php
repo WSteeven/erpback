@@ -5,8 +5,10 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
+use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -61,7 +63,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         //  Log::channel('testing')->info('Log', ['datos', $datos]);
-        // $datos['estado'] = 2;
+         $datos['estado'] = 2;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         $PrestamoEmpresarial = new PrestamoEmpresarial();
@@ -83,6 +85,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
         $plazo_prestamo = !is_null($prestamo->plazo) ? $prestamo->plazo : 0;
         $valor_pago = $valor_cuota / $plazo_prestamo;
+        $plazos  = [];
         if ($valor_pago <= 200) {
             for ($index = 1; $index <= $prestamo->plazo; $index++) {
                 $plazo = [
@@ -91,9 +94,10 @@ class SolicitudPrestamoEmpresarialController extends Controller
                     'valor_a_pagar' => number_format($valor_cuota / $plazo_prestamo, 2),
                     'pago_couta' => false,
                 ];
-                array_push($prestamo['plazos'], $plazo);
+                array_push($plazos, $plazo);
             }
-            Log::channel('testing')->info('Log', ['plazos', $prestamo['plazos']]);
+            Log::channel('testing')->info('Log', ['plazos', $plazos]);
+            $this->crear_plazos( $prestamo, $plazos);
         }
     }
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
@@ -122,5 +126,19 @@ class SolicitudPrestamoEmpresarialController extends Controller
         }
         $fechaFormateada = $fechaActual->format('d-m-Y');
         return $fechaFormateada;
+    }
+    public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
+    {
+        $plazosActualizados = collect($plazos)->map(function ($plazo) use ($prestamoEmpresarial) {
+            $fecha = Carbon::createFromFormat('d-m-Y', $plazo['fecha_vencimiento']);
+            return [
+                'id_prestamo_empresarial' => $prestamoEmpresarial->id,
+                'pago_couta' => false,
+                'num_cuota' => $plazo['num_cuota'],
+                'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'valor_a_pagar' => $plazo['valor_a_pagar']
+            ];
+        })->toArray();
+        PlazoPrestamoEmpresarial::insert($plazosActualizados);
     }
 }
