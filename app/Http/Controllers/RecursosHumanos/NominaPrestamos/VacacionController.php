@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\VacacionRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use Illuminate\Http\Request;
+use Src\Shared\Utils;
+
+class VacacionController extends Controller
+{
+    private $entidad = 'Solicitud Prestamo Empresarial';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.vacacion')->only('index', 'show');
+        $this->middleware('can:puede.crear.vacacion')->only('store');
+        $this->middleware('can:puede.editar.vacacion')->only('update');
+        $this->middleware('can:puede.eliminar.vacacion')->only('update');
+    }
+
+    public function index(Request $request)
+    {
+        $results = [];
+        $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
+        $results = VacacionResource::collection($results);
+        return response()->json(compact('results'));
+    }
+    public function show(Request $request, Vacacion $Vacacion)
+    {
+        $modelo = new VacacionResource($Vacacion);
+        return response()->json(compact('modelo'), 200);
+    }
+    public function store(VacacionRequest $request)
+    {
+        $datos = $request->validated();
+        $Vacacion = Vacacion::create($datos);
+        $modelo = new VacacionResource($Vacacion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+    public function update(VacacionRequest $request, Vacacion $Vacacion)
+    {
+        $datos = $request->validated();
+        $datos['estado'] = $request->estado;
+        $Vacacion->update($datos);
+        $modelo = new VacacionResource($Vacacion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
+        return $Vacacion;
+    }
+    public function destroy(Request $request, Vacacion $Vacacion)
+    {
+        $Vacacion->delete();
+        return response()->json(compact('Vacacion'));
+    }
+}

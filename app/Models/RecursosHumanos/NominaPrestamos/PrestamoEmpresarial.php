@@ -25,7 +25,8 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'valor_utilidad',
         'id_forma_pago',
         'plazo',
-        'estado'
+        'estado',
+        'id_solicitud_prestamo_empresarial'
     ];
     public function plazo_prestamo_empresarial_info()
     {
@@ -39,6 +40,11 @@ class PrestamoEmpresarial extends Model  implements Auditable
     {
         return $this->hasOne(FormaPago::class, 'id', 'id_forma_pago');
     }
+    public function solicitud_prestamo_empresarial_info()
+    {
+        return $this->hasOne(SolicitudPrestamoEmpresarial::class, 'id', 'id_solicitud_prestamo_empresarial');
+    }
+
 
     private static $whiteListFilter = [
         'id',
@@ -47,7 +53,8 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'monto',
         'utilidad',
         'valor_utilidad',
-        'id_forma_pago',
+        'forma_pago',
+        'solicitud_prestamo_empresarial',
         'plazo',
         'estado'
     ];

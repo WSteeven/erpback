@@ -31,6 +31,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
             'monto' => 'required|numeric',
             'plazo' => 'required|string',
             'estado' => 'required|numeric',
+            'observacion' => 'required|string',
         ];
     }
     protected function prepareForValidation()

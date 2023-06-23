@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreign('id_forma_pago')->references('id')->on('forma_pagos');
             $table->decimal('plazo', 8, 2);
             $table->enum('estado', ['ACTIVO', 'FINALIZADO']);
+            $table->unsignedBigInteger('id_solicitud_prestamo_empresarial')->nullable();
+            $table->foreign('id_solicitud_prestamo_empresarial')->references('id')->on('solicitud_prestamo_empresarial');
             $table->timestamps();
         });
     }

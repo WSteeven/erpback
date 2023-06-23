@@ -21,7 +21,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $this->middleware('can:puede.ver.solicitud_prestamo_empresarial')->only('index', 'show');
         $this->middleware('can:puede.crear.solicitud_prestamo_empresarial')->only('store');
         $this->middleware('can:puede.editar.solicitud_prestamo_empresarial')->only('update');
-        $this->middleware('can:puede.eliminar.solicitud_prestamo_empresarial')->only('update');
+        $this->middleware('can:puede.eliminar.solicitud_prestamo_empresarial')->only('destroy');
     }
 
     public function index(Request $request)
@@ -47,6 +47,16 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         $datos = $request->validated();
+        switch ($request->estadoe) {
+            case 4:
+                $this->aprobar_prestamo_empresarial($request);
+                break;
+
+            case 2:
+                $this->rechazar_prestamo_empresarial($request);
+                break;
+        }
+
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial->update($datos);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
@@ -63,7 +73,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         //  Log::channel('testing')->info('Log', ['datos', $datos]);
-         $datos['estado'] = 2;
+        $datos['estado'] = 2;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         $PrestamoEmpresarial = new PrestamoEmpresarial();
@@ -73,14 +83,26 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->id_forma_pago = 1;
         $PrestamoEmpresarial->plazo = $request->plazo;
         $PrestamoEmpresarial->estado = $request->estado;
+        $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
         $PrestamoEmpresarial->save();
         $this->tabla_plazos($PrestamoEmpresarial);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        $mensaje = "Solicitud de Prestamo a sido Aprobada"; //Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+    public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+    {
+        $datos = $request->validated();
+        //  Log::channel('testing')->info('Log', ['datos', $datos]);
+        $datos['estado'] = 3;
+        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
+        $SolicitudPrestamoEmpresarial->update($datos);
+        $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
+        $mensaje = "Solicitud de Prestamo a sido Rechazada"; //Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
         return $SolicitudPrestamoEmpresarial;
     }
-    public function tabla_plazos( PrestamoEmpresarial $prestamo)
+    public function tabla_plazos(PrestamoEmpresarial $prestamo)
     {
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
         $plazo_prestamo = !is_null($prestamo->plazo) ? $prestamo->plazo : 0;
@@ -90,14 +112,14 @@ class SolicitudPrestamoEmpresarialController extends Controller
             for ($index = 1; $index <= $prestamo->plazo; $index++) {
                 $plazo = [
                     'num_cuota' => $index,
-                    'fecha_vencimiento' => $this->calcular_fechas($index, 'meses',$prestamo),
+                    'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
                     'valor_a_pagar' => number_format($valor_cuota / $plazo_prestamo, 2),
                     'pago_couta' => false,
                 ];
                 array_push($plazos, $plazo);
             }
             Log::channel('testing')->info('Log', ['plazos', $plazos]);
-            $this->crear_plazos( $prestamo, $plazos);
+            $this->crear_plazos($prestamo, $plazos);
         }
     }
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
