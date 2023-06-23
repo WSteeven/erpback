@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\UserResource;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\User;
@@ -36,20 +37,23 @@ class EmpleadoController extends Controller
     public function list()
     {
         // Obtener parametros
-        // $page = request('page');
-        // $offset = request('offset');
         $rol = request('rol');
         $search = request('search');
         $campos = explode(',', request('campos'));
 
         $user = User::find(auth()->id());
 
-        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) { //, User::ROL_ADMINISTRADOR])) {
-            // if ($page) return $this->servicio->obtenerPaginacionTodos($offset);
-            return $this->servicio->obtenerTodosSinEstado();
+        if (request('es_responsable_departamento')) {
+            $idResponsable = Departamento::find(request('departamento_id'))->responsable_id;
+            if ($idResponsable) {
+                $responsable = Empleado::find($idResponsable);
+                return EmpleadoResource::collection([$responsable]);
+            } else return [];
         }
 
-        // return $this->servicio->obtenerTodosSinEstado();
+        if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
+            return $this->servicio->obtenerTodosSinEstado();
+        }
 
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
@@ -127,7 +131,11 @@ class EmpleadoController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-
+    public function datos_empleado($id)
+    {
+        $empleado = Empleado::find($id);
+        return response()->json(compact('empleado'));
+    }
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([

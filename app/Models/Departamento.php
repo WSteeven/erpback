@@ -14,7 +14,7 @@ class Departamento extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'departamentos';
-    protected $fillable = ['nombre', 'activo'];
+    protected $fillable = ['nombre', 'activo', 'responsable_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -22,6 +22,7 @@ class Departamento extends Model implements Auditable
     ];
 
     private static $whiteListFilter = [
+<<<<<<< HEAD
         'nombre',
         'activo',
         'responsable_id',
@@ -41,5 +42,13 @@ class Departamento extends Model implements Auditable
         return $this->belongsToMany(Proveedor::class, 'detalle_departamento_proveedor', 'departamento_id', 'proveedor_id')
             ->withPivot(['calificacion', 'fecha_calificacion'])
             ->withTimestamps();
+=======
+        '*',
+    ];
+
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class);
+>>>>>>> 4605126f578efcaa448cf27731509a11f9fc2bda
     }
 }

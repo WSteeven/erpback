@@ -45,12 +45,16 @@ class Ticket extends Model implements Auditable
         'fecha_hora_finalizado',
         'fecha_hora_cancelado',
         'fecha_hora_calificado',
+        'motivo_ticket_no_solucionado',
+        'ticket_interno',
         'solicitante_id',
         'responsable_id',
         'departamento_responsable_id',
         'tipo_ticket_id',
         'motivo_cancelado_ticket_id',
     ];
+
+    protected $casts = ['ticket_interno' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 
@@ -90,6 +94,16 @@ class Ticket extends Model implements Auditable
     public function pausasTicket()
     {
         return $this->hasMany(PausaTicket::class);
+    }
+
+    public function ticketsRechazados()
+    {
+        return $this->hasMany(TicketRechazado::class);
+    }
+
+    public function calificacionesTickets()
+    {
+        return $this->hasMany(CalificacionTicket::class);
     }
 
     public function notificaciones()

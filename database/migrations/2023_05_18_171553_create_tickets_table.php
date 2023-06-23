@@ -25,12 +25,15 @@ return new class extends Migration
             $table->enum('estado', [Ticket::RECHAZADO, Ticket::ASIGNADO, Ticket::REASIGNADO, Ticket::EJECUTANDO, Ticket::PAUSADO, Ticket::CANCELADO, Ticket::FINALIZADO_SIN_SOLUCION, Ticket::FINALIZADO_SOLUCIONADO, Ticket::CALIFICADO]);
             $table->text('observaciones_solicitante')->nullable();
             $table->integer('calificacion_solicitante')->nullable();
+            $table->boolean('ticket_interno')->default(false);
 
             $table->timestamp('fecha_hora_asignacion')->nullable();
             $table->timestamp('fecha_hora_ejecucion')->nullable();
             $table->timestamp('fecha_hora_finalizado')->nullable();
             $table->timestamp('fecha_hora_cancelado')->nullable();
             $table->timestamp('fecha_hora_calificado')->nullable();
+
+            $table->text('motivo_ticket_no_solucionado')->nullable();
 
             // Foreign keys
             $table->unsignedBigInteger('solicitante_id');

@@ -18,10 +18,16 @@ class PausaTicket extends Model implements Auditable
         'fecha_hora_retorno',
         'motivo_pausa_ticket_id',
         'ticket_id',
+        'responsable_id',
     ];
 
-    public function motivoPausa()
+    public function motivoPausaTicket()
     {
         return $this->belongsTo(MotivoPausaTicket::class);
+    }
+
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
 }

@@ -26,12 +26,14 @@ class TipoTicketRequest extends FormRequest
     {
         $rules = [
             'nombre' => 'required|string|unique:tipos_tickets',
+            'categoria_tipo_ticket' => 'required|numeric|integer',
             'activo' => 'required|boolean',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $id = $this->route('tipo_ticket')->id;
             $rules['nombre'] = [Rule::unique('tipos_tickets')->ignore($id)];
+            $rules['categoria_tipo_ticket'] = 'nullable|numeric|integer';
         }
 
         return $rules;

@@ -457,6 +457,57 @@ class TransaccionBodega extends Model implements Auditable
         }
     }
 
+    public static function obtenerDatosReporteIngresos($data){
+        $results = [];
+        $cont = 0;
+        foreach ($data as $d) {
+            $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
+            foreach ($items as $i => $item) {
+                $row['inventario_id'] = $item->inventario_id;
+                $row['descripcion'] = $item->inventario->detalle->descripcion;
+                $row['serial'] = $item->inventario->detalle->serial;
+                $row['fecha'] = $item->created_at;
+                $row['estado'] = $item->inventario->condicion->nombre;
+                $row['propietario'] = $item->inventario->cliente->empresa->razon_social;
+                $row['bodega'] = $item->inventario->sucursal->lugar;
+                $row['solicitante'] = $item->transaccion->solicitante->nombres . ' ' . $item->transaccion->solicitante->apellidos;
+                $row['per_atiende'] = $item->transaccion->atiende->nombres . ' ' . $item->transaccion->atiende->apellidos;
+                $row['transaccion_id'] = $item->transaccion_id;
+                $row['justificacion'] = $item->transaccion->justificacion;
+                $row['cantidad'] = $item->cantidad_inicial;
+                $results[$cont] = $row;
+                $cont++;
+            }
+        }
+        // Log::channel('testing')->info('Log', ['Registros ingresos', $results]);
+        return $results;
+    }
+    
+    public static function obtenerDatosReporteEgresos($data){
+        $results = [];
+        $cont = 0;
+        foreach ($data as $d) {
+            $items = DetalleProductoTransaccion::where('transaccion_id', $d->id)->get();
+            foreach ($items as $i => $item) {
+                $row['inventario_id'] = $item->inventario_id;
+                $row['descripcion'] = $item->inventario->detalle->descripcion;
+                $row['serial'] = $item->inventario->detalle->serial;
+                $row['fecha'] = $item->created_at;
+                $row['estado'] = $item->inventario->condicion->nombre;
+                $row['propietario'] = $item->inventario->cliente->empresa->razon_social;
+                $row['bodega'] = $item->inventario->sucursal->lugar;
+                $row['responsable'] = $item->transaccion->responsable->nombres . ' ' . $item->transaccion->responsable->apellidos;
+                $row['per_atiende'] = $item->transaccion->atiende->nombres . ' ' . $item->transaccion->atiende->apellidos;
+                $row['transaccion_id'] = $item->transaccion_id;
+                $row['justificacion'] = $item->transaccion->justificacion;
+                $row['cantidad'] = $item->cantidad_inicial;
+                $results[$cont] = $row;
+                $cont++;
+            }
+        }
+        // Log::channel('testing')->info('Log', ['Registros egresos', $results]);
+        return $results;
+    }
 
     /**
      * Función para obtener todas las columnas de la tabla.

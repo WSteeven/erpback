@@ -61,8 +61,14 @@ use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
+use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
 use App\Http\Resources\ParroquiaResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -72,6 +78,7 @@ use App\Models\Pais;
 use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -178,6 +185,11 @@ Route::apiResources(
         'fondos-rotativos/transferencia' => TransferenciasController::class,
         'fondos-rotativos/gasto-coordinador' => GastoCoordinadorController::class,
         'fondos-rotativos/motivo-gasto' => MotivoGastoController::class,
+        'recursos-humanos/motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
+        'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
+        'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
+        'recursos-humanos/tipo_contrato' => TipoContratoController::class,
+        'recursos-humanos/rol_pago' => RolPagosController::class,
     ],
     [
         'parameters' => [
@@ -207,6 +219,18 @@ Route::apiResources(
 );
 
 /**
+ * Rutas para obtener empleados por cierto rol
+ */
+Route::get('empleados-roles', function (Request $request){
+    $results = [];
+    $roles = [];
+    if(!is_null($request->roles)){
+        $roles = explode(',', $request->roles);
+        $results = UserResource::collection(User::role('BODEGA')->with('empleado')->get());
+    }
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+/**
  * Rutas para imprimir PDFs
  */
 Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -222,6 +246,10 @@ Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngr
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//reportes
+Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
+Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 

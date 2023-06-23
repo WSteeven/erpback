@@ -270,4 +270,31 @@ class Pedido extends Model implements Auditable
             }
         }
     }
+
+    /**
+     * Filtrar pedidos Administrador
+     */
+    public static function filtrarPedidosAdministrador($estado){
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $results = [];
+        if ($estado === EstadoTransaccion::PENDIENTE) {
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+            }
+            return $results;
+        } else {
+            if ($autorizacion) {
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+                return $results;
+            } elseif ($estado === $estadoTransaccion->nombre) {
+                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+                return $results;
+            } else {
+                $results = Pedido::all();
+                return $results;
+            }
+        }
+    }
+
 }
