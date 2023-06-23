@@ -47,11 +47,10 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
         $datos = $request->validated();
-        switch ($request->estadoe) {
+        switch ($request->estado) {
             case 4:
                 $this->aprobar_prestamo_empresarial($request);
                 break;
-
             case 2:
                 $this->rechazar_prestamo_empresarial($request);
                 break;
@@ -62,6 +61,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     }
     public function pendiente_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
+        Log::channel('testing')->info('Log', ['pendiente', $request]);
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id);
         $SolicitudPrestamoEmpresarial->update($datos);
@@ -77,7 +77,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function aprobar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
-        //  Log::channel('testing')->info('Log', ['datos', $datos]);
         $datos['estado'] = 2;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
@@ -123,7 +122,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 ];
                 array_push($plazos, $plazo);
             }
-            Log::channel('testing')->info('Log', ['plazos', $plazos]);
             $this->crear_plazos($prestamo, $plazos);
         }
     }
