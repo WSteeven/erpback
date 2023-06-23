@@ -91,7 +91,7 @@ class DevolucionController extends Controller
                 }
                 break;
             default:
-                $results = Devolucion::all();
+                $results = Devolucion::where('solicitante_id', auth()->user()->empleado->id)->orWhere('per_autoriza_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
         }
 
         $results = DevolucionResource::collection($results);
