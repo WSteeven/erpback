@@ -55,14 +55,19 @@ class SolicitudPrestamoEmpresarialController extends Controller
             case 2:
                 $this->rechazar_prestamo_empresarial($request);
                 break;
+            default:
+                $this->pendiente_prestamo_empresarial($request);
+                break;
         }
-
+    }
+    public function pendiente_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+    {
         $datos['estado'] = $request->estado;
+        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id);
         $SolicitudPrestamoEmpresarial->update($datos);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
-        return $SolicitudPrestamoEmpresarial;
     }
     public function destroy(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
