@@ -51,25 +51,17 @@ class SaldoGrupo extends  Model implements Auditable
             foreach ($arreglo as $saldo) {
                 if (isset($saldo['detalle_info']['descripcion'])) {
                     if ($saldo['estado'] == 4) {
-                        $fecha_anterior = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : $saldo['created_at'];
-                    }
-                    $fecha_actual = Carbon::parse($fecha_anterior);
-                    $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
-                    if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
-                        // La fecha del gasto está dentro de la semana actual
-                        if ($saldo['estado'] == 4) {
-                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
-                            $results[$id] = $row;
-                            $id++;
-                        } else {
-                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
-                            $results[$id] = $row;
-                            $id++;
-                        }
+                        $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                        $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                        $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                        $results[$id] = $row;
+                        $id++;
+                    } else {
+                        $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                        $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                        $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                        $results[$id] = $row;
+                        $id++;
                     }
                 } else {
                     $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
