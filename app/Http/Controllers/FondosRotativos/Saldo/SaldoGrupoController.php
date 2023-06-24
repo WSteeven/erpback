@@ -25,6 +25,7 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
@@ -256,30 +257,11 @@ class SaldoGrupoController extends Controller
                 $request['ruc'] = '9999999999999';
             }
             if ($request->subdetalle != null) {
-                $gastos = Gasto::ignoreRequest([
-                    'tipo_saldo',
-                    'tipo_filtro',
-                    'sub_detalle',
-                    'subdetalle',
-                    'usuario', 'tarea',
-                    'autorizador',
-                    'fecha_inicio',
-                    'fecha_fin',
-                    'estado',
-                    'proyecto',
-                ])
-                    ->filter($request->all())
-                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                    ->where('estado', Gasto::APROBADO)
-                    ->whereHas('sub_detalle_info', function ($query) use ($request) {
-                        $query->where('subdetalle_gastos.id', $request->subdetalle);
-                    })->with(
-                        'empleado_info',
-                        'detalle_info',
-                        'detalle_estado',
-                        'sub_detalle_info',
-                        'proyecto_info'
-                    )->get();
+                $gastos = Gasto::with('sub_detalle_info', 'gasto_vehiculo_info')
+                ->whereHas('sub_detalle_info', function($q){
+                    $q->where('subdetalle_gasto_id', request('subdetalle'));
+                })
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
             } else {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -356,6 +338,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
+                'subdetalle'=>$request->subdetalle
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
@@ -455,11 +438,13 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-
             $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->where('fecha', '<=', $fecha_anterior)
-                ->latest()->first();
-            $fecha = Carbon::parse($saldo_anterior->fecha);
+                ->orderBy('created_at', 'desc')->limit(1)->first();
+            if ($saldo_anterior != null) {
+                $fecha =  Carbon::parse($saldo_anterior->fecha);
+                $fecha_anterior =  $fecha->format('Y-m-d');
+            }
             $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)

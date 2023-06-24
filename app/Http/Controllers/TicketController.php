@@ -89,7 +89,7 @@ class TicketController extends Controller
         $mensaje = 'Responsable cambiado exitosamente!';
 
         if (Auth::user()->empleado->id == $idResponsableAnterior) {
-            event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->responsable_id));
+            // event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->responsable_id));
             ActividadRealizadaSeguimientoTicket::create([
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
