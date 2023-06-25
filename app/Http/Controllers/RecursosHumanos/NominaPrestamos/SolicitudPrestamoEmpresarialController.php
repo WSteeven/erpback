@@ -9,8 +9,10 @@ use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -31,9 +33,20 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
-        $results = SolicitudPrestamoEmpresarialResource::collection($results);
-        return response()->json(compact('results'));
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS')) {
+            Log::channel('testing')->info('Log', ['datos', 'listado de reursos humanos y gerencia']);
+            $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+            $results = SolicitudPrestamoEmpresarialResource::collection($results);
+            return response()->json(compact('results'));
+        } else {
+            Log::channel('testing')->info('Log', ['datos', 'listado de empleados']);
+
+            $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
+            $results = SolicitudPrestamoEmpresarialResource::collection($results);
+            return response()->json(compact('results'));
+        }
     }
     public function show(Request $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
@@ -60,7 +73,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     }
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
-       switch ($request->estado) {
+        switch ($request->estado) {
             case 2:
                 return $this->aprobar_prestamo_empresarial($request);
                 break;

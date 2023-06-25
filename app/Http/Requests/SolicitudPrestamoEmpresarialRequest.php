@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -25,16 +26,30 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'fecha' => 'required|date_format:Y-m-d',
-            'solicitante'=>'required|numeric',
-            'monto' => 'required|numeric',
-            'plazo' => 'nullable|string',
-            'motivo' => 'nullable|string',
-            'foto' => 'nullable|string',
-            'estado' => 'required|numeric',
-            'observacion' => 'required|string',
-        ];
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if ($usuario_ac->hasRole('GERENTE') || $usuario_ac->hasRole('RECURSOS HUMANOS')) {
+            $rules = [
+                'fecha' => 'required|date_format:Y-m-d',
+                'solicitante'=>'required|numeric',
+                'monto' => 'required|numeric',
+                'plazo' => 'nullable|string',
+                'motivo' => 'nullable|string',
+                'foto' => 'nullable|string',
+                'estado' => 'required|numeric',
+                'observacion' => 'required|string',
+            ];
+        }else{
+            $rules = [
+                'fecha' => 'required|date_format:Y-m-d',
+                'solicitante'=>'required|numeric',
+                'monto' => 'required|numeric',
+                'motivo' => 'nullable|string',
+                'foto' => 'nullable|string',
+                'estado' => 'required|numeric',
+            ];
+        }
+      return $rules;
     }
     protected function prepareForValidation()
     {
