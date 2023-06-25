@@ -20,7 +20,9 @@ return new class extends Migration
             $table->date('fecha');
             $table->decimal('monto', 8, 2);
             $table->decimal('plazo', 8, 2);
+            $table->text('motivo');
             $table->text('observacion');
+            $table->text('foto');
             $table->unsignedBigInteger('estado');
             $table->foreign('estado')->references('id')->on('autorizaciones');
             $table->timestamps();

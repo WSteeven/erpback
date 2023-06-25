@@ -23,7 +23,9 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
             'fecha' =>  $this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
             'plazo' => $this->plazo,
+            'motivo' =>  $this->motivo,
             'observacion' => $this->observacion,
+            'foto' =>  $this->foto?url($this->foto):null,
             'estado' => $this->estado,
             'estado_info' =>  $this->estado_info!=null ? $this->estado_info->nombre:'',
         ];

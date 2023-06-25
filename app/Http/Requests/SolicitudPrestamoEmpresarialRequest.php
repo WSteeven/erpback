@@ -29,7 +29,9 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
             'fecha' => 'required|date_format:Y-m-d',
             'solicitante'=>'required|numeric',
             'monto' => 'required|numeric',
-            'plazo' => 'required|string',
+            'plazo' => 'nullable|string',
+            'motivo' => 'nullable|string',
+            'foto' => 'nullable|string',
             'estado' => 'required|numeric',
             'observacion' => 'required|string',
         ];

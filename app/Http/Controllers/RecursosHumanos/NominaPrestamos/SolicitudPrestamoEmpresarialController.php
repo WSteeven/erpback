@@ -7,10 +7,14 @@ use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
+use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarial;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class SolicitudPrestamoEmpresarialController extends Controller
@@ -39,6 +43,16 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function store(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
+        $rubro = Rubros::where('nombre_rubro', 'Sueldo Basico')->first();
+        $sbu_doble = $rubro->valor_rubro * 2;
+        if ($request->monto >= $sbu_doble) {
+            throw ValidationException::withMessages([
+                '404' => ['Solo se permite prestamo menor o igual a 2 SBU ($' . ($rubro->valor_rubro * 2) . ')'],
+            ]);
+        }
+        if ($request->foto) {
+            $datos['foto'] = (new GuardarImagenIndividual($request->foto, RutasStorage::FOTOGRAFIAS_PRESTAMO_EMPRESARIAL))->execute();
+        }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -46,24 +60,22 @@ class SolicitudPrestamoEmpresarialController extends Controller
     }
     public function update(SolicitudPrestamoEmpresarialRequest $request, SolicitudPrestamoEmpresarial $SolicitudPrestamoEmpresarial)
     {
-        $datos = $request->validated();
-        switch ($request->estado) {
-            case 4:
-                $this->aprobar_prestamo_empresarial($request);
-                break;
+       switch ($request->estado) {
             case 2:
-                $this->rechazar_prestamo_empresarial($request);
+                return $this->aprobar_prestamo_empresarial($request);
                 break;
-            default:
-                $this->pendiente_prestamo_empresarial($request);
+            case 3:
+                return  $this->rechazar_prestamo_empresarial($request);
+                break;
+            case 4:
+                return $this->validar_prestamo_empresarial($request);
                 break;
         }
     }
-    public function pendiente_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
+    public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
-        Log::channel('testing')->info('Log', ['pendiente', $request]);
         $datos['estado'] = $request->estado;
-        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id);
+        $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
