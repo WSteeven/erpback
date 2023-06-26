@@ -36,13 +36,10 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS')) {
-            Log::channel('testing')->info('Log', ['datos', 'listado de reursos humanos y gerencia']);
             $results = SolicitudPrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            Log::channel('testing')->info('Log', ['datos', 'listado de empleados']);
-
             $results = SolicitudPrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
             $results = SolicitudPrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
@@ -87,6 +84,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     }
     public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
+        $datos = $request->validated();
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
@@ -103,6 +101,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         $datos['estado'] = 2;
+        Log::channel('testing')->info('Log', ['datos', $datos]);
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         $PrestamoEmpresarial = new PrestamoEmpresarial();
@@ -122,7 +121,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
-        //  Log::channel('testing')->info('Log', ['datos', $datos]);
         $datos['estado'] = 3;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
