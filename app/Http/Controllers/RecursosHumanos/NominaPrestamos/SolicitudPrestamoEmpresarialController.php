@@ -5,6 +5,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
+use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
@@ -60,6 +61,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 '404' => ['Solo se permite prestamo menor o igual a 2 SBU ($' . ($rubro->valor_rubro * 2) . ')'],
             ]);
         }
+
         if ($request->foto) {
             $datos['foto'] = (new GuardarImagenIndividual($request->foto, RutasStorage::FOTOGRAFIAS_PRESTAMO_EMPRESARIAL))->execute();
         }
@@ -85,6 +87,18 @@ class SolicitudPrestamoEmpresarialController extends Controller
     public function validar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
     {
         $datos = $request->validated();
+        $valor_cuota = !is_null($request->monto) ? $request->monto : 0;
+        $plazo_prestamo = !is_null($request->plazo) ? $request->plazo : 0;
+        $valor_pago = $valor_cuota / $plazo_prestamo;
+        $empleado = Empleado::find($request->solicitante);
+        $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
+        $salario = $empleado->salario;
+        $anticipo = $salario *  $porcentaje_anticipo;
+        if ($valor_pago <= $anticipo) {
+            throw ValidationException::withMessages([
+                '404' => ['No se puede generar coutas menores o iguales  ' . ($valor_pago / 100) . '%'],
+            ]);
+        }
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
@@ -115,7 +129,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->save();
         $this->tabla_plazos($PrestamoEmpresarial);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
-        $mensaje = "Solicitud de Prestamo a sido Aprobada"; //Utils::obtenerMensaje($this->entidad, 'update');
+        $mensaje = "Solicitud de Prestamo a sido Aprobada";
         return response()->json(compact('mensaje', 'modelo'));
     }
     public function rechazar_prestamo_empresarial(SolicitudPrestamoEmpresarialRequest $request)
@@ -133,20 +147,17 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
         $plazo_prestamo = !is_null($prestamo->plazo) ? $prestamo->plazo : 0;
-        $valor_pago = $valor_cuota / $plazo_prestamo;
         $plazos  = [];
-        if ($valor_pago <= 200) {
-            for ($index = 1; $index <= $prestamo->plazo; $index++) {
-                $plazo = [
-                    'num_cuota' => $index,
-                    'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
-                    'valor_a_pagar' => number_format($valor_cuota / $plazo_prestamo, 2),
-                    'pago_couta' => false,
-                ];
-                array_push($plazos, $plazo);
-            }
-            $this->crear_plazos($prestamo, $plazos);
+        for ($index = 1; $index <= $prestamo->plazo; $index++) {
+            $plazo = [
+                'num_cuota' => $index,
+                'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
+                'valor_a_pagar' => number_format($valor_cuota / $plazo_prestamo, 2),
+                'pago_couta' => false,
+            ];
+            array_push($plazos, $plazo);
         }
+        $this->crear_plazos($prestamo, $plazos);
     }
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
     {
@@ -166,7 +177,13 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 $fechaActual->modify('+' . $cuota . ' week');
                 break;
             case 'meses':
-                $fechaActual->setDate($fechaActual->format('Y'), $fechaActual->format('m') + $cuota, 30);
+                $mes = $fechaActual->format('m') + $cuota;
+                if ($mes == 14) {
+                    $fechaActual->setDate($fechaActual->format('Y'), $fechaActual->format('m') + $cuota, 30);
+                    $fechaActual->modify('-1 day');
+                } else {
+                    $fechaActual->setDate($fechaActual->format('Y'), $fechaActual->format('m') + $cuota, 30);
+                }
                 break;
             case 'anios':
                 $fechaActual->modify('+' . $cuota . ' year');

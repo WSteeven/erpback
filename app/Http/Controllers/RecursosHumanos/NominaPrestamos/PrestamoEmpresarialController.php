@@ -7,8 +7,10 @@ use App\Http\Requests\PrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 class PrestamoEmpresarialController extends Controller
@@ -25,8 +27,25 @@ class PrestamoEmpresarialController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
-        $results = PrestamoEmpresarialResource::collection($results);
+
+
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS')) {
+            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+            $results = PrestamoEmpresarialResource::collection($results);
+            return response()->json(compact('results'));
+        } else {
+            /*
+            $results = PrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
+            $results = PrestamoEmpresarial::collection($results);*/
+            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+            $results = PrestamoEmpresarialResource::collection($results);
+            return response()->json(compact('results'));
+        }
+
+
+
         return response()->json(compact('results'));
     }
     public function show(Request $request, PrestamoEmpresarial $prestamoEmpresarial)

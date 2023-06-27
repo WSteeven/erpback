@@ -55,7 +55,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
     {
         $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
-            'solicitante'=> Auth::user()->empleado->id,
+            'solicitante'=>$this->solicitante!=null? $this->solicitante : Auth::user()->empleado->id,
             'fecha'=>$fecha->format('Y-m-d'),
             'estado' =>$this->estado==null? 1:$this->estado
         ]);
