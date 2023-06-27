@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('nombre');
+            $table->boolean('activo')->default(true);
 
             // Foreign keys
             $table->unsignedBigInteger('tipo_trabajo_id');

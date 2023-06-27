@@ -48,7 +48,7 @@ Route::apiResources(
     [
         'parameters' => [
             'tipos-trabajos' => 'tipo_trabajo',
-            'causas-intervenciones' => 'causa-intervencion',
+            'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo_subtarea',

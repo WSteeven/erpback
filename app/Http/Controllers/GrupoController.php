@@ -17,9 +17,9 @@ class GrupoController extends Controller
         $campos = explode(',', request('campos'));
 
         if (request('campos')) {
-            return Grupo::ignoreRequest(['campos'])->filter()->get($campos);
+            return Grupo::ignoreRequest(['campos'])->filter()->latest()->get($campos);
         } else {
-            return GrupoResource::collection(Grupo::filter()->get());
+            return GrupoResource::collection(Grupo::filter()->latest()->get());
         }
     }
 

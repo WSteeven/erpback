@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GrupoRequest extends FormRequest
+class CausaIntervencionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +23,16 @@ class GrupoRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'nombre' => 'required|string',
-            'region' => 'nullable|string',
+            'tipo_trabajo' => 'required|numeric|integer',
             'activo' => 'required|boolean',
         ];
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $rules['tipo_trabajo'] = 'nullable|numeric|integer';
+        }
+
+        return $rules;
     }
 }
