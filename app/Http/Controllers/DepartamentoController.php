@@ -29,7 +29,7 @@ class DepartamentoController extends Controller
      *********/
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
         $results = $this->listar();
         return response()->json(compact('results'));
     }
@@ -40,8 +40,11 @@ class DepartamentoController extends Controller
      **********/
     public function store(DepartamentoRequest $request)
     {
+        $datos = $request->validated();
+        $datos['responsable_id'] = $datos['responsable'];
+
         //Respuesta
-        $modelo = Departamento::create($request->validated());
+        $modelo = Departamento::create($datos);
         $modelo = new DepartamentoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
