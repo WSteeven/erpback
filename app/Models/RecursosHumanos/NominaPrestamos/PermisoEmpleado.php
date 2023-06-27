@@ -29,8 +29,13 @@ class PermisoEmpleado extends Model implements Auditable
         'motivo',
         'estado_permiso',
         'justificacion',
-        'fecha_inicio',
-        'fecha_fin',
+        'fecha_hora_inicio',
+        'fecha_hora_fin',
+        'fecha_recuperacion',
+        'hora_recuperacion',
+        'justificacion',
+        'documento',
+
     ];
     public function motivo_info()
     {

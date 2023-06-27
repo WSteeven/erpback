@@ -26,9 +26,11 @@ class PermisoEmpleadoRequest extends FormRequest
     {
         return [
             'motivo' => 'required',
-            'fecha_inicio' => 'required|date_format:Y-m-d',
-            'fecha_fin' => 'required|date_format:Y-m-d',
-            'justificacion' => 'required|string',
+            'fecha_hora_inicio' => 'required|string',
+            'fecha_hora_fin' => 'required|string',
+            'fecha_recuperacion' => 'required|date_format:Y-m-d',
+            'hora_recuperacion' => 'required|string',
+            'justificacion' => 'required|date_format:Y-m-d',
             'empleado_id' => 'required|exists:empleados,id',
         ];
     }

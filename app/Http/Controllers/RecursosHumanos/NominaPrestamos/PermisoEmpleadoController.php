@@ -23,7 +23,9 @@ class PermisoEmpleadoController extends Controller
         $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
-
+    public function archivo_permiso_empleado(Request $request){
+        Log::channel('testing')->info('Log',['Archivo',$request->archivo]);
+}
     public function index(Request $request)
     {
         $results = [];
@@ -48,10 +50,6 @@ class PermisoEmpleadoController extends Controller
             DB::beginTransaction();
             $datos['motivo_id'] =  $request->safe()->only(['motivo'])['motivo'];
             $datos['estado_permiso_id'] =  PermisoEmpleado::PENDIENTE;
-            //Convierte base 64 a url
-            if ($request->justificacion) {
-                $datos['justificacion'] = (new GuardarImagenIndividual($request->justificacion, RutasStorage::JUSTIFICACION_PERMISO_EMPLEADO))->execute();
-            }
             $permisoEmpleado = PermisoEmpleado::create($datos);
             $modelo = new PermisoEmpleadoResource($permisoEmpleado);
             DB::commit();

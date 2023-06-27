@@ -10,9 +10,11 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioCont
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
@@ -53,4 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class, 'prestamos_quirorafario_empleado']);
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extension_covertura_salud_empleado']);
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
+    Route::put('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'archivo_permiso_empleado']);
+
 });

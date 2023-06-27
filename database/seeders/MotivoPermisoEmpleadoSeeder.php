@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\MotivoPermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleado as NominaPrestamosMotivoPermisoEmpleado;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class MotivoPermisoEmpleadoSeeder extends Seeder
      */
     public function run()
     {
-       MotivoPermisoEmpleado::insert([
+       NominaPrestamosMotivoPermisoEmpleado::insert([
         ['nombre'=>'Permiso medico IESS'],
         ['nombre'=>'Permiso medico Ocupacional'],
         ['nombre'=>'Permiso con cargo a vacaciones'],

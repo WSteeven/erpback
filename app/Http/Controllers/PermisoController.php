@@ -28,6 +28,7 @@ class PermisoController extends Controller
         $results = PermisoResource::collection(Permission::all());
         return response()->json(compact('results'));
     }
+
     public function listarPermisosRoles(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
