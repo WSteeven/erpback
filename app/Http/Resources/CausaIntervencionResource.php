@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoTrabajoResource extends JsonResource
+class CausaIntervencionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,16 +18,16 @@ class TipoTrabajoResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'descripcion' => $this->descripcion,
+            'nombre' => $this->nombre,
             'activo' => $this->activo,
-            'cliente' => $this->cliente?->empresa->razon_social,
-            'cliente_id' => $this->cliente_id,
+            'tipo_trabajo' => $this->tipoTrabajo->descripcion,
+            'tipo_trabajo_id' => $this->tipo_trabajo_id,
+            'cliente' => $this->tipoTrabajo->cliente->empresa->razon_social,
         ];
 
         if ($controller_method == 'show') {
-            $modelo['cliente'] = $this->cliente_id;
-            // $modelo['imagenes_adicionales'] = $this->imagenes_adicionales;
-            // $modelo['campos_adicionales'] = $this->campos_adicionales;
+            $modelo['cliente'] = $this->tipoTrabajo->cliente_id;
+            $modelo['tipo_trabajo'] = $this->tipo_trabajo_id;
         }
 
         return $modelo;

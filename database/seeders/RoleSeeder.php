@@ -392,6 +392,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.editar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
 
+        // Causas intervenciones
+        Permission::firstOrCreate(['name' => 'puede.ver.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+
         /**
          * Permisos  para fondo rotativo
          */

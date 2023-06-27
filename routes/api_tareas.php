@@ -7,6 +7,7 @@ use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\ArchivoSubtareaController;
+use App\Http\Controllers\CausaIntervencionController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
@@ -29,6 +30,7 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'causas-intervenciones' => CausaIntervencionController::class,
         'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
@@ -46,6 +48,7 @@ Route::apiResources(
     [
         'parameters' => [
             'tipos-trabajos' => 'tipo_trabajo',
+            'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo_subtarea',
