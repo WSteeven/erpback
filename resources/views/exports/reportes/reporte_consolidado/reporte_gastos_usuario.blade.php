@@ -124,78 +124,88 @@
             </p>
             <br>
         @endif
-        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+        <table width="100%">
             <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>Nombres y Apellidos</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                    <div align="center"><strong>Usuario</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
-                    <div align="center"><strong>Fecha</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                    <div align="center"><strong>Descripcion del Gasto</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>Comentario&oacute;n</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                    <div align="center"><strong>Autorizador</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                    <div align="center"><strong>Monto</strong></div>
+                <td bgcolor="#bfbfbf" style="font-size:12px">
+                    <div align="center"><strong>{{ $usuario }}</strong></div>
                 </td>
             </tr>
-            @foreach ($gastos as $gasto)
-                @php
-                    $total = number_format($gasto['total'], 2) + $total;
-                @endphp
-                <tr>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">
-                            {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $gasto['empleado_info']->name }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="13%">
-                        <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
-                    </td>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">
-                            {{ $gasto['sub_detalle_desc'] }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">{{ $gasto['detalle_estado'] }}</div>
-                    </td>
-                    <td style="font-size:10px" width="29%">
-                        <div align="left">
-                            {{ $gasto['autorizador'] }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px" width="10%">
-                        <div align="right">
-                            {{ number_format($gasto['total'], 2, ',', '.') }}</div>
-                    </td>
-                </tr>
-            @endforeach
             <tr>
-                <td colspan="6" style="font-size:10px" width="29%">
-                    <div align="right"><strong>Total</strong></div>
-                </td>
-                <td style="font-size:10px" width="10%">
-                    <div align="right">
-                        <strong>{{ number_format($total, 2, ',', '.') }}</strong>
-                    </div>
+                <td>
+                    <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                <div align="center"><strong>Nombres y Apellidos</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                <div align="center"><strong>Lugar</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
+                                <div align="center"><strong>Fecha</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                <div align="center"><strong>Descripcion del Gasto</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                <div align="center"><strong>Comentari&oacute;</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                <div align="center"><strong>Autorizador</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                                <div align="center"><strong>Monto</strong></div>
+                            </td>
+                        </tr>
+                        @foreach ($gastos as $gasto)
+                            @php
+                                $total = number_format($gasto['total'], 2) + $total;
+                            @endphp
+                            <tr>
+                                <td style="font-size:10px" width="29%">
+                                    <div align="left">
+                                        {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
+                                    </div>
+                                </td>
+                                <td style="font-size:10px" width="15%">
+                                    <div align="left">{{ $gasto['lugar'] }}
+                                    </div>
+                                </td>
+                                <td style="font-size:10px" width="13%">
+                                    <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
+                                </td>
+                                <td style="font-size:10px" width="29%">
+                                    <div align="left">
+                                        {{ $gasto['sub_detalle_desc'] }}
+                                    </div>
+                                </td>
+                                <td style="font-size:10px" width="29%">
+                                    <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                                </td>
+                                <td style="font-size:10px" width="29%">
+                                    <div align="left">
+                                        {{ $gasto['autorizador'] }}
+                                    </div>
+                                </td>
+                                <td style="font-size:10px" width="10%">
+                                    <div align="right">
+                                        {{ number_format($gasto['total'], 2, ',', '.') }}</div>
+                                </td>
+                            </tr>
+                        @endforeach
+                        <tr>
+                            <td colspan="6" style="font-size:10px" width="29%">
+                                <div align="right"><strong>Total</strong></div>
+                            </td>
+                            <td style="font-size:10px" width="10%">
+                                <div align="right">
+                                    <strong>{{ number_format($total, 2, ',', '.') }}</strong>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
-
 
     </main>
 </body>

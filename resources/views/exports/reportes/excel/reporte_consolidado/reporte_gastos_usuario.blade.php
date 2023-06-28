@@ -74,7 +74,7 @@
                                             <div align="center"><strong>Nombres y Apellidos</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                                            <div align="center"><strong>Usuario</strong></div>
+                                            <div align="center"><strong>Lugar</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                             <div align="center"><strong>Fecha</strong></div>
@@ -83,7 +83,7 @@
                                             <div align="center"><strong>Descripcion del Gasto</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                            <div align="center"><strong>Comentario&oacute;n</strong></div>
+                                            <div align="center"><strong>Comentari&oacute;</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
                                             <div align="center"><strong>Autorizador</strong></div>
@@ -103,12 +103,11 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $gasto['empleado_info']->name }}
+                                                <div align="left">{{ $gasto['lugar'] }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="13%">
-                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
-                                                </div>
+                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                                             </td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
