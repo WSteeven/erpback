@@ -28,4 +28,6 @@ enum RutasStorage: string
     case FOTOGRAFIAS_SEGUIMIENTOS_TICKETS = 'public/fotografias_seguimiento_tickets';
     case ARCHIVOS_SEGUIMIENTO_TICKETS = 'public/archivos_seguimiento_tickets';
     case FOTOGRAFIAS_PRESTAMO_EMPRESARIAL = 'public/fotografias_prestamo_empresarial';
+    case DOCUMENTOS_PERMISO_EMPLEADO = 'public/documentos_permiso_empleado';
+
 }

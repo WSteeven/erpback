@@ -20,13 +20,20 @@ class PermisoEmpleado extends Model implements Auditable
     const PENDIENTE = 3;
     const CANCELADO = 4;
     protected $fillable = [
-        'motivo_id','fecha_inicio','fecha_fin','justificacion','estado_permiso_id', 'empleado_id'
+        'tipo_permiso_id',
+        'fecha_hora_inicio',
+        'fecha_hora_fin',
+        'fecha_recuperacion',
+        'hora_recuperacion',
+        'justificacion',
+        'estado_permiso_id',
+        'empleado_id'
     ];
 
     private static $whiteListFilter = [
         'id',
         'empleado',
-        'motivo',
+        'tipo_permiso',
         'estado_permiso',
         'justificacion',
         'fecha_hora_inicio',
@@ -37,17 +44,16 @@ class PermisoEmpleado extends Model implements Auditable
         'documento',
 
     ];
-    public function motivo_info()
+    public function tipo_permiso_info()
     {
-        return $this->belongsTo(MotivoPermisoEmpleado::class, 'motivo_id','id');
+        return $this->belongsTo(MotivoPermisoEmpleado::class, 'tipo_permiso_id', 'id');
     }
     public function estado_permiso_info()
     {
-        return $this->belongsTo(EstadoPermisoEmpleado::class, 'estado_permiso_id','id');
+        return $this->belongsTo(EstadoPermisoEmpleado::class, 'estado_permiso_id', 'id');
     }
     public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id','id');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
-
 }

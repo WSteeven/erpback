@@ -11,8 +11,10 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
+use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
 class PermisoEmpleadoController extends Controller
@@ -24,7 +26,25 @@ class PermisoEmpleadoController extends Controller
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
     public function archivo_permiso_empleado(Request $request){
-        Log::channel('testing')->info('Log',['Archivo',$request->archivo]);
+        $request->validate([
+            'permiso_id' => 'required|numeric|integer',
+        ]);
+        $permiso_empleado = PermisoEmpleado::find($request['permiso_id']);
+        if (!$permiso_empleado) {
+            throw ValidationException::withMessages([
+                'permiso_empleado' => ['El permiso del empleado no existe'],
+            ]);
+        }
+        if (!$request->hasFile('file')) {
+            throw ValidationException::withMessages([
+                'file' => ['Debe seleccionar al menos un archivo.'],
+            ]);
+        }
+
+        $archivoJSON =  GuardarArchivo::json( $request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
+        $permiso_empleado->documento = $archivoJSON;
+        $permiso_empleado->save();
+        return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
 }
     public function index(Request $request)
     {
@@ -32,7 +52,6 @@ class PermisoEmpleadoController extends Controller
         $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
-
     }
 
     public function create(Request $request)
@@ -48,7 +67,7 @@ class PermisoEmpleadoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $datos['motivo_id'] =  $request->safe()->only(['motivo'])['motivo'];
+            $datos['tipo_permiso_id'] =  $request->safe()->only(['tipo_permiso'])['tipo_permiso'];
             $datos['estado_permiso_id'] =  PermisoEmpleado::PENDIENTE;
             $permisoEmpleado = PermisoEmpleado::create($datos);
             $modelo = new PermisoEmpleadoResource($permisoEmpleado);

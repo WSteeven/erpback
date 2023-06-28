@@ -55,6 +55,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('prestamos_quirorafario_empleado', [PrestamoQuirirafarioController::class, 'prestamos_quirorafario_empleado']);
     Route::get('extension_covertura_salud_empleado', [ExtensionCoverturaSaludController::class, 'extension_covertura_salud_empleado']);
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
-    Route::put('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'archivo_permiso_empleado']);
+    Route::post('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'archivo_permiso_empleado']);
 
 });

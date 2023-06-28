@@ -25,29 +25,30 @@ class PermisoEmpleadoRequest extends FormRequest
     public function rules()
     {
         return [
-            'motivo' => 'required',
+            'tipo_permiso' => 'required',
             'fecha_hora_inicio' => 'required|string',
             'fecha_hora_fin' => 'required|string',
             'fecha_recuperacion' => 'required|date_format:Y-m-d',
             'hora_recuperacion' => 'required|string',
-            'justificacion' => 'required|date_format:Y-m-d',
+            'justificacion' => 'required|string',
             'empleado_id' => 'required|exists:empleados,id',
         ];
     }
     protected function prepareForValidation()
     {
-        $fecha_inicio = Carbon::createFromFormat('d-m-Y', $this->fecha_inicio);
-        $fecha_fin = Carbon::createFromFormat('d-m-Y', $this->fecha_fin);
+        $fecha_inicio = Carbon::createFromFormat('d-m-Y H:i', $this->fecha_hora_inicio);
+        $fecha_fin = Carbon::createFromFormat('d-m-Y H:i', $this->fecha_hora_fin);
+        $fecha_recuperacion = Carbon::createFromFormat('d-m-Y',$this->fecha_recuperacion);
         //usuario logueado
         $this->merge([
             'empleado_id' => auth()->user()->empleado->id,
         ]);
         $this->merge([
-            'fecha_inicio' =>  $fecha_inicio->format('Y-m-d'),
+            'fecha_hora_inicio' =>  $fecha_inicio->format('Y-m-d H:i:s'),
+            'fecha_hora_fin' =>  $fecha_fin->format('Y-m-d H:i:s'),
+            'fecha_recuperacion' => $fecha_recuperacion->format('Y-m-d'),
         ]);
-        $this->merge([
-            'fecha_fin' =>  $fecha_fin->format('Y-m-d'),
-        ]);
+
 
     }
 }
