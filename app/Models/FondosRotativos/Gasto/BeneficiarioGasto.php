@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class BeneficiarioGasto extends Model
+class BeneficiarioGasto extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
@@ -35,7 +35,7 @@ class BeneficiarioGasto extends Model
     }
     public function empleado_info()
     {
-        return $this->hasOne(Empleado::class, 'id', 'empleados');
+        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
     public function gastos(){
         return $this->hasMany(Gasto::class,'id','id_gasto');

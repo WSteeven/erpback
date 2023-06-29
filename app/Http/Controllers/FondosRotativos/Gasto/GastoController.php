@@ -12,6 +12,7 @@ use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\FondosRotativos\Gastos\GastoVehiculoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Gasto\BeneficiarioGasto;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
@@ -130,10 +131,10 @@ class GastoController extends Controller
             }
             unset($datos['comprobante1']);
             $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
-            ->where('num_comprobante',  $datos['num_comprobante'])
-            ->where('estado', 1)
-            ->lockForUpdate()
-            ->get();
+                ->where('num_comprobante',  $datos['num_comprobante'])
+                ->where('estado', 1)
+                ->lockForUpdate()
+                ->get();
             if (count($bloqueo_comprobante_aprob) > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['comprobante  ya existe'],
@@ -146,16 +147,16 @@ class GastoController extends Controller
                 ->where('estado', '=', 1)
                 ->lockForUpdate()
                 ->get();
-                if (count($bloqueo_gastos_aprob) > 0) {
-                    throw ValidationException::withMessages([
-                        '404' => ['factura ya existe'],
-                    ]);
-                }
+            if (count($bloqueo_gastos_aprob) > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['factura ya existe'],
+                ]);
+            }
             $bloqueo_comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
-            ->where('num_comprobante',  $datos['num_comprobante'])
-            ->where('estado', 3)
-            ->lockForUpdate()
-            ->get();
+                ->where('num_comprobante',  $datos['num_comprobante'])
+                ->where('estado', 3)
+                ->lockForUpdate()
+                ->get();
             if (count($bloqueo_comprobante_pendiente) > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['comprobante  ya existe'],
@@ -168,18 +169,20 @@ class GastoController extends Controller
                 ->where('estado', '=', 3)
                 ->lockForUpdate()
                 ->get();
-                if (count($bloqueo_gastos_pend) > 0) {
-                    throw ValidationException::withMessages([
-                        '404' => ['factura ya existe'],
-                    ]);
-                }
+            if (count($bloqueo_gastos_pend) > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['factura ya existe'],
+                ]);
+            }
 
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
             //Guardar en tabla de destalle gasto
             $gasto->sub_detalle_info()->sync($request->sub_detalle);
-            //$gasto->empleado_beneficiario_info()->sync($request->beneficiarios);
+            if ($request->beneficiarios != null) {
+                $this->crear_beneficiarios($gasto, $request->beneficiarios);
+            }
             $datos['id_gasto'] = $gasto->id;
             //Busca si existe detalle de gasto 6 o 16
             if ($request->detalle == 6 || $request->detalle == 16 || $request->detalle == 24) {
@@ -518,6 +521,19 @@ class GastoController extends Controller
         $gasto->save();
         event(new FondoRotativoEvent($gasto));
         return response()->json(['success' => 'Gasto rechazado']);
+    }
+    public function crear_beneficiarios(Gasto $gasto, $beneficiarios)
+    {
+        $beneficiariosActualizados = array();
+
+        foreach ($beneficiarios as $empleado_id) {
+            $nuevoElemento = array(
+                'gasto_id' =>  $gasto->id,
+                'empleado_id' => $empleado_id
+            );
+            $beneficiariosActualizados[] = $nuevoElemento;
+        }
+        BeneficiarioGasto::insert($beneficiariosActualizados);
     }
     public function guardar_gasto_vehiculo(GastoRequest $request, Gasto $gasto)
     {

@@ -135,7 +135,7 @@ class Gasto extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
     public function beneficiario_info(){
-        return $this->hasOne(BeneficiarioGasto::class, 'id_gasto', 'id');
+        return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado_info');
     }
 
     public static function empaquetar($gastos)
