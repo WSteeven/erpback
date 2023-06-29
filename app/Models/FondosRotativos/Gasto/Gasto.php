@@ -134,6 +134,9 @@ class Gasto extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
+    public function beneficiario_info(){
+        return $this->hasOne(BeneficiarioGasto::class, 'id_gasto', 'id');
+    }
 
     public static function empaquetar($gastos)
     {
@@ -142,7 +145,7 @@ class Gasto extends Model implements Auditable
             $id = 0;
             $row = [];
             foreach ($gastos as $gasto) {
-                // Log::channel('testing')->info('Log', ['gasto', $gasto]);
+                $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
                 $row['lugar']= $gasto->lugar_info?->canton;
                 $row['factura']= $gasto->factura;
@@ -156,7 +159,7 @@ class Gasto extends Model implements Auditable
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
                 $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
-               // $row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
+                //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
                 $row['placa'] = $gasto->gasto_vehiculo_info?->placa;
                 $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
                 $row['observacion'] = $gasto->observacion;

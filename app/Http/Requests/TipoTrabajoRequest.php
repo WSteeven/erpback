@@ -13,7 +13,7 @@ class TipoTrabajoRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -26,8 +26,7 @@ class TipoTrabajoRequest extends FormRequest
         return [
             'cliente' => 'required',
             'descripcion' => 'required|string',
-            // 'imagenes_adicionales' => 'nullable|string',
-            // 'campos_adicionales' => 'nullable|string',
+            'activo' => 'required|boolean',
         ];
     }
 }
