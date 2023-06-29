@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CriterioCalificacionRequest;
 use App\Http\Resources\CriterioCalificacionResource;
 use App\Models\CriterioCalificacion;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -24,9 +25,14 @@ class CriterioCalificacionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = CriterioCalificacionResource::collection(CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get());
+        if (auth()->user()->hasRole([User::ROL_COMPRAS, User::ROL_ADMINISTRADOR])) {
+            $results = CriterioCalificacion::all();
+        } else {
+            $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get();
+        }
+        $results = CriterioCalificacionResource::collection($results);
         return response()->json(compact('results'));
     }
 

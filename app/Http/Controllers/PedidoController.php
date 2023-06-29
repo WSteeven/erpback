@@ -258,7 +258,8 @@ class PedidoController extends Controller
     }
     public function example()
     {
-        $pdf = Pdf::loadView('pedidos.example');
+        $pdf = new Pdf();
+        $pdf = Pdf::loadView('pedidos.example', compact('pdf'));
         $pdf->render();
         return $pdf->stream();
     }
