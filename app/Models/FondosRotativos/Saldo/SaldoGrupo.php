@@ -80,6 +80,8 @@ class SaldoGrupo extends  Model implements Auditable
         $row['fecha'] = $saldo['created_at'];
         $row['fecha_creacion'] = $saldo['created_at'];
         $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
+        $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);
+        $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
         return $row;
@@ -91,6 +93,8 @@ class SaldoGrupo extends  Model implements Auditable
         $row['fecha'] = $fecha;
         $row['fecha_creacion'] = $saldo_anterior == null ? $fecha : $saldo_anterior->created_at;
         $row['descripcion'] = 'Saldo Anterior';
+        $row['observacion'] ='';
+        $row['num_comprobante'] = '';
         $row['ingreso'] = 0;
         $row['gasto'] = 0;
         $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
@@ -157,6 +161,24 @@ class SaldoGrupo extends  Model implements Auditable
                 $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
                 return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
+        }
+        return '';
+    }
+    private static function observacion_saldo($saldo){
+        if (isset($saldo['observacion'])) {
+            return $saldo['observacion'];
+        }
+        return '';
+    }
+    private static function num_comprobante($saldo){
+        if (isset($saldo['cuenta'])) {
+            return $saldo['cuenta'];
+        }
+        if (isset($saldo['factura'])) {
+            return $saldo['factura'];
+        }
+        if(isset($saldo['id_saldo'])){
+            return $saldo['id_saldo'];
         }
         return '';
     }
