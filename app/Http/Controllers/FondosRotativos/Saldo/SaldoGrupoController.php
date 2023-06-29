@@ -337,7 +337,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
-                'subdetalle'=>$request->subdetalle
+                'subdetalle'=>$request->subdetalle,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);

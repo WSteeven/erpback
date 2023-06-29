@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\FondosRotativos\Usuario\Estatus;
+use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ class SubDetalleViatico extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
+    use UppercaseValuesTrait;
     use Filterable;
     protected $table = 'sub_detalle_viatico';
     protected $primaryKey = 'id';

@@ -124,14 +124,14 @@
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>Fecha: </b>Del {{ date("d-m-Y", strtotime( $fecha_inicio)) . ' al ' . date("d-m-Y", strtotime( $fecha_fin)) }}
+                        <b>FECHA: </b>DEL {{ date("d-m-Y", strtotime( $fecha_inicio)) . ' AL ' . date("d-m-Y", strtotime( $fecha_fin)) }}
                     </div>
                 </td>
             </tr>
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>Empleado:</b> {{ $empleado->nombres.' '.$empleado->apellidos }}
+                        <b>EMPLEADO:</b> {{ $empleado->nombres.' '.$empleado->apellidos }}
                     </div>
                 </td>
             </tr>
@@ -139,7 +139,7 @@
             <tr height="29" >
                 <td height="15">
                     <div align="left">
-                        <b>Grupo:</b> {{ $empleado->grupo->nombre}}
+                        <b>GRUPO:</b> {{ $empleado->grupo->nombre}}
                     </div>
                 </td>
             </tr>
@@ -148,21 +148,21 @@
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>Lugar:</b> {{ $empleado->canton->canton }}
+                        <b>LUGAR:</b> {{ $empleado->canton->canton }}
                     </div>
                 </td>
             </tr>
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>Cargo:</b> {{ $empleado->cargo->nombre}}
+                        <b>CARGO:</b> {{ $empleado->cargo->nombre}}
                     </div>
                 </td>
             </tr>
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>Saldo Actual:</b>  {{  number_format($nuevo_saldo, 2, ',', ' ')  }}
+                        <b>SALDO ACTUAL:</b>  {{  number_format($nuevo_saldo, 2, ',', ' ')  }}
                     </div>
                 </td>
             </tr>
@@ -220,7 +220,7 @@
                             </div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{$dato['descripcion']}}
+                            <div align="center">{{ strtoupper($dato['descripcion'])}}
                             </div>
                         </td>
                         <td style="font-size:10px">
@@ -247,6 +247,13 @@
             @endif
         </table>
     </main>
+    <script type="text/php">
+        if (isset($pdf)) {
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                $pdf->page_text(10, 785, $text, $font, 12);
+        }
+    </script>
 </body>
 
 </html>
