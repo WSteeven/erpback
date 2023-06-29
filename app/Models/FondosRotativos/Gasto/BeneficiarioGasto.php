@@ -38,6 +38,6 @@ class BeneficiarioGasto extends Model
         return $this->hasOne(Empleado::class, 'id', 'empleados');
     }
     public function gastos(){
-        return $this->belongsToMany(Gasto::class,'beneficiario_gastos','id_gasto','id');
+        return $this->hasMany(Gasto::class,'id','id_gasto');
     }
 }

@@ -135,12 +135,12 @@ class SaldoGrupo extends  Model implements Auditable
     private static function descripcion_saldo($saldo)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
-            return 'Acreditacion: ' . $saldo['descripcion_acreditacion'];
+            return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
         }
         if (isset($saldo['motivo'])) {
             $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-            return 'Transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+            return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
         }
         if (isset($saldo['tipo_saldo'])) {
             if ($saldo['tipo_saldo'] == 'Encuadre') {
@@ -155,7 +155,7 @@ class SaldoGrupo extends  Model implements Auditable
 
             if ($saldo['estado'] == 4) {
                 $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-                return 'Anulacion de gasto: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
         }
         return '';

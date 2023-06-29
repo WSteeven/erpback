@@ -124,6 +124,9 @@
         @endif
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
+                    <div align="center"><strong>#</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>Nombres y Apellidos</strong></div>
                 </td>
@@ -138,10 +141,13 @@
                         <div align="center"><strong>Descripcion del Gasto</strong></div>
                     </td>
                 @endif
+                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                    <div align="center"><strong># Documento</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>Comentari&oacute;</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                     <div align="center"><strong>Autorizador</strong></div>
                 </td>
                 @if ($subdetalle == 96)
@@ -163,6 +169,10 @@
                 @endphp
                 <tr>
                     <td style="font-size:10px">
+                        <div align="left">{{ $gasto['num_registro'] }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
                         <div align="left">
                             {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
                         </div>
@@ -181,6 +191,9 @@
                             </div>
                         </td>
                     @endif
+                    <td style="font-size:10px">
+                        <div align="left">{{ $gasto['factura'] }}</div>
+                    </td>
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
@@ -204,9 +217,29 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="7" style="font-size:10px" width="29%">
-                    <div align="right"><strong>Total</strong></div>
-                </td>
+                @if ($subtitulo == '')
+                    @if ($subdetalle == 96)
+                        <td colspan="10" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @else
+                        <td colspan="8" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @endif
+                @else
+                    @if ($subdetalle == 96)
+                        <td colspan="9" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @else
+                    <td colspan="7" style="font-size:10px" width="29%">
+                        <div align="right"><strong>Total</strong></div>
+                    </td>
+                    @endif
+                @endif
+
+
                 <td style="font-size:10px" width="10%">
                     <div align="right">
                         <strong>{{ number_format($total, 2, ',', '.') }}</strong>
