@@ -83,7 +83,7 @@ class PedidoRequest extends FormRequest
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
-        if (is_null($this->per_autoriza) || $this->per_autoriza === '') {
+        if ((is_null($this->per_autoriza) || $this->per_autoriza === '')&& !$this->tarea) {
             $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {
@@ -108,8 +108,12 @@ class PedidoRequest extends FormRequest
         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO]) && $this->tarea) {
             $this->merge([
                 'autorizacion' => 2,
-                'per_autoriza' => auth()->user()->empleado->id,
             ]);
+            if(is_null($this->per_autoriza) || $this->per_autoriza === ''){
+                $this->merge([
+                    'per_autoriza' => auth()->user()->empleado->id,
+                ]);
+            }
         }
         if ($this->para_cliente && in_array($this->method(), ['POST'])) {
             $this->merge([
