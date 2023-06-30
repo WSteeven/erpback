@@ -68,49 +68,60 @@
                         <tr>
                             <td>
                                 <table
-                                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-                                <tr height="29">
-                                    <td height="15">
-                                        <div align="left">
-                                            <b>Fecha: </b>{{ date("d-m-Y", strtotime( $fecha_inicio)) . ' ' . date("d-m-Y", strtotime( $fecha_fin)) }}
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr height="29">
-                                    <td height="15">
-                                        <div align="left">
-                                            <b>Empleado:</b> {{ $empleado->nombres.' '.$empleado->apellidos }}
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr height="29">
-                                    <td height="15">
-                                        <div align="left">
-                                            <b>Saldo Actual:</b>  {{  number_format($nuevo_saldo, 2, ',', ' ')  }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
+                                    style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+                                    <tr height="29">
+                                        <td height="15">
+                                            <div align="left">
+                                                <b>Fecha:
+                                                </b>{{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr height="29">
+                                        <td height="15">
+                                            <div align="left">
+                                                <b>Empleado:</b> {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr height="29">
+                                        <td height="15">
+                                            <div align="left">
+                                                <b>Saldo Actual:</b> {{ number_format($nuevo_saldo, 2, ',', ' ') }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"  class="gastos">
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                    class="gastos">
                                     <tr>
-                                        <td width="15%" bgcolor="#a9d08e">
+                                        <td width="3%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>#</strong></div>
+                                        </td>
+                                        <td width="4%" bgcolor="#a9d08e">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
-                                        <td width="25%" bgcolor="#a9d08e">
+                                        <td width="4%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>#COMPROBANTE</strong></div>
+                                        </td>
+                                        <td width="13%" bgcolor="#a9d08e">
                                             <div align="center"><strong>DESCRIPCIÓN</strong></div>
                                         </td>
-                                        <td width="10%" bgcolor="#a9d08e">
+                                        <td width="13%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>OBSERVACIÓN</strong></div>
+                                        </td>
+                                        <td width="3%" bgcolor="#a9d08e">
                                             <div align="center"><strong>INGRESO</strong></div>
                                         </td>
-                                        <td width="10%" bgcolor="#a9d08e">
+                                        <td width="3%" bgcolor="#a9d08e">
                                             <div align="center"><strong>GASTO</strong></div>
                                         </td>
-                                        <td width="10%" bgcolor="#a9d08e">
+                                        <td width="3%" bgcolor="#a9d08e">
                                             <div align="center"><strong>SALDO</strong></div>
                                         </td>
                                     </tr>
@@ -122,7 +133,7 @@
                                         </tr>
                                     @else
                                         @php
-                                        $saldo_act = $saldo_anterior;
+                                            $saldo_act = $saldo_anterior;
                                         @endphp
                                         @foreach ($reportes_unidos as $dato)
                                             @php
@@ -130,15 +141,27 @@
                                             @endphp
                                             <tr>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{   date("d-m-Y", strtotime( $dato['fecha']))}}</div>
+                                                    <div align="center">{{ $num_registro }}</div>
                                                 </td>
-
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{$dato['descripcion']}}
+                                                    <div align="center">{{ date('d-m-Y', strtotime($dato['fecha'])) }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ number_format($dato['ingreso'], 2, ',', '.') }}
+                                                    <div align="center">{{ $dato['num_comprobante'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">{{ $dato['descripcion'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">{{ $dato['observacion'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ number_format($dato['ingreso'], 2, ',', '.') }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -146,10 +169,14 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ isset($dato['saldo'])? number_format($dato['saldo'], 2, ',', '.') :number_format($saldo_act, 2, ',', '.') }}
+                                                    <div align="center">
+                                                        {{ isset($dato['saldo']) ? number_format($dato['saldo'], 2, ',', '.') : number_format($saldo_act, 2, ',', '.') }}
                                                     </div>
                                                 </td>
                                             </tr>
+                                            @php
+                                                $num_registro++;
+                                            @endphp
                                         @endforeach
                                     @endif
                                 </table>

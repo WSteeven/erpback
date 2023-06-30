@@ -140,10 +140,10 @@
                         DEPOSITADOS</strong></td>
             </tr>
             <tr>
-                <td style="font-size:10px" width="8%"><strong>Fecha</strong></td>
-                <td style="font-size:10px"width="7%"><strong>Monto</strong></td>
-                <td style="font-size:10px"width="9%"><strong>Tipo Saldo</strong></td>
-                <td style="font-size:10px" width="80%"><strong>Descripción</strong></td>
+                <td style="font-size:10px" width="8%"><strong>FECHA</strong></td>
+                <td style="font-size:10px"width="7%"><strong>MONTO</strong></td>
+                <td style="font-size:10px"width="9%"><strong>TIPO SALDO</strong></td>
+                <td style="font-size:10px" width="80%"><strong>DESCRIPCI&Oacute;N</strong></td>
             </tr>
             @if (sizeof($datos_saldo_depositados_semana) > 0)
                 @foreach ($datos_saldo_depositados_semana as $dato)

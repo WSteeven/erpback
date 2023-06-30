@@ -189,7 +189,6 @@ class SaldoGrupoController extends Controller
      */
     public function consolidado(Request $request, $tipo)
     {
-        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         try {
             switch ($request->tipo_saldo) {
                 case '1':
@@ -338,7 +337,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
-                'subdetalle'=>$request->subdetalle
+                'subdetalle'=>$request->subdetalle,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);

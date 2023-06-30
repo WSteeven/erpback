@@ -83,7 +83,7 @@ class PedidoRequest extends FormRequest
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
-        if (is_null($this->per_autoriza) || $this->per_autoriza === '') {
+        if ((is_null($this->per_autoriza) || $this->per_autoriza === '')&& !$this->tarea) {
             $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);
         }
         if (is_null($this->autorizacion) || $this->autorizacion === '') {
