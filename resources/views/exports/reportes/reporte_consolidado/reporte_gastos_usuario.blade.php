@@ -198,7 +198,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="6" style="font-size:10px" width="29%">
+                <td colspan="8" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">
@@ -209,6 +209,13 @@
             </tr>
         </table>
     </main>
+    <script type="text/php">
+        if (isset($pdf)) {
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                $pdf->page_text(10, 550, $text, $font, 12);
+        }
+    </script>
 </body>
 
 </html>

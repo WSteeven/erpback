@@ -83,7 +83,6 @@
 </head>
 @php
     $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
     $num_registro =1;
 @endphp
 

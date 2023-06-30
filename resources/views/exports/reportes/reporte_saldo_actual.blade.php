@@ -72,7 +72,6 @@
 </head>
 @php
     $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
 @endphp
 <body>
     <header>
@@ -95,7 +94,6 @@
     <footer>
         <table style="width: 100%;">
             <tr>
-                <td class="page">Página </td>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
@@ -172,6 +170,13 @@
 
         </table>
     </div>
+    <script type="text/php">
+        if (isset($pdf)) {
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                $pdf->page_text(10, 550, $text, $font, 12);
+        }
+    </script>
 </body>
 
 </html>

@@ -84,6 +84,10 @@
                                             <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
                                                 <tr>
                                                     <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                                        <div align="center"><strong>#</strong></div>
+                                                    </td>
+
+                                                    <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
                                                         <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                                                     </td>
                                                     <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
@@ -101,6 +105,11 @@
                                                 </tr>
                                                 @foreach ($acreditaciones as $acreditacion)
                                                     <tr>
+                                                        <td style="font-size:10px" width="6%">
+                                                            <div align="left">
+                                                                {{ $acreditacion['item'] }}
+                                                            </div>
+                                                        </td>
                                                         <td style="font-size:10px" width="29%">
                                                             <div align="left">
                                                                 {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
