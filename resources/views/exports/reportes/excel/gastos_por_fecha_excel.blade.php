@@ -74,24 +74,27 @@
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados">
+                                <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0"
+                                    class="saldos_depositados">
                                     <tr>
                                         <td colspan="4" style="font-size:10px" bgcolor="#a9d08e"><strong>SALDOS
                                                 DEPOSITADOS</strong></td>
                                     </tr>
                                     <tr>
-                                        <td style="font-size:10px" width="8%"><strong>Fecha</strong></td>
-                                        <td style="font-size:10px"width="7%"><strong>Monto</strong></td>
-                                        <td style="font-size:10px"width="9%"><strong>Tipo Saldo</strong></td>
-                                        <td style="font-size:10px" width="80%"><strong>Descripción</strong></td>
+                                        <td style="font-size:10px" width="8%"><strong>FECHA</strong></td>
+                                        <td style="font-size:10px"width="7%"><strong>MONTO</strong></td>
+                                        <td style="font-size:10px"width="9%"><strong>TIPO SALDO</strong></td>
+                                        <td style="font-size:10px" width="80%"><strong>DESCRIPCION</strong></td>
                                     </tr>
                                     @if (sizeof($datos_saldo_depositados_semana) > 0)
                                         @foreach ($datos_saldo_depositados_semana as $dato)
                                             <tr>
-                                                <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato->fecha)) }}</td>
+                                                <td style="font-size:10px">
+                                                    {{ date('d-m-Y', strtotime($dato->fecha)) }}</td>
                                                 <td style="font-size:10px">
                                                     {{ number_format($dato->monto, 2, ',', '.') }}</td>
-                                                <td style="font-size:10px">{{$dato->tipo_fondo!=null? $dato->tipo_fondo->descripcion:'' }}
+                                                <td style="font-size:10px">
+                                                    {{ $dato->tipo_fondo != null ? $dato->tipo_fondo->descripcion : '' }}
                                                 </td>
                                                 <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                                             </tr>
@@ -102,15 +105,22 @@
                                         </tr>
                                     @endif
                                     <tr>
-                                        <td style="font-size:10px" colspan="3"><div align="right"><strong>SALDO ANTERIOR:&nbsp;</strong></div><strong></strong></td>
-                                        <td style="font-size:10px"> <div align="right"> {{ number_format($saldo_anterior, 2, ',', ' ') }} </div></td>
+                                        <td style="font-size:10px" colspan="3">
+                                            <div align="right"><strong>SALDO ANTERIOR:&nbsp;</strong></div>
+                                            <strong></strong>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="right"> {{ number_format($saldo_anterior, 2, ',', ' ') }}
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" style="font-size:10px">
                                             <div align="right"><strong>SALDO DEPOSITADO:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
-                                            <div align="right"> {{ number_format($acreditaciones, 2, ',', ' ') }} </div>
+                                            <div align="right"> {{ number_format($acreditaciones, 2, ',', ' ') }}
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -118,7 +128,8 @@
                                             <div align="right"><strong>TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
-                                            <div align="right"> {{ number_format($transferencia_enviada, 2, ',', ' ') }} </div>
+                                            <div align="right">
+                                                {{ number_format($transferencia_enviada, 2, ',', ' ') }} </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -126,7 +137,8 @@
                                             <div align="right"><strong>TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
-                                            <div align="right"> {{ number_format($transferencia_recibida, 2, ',', ' ') }} </div>
+                                            <div align="right">
+                                                {{ number_format($transferencia_recibida, 2, ',', ' ') }} </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -134,7 +146,8 @@
                                             <div align="right"><strong>GASTOS REALIZADOS:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
-                                            <div align="right"> {{ number_format($gastos_realizados, 2, ',', ' ') }} </div>
+                                            <div align="right"> {{ number_format($gastos_realizados, 2, ',', ' ') }}
+                                            </div>
                                         </td>
                                     </tr>
                                     <tr>
@@ -156,34 +169,35 @@
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>N&deg;</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
                                             <div align="center"><strong>TAREA</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong># FACTURA</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>RUC</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
-                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong></div>
+                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong>
+                                            </div>
                                         </td>
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>DETALLE</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>SUB DETALLE</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e" width="100%">
+                                        <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
                                             <div align="center"><strong>CANT.</strong></div>
                                         </td>
-                                        <td  bgcolor="#a9d08e">
+                                        <td bgcolor="#a9d08e">
                                             <div align="center"><strong>V. UNI.</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e">
@@ -209,27 +223,33 @@
                                                     <div align="center">{{ $dato->fecha }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center"> {{ $dato->tarea != null ? $dato->tareacodigo_tarea : 'Sin Tarea' }}</div>
+                                                    <div align="center">
+                                                        {{ $dato->tarea != null ? $dato->tareacodigo_tarea : 'Sin Tarea' }}
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->factura }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->ruc.' .' }}</div>
+                                                    <div align="center">{{ $dato->ruc . ' .' }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">   {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}</div>
+                                                    <div align="center">
+                                                        {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{$dato->detalle_info->descripcion}}</div>
+                                                    <div align="center">{{ $dato->detalle_info->descripcion }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">  @foreach($dato->sub_detalle_info as $sub_detalle)
-                                                        {{ $sub_detalle->descripcion }}
-                                                        @if (!$loop->last)
-                                                           ,
-                                                        @endif
-                                                     @endforeach</div>
+                                                    <div align="center">
+                                                        @foreach ($dato->sub_detalle_info as $sub_detalle)
+                                                            {{ $sub_detalle->descripcion }}
+                                                            @if (!$loop->last)
+                                                                ,
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->observacion }}</div>

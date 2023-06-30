@@ -6,6 +6,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -93,7 +94,7 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos son retirados por una persona
@@ -111,7 +112,7 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_autoriza_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos son autorizados por una persona

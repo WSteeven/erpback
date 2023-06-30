@@ -53,6 +53,7 @@ class DetalleProductoController extends Controller
             if($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
             else $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
             $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
+            Log::channel('testing')->info('Log', ['resultados filtrados:', $results]);
         }else {
             Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
