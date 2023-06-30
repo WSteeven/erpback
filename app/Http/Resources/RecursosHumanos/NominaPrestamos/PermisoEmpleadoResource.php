@@ -21,8 +21,8 @@ class PermisoEmpleadoResource extends JsonResource
             'id' => $this->id,
             'tipo_permiso' => $this->tipo_permiso_id,
             'tipo_permiso_info' =>$this->tipo_permiso_info!=null?$this->tipo_permiso_info->nombre:'',
-            'fecha_inicio' =>  $this->cambiar_fecha($this->fecha_inicio),
-            'fecha_fin' =>  $this->cambiar_fecha($this->fecha_fin),
+            'fecha_hora_inicio' =>  $this->cambiar_fecha_hora($this->fecha_hora_inicio),
+            'fecha_hora_fin' =>  $this->cambiar_fecha_hora($this->fecha_hora_fin),
             'justificacion' => $this->justificacion,
             'estado' => $this->estado_permiso_id,
             'estado_permiso_info' => $this->estado_permiso_info->nombre,
@@ -34,6 +34,10 @@ class PermisoEmpleadoResource extends JsonResource
         ];
         return $modelo;
     }
+    private function cambiar_fecha_hora($fecha){
+        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y H:i');
+            return $fecha_formateada;
+        }
    private function cambiar_fecha($fecha){
     $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
         return $fecha_formateada;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PermisoEmpleadoRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
@@ -45,6 +46,11 @@ class PermisoEmpleadoController extends Controller
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
+}
+public function index_archivo_permiso_empleado(Request $request){
+    $results = PermisoEmpleado::where('id', $request->permiso_id)->get();
+    $results = ArchivoPermisoEmpleadoResource::collection($results);
+    return response()->json(compact('results'));
 }
     public function index(Request $request)
     {

@@ -19,13 +19,13 @@ return new class extends Migration
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->unsignedBigInteger('tipo_permiso_id');
             $table->foreign('tipo_permiso_id')->references('id')->on('motivo_permiso_empleados');
-            $table->date('fecha_hora_inicio');
-            $table->date('fecha_hora_fin');
+            $table->dateTime('fecha_hora_inicio');
+            $table->dateTime('fecha_hora_fin');
             $table->date('fecha_recuperacion');
             $table->time('hora_recuperacion');
             $table->string('justificacion');
             $table->unsignedBigInteger('estado_permiso_id');
-            $table->foreign('estado_permiso_id')->references('id')->on('estado_permiso_empleados');
+            $table->foreign('estado_permiso_id')->references('id')->on('autorizaciones');
             $table->text('documento');
             $table->timestamps();
         });
