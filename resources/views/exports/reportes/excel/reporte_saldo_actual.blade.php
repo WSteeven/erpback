@@ -69,23 +69,23 @@
                             <td>
                                 <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
                                     <tr>
-                                        <td bgcolor="#a9d08e" style="font-size:10px"  width="100%">
-                                            <div align="center"><strong>Item</strong></div>
-                                        </td>
-                                        <td bgcolor="#a9d08e" style="font-size:10px" width="100%">
-                                            <div align="center"><strong>Apellidos y Nombres</strong></div>
-                                        </td>
-                                         <td bgcolor="#a9d08e" style="font-size:10px">
-                                            <div align="center" width="100%"><strong>Cargo</strong></div>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>#</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px">
-                                            <div align="center"><strong>Localidad</strong></div>
+                                            <div align="center"><strong>APELLIDOS Y NOMBRES</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" style="font-size:10px" width="100%">
-                                            <div align="center"><strong>Usuario</strong></div>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>CARGO</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" style="font-size:10px" width="100%">
-                                            <div align="center"><strong>Monto</strong></div>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>LUGAR</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>USUARIO</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>MONTO</strong></div>
                                         </td>
                                     </tr>
                                     @foreach ($saldos as $saldo)

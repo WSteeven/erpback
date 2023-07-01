@@ -4,6 +4,7 @@ namespace App\Http\Resources\FondosRotativos\Gastos;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class GastoResource extends JsonResource
 {
@@ -34,8 +35,8 @@ class GastoResource extends JsonResource
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
             'sub_detalle_info' => $this->sub_detalle_info != null ? $this->subdetalle_info($this->sub_detalle_info):'',
-            'beneficiarios' => null,//$this->empleado_beneficiario_info != null ? $this->empleado_beneficiario_info->pluck('id'):null,
-            'beneficiarios_info' => $this->beneficiarios_info,
+            'beneficiarios' => $this->beneficiario_info != null ? $this->beneficiario_info->pluck('empleado_id'):null,
+            'beneficiarios_info' =>$this->beneficiario_empleado_info($this->beneficiario_info),
             'sub_detalle' => $this->sub_detalle_info != null ? $this->sub_detalle_info->pluck('id'):null,
             'placa' => $this->gasto_vehiculo_info != null ?$this->gasto_vehiculo_info->placa:'',
             'kilometraje' =>$this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->kilometraje:'',
@@ -64,6 +65,20 @@ class GastoResource extends JsonResource
             $descripcion .= $sub_detalle->descripcion;
             $i++;
             if ($i !== count($subdetalle_info)) {
+                $descripcion .= ', ';
+            }
+        }
+        return $descripcion;
+    }
+    private function beneficiario_empleado_info($beneficiarios){
+        $descripcion = '';
+        $i=0;
+        foreach($beneficiarios as $beneficiario){
+            Log::channel('testing')->info('Log', ['beneficiario', $beneficiario]);
+
+            $descripcion .= $beneficiario->empleado_info->nombres.' '.$beneficiario->empleado_info->apellidos;
+            $i++;
+            if ($i !== count($beneficiarios)) {
                 $descripcion .= ', ';
             }
         }
