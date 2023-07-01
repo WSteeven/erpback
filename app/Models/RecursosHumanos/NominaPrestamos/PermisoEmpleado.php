@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Autorizacion;
 use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -50,7 +51,7 @@ class PermisoEmpleado extends Model implements Auditable
     }
     public function estado_permiso_info()
     {
-        return $this->belongsTo(EstadoPermisoEmpleado::class, 'estado_permiso_id', 'id');
+        return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
     }
     public function empleado_info()
     {

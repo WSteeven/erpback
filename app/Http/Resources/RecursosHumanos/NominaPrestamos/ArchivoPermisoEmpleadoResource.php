@@ -18,7 +18,7 @@ class ArchivoPermisoEmpleadoResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'nombre' =>$this->documento!= null?json_decode($this->documento)->nombre:'',
-            'ruta' =>$this->documento?url(json_decode($this->documento)->ruta):null,
+            'ruta' =>$this->documento?json_decode($this->documento)->ruta:null,
             'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
         ];
         return $modelo;
