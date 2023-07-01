@@ -5,7 +5,8 @@
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
     if ($cliente->logo_url) {
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
+        // $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
+        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     } else {
         $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
     }
@@ -160,7 +161,19 @@
         </table>
         <table style="width: 100%;">
             <tr>
-                <td class="page">Página </td>
+                <td class="page">
+                    Página 
+                </td>
+                <script type="text/php">
+                    if ( isset($pdf) ) {
+                        $pdf->page_script('
+                            $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                            $pdf->text(370, 570, "Pág $PAGE_NUM de $PAGE_COUNT", $font, 10);
+                        ');
+                    }else{
+                        Log::channel('testing')->info('Log', ['ERROR']);
+                    }
+                    </script>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
                         @if ($cliente->logo_url)
@@ -242,5 +255,4 @@
         </table>
     </main>
 </body>
-
 </html>
