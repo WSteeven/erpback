@@ -17,6 +17,7 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
     protected $fillable = [
         'departamento_id',
         'proveedor_id',
+        'empleado_id',
         'calificacion',
         'fecha_calificacion',
     ];

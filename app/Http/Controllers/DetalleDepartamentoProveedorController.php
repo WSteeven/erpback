@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetalleDepartamentoProveedor;
+use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class DetalleDepartamentoProveedorController extends Controller
 {
+    private $entidad = 'Calificación';
     /**
      * Display a listing of the resource.
      *
@@ -17,16 +21,7 @@ class DetalleDepartamentoProveedorController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -35,7 +30,16 @@ class DetalleDepartamentoProveedorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Log::channel('testing')->info('Log',['Request recibida', $request->all()]);
+        $detalle = DetalleDepartamentoProveedor::where('departamento_id',auth()->user()->empleado->departamento_id)->where('proveedor_id',$request->proveedor_id)->first();
+        $detalle->update([
+            'calificacion'=>$request->calificacion,
+            'empleado_id'=>auth()->user()->empleado->id,
+            'fecha_calificacion'=>date("Y-m-d h:i:s"),
+        ]);
+        $modelo = $detalle->refresh();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -49,16 +53,7 @@ class DetalleDepartamentoProveedorController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\DetalleDepartamentoProveedor  $detalleDepartamentoProveedor
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
-    {
-        //
-    }
+    
 
     /**
      * Update the specified resource in storage.
