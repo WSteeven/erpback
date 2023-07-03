@@ -16,10 +16,9 @@ class PermisoEmpleado extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'permiso_empleados';
-    const APROBADO = 1;
-    const RECHAZADO = 2;
-    const PENDIENTE = 3;
-    const CANCELADO = 4;
+    const PENDIENTE = 1;
+    const APROBADO = 2;
+    const CANCELADO = 3;
     protected $fillable = [
         'tipo_permiso_id',
         'fecha_hora_inicio',
@@ -36,6 +35,7 @@ class PermisoEmpleado extends Model implements Auditable
         'empleado',
         'tipo_permiso',
         'estado_permiso',
+        'estado_permiso_id',
         'justificacion',
         'fecha_hora_inicio',
         'fecha_hora_fin',
