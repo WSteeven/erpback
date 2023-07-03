@@ -33,6 +33,7 @@ class PermisoEmpleadoRequest extends FormRequest
             'hora_recuperacion' => 'nullable|string',
             'justificacion' => 'required|string',
             'empleado_id' => 'required|exists:empleados,id',
+            'tieneDocumento' => 'required'
         ];
     }
     protected function prepareForValidation()
