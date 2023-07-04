@@ -98,12 +98,14 @@ public function index_archivo_permiso_empleado(Request $request){
         return response()->json(compact('modelo'), 200);
     }
 
-    public function update(Request $request, $permisoEmpleadoId)
+    public function update(PermisoEmpleadoRequest $request, $permisoEmpleadoId)
     {
+        $datos = $request->validated();
         $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
-        $permisoEmpleado->nombre = $request->nombre;
-        $permisoEmpleado->save();
-        return $permisoEmpleado;
+        $permisoEmpleado->update($datos);
+        $modelo = new PermisoEmpleadoResource($permisoEmpleado);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     public function destroy($permisoEmpleadoId)

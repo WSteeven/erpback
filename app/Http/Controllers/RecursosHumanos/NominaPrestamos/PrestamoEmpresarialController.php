@@ -70,7 +70,6 @@ class PrestamoEmpresarialController extends Controller
         $modelo = new PrestamoEmpresarialResource($prestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
-        return $prestamoEmpresarial;
     }
     public function destroy(Request $request, PrestamoEmpresarial $prestamoEmpresarial)
     {

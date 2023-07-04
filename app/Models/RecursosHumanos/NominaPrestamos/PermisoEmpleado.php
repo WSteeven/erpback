@@ -55,6 +55,6 @@ class PermisoEmpleado extends Model implements Auditable
     }
     public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
     }
 }
