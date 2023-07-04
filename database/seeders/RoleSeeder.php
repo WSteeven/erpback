@@ -312,6 +312,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+
+        // Reportes modulo tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+
         // Tareas
         /**
          * Los coordinadores son los encargados de crear las tareas

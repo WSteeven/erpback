@@ -74,8 +74,6 @@ class GastoResource extends JsonResource
         $descripcion = '';
         $i=0;
         foreach($beneficiarios as $beneficiario){
-            Log::channel('testing')->info('Log', ['beneficiario', $beneficiario]);
-
             $descripcion .= $beneficiario->empleado_info->nombres.' '.$beneficiario->empleado_info->apellidos;
             $i++;
             if ($i !== count($beneficiarios)) {
