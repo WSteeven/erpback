@@ -17,6 +17,7 @@ use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
 use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\SubtareaController;
@@ -113,3 +114,8 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
+
+/***********
+ * Reportes
+ ***********/
+Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
