@@ -17,7 +17,7 @@ class DetalleProductoResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
         $modelo =  [
             'id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
