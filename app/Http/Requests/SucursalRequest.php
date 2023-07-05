@@ -28,7 +28,8 @@ class SucursalRequest extends FormRequest
             'lugar'=>'required|unique:sucursales|string',
             'telefono'=>'required|string|min:7|max:10',
             'correo'=>'required|email',
-            'extension'=>'sometimes|numeric|nullable'
+            'extension'=>'sometimes|numeric|nullable',
+            'cliente'=>'sometimes|numeric|exists:clientes,id',
             // 'administrador'=>'sometimes|nullable|exists:users,id',
         ];
 
