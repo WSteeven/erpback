@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
+use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\User;
+use eloquentFilter\QueryFilter\Queries\WhereIn;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -26,7 +30,8 @@ class PermisoEmpleadoController extends Controller
         $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
         $this->middleware('can:puede.crear.permiso_nomina')->only('store');
     }
-    public function archivo_permiso_empleado(Request $request){
+    public function archivo_permiso_empleado(Request $request)
+    {
         $request->validate([
             'permiso_id' => 'required|numeric|integer',
         ]);
@@ -42,20 +47,28 @@ class PermisoEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json( $request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
-}
-public function index_archivo_permiso_empleado(Request $request){
-    $results = PermisoEmpleado::where('id', $request->permiso_id)->get();
-    $results = ArchivoPermisoEmpleadoResource::collection($results);
-    return response()->json(compact('results'));
-}
+    }
+    public function index_archivo_permiso_empleado(Request $request)
+    {
+        $results = PermisoEmpleado::where('id', $request->permiso_id)->get();
+        $results = ArchivoPermisoEmpleadoResource::collection($results);
+        return response()->json(compact('results'));
+    }
     public function index(Request $request)
     {
         $results = [];
-        $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
+        } else {
+            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->get('id');
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+        }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -101,6 +114,7 @@ public function index_archivo_permiso_empleado(Request $request){
     public function update(PermisoEmpleadoRequest $request, $permisoEmpleadoId)
     {
         $datos = $request->validated();
+        $datos['estado_permiso_id'] = $request->safe()->only(['estado'])['estado'];
         $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
         $permisoEmpleado->update($datos);
         $modelo = new PermisoEmpleadoResource($permisoEmpleado);
@@ -114,14 +128,14 @@ public function index_archivo_permiso_empleado(Request $request){
         $permisoEmpleado->delete();
         return $permisoEmpleado;
     }
-      /**
+    /**
      * It updates the status of the expense to 1, which means it is approved.
      *
      * @param Request request The request object.
      *
      * @return A JSON object with the success message.
      */
-   /* public function aprobar_gasto(Request $request)
+    /* public function aprobar_gasto(Request $request)
     {
         $permisoEmpleado = PermisoEmpleado::where('id', $request->id)->first();
         $permisoEmpleado->estado = 1;
@@ -147,7 +161,7 @@ public function index_archivo_permiso_empleado(Request $request){
      *
      * @return A JSON object with the success message.
      */
-   /* public function rechazar_gasto(Request $request)
+    /* public function rechazar_gasto(Request $request)
     {
         $gasto = Gasto::where('id', $request->id)->first();
         $gasto->estado = 2;

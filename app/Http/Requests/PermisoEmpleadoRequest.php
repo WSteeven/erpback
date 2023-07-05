@@ -32,10 +32,11 @@ class PermisoEmpleadoRequest extends FormRequest
             'fecha_recuperacion' => 'nullable|date_format:Y-m-d',
             'hora_recuperacion' => 'nullable|string',
             'justificacion' => 'required|string',
-            'observacion'=> 'nullable|string'
+            'observacion'=> 'nullable|string',
             'fecha_hora_reagendamiento'=> 'nullable|string',
-            'empleado_id' => 'required|exists:empleados,id',
-            'tieneDocumento' => 'required'
+            'empleado' => 'nullable|exists:empleados,id',
+            'estado' => 'nullable',
+            'tieneDocumento' => 'required',
         ];
     }
     protected function prepareForValidation()
@@ -49,9 +50,12 @@ class PermisoEmpleadoRequest extends FormRequest
         $fecha_recuperacion = Carbon::createFromFormat('d-m-Y',$this->fecha_recuperacion);
         }
         //usuario logueado
-        $this->merge([
-            'empleado_id' => auth()->user()->empleado->id,
-        ]);
+        if($this->empleado == null){
+            $this->merge([
+                'empleado_id' => auth()->user()->empleado->id,
+            ]);
+        }
+
         $this->merge([
             'fecha_hora_inicio' =>  $fecha_inicio->format('Y-m-d H:i:s'),
             'fecha_hora_fin' =>  $fecha_fin->format('Y-m-d H:i:s'),
@@ -59,8 +63,8 @@ class PermisoEmpleadoRequest extends FormRequest
         if($this->fecha_hora_reagendamiento != null )
         {
             $this->merge([
-             'fecha_hora_reagendamiento' => $fecha_hora_reagendamiento->format('Y-m-d H:i:s');,
-            ])
+             'fecha_hora_reagendamiento' => $fecha_hora_reagendamiento->format('Y-m-d H:i:s'),
+            ]);
         }
         if($this->fecha_recuperacion !=null) {
             $this->merge([
