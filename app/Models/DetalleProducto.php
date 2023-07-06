@@ -173,6 +173,14 @@ class DetalleProducto extends Model implements Auditable
 
     /**
      * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 1 y solo 1 marca
+     */
+    public function marca()
+    {
+        return $this->belongsTo(Marca::class);
+    }
+    /**
+     * Relacion uno a uno (inversa).
      * Un detalle de producto tiene 1 y solo 1 modelo
      */
     public function modelo()
