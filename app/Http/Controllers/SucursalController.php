@@ -31,14 +31,14 @@ class SucursalController extends Controller
         $search = $request['search'];
         $results = [];
         if($request['campos']){
-            $results = Sucursal::ignoreRequest(['campos'])->filter()->get($campos);
+            $results = Sucursal::ignoreRequest(['campos'])->filter()->orderBy('created_at', 'desc')->get($campos);
             return response()->json(compact('results'));
         }else if ($page) {
             $results = Sucursal::simplePaginate($request['offset']);
             // SucursalResource::collection($results);
             // $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Sucursal::filter()->get();
+            $results = Sucursal::filter()->orderBy('created_at', 'desc')->get();
             // SucursalResource::collection($results);
         }
         if($search){
@@ -58,7 +58,7 @@ class SucursalController extends Controller
     {   
         //Adaptación de foreign keys
         $datos = $request->validated();
-        // $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         $sucursal = Sucursal::create($datos);
         $modelo = new SucursalResource($sucursal);
@@ -81,10 +81,13 @@ class SucursalController extends Controller
      */
     public function update(SucursalRequest $request, Sucursal  $sucursal)
     {
-        Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Datos recibidos', $request->all()]);
+        
         //Adaptación de foreign keys
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        
+        // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
         // $datos['administrador_id'] = $request->safe()->only(['administrador'])['administrador'];
         
         //Respuesta

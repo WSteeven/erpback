@@ -34,6 +34,7 @@ class DetalleProducto extends Model implements Auditable
     protected $fillable = [
         'producto_id',
         'descripcion',
+        'marca_id',
         'modelo_id',
         'serial',
         'precio_compra',
