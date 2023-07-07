@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\FondosRotativos\Gasto;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SubdetalleViaticaRequest;
 use App\Http\Resources\FondosRotativos\Gastos\SubDetalleViaticoResource;
 use App\Models\FondosRotativos\Usuario\Estatus;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class SubDetalleViaticoController extends Controller
@@ -53,13 +55,9 @@ class SubDetalleViaticoController extends Controller
     *
     * @param Request request The request object.
     */
-    public function store(Request $request)
+    public function store(SubdetalleViaticaRequest $request)
     {
-        $request->validate([
-            'descripcion' => 'required',
-            'autorizacion' => 'required',
-            'estatus' => 'required',
-        ]);
+        $datos = $request->validated();
         $user = Auth::user();
         $estatus = Estatus::where('descripcion', $request->estatus)->first();
         $datos['autorizacion'] = $request->autorizacion;
@@ -69,6 +67,19 @@ class SubDetalleViaticoController extends Controller
         $modelo = SubDetalleViatico::create($datos);
         $modelo = new SubDetalleViaticoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+    public function update(SubdetalleViaticaRequest $request, SubDetalleViatico  $subdetalle_viatico)
+    {
+        $subdetalle_viatico = SubDetalleViatico::find($request->id);
+        Log::channel('testing')->info('Log', ['error', $subdetalle_viatico]);
+
+        $datos = $request->validated();
+        // Respuesta
+        $subdetalle_viatico->update($datos);
+        $modelo = $subdetalle_viatico;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
         return response()->json(compact('mensaje', 'modelo'));
     }
 

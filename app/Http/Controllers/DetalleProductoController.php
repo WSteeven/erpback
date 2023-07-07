@@ -51,9 +51,15 @@ class DetalleProductoController extends Controller
         } else if($sucursal){
             Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
             if($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
-            else $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+            else {
+                $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+                $ids_detalles_en_inventario = Inventario::all('detalle_id'); 
+            }
             $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
-            Log::channel('testing')->info('Log', ['resultados filtrados:', $results]);
+            $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
+            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
+            $results = $results->concat($r2);
+            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
         }else {
             Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
