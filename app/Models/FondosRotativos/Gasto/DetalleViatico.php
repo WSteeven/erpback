@@ -24,7 +24,6 @@ class DetalleViatico extends Model implements Auditable
         'autorizacion',
         'id_estatus',
     ];
-
     private static $whiteListFilter = [
         'descripcion',
     ];
