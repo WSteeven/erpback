@@ -17,7 +17,7 @@ class DetalleProductoResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
         $modelo =  [
             'id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
@@ -25,11 +25,11 @@ class DetalleProductoResource extends JsonResource
             'producto' => $this->producto->nombre,
             'producto_id' => $this->producto_id,
             'descripcion' => $this->descripcion,
-            'marca' => $this->modelo->marca->nombre,
+            'marca' => $this->marca?->nombre,
             'modelo' => $this->modelo->nombre,
             'serial' => $this->serial,
             'precio_compra' => $this->precio_compra,
-            'stock' => $request->stock?$this->detalle_stock($this->id,$request->sucursal_id)->cantidad:0,
+            'stock' => $request->stock? $this->detalle_stock($this->id,$request->sucursal_id)?->cantidad:0,
 
             // 'computadora'=>$this->computadora,
 
@@ -66,7 +66,7 @@ class DetalleProductoResource extends JsonResource
         if ($controller_method == 'show') {
             Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
-            $modelo['marca'] = $this->modelo->marca_id;
+            $modelo['marca'] = $this->marca_id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;

@@ -34,6 +34,7 @@ class DetalleProducto extends Model implements Auditable
     protected $fillable = [
         'producto_id',
         'descripcion',
+        'marca_id',
         'modelo_id',
         'serial',
         'precio_compra',
@@ -170,6 +171,14 @@ class DetalleProducto extends Model implements Auditable
         return $this->hasMany(ControlStock::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 1 y solo 1 marca
+     */
+    public function marca()
+    {
+        return $this->belongsTo(Marca::class);
+    }
     /**
      * Relacion uno a uno (inversa).
      * Un detalle de producto tiene 1 y solo 1 modelo

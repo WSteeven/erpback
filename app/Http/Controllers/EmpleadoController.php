@@ -58,7 +58,7 @@ class EmpleadoController extends Controller
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         // if ($page) return $this->servicio->obtenerPaginacion($offset);
-        if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
+        // if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
         return $this->servicio->obtenerTodos();
     }

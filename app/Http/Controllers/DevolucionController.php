@@ -48,7 +48,7 @@ class DevolucionController extends Controller
         switch ($request->estado) {
             case 'PENDIENTE':
                 if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
-                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->get();
+                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
                         ->where(function ($query) {
@@ -59,7 +59,7 @@ class DevolucionController extends Controller
                 break;
             case 'APROBADO':
                 if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)->get();
+                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)
                         ->where(function ($query) {
@@ -70,7 +70,7 @@ class DevolucionController extends Controller
                 break;
             case 'CANCELADO':
                 if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
-                    $results = Devolucion::where('autorizacion_id', 3)->get();
+                    $results = Devolucion::where('autorizacion_id', 3)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 3)
                         ->where(function ($query) {
@@ -81,7 +81,7 @@ class DevolucionController extends Controller
                 break;
             case 'ANULADA':
                 if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
-                    $results = Devolucion::where('estado', Devolucion::ANULADA)->get();
+                    $results = Devolucion::where('estado', Devolucion::ANULADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('estado', Devolucion::ANULADA)
                         ->where(function ($query) {
@@ -104,6 +104,7 @@ class DevolucionController extends Controller
      */
     public function store(DevolucionRequest $request)
     {
+        Log::channel('testing')->info('Log', ['recibido en el store de devoluciones', $request->all()]);
         $url = '/devoluciones';
         try {
             DB::beginTransaction();
@@ -114,9 +115,11 @@ class DevolucionController extends Controller
             $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['stock_personal'] = $request->es_para_stock;
 
             // Respuesta
             $devolucion = Devolucion::create($datos);
+            Log::channel('testing')->info('Log', ['devolucion creada', $devolucion]);
             $modelo = new DevolucionResource($devolucion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

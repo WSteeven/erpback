@@ -31,6 +31,7 @@ class DetalleProductoRequest extends FormRequest
         $rules = [
             'producto' => 'required|exists:productos,id',
             'descripcion' => 'required|string',
+            'marca' => 'required|exists:marcas,id',
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
