@@ -18,6 +18,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -93,6 +94,22 @@ class RolPagosController extends Controller
     {
         $modelo = new RolPagoResource($rolPago);
         return response()->json(compact('modelo'), 200);
+    }
+    public function obtener_totales_prestamos($request){
+        $empleado = Auth::user()->empleado;
+        $date = Carbon::now();
+        $mes = $date->format('m-Y');
+        $salario = $empleado->salario;
+        $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
+        $supa = $empleado->supa;
+        $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
+        $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
+        $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes',$mes)->sum('aporte');
+        $sueldo = ($salario / 30) *30;
+        $iess = ($sueldo) * $porcentaje_iess;
+
+        
+
     }
 
     public function update(Request $request, $rolPagoId)
