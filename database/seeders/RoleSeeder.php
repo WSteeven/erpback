@@ -303,6 +303,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([$coordinador]);
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->syncRoles([$coordinador, $coordinador_backup, $bodega, $empleado, $jefe_tecnico, $gerente, $compras,  $activos_fijos, $administrativo, $recursos_humanos]);
 
+        // Materiales empleados
+        Permission::firstOrCreate(['name' => 'puede.ver.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.materiales_empleados'])->syncRoles([$coordinador]);
+
         // Proyectos
         /**
          * El jefe tecnico y los coordinadores son los encargados de crear proyectos.
