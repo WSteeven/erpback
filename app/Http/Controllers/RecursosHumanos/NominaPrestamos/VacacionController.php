@@ -7,6 +7,7 @@ use App\Http\Requests\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VacacionController extends Controller
@@ -35,8 +36,8 @@ class VacacionController extends Controller
     public function store(VacacionRequest $request)
     {
         $datos = $request->validated();
-        $Vacacion = Vacacion::create($datos);
-        $modelo = new VacacionResource($Vacacion);
+        $vacacion = Vacacion::create($datos);
+        $modelo = new VacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }

@@ -34,9 +34,10 @@ class PermisoEmpleadoRequest extends FormRequest
             'justificacion' => 'required|string',
             'observacion'=> 'nullable|string',
             'fecha_hora_reagendamiento'=> 'nullable|string',
-            'empleado' => 'nullable|exists:empleados,id',
+            'empleado_id' => 'nullable|exists:empleados,id',
             'estado' => 'nullable',
             'tieneDocumento' => 'required',
+            'cargo_vacaciones' => 'nullable'
         ];
     }
     protected function prepareForValidation()

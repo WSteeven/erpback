@@ -31,7 +31,11 @@ class Vacacion extends Model implements Auditable
     }
     public function empleado_info()
     {
-        return $this->hasOne(Empleado::class, 'id', 'solicitante');
+        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
+    }
+    public function periodo_info()
+    {
+        return $this->hasOne(Periodo::class, 'id', 'periodo_id');
     }
 
     private static $whiteListFilter = [

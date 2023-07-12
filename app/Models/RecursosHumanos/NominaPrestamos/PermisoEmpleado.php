@@ -27,7 +27,8 @@ class PermisoEmpleado extends Model implements Auditable
         'hora_recuperacion',
         'justificacion',
         'estado_permiso_id',
-        'empleado_id'
+        'empleado_id',
+        'cargo_vacaciones'
     ];
 
     private static $whiteListFilter = [
@@ -43,6 +44,7 @@ class PermisoEmpleado extends Model implements Auditable
         'hora_recuperacion',
         'justificacion',
         'documento',
+        'cargo_vacaciones'
 
     ];
     public function tipo_permiso_info()

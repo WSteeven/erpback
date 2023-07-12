@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->unsignedBigInteger('periodo_id');
             $table->foreign('periodo_id')->references('id')->on('periodos');
-            $table->date('descuento_vacaciones');
+            $table->date('derecho_vacaciones');
+            $table->date('fecha_fin_rango2_vacaciones');
             $table->date('fecha_inicio_rango1_vacaciones');
             $table->date('fecha_fin_rango1_vacaciones');
             $table->date('fecha_inicio_rango2_vacaciones');
