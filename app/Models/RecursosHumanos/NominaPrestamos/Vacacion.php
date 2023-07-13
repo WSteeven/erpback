@@ -16,15 +16,22 @@ class Vacacion extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'vacacion';
+    const PENDIENTE = 1;
+    const APROBADO = 2;
+    const CANCELADO = 3;
     protected $fillable = [
         'empleado_id',
         'periodo_id',
         'descuento_vacaciones',
+        'fecha_inicio',
+        'fecha_fin',
         'fecha_inicio_rango1_vacaciones',
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
         'solicitud',
+        'estado',
+
     ];
     public function estado_info(){
         return $this->hasOne(Autorizacion::class,'id','estado');
@@ -37,16 +44,22 @@ class Vacacion extends Model implements Auditable
     {
         return $this->hasOne(Periodo::class, 'id', 'periodo_id');
     }
-
+    public function estado_permiso_info()
+    {
+        return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
+    }
     private static $whiteListFilter = [
         'id',
         'empleado',
         'periodo',
         'descuento_vacaciones',
+        'fecha_inicio',
+        'fecha_fin',
         'fecha_inicio_rango1_vacaciones',
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
         'solicitud',
+        'estado'
     ];
 }

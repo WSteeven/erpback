@@ -44,6 +44,7 @@ class VacacionController extends Controller
     public function store(VacacionRequest $request)
     {
         $datos = $request->validated();
+        $datos['estado'] =  Vacacion::PENDIENTE;
         $vacacion = Vacacion::create($datos);
         $modelo = new VacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
