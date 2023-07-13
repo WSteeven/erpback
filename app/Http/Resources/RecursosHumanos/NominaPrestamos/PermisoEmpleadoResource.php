@@ -35,6 +35,7 @@ class PermisoEmpleadoResource extends JsonResource
             'nombre' =>$this->documento!= null?json_decode($this->documento)->nombre:'',
             'ruta' =>$this->documento?url(json_decode($this->documento)->ruta):null,
             'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
+            'cargo_vacaciones' =>$this->cargo_vacaciones
         ];
         return $modelo;
     }

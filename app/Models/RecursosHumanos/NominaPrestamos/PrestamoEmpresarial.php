@@ -45,7 +45,6 @@ class PrestamoEmpresarial extends Model  implements Auditable
         return $this->hasOne(SolicitudPrestamoEmpresarial::class, 'id', 'id_solicitud_prestamo_empresarial');
     }
 
-
     private static $whiteListFilter = [
         'id',
         'solicitante',

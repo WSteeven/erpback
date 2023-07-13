@@ -66,8 +66,8 @@ class PermisoEmpleadoController extends Controller
         if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->get('id');
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+              $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
+              $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));

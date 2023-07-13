@@ -65,4 +65,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'index_archivo_permiso_empleado']);
     Route::get('archivo_licencia_empleado', [LicenciaEmpleadoController::class, 'index_archivo_licencia_empleado']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
+    Route::get ('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
 });

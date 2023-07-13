@@ -47,6 +47,9 @@ class PermisoEmpleado extends Model implements Auditable
         'cargo_vacaciones'
 
     ];
+    protected $casts = [
+        'cargo_vacaciones' => 'boolean',
+    ];
     public function tipo_permiso_info()
     {
         return $this->belongsTo(MotivoPermisoEmpleado::class, 'tipo_permiso_id', 'id');

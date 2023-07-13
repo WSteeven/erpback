@@ -5,6 +5,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +33,13 @@ class VacacionController extends Controller
     {
         $modelo = new VacacionResource($Vacacion);
         return response()->json(compact('modelo'), 200);
+    }
+    public function descuentos_permiso(Request $request){
+        $duracionEnDias = PermisoEmpleado::where('empleado_id', $request->empleado)->where('cargo_vacaciones',1)
+        ->selectRaw('SUM(TIMESTAMPDIFF(HOUR, fecha_hora_inicio, fecha_hora_fin)) as duracion')
+        ->first();
+        return $duracionEnDias;
+
     }
     public function store(VacacionRequest $request)
     {
