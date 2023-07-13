@@ -383,13 +383,23 @@ class TransaccionBodega extends Model implements Auditable
         $url_pedido = '/pedidos';
         $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
-
+        $detallePedido = [];
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
-            foreach ($detalles as $detalle) {
+            foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $itemInventario = Inventario::find($detalle['inventario_id']);
-                $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+                $d = DetalleProducto::find($itemInventario->detalle_id); //detalle producto completo para obtener el producto_id y encontrar los otros detalles relacionados a dicho producto_id
+                $ids_detalles = DetalleProducto::where('producto_id',$d->producto_id)->get('id');
+                $esFibra = !!Fibra::find($detalle->id);
+                
+                if($d->serial && !$esFibra){
+                    $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
+                    Log::channel('testing')->info('Log', ['Detalle del pedido con serial es: ', $detallePedido]);
+                }else{
+                    $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+                    Log::channel('testing')->info('Log', ['ELSE Detalle del pedido con serial es: ', $detallePedido]);
+                }
                 $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                 $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
             }
@@ -403,7 +413,7 @@ class TransaccionBodega extends Model implements Auditable
                 $msg = 'El pedido que realizaste ha sido atendido en bodega de manera parcial.';
                 event(new PedidoCreadoEvent($msg, $url_pedido, $pedido, $transaccion->per_atiende_id, $pedido->solicitante_id, true));
             }
-            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido]);
+            Log::channel('testing')->info('Log', ['Estado del pedido es: ', $pedido->estado_id]);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['[exception]:', $e->getMessage(), $e->getLine()]);
         }

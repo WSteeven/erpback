@@ -66,7 +66,7 @@ class DetalleProductoResource extends JsonResource
         if ($controller_method == 'show') {
             Log::channel('testing')->info('Log', ['Entró aquí']);
             $modelo['producto'] = $this->producto_id;
-            $modelo['marca'] = $this->marca_id;
+            $modelo['marca'] = $this->modelo->marca_id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['modelo_id'] = $this->modelo->nombre;
             $modelo['span'] =  $this->fibra ? $this->fibra->span_id : null;
