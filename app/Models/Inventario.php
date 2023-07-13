@@ -8,17 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Src\App\WhereRelationLikeCondition\InventarioCondicionWRLC;
 
 class Inventario extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    use Searchable;
 
 
     protected $table = "inventarios";
@@ -46,26 +43,22 @@ class Inventario extends Model implements Auditable
      * Eloquent Filtering
      */
     private static $whiteListFilter = ['*'];
-    private $aliasListFilter = [
-        'cliente.empresa.razon_social'=>'cliente',
-        'sucursal.lugar'=>'sucursal',
-        'condicion.nombre'=>'condicion',
-        'detalle.descripcion'=>'descripcion',
-    ];
-    public function EloquentFilterCustomDetection(): array{
-        return [
-            InventarioCondicionWRLC::class,
 
-        ];
-    }
+    // private $aliasListFilter = [
+    //     'cliente.empresa.razon_social'=>'cliente',
+    //     'sucursal.lugar'=>'sucursal',
+    //     'condicion.nombre'=>'condicion',
+    //     'detalle.descripcion'=>'descripcion',
+    // ];
 
-    /* public function toSearchableArray()
-    {
-        return [
-            'detalles_productos.descripcion' => '',
-            // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
-        ];
-    } */
+    // public function toSearchableArray()
+    // {
+    //     return $this->with('detalle')->toArray();
+    //     // return [
+    //     //     'detalles_productos.descripcion' => $this->detalle->descripcion,
+    //     //     // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
+    //     // ];
+    // }
 
     /**
      * ______________________________________________________________________________________
@@ -290,8 +283,8 @@ class Inventario extends Model implements Auditable
                     ->where('cliente_id', $cliente_devuelve)
                     ->where('sucursal_id', $sucursal)
                     ->where('condicion_id', $itemRecibe->condicion_id)->first();
-                
-                    Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
+
+                Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
                 $itemDevuelve->por_entregar -= $elemento['devolucion'];
                 $itemDevuelve->cantidad -= $elemento['devolucion'];
                 $itemDevuelve->save();

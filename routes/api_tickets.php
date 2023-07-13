@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActividadRealizadaSeguimientoTicketController;
 use App\Http\Controllers\ArchivoSeguimientoTicketController;
 use App\Http\Controllers\ArchivoTicketController;
+use App\Http\Controllers\CategoriaTipoTicketController;
 use App\Http\Controllers\MotivoCanceladoTicketController;
 use App\Http\Controllers\MotivoPausaTicketController;
 use App\Http\Controllers\TicketController;
@@ -14,6 +15,7 @@ Route::apiResources(
     [
         'tickets' => TicketController::class,
         'tipos-tickets' => TipoTicketController::class,
+        'categorias-tipos-tickets' => CategoriaTipoTicketController::class,
         'archivos-tickets' => ArchivoTicketController::class,
         'archivos-seguimientos-tickets' => ArchivoSeguimientoTicketController::class,
         'motivos-pausas-tickets' => MotivoPausaTicketController::class,
@@ -40,5 +42,9 @@ Route::prefix('tickets')->group(function () {
     Route::post('pausar/{ticket}', [TicketController::class, 'pausar']);
     Route::post('reanudar/{ticket}', [TicketController::class, 'reanudar']);
     Route::post('finalizar/{ticket}', [TicketController::class, 'finalizar']);
+    Route::post('finalizar-no-solucion/{ticket}', [TicketController::class, 'finalizarNoSolucion']);
     Route::post('rechazar/{ticket}', [TicketController::class, 'rechazar']);
+    Route::post('calificar/{ticket}', [TicketController::class, 'calificar']);
+    Route::get('obtener-pausas/{ticket}', [TicketController::class, 'obtenerPausas']);
+    Route::get('obtener-rechazados/{ticket}', [TicketController::class, 'obtenerRechazados']);
 });

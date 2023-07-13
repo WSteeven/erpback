@@ -34,11 +34,12 @@ class RoleSeeder extends Seeder
         $soo = Role::firstOrCreate(['name' => User::ROL_SSO]);
         $fiscalizador = Role::firstOrCreate(['name' => User::ROL_FISCALIZADOR]);
         $administrador_fondos = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_FONDOS]);
-        $administrador_tickets = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS]);
+        $administrador_tickets_1 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_1]);
+        $administrador_tickets_2 = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_TICKETS_2]);
+        $administrador_sistema = Role::firstOrCreate(['name' => User::ROL_ADMINISTRADOR_SISTEMA]);
 
         // Roles de cuadrillas
         $tecnico_lider = Role::firstOrCreate(['name' => User::ROL_LIDER_DE_GRUPO]);
-        // $tecnico_secretario = Role::firstOrCreate(['name' => User::ROL_SECRETARIO]);
         $autorizador = Role::firstOrCreate(['name' => User::ROL_AUTORIZADOR]);
         $tecnico = Role::firstOrCreate(['name' => User::ROL_TECNICO]);
         $coordinador_backup = Role::firstOrCreate(['name' => User::ROL_COORDINADOR_BACKUP]);
@@ -302,6 +303,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([$coordinador]);
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->syncRoles([$coordinador, $coordinador_backup, $bodega, $empleado, $jefe_tecnico, $gerente, $compras,  $activos_fijos, $administrativo, $recursos_humanos]);
 
+        // Materiales empleados
+        Permission::firstOrCreate(['name' => 'puede.ver.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.materiales_empleados'])->syncRoles([$coordinador]);
+
         // Proyectos
         /**
          * El jefe tecnico y los coordinadores son los encargados de crear proyectos.
@@ -311,6 +318,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+
+        // Reportes modulo tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+
         // Tareas
         /**
          * Los coordinadores son los encargados de crear las tareas
@@ -390,6 +404,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
+
+        // Causas intervenciones
+        Permission::firstOrCreate(['name' => 'puede.ver.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
 
         /**
          * Permisos  para fondo rotativo
@@ -512,7 +532,35 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.editar.roles'])->syncRoles([$administrador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.roles'])->syncRoles([$administrador]);
-
+        // --------------------------
+        // Modulo de Recursos Humanos
+        // --------------------------
+        //Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.permiso_nomina'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.permiso_nomina'])->syncRoles([$empleado]);
+        //Estado Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.estado_permiso_empleado'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.estado_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        //Motivo Permisos de empleados en nomina
+        Permission::firstOrCreate(['name' => 'puede.ver.motivo_permiso_empleado'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivo_permiso_empleado'])->syncRoles([$recursos_humanos]);
+        //Tipos de Contrato
+        Permission::firstOrCreate(['name' => 'puede.ver.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tipo_contrato'])->syncRoles([$recursos_humanos]);
+        //Rol de pagos
+        Permission::firstOrCreate(['name' => 'puede.ver.rol_pago'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.rol_pago'])->syncRoles([$recursos_humanos]);
+        //Prestmos Empresariales
+        Permission::firstOrCreate(['name' => 'puede.ver.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.crear.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.editar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.prestamo_empresarial'])->syncRoles([$recursos_humanos]);
         /**
          * Modulo de vehículos
          */
@@ -545,22 +593,28 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.eliminar.departamentos'])->syncRoles([$recursos_humanos]);
 
         // Tipos de tickets
-        Permission::firstOrCreate(['name' => 'puede.ver.tipos_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.crear.tipos_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.ver.tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.crear.tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.editar.tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+
+        // Categorias tipos de tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.categorias_tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.crear.categorias_tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.editar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.categorias_tipos_tickets'])->syncRoles([$administrador_tickets_1, $administrador_tickets_2]);
 
         // Motivos cancelados tickets
-        Permission::firstOrCreate(['name' => 'puede.ver.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.crear.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.editar.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.ver.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_cancelados_tickets'])->syncRoles([$administrador_tickets_1]);
 
         // Motivos pausas tickets
-        Permission::firstOrCreate(['name' => 'puede.ver.motivos_pausas_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.crear.motivos_pausas_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.editar.motivos_pausas_tickets'])->syncRoles([$administrador_tickets]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_pausas_tickets'])->syncRoles([$administrador_tickets]);
+        Permission::firstOrCreate(['name' => 'puede.ver.motivos_pausas_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.crear.motivos_pausas_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.editar.motivos_pausas_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.motivos_pausas_tickets'])->syncRoles([$administrador_tickets_1]);
 
         Permission::firstOrCreate(['name' => 'puede.ver.campo.autorizador'])->syncRoles([$jefe_tecnico, $tecnico]);
     }

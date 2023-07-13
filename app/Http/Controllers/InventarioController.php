@@ -20,13 +20,18 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\InventarioService;
 use Src\Shared\Utils;
 
 class InventarioController extends Controller
 {
     private $entidad = 'Inventario';
+    private $servicio;
+
+
     public function __construct()
     {
+        $this->servicio = new InventarioService();
         //$this->middleware('can:puede.ver.inventarios')->only('index', 'show');
         $this->middleware('can:puede.crear.inventarios')->only('store');
         $this->middleware('can:puede.editar.inventarios')->only('update');
@@ -37,70 +42,86 @@ class InventarioController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request['search'];
+        // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
         $results = [];
-        if ($search) {
-            // Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
-            $results = Inventario::search($search ?? '')
-                ->query(function ($query) {
-                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-                    // ->orderBy('inventarios.id', 'DESC');
-                })->get();
-            $results = InventarioResource::collection($results);
-        }
-        if ($search && $request->cliente_id) {
-            // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
-            $results = Inventario::search($search ?? '')
-                ->query(function ($query) {
-                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-                })->where('cliente_id', $request['cliente_id'])->get();
-            $results = InventarioResource::collection($results);
-        }
-        if ($search && $request['sucursal_id']) {
-            // Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
-            $results = Inventario::search($search ?? '')
-                ->query(function ($query) {
-                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-                })->where('sucursal_id', $request['sucursal_id'])->get();
-            $results = InventarioResource::collection($results);
-        }
-        if ($search && $request['cliente_id'] && $request['sucursal_id'] && $request->boolean('zeros')) {
-            //  Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
-            $results = Inventario::search($search ?? '')
-                ->query(function ($query) {
-                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-                })->where('cliente_id', $request['cliente_id'])
-                ->where('sucursal_id', $request['sucursal_id'])->get();
-            $results = InventarioResource::collection($results);
+        if ($request->search) {
+            $results = $this->servicio->search($request);
         } else {
-            // Log::channel('testing')->info('Log', ['else linea 69', $request->all()]);
-            $results = Inventario::search($search ?? '')
-                ->query(function ($query) {
-                    $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-                        ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-                })->where('cliente_id', $request['cliente_id'])
-                ->where('sucursal_id', $request['sucursal_id'])
-                ->where('cantidad', '>', 0)->get();
-            $results = InventarioResource::collection($results);
+            $results = $this->servicio->todos($request);
         }
-        //si no entra en ningun if
-        if (!$request->hasAny(['search']) && $request->boolean('zeros')) {
-            // Log::channel('testing')->info('Log', ['if 81', $request->all()]);
-            $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
-            $results = InventarioResource::collection($results);
-        } else {
-            if ($request->has('zeros')) $results = Inventario::ignoreRequest(['zeros'])->where('cantidad', '>', 0)->filter()->get();
-            else $results = Inventario::ignoreRequest(['search'])->filter()->get();
-            $results = InventarioResource::collection($results);
-        }
+        // if ($search) {
+        //     // Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
+        //     $results = Inventario::search($search ?? '')
+        //         ->query(function ($query) {
+        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //             // ->orderBy('inventarios.id', 'DESC');
+        //         })->get();
+        //     $results = InventarioResource::collection($results);
+        // }
+        // if ($search && $request->cliente_id) {
+        //     // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
+        //     $results = Inventario::search($search ?? '')
+        //         ->query(function ($query) {
+        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //         })->where('cliente_id', $request['cliente_id'])->get();
+        //     $results = InventarioResource::collection($results);
+        // }
+        // if ($search && $request['sucursal_id']) {
+        //     // Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
+        //     $results = Inventario::search($search ?? '')
+        //         ->query(function ($query) {
+        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //         })->where('sucursal_id', $request['sucursal_id'])->get();
+        //     $results = InventarioResource::collection($results);
+        // }
+        // if ($search && $request['cliente_id'] && $request['sucursal_id'] && $request->boolean('zeros')) {
+        //     //  Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
+        //     $results = Inventario::search($search ?? '')
+        //         ->query(function ($query) {
+        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //         })->where('cliente_id', $request['cliente_id'])
+        //         ->where('sucursal_id', $request['sucursal_id'])->get();
+        //     $results = InventarioResource::collection($results);
+        // } else {
+        //     // Log::channel('testing')->info('Log', ['else linea 69', $request->all()]);
+        //     $results = Inventario::search($search ?? '')
+        //         ->query(function ($query) {
+        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //         })->where('cliente_id', $request['cliente_id'])
+        //         ->where('sucursal_id', $request['sucursal_id'])
+        //         ->where('cantidad', '>', 0)->get();
+        //     $results = InventarioResource::collection($results);
+        // }
+        // //si no entra en ningun if
+        // if (!$request->hasAny(['search']) && !$request->boolean('zeros')) {
+        //     Log::channel('testing')->info('Log', ['if search 92', $request->all()]);
+        //     $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
+        //     $results = InventarioResource::collection($results);
+        // } else {
+        //     Log::channel('testing')->info('Log', ['if search 96', $request->all()]);
+        //     if ($request->has('zeros')) {
+        //         Log::channel('testing')->info('Log', ['if 98', $request->all()]);
+        //         $results = Inventario::search($search ?? '')
+        //             ->query(function ($query) {
+        //                 $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
+        //                     ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
+        //             })->ignoreRequest(['zeros', 'search'])->where('cantidad', '>', 0)->OrWhere('por_recibir', '<>', 0)->OrWhere('por_entregar', '<>', 0)->filter()->get();
+        //     } else {
+        //         Log::channel('testing')->info('Log', ['if 101', $request->all()]);
+        //         $results = Inventario::ignoreRequest(['search'])->filter()->get();
+        //     }
+        //     $results = InventarioResource::collection($results);
+        // }
         // if ($sucursal) {
         //     $results = Inventario::where('sucursal_id', $sucursal)->get();
         //     $results = InventarioResource::collection($results);
         // }
+        $results = InventarioResource::collection($results);
         return response()->json(compact('results'));
     }
 

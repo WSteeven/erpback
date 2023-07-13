@@ -80,6 +80,11 @@ class Gasto extends Model implements Auditable
     {
         return $this->hasOne(DetalleViatico::class, 'id', 'detalle');
     }
+
+    /**
+     * Relación one to many.
+     * Un gasto tiene varios subdetalles asociados
+     */
     public function sub_detalle_info()
     {
         return $this->belongsToMany(SubDetalleViatico::class,'subdetalle_gastos', 'gasto_id', 'subdetalle_gasto_id');
@@ -129,6 +134,9 @@ class Gasto extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
+    public function beneficiario_info(){
+        return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado_info');
+    }
 
     public static function empaquetar($gastos)
     {
@@ -137,8 +145,11 @@ class Gasto extends Model implements Auditable
             $id = 0;
             $row = [];
             foreach ($gastos as $gasto) {
-                Log::channel('testing')->info('Log', ['gasto', $gasto]);
+                $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
+                $row['lugar']= $gasto->lugar_info?->canton;
+                $row['factura']= $gasto->factura;
+                $row['num_comprobante']= $gasto->num_comprobante;
                 $row['empleado_info']= $gasto->empleado_info->user;
                 $row['usuario'] = $gasto->empleado_info;
                 $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
@@ -148,13 +159,14 @@ class Gasto extends Model implements Auditable
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
                 $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
-               // $row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
+                //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
+                $row['placa'] = $gasto->gasto_vehiculo_info?->placa;
+                $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
                 $row['detalle_estado'] = $gasto->detalle_estado;
                 $row['total']= $gasto->total;
                 $results[$id] = $row;
                 $id++;
-
             }
             return $results;
         }catch(Exception $e){

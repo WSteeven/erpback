@@ -7,6 +7,7 @@ use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\ArchivoSubtareaController;
+use App\Http\Controllers\CausaIntervencionController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
 use App\Http\Controllers\SeguimientoController;
 use App\Http\Controllers\SubtareaController;
@@ -29,6 +31,7 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'causas-intervenciones' => CausaIntervencionController::class,
         'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
@@ -46,6 +49,7 @@ Route::apiResources(
     [
         'parameters' => [
             'tipos-trabajos' => 'tipo_trabajo',
+            'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo_subtarea',
@@ -110,3 +114,8 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
+
+/***********
+ * Reportes
+ ***********/
+Route::get('reportes', [ReporteModuloTareaController::class, 'index']);

@@ -38,7 +38,11 @@ class TipoTicketController extends Controller
     public function store(TipoTicketRequest $request)
     {
         //Respuesta
-        $modelo = TipoTicket::create($request->validated());
+        $datos = $request->validated();
+
+        $datos['categoria_tipo_ticket_id'] = $datos['categoria_tipo_ticket'];
+
+        $modelo = TipoTicket::create($datos);
         $modelo = new TipoTicketResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -61,6 +65,10 @@ class TipoTicketController extends Controller
      *************/
     public function update(TipoTicketRequest $request, TipoTicket  $tipo_ticket)
     {
+        if ($request->isMethod('patch')) {
+            $tipo_ticket->update($request->except(['id']));
+        }
+
         // Respuesta
         $tipo_ticket->update($request->validated());
         $modelo = new TipoTicketResource($tipo_ticket->refresh());

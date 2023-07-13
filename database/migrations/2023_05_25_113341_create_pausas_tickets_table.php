@@ -23,6 +23,10 @@ return new class extends Migration
 
             $table->unsignedBigInteger('ticket_id');
             $table->foreign('ticket_id')->references('id')->on('tickets');
+
+            $table->unsignedBigInteger('responsable_id')->nullable();
+            $table->foreign('responsable_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

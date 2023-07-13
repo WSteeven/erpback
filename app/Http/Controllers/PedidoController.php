@@ -40,6 +40,9 @@ class PedidoController extends Controller
         $estado = $request['estado'];
         $results = [];
 
+        if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
+            $results = Pedido::filtrarPedidosAdministrador($estado);
+        } else
         if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
@@ -49,6 +52,7 @@ class PedidoController extends Controller
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
         }
+
 
         // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
         $results = PedidoResource::collection($results);
@@ -76,8 +80,8 @@ class PedidoController extends Controller
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
-            if($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
-            if($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
 
 
             // Respuesta
@@ -96,6 +100,8 @@ class PedidoController extends Controller
                 //No se hace nada y se crea la logica
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
+                $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
+                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
                 event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
@@ -139,10 +145,10 @@ class PedidoController extends Controller
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
-            if($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia1']);
 
-            if($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
+            if ($datos['evidencia2'] && Utils::esBase64($datos['evidencia2'])) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia2']);
 
             // Respuesta
@@ -159,9 +165,9 @@ class PedidoController extends Controller
 
 
             Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
-            Log::channel('testing')->info('Log', ['Verificar las notificaciones',$pedido->latestNotificacion()]);
+            Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
-                $pedido->latestNotificacion()->update(['leida'=>true]);
+                $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
                 event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
@@ -227,16 +233,77 @@ class PedidoController extends Controller
         return view('pedidos.pedido', [$resource->resolve(), 'usuario' => auth()->user()->empleado]);
     }
 
-    public function anular(Request $request, Pedido $pedido){
+    public function anular(Request $request, Pedido $pedido)
+    {
         $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
-        $request->validate(['motivo' =>['required', 'string']]);
+        $request->validate(['motivo' => ['required', 'string']]);
         $pedido->causa_anulacion = $request['motivo'];
-        $pedido->autorizacion_id =$autorizacion->id;
+        $pedido->autorizacion_id = $autorizacion->id;
         $pedido->save();
 
         $modelo = new PedidoResource($pedido->refresh());
         return response()->json(compact('modelo'));
+    }
 
+    public function reportes(Request $request)
+    {
+        $estadisticas = [];
+        // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
+        switch ($request->autorizacion) {
+            case 0:
+                switch ($request->estado) {
+                    case 0:
+                        if ($request->fecha_inicio && $request->fecha_fin) {
+                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                        }
+                        if ($request->fecha_inicio && !$request->fecha_fin) {
+                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        }
+                        break;
+                    default:
+                        if ($request->fecha_inicio && $request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                        }
+                        if ($request->fecha_inicio && !$request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        }
+                }
+                break;
+            default:
+                switch ($request->estado) {
+                    case 0:
+                        if ($request->fecha_inicio && $request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                        }
+                        if ($request->fecha_inicio && !$request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        }
+                        break;
+                    default:
+                        if ($request->fecha_inicio && $request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                        }
+                        if ($request->fecha_inicio && !$request->fecha_fin) {
+                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        }
+                }
+        }
+        // calculo de las estadisticas que se mostraran en grafico de pie
+        $count_autorizados = $results->countBy('autorizacion_id');
+        $count_estados = $results->countBy('estado_id');
+        if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
+        if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
+        if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
+        if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
+        if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
+        if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
+        if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
+        // Log::channel('testing')->info('Log', ['Conteo de autorizados:', $count_autorizados, $count_estados]);
+        // Log::channel('testing')->info('Log', ['Estadisticas:', $estadisticas]);
+
+
+        $results = PedidoResource::collection($results);
+        return response()->json(compact('results', 'estadisticas'));
     }
 
     //retorna un qr
@@ -264,7 +331,8 @@ class PedidoController extends Controller
         return $pdf->stream();
     }
 
-    public function auditoria(){
+    public function auditoria()
+    {
         $producto = Producto::find(1);
         // $results = $producto->audits; //obtiene todos los eventos de un registro
         // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento

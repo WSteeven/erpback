@@ -27,6 +27,9 @@ class Cliente extends Model implements Auditable
 
     private static $whiteListFilter=['*'];
 
+    public function sucursales(){
+        return $this->hasMany(Sucursal::class);
+    }
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);

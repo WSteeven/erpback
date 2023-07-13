@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class TicketResource extends JsonResource
 {
@@ -35,8 +36,13 @@ class TicketResource extends JsonResource
             'responsable_id' => $this->responsable_id,
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
+            'categoria_tipo_ticket' => $this->tipoTicket->categoriaTipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
+            'ticket_interno' => $this->ticket_interno,
             'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
+            'calificaciones' => $this->calificacionesTickets,
+            'pendiente_calificar' => $this->verificarPendienteCalificar(),
         ];
 
 
@@ -45,8 +51,14 @@ class TicketResource extends JsonResource
             $modelo['responsable'] = $this->responsable_id;
             $modelo['departamento_responsable'] = $this->departamento_responsable_id;
             $modelo['tipo_ticket'] = $this->tipo_ticket_id;
+            $modelo['categoria_tipo_ticket'] = $this->tipoTicket->categoria_tipo_ticket_id;
         }
 
         return $modelo;
+    }
+
+    public function verificarPendienteCalificar()
+    {
+        return !$this->calificacionesTickets()->where('calificador_id', Auth::user()->empleado->id)->exists();
     }
 }
