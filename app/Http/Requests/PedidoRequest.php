@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Fibra;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -64,6 +65,12 @@ class PedidoRequest extends FormRequest
                 if (!is_null($this->fecha_limite)) {
                     if (date('Y-m-d', strtotime($this->fecha_limite)) < now()) {
                         $validator->errors()->add('fecha_limite', 'La fecha límite debe ser superior a la fecha actual');
+                    }
+                }
+                foreach($this->listadoProductos as $listado){
+                    $esFibra = !!Fibra::find($listado['id']);
+                    if(array_key_exists('serial', $listado)){
+                        if($listado['serial'] && $listado['cantidad']>1 && !$esFibra) $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
                     }
                 }
             });

@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Events\TransaccionEgresoEvent;
 use App\Exports\TransaccionBodegaEgresoExport;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -20,9 +19,7 @@ use App\Models\DetalleProducto;
 use App\Models\TipoTransaccion;
 use App\Models\Inventario;
 use App\Models\Empleado;
-use App\Models\Fibra;
 use App\Models\Motivo;
-use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 
