@@ -5,9 +5,12 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
+use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
@@ -25,8 +28,16 @@ class VacacionController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
+        $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
+        if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
+            $results = Vacacion::ignoreRequest(['campos'])->filter()->get();
+        } else {
+              $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
+              $results = Vacacion::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+        }
         $results = VacacionResource::collection($results);
+
         return response()->json(compact('results'));
     }
     public function show(Request $request, Vacacion $Vacacion)

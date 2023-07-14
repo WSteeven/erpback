@@ -38,7 +38,7 @@ class Vacacion extends Model implements Auditable
     }
     public function empleado_info()
     {
-        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
     }
     public function periodo_info()
     {
@@ -46,7 +46,7 @@ class Vacacion extends Model implements Auditable
     }
     public function estado_permiso_info()
     {
-        return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
+        return $this->belongsTo(Autorizacion::class, 'estado', 'id');
     }
     private static $whiteListFilter = [
         'id',
