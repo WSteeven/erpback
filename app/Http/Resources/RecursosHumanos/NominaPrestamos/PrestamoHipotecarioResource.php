@@ -20,7 +20,7 @@ class PrestamoHipotecarioResource extends JsonResource
             'nut' => $this->nut,
             'valor' =>  $this->valor,
             'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
+            'empleado_info' => $this->empleado_info?$this->empleado_info->nombres.' '.$this->empleado_info->apellidos:'',
         ];
         return $modelo;
     }

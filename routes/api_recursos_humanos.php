@@ -22,6 +22,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Models\RecursosHumanos\NominaPrestamos\LicenciaEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Illuminate\Support\Facades\Route;
 
@@ -36,8 +37,8 @@ Route::apiResources(
         'descuentos_generales' => DescuentosGeneralesController::class,
         'descuentos_ley' => DescuentosLeyController::class,
         'multa' => MultaController::class,
-        'prestamos_hipotecario' => PrestamoHipotecarioController::class,
-        'prestamos_quirorafario' => PrestamoQuirirafarioController::class,
+        'prestamo_hipotecario' => PrestamoHipotecarioController::class,
+        'prestamo_quirorafario' => PrestamoQuirirafarioController::class,
         'extension_covertura_salud' => ExtensionCoverturaSaludController::class,
         'prestamo_empresarial' => PrestamoEmpresarialController::class,
         'rubro'=>RubroController::class,
@@ -64,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_licencia_empleado', [LicenciaEmpleadoController::class, 'archivo_licencia_empleado']);
     Route::get('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'index_archivo_permiso_empleado']);
     Route::get('archivo_licencia_empleado', [LicenciaEmpleadoController::class, 'index_archivo_licencia_empleado']);
+    Route::post('archivo_prestamo_hipotecario', [PrestamoHipotecarioController::class, 'archivo_prestamo_hipotecario']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get ('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
 });
