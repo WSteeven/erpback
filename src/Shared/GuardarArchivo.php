@@ -39,4 +39,22 @@ class GuardarArchivo
 
         //return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
     }
+    public static function json(Request $request, RutasStorage $ruta)
+    {
+        $archivo = $request->file('file');
+        // $carpeta = $this->request['carpeta'];
+        // $carpeta = Carpeta::find($carpeta);
+
+        $path = $archivo->store($ruta->value);
+        $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
+        $data = [
+            'nombre' =>  $archivo->getClientOriginalName(),
+            'ruta' => $ruta_relativa,
+            'tamanio_bytes' => filesize($archivo)
+        ];
+        // Convierte el arreglo en una cadena JSON
+        $json = json_encode($data);
+        return $json;
+
+    }
 }
