@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\RecursosHumanos\Area;
+use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
-class AreasSeeder extends Seeder
+class PeriodoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,9 +15,9 @@ class AreasSeeder extends Seeder
      */
     public function run()
     {
-        Area::insert([
-            ['nombre' => 'Administrativa'],
-            ['nombre' => 'Tecnica']
+        Periodo::insert([
+            ['nombre' => '2023-2024','activo'=>true],
+            ['nombre' => '2024-2025','activo' => false]
         ]);
     }
 }

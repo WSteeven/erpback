@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\EstadoPermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleado;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

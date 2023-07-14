@@ -5,7 +5,7 @@ namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class PrestamoEmpresarialResource extends JsonResource
+class SolicitudPrestamoEmpresarialResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,18 +19,15 @@ class PrestamoEmpresarialResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'solicitante' => $this->solicitante,
-            'solicitante_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
+            'solicitante_info' => $this->empleado_info!=null?$this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos:'',
             'fecha' =>  $this->cambiar_fecha($this->fecha),
             'monto' =>  $this->monto,
-            'utilidad' => $this->utilidad,
-            'valor_utilidad' => $this->valor_utilidad,
-            'forma_pago' => $this->id_forma_pago,
-            'forma_pago_info' => $this->forma_pago_info->nombre,
             'plazo' => $this->plazo,
-            'plazos' => $this->plazo_prestamo_empresarial_info,
+            'motivo' =>  $this->motivo,
+            'observacion' => $this->observacion,
+            'foto' =>  $this->foto?url($this->foto):null,
             'estado' => $this->estado,
-
-
+            'estado_info' =>  $this->estado_info!=null ? $this->estado_info->nombre:'',
         ];
         return $modelo;
     }
@@ -39,4 +36,5 @@ class PrestamoEmpresarialResource extends JsonResource
         $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
         return $fecha_formateada;
     }
+
 }

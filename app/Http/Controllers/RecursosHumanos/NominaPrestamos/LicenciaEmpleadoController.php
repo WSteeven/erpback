@@ -3,39 +3,36 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PermisoEmpleadoRequest;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
-use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
+use App\Http\Requests\LicenciaEmpleadoRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoLicenciaEmpleadoResource;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoResource;
 use App\Models\Empleado;
-use App\Models\Notificacion;
-use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
+use App\Models\RecursosHumanos\NominaPrestamos\LicenciaEmpleado;
 use App\Models\User;
-use eloquentFilter\QueryFilter\Queries\WhereIn;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
-class PermisoEmpleadoController extends Controller
+class LicenciaEmpleadoController extends Controller
 {
     private $entidad = 'PERMISO_EMPLEADO';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.permiso_nomina')->only('index', 'show');
-        $this->middleware('can:puede.crear.permiso_nomina')->only('store');
+        $this->middleware('can:puede.ver.licencia_empleado')->only('index', 'show');
+        $this->middleware('can:puede.crear.licencia_empleado')->only('store');
     }
-    public function archivo_permiso_empleado(Request $request)
+    public function archivo_licencia_empleado(Request $request)
     {
         $request->validate([
-            'permiso_id' => 'required|numeric|integer',
+            'licencia_id' => 'required|numeric|integer',
         ]);
-        $permiso_empleado = PermisoEmpleado::find($request['permiso_id']);
+        $permiso_empleado = LicenciaEmpleado::find($request['licencia_id']);
         if (!$permiso_empleado) {
             throw ValidationException::withMessages([
                 'permiso_empleado' => ['El permiso del empleado no existe'],
@@ -47,15 +44,15 @@ class PermisoEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_LICENCIA_EMPLEADO);
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);
     }
-    public function index_archivo_permiso_empleado(Request $request)
+    public function index_archivo_licencia_empleado(Request $request)
     {
-        $results = PermisoEmpleado::where('id', $request->permiso_id)->get();
-        $results = ArchivoPermisoEmpleadoResource::collection($results);
+        $results = LicenciaEmpleado::where('id', $request->licencia_id)->get();
+        $results = ArchivoLicenciaEmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
     public function index(Request $request)
@@ -64,24 +61,24 @@ class PermisoEmpleadoController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
-            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
+            $results = LicenciaEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-              $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-              $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->get('id');
+            $results = LicenciaEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado', $empleados->pluck('id'))->get();
         }
-        $results = PermisoEmpleadoResource::collection($results);
+        $results = LicenciaEmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
 
     public function create(Request $request)
     {
-        $permisoEmpleado = new PermisoEmpleado();
+        $permisoEmpleado = new LicenciaEmpleado();
         $permisoEmpleado->nombre = $request->nombre;
         $permisoEmpleado->save();
         return $permisoEmpleado;
     }
 
-    public function store(PermisoEmpleadoRequest $request)
+    public function store(LicenciaEmpleadoRequest $request)
     {
         try {
             $datos = $request->validated();
@@ -91,10 +88,10 @@ class PermisoEmpleadoController extends Controller
                 ]);
             }
             DB::beginTransaction();
-            $datos['tipo_permiso_id'] =  $request->safe()->only(['tipo_permiso'])['tipo_permiso'];
-            $datos['estado_permiso_id'] =  PermisoEmpleado::PENDIENTE;
-            $permisoEmpleado = PermisoEmpleado::create($datos);
-            $modelo = new PermisoEmpleadoResource($permisoEmpleado);
+            $datos['id_tipo_licencia'] =  $request->safe()->only(['tipo_licencia'])['tipo_licencia'];
+            $datos['estado'] =  LicenciaEmpleado::PENDIENTE;
+            $permisoEmpleado = LicenciaEmpleado::create($datos);
+            $modelo = new LicenciaEmpleadoResource($permisoEmpleado);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -105,26 +102,25 @@ class PermisoEmpleadoController extends Controller
         }
     }
 
-    public function show(PermisoEmpleado $permisoEmpleado)
+    public function show(LicenciaEmpleado $licenciaEmpleado)
     {
-        $modelo = new PermisoEmpleadoResource($permisoEmpleado);
+        $modelo = new LicenciaEmpleadoResource($licenciaEmpleado);
         return response()->json(compact('modelo'), 200);
     }
 
-    public function update(PermisoEmpleadoRequest $request, $permisoEmpleadoId)
+    public function update(LicenciaEmpleadoRequest $request, $licenciaEmpleadoId)
     {
         $datos = $request->validated();
-        $datos['estado_permiso_id'] = $request->safe()->only(['estado'])['estado'];
-        $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
+        $permisoEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
         $permisoEmpleado->update($datos);
-        $modelo = new PermisoEmpleadoResource($permisoEmpleado);
+        $modelo = new LicenciaEmpleadoResource($permisoEmpleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function destroy($permisoEmpleadoId)
+    public function destroy($licenciaEmpleadoId)
     {
-        $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
+        $permisoEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
         $permisoEmpleado->delete();
         return $permisoEmpleado;
     }

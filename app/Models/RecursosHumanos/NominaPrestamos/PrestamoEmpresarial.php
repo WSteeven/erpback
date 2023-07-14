@@ -2,6 +2,8 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
+use App\Models\FormaPago;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,8 +25,25 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'valor_utilidad',
         'id_forma_pago',
         'plazo',
-        'estado'
+        'estado',
+        'id_solicitud_prestamo_empresarial'
     ];
+    public function plazo_prestamo_empresarial_info()
+    {
+        return $this->hasMany(PlazoPrestamoEmpresarial::class, 'id_prestamo_empresarial', 'id');
+    }
+    public function empleado_info()
+    {
+        return $this->hasOne(Empleado::class, 'id', 'solicitante');
+    }
+    public function forma_pago_info()
+    {
+        return $this->hasOne(FormaPago::class, 'id', 'id_forma_pago');
+    }
+    public function solicitud_prestamo_empresarial_info()
+    {
+        return $this->hasOne(SolicitudPrestamoEmpresarial::class, 'id', 'id_solicitud_prestamo_empresarial');
+    }
 
     private static $whiteListFilter = [
         'id',
@@ -33,7 +52,8 @@ class PrestamoEmpresarial extends Model  implements Auditable
         'monto',
         'utilidad',
         'valor_utilidad',
-        'id_forma_pago',
+        'forma_pago',
+        'solicitud_prestamo_empresarial',
         'plazo',
         'estado'
     ];
