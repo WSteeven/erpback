@@ -28,7 +28,11 @@ class CriterioCalificacionController extends Controller
     public function index(Request $request)
     {
         if (auth()->user()->hasRole([User::ROL_COMPRAS, User::ROL_ADMINISTRADOR])) {
-            $results = CriterioCalificacion::all();
+            if($request->boolean('only_me')){ //variable auxiliar para listar solo los criterios que pertenecen a mi departamento
+                $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get();
+            }else{
+                $results = CriterioCalificacion::all();
+            }
         } else {
             $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get();
         }

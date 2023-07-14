@@ -29,6 +29,7 @@ class ProveedorResource extends JsonResource
             'estado' => $this->estado,
             'tipos_ofrece' => $this->servicios_ofertados->map(fn($item)=>$item->id),
             'departamentos' => $this->departamentos_califican->map(fn($item)=>$item->id),
+            'related_departamentos' => $this->departamentos_califican,
 
         ];
 
