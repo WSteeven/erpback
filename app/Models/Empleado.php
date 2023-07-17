@@ -230,6 +230,11 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Ticket::class, 'responsable_id', 'id');
     }
 
+    public function ticketsSolicitados()
+    {
+        return $this->hasMany(Ticket::class, 'solicitante_id', 'id');
+    }
+
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.

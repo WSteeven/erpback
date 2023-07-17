@@ -304,10 +304,10 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->syncRoles([$coordinador, $coordinador_backup, $bodega, $empleado, $jefe_tecnico, $gerente, $compras,  $activos_fijos, $administrativo, $recursos_humanos]);
 
         // Materiales empleados
-        Permission::firstOrCreate(['name' => 'puede.ver.materiales_empleados'])->syncRoles([$coordinador]);
-        Permission::firstOrCreate(['name' => 'puede.crear.materiales_empleados'])->syncRoles([$coordinador]);
-        Permission::firstOrCreate(['name' => 'puede.editar.materiales_empleados'])->syncRoles([$coordinador]);
-        Permission::firstOrCreate(['name' => 'puede.eliminar.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.ver.materiales_empleados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.materiales_empleados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.materiales_empleados'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.materiales_empleados'])->syncRoles([$coordinador, $jefe_tecnico]);
 
         // Proyectos
         /**
@@ -574,6 +574,12 @@ class RoleSeeder extends Seeder
         // -----------------
         // Modulo de Tickets
         // -----------------
+        // Dashboard Tickets
+        Permission::firstOrCreate(['name' => 'puede.ver.dashboard_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.crear.dashboard_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.editar.dashboard_tickets'])->syncRoles([$administrador_tickets_1]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.dashboard_tickets'])->syncRoles([$administrador_tickets_1]);
+
         // Tickets
         Permission::firstOrCreate(['name' => 'puede.ver.tickets'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => 'puede.crear.tickets'])->syncRoles([$empleado]);
