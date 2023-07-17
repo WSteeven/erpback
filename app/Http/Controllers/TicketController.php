@@ -15,11 +15,18 @@ use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Src\App\TicketService;
 use Src\Shared\Utils;
 
 class TicketController extends Controller
 {
+    private TicketService $servicio;
     private $entidad = 'Ticket';
+
+    public function __construct()
+    {
+        $this->servicio = new TicketService();
+    }
 
     public function index()
     {
@@ -166,6 +173,8 @@ class TicketController extends Controller
 
     public function finalizar(Ticket $ticket)
     {
+        $this->servicio->puedeFinalizar($ticket);
+
         $ticket->estado = Ticket::FINALIZADO_SOLUCIONADO;
         $ticket->fecha_hora_finalizado = Carbon::now();
         $ticket->save();
@@ -183,6 +192,8 @@ class TicketController extends Controller
         $request->validate([
             'motivo' => 'required',
         ]);
+
+        $this->servicio->puedeFinalizar($ticket);
 
         $ticket->estado = Ticket::FINALIZADO_SIN_SOLUCION;
         $ticket->fecha_hora_finalizado = Carbon::now();

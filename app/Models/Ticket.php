@@ -82,11 +82,13 @@ class Ticket extends Model implements Auditable
         return $this->belongsTo(TipoTicket::class, 'tipo_ticket_id', 'id');
     }
 
+    // Archivos al crear un ticket
     public function archivos()
     {
         return $this->hasMany(ArchivoTicket::class);
     }
 
+    // Archivos al registrar el seguimiento del ticket
     public function archivosSeguimientos()
     {
         return $this->hasMany(ArchivoSeguimientoTicket::class);
@@ -110,5 +112,10 @@ class Ticket extends Model implements Auditable
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function actividadesRealizadasSeguimientoTicket()
+    {
+        return $this->hasMany(ActividadRealizadaSeguimientoTicket::class);
     }
 }

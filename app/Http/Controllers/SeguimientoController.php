@@ -48,7 +48,10 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $modelo);
+        // material de tarea
         $this->seguimientoService->descontarMaterialTareaOcupadoStore($request);
+        // $this->seguimientoService->registrarMaterialTareaOcupadoStore($request);
+        // material de stock personal
         $this->seguimientoService->descontarMaterialStockOcupadoStore($request);
 
         $modelo = new EmergenciaResource($modelo->refresh());
@@ -73,7 +76,9 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        // $this->seguimientoService->registrarMaterialTareaOcupadoUpdate($request);
         $this->seguimientoService->descontarMaterialTareaOcupadoUpdate($request);
+        // fsdfsd
         $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
 
         $modelo = new EmergenciaResource($seguimiento->refresh());

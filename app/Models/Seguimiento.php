@@ -13,6 +13,7 @@ class Seguimiento extends Model implements Auditable
 {
     use HasFactory, AuditableModel, UppercaseValuesTrait, Filterable;
 
+    // Seguimiento subtarea
     protected $table = 'seguimientos';
 
     protected $fillable = [

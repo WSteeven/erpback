@@ -5,6 +5,7 @@ namespace Src\App;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Seguimiento;
+use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\TrabajoRealizado;
 use Carbon\Carbon;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -50,6 +51,36 @@ class SeguimientoService
             $materialEmpleado->save();
         }
     }
+
+    public function registrarMaterialTareaOcupadoStore($request)
+    {
+        $materialesOcupados = $request['materiales_tarea_ocupados'];
+
+        foreach ($materialesOcupados as $materialOcupado) {
+
+            SeguimientoMaterialSubtarea::create([
+                'stock_actual' => $materialOcupado['stock_actual'],
+                'cantidad_utilizada' => $materialOcupado['cantidad_utilizada'],
+                'subtarea_id' => $request['subtarea'],
+                'empleado_id' => $request['empleado_id'],
+                'grupo_id' => $request['grupo_id'],
+                'detalle_producto_id' => $materialOcupado['detalle_producto_id'],
+            ]);
+        }
+    }
+
+    public function registrarMaterialTareaOcupadoUpdate($request)
+    {
+        $materialesOcupados = $request['materiales_tarea_ocupados'];
+        $subtareaId = $request['subtarea'];
+
+        foreach ($materialesOcupados as $materialOcupado) {
+            $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('detalle_producto_id', $materialOcupado['detalle_producto_id'])->where('subtarea_id', $subtareaId)->whereDate('created_at', Carbon::today())->first();
+            $materialSubtarea->cantidad_utilizada +=  $materialOcupado['cantidad_utilizada'];
+            $materialSubtarea->save();
+        }
+    }
+
 
     /*****************************
      * Material de stock personal
