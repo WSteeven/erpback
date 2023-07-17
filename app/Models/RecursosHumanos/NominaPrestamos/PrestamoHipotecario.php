@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,4 +28,7 @@ class PrestamoHipotecario extends Model implements Auditable
         'nut',
         'valor',
     ];
+    public function empleado_info(){
+        return $this->hasOne(Empleado::class,'id', 'empleado_id');
+    }
 }

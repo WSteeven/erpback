@@ -3,6 +3,7 @@
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class PrestamoHipotecarioResource extends JsonResource
 {

@@ -106,10 +106,13 @@ class RolPagosController extends Controller
         $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
         $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
         $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('aporte');
-        $sueldo = ($salario / 30) * 30;
+        $sueldo = $salario;
+        Log::channel('testing')->info('Log', ['sueldo', $sueldo]);
+
         $iess = ($sueldo) * $porcentaje_iess;
-        $total_descuento = $supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess;
-        $porcentaje_endeudamiento = ($total_descuento / $sueldo) / 100;
+        $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess),2);
+        $porcentaje_endeudamiento = round(($total_descuento / $sueldo),2) * 100;
+        $porcentaje_endeudamiento = ($porcentaje_endeudamiento);
 
         $results = [
             'total_descuento' => $total_descuento,
