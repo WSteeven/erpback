@@ -39,7 +39,6 @@ class TransaccionEgresoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        Log::channel('testing')->info('Log', ['BroadcastOn de  transaccion  egreso']);
         return new Channel('egreso-'.$this->transaccion->responsable_id);
     }
     public function broadcastAs(){
