@@ -28,6 +28,7 @@ class SaldoGrupo extends  Model implements Auditable
         'saldo_anterior',
         'saldo_depositado',
         'saldo_actual',
+        'tipo_saldo',
         'fecha_inicio',
         'fecha_fin',
         'id_usuario',
@@ -50,19 +51,11 @@ class SaldoGrupo extends  Model implements Auditable
             $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
                 if (isset($saldo['detalle_info']['descripcion'])) {
-                    if ($saldo['estado'] == 4) {
                         $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                         $gasto = SaldoGrupo::gasto($saldo, $empleado);
                         $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
                         $results[$id] = $row;
                         $id++;
-                    } else {
-                        $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                        $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                        $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
-                        $results[$id] = $row;
-                        $id++;
-                    }
                 } else {
                     $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                     $gasto = SaldoGrupo::gasto($saldo, $empleado);
@@ -100,16 +93,25 @@ class SaldoGrupo extends  Model implements Auditable
         $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
         return $row;
     }
+
+   /**
+    * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
+    * función de los parámetros dados.
+    *
+    * @param saldo Una matriz que contiene información sobre un saldo o crédito.
+    * @param empleado El parámetro "empleado" representa el ID de un empleado.
+    *
+    * @return el valor de la clave 'monto' de la matriz  si se establece la clave
+    * 'descripcion_acreditacion'. En caso contrario, comprueba si el array 'detalle_info' tiene clave
+    * 'descripcion' y si la clave 'estado' es igual a 4. Si se cumplen ambas condiciones, devuelve el
+    * valor de la clave 'total' del registro
+    */
     private static function ingreso($saldo, $empleado)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return $saldo['monto'];
         }
-        if (isset($saldo['saldo_depositado'])) {
-            if ($saldo['tipo_saldo'] == 'Encuadre') {
-                return $saldo['saldo_depositado'];
-            }
-        }
+
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 4) {
                 return $saldo['total'];
@@ -122,10 +124,11 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return 0;
     }
+    // verifica si es un egreso
     private static function gasto($saldo, $empleado)
     {
         if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
                 return  $saldo['total'];
             }
         }
@@ -146,21 +149,16 @@ class SaldoGrupo extends  Model implements Auditable
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
             return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
         }
-        if (isset($saldo['tipo_saldo'])) {
-            if ($saldo['tipo_saldo'] == 'Encuadre') {
-                return $saldo['tipo_saldo'];
-            }
-        }
         if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4 ) {
+                if ($saldo['estado'] == 4) {
+                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                    return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
                 $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
                 return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
 
-            if ($saldo['estado'] == 4) {
-                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-                return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
-            }
         }
         return '';
     }
