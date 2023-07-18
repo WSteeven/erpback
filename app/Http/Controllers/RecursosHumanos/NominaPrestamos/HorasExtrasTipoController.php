@@ -15,8 +15,8 @@ class HorasExtrasTipoController extends Controller
     private $entidad = 'Horas Extras SubTipo';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.horas_extras_subtipo')->only('index', 'show');
-        $this->middleware('can:puede.crear.horas_extras_subtipo')->only('store');
+        $this->middleware('can:puede.ver.horas_extras_tipo')->only('index', 'show');
+        $this->middleware('can:puede.crear.horas_extras_tipo')->only('store');
     }
 
     public function index(Request $request)

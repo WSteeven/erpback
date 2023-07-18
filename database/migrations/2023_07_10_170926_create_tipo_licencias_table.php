@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tipo_licencias', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
+            $table->integer('num_dias');
             $table->boolean('estado')->default(true)->nullable();
             $table->timestamps();
         });

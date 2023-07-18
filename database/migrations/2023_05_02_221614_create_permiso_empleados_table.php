@@ -27,6 +27,7 @@ return new class extends Migration
             $table->unsignedBigInteger('estado_permiso_id');
             $table->foreign('estado_permiso_id')->references('id')->on('autorizaciones');
             $table->text('documento');
+            $table->boolean('cargo_vacaciones');
             $table->timestamps();
         });
     }

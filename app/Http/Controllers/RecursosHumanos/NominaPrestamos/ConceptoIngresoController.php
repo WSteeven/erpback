@@ -13,7 +13,7 @@ class ConceptoIngresoController extends Controller
         $this->middleware('can:puede.ver.concepto_ingreso')->only('index', 'show');
         $this->middleware('can:puede.crear.concepto_ingreso')->only('store');
         $this->middleware('can:puede.editar.concepto_ingreso')->only('update');
-        $this->middleware('can:puede.eliminar.concepto_ingreso')->only('update');
+        $this->middleware('can:puede.eliminar.concepto_ingreso')->only('destroy');
     }
 
     public function index(Request $request)
