@@ -18,5 +18,11 @@ class TicketService
                 'pocas_actividades' => ['Ingrese al menos una actividad en el seguimiento!'],
             ]);
         }
+
+        if ($ticket->actividadesRealizadasSeguimientoTicket()->whereNotNull('fotografia')->get()->isEmpty()) {
+            throw ValidationException::withMessages([
+                'falta_fotografia' => ['Ingrese al menos una actividad con fotografía en el seguimiento!'],
+            ]);
+        }
     }
 }
