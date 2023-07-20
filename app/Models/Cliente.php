@@ -60,6 +60,14 @@ class Cliente extends Model implements Auditable
     }
 
     /**
+     * Relacion muchos a muchos.
+     * Un cliente tiene varios detalles_productos en inventario.
+     */
+    public function detalles(){
+        return $this->belongsToMany(DetalleProducto::class, 'inventarios', 'cliente_id', 'detalle_id');
+    }
+
+    /**
      * Relación uno a muchos.
      * Un cliente tiene un producto al que se le hace un control de stock para estar pendiente de su reabastecimiento
      */
