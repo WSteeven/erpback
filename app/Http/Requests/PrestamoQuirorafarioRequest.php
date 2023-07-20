@@ -24,9 +24,8 @@ class PrestamoQuirorafarioRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required|date_format:Y-m',
-            'empleado' => 'required|numeric',
-            'planilla' => 'required|string',
+            'mes' => 'required',
+            'tieneDocumento' => 'required',
         ];
     }
 }
