@@ -35,8 +35,11 @@ class VacacionRequest extends FormRequest
             'fecha_fin_rango1_vacaciones' => 'nullable|date_format:Y-m-d',
             'fecha_inicio_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
             'fecha_fin_rango2_vacaciones' => 'nullable|date_format:Y-m-d',
-            'solicitud' => 'string|required'
-
+            'solicitud' => 'string|required',
+            'descuento_vacaciones' => 'required|integer',
+            'numero_dias' => 'required|integer',
+            'numero_dias_rango1' => 'nullable|integer',
+            'numero_dias_rango2' => 'nullable|integer'
         ];
     }
     protected function prepareForValidation()

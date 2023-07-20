@@ -22,7 +22,6 @@ class Vacacion extends Model implements Auditable
     protected $fillable = [
         'empleado_id',
         'periodo_id',
-        'descuento_vacaciones',
         'fecha_inicio',
         'fecha_fin',
         'fecha_inicio_rango1_vacaciones',
@@ -52,7 +51,6 @@ class Vacacion extends Model implements Auditable
         'id',
         'empleado',
         'periodo',
-        'descuento_vacaciones',
         'fecha_inicio',
         'fecha_fin',
         'fecha_inicio_rango1_vacaciones',
