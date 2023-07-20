@@ -29,6 +29,7 @@ class ContactoProveedor extends Model implements Auditable
 
     const TECNICO = 'TECNICO'; //contacto tecnico
     const FINANCIERO = 'FINANCIERO'; //contacto financiero
+    const COMERCIAL = 'COMERCIAL'; //contacto comercial
 
 
     private static $whiteListFilter = ['*'];

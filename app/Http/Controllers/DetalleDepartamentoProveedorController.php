@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DetalleDepartamentoProveedorResource;
 use App\Models\DetalleDepartamentoProveedor;
 use DateTime;
 use Illuminate\Http\Request;
@@ -16,12 +17,13 @@ class DetalleDepartamentoProveedorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $results = DetalleDepartamentoProveedorResource::collection(DetalleDepartamentoProveedor::filter()->get());
+        return response()->json(compact('results'));
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -30,12 +32,12 @@ class DetalleDepartamentoProveedorController extends Controller
      */
     public function store(Request $request)
     {
-        Log::channel('testing')->info('Log',['Request recibida', $request->all()]);
-        $detalle = DetalleDepartamentoProveedor::where('departamento_id',auth()->user()->empleado->departamento_id)->where('proveedor_id',$request->proveedor_id)->first();
+        Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
+        $detalle = DetalleDepartamentoProveedor::where('departamento_id', auth()->user()->empleado->departamento_id)->where('proveedor_id', $request->proveedor_id)->first();
         $detalle->update([
-            'calificacion'=>$request->calificacion,
-            'empleado_id'=>auth()->user()->empleado->id,
-            'fecha_calificacion'=>date("Y-m-d h:i:s"),
+            'calificacion' => $request->calificacion,
+            'empleado_id' => auth()->user()->empleado->id,
+            'fecha_calificacion' => date("Y-m-d h:i:s"),
         ]);
         $modelo = $detalle->refresh();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -53,7 +55,7 @@ class DetalleDepartamentoProveedorController extends Controller
         //
     }
 
-    
+
 
     /**
      * Update the specified resource in storage.

@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -41,25 +43,129 @@ class Proveedor extends Model implements Auditable
         return $this->belongsTo(Empresa::class);
     }
 
-    public function parroquia(){
+    public function parroquia()
+    {
         return $this->belongsTo(Parroquia::class);
     }
 
-    public function contactos(){
+    public function contactos()
+    {
         return $this->hasMany(ContactoProveedor::class);
     }
-    public function servicios_ofertados(){
-        return $this->belongsToMany(OfertaProveedor::class, 'detalle_oferta_proveedor','proveedor_id', 'oferta_id')
-        ->withTimestamps();
+    public function servicios_ofertados()
+    {
+        return $this->belongsToMany(OfertaProveedor::class, 'detalle_oferta_proveedor', 'proveedor_id', 'oferta_id')
+            ->withTimestamps();
     }
-    public function categorias_ofertadas(){
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor','proveedor_id','categoria_id')
-        ->withTimestamps();
+    public function categorias_ofertadas()
+    {
+        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
+            ->withTimestamps();
     }
-    public function departamentos_califican(){
-        return $this->belongsToMany(Departamento::class, 'detalle_departamento_proveedor','proveedor_id','departamento_id')
-        ->withPivot(['calificacion','fecha_calificacion'])
-        ->withTimestamps();
+    public function departamentos_califican()
+    {
+        return $this->belongsToMany(Departamento::class, 'detalle_departamento_proveedor', 'proveedor_id', 'departamento_id')
+            ->withPivot(['calificacion', 'fecha_calificacion'])
+            ->withTimestamps();
     }
 
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    public static function obtenerCalificacion($proveedor_id)
+    {
+        $proveedor = Proveedor::find($proveedor_id);
+        // Log::channel('testing')->info('Log', ['Conteo de departamentos', $proveedor->departamentos_califican->count()]);
+        if ($proveedor->departamentos_califican->count() == 2) {
+            $calificaciones = [];
+            foreach ($proveedor->departamentos_califican as $index => $departamento) {
+                // Log::channel('testing')->info('Log', ['Departamento calificador: ', $departamento]);
+                // Log::channel('testing')->info('Log', ['Departamento calificador: ', $departamento->pivot->calificacion]);
+                if ($departamento->pivot->calificacion != null) {
+                    $row['departamento_id'] = $departamento->id;
+                    $row['calificacion'] = $departamento->pivot->calificacion;
+                    $calificaciones[$index] = $row;
+                }
+            }
+            $suma = self::calcularPesos($calificaciones);
+            if(count($calificaciones)== $proveedor->departamentos_califican->count()){
+                return [$suma, 'CALIFICADO'];
+            }elseif(empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+            else return [$suma, 'PARCIAL'];
+            Log::channel('testing')->info('Log', ['Calificaciones', $calificaciones, 'Suma de notas: ', $suma]);
+        }
+        if ($proveedor->departamentos_califican->count() == 3) {
+            // Log::channel('testing')->info('Log', ['Proveedor tiene 3 departamentos']);
+            $calificaciones = [];
+            foreach ($proveedor->departamentos_califican as $index => $departamento) {
+                if ($departamento->pivot->calificacion != null) {
+                    $row['departamento_id'] = $departamento->id;
+                    $row['calificacion'] = $departamento->pivot->calificacion;
+                    $calificaciones[$index] = $row;
+                }
+            }
+            $suma = self::calcularPesos($calificaciones);
+            if(count($calificaciones)== $proveedor->departamentos_califican->count()){
+                return [$suma, 'CALIFICADO'];
+            }elseif(empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+            else return [$suma, 'PARCIAL'];
+        }
+        // Log::channel('testing')->info('Log', ['Proveedor tiene ' . $proveedor->departamentos_califican->count() . ' departamentos']);
+        return [0, 'SIN CONFIGURAR'];
+    }
+
+    /**
+     * La función "calcularPesos" calcula los pesos en base al número de departamentos y sus
+     * respectivas valoraciones.
+     * Si son 3 departamentos la distribucion de pesos es la siguiente:
+     *     Area especializada 1 = 35 %
+     *     Area especializada 2 = 35 %
+     *     Area financiera(compras)     = 30 %
+     * Si son 2 departamentos la distribucion de pesos es la siguiente:
+     *     Area especializada  = 60 %
+     *     Area financiera(compras)     = 40 %
+     * 
+     * @param data El parámetro `$data` es una matriz que contiene información sobre los departamentos
+     * y sus respectivas calificaciones. Cada elemento de la matriz representa un departamento y tiene
+     * la siguiente estructura: [departamento_id, calificacion]
+     * 
+     * @return la suma calculada de pesos basada en los datos dados.
+     */
+    private static function calcularPesos($data)
+    {
+        $user_compras = User::with('empleado')->whereHas("roles", function ($q) {
+            $q->where("name", User::ROL_COMPRAS);
+        })->first();
+        // Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
+        $suma = 0;
+        switch (count($data)) {
+            case 0:
+                return 0;
+                break;
+            case 1:
+                foreach ($data as $d)
+                    return $d['calificacion'];
+                break;
+            case 2:
+                foreach ($data as $d) {
+                    if ($d['departamento_id'] === $user_compras->empleado->departamento_id) $suma += ($d['calificacion'] * .4);
+                    else $suma += ($d['calificacion'] * .6);
+                }
+                return $suma;
+                break;
+            case 3:
+                foreach ($data as $d) {
+                    if ($d['departamento_id'] === $user_compras->empleado->departamento_id) $suma += ($d['calificacion'] * .3);
+                    else $suma += ($d['calificacion'] * .35);
+                }
+                return $suma;
+                break;
+            default:
+                Log::channel('testing')->info('Log', ['Conteo de Calificaciones en metodo calcularPeso', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
+                throw new Exception('No se puede hacer calculo para más de 3 departamentos', 500);
+                break;
+        }
+    }
 }

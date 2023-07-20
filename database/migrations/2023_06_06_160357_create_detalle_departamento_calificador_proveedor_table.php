@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detalle_departamento_calificador_proveedor');
+        Schema::dropIfExists('detalle_departamento_proveedor');
     }
 };

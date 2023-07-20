@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('vacacion', function (Blueprint $table) {
+        Schema::create('vacaciones', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
@@ -24,7 +24,6 @@ return new class extends Migration
             $table->date('fecha_inicio_rango1_vacaciones');
             $table->date('fecha_fin_rango1_vacaciones');
             $table->date('fecha_inicio_rango2_vacaciones');
-            $table->date('fecha_fin_rango2_vacaciones');
             $table->text('solicitud');
             $table->timestamps();
         });
@@ -37,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vacacions');
+        Schema::dropIfExists('vacaciones');
     }
 };

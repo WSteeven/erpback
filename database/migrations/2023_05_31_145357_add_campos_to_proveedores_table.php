@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::table('proveedores', function (Blueprint $table) {
             $table->string('sucursal');
-            $table->unsignedBigInteger('parroquia_id');
+            $table->unsignedBigInteger('parroquia_id')->nullable();
             $table->text('direccion');
             $table->string('celular')->nullable();
             $table->string('telefono')->nullable();
+
+            $table->foreign('parroquia_id')->references('id')->on('parroquias')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

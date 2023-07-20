@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('celular')->nullable();
             $table->string('ext')->nullable();
             $table->string('correo')->nullable();
-            $table->enum('tipo_contacto', [ContactoProveedor::TECNICO, ContactoProveedor::FINANCIERO])->default(null);
+            $table->enum('tipo_contacto', [ContactoProveedor::TECNICO, ContactoProveedor::FINANCIERO, ContactoProveedor::COMERCIAL])->default(null);
             $table->unsignedBigInteger('proveedor_id');
             $table->timestamps();
 

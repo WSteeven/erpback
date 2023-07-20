@@ -27,14 +27,16 @@ class CriterioCalificacionController extends Controller
      */
     public function index(Request $request)
     {
+        // Log::channel('testing')->info('Log', ['Request en el index:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_COMPRAS, User::ROL_ADMINISTRADOR])) {
-            if($request->boolean('only_me')){ //variable auxiliar para listar solo los criterios que pertenecen a mi departamento
-                $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get();
-            }else{
-                $results = CriterioCalificacion::all();
+            if ($request->boolean('only_me')) { //variable auxiliar para listar solo los criterios que pertenecen a mi departamento
+                $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->ignoreRequest(['only_me'])->filter()->get();
+            } else {
+                // $results = CriterioCalificacion::all();
+                $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->filter()->get();
             }
         } else {
-            $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->get();
+            $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->filter()->get();
         }
         $results = CriterioCalificacionResource::collection($results);
         return response()->json(compact('results'));
@@ -50,6 +52,7 @@ class CriterioCalificacionController extends Controller
      */
     public function store(CriterioCalificacionRequest $request)
     {
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         //Adaptacion de foreing keys
         $datos = $request->validated();

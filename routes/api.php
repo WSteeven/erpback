@@ -228,7 +228,7 @@ Route::get('empleados-roles', function (Request $request){
     $roles = [];
     if(!is_null($request->roles)){
         $roles = explode(',', $request->roles);
-        $results = UserResource::collection(User::role('BODEGA')->with('empleado')->get());
+        $results = UserResource::collection(User::role($roles)->with('empleado')->get());
     }
     return response()->json(compact('results'));
 })->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front

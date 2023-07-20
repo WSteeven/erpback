@@ -28,7 +28,7 @@ class ContactoProveedorRequest extends FormRequest
             "apellidos" => 'required|string',
             "celular" => 'nullable|sometimes|string',
             "ext" => 'nullable|sometimes|string',
-            "correo" => 'nullable|sometimes|string',
+            "correo" => 'required|string',
             "tipo_contacto" => 'required|string',
             "proveedor" => 'required|exists:proveedores,id',
         ];
