@@ -4,7 +4,7 @@ namespace Src\App;
 
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
-use App\Models\Seguimiento;
+use App\Models\SeguimientoSubtarea;
 use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\TrabajoRealizado;
 use Carbon\Carbon;
@@ -13,7 +13,7 @@ use Src\Config\RutasStorage;
 
 class SeguimientoService
 {
-    public function guardarFotografias($datos, Seguimiento $modelo)
+    public function guardarFotografias($datos, SeguimientoSubtarea $modelo)
     {
         foreach ($datos['trabajo_realizado'] as $trabajo) {
             $trabajoRealizado = new TrabajoRealizado();
@@ -58,14 +58,16 @@ class SeguimientoService
 
         foreach ($materialesOcupados as $materialOcupado) {
 
-            SeguimientoMaterialSubtarea::create([
+            /* SeguimientoMaterialSubtarea::create([
                 'stock_actual' => $materialOcupado['stock_actual'],
                 'cantidad_utilizada' => $materialOcupado['cantidad_utilizada'],
                 'subtarea_id' => $request['subtarea'],
                 'empleado_id' => $request['empleado_id'],
                 'grupo_id' => $request['grupo_id'],
                 'detalle_producto_id' => $materialOcupado['detalle_producto_id'],
-            ]);
+            ]); */
+
+            $this->crearMaterialTareaOcupado($materialOcupado, $request);
         }
     }
 
@@ -76,9 +78,24 @@ class SeguimientoService
 
         foreach ($materialesOcupados as $materialOcupado) {
             $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('detalle_producto_id', $materialOcupado['detalle_producto_id'])->where('subtarea_id', $subtareaId)->whereDate('created_at', Carbon::today())->first();
-            $materialSubtarea->cantidad_utilizada +=  $materialOcupado['cantidad_utilizada'];
-            $materialSubtarea->save();
+            if ($materialSubtarea) {
+                $materialSubtarea->cantidad_utilizada +=  $materialOcupado['cantidad_utilizada'];
+                $materialSubtarea->save();
+            } else {
+                $this->crearMaterialTareaOcupado($materialOcupado, $request);
+            }
         }
+    }
+
+    private function crearMaterialTareaOcupado($materialOcupado, $request) {
+        SeguimientoMaterialSubtarea::create([
+            'stock_actual' => $materialOcupado['stock_actual'],
+            'cantidad_utilizada' => $materialOcupado['cantidad_utilizada'],
+            'subtarea_id' => $request['subtarea'],
+            'empleado_id' => $request['empleado_id'],
+            'grupo_id' => $request['grupo_id'],
+            'detalle_producto_id' => $materialOcupado['detalle_producto_id'],
+        ]);
     }
 
 

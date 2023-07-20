@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Seguimiento extends Model implements Auditable
+class SeguimientoSubtarea extends Model implements Auditable
 {
     use HasFactory, AuditableModel, UppercaseValuesTrait, Filterable;
 
@@ -36,12 +36,17 @@ class Seguimiento extends Model implements Auditable
 
     public function trabajoRealizado()
     {
-        return $this->hasMany(TrabajoRealizado::class);
+        return $this->hasMany(TrabajoRealizado::class, 'seguimiento_id', 'id');
     }
 
     // Relacion uno a muchos
     public function archivos()
     {
         return $this->hasMany(ArchivoSeguimiento::class);
+    }
+
+    public function subtarea()
+    {
+        return $this->belongsTo(Subtarea::class);
     }
 }

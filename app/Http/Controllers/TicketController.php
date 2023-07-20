@@ -221,7 +221,6 @@ class TicketController extends Controller
         $ticket->departamento_responsable_id = NULL;
         $ticket->save();
 
-        event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -233,6 +232,7 @@ class TicketController extends Controller
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket rechazado exitosamente!';
 
+        event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
 
         return response()->json(compact('modelo', 'mensaje'));
     }

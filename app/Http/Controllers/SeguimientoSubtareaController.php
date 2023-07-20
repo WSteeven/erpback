@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SeguimientoExport;
-use App\Http\Requests\EmergenciaRequest;
-use App\Http\Resources\EmergenciaResource;
-use App\Models\Seguimiento;
+use App\Http\Requests\SeguimientoSubtareaRequest;
+use App\Http\Resources\SeguimientoSubtareaResource;
+use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\Storage;
 use Src\App\SeguimientoService;
 
-class SeguimientoController extends Controller
+class SeguimientoSubtareaController extends Controller
 {
-    private $entidad = 'Seguimiento';
+    private $entidad = 'SeguimientoSubtarea';
     private $reporteService;
     private $seguimientoService;
 
@@ -26,21 +26,21 @@ class SeguimientoController extends Controller
 
     public function index()
     {
-        $results = Seguimiento::filter()->get();
+        $results = SeguimientoSubtarea::filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function show(Seguimiento $seguimiento)
+    public function show(SeguimientoSubtarea $seguimiento)
     {
-        $modelo = new EmergenciaResource($seguimiento);
+        $modelo = new SeguimientoSubtareaResource($seguimiento);
         return response()->json(compact('modelo'));
     }
 
-    public function store(EmergenciaRequest $request)
+    public function store(SeguimientoSubtareaRequest $request)
     {
         $datos = $request->validated();
 
-        $modelo = Seguimiento::create($datos);
+        $modelo = SeguimientoSubtarea::create($datos);
 
         $subtarea = Subtarea::find($request->safe()->only(['subtarea'])['subtarea']);
         $subtarea->seguimiento_id = $modelo->id;
@@ -50,16 +50,16 @@ class SeguimientoController extends Controller
         $this->seguimientoService->guardarFotografias($datos, $modelo);
         // material de tarea
         $this->seguimientoService->descontarMaterialTareaOcupadoStore($request);
-        // $this->seguimientoService->registrarMaterialTareaOcupadoStore($request);
+        $this->seguimientoService->registrarMaterialTareaOcupadoStore($request);
         // material de stock personal
         $this->seguimientoService->descontarMaterialStockOcupadoStore($request);
 
-        $modelo = new EmergenciaResource($modelo->refresh());
+        $modelo = new SeguimientoSubtareaResource($modelo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function update(EmergenciaRequest $request, Seguimiento $seguimiento)
+    public function update(SeguimientoSubtareaRequest $request, SeguimientoSubtarea $seguimiento)
     {
         $datos = $request->validated();
 
@@ -76,17 +76,18 @@ class SeguimientoController extends Controller
 
         // Guardar fotografias
         $this->seguimientoService->guardarFotografias($datos, $seguimiento);
-        // $this->seguimientoService->registrarMaterialTareaOcupadoUpdate($request);
+        $this->seguimientoService->registrarMaterialTareaOcupadoUpdate($request);
+
         $this->seguimientoService->descontarMaterialTareaOcupadoUpdate($request);
         // fsdfsd
         $this->seguimientoService->descontarMaterialStockOcupadoUpdate($request);
 
-        $modelo = new EmergenciaResource($seguimiento->refresh());
+        $modelo = new SeguimientoSubtareaResource($seguimiento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-    public function exportarSeguimiento(Seguimiento $seguimiento)
+    public function exportarSeguimiento(SeguimientoSubtarea $seguimiento)
     {
         $tipo = 'excel';
 

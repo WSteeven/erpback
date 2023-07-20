@@ -19,7 +19,7 @@ use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
-use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
@@ -43,7 +43,7 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
-        'seguimientos' => SeguimientoController::class,
+        'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
     ],
     [
@@ -87,7 +87,7 @@ Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verifi
 // Transferir mis tareas activas
 Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
 
-Route::get('export-seguimiento/{seguimiento}', [SeguimientoController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{seguimiento}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
