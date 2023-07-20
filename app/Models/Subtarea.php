@@ -254,6 +254,11 @@ class Subtarea extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
+    public function seguimientosMaterialesSubtareas()
+    {
+        return $this->hasMany(SeguimientoMaterialSubtarea::class);
+    }
+
     /*********
      * Scopes
      *********/

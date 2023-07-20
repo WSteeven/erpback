@@ -23,9 +23,17 @@ class RutaTareaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'cliente' => 'required',
+        $rules = [
+            'cliente' => 'required|numeric|integer',
             'ruta' => 'required|string',
+            'activo' => 'nullable|boolean'
         ];
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $rules['cliente'] = 'nullable|numeric|integer';
+            $rules['ruta'] = 'nullable|string';
+        }
+
+        return $rules;
     }
 }
