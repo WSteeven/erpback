@@ -114,6 +114,7 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
+Route::get('obtener-suma-material-tarea-usado', [TransaccionBodegaEgresoController::class, 'obtenerSumaMaterialTareaUsado']);
 
 /***********
  * Reportes
