@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\SeguimientoSubtarea;
@@ -58,15 +59,6 @@ class SeguimientoService
 
         foreach ($materialesOcupados as $materialOcupado) {
 
-            /* SeguimientoMaterialSubtarea::create([
-                'stock_actual' => $materialOcupado['stock_actual'],
-                'cantidad_utilizada' => $materialOcupado['cantidad_utilizada'],
-                'subtarea_id' => $request['subtarea'],
-                'empleado_id' => $request['empleado_id'],
-                'grupo_id' => $request['grupo_id'],
-                'detalle_producto_id' => $materialOcupado['detalle_producto_id'],
-            ]); */
-
             $this->crearMaterialTareaOcupado($materialOcupado, $request);
         }
     }
@@ -88,12 +80,14 @@ class SeguimientoService
     }
 
     private function crearMaterialTareaOcupado($materialOcupado, $request) {
+        $grupo_id = Empleado::find($request['empleado_id'])->grupo_id;
+
         SeguimientoMaterialSubtarea::create([
             'stock_actual' => $materialOcupado['stock_actual'],
             'cantidad_utilizada' => $materialOcupado['cantidad_utilizada'],
             'subtarea_id' => $request['subtarea'],
             'empleado_id' => $request['empleado_id'],
-            'grupo_id' => $request['grupo_id'],
+            'grupo_id' => $grupo_id,
             'detalle_producto_id' => $materialOcupado['detalle_producto_id'],
         ]);
     }
