@@ -47,6 +47,6 @@ class SeguimientoSubtarea extends Model implements Auditable
 
     public function subtarea()
     {
-        return $this->belongsTo(Subtarea::class);
+        return $this->hasOne(Subtarea::class, 'seguimiento_id', 'id');
     }
 }

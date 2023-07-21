@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
+use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
+use Illuminate\Support\Facades\DB;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
 use Illuminate\Support\Facades\Storage;
@@ -95,5 +97,14 @@ class SeguimientoSubtareaController extends Controller
         $vista = 'exports.reportes.excel.seguimiento_subtarea';
         $nombre_reporte = 'Juan Reporte';
         return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $seguimiento, $nombre_reporte, $vista, $export_excel);
+    }
+
+    // SELECT dp.descripcion, SUM(sms.cantidad_utilizada) AS total FROM seguimientos_materiales_subtareas sms inner join detalles_productos dp on sms.detalle_producto_id = dp.id group BY detalle_producto_id;
+    public function obtenerSumaMaterialTareaUsado()
+    {
+        return DB::table('seguimientos_materiales_subtareas as sms')
+        ->select('dp.descripcion', DB::raw('SUM(sms.cantidad_utilizada) AS total'))
+        ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+        ->get();
     }
 }

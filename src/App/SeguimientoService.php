@@ -79,7 +79,7 @@ class SeguimientoService
         foreach ($materialesOcupados as $materialOcupado) {
             $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('detalle_producto_id', $materialOcupado['detalle_producto_id'])->where('subtarea_id', $subtareaId)->whereDate('created_at', Carbon::today())->first();
             if ($materialSubtarea) {
-                $materialSubtarea->cantidad_utilizada +=  $materialOcupado['cantidad_utilizada'];
+                $materialSubtarea->cantidad_utilizada =  $materialOcupado['cantidad_utilizada'];
                 $materialSubtarea->save();
             } else {
                 $this->crearMaterialTareaOcupado($materialOcupado, $request);
