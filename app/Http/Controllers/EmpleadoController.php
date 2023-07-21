@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\Grupo;
+use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\User;
 use DateTime;
 use Exception;

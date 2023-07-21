@@ -10,6 +10,7 @@ use App\Models\Empleado;
 use App\Models\Notificacion;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\User;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\Queries\WhereIn;
 use Exception;
 use Illuminate\Http\Request;
@@ -66,8 +67,8 @@ class PermisoEmpleadoController extends Controller
         if ($usuario_ac->hasRole('RECURSOS HUMANOS')) {
             $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->get();
         } else {
-              $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
-              $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
+            $empleados = Empleado::where('jefe_id', Auth::user()->empleado->id)->orWhere('id', Auth::user()->empleado->id)->get('id');
+            $results = PermisoEmpleado::ignoreRequest(['campos'])->filter()->WhereIn('empleado_id', $empleados->pluck('id'))->get();
         }
         $results = PermisoEmpleadoResource::collection($results);
         return response()->json(compact('results'));
@@ -128,4 +129,19 @@ class PermisoEmpleadoController extends Controller
         $permisoEmpleado->delete();
         return $permisoEmpleado;
     }
+    public function permisos_sin_recuperar(Request $request)
+{
+    $mes = Carbon::createFromFormat('m-Y', $request->mes)->format('Y-m');
+
+    // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
+    $totalDiasPermiso = DB::table('permiso_empleados')
+        ->selectRaw('SUM(DATEDIFF(fecha_hora_fin, fecha_hora_inicio) + 1) as total_dias_permiso')
+        ->where('empleado_id', $request->empleado)
+        ->whereRaw('DATE_FORMAT(fecha_hora_inicio, "%Y-%m") <= ?', [$mes])
+        ->whereRaw('DATE_FORMAT(fecha_hora_fin, "%Y-%m") >= ?', [$mes])
+        ->where('recupero',0)
+        ->value('total_dias_permiso');
+
+    return response()->json(compact('totalDiasPermiso'));
+}
 }

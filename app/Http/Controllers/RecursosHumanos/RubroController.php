@@ -26,7 +26,10 @@ class RubroController extends Controller
         $rubro = Rubros::where('nombre_rubro','Sueldo Basico')->first();
         return response()->json(compact('rubro'));
     }
-
+public function porcentaje_iess(){
+    $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
+    return response()->json(compact('porcentaje_iess'));
+}
     public function store(Request $request)
     {
         $tipo_contrato = new Rubros();
