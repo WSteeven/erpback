@@ -59,7 +59,7 @@ class DetalleProductoController extends Controller
                     return response()->json(compact('results'));
                     break;
                 default: //todos
-                    $results = DetalleProducto::all();
+                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
             }
