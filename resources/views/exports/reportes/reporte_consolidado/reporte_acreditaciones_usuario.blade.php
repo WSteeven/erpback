@@ -124,7 +124,7 @@
         @endif
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
                     <div align="center"><strong>#</strong></div>
                 </td>
 
@@ -174,6 +174,14 @@
                     </td>
                 </tr>
             @endforeach
+            <tr>
+                <td>Total</td>
+                <td style="font-size:10px" width="10%" colspan="6">
+                    <div align="right">
+                        {{ number_format($total, 2, ',', '.') }}</div>
+                </td>
+            </tr>
+
         </table>
     </main>
     <script type="text/php">

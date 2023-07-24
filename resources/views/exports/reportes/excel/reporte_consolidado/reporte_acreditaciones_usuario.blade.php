@@ -133,6 +133,13 @@
                                                         </td>
                                                     </tr>
                                                 @endforeach
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td style="font-size:10px" width="10%" colspan="6">
+                                                        <div align="right">
+                                                            {{ number_format($total, 2, ',', '.') }}</div>
+                                                    </td>
+                                                </tr>
                                             </table>
                                         </td>
                                     </tr>
