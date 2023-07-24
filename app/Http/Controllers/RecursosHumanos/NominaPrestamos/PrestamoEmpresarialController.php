@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
+
 class PrestamoEmpresarialController extends Controller
 {
     private $entidad = 'Prestamo Empresarial';
@@ -108,5 +109,14 @@ class PrestamoEmpresarialController extends Controller
             $id = $plazoActualizado['id'];
             PlazoPrestamoEmpresarial::where('id', $id)->update($plazoActualizado);
         }
+    }
+    public function obtener_prestamo_empleado(Request $request)
+    {
+        $results = PrestamoEmpresarial::where('solicitante', $request->empleado)
+            ->where('estado', 'ACTIVO')
+            ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$request->mes])
+            ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
+            ->sum('plazos.valor_a_pagar');
+        return response()->json(compact('results'));
     }
 }

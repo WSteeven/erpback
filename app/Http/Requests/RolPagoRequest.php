@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
+use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
@@ -33,11 +34,11 @@ class RolPagoRequest extends FormRequest
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
-            'ingresos' => 'required',
+            'ingresos' => 'nullable',
             'decimo_tercero' =>  'required',
             'decimo_cuarto' => 'required',
             'total_ingreso'=> 'required',
-            'egresos' => 'required',
+            'egresos' => 'nullable',
             'iess' =>  'required',
             'total_egreso' => 'required',
             'total' => 'required'
@@ -58,17 +59,30 @@ class RolPagoRequest extends FormRequest
         $decimo_tercero = ($salario / 360) * $this->dias;
         $decimo_cuarto = ($sueldo_basico / 360) * $this->dias;
         $fondos_reserva = 0;
-        $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $this->alimentacion + $horas_extras;
+        $totalIngresos = $totalIngresos = !empty($this->ingresos)
+        ? array_reduce($this->ingresos, function ($acumulado, $ingreso) {
+            return $acumulado + (float) $ingreso['monto'];
+        }, 0)
+        : 0;
+        $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva +  $totalIngresos;
         $iess = ($sueldo + $horas_extras + $comision) * $porcentaje_iess;
         $anticipo = $sueldo *  $porcentaje_anticipo;
         $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $this->mes)->sum('valor');
         $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $this->mes)->sum('valor');
         $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes',$this->mes)->sum('aporte');
         $prestamo_empresarial = 0;
-        $prestamo_empresarial = 0; //Prestamo::where('empleado_id',$this->empleado)->where('estado','activo')->where('tipo','empresarial')->sum('cuota');
-        $sancion_pecuniaria = 0; //Sancion::where('empleado_id',$this->empleado)->where('estado','activo')->sum('monto');
-        $descuento_herramientas = 0; //Herramienta::where('empleado_id',$this->empleado)->where('estado','activo')->sum('monto');
-        $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $sancion_pecuniaria + $descuento_herramientas;
+        $prestamo_empresarial =PrestamoEmpresarial::
+        where('estado','ACTIVO')
+        ->whereRaw('DATE_FORMAT(fecha, "%Y-%m") <= ?', [$this->mes])
+        ->sum('monto');
+        $multas =0; /*array_reduce($this->multas, function ($acumulado, $multa) {
+            return $acumulado + (float) $multa['monto'];
+        }, 0);*/
+        $totalEgresos = $totalIngresos = !empty($this->egresos)
+        ?array_reduce($this->multas, function ($acumulado, $egreso) {
+            return $acumulado + (float) $egreso['monto'];
+        }, 0):0;
+        $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $multas + $totalEgresos;
         $total = abs($ingresos) - $egreso;
         $this->merge([
             'sueldo' =>  $sueldo,
@@ -84,7 +98,6 @@ class RolPagoRequest extends FormRequest
             'prestamo_hipotecario' =>  $prestamo_hipotecario,
             'extension_conyugal' =>  $extension_conyugal,
             'prestamo_empresarial' =>  $prestamo_empresarial,
-            'sancion_pecuniaria' =>  $sancion_pecuniaria,
             'total_egreso' =>  $egreso,
             'total' =>  $total,
         ]);

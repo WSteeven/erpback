@@ -257,10 +257,10 @@ class SaldoGrupoController extends Controller
             }
             if ($request->subdetalle != null) {
                 $gastos = Gasto::with('sub_detalle_info', 'gasto_vehiculo_info')
-                ->whereHas('sub_detalle_info', function($q){
-                    $q->where('subdetalle_gasto_id', request('subdetalle'));
-                })
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
+                    ->whereHas('sub_detalle_info', function ($q) {
+                        $q->where('subdetalle_gasto_id', request('subdetalle'));
+                    })
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
             } else {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -337,7 +337,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
-                'subdetalle'=>$request->subdetalle,
+                'subdetalle' => $request->subdetalle,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
@@ -644,5 +644,23 @@ class SaldoGrupoController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
+    }
+    public function otener_saldo_empleado_mes(Request $request)
+    {
+        // Obtener el primer día del mes
+        $primerDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->startOfMonth();
+        Log::channel('testing')->info('Log', ['mes inicio',  $primerDiaMes->format('Y-m-d')]);
+
+        // Obtener el último día del mes
+        $ultimoDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->endOfMonth();
+
+        Log::channel('testing')->info('Log', ['mes fin',  $ultimoDiaMes->format('Y-m-d')]);
+
+        $saldoUsuarioEnMes = SaldoGrupo::where('id_usuario',  $request->empleado)
+            ->where('fecha', '>=', $primerDiaMes->format('Y-m-d'))
+            ->where('fecha', '<=', $ultimoDiaMes->format('Y-m-d'))
+            ->orderBy('id', 'desc')
+            ->first();
+        return response()->json(compact('saldoUsuarioEnMes'));
     }
 }

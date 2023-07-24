@@ -10,6 +10,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioCont
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
@@ -71,4 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get ('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
     Route::get('permisos_sin_recuperar',[PermisoEmpleadoController::class, 'permisos_sin_recuperar']);
+    Route::get('obtener_prestamo_empleado',[PrestamoEmpresarialController::class,'obtener_prestamo_empleado']);
+    Route::get('otener_saldo_empleado_mes',[SaldoGrupoController::class,'otener_saldo_empleado_mes']);
 });
