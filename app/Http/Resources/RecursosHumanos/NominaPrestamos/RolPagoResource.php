@@ -25,6 +25,7 @@ class RolPagoResource extends JsonResource
             'fecha' => $this->cambiar_fecha($this->created_at),
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
+            'cargo' => $this->empleado_info->cargo,
             'salario' => $this->empleado_info->salario,
             'dias' => $this->dias,
             'sueldo' => $this->sueldo,

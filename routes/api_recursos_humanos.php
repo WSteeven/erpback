@@ -74,4 +74,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('permisos_sin_recuperar',[PermisoEmpleadoController::class, 'permisos_sin_recuperar']);
     Route::get('obtener_prestamo_empleado',[PrestamoEmpresarialController::class,'obtener_prestamo_empleado']);
     Route::get('otener_saldo_empleado_mes',[SaldoGrupoController::class,'otener_saldo_empleado_mes']);
+    Route::get('imprimir_rol_pago/{rolPagoId}',[RolPagosController::class,'imprimir_rol_pago']);
 });

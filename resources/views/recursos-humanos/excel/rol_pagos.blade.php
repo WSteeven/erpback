@@ -6,14 +6,9 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Rol de Pagos</title>
     <style>
-        .principal {
-            border-collapse: separate;
-            border-spacing: 30px 10px;
-        }
-
         /* Estilo para la tabla con clase "cuerpo" */
         table.cuerpo {
-            border: #b2b2b200 1px solid;
+            border: #b2b2b2 1px solid;
         }
 
         .cuerpo td,
@@ -49,21 +44,16 @@
 </head>
 
 <body>
-    @php
-        $rol_pago = $roles_pago[0];
-    @endphp
-    <table align="center" class="principal" width="90%">
+    <table align="center" border="0" width="33%">
         <tr>
-            <td width="15%"><img
-                    src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
-                    width="90"></td>
+            <td width="15%">logo</td>
             <td width="85%" colspan="2">
                 <p class="encabezado-rol"> <strong>JP CONSTRUCRED C.LTDA</strong></p>
                 <p class="encabezado-rol"><strong>RUC 0993375739001</strong></p>
             </td>
         </tr>
         <tr>
-            <td colspan="3">
+            <td colspan="2">
                 <h3 class="subtitulo-rol">Rol de Pagos de Marzo de 2023</h3>
             </td>
 
@@ -72,8 +62,8 @@
     </table>
     <table align="center" class="cuerpo">
         <tr>
-            <td><strong>NOMBRES:</strong>{{ $rol_pago['empleado_info'] }} </td>
-            <td><strong>CARGO: </strong>{{ $rol_pago['cargo'] }}</td>
+            <td><strong>NOMBRES:</strong> SIMBAÑA CRUZ HENRY VINICIO</td>
+            <td><strong>CARGO: </strong>Programador Junior De Sotfware</td>
 
         </tr>
         <tr>
@@ -87,28 +77,28 @@
                         <td>Días Laborado</td>
 
                         <td>
-                            {{ $rol_pago['dias_laborados'] }}
+                            30.00
                         </td>
                     </tr>
                     <tr>
                         <td>Sueldo</td>
 
                         <td>
-                            {{ $rol_pago['sueldo'] }}
+                            500.00
                         </td>
                     </tr>
                     <tr>
                         <td>Décimo Tercero</td>
 
                         <td>
-                            {{ $rol_pago['decimo_tercero'] }}
+                            41.77
                         </td>
                     </tr>
                     <tr>
                         <td>Décimo Cuarto</td>
 
                         <td>
-                            {{ $rol_pago['decimo_cuarto'] }}
+                            37.50
                         </td>
                     </tr>
                     <tr>
@@ -122,20 +112,27 @@
                         <td>Fondos de Reserva</td>
 
                         <td>
-                            {{ $rol_pago['fondos_reserva'] }}
+                            0.00
                         </td>
                     </tr>
-                    @foreach ($rol_pago['ingresos'] as $ingreso)
-                        <tr>
-                            <td>
-                            {{ $ingreso->concepto_ingreso_info->nombre}}
-                            </td>
+                    <tr>
+                        <td>
+                            Alimentacion
+                        </td>
 
-                            <td>
-                                {{ $ingreso->monto}}
-                            </td>
-                        </tr>
-                    @endforeach
+                        <td>
+                            0.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Comisiones
+                        </td>
+
+                        <td>
+                            0.00
+                        </td>
+                    </tr>
                 </table>
             </td>
 
@@ -145,42 +142,42 @@
                         <td>IESS (9.45%)</td>
 
                         <td>
-                            {{ $rol_pago['iess'] }}
+                            30.00
                         </td>
                     </tr>
                     <tr>
                         <td>Subsidio IESS</td>
 
                         <td>
-                           0.00
+                            500.00
                         </td>
                     </tr>
                     <tr>
                         <td>Anticipo Quincena</td>
 
                         <td>
-                            {{ $rol_pago['anticipo'] }}
+                            41.77
                         </td>
                     </tr>
                     <tr>
                         <td>Prestamo Quirorafario</td>
 
                         <td>
-                            {{ $rol_pago['prestamo_quirorafario'] }}
+                            37.50
                         </td>
                     </tr>
                     <tr>
                         <td>Prestamo Hipotecario</td>
 
                         <td>
-                            {{ $rol_pago['prestamo_hipotecario'] }}
+                            0.00
                         </td>
                     </tr>
                     <tr>
                         <td>Extension de Salud</td>
 
                         <td>
-                            {{ $rol_pago['extension_conyugal'] }}
+                            0.00
                         </td>
                     </tr>
                     <tr>
@@ -189,25 +186,28 @@
                         </td>
 
                         <td>
-                            {{ $rol_pago['prestamo_empresarial'] }}
-                         </td>
+                            0.00
+                        </td>
                     </tr>
-                    @foreach ($rol_pago['descuentos'] as $descuento)
-                        <tr>
-                            <td>
-                            {{ $descuento->descuento->nombre}}
-                            </td>
+                    <tr>
+                        <td>Descuentos</td>
 
-                            <td>
-                                {{ $descuento->monto}}
-                            </td>
-                        </tr>
-                    @endforeach
+                        <td>
+                            0.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Multas</td>
+
+                        <td>
+                            0.00
+                        </td>
+                    </tr>
                     <tr>
                         <td>SUPA</td>
 
                         <td>
-                            {{ $rol_pago['supa'] }}
+                            0.00
                         </td>
                     </tr>
                 </table>
@@ -221,7 +221,7 @@
                             TOTAL INGRESOS
                         </td>
                         <td class="totales">
-                            {{ $rol_pago['total_ingreso'] }}
+                            580.52
                         </td>
                     </tr>
                 </table>
@@ -231,7 +231,7 @@
                     <tr>
                         <td>TOTAL EGRESOS</td>
                         <td class="totales">
-                            {{ $rol_pago['total_egreso'] }}
+                            580.52
                         </td>
                     </tr>
                 </table>
@@ -239,7 +239,6 @@
         </tr>
     </table>
     </td>
-
     </table>
 </body>
 

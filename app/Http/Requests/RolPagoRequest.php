@@ -34,12 +34,18 @@ class RolPagoRequest extends FormRequest
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
+            'sueldo' => 'required',
+            'anticipo' => 'required',
             'ingresos' => 'nullable',
             'decimo_tercero' =>  'required',
             'decimo_cuarto' => 'required',
             'total_ingreso'=> 'required',
+            'prestamo_quirorafario' => 'required',
+            'prestamo_hipotecario' => 'required',
+            'prestamo_empresarial' => 'required',
             'egresos' => 'nullable',
             'iess' =>  'required',
+            'extension_conyugal' => 'required',
             'total_egreso' => 'required',
             'total' => 'required'
         ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RolPagoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoResource;
@@ -21,13 +22,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
 
 class RolPagosController extends Controller
 {
     private $entidad = 'Rol_de_pagos';
+    private $reporteService;
+
     public function __construct()
     {
+        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago')->only('store');
     }
@@ -110,8 +116,8 @@ class RolPagosController extends Controller
         Log::channel('testing')->info('Log', ['sueldo', $sueldo]);
 
         $iess = ($sueldo) * $porcentaje_iess;
-        $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess),2);
-        $porcentaje_endeudamiento = round(($total_descuento / $sueldo),2) * 100;
+        $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess), 2);
+        $porcentaje_endeudamiento = round(($total_descuento / $sueldo), 2) * 100;
         $porcentaje_endeudamiento = ($porcentaje_endeudamiento);
 
         $results = [
@@ -135,5 +141,24 @@ class RolPagosController extends Controller
         $rolPago = RolPago::find($rolPagoId);
         $rolPago->delete();
         return $rolPago;
+    }
+    public function imprimir_rol_pago($rolPagoId)
+    {
+        try {
+            $nombre_reporte = 'rol_pagos';
+            $roles_pagos = RolPago::where('id',$rolPagoId)->get();
+            $results = RolPago::empaquetarListado($roles_pagos);
+            $reportes =  ['roles_pago' => $results];
+            $vista = 'recursos-humanos.rol_pagos';
+            $export_excel = new RolPagoExport($reportes);
+            Log::channel('testing')->info('Log', ['reporte',$reportes]);
+
+            return $this->reporteService->imprimir_reporte('pdf', 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
+        }
     }
 }
