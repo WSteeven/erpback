@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Http\Resources\EmpleadoResource;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -44,11 +45,26 @@ class EmpleadoService
 
     public function obtenerTodosCiertasColumnas($campos)
     {
-        Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
+        // Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
+        $indice = array_search('responsable_departamento', $campos);
+        if($indice) unset($campos[$indice]);
+
         $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
-        // $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
-        // return EmpleadoResource::collection($results);
+        $ids = $this->obtenerIdsResponsablesDepartamentos();
+
+        if ($indice) {
+            $results = $results->map(function ($empleado) use ($ids) {
+                $empleado['responsable_departamento'] = in_array($empleado->id, $ids);
+                return $empleado;
+            });
+        }
+
         return $results;
+    }
+
+    private function obtenerIdsResponsablesDepartamentos()
+    {
+        return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
     public function obtenerTodosSinEstado()
