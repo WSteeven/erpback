@@ -222,6 +222,7 @@
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
+                <th>Serie</th>
                 <th>Condición</th>
                 <th>Cantidad</th>
             </thead>
@@ -232,6 +233,7 @@
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['serial'] }}</td>
                         <td>{{ $listado['condiciones'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>
