@@ -42,7 +42,7 @@ class SeguimientoSubtarea extends Model implements Auditable
     // Relacion uno a muchos
     public function archivos()
     {
-        return $this->hasMany(ArchivoSeguimiento::class);
+        return $this->hasMany(ArchivoSeguimiento::class, 'seguimiento_id', 'id');
     }
 
     public function subtarea()

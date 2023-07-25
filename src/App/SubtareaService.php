@@ -7,6 +7,7 @@ use App\Http\Resources\SubtareaResource;
 use App\Models\Empleado;
 use App\Models\MovilizacionSubtarea;
 use App\Models\Seguimiento;
+use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\TipoTrabajo;
@@ -114,7 +115,7 @@ class SubtareaService
 
     public function puedeRealizar(Subtarea $subtarea)
     {
-        $seguimiento = Seguimiento::find($subtarea->seguimiento_id);
+        $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
         if (!in_array($subtarea->tipo_trabajo_id, $ids) && !$seguimiento) throw ValidationException::withMessages([
