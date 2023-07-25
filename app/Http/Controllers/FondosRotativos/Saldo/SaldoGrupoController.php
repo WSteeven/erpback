@@ -257,10 +257,10 @@ class SaldoGrupoController extends Controller
             }
             if ($request->subdetalle != null) {
                 $gastos = Gasto::with('sub_detalle_info', 'gasto_vehiculo_info')
-                ->whereHas('sub_detalle_info', function($q){
-                    $q->where('subdetalle_gasto_id', request('subdetalle'));
-                })
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
+                    ->whereHas('sub_detalle_info', function ($q) {
+                        $q->where('subdetalle_gasto_id', request('subdetalle'));
+                    })
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->get();
             } else {
                 $gastos = Gasto::ignoreRequest([
                     'tipo_saldo',
@@ -337,7 +337,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
-                'subdetalle'=>$request->subdetalle,
+                'subdetalle' => $request->subdetalle,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
@@ -367,6 +367,8 @@ class SaldoGrupoController extends Controller
                     ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
+                // Calcular la suma de los montos.
+                $sumaMontos = $acreditaciones->sum('monto');
             } else {
                 $acreditaciones = Acreditaciones::with('usuario')
                     ->where('id_estado', EstadoAcreditaciones::REALIZADO)
@@ -378,7 +380,7 @@ class SaldoGrupoController extends Controller
             }
             $nombre_reporte = 'reporte_saldoActual';
             $results = Acreditaciones::empaquetar($acreditaciones);
-            $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
+            $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario, 'total' => $sumaMontos];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
             $export_excel = new AcreditacionesExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
