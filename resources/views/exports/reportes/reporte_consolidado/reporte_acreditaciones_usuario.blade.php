@@ -157,7 +157,7 @@
                         </div>
                     </td>
                     <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $acreditacion['usuario']->name }}
+                        <div align="left">{{ $acreditacion['empleado']->canton->canton }}
                         </div>
                     </td>
                     <td style="font-size:10px" width="17%">
