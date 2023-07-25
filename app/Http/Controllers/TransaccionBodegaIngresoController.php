@@ -55,7 +55,7 @@ class TransaccionBodegaIngresoController extends Controller
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
