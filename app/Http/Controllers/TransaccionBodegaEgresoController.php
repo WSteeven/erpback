@@ -32,6 +32,8 @@ use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\Subtarea;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
 
@@ -93,13 +95,14 @@ class TransaccionBodegaEgresoController extends Controller
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'despachado' => intval($item->despachado),
+                'total_cantidad_utilizada' => intval($item->despachado) - intval($item->cantidad_stock),
+                // 'medida' => 'm',
             ];
         });
 
         return response()->json(compact('results'));
     }
-
 
     public function materialesDespachadosSinBobinaRespaldo($id)
     {
