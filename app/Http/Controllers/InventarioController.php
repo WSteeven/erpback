@@ -250,10 +250,16 @@ class InventarioController extends Controller
      */
     public function reporteInventarioPdf($id)
     {
-        $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '>', 0)
+        $items = [];
+        if($id==0){
+            $items = Inventario::where('cantidad', '>', 0)
             ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+        }else{
+            $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '>', 0)
+            ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+        }
         $resource = InventarioResourceExcel::collection($items);
-        // Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
+        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
         try {
             $reporte = $resource->resolve();
             // Log::channel('testing')->info('Log', ['Elementos pasados por el resource', $reporte]);

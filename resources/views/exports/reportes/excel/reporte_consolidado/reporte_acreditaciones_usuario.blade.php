@@ -53,7 +53,7 @@
                         </td>
                     </tr>
                     <tr>
-                         <td width="17%">
+                        <td width="17%">
                             <div align="center"></div>
                         </td>
                         <td width="83%" bgcolor="#bfbfbf" style="font-size:12px">
@@ -73,15 +73,18 @@
                             <td>
                                 <table width="100%">
                                     <tr>
-                                        @if(isset($usuario->nombres))
-                                        <td bgcolor="#bfbfbf" style="font-size:12px">
-                                            <div align="center"><strong>{{ $usuario->nombres.' '.$usuario->apellidos }} </strong></div>
-                                        </td>
+                                        @if (isset($usuario->nombres))
+                                            <td bgcolor="#bfbfbf" style="font-size:12px">
+                                                <div align="center">
+                                                    <strong>{{ $usuario->nombres . ' ' . $usuario->apellidos }} </strong>
+                                                </div>
+                                            </td>
                                         @endif
                                     </tr>
                                     <tr>
                                         <td height="55px;">
-                                            <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+                                            <table width="100%" border="1" align="left" cellpadding="0"
+                                                cellspacing="0">
                                                 <tr>
                                                     <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
                                                         <div align="center"><strong>#</strong></div>
@@ -116,20 +119,24 @@
                                                             </div>
                                                         </td>
                                                         <td style="font-size:10px" width="15%">
-                                                            <div align="left">{{ $acreditacion['usuario']->name }}
+                                                            <div align="left">
+                                                                {{ $acreditacion['empleado']->canton->canton }}
                                                             </div>
                                                         </td>
                                                         <td style="font-size:10px" width="17%">
                                                             <div align="center">
-                                                                {{ date('d-m-Y', strtotime($acreditacion['fecha'])) }}</div>
+                                                                {{ date('d-m-Y', strtotime($acreditacion['fecha'])) }}
+                                                            </div>
                                                         </td>
                                                         <td style="font-size:10px" width="29%">
-                                                            <div align="left">{{ $acreditacion['descripcion_acreditacion'] }}
+                                                            <div align="left">
+                                                                {{ $acreditacion['descripcion_acreditacion'] }}
                                                             </div>
                                                         </td>
                                                         <td style="font-size:10px" width="10%">
                                                             <div align="right">
-                                                                {{ number_format($acreditacion['monto'], 2, ',', '.') }}</div>
+                                                                {{ number_format($acreditacion['monto'], 2, ',', '.') }}
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach
