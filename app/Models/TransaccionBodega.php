@@ -320,6 +320,7 @@ class TransaccionBodega extends Model implements Auditable
         return $listado;
     }
 
+    // Registro de materiales despachados en materiales_empleado_tarea
     public static function asignarMateriales(TransaccionBodega $transaccion)
     {
         try {
@@ -336,12 +337,14 @@ class TransaccionBodega extends Model implements Auditable
 
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->despachado += $detalle['cantidad_inicial'];
                         $material->save();
                     } else {
                         $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
 
                         MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'despachado' => $detalle['cantidad_inicial'],
                             'tarea_id' => $transaccion->tarea_id,
                             'empleado_id' => $transaccion->responsable_id,
                             'detalle_producto_id' => $itemInventario->detalle_id,
@@ -354,17 +357,19 @@ class TransaccionBodega extends Model implements Auditable
                         ->where('empleado_id', $transaccion->responsable_id)
                         ->first();
 
-                    Log::channel('testing')->info('Log', compact('itemInventario'));
-                    Log::channel('testing')->info('Log', compact('transaccion'));
+                    // Log::channel('testing')->info('Log', compact('itemInventario'));
+                    // Log::channel('testing')->info('Log', compact('transaccion'));
 
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
+                        $material->despachado += $detalle['cantidad_inicial'];
                         $material->save();
                     } else {
                         $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
 
                         MaterialEmpleado::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
+                            'despachado' => $detalle['cantidad_inicial'],
                             'empleado_id' => $transaccion->responsable_id,
                             'detalle_producto_id' => $itemInventario->detalle_id,
                             'es_fibra' => $esFibra,
@@ -403,7 +408,7 @@ class TransaccionBodega extends Model implements Auditable
                         $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
                         Log::channel('testing')->info('Log', ['Detalle del pedido que entro en esta seccion es: ', $detallePedido]);
                         $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
-                        $detallePedido->save(); 
+                        $detallePedido->save();
                     }
                 }
             }
