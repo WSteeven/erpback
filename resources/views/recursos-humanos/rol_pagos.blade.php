@@ -45,6 +45,17 @@
         .totales {
             text-align: right;
         }
+
+        footer {
+            text-align: center;
+        }
+
+        .firma {
+            width: 100%;
+            line-height: normal;
+            font-size: 16px;
+            padding-top: 15%;
+        }
     </style>
 </head>
 
@@ -64,7 +75,7 @@
         </tr>
         <tr>
             <td colspan="3">
-                <h3 class="subtitulo-rol">Rol de Pagos de Marzo de 2023</h3>
+                <h3 class="subtitulo-rol">Rol de Pagos de {{ $rol_pago['mes'] }}</h3>
             </td>
 
         </tr>
@@ -78,7 +89,7 @@
         </tr>
         <tr>
             <td class="encabezado-tabla-rol"><strong>INGRESOS</strong> </td>
-            <td class="encabezado-tabla-rol"><strong>EGRESOS</strong></td>
+            <td class="encabezado-tabla-rol"><strong>DESCUENTOS</strong></td>
         </tr>
         <tr>
             <td>
@@ -128,11 +139,11 @@
                     @foreach ($rol_pago['ingresos'] as $ingreso)
                         <tr>
                             <td>
-                            {{ $ingreso->concepto_ingreso_info->nombre}}
+                                {{ $ingreso->concepto_ingreso_info->nombre }}
                             </td>
 
                             <td>
-                                {{ $ingreso->monto}}
+                                {{ $ingreso->monto }}
                             </td>
                         </tr>
                     @endforeach
@@ -146,13 +157,6 @@
 
                         <td>
                             {{ $rol_pago['iess'] }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Subsidio IESS</td>
-
-                        <td>
-                           0.00
                         </td>
                     </tr>
                     <tr>
@@ -190,16 +194,16 @@
 
                         <td>
                             {{ $rol_pago['prestamo_empresarial'] }}
-                         </td>
+                        </td>
                     </tr>
-                    @foreach ($rol_pago['descuentos'] as $descuento)
+                    @foreach ($rol_pago['egresos'] as $descuento)
                         <tr>
                             <td>
-                            {{ $descuento->descuento->nombre}}
+                                {{ $descuento->descuento->nombre }}
                             </td>
 
                             <td>
-                                {{ $descuento->monto}}
+                                {{ $descuento->monto }}
                             </td>
                         </tr>
                     @endforeach
@@ -237,10 +241,43 @@
                 </table>
             </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <table class="descripcion">
+                    <tr>
+                        <td>
+                            NETO A RECIBIR
+                        </td>
+                        <td class="totales">
+                            {{ $rol_pago['total'] }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
     </table>
-    </td>
+    <footer>
+        <table class="firma" style="width: 100%;">
+            <thead>
+                <th align="center">
+                    __________________________________________<br />
+                    <b>{{ $rol_pago['empleado_info'] }}</b>
+                    <br>
+                    <b>{{ $rol_pago['identificacion_empleado'] }}</b>
+                </th>
+                <th align="center"></th>
+                <th align="center">
+                    __________________________________________<br />
+                    <b>ING. LUIS MANUEL PEZANTEZ MORA</b>
+                    <br>
+                    <b>APROBADO POR</b>
+                </th>
+            </thead>
 
-    </table>
+        </table>
+        <p>Este Rol de pago es fiel copia del original que reposa en Contabilidad</p>
+    </footer>
+
 </body>
 
 </html>

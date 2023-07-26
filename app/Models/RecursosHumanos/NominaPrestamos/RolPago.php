@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,8 @@ class RolPago extends Model implements Auditable
         'dias',
         'sueldo',
         'anticipo',
+        'bonificacion',
+        'bono_recurente',
         'decimo_tercero',
         'decimo_cuarto',
         'prestamo_quirorafario',
@@ -36,6 +39,8 @@ class RolPago extends Model implements Auditable
         'id',
         'mes',
         'empleado',
+        'bonificacion',
+        'bono_recurente',
         'dias',
         'sueldo',
         'total_ingreso',
@@ -66,6 +71,8 @@ class RolPago extends Model implements Auditable
 
             $row['item'] = $id + 1;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+            $row['mes'] =  ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F \d\e Y'));
+            $row['identificacion_empleado'] =  $rol_pago->empleado_info->identificacion;
             $row['cargo'] = $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '';
             $row['dias_laborados'] = $rol_pago->dias;
             $row['sueldo'] = $rol_pago->sueldo;
@@ -84,6 +91,7 @@ class RolPago extends Model implements Auditable
             $row['total'] = $rol_pago->total;
             $row['supa'] = $rol_pago->empleado_info->supa;
             $row['ingresos'] = $rol_pago->ingreso_rol_pago;
+            $row['egresos'] = $rol_pago->egreso_rol_pago;
             $results[$id] = $row;
 
             $id++;
