@@ -185,6 +185,7 @@
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
+                <th>Serie</th>
                 <th>Cantidad</th>
                 <th>Despachado</th>
             </thead>
@@ -194,6 +195,7 @@
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['serial'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                         <td align="center">{{ $listado['despachado'] }}</td>
                     </tr>
