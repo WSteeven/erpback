@@ -58,8 +58,9 @@ class DetalleProductoController extends Controller
                     return response()->json(compact('results'));
                     break;
                 default: //todos
+                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
                     // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->limit(30)->get();
-                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
+                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
             }

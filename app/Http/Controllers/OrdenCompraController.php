@@ -10,13 +10,13 @@ use Illuminate\Support\Facades\Log;
 class OrdenCompraController extends Controller
 {
     private $entidad = 'Orden de compra';
-    /* public function __construct()
+    public function __construct()
     {
-        $this->middleware('can:puede.ver.pedidos')->only('index', 'show');
-        $this->middleware('can:puede.crear.pedidos')->only('store');
-        $this->middleware('can:puede.editar.pedidos')->only('update');
-        $this->middleware('can:puede.eliminar.pedidos')->only('destroy');
-    } */
+        $this->middleware('can:puede.ver.ordenes_compras')->only('index', 'show');
+        $this->middleware('can:puede.crear.ordenes_compras')->only('store');
+        $this->middleware('can:puede.editar.ordenes_compras')->only('update');
+        $this->middleware('can:puede.eliminar.ordenes_compras')->only('destroy');
+    }
 
     /**
      * Listar
