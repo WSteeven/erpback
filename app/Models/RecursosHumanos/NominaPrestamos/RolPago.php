@@ -79,7 +79,8 @@ class RolPago extends Model implements Auditable
             $row['decimo_tercero'] = $rol_pago->decimo_tercero;
             $row['decimo_cuarto'] = $rol_pago->decimo_cuarto;
             $row['fondos_reserva'] = $rol_pago->fondos_reserva;
-            $row['alimentacion'] = $rol_pago->alimentacion;
+            $row['bonificacion'] = $rol_pago->bonificacion;
+            $row['bono_recurente'] = $rol_pago->bono_recurente;
             $row['iess'] = $rol_pago->iess;
             $row['anticipo'] = $rol_pago->anticipo;
             $row['prestamo_quirorafario'] = $rol_pago->prestamo_quirorafario;

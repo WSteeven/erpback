@@ -122,13 +122,25 @@
                             {{ $rol_pago['decimo_cuarto'] }}
                         </td>
                     </tr>
+                    @if($rol_pago['bonificacion'] != null)
                     <tr>
                         <td>Bono</td>
 
                         <td>
-                            0.00
+                            {{ $rol_pago['bonificacion'] }}
                         </td>
                     </tr>
+                    @endif
+                    @if( $rol_pago['bono_recurente'] != null)
+                    <tr>
+                        <td>Bono Recurente</td>
+
+                        <td>
+                            {{ $rol_pago['bono_recurente'] }}
+                        </td>
+                    </tr>
+                    @endif
+                    @if($rol_pago['fondos_reserva']  != 0)
                     <tr>
                         <td>Fondos de Reserva</td>
 
@@ -136,6 +148,8 @@
                             {{ $rol_pago['fondos_reserva'] }}
                         </td>
                     </tr>
+                    @endif
+
                     @foreach ($rol_pago['ingresos'] as $ingreso)
                         <tr>
                             <td>

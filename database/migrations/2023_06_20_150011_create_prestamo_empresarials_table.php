@@ -19,10 +19,9 @@ return new class extends Migration
             $table->foreign('solicitante')->references('id')->on('empleados');
             $table->date('fecha');
             $table->decimal('monto', 8, 2);
-            $table->integer('utilidad')->nullable();
+            $table->unsignedBigInteger('periodo_id')->nullable();
+            $table->foreign('periodo_id')->references('id')->on('periodos');
             $table->decimal('valor_utilidad', 8, 2)->nullable();
-            $table->unsignedBigInteger('id_forma_pago');
-            $table->foreign('id_forma_pago')->references('id')->on('forma_pagos');
             $table->decimal('plazo', 8, 2);
             $table->enum('estado', ['ACTIVO', 'FINALIZADO']);
             $table->unsignedBigInteger('id_solicitud_prestamo_empresarial')->nullable();

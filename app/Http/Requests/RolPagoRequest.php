@@ -63,7 +63,8 @@ class RolPagoRequest extends FormRequest
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $horas_extras = $this->horas_extras;
         $comision = $this->comision;
-        $sueldo = ($salario / 30) * $this->dias;
+        $dias_permiso_sin_recuperar = $this->dias_permiso_sin_recuperar;
+        $sueldo = ($salario / 30) * ($this->dias-$dias_permiso_sin_recuperar);
         $decimo_tercero = ($salario / 360) * $this->dias;
         $decimo_cuarto = ($sueldo_basico / 360) * $this->dias;
         $fondos_reserva = 0;

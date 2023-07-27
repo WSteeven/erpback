@@ -20,18 +20,24 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         'solicitante',
         'fecha',
         'monto',
+        'periodo_id',
+        'valor_utilidad',
         'plazo',
         'motivo',
         'observacion',
         'foto',
         'estado'
     ];
-    public function estado_info(){
-        return $this->hasOne(Autorizacion::class,'id','estado');
+    public function estado_info()
+    {
+        return $this->hasOne(Autorizacion::class, 'id', 'estado');
     }
     public function empleado_info()
     {
         return $this->hasOne(Empleado::class, 'id', 'solicitante');
+    }
+    public function periodo_info(){
+        return $this->hasOne(Periodo::class, 'id', 'periodo_id');
     }
 
     private static $whiteListFilter = [
@@ -39,6 +45,8 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
         'solicitante',
         'fecha',
         'monto',
+        'periodo',
+        'valor_utilidad',
         'plazo',
         'motivo',
         'observacion',

@@ -28,6 +28,7 @@ class RolPagoResource extends JsonResource
             'cargo' => $this->empleado_info->cargo,
             'salario' => $this->empleado_info->salario,
             'dias' => $this->dias,
+            'mes' => $this->mes,
             'sueldo' => $this->sueldo,
             'bonificacion' => $this->bonificacion,
             'bono_recurente' => $this->bono_recurente,

@@ -31,34 +31,42 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
         if ($usuario_ac->hasRole('GERENTE') || $usuario_ac->hasRole('RECURSOS HUMANOS')) {
             $rules = [
                 'fecha' => 'required|date_format:Y-m-d',
-                'solicitante'=>'required|numeric',
+                'solicitante' => 'required|numeric',
                 'monto' => 'required|numeric',
                 'plazo' => 'nullable|string',
+                'periodo_id' => 'nullable|exists:periodos,id',
+                'valor_utilidad' => 'nullable|numeric',
                 'motivo' => 'nullable|string',
                 'foto' => 'nullable|string',
                 'estado' => 'required|numeric',
                 'observacion' => 'required|string',
             ];
-        }else{
+        } else {
             $rules = [
                 'fecha' => 'required|date_format:Y-m-d',
-                'solicitante'=>'required|numeric',
+                'solicitante' => 'required|numeric',
                 'monto' => 'required|numeric',
                 'motivo' => 'nullable|string',
+                'periodo_id' => 'nullable|exists:periodos,id',
+                'valor_utilidad' => 'nullable|numeric',
                 'foto' => 'nullable|string',
                 'estado' => 'required|numeric',
             ];
         }
-      return $rules;
+        return $rules;
     }
     protected function prepareForValidation()
     {
         $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
-            'solicitante'=>$this->solicitante!=null? $this->solicitante : Auth::user()->empleado->id,
-            'fecha'=>$fecha->format('Y-m-d'),
-            'estado' =>$this->estado==null? 1:$this->estado
+            'solicitante' => $this->solicitante != null ? $this->solicitante : Auth::user()->empleado->id,
+            'fecha' => $fecha->format('Y-m-d'),
+            'estado' => $this->estado == null ? 1 : $this->estado
         ]);
+        if ($this->periodo != null) {
+            $this->merge([
+                'periodo_id' => $this->periodo,
+            ]);
+        }
     }
-
 }

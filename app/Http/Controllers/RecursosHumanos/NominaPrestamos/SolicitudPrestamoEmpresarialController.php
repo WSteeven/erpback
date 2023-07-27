@@ -94,11 +94,11 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $salario = $empleado->salario;
         $anticipo = $salario *  $porcentaje_anticipo;
-        if ($valor_pago <= $anticipo) {
+       /* if ($valor_pago <= $anticipo) {
             throw ValidationException::withMessages([
                 '404' => ['No se puede generar coutas menores o iguales  ' . ($valor_pago / 100) . '%'],
             ]);
-        }
+        }*/
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);

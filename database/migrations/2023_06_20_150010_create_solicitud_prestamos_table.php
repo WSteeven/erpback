@@ -20,6 +20,9 @@ return new class extends Migration
             $table->date('fecha');
             $table->decimal('monto', 8, 2);
             $table->decimal('plazo', 8, 2);
+            $table->unsignedBigInteger('periodo_id')->nullable();
+            $table->foreign('periodo_id')->references('id')->on('periodos');
+            $table->decimal('valor_utilidad', 8, 2)->nullable();
             $table->text('motivo');
             $table->text('observacion');
             $table->text('foto');

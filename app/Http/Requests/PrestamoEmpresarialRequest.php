@@ -29,9 +29,8 @@ class PrestamoEmpresarialRequest extends FormRequest
             'fecha' => 'required|date_format:Y-m-d',
             'solicitante'=>'required|numeric',
             'monto' => 'required|numeric',
-            'utilidad' => 'nullable|date_format:Y',
+            'periodo_id' => 'nullable|exists:periodos,id',
             'valor_utilidad' => 'nullable|numeric',
-            'id_forma_pago' => 'required|numeric',
             'plazo' => 'required|string',
             'estado' => 'required|string',
         ];
@@ -40,7 +39,6 @@ class PrestamoEmpresarialRequest extends FormRequest
     {
         $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
-            'id_forma_pago' => $this->forma_pago,
             'fecha'=>$fecha->format('Y-m-d'),
             'estado' => 'ACTIVO'
         ]);

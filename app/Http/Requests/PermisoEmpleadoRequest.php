@@ -45,7 +45,7 @@ class PermisoEmpleadoRequest extends FormRequest
         $fecha_inicio = Carbon::createFromFormat('d-m-Y H:i', $this->fecha_hora_inicio);
         $fecha_fin = Carbon::createFromFormat('d-m-Y H:i', $this->fecha_hora_fin);
        if ($this->fecha_hora_reagendamiento != null) {
-        $fecha_hora_reagendamiento = Carbon::createFromForrmat('d-m-Y H:i',$this->fecha_hora_reagendamiento);
+        $fecha_hora_reagendamiento = Carbon::createFromFormat('d-m-Y H:i',$this->fecha_hora_reagendamiento);
        }
         if($this->fecha_recuperacion !=null) {
         $fecha_recuperacion = Carbon::createFromFormat('d-m-Y',$this->fecha_recuperacion);

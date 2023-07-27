@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('tipo_permiso_id')->references('id')->on('motivo_permiso_empleados');
             $table->dateTime('fecha_hora_inicio');
             $table->dateTime('fecha_hora_fin');
+            $table->dateTime('fecha_hora_reagendamiento');
             $table->date('fecha_recuperacion')->nullable();
             $table->time('hora_recuperacion')->nullable();
             $table->string('justificacion');
