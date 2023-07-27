@@ -32,10 +32,13 @@ class PermisoEmpleadoResource extends JsonResource
             'id_jefe_inmediato' => $this->empleado_info->jefe->id,
             'jefe_inmediato' =>  $this->empleado_info->jefe->nombres.''. $this->empleado_info->jefe->apellidos,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'fecha_hora_reagendamiento' =>$this->fecha_hora_reagendamiento? Carbon::parse($this->fecha_hora_reagendamiento)->format('d-m-Y H:i:s'):null,
             'nombre' =>$this->documento!= null?json_decode($this->documento)->nombre:'',
             'ruta' =>$this->documento?url(json_decode($this->documento)->ruta):null,
             'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
-            'cargo_vacaciones' =>$this->cargo_vacaciones
+            'cargo_vacaciones' =>$this->cargo_vacaciones,
+            'suguiere_fecha' =>$this->fecha_hora_reagendamiento?true:false,
+            'observacion' =>$this->observacion
         ];
         return $modelo;
     }

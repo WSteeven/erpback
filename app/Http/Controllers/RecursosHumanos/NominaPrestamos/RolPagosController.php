@@ -153,7 +153,7 @@ class RolPagosController extends Controller
             $export_excel = new RolPagoExport($reportes);
             Log::channel('testing')->info('Log', ['reporte',$reportes]);
 
-            return $this->reporteService->imprimir_reporte('pdf', 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([

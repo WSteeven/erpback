@@ -25,7 +25,9 @@ class PermisoEmpleado extends Model implements Auditable
         'fecha_hora_fin',
         'fecha_recuperacion',
         'hora_recuperacion',
+        'fecha_hora_reagendamiento',
         'justificacion',
+        'observacion',
         'estado_permiso_id',
         'empleado_id',
         'cargo_vacaciones'
@@ -42,7 +44,9 @@ class PermisoEmpleado extends Model implements Auditable
         'fecha_hora_fin',
         'fecha_recuperacion',
         'hora_recuperacion',
+        'fecha_hora_reagendamiento',
         'justificacion',
+        'observacion',
         'documento',
         'cargo_vacaciones'
 
