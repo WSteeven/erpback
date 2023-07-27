@@ -6,6 +6,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class DevolucionRequest extends FormRequest
@@ -88,7 +89,7 @@ class DevolucionRequest extends FormRequest
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRATIVO]) && $this->tarea) {
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRATIVO]) && $this->tarea && $this->route()->getActionMethod()!='update') {
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,
