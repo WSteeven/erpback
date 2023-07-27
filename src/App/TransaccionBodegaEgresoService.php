@@ -7,9 +7,11 @@ use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Motivo;
+use App\Models\Subtarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -818,5 +820,23 @@ class TransaccionBodegaEgresoService
                 break;
         }
         return $results;
+    }
+
+    public function obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado)
+    {
+        $subtarea = Subtarea::find($idSubtarea);
+        $fecha_inicio = Carbon::parse($subtarea->fecha_hora_ejecucion)->format('Y-m-d');
+        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
+
+        return DB::table('seguimientos_materiales_subtareas as sms')
+            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
+            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+            ->whereBetween('sms.created_at', [$fecha_inicio, $fecha_fin])
+            ->where('empleado_id', $idEmpleado)
+            ->where('subtarea_id', $idSubtarea)
+            ->groupBy('producto')
+            ->get();
+
+        // return response()->json(compact('results'));
     }
 }

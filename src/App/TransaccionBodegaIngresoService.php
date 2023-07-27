@@ -4,6 +4,8 @@ namespace Src\App;
 
 use App\Models\Autorizacion;
 use App\Models\EstadoTransaccion;
+use App\Models\MaterialEmpleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
@@ -259,7 +261,7 @@ class TransaccionBodegaIngresoService
 
     /*********************************************************************************************
     Filtros sin paginación
-    ***********************************************************************************************/
+     ***********************************************************************************************/
     /**
      * DESUSO
      */
@@ -451,7 +453,7 @@ class TransaccionBodegaIngresoService
         $results = [];
         switch ($estado) {
             case 'ESPERA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id","estado_id","comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id", "estado_id", "comprobante", "fecha_limite", "solicitante_id", "subtipo_id", "tarea_id", "subtarea_id", "sucursal_id", "per_autoriza_id", "per_atiende_id"])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -461,7 +463,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PARCIAL':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion","autorizacion_id","estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id", "estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -473,7 +475,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'PENDIENTE':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id","estado_id","comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id", "estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -485,7 +487,7 @@ class TransaccionBodegaIngresoService
                     ->filter()->get();
                 return $results;
             case 'COMPLETA':
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id","estado_id","comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id", "estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -498,7 +500,7 @@ class TransaccionBodegaIngresoService
                 return $results;
             default:
                 // Log::channel('testing')->info('Log', ['Estoy en el default y el estado es', $estado]);
-                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion","autorizacion_id","estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
+                $results = TransaccionBodega::select(["transacciones_bodega.id", "justificacion", "autorizacion_id", "estado_id", "comprobante", "fecha_limite", "solicitante_id", "motivo_id", "tarea_id",  "sucursal_id", "per_autoriza_id", "per_atiende_id", "per_retira_id",])
                     ->join('motivos', 'motivo_id', '=', 'motivos.id')
                     ->join('tipos_transacciones', 'motivos.tipo_transaccion_id', '=', 'tipos_transacciones.id')
                     ->where('tipos_transacciones.nombre', '=', $tipo)
@@ -509,75 +511,110 @@ class TransaccionBodegaIngresoService
     }
 
 
-    public static function filtrarIngresoPorTipoFiltro($request){
+    public static function filtrarIngresoPorTipoFiltro($request)
+    {
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
-        switch($request->tipo){
+        switch ($request->tipo) {
             case 0: //persona que solicita el ingreso
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('solicitante_id', $request->solicitante)
-                    ->whereBetween('created_at',
+                    ->whereBetween(
+                        'created_at',
                         [
                             date('Y-m-d', strtotime($request->fecha_inicio)),
-                            $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                        ])->orderBy('id', 'desc')->get();
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
-            case 1://bodeguero
+            case 1: //bodeguero
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('per_atiende_id', $request->per_atiende)
-                    ->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),//start date
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s") //end date
-                    ])->orderBy('id', 'desc')->get(); //sort descending
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)), //start date
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s") //end date
+                        ]
+                    )->orderBy('id', 'desc')->get(); //sort descending
                 break;
             case 2: //motivos
                 $results = TransaccionBodega::where('motivo_id', $request->motivo)
-                    ->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                    ])->orderBy('id', 'desc')->get();
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
             case 3: //bodega o sucursal
-                $request->sucursal!=0?$results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
-                    ->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                    ])->orderBy('id', 'desc')->get():$results = TransaccionBodega::whereIn('motivo_id', $motivos)->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                    ])->orderBy('id', 'desc')->get();
+                $request->sucursal != 0 ? $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get() : $results = TransaccionBodega::whereIn('motivo_id', $motivos)->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
-            case 4:// devolucion
+            case 4: // devolucion
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->devolucion)
-                    ->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                    ])->orderBy('id', 'desc')->get();
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
             case 5: //tarea
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('devolucion_id', $request->tarea)
-                    ->whereBetween('created_at',
-                    [
-                        date('Y-m-d', strtotime($request->fecha_inicio)),
-                        $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                    ])->orderBy('id', 'desc')->get();
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
             case 6: //transferencia
                 $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('transferencia_id', $request->transferencia)
-                ->whereBetween('created_at',
-                [
-                    date('Y-m-d', strtotime($request->fecha_inicio)),
-                    $request->fecha_fin?date('Y-m-d', strtotime($request->fecha_fin)):date("Y-m-d h:i:s")
-                ])->orderBy('id', 'desc')->get();
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->orderBy('id', 'desc')->get();
                 break;
             default:
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();// todos los ingresos
-            break;
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get(); // todos los ingresos
+                break;
         }
         return $results;
+    }
+
+    public function descontarMaterialesAsignados($listado, $transaccion, $detalle)
+    {
+        if ($transaccion->tarea_id) {
+            $materialTarea = MaterialEmpleadoTarea::where('empleado_id', $transaccion->solicitante_id)
+                ->where('tarea_id', $transaccion->tarea_id)
+                ->where('detalle_producto_id', $detalle->id)->first();
+            $materialTarea->cantidad_stock -= $listado['cantidad'];
+            $materialTarea->devuelto += $listado['cantidad'];
+            $materialTarea->save();
+        } else { // Devolucion de stock personal
+            $material = MaterialEmpleado::where('empleado_id', $transaccion->solicitante_id)
+                ->where('detalle_producto_id', $detalle->id)->first();
+            $material->cantidad_stock -= $listado['cantidad'];
+            $material->devuelto += $listado['cantidad'];
+            $material->save();
+        }
     }
 }
