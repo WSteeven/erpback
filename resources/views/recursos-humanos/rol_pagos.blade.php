@@ -122,32 +122,32 @@
                             {{ $rol_pago['decimo_cuarto'] }}
                         </td>
                     </tr>
-                    @if($rol_pago['bonificacion'] != null)
-                    <tr>
-                        <td>Bono</td>
+                    @if ($rol_pago['bonificacion'] != null)
+                        <tr>
+                            <td>Bono</td>
 
-                        <td>
-                            {{ $rol_pago['bonificacion'] }}
-                        </td>
-                    </tr>
+                            <td>
+                                {{ $rol_pago['bonificacion'] }}
+                            </td>
+                        </tr>
                     @endif
-                    @if( $rol_pago['bono_recurente'] != null)
-                    <tr>
-                        <td>Bono Recurente</td>
+                    @if ($rol_pago['bono_recurente'] != null)
+                        <tr>
+                            <td>Bono Recurente</td>
 
-                        <td>
-                            {{ $rol_pago['bono_recurente'] }}
-                        </td>
-                    </tr>
+                            <td>
+                                {{ $rol_pago['bono_recurente'] }}
+                            </td>
+                        </tr>
                     @endif
-                    @if($rol_pago['fondos_reserva']  != 0)
-                    <tr>
-                        <td>Fondos de Reserva</td>
+                    @if ($rol_pago['fondos_reserva'] != 0)
+                        <tr>
+                            <td>Fondos de Reserva</td>
 
-                        <td>
-                            {{ $rol_pago['fondos_reserva'] }}
-                        </td>
-                    </tr>
+                            <td>
+                                {{ $rol_pago['fondos_reserva'] }}
+                            </td>
+                        </tr>
                     @endif
 
                     @foreach ($rol_pago['ingresos'] as $ingreso)
@@ -180,36 +180,44 @@
                             {{ $rol_pago['anticipo'] }}
                         </td>
                     </tr>
-                    <tr>
-                        <td>Prestamo Quirorafario</td>
+                    @if ($rol_pago['prestamo_quirorafario'] > 0)
+                        <tr>
+                            <td>Prestamo Quirorafario</td>
 
-                        <td>
-                            {{ $rol_pago['prestamo_quirorafario'] }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Prestamo Hipotecario</td>
+                            <td>
+                                {{ $rol_pago['prestamo_quirorafario'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($rol_pago['prestamo_hipotecario'] > 0)
+                        <tr>
+                            <td>Prestamo Hipotecario</td>
 
-                        <td>
-                            {{ $rol_pago['prestamo_hipotecario'] }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Extension de Salud</td>
+                            <td>
+                                {{ $rol_pago['prestamo_hipotecario'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($rol_pago['extension_conyugal'] > 0)
+                        <tr>
+                            <td>Extension de Salud</td>
 
-                        <td>
-                            {{ $rol_pago['extension_conyugal'] }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Prestamo Empresarial
-                        </td>
+                            <td>
+                                {{ $rol_pago['extension_conyugal'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($rol_pago['prestamo_empresarial'] > 0)
+                        <tr>
+                            <td>
+                                Prestamo Empresarial
+                            </td>
 
-                        <td>
-                            {{ $rol_pago['prestamo_empresarial'] }}
-                        </td>
-                    </tr>
+                            <td>
+                                {{ $rol_pago['prestamo_empresarial'] }}
+                            </td>
+                        </tr>
+                    @endif
                     @foreach ($rol_pago['egresos'] as $descuento)
                         <tr>
                             <td>
