@@ -122,7 +122,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->solicitante = $request->solicitante;
         $PrestamoEmpresarial->fecha = $request->fecha;
         $PrestamoEmpresarial->monto = $request->monto;
-        $PrestamoEmpresarial->id_forma_pago = 1;
         $PrestamoEmpresarial->plazo = $request->plazo;
         $PrestamoEmpresarial->estado = $request->estado;
         $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
@@ -152,7 +151,9 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $plazo = [
                 'num_cuota' => $index,
                 'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
-                'valor_a_pagar' => number_format($valor_cuota / $plazo_prestamo, 2),
+                'valor_couta' => number_format($valor_cuota / $plazo_prestamo, 2),
+                'valor_pagado' => 0,
+                'valor_a_pagar'=>0,
                 'pago_couta' => false,
             ];
             array_push($plazos, $plazo);
@@ -201,6 +202,8 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 'pago_couta' => false,
                 'num_cuota' => $plazo['num_cuota'],
                 'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'valor_couta'=> $plazo['valor_couta'],
+                'valor_pagado' => $plazo['valor_pagado'],
                 'valor_a_pagar' => $plazo['valor_a_pagar']
             ];
         })->toArray();

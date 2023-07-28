@@ -9,6 +9,7 @@ use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -86,6 +87,19 @@ class VacacionController extends Controller
         // 1. Verificar y obtener la vacación existente o crear una nueva
         $datos = $request->validated();
         $empleado_tiene_vacaciones = Vacacion::where('empleado_id', $request->empleado_id)->where('periodo_id', $request->periodo_id)->first();
+        $empleado = Empleado::where('id', $request->empleado_id)->first();
+        $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
+        $fechaActual = Carbon::now();
+
+        // Calcula la diferencia entre las dos fechas en años
+        $diferencia = $fechaInicio->diffInYears($fechaActual);
+        if ($diferencia <= 1) {
+            throw ValidationException::withMessages([
+                '404' => ['Vacaciones no disponibles debido a que no cumple un año trabajando en la empresa'],
+            ]);
+        }
+
+
         if ($empleado_tiene_vacaciones != null) {
             throw ValidationException::withMessages([
                 '404' => ['Ya ha solicitado vaciones en este periodo'],
@@ -96,7 +110,7 @@ class VacacionController extends Controller
             if ($dias_descuentos_permiso == 0) {
                 if ($request->numero_dias != 15) {
                     throw ValidationException::withMessages([
-                        '404' => ['Por favor ingrese solo 15 días'],
+                        '404' => ['Por favor ingrese en rangos de vacaciones'],
                     ]);
                 }
             }

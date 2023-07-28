@@ -18,6 +18,8 @@ return new class extends Migration
             $table->bigInteger('num_cuota');
             $table->date('fecha_vencimiento');
             $table->date('fecha_pago')->nullable();
+            $table->decimal( 'valor_couta');
+            $table->decimal('valor_pagado');
             $table->decimal('valor_a_pagar');
             $table->unsignedBigInteger('id_prestamo_empresarial');
             $table->foreign('id_prestamo_empresarial')->references('id')->on('prestamo_empresarial');

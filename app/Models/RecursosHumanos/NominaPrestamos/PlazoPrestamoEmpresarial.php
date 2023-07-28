@@ -17,6 +17,8 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
     protected $fillable = [
         'num_cuota',
         'fecha_pago',
+        'valor_couta',
+        'valor_pagado',
         'valor_a_pagar',
         'id_prestamo_empresarial',
         'pago_couta'
@@ -26,6 +28,8 @@ class PlazoPrestamoEmpresarial extends Model implements Auditable
         'id',
         'num_cuota',
         'fecha_pago',
+        'valor_couta',
+        'valor_pagado',
         'valor_a_pagar',
         'prestamo_empresarial',
         'pago_couta'
