@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CalificacionDepartamentoProveedorResource;
 use App\Models\CalificacionDepartamentoProveedor;
 use App\Models\DetalleDepartamentoProveedor;
+use App\Models\Proveedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,7 @@ class CalificacionDepartamentoProveedorController extends Controller
 
     public function store(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);
+        Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', $request->all()]);
         try {
             DB::beginTransaction();
 
@@ -58,6 +59,9 @@ class CalificacionDepartamentoProveedorController extends Controller
                 'empleado_id' => auth()->user()->empleado->id,
                 'fecha_calificacion' => date('Y-m-d H:i:s')
             ]);
+
+            // $proveedor = Proveedor::find($request->proveedor_id);
+            Proveedor::guardarCalificacion($request->proveedor_id); //Aquí se llama a la función para guardar la calificacion del proveedor
             $modelo = $detalle->refresh();
 
             return response()->json(['mensaje' => 'Se crearon exitosamente las calificaciones',  'permisos' => $modelos, 'modelo' => $modelo]);

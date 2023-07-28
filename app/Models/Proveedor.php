@@ -24,12 +24,20 @@ class Proveedor extends Model implements Auditable
         "direccion",
         "celular",
         "telefono",
+        "calificacion",
+        "estado_calificado",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'estado' => 'boolean',
     ];
+
+    const CALIFICADO = 'CALIFICADO'; // cuando está calificado por todos los departamentos
+    const PARCIAL = 'PARCIAL';  // cuando al menos un departamento ha calificado el proveedor
+    const SIN_CALIFICAR = 'SIN CALIFICAR';  // cuando aún no califica ningun departamento
+    const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
+
 
     private static $whiteListFilter = ['*'];
 
@@ -74,15 +82,28 @@ class Proveedor extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
+
+     public static function guardarCalificacion($proveedor_id){
+        $proveedor = Proveedor::find($proveedor_id);
+        if($proveedor->departamentos_califican->count()==2){
+            $calificaciones = [];
+            foreach($proveedor->departamentos_calificacion as $index=>$departamento){
+                if($departamento->pivot->calificacion !=null){
+                    $row['departamento_id'] = $departamento->id;
+                    $row['calificacion'] = $departamento->pivot->calificacion;
+                    $calificaciones[$index] = $row;
+                }
+            }
+            $suma = self::calcularPesos($calificaciones);
+        }
+     }
+
     public static function obtenerCalificacion($proveedor_id)
     {
         $proveedor = Proveedor::find($proveedor_id);
-        // Log::channel('testing')->info('Log', ['Conteo de departamentos', $proveedor->departamentos_califican->count()]);
         if ($proveedor->departamentos_califican->count() == 2) {
             $calificaciones = [];
             foreach ($proveedor->departamentos_califican as $index => $departamento) {
-                // Log::channel('testing')->info('Log', ['Departamento calificador: ', $departamento]);
-                // Log::channel('testing')->info('Log', ['Departamento calificador: ', $departamento->pivot->calificacion]);
                 if ($departamento->pivot->calificacion != null) {
                     $row['departamento_id'] = $departamento->id;
                     $row['calificacion'] = $departamento->pivot->calificacion;

@@ -42,7 +42,6 @@ class ProveedorController extends Controller
         $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
         try {
             DB::beginTransaction();
-            //Adaptación de foreign keys
             $datos = $request->validated();
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];

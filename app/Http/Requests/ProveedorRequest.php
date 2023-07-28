@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proveedor;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class ProveedorRequest extends FormRequest
 {
@@ -35,6 +37,8 @@ class ProveedorRequest extends FormRequest
             'tipos_ofrece.*' => 'required',
             'categorias_ofrece.*' => 'required',
             'departamentos.*' => 'required',
+            "calificacion" => 'nullable|numeric',
+            "estado_calificado" => 'required|string',
         ];
     }
 
@@ -47,17 +51,19 @@ class ProveedorRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if (is_null($this->celular)) {
-                $this->merge([
-                    $this->celular => '-',
-                ]);
-            }
+            // aqui va toda la validacion donde se lanzan errores segun sea necesario
         });
     }
     public function prepareForValidation()
     {
         if (is_null($this->celular)) {
-            $this->merge([$this->celular => '12345']);
+            $this->merge(['celular' => '0999999999']);
+        }
+        if ($this->route()->getActionMethod() == 'store') {
+            $this->merge(['calificacion' => 0.00]);
+        }
+        if (is_null($this->estado_calificado) || $this->estado_calificado === '') {
+            $this->merge(['estado_calificado' => Proveedor::SIN_CALIFICAR]);
         }
     }
 }

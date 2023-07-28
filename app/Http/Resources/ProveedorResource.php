@@ -32,9 +32,10 @@ class ProveedorResource extends JsonResource
             'tipos_ofrece' => $this->servicios_ofertados->map(fn($item)=>$item->id),
             'departamentos' => $this->departamentos_califican->map(fn($item)=>$item->id),
             'related_departamentos' => $this->departamentos_califican,
+            // 'calificacion' => $this->calificacion?$this->calificacion:0,
+            // 'estado_calificado' => $this->estado_calificado?$this->estado_calificado: Proveedor::SIN_CONFIGURAR,
             'calificacion' => $calificacion,
-            'calificado' => $estado,
-
+            'estado_calificado' => $estado,
         ];
 
         if ($controller_method == 'show') {
