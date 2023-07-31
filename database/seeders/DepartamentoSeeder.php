@@ -21,7 +21,7 @@ class DepartamentoSeeder extends Seeder
             ['nombre' => 'BODEGA'],
             ['nombre' => 'SEGURIDAD LABORAL'],
             ['nombre' => 'RECURSOS HUMANOS'],
-            ['nombre' => 'INFORMÁTICO'],
+            ['nombre' => 'INFORMATICA'],
             ['nombre' => 'CONTABILIDAD'],
             ['nombre' => 'GERENCIA GENERAL'],
             ['nombre' => 'ACTIVOS FIJOS'],
