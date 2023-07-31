@@ -115,7 +115,6 @@ class SolicitudPrestamoEmpresarialController extends Controller
     {
         $datos = $request->validated();
         $datos['estado'] = 2;
-        Log::channel('testing')->info('Log', ['datos', $datos]);
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         $PrestamoEmpresarial = new PrestamoEmpresarial();

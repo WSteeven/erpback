@@ -11,20 +11,17 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
-use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagoMesController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
-use App\Models\RecursosHumanos\NominaPrestamos\LicenciaEmpleado;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\Vacacion;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -32,6 +29,7 @@ Route::apiResources(
     [
         'departamentos' => DepartamentoController::class,
         'rol-pagos' => RolPagosController::class,
+        'rol_pago_mes' => RolPagoMesController::class,
         'concepto_ingreso' => ConceptoIngresoController::class,
         'horas_extras_tipo' => HorasExtrasTipoController::class,
         'horas_extras_subtipo' => HorasExtrasSubTipoController::class,

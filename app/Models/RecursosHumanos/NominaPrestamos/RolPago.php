@@ -16,6 +16,11 @@ class RolPago extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'rol_pago';
+    const CREADO = 'CREADO';
+    const EJECUTANDO = 'EJECUTANDO';
+    const CANCELADO = 'CANCELADO';
+    const REALIZADO = 'REALIZADO';
+    const FINALIZADO = 'FINALIZADO';
     protected $fillable = [
         'empleado_id',
         'mes',
@@ -32,7 +37,9 @@ class RolPago extends Model implements Auditable
         'total_ingreso',
         'iess',
         'total_egreso',
-        'total'
+        'total',
+        'estado',
+        'rol_pago_id'
 
     ];
     private static $whiteListFilter = [
@@ -45,7 +52,9 @@ class RolPago extends Model implements Auditable
         'sueldo',
         'total_ingreso',
         'total_egreso',
-        'total'
+        'total',
+        'estado',
+        'rol_pago_id'
     ];
 
     public function empleado_info()
@@ -99,4 +108,9 @@ class RolPago extends Model implements Auditable
         }
         return $results;
     }
+     // Relacion uno a muchos (inversa)
+     public function rolPagoMes()
+     {
+         return $this->belongsTo(RolPagoMes::class);
+     }
 }

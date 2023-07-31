@@ -85,9 +85,7 @@ class RolPagoRequest extends FormRequest
         $prestamo_empresarial = PrestamoEmpresarial::where('estado', 'ACTIVO')
             ->whereRaw('DATE_FORMAT(fecha, "%Y-%m") <= ?', [$this->mes])
             ->sum('monto');
-        $multas = 0; /*array_reduce($this->multas, function ($acumulado, $multa) {
-            return $acumulado + (float) $multa['monto'];
-        }, 0);*/
+        $multas = 0;
         $totalEgresos = $totalIngresos = !empty($this->egresos)
             ? array_reduce($this->multas, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
