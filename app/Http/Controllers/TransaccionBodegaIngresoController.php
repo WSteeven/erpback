@@ -83,14 +83,13 @@ class TransaccionBodegaIngresoController extends Controller
                 $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
                 $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea']; //Comprobar si hay tarea
 
-
-
+                // Devolucion
                 $transaccion = TransaccionBodega::create($datos);
-                Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
+                // Log::channel('testing')->info('Log', ['Transaccion creada', $transaccion]);
 
 
                 if ($request->ingreso_masivo) {
-                    Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);
+                    // Log::channel('testing')->info('Log', ['ENTRO EN INGRESO MASIVO']);
                     //Guardar los productos seleccionados en el detalle
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         // Log::channel('testing')->info('Log', ['item del listado para ingresar', $listado]);
@@ -112,18 +111,8 @@ class TransaccionBodegaIngresoController extends Controller
 
                         //cuando se produce una devolucion de tarea se resta el material del stock de tarea del empleado
                         if ($transaccion->devolucion_id) {
-                            if ($transaccion->tarea_id) {
-                                $materialTarea = MaterialEmpleadoTarea::where('empleado_id', $transaccion->solicitante_id)
-                                    ->where('tarea_id', $transaccion->tarea_id)
-                                    ->where('detalle_producto_id', $detalle->id)->first();
-                                $materialTarea->cantidad_stock -= $listado['cantidad'];
-                                $materialTarea->save();
-                            } else {
-                                $material = MaterialEmpleado::where('empleado_id', $transaccion->solicitante_id)
-                                    ->where('detalle_producto_id', $detalle->id)->first();
-                                $material->cantidad_stock -= $listado['cantidad'];
-                                $material->save();
-                            }
+                            $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
+
                             $devolucion = Devolucion::find($transaccion->devolucion_id);
                             $devolucion->estado_bodega = EstadoTransaccion::COMPLETA;
                             $devolucion->save();
@@ -153,6 +142,14 @@ class TransaccionBodegaIngresoController extends Controller
                             $fila = Inventario::estructurarItem($detalle->id, $transaccion->sucursal_id, $transaccion->cliente_id, $condicion->id, $listado['cantidad']);
                             $itemInventario = Inventario::create($fila);
                             $transaccion->items()->attach($itemInventario->id, ['cantidad_inicial' => $listado['cantidad']]);
+                        }
+
+                        if ($transaccion->devolucion_id) {
+                            $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
+
+                            $devolucion = Devolucion::find($transaccion->devolucion_id);
+                            $devolucion->estado_bodega = EstadoTransaccion::COMPLETA;
+                            $devolucion->save();
                         }
                     }
                 }
@@ -358,7 +355,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                     $reporte = $registros;
                     $peticion = $request->all();
-                    $pdf = Pdf::loadView('bodega.reportes.ingresos_bodega', compact(['reporte','peticion']));
+                    $pdf = Pdf::loadView('bodega.reportes.ingresos_bodega', compact(['reporte', 'peticion']));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
                     return $pdf->output();

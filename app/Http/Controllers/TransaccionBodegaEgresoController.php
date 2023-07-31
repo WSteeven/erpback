@@ -81,12 +81,14 @@ class TransaccionBodegaEgresoController extends Controller
         $request->validate([
             'tarea_id' => 'required|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
+            'subtarea_id' => 'nullable|numeric|integer',
         ]);
         // $empleado_id = Auth::user()->empleado->id;
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-        $results = MaterialEmpleadoTarea::filter()->get();
+        $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
 
-        $results = collect($results)->map(function ($item, $index) {
+
+        $materialesTarea = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             return [
                 'item' => $index + 1,
@@ -96,10 +98,26 @@ class TransaccionBodegaEgresoController extends Controller
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
-                'total_cantidad_utilizada' => intval($item->despachado) - intval($item->cantidad_stock),
+                'devuelto' => intval($item->devuelto),
                 // 'medida' => 'm',
             ];
         });
+
+        if ($request['subtarea_id']) {
+            $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+            $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
+                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                        return $item->detalle_producto_id === $material['detalle_producto_id'];
+                    })->suma_total;
+                }
+                return $material;
+            });
+
+            return response()->json(compact('results'));
+        }
+
+        $results = $materialesTarea;
 
         return response()->json(compact('results'));
     }

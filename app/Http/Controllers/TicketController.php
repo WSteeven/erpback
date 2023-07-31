@@ -44,6 +44,7 @@ class TicketController extends Controller
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
         $datos['departamento_responsable_id'] = $request->safe()->only(['departamento_responsable'])['departamento_responsable'];
+        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
 
         // Calcular estados
         $datos['estado'] = Ticket::ASIGNADO;

@@ -34,6 +34,7 @@ class TicketRequest extends FormRequest
             'departamento_responsable' => 'required|numeric|integer',
             'tipo_ticket' => 'required|numeric|integer',
             'ticket_interno' => 'boolean',
+            'ticket_para_mi' => 'boolean',
         ];
     }
 }
