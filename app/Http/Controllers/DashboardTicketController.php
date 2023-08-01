@@ -46,17 +46,23 @@ class DashboardTicketController extends Controller
         $cantTicketsReasignados = $empleado->tickets()->where('estado', Ticket::REASIGNADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsEjecutados = $empleado->tickets()->where('estado', Ticket::EJECUTANDO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsPausados = $empleado->tickets()->where('estado', Ticket::PAUSADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
-        $cantTicketsFinalizadosSolucionados = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SOLUCIONADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+        //$cantTicketsFinalizadosSolucionados = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SOLUCIONADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+        //$cantTicketsFinalizadosSinSolucion = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SIN_SOLUCION)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $ticketsFinalizadosSolucionados = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SOLUCIONADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
-
-        $cantTicketsFinalizadosSinSolucion = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SIN_SOLUCION)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+        $ticketsFinalizadosSinSolucion = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SIN_SOLUCION)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
 
         $idsRecibidos = $recibidos->pluck('id')->toArray();
         $idsCreados = $creados->pluck('id')->toArray();
 
-        $idsTicketsCalificadosResponsable = CalificacionTicket::where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', CalificacionTicket::RESPONSABLE)->whereIn('ticket_id', $idsRecibidos)->pluck('id')->toArray();
-        $restaTicketsFinalizadosSolucionados = $ticketsFinalizadosSolucionados->filter(fn ($ticket) => !in_array($ticket->id, $idsTicketsCalificadosResponsable));
-        Log::channel('testing')->info('Log', ['restaTicketsFinalizadosSolucionados', $restaTicketsFinalizadosSolucionados]);
+        // Restar a los tickets finalizados solucionados aquellos q fueron calificados por el responsable
+        $idsTicketsCalificadosResponsable = CalificacionTicket::where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', CalificacionTicket::RESPONSABLE)->whereIn('ticket_id', $idsRecibidos)->pluck('ticket_id')->toArray();
+        $cantTicketsFinalizadosSolucionados = $ticketsFinalizadosSolucionados->filter(fn ($ticket) => !in_array($ticket->id, $idsTicketsCalificadosResponsable))->count();
+
+        // Restar a los tickets finalizados sin solucion aquellos q fueron calificados por el responsable
+        $cantTicketsFinalizadosSinSolucion = $ticketsFinalizadosSinSolucion->filter(fn ($ticket) => !in_array($ticket->id, $idsTicketsCalificadosResponsable))->count();
+        /* Log::channel('testing')->info('Log', ['idsRecibidos', $idsRecibidos]);
+        Log::channel('testing')->info('Log', ['idsTicketsCalificadosResponsable', $idsTicketsCalificadosResponsable]);
+        Log::channel('testing')->info('Log', ['restaTicketsFinalizadosSolucionados', $cantTicketsFinalizadosSolucionados]);*/
 
         $cantTicketsCalificadosResponsable = CalificacionTicket::where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', CalificacionTicket::RESPONSABLE)->whereIn('ticket_id', $idsRecibidos)->count();
         $cantTicketsCalificadosSolicitante = CalificacionTicket::where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', CalificacionTicket::SOLICITANTE)->whereIn('ticket_id', $idsCreados)->count();
@@ -65,7 +71,7 @@ class DashboardTicketController extends Controller
         $ticketsFinalizados = $empleado->tickets()->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
         $tiemposTicketsFinalizados = $this->mapearTickets($ticketsFinalizados);
 
-        $ticketsPorEstado = $this->obtenerTicketsPorEstado();
+        $ticketsPorEstado = $this->ajustarCalificadosPorResponsable($this->obtenerTicketsPorEstado(), $cantTicketsCalificadosResponsable);
         $ticketsPorDepartamentoEstadoAsignado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::ASIGNADO);
         $ticketsPorDepartamentoEstadoReasignado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::REASIGNADO);
         $ticketsPorDepartamentoEstadoEjecutando = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::EJECUTANDO);
@@ -73,9 +79,6 @@ class DashboardTicketController extends Controller
         $ticketsPorDepartamentoEstadoFinalizadoSolucionado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO);
         $ticketsPorDepartamentoEstadoFinalizadoSinSolucion = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SIN_SOLUCION);
         $ticketsPorDepartamentoEstadoCalificado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::CALIFICADO);
-        /*$tiemposTicketsFinalizados = $tiemposTicketsFinalizados->sort(function ($a, $b) {
-            return $b['tiempo_hasta_finalizar_segundos'] - $a['tiempo_hasta_finalizar_segundos'];
-        });*/
 
         $cantidadesTicketsSolicitadosPorDepartamento = $this->obtenerCantidadTicketsSolicitadosPorDepartamento();
         $cantidadesTicketsRecibidosPorDepartamento = $this->obtenerCantidadTicketsRecibidosPorDepartamento();
@@ -215,5 +218,15 @@ class DashboardTicketController extends Controller
             ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
             ->groupBy('responsable')
             ->get();
+    }
+
+    private function ajustarCalificadosPorResponsable($tickets, $cantTicketsCalificadosResponsable)
+    {
+        return $tickets->map(function ($ticket) use ($cantTicketsCalificadosResponsable) {
+            if ($ticket->estado == Ticket::CALIFICADO) {
+                $ticket['total_tickets'] = $cantTicketsCalificadosResponsable;
+            }
+            return $ticket;
+        });
     }
 }
