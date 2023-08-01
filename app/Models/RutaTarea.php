@@ -16,12 +16,15 @@ class RutaTarea extends Model implements Auditable
     protected $table = "rutas_tareas";
     protected $fillable = [
         'ruta',
+        'activo',
         'cliente_id',
     ];
 
     private static $whiteListFilter = [
         '*',
     ];
+
+    protected $casts = ['activo' => 'boolean'];
 
     // Relacion uno a muchos (inversa)
     public function cliente()

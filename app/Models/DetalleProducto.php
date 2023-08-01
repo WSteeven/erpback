@@ -86,6 +86,14 @@ class DetalleProducto extends Model implements Auditable
         return $this->hasMany(Inventario::class);
     }
 
+    /**
+     * Relacion muchos a muchos.
+     * Un detalle puede pertenecer a varios clientes en el inventario.
+     */
+    public function clientes(){
+        return $this->belongsToMany(Cliente::class, 'cliente_id', 'detalle_id');
+    }
+
     public function detalle_stock($detalle_id, $sucursal_id)
     {
         // SELECT SUM(cantidad) FROM inventarios where detalle_id=500 group by detalle_id

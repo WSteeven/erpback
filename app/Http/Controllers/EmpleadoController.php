@@ -44,23 +44,23 @@ class EmpleadoController extends Controller
 
         $user = User::find(auth()->id());
 
+        // Devuelve al  empleado resposanble del departamento que se pase como parametro
         if (request('es_responsable_departamento')) {
             $idResponsable = Departamento::find(request('departamento_id'))->responsable_id;
             if ($idResponsable) {
-                $responsable = Empleado::find($idResponsable);
-                return EmpleadoResource::collection([$responsable]);
+                return Empleado::where('id', $idResponsable)->get($campos);
             } else return [];
         }
 
+        // Si es de RRHH devuelve incluso de inactivos
         if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
 
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
-        // if ($page) return $this->servicio->obtenerPaginacion($offset);
-        // if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
+
         return $this->servicio->obtenerTodos();
     }
 

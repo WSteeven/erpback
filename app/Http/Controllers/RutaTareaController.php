@@ -53,12 +53,16 @@ class RutaTareaController extends Controller
      */
     public function update(RutaTareaRequest $request, RutaTarea $ruta_tarea)
     {
+        if ($request->isMethod('patch')) {
+            $ruta_tarea->update($request->except(['id']));
+        }
+
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+        // $datos = $request->validated();
+        // $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
-        $ruta_tarea->update($datos);
+        // $ruta_tarea->update($datos);
         $modelo = new RutaTareaResource($ruta_tarea->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));

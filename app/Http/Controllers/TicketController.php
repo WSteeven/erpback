@@ -15,11 +15,18 @@ use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Src\App\TicketService;
 use Src\Shared\Utils;
 
 class TicketController extends Controller
 {
+    private TicketService $servicio;
     private $entidad = 'Ticket';
+
+    public function __construct()
+    {
+        $this->servicio = new TicketService();
+    }
 
     public function index()
     {
@@ -37,6 +44,7 @@ class TicketController extends Controller
         $datos['solicitante_id'] = Auth::user()->empleado->id;
         $datos['tipo_ticket_id'] = $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
         $datos['departamento_responsable_id'] = $request->safe()->only(['departamento_responsable'])['departamento_responsable'];
+        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
 
         // Calcular estados
         $datos['estado'] = Ticket::ASIGNADO;
@@ -166,6 +174,8 @@ class TicketController extends Controller
 
     public function finalizar(Ticket $ticket)
     {
+        $this->servicio->puedeFinalizar($ticket);
+
         $ticket->estado = Ticket::FINALIZADO_SOLUCIONADO;
         $ticket->fecha_hora_finalizado = Carbon::now();
         $ticket->save();
@@ -183,6 +193,8 @@ class TicketController extends Controller
         $request->validate([
             'motivo' => 'required',
         ]);
+
+        $this->servicio->puedeFinalizar($ticket);
 
         $ticket->estado = Ticket::FINALIZADO_SIN_SOLUCION;
         $ticket->fecha_hora_finalizado = Carbon::now();
@@ -210,7 +222,6 @@ class TicketController extends Controller
         $ticket->departamento_responsable_id = NULL;
         $ticket->save();
 
-        event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -222,6 +233,7 @@ class TicketController extends Controller
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket rechazado exitosamente!';
 
+        event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
 
         return response()->json(compact('modelo', 'mensaje'));
     }

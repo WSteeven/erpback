@@ -27,6 +27,6 @@ class Departamento extends Model implements Auditable
 
     public function responsable()
     {
-        return $this->belongsTo(Empleado::class);
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
 }

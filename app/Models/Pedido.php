@@ -153,11 +153,13 @@ class Pedido extends Model implements Auditable
      * Relación polimorfica a una notificación.
      * Un pedido puede tener una o varias notificaciones.
      */
-    public function notificaciones(){
+    public function notificaciones()
+    {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
-    public function latestNotificacion(){
+    public function latestNotificacion()
+    {
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 
@@ -206,14 +208,14 @@ class Pedido extends Model implements Auditable
                     $query->where('solicitante_id',  auth()->user()->empleado->id)
                         ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                         ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->get();
+                })->orderBy('id', 'DESC')->get();
         } elseif ($estado === $estadoTransaccion->nombre) {
             $results = Pedido::where('estado_id', $estadoTransaccion->id)
                 ->where(function ($query) {
                     $query->where('solicitante_id',  auth()->user()->empleado->id)
                         ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
                         ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->get();
+                })->orderBy('id', 'DESC')->get();
         }
         return $results;
     }
@@ -230,13 +232,13 @@ class Pedido extends Model implements Auditable
         $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
             return $results;
         } elseif ($estado === $estadoTransaccion->nombre) {
-            $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+            $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
             return $results;
         } else {
-            $results = Pedido::all();
+            $results = Pedido::orderBy('id', 'DESC')->get();
             return $results;
         }
     }
@@ -255,18 +257,18 @@ class Pedido extends Model implements Auditable
                     ->where(function ($query) {
                         $query->where('solicitante_id',  auth()->user()->empleado->id)
                             ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })->get();
+                    })->orderBy('id', 'DESC')->get();
             }
             return $results;
         } else {
             if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
                 return $results;
             } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+                $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
                 return $results;
             } else {
-                $results = Pedido::all();
+                $results = Pedido::orderBy('id', 'DESC')->get();
                 return $results;
             }
         }
@@ -275,27 +277,27 @@ class Pedido extends Model implements Auditable
     /**
      * Filtrar pedidos Administrador
      */
-    public static function filtrarPedidosAdministrador($estado){
+    public static function filtrarPedidosAdministrador($estado)
+    {
         $autorizacion = Autorizacion::where('nombre', $estado)->first();
         $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         if ($estado === EstadoTransaccion::PENDIENTE) {
             if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
             }
             return $results;
         } else {
             if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
+                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
                 return $results;
             } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
+                $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
                 return $results;
             } else {
-                $results = Pedido::all();
+                $results = Pedido::orderBy('id', 'DESC')->get();;
                 return $results;
             }
         }
     }
-
 }

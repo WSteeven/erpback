@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Events\TransaccionEgresoEvent;
 use App\Exports\TransaccionBodegaEgresoExport;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -20,9 +19,7 @@ use App\Models\DetalleProducto;
 use App\Models\TipoTransaccion;
 use App\Models\Inventario;
 use App\Models\Empleado;
-use App\Models\Fibra;
 use App\Models\Motivo;
-use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 
@@ -35,6 +32,8 @@ use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\Subtarea;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
 
@@ -82,12 +81,14 @@ class TransaccionBodegaEgresoController extends Controller
         $request->validate([
             'tarea_id' => 'required|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
+            'subtarea_id' => 'nullable|numeric|integer',
         ]);
         // $empleado_id = Auth::user()->empleado->id;
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-        $results = MaterialEmpleadoTarea::filter()->get();
+        $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
 
-        $results = collect($results)->map(function ($item, $index) {
+
+        $materialesTarea = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             return [
                 'item' => $index + 1,
@@ -96,13 +97,30 @@ class TransaccionBodegaEgresoController extends Controller
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'despachado' => intval($item->despachado),
+                'devuelto' => intval($item->devuelto),
+                // 'medida' => 'm',
             ];
         });
 
+        if ($request['subtarea_id']) {
+            $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+            $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
+                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                        return $item->detalle_producto_id === $material['detalle_producto_id'];
+                    })->suma_total;
+                }
+                return $material;
+            });
+
+            return response()->json(compact('results'));
+        }
+
+        $results = $materialesTarea;
+
         return response()->json(compact('results'));
     }
-
 
     public function materialesDespachadosSinBobinaRespaldo($id)
     {

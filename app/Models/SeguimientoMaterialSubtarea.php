@@ -8,16 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class ControlMaterialTrabajo extends Model implements Auditable
+class SeguimientoMaterialSubtarea extends Model implements Auditable
 {
     use HasFactory, AuditableModel;
 
-    protected $table = 'control_materiales_trabajos';
+    protected $table = 'seguimientos_materiales_subtareas';
     protected $fillable = [
         'stock_actual',
         'cantidad_utilizada',
-        'fecha',
-        'tarea_id',
         'subtarea_id',
         'empleado_id',
         'grupo_id',
@@ -29,9 +27,9 @@ class ControlMaterialTrabajo extends Model implements Auditable
         return $query->where('empleado_id', Auth::user()->empleado->id);
     }
 
-    public function trabajo() //$query, $subtarea_id)
+    public function subtarea() //$query, $subtarea_id)
     {
-        return $this->hasOne(Trabajo::class, 'id', 'subtarea_id');
+        return $this->hasOne(Subtarea::class, 'id', 'subtarea_id');
         // return $query->where('subtarea_id', $subtarea_id);
     }
 }

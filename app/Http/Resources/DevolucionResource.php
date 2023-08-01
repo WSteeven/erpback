@@ -46,6 +46,7 @@ class DevolucionResource extends JsonResource
             $modelo['tarea']=$this->tarea_id;
             $modelo['canton']=$this->canton_id;
             $modelo['per_autoriza']=$this->per_autoriza_id;
+            $modelo['autorizacion']=$this->autorizacion_id;
         }
 
         return $modelo;

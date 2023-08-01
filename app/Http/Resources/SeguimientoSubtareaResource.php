@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EmergenciaResource extends JsonResource
+class SeguimientoSubtareaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,7 +19,8 @@ class EmergenciaResource extends JsonResource
             'id' => $this->id,
             'trabajo_realizado' => $this->mapTrabajoRealizado(),
             'observaciones' => $this->observaciones,
-            'materiales_tarea_ocupados' => $this->materiales_tarea_ocupados,
+            'materiales_tarea_ocupados' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),// ?? [],//materiales_tarea_ocupados,
+            // 'historial_material_tarea_usado' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),
             'materiales_stock_ocupados' => $this->materiales_stock_ocupados,
             'materiales_devolucion' => $this->materiales_devolucion,
             'subtarea' => $this->subtarea_id,

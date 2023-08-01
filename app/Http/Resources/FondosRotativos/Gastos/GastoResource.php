@@ -55,6 +55,8 @@ class GastoResource extends JsonResource
             'detalle_esta' => $this->detalle,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
+            'created_at'  => Carbon::parse($this->created_at)
+            ->format('d-m-Y H:i'),
         ];
         return $modelo;
     }

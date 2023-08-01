@@ -4,6 +4,7 @@ use App\Http\Controllers\ActividadRealizadaSeguimientoTicketController;
 use App\Http\Controllers\ArchivoSeguimientoTicketController;
 use App\Http\Controllers\ArchivoTicketController;
 use App\Http\Controllers\CategoriaTipoTicketController;
+use App\Http\Controllers\DashboardTicketController;
 use App\Http\Controllers\MotivoCanceladoTicketController;
 use App\Http\Controllers\MotivoPausaTicketController;
 use App\Http\Controllers\TicketController;
@@ -48,3 +49,8 @@ Route::prefix('tickets')->group(function () {
     Route::get('obtener-pausas/{ticket}', [TicketController::class, 'obtenerPausas']);
     Route::get('obtener-rechazados/{ticket}', [TicketController::class, 'obtenerRechazados']);
 });
+
+/***********
+ * Dashboard
+ ***********/
+Route::get('dashboard', [DashboardTicketController::class, 'index']);
