@@ -56,7 +56,7 @@ class RolPagoMesController extends Controller
     }
     private function tabla_roles(RolPagoMes $rol)
     {
-        $empleados_activos = Empleado::where('estado', 1)->get();
+        $empleados_activos = Empleado::where('estado', 1)->where('id','!=',1)->get();
         $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
         $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;

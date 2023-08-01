@@ -8,12 +8,17 @@
     <style>
         .principal {
             border-collapse: separate;
-            border-spacing: 30px 10px;
+            border-spacing: 15px 10px;
+            margin-top: 0%;
+            font-size: 10pt;
+
         }
 
         /* Estilo para la tabla con clase "cuerpo" */
         table.cuerpo {
             border: #b2b2b200 1px solid;
+            font-size: 10pt;
+
         }
 
         .cuerpo td,
@@ -48,13 +53,14 @@
 
         footer {
             text-align: center;
+            font-size: 9px;
         }
 
         .firma {
             width: 100%;
             line-height: normal;
-            font-size: 16px;
-            padding-top: 15%;
+            font-size: 10px;
+            padding-top: 7%;
         }
     </style>
 </head>
@@ -74,7 +80,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="3">
+            <td colspan="3" style="margin-top: 0%">
                 <h3 class="subtitulo-rol">Rol de Pagos de {{ $rol_pago['mes'] }}</h3>
             </td>
 

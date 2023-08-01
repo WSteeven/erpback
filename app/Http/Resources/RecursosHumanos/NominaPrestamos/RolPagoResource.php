@@ -44,21 +44,34 @@ class RolPagoResource extends JsonResource
         ];
         return $modelo;
     }
-    private function DescuentosLey($empleado,$rol_pago)
+    private function /* La función `DescuentosLey` calcula las distintas deducciones relacionadas con
+    las leyes laborales para un empleado en una determinada nómina. Incluye
+    deducciones como aporte IESS, SUPA (Sistema Unico de Pencion Alimenticia), Ampliación de
+    Cobertura de Salud, y varios tipos de préstamos (como Hipotecario y
+    Quirorafario). La función recupera los datos relevantes de los modelos
+    correspondientes y calcula el monto de deducción total para cada tipo. Luego
+    formatea la información de deducción como una cadena y la devuelve. */
+    DescuentosLey($empleado, $rol_pago)
     {
-
         $descuentos = [
-            'Aporte IESS' =>  number_format( $rol_pago->iess,2),
+            'Aporte IESS' => number_format($rol_pago->iess, 2),
             'SUPA' => $empleado['supa'],
-            'Extension de Cobertura de Salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes',  $rol_pago->mes)->sum('aporte'),2),
-            'Prestamo Hipotecario' => number_format(PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'),2),
-            'Prestamo Quirorafario' => number_format(PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'),2),
+            'Extension de Cobertura de Salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('aporte'), 2),
+            'Prestamo Hipotecario' => number_format(PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'), 2),
+            'Prestamo Quirorafario' => number_format(PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $rol_pago->mes)->sum('valor'), 2),
         ];
+
+        // Filtrar los elementos con valor diferente de 0
+        $descuentos = array_filter($descuentos, function ($valor) {
+            return $valor != 0;
+        });
+
         $consulta = http_build_query($descuentos, '', ', ');
         $consulta = str_replace(['%3A', '%26'], [':', ','], $consulta);
         $consulta = str_replace('=', ': ', $consulta);
-        return  str_replace('+', ' ', $consulta);
+        return str_replace('+', ' ', $consulta);
     }
+
     private function ConceptoIngreso($ingresos)
     {
         if ($ingresos->isEmpty()) {
