@@ -18,6 +18,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -128,12 +129,32 @@ class RolPagosController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function update(Request $request, $rolPagoId)
+    public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
-        $rolPago = RolPago::find($rolPagoId);
-        $rolPago->nombre = $request->nombre;
-        $rolPago->save();
-        return $rolPago;
+        $datos = $request->validated();
+        $rolPago = RolPago::findOrFail($rolPagoId);
+        $rolPago->update($datos);
+
+        $this->guardarIngresosYEgresos($request, $rolPago);
+
+        $modelo = new RolPagoResource($rolPago->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('modelo', 'mensaje'));
+    }
+
+    private function guardarIngresosYEgresos(RolPagoRequest $request, RolPago $rolPago): void
+    {
+        if (!empty($request->ingresos)) {
+            foreach ($request->ingresos as $ingreso) {
+                $this->guardarIngreso($ingreso, $rolPago);
+            }
+        }
+
+        if (!empty($request->egresos)) {
+            foreach ($request->egresos as $egreso) {
+                $this->guardarEgreso($egreso, $rolPago);
+            }
+        }
     }
 
     public function destroy($rolPagoId)
@@ -146,12 +167,12 @@ class RolPagosController extends Controller
     {
         try {
             $nombre_reporte = 'rol_pagos';
-            $roles_pagos = RolPago::where('id',$rolPagoId)->get();
+            $roles_pagos = RolPago::where('id', $rolPagoId)->get();
             $results = RolPago::empaquetarListado($roles_pagos);
             $reportes =  ['roles_pago' => $results];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
-            Log::channel('testing')->info('Log', ['reporte',$reportes]);
+            Log::channel('testing')->info('Log', ['reporte', $reportes]);
 
             return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
