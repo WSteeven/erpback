@@ -41,6 +41,7 @@ class RolPagoResource extends JsonResource
             'total_ingreso' => $this->total_ingreso,
             'total_egreso' => $this->total_egreso,
             'total' => $this->total,
+            'estado'=>$this->estado,
         ];
         return $modelo;
     }

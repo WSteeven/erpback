@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RolPagoRequest;
@@ -162,6 +163,28 @@ class RolPagosController extends Controller
         $rolPago = RolPago::find($rolPagoId);
         $rolPago->delete();
         return $rolPago;
+    }
+    public function cambiar_estado(Request $request, $rolPagoId)
+    {
+        $rolPago = RolPago::find($rolPagoId);
+        $estado_mensaje = '';
+       switch ($request->estado) {
+            case RolPago::EJECUTANDO:
+                $estado_mensaje = ' Ejecutado el Rol de Pagos';
+                break;
+            case RolPago::REALIZADO:
+                $estado_mensaje = ' Realizado el Rol de Pagos';
+                break;
+            case  RolPago::CANCELADO:
+                break;
+            case RolPago::FINALIZADO:
+                break;
+        }
+        $rolPago->estado = $request->estado;
+        $rolPago->save();
+        $modelo = new RolPagoResource($rolPago->refresh());
+        $mensaje = 'Se ha ' . $estado_mensaje;
+        return response()->json(compact('modelo', 'mensaje'));
     }
     public function imprimir_rol_pago($rolPagoId)
     {
