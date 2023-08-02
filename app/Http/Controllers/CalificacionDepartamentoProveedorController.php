@@ -67,6 +67,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             return response()->json(['mensaje' => 'Se crearon exitosamente las calificaciones',  'permisos' => $modelos, 'modelo' => $modelo]);
         } catch (Exception $e) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ['Request recibida CalificacionDepartamentoProveedorController', 'Ha ocurrido un error al insertar los registros' , $e->getMessage() , $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar los registros' . $e->getMessage() . $e->getLine()], 422);
         }
     }

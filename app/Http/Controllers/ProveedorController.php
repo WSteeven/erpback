@@ -28,7 +28,7 @@ class ProveedorController extends Controller
      */
     public function index()
     {
-        $results = ProveedorResource::collection(Proveedor::all());
+        $results = ProveedorResource::collection(Proveedor::filter()->get());
         return response()->json(compact('results'));
     }
 

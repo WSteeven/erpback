@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ class Proveedor extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait;
     use AuditableModel;
+    use Filterable;
 
     protected $table = "proveedores";
     protected $fillable = [
@@ -83,20 +85,44 @@ class Proveedor extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     public static function guardarCalificacion($proveedor_id){
+    public static function guardarCalificacion($proveedor_id)
+    {
         $proveedor = Proveedor::find($proveedor_id);
-        if($proveedor->departamentos_califican->count()==2){
+        if ($proveedor->departamentos_califican->count() == 2) {
             $calificaciones = [];
-            foreach($proveedor->departamentos_calificacion as $index=>$departamento){
-                if($departamento->pivot->calificacion !=null){
+            foreach ($proveedor->departamentos_califican as $index => $departamento) {
+                if ($departamento->pivot->calificacion != null) {
                     $row['departamento_id'] = $departamento->id;
                     $row['calificacion'] = $departamento->pivot->calificacion;
                     $calificaciones[$index] = $row;
                 }
             }
             $suma = self::calcularPesos($calificaciones);
+            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
+                $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::CALIFICADO]);
+            } elseif (empty($calificaciones)) {
+                $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::SIN_CALIFICAR]);
+            } else {
+                $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::PARCIAL]);
+            }
         }
-     }
+        if ($proveedor->departamentos_califican->count() == 3) {
+            $calificaciones = [];
+            foreach ($proveedor->departamentos_califican as $index => $departamento) {
+                if ($departamento->pivot->calificacion != null) {
+                    $row['departamento_id'] = $departamento->id;
+                    $row['calificacion'] = $departamento->pivot->calificacion;
+                    $calificaciones[$index] = $row;
+                }
+            }
+            $suma = self::calcularPesos($calificaciones);
+            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
+                $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::CALIFICADO]);
+            } elseif (empty($calificaciones)) $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::SIN_CALIFICAR]);
+            else $proveedor->update(['calificacion' => $suma, 'estado_calificado' => Proveedor::PARCIAL]);
+        }
+        $proveedor->refresh();
+    }
 
     public static function obtenerCalificacion($proveedor_id)
     {
@@ -111,9 +137,9 @@ class Proveedor extends Model implements Auditable
                 }
             }
             $suma = self::calcularPesos($calificaciones);
-            if(count($calificaciones)== $proveedor->departamentos_califican->count()){
+            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
                 return [$suma, 'CALIFICADO'];
-            }elseif(empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+            } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
             else return [$suma, 'PARCIAL'];
             Log::channel('testing')->info('Log', ['Calificaciones', $calificaciones, 'Suma de notas: ', $suma]);
         }
@@ -128,9 +154,9 @@ class Proveedor extends Model implements Auditable
                 }
             }
             $suma = self::calcularPesos($calificaciones);
-            if(count($calificaciones)== $proveedor->departamentos_califican->count()){
+            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
                 return [$suma, 'CALIFICADO'];
-            }elseif(empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+            } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
             else return [$suma, 'PARCIAL'];
         }
         // Log::channel('testing')->info('Log', ['Proveedor tiene ' . $proveedor->departamentos_califican->count() . ' departamentos']);

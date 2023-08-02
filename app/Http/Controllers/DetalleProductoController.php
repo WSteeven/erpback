@@ -59,6 +59,11 @@ class DetalleProductoController extends Controller
                     break;
                 default: //todos
                     $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    if($request->categoria_id){
+                        $results = DetalleProducto::withWhereHas('producto', function($query) use ($request){
+                            $query->whereIn('categoria_id', $request->categoria_id);
+                        })->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    }
                     // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->limit(30)->get();
                     // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
                     $results = DetalleProductoResource::collection($results);
