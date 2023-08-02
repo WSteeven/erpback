@@ -37,17 +37,14 @@ class DashboardTicketController extends Controller
             $query->where('ticket_para_mi', 1)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin);
         });*/
 
-
-
         $cantTicketsRecibidos = $recibidos->count();
         $cantTicketsCreados = $creados->count();
-
         $cantTicketsAsignados = $empleado->tickets()->where('estado', Ticket::ASIGNADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsReasignados = $empleado->tickets()->where('estado', Ticket::REASIGNADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsEjecutados = $empleado->tickets()->where('estado', Ticket::EJECUTANDO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+        $cantTicketsCancelados = $empleado->tickets()->where('estado', Ticket::CANCELADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
         $cantTicketsPausados = $empleado->tickets()->where('estado', Ticket::PAUSADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
-        //$cantTicketsFinalizadosSolucionados = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SOLUCIONADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
-        //$cantTicketsFinalizadosSinSolucion = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SIN_SOLUCION)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->count();
+
         $ticketsFinalizadosSolucionados = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SOLUCIONADO)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
         $ticketsFinalizadosSinSolucion = $empleado->tickets()->where('estado', Ticket::FINALIZADO_SIN_SOLUCION)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
 
@@ -89,6 +86,7 @@ class DashboardTicketController extends Controller
             'cantTicketsReasignados',
             'cantTicketsAsignados',
             'cantTicketsEjecutados',
+            'cantTicketsCancelados',
             'cantTicketsPausados',
             'cantTicketsCalificadosResponsable',
             'cantTicketsCalificadosSolicitante',
@@ -228,5 +226,10 @@ class DashboardTicketController extends Controller
             }
             return $ticket;
         });
+    }
+
+    private function obtenerCantidadTicketsFinalizadosSolucionados()
+    {
+        //
     }
 }
