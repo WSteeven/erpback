@@ -2,6 +2,10 @@
 
 namespace Src\Config;
 
+use Illuminate\Support\Facades\Auth;
+
+$empleado = Auth::user()->empleado;
+
 enum RutasStorage: string
 {
 		// Private
@@ -30,5 +34,5 @@ enum RutasStorage: string
     case FOTOGRAFIAS_PRESTAMO_EMPRESARIAL = 'public/fotografias_prestamo_empresarial';
     case DOCUMENTOS_PERMISO_EMPLEADO = 'public/documentos_permiso_empleado';
     case DOCUMENTOS_LICENCIA_EMPLEADO = 'public/documentos_licencia_empleado';
-
+    case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
 }

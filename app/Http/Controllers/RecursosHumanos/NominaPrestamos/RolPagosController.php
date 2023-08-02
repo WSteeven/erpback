@@ -6,6 +6,7 @@ use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RolPagoRequest;
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoRolPagoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
@@ -26,6 +27,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\Config\RutasStorage;
+use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
 
 class RolPagosController extends Controller
@@ -47,7 +50,35 @@ class RolPagosController extends Controller
         $results = RolPagoResource::collection($results);
         return response()->json(compact('results'));
     }
+    public function archivo_rol_pago_empleado(Request $request)
+    {
+        $request->validate([
+            'rol_pago_id' => 'required|numeric|integer',
+        ]);
+        $rolpago = RolPago::find($request['rol_pago_id']);
+        if (!$rolpago) {
+            throw ValidationException::withMessages([
+                'rolpago' => ['El permiso del empleado no existe'],
+            ]);
+        }
+        if (!$request->hasFile('file')) {
+            throw ValidationException::withMessages([
+                'file' => ['Debe seleccionar al menos un archivo.'],
+            ]);
+        }
 
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO,true);
+        $rolpago->rol_firmado = $archivoJSON;
+        $rolpago->estado = RolPago::FINALIZADO;
+        $rolpago->save();
+        return response()->json(['modelo' => $rolpago, 'mensaje' => 'Subido exitosamente!']);
+    }
+    public function index_archivo_rol_pago_empleado(Request $request)
+    {
+        $results = RolPago::where('id', $request->rol_pago_id)->get();
+        $results = ArchivoRolPagoResource::collection($results);
+        return response()->json(compact('results'));
+    }
     public function store(RolPagoRequest $request)
     {
         try {
@@ -133,6 +164,7 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
+     //   $datos['estado'] = RolPago::REALIZADO;
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 

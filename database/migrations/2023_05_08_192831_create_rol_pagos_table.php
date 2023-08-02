@@ -40,6 +40,7 @@ return new class extends Migration
             $table->enum('estado', [RolPago::CANCELADO, RolPago::CREADO, RolPago::EJECUTANDO, RolPago::REALIZADO, RolPago::FINALIZADO]);
             $table->unsignedBigInteger('rol_pago_id');
             $table->foreign('rol_pago_id')->references('id')->on('rol_pago_mes')->onDelete('cascade')->onUpdate('cascade');
+            $table->text('rol_firmado');
             $table->timestamps();
         });
     }

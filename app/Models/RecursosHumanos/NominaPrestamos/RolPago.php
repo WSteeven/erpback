@@ -39,7 +39,8 @@ class RolPago extends Model implements Auditable
         'total_egreso',
         'total',
         'estado',
-        'rol_pago_id'
+        'rol_pago_id',
+        'rol_firmado'
 
     ];
     private static $whiteListFilter = [
@@ -54,7 +55,8 @@ class RolPago extends Model implements Auditable
         'total_egreso',
         'total',
         'estado',
-        'rol_pago_id'
+        'rol_pago_id',
+        'rol_firmado'
     ];
 
     public function empleado_info()
