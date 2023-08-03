@@ -31,6 +31,7 @@ class RolPagoRequest extends FormRequest
     public function rules()
     {
         return [
+            'rol_pago_id'=>'required',
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
@@ -55,8 +56,8 @@ class RolPagoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $empleado = Empleado::find($this->empleado);
-        $fechaInicio = Carbon::parse($empleado->fecha_ingreso);
-        $fechaFin = $fechaInicio->copy()->addMonths(13);
+        /*$fechaInicio = Carbon::parse($empleado->fecha_ingreso);
+        $fechaFin = $fechaInicio->copy()->addMonths(13);*/
         $salario = $empleado->salario;
         $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
         $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
@@ -87,7 +88,7 @@ class RolPagoRequest extends FormRequest
             ->sum('monto');
         $multas = 0;
         $totalEgresos = $totalIngresos = !empty($this->egresos)
-            ? array_reduce($this->multas, function ($acumulado, $egreso) {
+            ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
             }, 0) : 0;
         $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $multas + $totalEgresos;

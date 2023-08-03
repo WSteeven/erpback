@@ -36,12 +36,14 @@ class RolPagoResource extends JsonResource
             'descuento_general_info' => $this->Descuentos($this->egreso_rol_pago, 'DescuentosGenerales'),
             'descuento_ley_info' => $this->DescuentosLey($this->empleado_info, $this),
             'multa_info' => $this->Descuentos($this->egreso_rol_pago, 'Multa'),
-            'decimo_tercero' =>$this->decimo_tercero,
-            'decimo_cuarto' =>$this->decimo_cuarto,
+            'decimo_tercero' => $this->decimo_tercero,
+            'decimo_cuarto' => $this->decimo_cuarto,
+            'ingresos' => $this->ingreso_rol_pago,
+            'egresos' => $this->Egresos($this->egreso_rol_pago),
             'total_ingreso' => $this->total_ingreso,
             'total_egreso' => $this->total_egreso,
             'total' => $this->total,
-            'estado'=>$this->estado,
+            'estado' => $this->estado,
         ];
         return $modelo;
     }
@@ -104,6 +106,36 @@ class RolPagoResource extends JsonResource
         })->toArray();
         $egresosString = implode(', ', $egresosArray);
         return $egresosString;
+    }
+    private function Egresos($egresos)
+    {
+        $arregloOriginal = $egresos->toArray();
+        // Creamos una función anónima para transformar cada elemento del arreglo
+        $arregloTransformado = array_map(function ($elemento)
+        {
+            // Creamos un nuevo elemento con los datos del elemento original
+            $nuevoElemento = [
+                "id" => $elemento["id"],
+                "id_rol_pago" => $elemento["id_rol_pago"],
+                "id_descuento" => $elemento["descuento_id"],
+                "descuento_type" => $elemento["descuento_type"],
+                "tipo" => "", // Aquí agregamos la clave 'tipo' con valor vacío, lo actualizaremos a continuación
+                "monto" => $elemento["monto"],
+                "created_at" => $elemento["created_at"],
+                "updated_at" => $elemento["updated_at"],
+                "descuento" => $elemento["descuento"],
+            ];
+
+            // Verificamos el valor de 'descuento_type' para asignar el valor correcto a 'tipo'
+            if ($elemento["descuento_type"] === "App\\Models\\RecursosHumanos\\NominaPrestamos\\DescuentosGenerales") {
+                $nuevoElemento["tipo"] = "DESCUENTO_GENERAL";
+            } elseif ($elemento["descuento_type"] === "App\\Models\\RecursosHumanos\\NominaPrestamos\\Multas") {
+                $nuevoElemento["tipo"] = "MULTA";
+            }
+
+            return $nuevoElemento;
+        }, $arregloOriginal);
+        return $arregloTransformado;
     }
     private function cambiar_fecha($fecha)
     {

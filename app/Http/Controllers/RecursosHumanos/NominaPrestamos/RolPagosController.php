@@ -164,7 +164,7 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
-     //   $datos['estado'] = RolPago::REALIZADO;
+        $datos['estado'] = RolPago::REALIZADO;
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 
@@ -179,13 +179,13 @@ class RolPagosController extends Controller
     {
         if (!empty($request->ingresos)) {
             foreach ($request->ingresos as $ingreso) {
-                $this->guardarIngreso($ingreso, $rolPago);
+                $this->GuardarIngresos($ingreso, $rolPago);
             }
         }
 
         if (!empty($request->egresos)) {
             foreach ($request->egresos as $egreso) {
-                $this->guardarEgreso($egreso, $rolPago);
+                $this->GuardarEgresos($egreso, $rolPago);
             }
         }
     }

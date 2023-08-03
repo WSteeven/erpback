@@ -22,6 +22,7 @@ class RolPago extends Model implements Auditable
     const REALIZADO = 'REALIZADO';
     const FINALIZADO = 'FINALIZADO';
     protected $fillable = [
+
         'empleado_id',
         'mes',
         'dias',
