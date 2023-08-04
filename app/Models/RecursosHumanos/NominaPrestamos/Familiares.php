@@ -23,7 +23,9 @@ class Familiares extends Model implements Auditable
         'identificacion',
         'parentezco',
         'nombres',
-        'nombres'
+        'apellidos',
+        'empleado_id',
+
     ];
 
     private static $whiteListFilter = [
@@ -31,6 +33,11 @@ class Familiares extends Model implements Auditable
         'identificacion',
         'parentezco',
         'nombres',
-        'nombres'
+        'apellidos',
+        'empleado'
     ];
+    public function empleado_info()
+    {
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+    }
 }

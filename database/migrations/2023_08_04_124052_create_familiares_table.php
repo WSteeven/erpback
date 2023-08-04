@@ -20,6 +20,8 @@ return new class extends Migration
             $table->enum('parentezco',[Familiares::ESPOSO,Familiares::ESPOSA,Familiares::HIJO,Familiares::HIJA]);
             $table->string('nombres');
             $table->string('apellidos');
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados');
             $table->timestamps();
         });
     }
