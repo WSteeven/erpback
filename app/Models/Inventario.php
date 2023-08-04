@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\PreordenCompra;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -395,5 +396,47 @@ class Inventario extends Model implements Auditable
             DB::rollBack();
             throw $e;
         }
+    }
+
+    public static function verificarExistenciasDetalles($pedido)
+    {
+        if (self::verificarClienteSucursalPedido($pedido->sucursal_id)) {
+            //obtener todas las sucursales pertenecientes a jpconstrucred o jeanpazmino
+            $ids_sucursales = Sucursal::whereIn('cliente_id', [Cliente::JPCONSTRUCRED, Cliente::JEANPATRICIO])->get('id');
+            $items = [];
+            try {
+                foreach ($pedido->detalles as $index => $detalle) {
+                    Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
+                    $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
+                    if ($itemsInventario->sum('cantidad') < $detalle->pivot->cantidad) {
+                        $row['detalle_id'] = $detalle->id;
+                        $row['cantidad'] = $detalle->pivot->cantidad - $itemsInventario->sum('cantidad');
+                        Log::channel('testing')->info('Log', ['Lo que se va a agregar a los items de la preorden', $row]);
+                        $items[$index] = $row;
+                    }
+                    Log::channel('testing')->info('Log', ['Todos los items', $items]);
+                }
+                if (count($items) > 0)
+                    PreordenCompra::generarPreorden($pedido, $items);
+
+                    
+            } catch (Exception $e) {
+                Log::channel('testing')->info('Log', ['Ha ocurrido un error en el metodo verificarExistencias', $e->getMessage(), $e->getLine()]);
+            }
+        }
+    }
+    /**
+     * La función "verificarClienteSucursalPedido" comprueba si una sucursal determinada pertenece a un
+     * cliente específico.
+     * 
+     * @param sucursal_id El parámetro "sucursal_id" es el ID de la sucursal o bodega.
+     * 
+     * @return un valor booleano. Si la condición es verdadera, devolverá verdadero. De lo contrario,
+     * devolverá falso.
+     */
+    public static function verificarClienteSucursalPedido($sucursal_id)
+    {
+        $sucursal = Sucursal::find($sucursal_id); //Busca la bodega para saber si los detalles deben crear una orden de compra o no
+        return $sucursal->cliente_id === Cliente::JEANPATRICIO || $sucursal->cliente_id === Cliente::JPCONSTRUCRED;
     }
 }

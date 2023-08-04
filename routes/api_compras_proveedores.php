@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\CalificacionDepartamentoProveedorController;
-use App\Http\Controllers\ContactoProveedorController;
-use App\Http\Controllers\CriterioCalificacionController;
-use App\Http\Controllers\DetalleDepartamentoProveedorController;
-use App\Http\Controllers\OrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
+use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
+use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
+use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
+use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Models\OfertaProveedor;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::apiResources([
     'criterios-calificaciones' => CriterioCalificacionController::class,
     'detalles-departamentos-proveedor' => DetalleDepartamentoProveedorController::class,
     'ordenes-compras'=>OrdenCompraController::class,
+    'preordenes-compras'=>PreordenCompraController::class,
 ], [
     'parameters' => [
         'contactos-proveedores' => 'contacto',
@@ -21,6 +23,7 @@ Route::apiResources([
         'calificaciones-proveedores' => 'calificacion',
         'detalles-departamentos-proveedor' => 'detalle',
         'ordenes-compras' => 'orden',
+        'preordenes-compras' => 'preorden',
     ],
     'middleware' => ['auth:sanctum']
 ]);

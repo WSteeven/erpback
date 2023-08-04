@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -149,6 +150,19 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
+    
+    
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una preorden.
+     */
+    public function detalleProductoPreordenCompra()
+    {
+        return $this->belongsToMany(PreordenCompra::class, 'cmp_item_detalle_preorden_compra', 'preorden_id', 'detalle_id')
+            ->withPivot('cantidad')->withTimestamps();
+    }
+
+
 
     /**
      * Relación muchos a muchos.

@@ -20,6 +20,9 @@ class Condicion extends Model implements Auditable
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
+    const NUEVO = 1;
+    const USADO = 2;
+
     private static $whiteListFilter = [
         '*',
     ];
