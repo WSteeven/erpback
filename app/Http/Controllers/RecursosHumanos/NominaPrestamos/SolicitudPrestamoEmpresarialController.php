@@ -123,6 +123,8 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->monto = $request->monto;
         $PrestamoEmpresarial->plazo = $request->plazo;
         $PrestamoEmpresarial->estado = $request->estado;
+        $PrestamoEmpresarial->periodo_id = $request->periodo_id;
+        $PrestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
         $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
         $PrestamoEmpresarial->save();
         $this->tabla_plazos($PrestamoEmpresarial);
