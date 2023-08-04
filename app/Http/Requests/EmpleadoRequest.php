@@ -53,6 +53,20 @@ class EmpleadoRequest extends FormRequest
             'casa_propia' => 'nullable|boolean',
             'vive_con_discapacitados' => 'nullable|boolean',
             'responsable_discapacitados' => 'nullable|boolean',
+            'tipo_sangre'=>'required',
+            'direccion'=>'required',
+            'estado_civil_id'=>'required',
+            'correo_personal'=>'required',
+            'area_id'=>'required',
+            'num_cuenta_bancaria'=>'required',
+            'salario'=>'required',
+            'fecha_ingreso'=>'required',
+            'tipo_contrato_id'=> 'required',
+            'tiene_grupo'=>'required',
+            'convencional'=>'required',
+            'tiene_discapacidad'=>'required',
+            'observacion'=>'required',
+            'nivel_academico'=>'required',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -81,6 +95,10 @@ class EmpleadoRequest extends FormRequest
     {
         $this->merge([
             'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
+            'estado_civil_id' => $this->estado_civil,
+            'area_id' => $this->area,
+            'tipo_contrato_id' => $this->tipo_contrato,
+            'num_cuenta_bancaria' => $this->num_cuenta
         ]);
     }
 }

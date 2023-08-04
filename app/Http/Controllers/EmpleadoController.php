@@ -115,6 +115,19 @@ class EmpleadoController extends Controller
                 'cargo_id' => $datos['cargo_id'],
                 'grupo_id' => $datos['grupo_id'],
                 'firma_url' => $datos['firma_url'],
+                'tipo_sangre'=>$datos['tipo_sangre'],
+                'direccion'=>$datos['direccion'],
+                'estado_civil_id'=>$datos['estado_civil_id'],
+                'correo_personal'=>$datos['correo_personal'],
+                'area_id'=>$datos['area_id'],
+                'num_cuenta_bancaria'=>$datos['num_cuenta_bancaria'],
+                'salario'=>$datos['salario'],
+                'fecha_ingreso'=>$datos['fecha_ingreso'],
+             //   'fecha_salida'=>$datos['fecha_salida'],
+                'tipo_contrato_id'=>$datos['tipo_contrato_id'],
+                'tiene_discapacidad'=>$datos['tiene_discapacidad'],
+                'observacion'=>$datos['observacion'],
+                'nivel_academico'=>$datos['nivel_academico'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];

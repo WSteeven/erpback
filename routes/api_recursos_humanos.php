@@ -11,6 +11,8 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\RecursosHumanos\AreasController;
+use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoController;
@@ -45,7 +47,9 @@ Route::apiResources(
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
         'licencia_empleado' => LicenciaEmpleadoController::class,
-        'vacacion' => VacacionController::class
+        'vacacion' => VacacionController::class,
+        'estado_civil' => EstadoCivilController::class,
+        'areas'=> AreasController::class,
     ],
     [
         'parameters' => [],

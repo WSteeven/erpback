@@ -40,6 +40,19 @@ class Empleado extends Model implements Auditable
         'casa_propia',
         'vive_con_discapacitados',
         'responsable_discapacitados',
+        'tipo_sangre',
+        'direccion',
+        'estado_civil_id',
+        'correo_personal',
+        'area_id',
+        'num_cuenta_bancaria',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato_id',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
     ];
 
     private static $whiteListFilter = [
@@ -56,6 +69,19 @@ class Empleado extends Model implements Auditable
         'departamento_id',
         'estado',
         'es_tecnico',
+        'tipo_sangre',
+        'dirrecion',
+        'estado_civil',
+        'correo_personal',
+        'area',
+        'num_cuenta',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -69,6 +95,7 @@ class Empleado extends Model implements Auditable
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'tiene_discapacidad' => 'boolean',
     ];
 
     public function toSearchableArray()
