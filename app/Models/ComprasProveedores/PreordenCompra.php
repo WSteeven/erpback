@@ -56,10 +56,11 @@ class PreordenCompra extends Model implements Auditable
     /**
      * Relación uno a uno
      */
-    public function pedido(){
+    public function pedido()
+    {
         return $this->belongsTo(Pedido::class);
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos pertenece a un solicitante
@@ -125,7 +126,8 @@ class PreordenCompra extends Model implements Auditable
         }
     }
 
-    public static function listadoProductos(int $id){
+    public static function listadoProductos(int $id)
+    {
         $detalles = PreordenCompra::find($id)->detalles()->get();
         $results = [];
         $row = [];
@@ -137,6 +139,10 @@ class PreordenCompra extends Model implements Auditable
             $row['unidad_medida'] = $detalle->producto->unidadMedida->nombre;
             $row['serial'] = $detalle->serial;
             $row['cantidad'] = $detalle->pivot->cantidad;
+            // $row['precio_unitario'] = 0;
+            $row['iva'] = 0;
+            $row['subtotal'] = 0;
+            $row['total'] = 0;
             $results[$index] = $row;
         }
 

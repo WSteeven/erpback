@@ -20,9 +20,12 @@ class PreordenCompraResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
+            'solicitante_id' => $this->solicitante_id,
             'pedido' => $this->pedido_id,
             'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
+            'autorizador_id' => $this->autorizador_id,
             'autorizacion' => $this->autorizacion->nombre,
+            'autorizacion_id' => $this->autorizacion_id,
             'justificacion' => $this->pedido->justificacion,
             'listadoProductos' => $detalles,
             'estado' => $this->estado,

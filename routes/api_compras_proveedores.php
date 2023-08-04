@@ -29,3 +29,6 @@ Route::apiResources([
 ]);
 Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()]);
 Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria']);
+
+//show-preview
+Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraController::class, 'showPreview']);
