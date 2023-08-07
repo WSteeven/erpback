@@ -98,10 +98,10 @@ class PreordenCompra extends Model implements Auditable
      * La función "generarPreorden" crea una preorden anticipado para una compra en función de un pedido y
      * artículos determinados.
      * 
-     * @param pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema.
+     * @param Pedido pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema.
      * Contiene información como la identificación del solicitante (solicitante), la identificación del
      * autorizador (autorizador) y la identificación de la autorización (autorización).
-     * @param items El parámetro "elementos" es una matriz de elementos que se asociarán con la
+     * @param Array items El parámetro "elementos" es una matriz de elementos que se asociarán con la
      * preorden. Cada elemento de la matriz representa un detalle del pedido previo y debe contener la
      * información necesaria para crear el registro de detalle en la base de datos.
      */
@@ -126,6 +126,17 @@ class PreordenCompra extends Model implements Auditable
         }
     }
 
+    /**
+     * La función "listadoProductos" recupera detalles de productos de una pre-orden de compra y los
+     * devuelve en una matriz.
+     * 
+     * @param int id El parámetro "id" es un número entero que representa el ID de una preorden de compra.
+     * 
+     * @return una matriz de detalles del producto para una identificación de compra de pedido
+     * anticipado determinada. Cada detalle de producto incluye el ID, el nombre, la descripción, la
+     * categoría, la unidad de medida, el número de serie, la cantidad y los valores calculados para el
+     * precio, el impuesto, el subtotal y el total.
+     */
     public static function listadoProductos(int $id)
     {
         $detalles = PreordenCompra::find($id)->detalles()->get();

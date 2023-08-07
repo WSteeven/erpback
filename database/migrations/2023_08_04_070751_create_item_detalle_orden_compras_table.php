@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cmp_item_detalle_orden_compras', function (Blueprint $table) {
+        Schema::create('cmp_item_detalle_orden_compra', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('orden_compra_id');
             $table->unsignedBigInteger('detalle_id');
             $table->integer('cantidad');
             $table->integer('porcentaje_descuento')->default(0);
             $table->boolean('facturable')->default(true);
-            $table->boolean('graba_iva')->default(true);
+            $table->boolean('grava_iva')->default(true);
             $table->double('precio_unitario');
             $table->double('iva');
             $table->double('subtotal');
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cmp_item_detalle_orden_compras');
+        Schema::dropIfExists('cmp_item_detalle_orden_compra');
     }
 };

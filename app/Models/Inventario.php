@@ -398,6 +398,13 @@ class Inventario extends Model implements Auditable
         }
     }
 
+    /**
+     * La función "verificarExistenciasDetalles" verifica si hay suficientes artículos en inventario
+     * para cada detalle en un pedido determinado y genera una preorden si es necesario.
+     * 
+     * @param pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema. Se
+     * utiliza para comprobar la existencia de detalles en el pedido.
+     */
     public static function verificarExistenciasDetalles($pedido)
     {
         if (self::verificarClienteSucursalPedido($pedido->sucursal_id)) {
@@ -416,7 +423,7 @@ class Inventario extends Model implements Auditable
                     }
                     Log::channel('testing')->info('Log', ['Todos los items', $items]);
                 }
-                if (count($items) > 0)
+                if (count($items) > 0) //Si hay al menos un item cuya cantidad no esté en inventario se genera una preorden de compra
                     PreordenCompra::generarPreorden($pedido, $items);
 
                     
