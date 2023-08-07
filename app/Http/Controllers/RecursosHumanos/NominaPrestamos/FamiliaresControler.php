@@ -56,8 +56,9 @@ class FamiliaresControler extends Controller
         }
     }
 
-    public function show(Familiares $FamiliaresEmpleado)
+    public function show(Familiares $FamiliaresEmpleado,$idFamiliar)
     {
+        $FamiliaresEmpleado = Familiares::where('id',$idFamiliar)->first();
         $modelo = new FamiliaresResource($FamiliaresEmpleado);
         return response()->json(compact('modelo'), 200);
     }

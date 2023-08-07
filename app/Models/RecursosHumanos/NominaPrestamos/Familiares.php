@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ class Familiares extends Model implements Auditable
     const ESPOSA = 'ESPOSA';
     const HIJO = 'HIJO';
     const HIJA = 'HIJA';
-    protected $table = 'egreso_rol_pago';
+    protected $table = 'familiares';
     protected $fillable = [
         'identificacion',
         'parentezco',

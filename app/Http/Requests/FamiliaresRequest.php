@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Src\Shared\ValidarIdentificacion;
 
 class FamiliaresRequest extends FormRequest
 {
@@ -24,14 +27,28 @@ class FamiliaresRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'identificacion' => 'required',
+        $rules = [
+            'identificacion' => 'string|required|unique:familiares,identificacion|min:10|max:13',
             'parentezco' => 'required',
             'nombres' => 'required',
             'apellidos' => 'required',
             'empleado_id' => 'required|exists:empleados,id',
 
         ];
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $familiares = Familiares::find($this->route()->parameter('id'));
+            $rules['identificacion'] = [Rule::unique('familiares')->ignore($familiares)];
+        }
+        return $rules;
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $validador = new ValidarIdentificacion();
+            if (!$validador->validarCedula($this->identificacion)) {
+                $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
+            }
+        });
     }
     protected function prepareForValidation()
     {
