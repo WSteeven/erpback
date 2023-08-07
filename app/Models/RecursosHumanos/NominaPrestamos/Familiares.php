@@ -15,8 +15,7 @@ class Familiares extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    const  ESPOSO= 'ESPOSO';
-    const ESPOSA = 'ESPOSA';
+    const  CONYUGE= 'CÓNYUGE';
     const HIJO = 'HIJO';
     const HIJA = 'HIJA';
     protected $table = 'familiares';

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Src\Shared\ValidarIdentificacion;
 
@@ -36,7 +37,7 @@ class FamiliaresRequest extends FormRequest
 
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            $familiares = Familiares::find($this->route()->parameter('id'));
+            $familiares = Familiares::find($this->route()->parameter('familiare'));
             $rules['identificacion'] = [Rule::unique('familiares')->ignore($familiares)];
         }
         return $rules;

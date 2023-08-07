@@ -33,7 +33,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'fecha' => 'required|date_format:Y-m-d',
                 'solicitante' => 'required|numeric',
                 'monto' => 'required|numeric',
-                'plazo' => 'nullable|string',
+                'plazo' => 'nullable|numeric',
                 'periodo_id' => 'nullable|exists:periodos,id',
                 'valor_utilidad' => 'nullable|numeric',
                 'motivo' => 'nullable|string',

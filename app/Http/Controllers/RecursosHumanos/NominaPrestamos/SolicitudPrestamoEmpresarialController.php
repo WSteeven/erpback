@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\Periodo;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
@@ -94,7 +95,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $salario = $empleado->salario;
         $anticipo = $salario *  $porcentaje_anticipo;
-       /* if ($valor_pago <= $anticipo) {
+        /* if ($valor_pago <= $anticipo) {
             throw ValidationException::withMessages([
                 '404' => ['No se puede generar coutas menores o iguales  ' . ($valor_pago / 100) . '%'],
             ]);
@@ -148,18 +149,39 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $valor_cuota = !is_null($prestamo->monto) ? $prestamo->monto : 0;
         $plazo_prestamo = !is_null($prestamo->plazo) ? $prestamo->plazo : 0;
         $plazos  = [];
+        $valor_utilidad = !is_null($prestamo->valor_utilidad) ? $prestamo->valor_utilidad : 0;
+
         for ($index = 1; $index <= $prestamo->plazo; $index++) {
+            $valor_couta = number_format($valor_cuota / $plazo_prestamo, 2);
+            if ($valor_utilidad != 0) {
+                $valor_couta -= ($valor_utilidad / $plazo_prestamo);
+            }
             $plazo = [
                 'num_cuota' => $index,
                 'fecha_vencimiento' => $this->calcular_fechas($index, 'meses', $prestamo),
-                'valor_couta' => number_format($valor_cuota / $plazo_prestamo, 2),
+                'valor_couta' => $valor_couta,
                 'valor_pagado' => 0,
-                'valor_a_pagar'=>0,
+                'valor_a_pagar' => 0,
                 'pago_couta' => false,
             ];
             array_push($plazos, $plazo);
         }
-        $this->crear_plazos($prestamo, $plazos);
+        if ($valor_utilidad != 0) {
+            $periodo = Periodo::where('id',$prestamo->periodo_id)->first();
+            $nombrePeriodo = $periodo->nombre;
+            $anio = explode('-', $nombrePeriodo)[0];
+            $indice =  $prestamo->plazo + 1;
+            $plazo = [
+                'num_cuota' =>  $indice,
+                'fecha_vencimiento' =>'30-04-'.$anio,
+                'valor_couta' =>  $valor_utilidad,
+                'valor_pagado' => 0,
+                'valor_a_pagar' => 0,
+                'pago_couta' => false,
+            ];
+            array_push($plazos, $plazo);
+        }
+         $this->crear_plazos($prestamo, $plazos);
     }
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
     {
@@ -203,7 +225,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
                 'pago_couta' => false,
                 'num_cuota' => $plazo['num_cuota'],
                 'fecha_vencimiento' => $fecha->format('Y-m-d'),
-                'valor_couta'=> $plazo['valor_couta'],
+                'valor_couta' => $plazo['valor_couta'],
                 'valor_pagado' => $plazo['valor_pagado'],
                 'valor_a_pagar' => $plazo['valor_a_pagar']
             ];

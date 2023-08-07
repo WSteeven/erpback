@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('familiares', function (Blueprint $table) {
             $table->id();
             $table->string('identificacion',10);
-            $table->enum('parentezco',[Familiares::ESPOSO,Familiares::ESPOSA,Familiares::HIJO,Familiares::HIJA]);
+            $table->enum('parentezco',[Familiares::CONYUGE,Familiares::HIJO,Familiares::HIJA]);
             $table->string('nombres');
             $table->string('apellidos');
             $table->unsignedBigInteger('empleado_id');
