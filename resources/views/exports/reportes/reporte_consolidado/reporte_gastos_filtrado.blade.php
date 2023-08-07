@@ -70,11 +70,12 @@
         .row {
             width: 100%;
         }
+
+        }
     </style>
 </head>
 @php
     $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
 @endphp
 
 <body>
@@ -110,6 +111,7 @@
                 </td>
             </tr>
         </table>
+
     </footer>
     <main>
         @php
@@ -124,36 +126,45 @@
         @endif
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px">
-                    <div align="center"><strong>Nombres y Apellidos</strong></div>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
+                    <div align="center"><strong>#</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="6%">
-                    <div align="center"><strong>Lugar</strong></div>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
+                    <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
-                    <div align="center"><strong>Fecha</strong></div>
-                </td>
-                @if ($subtitulo == '' && $tipo_filtro != 3)
-                    <td bgcolor="#a9d08e" style="font-size:10px">
-                        <div align="center"><strong>Descripcion del Gasto</strong></div>
-                    </td>
-                @endif
-                <td bgcolor="#a9d08e" style="font-size:10px">
-                    <div align="center"><strong>Comentari&oacute;</strong></div>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="4%">
+                    <div align="center"><strong>LUGAR</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                    <div align="center"><strong>Autorizador</strong></div>
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                @if ($subtitulo == '' || $tipo_filtro != 3)
+                    <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
+                        <div align="center"><strong>DESCRIPCI&Oacute;N DEL GASTO</strong></div>
+                    </td>
+                @endif
+                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                    <div align="center"><strong>#COMPROBANTE</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
+                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
+                    <div align="center"><strong>COMENTARIO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
+                    <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
                 @if ($subdetalle == 96)
-                    <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
-                        <div align="center"><strong>Placa</strong></div>
+                    <td bgcolor="#a9d08e" style="font-size:8px" width="3%">
+                        <div align="center"><strong>KILOMETRAJE</strong></div>
                     </td>
-                    <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
-                        <div align="center"><strong>Kilometraje</strong></div>
+                    <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
+                        <div align="center"><strong>PLACA</strong></div>
                     </td>
                 @endif
                 <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
-                    <div align="center"><strong>Monto</strong></div>
+                    <div align="center"><strong>MONTO</strong></div>
                 </td>
             </tr>
 
@@ -162,6 +173,10 @@
                     $total = number_format($gasto['total'], 2) + $total;
                 @endphp
                 <tr>
+                    <td style="font-size:10px">
+                        <div align="left">{{ $gasto['num_registro'] }}
+                        </div>
+                    </td>
                     <td style="font-size:10px">
                         <div align="left">
                             {{ $gasto['usuario']->nombres . ' ' . $gasto['usuario']->apellidos }}
@@ -174,13 +189,23 @@
                     <td style="font-size:10px">
                         <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                     </td>
-                    @if ($subtitulo == '' && $tipo_filtro != 3)
+                    @if ($subtitulo == '' || $tipo_filtro != 3)
                         <td style="font-size:10px">
                             <div align="left">
-                                {{ $gasto['sub_detalle_desc'] }}
+                                {{ strtoupper($gasto['sub_detalle_desc']) }}
                             </div>
                         </td>
                     @endif
+                    <td style="font-size:10px">
+                        @if ($gasto['factura'] == '')
+                            <div align="left">{{ $gasto['num_comprobante'] }}</div>
+                        @else
+                            <div align="left">{{ $gasto['factura'] }}</div>
+                        @endif
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left">{{ $gasto['observacion'] }}</div>
+                    </td>
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
@@ -191,10 +216,10 @@
                     </td>
                     @if ($subdetalle == 96)
                         <td style="font-size:10px">
-                            <div align="right">{{ $gasto['placa'] }}</div>
+                            <div align="right">{{ $gasto['kilometraje'] }}</div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="right">{{ $gasto['kilometraje'] }}</div>
+                            <div align="right">{{ $gasto['placa'] }}</div>
                         </td>
                     @endif
                     <td style="font-size:10px">
@@ -204,9 +229,29 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="7" style="font-size:10px" width="29%">
-                    <div align="right"><strong>Total</strong></div>
-                </td>
+                @if ($subtitulo == '')
+                    @if ($subdetalle == 96)
+                        <td colspan="11" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @else
+                        <td colspan="9" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @endif
+                @else
+                    @if ($subdetalle == 96)
+                        <td colspan="10" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @else
+                        <td colspan="9" style="font-size:10px" width="29%">
+                            <div align="right"><strong>Total</strong></div>
+                        </td>
+                    @endif
+                @endif
+
+
                 <td style="font-size:10px" width="10%">
                     <div align="right">
                         <strong>{{ number_format($total, 2, ',', '.') }}</strong>
@@ -214,9 +259,14 @@
                 </td>
             </tr>
         </table>
-
-
     </main>
+    <script type="text/php">
+        if (isset($pdf)) {
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                $pdf->page_text(10, 550, $text, $font, 12);
+        }
+    </script>
 </body>
 
 </html>

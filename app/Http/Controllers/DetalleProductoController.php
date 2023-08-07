@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
+use App\Models\Cliente;
 use App\Models\ComputadoraTelefono;
 use App\Models\DetalleProducto;
 use App\Models\DetallesProducto;
@@ -31,12 +32,44 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
-        if($request->campos)$campos = explode(',', $request['campos']);
+        if ($request->campos) $campos = explode(',', $request['campos']);
         $results = [];
+        if ($request->tipo_busqueda) {
+            switch ($request->tipo_busqueda) {
+                case 'only_sucursal':
+                    //aqui se lista solo los detalles que estan en la bodega seleccionada
+                    $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+                    $results = DetalleProducto::whereIn('id', $ids_detalles)->orderBy('descripcion', 'asc')->get();
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+                    break;
+                case 'only_cliente_tarea':
+                    Log::channel('testing')->info('Log', ['eSTOY EN EL CASE DE CLIENTE TAREA:', $request->all()]);
+                    //aqui se lista solo los detalles que tienen stock en inventario con el cliente de la tarea
+                    // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
+                    // Log::channel('testing')->info('Log', ['los detalles CLIENTE TAREA:', $ids_detalles->count()]);
+                    // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);
+                    $results = Cliente::find($request->cliente_id)->detalles->unique();
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+                    break;
+                default: //todos
+                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    if($request->categoria_id){
+                        $results = DetalleProducto::withWhereHas('producto', function($query) use ($request){
+                            $query->whereIn('categoria_id', $request->categoria_id);
+                        })->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    }
+                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->limit(30)->get();
+                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+            }
+        }
         if (!empty($campos)) {
             // Log::channel('testing')->info('Log', ['Que tiene campos:', $campos]);
             // Log::channel('testing')->info('Log', ['Pasó por el if de campos:']);
@@ -45,15 +78,22 @@ class DetalleProductoController extends Controller
         } else if ($page) {
             // Log::channel('testing')->info('Log', ['Pasó por el if de page:']);
             $results = DetalleProducto::simplePaginate($request['offset']);
-        } else if ($search) {
+        } else if ($search) { //en este caso busca en todos los detalles
             // Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
             $results = DetalleProducto::search($search)->get();
-        } else if($sucursal){
+        } else if ($sucursal) {
             // Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
-            if($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
-            else $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+            if ($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
+            else {
+                $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
+                $ids_detalles_en_inventario = Inventario::all('detalle_id');
+            }
             $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
-        }else {
+            $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
+            // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
+            $results = $results->concat($r2);
+            // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
+        } else {
             // Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
             // $results = DetalleProductoResource::collection($results);
@@ -61,6 +101,7 @@ class DetalleProductoController extends Controller
         $results = DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
+
 
     /**
      * Guardar

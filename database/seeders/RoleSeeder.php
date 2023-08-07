@@ -303,6 +303,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.gestionar_avances'])->syncRoles([$coordinador]);
         Permission::firstOrCreate(['name' => 'puede.ver.tablero_personal'])->syncRoles([$coordinador, $coordinador_backup, $bodega, $empleado, $jefe_tecnico, $gerente, $compras,  $activos_fijos, $administrativo, $recursos_humanos]);
 
+        // Materiales empleados
+        Permission::firstOrCreate(['name' => 'puede.ver.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.crear.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.editar.materiales_empleados'])->syncRoles([$coordinador]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.materiales_empleados'])->syncRoles([$coordinador]);
+
         // Proyectos
         /**
          * El jefe tecnico y los coordinadores son los encargados de crear proyectos.
@@ -312,6 +318,13 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.editar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.proyectos'])->syncRoles([$jefe_tecnico, $coordinador]);
+
+        // Reportes modulo tareas
+        Permission::firstOrCreate(['name' => 'puede.ver.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.reportes_modulo_tareas'])->syncRoles([$jefe_tecnico]);
+
         // Tareas
         /**
          * Los coordinadores son los encargados de crear las tareas
@@ -391,6 +404,12 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.crear.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.editar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
         Permission::firstOrCreate(['name' => 'puede.eliminar.monitor_subtareas'])->syncRoles([$coordinador, $jefe_tecnico]);
+
+        // Causas intervenciones
+        Permission::firstOrCreate(['name' => 'puede.ver.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.crear.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.editar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
+        Permission::firstOrCreate(['name' => 'puede.eliminar.causas_intervenciones'])->syncRoles([$coordinador, $jefe_tecnico]);
 
         /**
          * Permisos  para fondo rotativo

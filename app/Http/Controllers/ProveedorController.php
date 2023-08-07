@@ -28,7 +28,7 @@ class ProveedorController extends Controller
      */
     public function index()
     {
-        $results = ProveedorResource::collection(Proveedor::all());
+        $results = ProveedorResource::collection(Proveedor::filter()->get());
         return response()->json(compact('results'));
     }
 
@@ -39,9 +39,9 @@ class ProveedorController extends Controller
     public function store(ProveedorRequest $request)
     {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
         try {
             DB::beginTransaction();
-            //Adaptación de foreign keys
             $datos = $request->validated();
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
@@ -51,6 +51,10 @@ class ProveedorController extends Controller
             $modelo = Proveedor::create($datos);
             $modelo->servicios_ofertados()->attach($request->tipos_ofrece);
             $modelo->categorias_ofertadas()->attach($datos['categorias_ofrece']);
+            $modelo->departamentos_califican()->sync($request->departamentos);
+            if(!in_array($departamento_contable->id, $request->departamentos)){
+                $modelo->departamentos_califican()->attach($departamento_contable->id);
+            }
             $modelo = new ProveedorResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 

@@ -27,6 +27,7 @@ class UserInfoResource extends JsonResource
             'email' => $this->email,
             'identificacion' =>  $this->empleado != null ? $empleado->identificacion : '',
             'telefono' =>  $this->empleado != null ? $empleado->telefono : '',
+            'fecha_ingreso' =>  $this->empleado != null ? $empleado->fecha_ingreso : '',
             'fecha_nacimiento' =>  $this->empleado != null ? $empleado->fecha_nacimiento : '',
             'jefe_id' => $this->empleado != null ? $empleado->jefe_id : 0,
             'usuario_id' => $this->id,

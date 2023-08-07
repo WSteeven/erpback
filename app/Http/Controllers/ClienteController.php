@@ -42,8 +42,8 @@ class ClienteController extends Controller
 
             if ($empresa) $results = ClienteResource::collection(Cliente::where('empresa_id', $empresa->id)->get());
         } else {
-            $results = Cliente::all();
-            // Log::channel('testing')->info('Log', ['entro en el else grande', $results]);
+            $results = Cliente::filter()->get();
+            // Log::channel('testing')->info('Log', ['entro en el else grande', $results, $request->all()]);
         }
 
         $results = ClienteResource::collection($results);

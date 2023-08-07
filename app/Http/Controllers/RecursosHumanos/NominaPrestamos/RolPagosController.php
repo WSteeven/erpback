@@ -18,6 +18,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -93,6 +94,29 @@ class RolPagosController extends Controller
     {
         $modelo = new RolPagoResource($rolPago);
         return response()->json(compact('modelo'), 200);
+    }
+    public function nivel_endeudamiento(Request $request)
+    {
+        $empleado = Empleado::where('id', $request->empleado)->first();
+        $date = Carbon::now();
+        $mes = $date->format('m-Y');
+        $salario =  $empleado->salario;
+        $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
+        $supa = $empleado->supa;
+        $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
+        $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
+        $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('aporte');
+        $sueldo = ($salario / 30) * 30;
+        $iess = ($sueldo) * $porcentaje_iess;
+        $total_descuento = $supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess;
+        $porcentaje_endeudamiento = ($total_descuento / $sueldo) / 100;
+
+        $results = [
+            'total_descuento' => $total_descuento,
+            'porcentaje' => $porcentaje_endeudamiento,
+            'mensaje' => $porcentaje_endeudamiento > 40 ? 'NIVEL DE ENDEUDAMIENTO SUPERA EL 40%' : ''
+        ];
+        return response()->json(compact('results'));
     }
 
     public function update(Request $request, $rolPagoId)

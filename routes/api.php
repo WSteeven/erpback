@@ -51,6 +51,7 @@ use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
 use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
+use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -190,6 +191,7 @@ Route::apiResources(
         'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'recursos-humanos/tipo_contrato' => TipoContratoController::class,
         'recursos-humanos/rol_pago' => RolPagosController::class,
+        'forma_pago'=> FormaPagoController::class
     ],
     [
         'parameters' => [
@@ -226,7 +228,7 @@ Route::get('empleados-roles', function (Request $request){
     $roles = [];
     if(!is_null($request->roles)){
         $roles = explode(',', $request->roles);
-        $results = UserResource::collection(User::role('BODEGA')->with('empleado')->get());
+        $results = UserResource::collection(User::role($roles)->with('empleado')->get());
     }
     return response()->json(compact('results'));
 })->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front

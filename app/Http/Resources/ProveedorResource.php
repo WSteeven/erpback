@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Proveedor;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProveedorResource extends JsonResource
@@ -14,6 +15,7 @@ class ProveedorResource extends JsonResource
      */
     public function toArray($request)
     {
+        [$calificacion, $estado] = Proveedor::obtenerCalificacion($this->id);
         // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
@@ -27,7 +29,13 @@ class ProveedorResource extends JsonResource
             'celular' => $this->celular,
             'telefono' => $this->telefono,
             'estado' => $this->estado,
-
+            'tipos_ofrece' => $this->servicios_ofertados->map(fn($item)=>$item->id),
+            'departamentos' => $this->departamentos_califican->map(fn($item)=>$item->id),
+            'related_departamentos' => $this->departamentos_califican,
+            'calificacion' => $this->calificacion?$this->calificacion:0,
+            'estado_calificado' => $this->estado_calificado?$this->estado_calificado: Proveedor::SIN_CONFIGURAR,
+            // 'calificacion' => $calificacion,
+            // 'estado_calificado' => $estado,
         ];
 
         if ($controller_method == 'show') {

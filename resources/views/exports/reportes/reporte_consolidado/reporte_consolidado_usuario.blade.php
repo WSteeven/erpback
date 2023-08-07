@@ -130,19 +130,19 @@
                                     <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
                                         <tr>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                                <div align="center"><strong>Nombres y Apellidos</strong></div>
+                                                <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                                                <div align="center"><strong>Usuario</strong></div>
+                                                <div align="center"><strong>LUGAR</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
-                                                <div align="center"><strong>Fecha Consolidado</strong></div>
+                                                <div align="center"><strong>FECHA CONSOLIDADO</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                                                <div align="center"><strong>Descripci&oacute;n</strong></div>
+                                                <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
                                             </td>
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                                                <div align="center"><strong>Monto</strong></div>
+                                                <div align="center"><strong>MONTO</strong></div>
                                             </td>
                                         </tr>
                                         <!--Saldo Inicial-->
@@ -153,7 +153,7 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
-                                                    <div align="left">{{ $usuario->name }}
+                                                    <div align="left">{{$empleado->canton->canton  }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="17%">
@@ -176,7 +176,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
+                                                <div align="left">{{$empleado->canton->canton  }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
@@ -199,7 +199,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
+                                                <div align="left">{{$empleado->canton->canton  }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
@@ -222,7 +222,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
+                                                <div align="left">{{$empleado->canton->canton  }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
@@ -244,7 +244,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="15%">
-                                                <div align="left">{{ $usuario->name }}
+                                                <div align="left">{{$empleado->canton->canton  }}
                                                 </div>
                                             </td>
                                             <td style="font-size:10px" width="17%">
@@ -491,7 +491,7 @@
                     <div align="center"><strong>MONTO</strong></div>
                 </td>
                 <td width="20%" bgcolor="#a9d08e">
-                    <div align="center"><strong># Cuenta</strong></div>
+                    <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
                 <td width="35%" bgcolor="#a9d08e">
                     <div align="center"><strong>MOTIVO</strong></div>

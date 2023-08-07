@@ -47,6 +47,7 @@ class Ticket extends Model implements Auditable
         'fecha_hora_calificado',
         'motivo_ticket_no_solucionado',
         'ticket_interno',
+        'ticket_para_mi',
         'solicitante_id',
         'responsable_id',
         'departamento_responsable_id',
@@ -54,7 +55,7 @@ class Ticket extends Model implements Auditable
         'motivo_cancelado_ticket_id',
     ];
 
-    protected $casts = ['ticket_interno' => 'boolean'];
+    protected $casts = ['ticket_interno' => 'boolean', 'ticket_para_mi' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 

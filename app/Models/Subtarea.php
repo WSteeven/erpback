@@ -69,6 +69,7 @@ class Subtarea extends Model implements Auditable
         'subtarea_dependiente_id',
         'coordinador_id',
         'seguimiento_id',
+        'causa_intervencion_id',
     ];
 
     protected $casts = [

@@ -21,6 +21,7 @@ class RutaTareaResource extends JsonResource
             'ruta' => $this->ruta,
             'cliente' => $this->cliente?->empresa->razon_social,
             'cliente_id' => $this->cliente_id,
+            'activo' => $this->activo,
         ];
 
         if ($controller_method == 'show') {

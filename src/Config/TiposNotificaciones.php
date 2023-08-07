@@ -12,4 +12,5 @@ enum TiposNotificaciones: string{
     case EGRESO = 'EGRESO';
     case TICKET = 'TICKET';
     case PERMISO_EMPLEADO = 'PERMISO EMPLEADO';
+    case PRESTAMO_EMPRESARIAL = 'PRESTAMO EMPRESARIAL';
 }

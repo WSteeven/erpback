@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PrestamoEmpresarialRequest extends FormRequest
 {
@@ -25,9 +27,10 @@ class PrestamoEmpresarialRequest extends FormRequest
     {
         return [
             'fecha' => 'required|date_format:Y-m-d',
+            'solicitante'=>'required|numeric',
             'monto' => 'required|numeric',
-            'utilidad' => 'required|date_format:Y',
-            'valor_utilidad' => 'required|numeric',
+            'utilidad' => 'nullable|date_format:Y',
+            'valor_utilidad' => 'nullable|numeric',
             'id_forma_pago' => 'required|numeric',
             'plazo' => 'required|string',
             'estado' => 'required|string',
@@ -35,8 +38,10 @@ class PrestamoEmpresarialRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
+        $fecha = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
             'id_forma_pago' => $this->forma_pago,
+            'fecha'=>$fecha->format('Y-m-d'),
             'estado' => 'ACTIVO'
         ]);
     }

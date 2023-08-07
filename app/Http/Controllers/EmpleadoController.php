@@ -46,8 +46,7 @@ class EmpleadoController extends Controller
         if (request('es_responsable_departamento')) {
             $idResponsable = Departamento::find(request('departamento_id'))->responsable_id;
             if ($idResponsable) {
-                $responsable = Empleado::find($idResponsable);
-                return EmpleadoResource::collection([$responsable]);
+                return Empleado::where('id', $idResponsable)->get($campos);
             } else return [];
         }
 
@@ -58,7 +57,7 @@ class EmpleadoController extends Controller
         // Procesar respuesta
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         // if ($page) return $this->servicio->obtenerPaginacion($offset);
-        if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
+        // if ($rol) return $this->servicio->obtenerEmpleadosPorRol($rol);
         if ($search) return $this->servicio->search($search);
         return $this->servicio->obtenerTodos();
     }

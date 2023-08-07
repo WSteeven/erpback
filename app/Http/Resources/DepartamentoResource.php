@@ -19,11 +19,7 @@ class DepartamentoResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'activo' => $this->activo,
-<<<<<<< HEAD
-            'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
-=======
             'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
->>>>>>> 4605126f578efcaa448cf27731509a11f9fc2bda
         ];
     }
 }

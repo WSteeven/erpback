@@ -178,6 +178,7 @@ class SubtareaController extends Controller
 
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
@@ -280,10 +281,11 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function finalizar(Subtarea $subtarea)
+    public function finalizar(Request $request, Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::FINALIZADO;
         $subtarea->fecha_hora_finalizacion = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
         $modelo = new SubtareaResource($subtarea->refresh());

@@ -46,6 +46,7 @@ class SubtareaResource extends JsonResource
             'subtarea_dependiente_id' => $this->subtarea_dependiente_id,
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->tarea->cliente_id,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
             'ruta_tarea' => $this->tarea->rutaTarea?->ruta,
             'cliente_final' => $tarea->clienteFinal?->id_cliente_final,
@@ -77,6 +78,7 @@ class SubtareaResource extends JsonResource
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
             'grupo' => $this->grupoResponsable?->nombre,
             'tiene_subtareas' => $tarea->tiene_subtareas,
+            'causa_intervencion_id' => $this->causa_intervencion_id,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
             'puede_suspender' => $this->puedeEjecutarHoy(),
@@ -98,6 +100,7 @@ class SubtareaResource extends JsonResource
             $modelo['empleado'] = $this->empleado_id;
             $modelo['grupo'] = $this->grupo_id;
             $modelo['grupo_nombre'] = $this->grupoResponsable?->nombre;
+            $modelo['causa_intervencion'] = $this->causa_intervencion_id;
         }
 
         return $modelo;

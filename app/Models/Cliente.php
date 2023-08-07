@@ -25,8 +25,16 @@ class Cliente extends Model implements Auditable
         'estado' => 'boolean'
     ];
 
-    private static $whiteListFilter=['*'];
 
+    const JEANPATRICIO = 1;
+    const JPCONSTRUCRED = 5;
+
+    private static $whiteListFilter = ['*'];
+
+    public function sucursales()
+    {
+        return $this->hasMany(Sucursal::class);
+    }
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);
@@ -43,7 +51,8 @@ class Cliente extends Model implements Auditable
      * Relacion uno a muchos
      * Un cliente tiene varios codigos para varios productos
      */
-    public function codigos(){
+    public function codigos()
+    {
         return $this->hasOne(CodigoCliente::class);
     }
 
@@ -60,7 +69,8 @@ class Cliente extends Model implements Auditable
      * Relación uno a muchos.
      * Un cliente tiene un producto al que se le hace un control de stock para estar pendiente de su reabastecimiento
      */
-    public function controlStock(){
+    public function controlStock()
+    {
         return $this->hasMany(ControlStock::class);
     }
 }
