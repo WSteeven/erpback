@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Events\PermisoEmpleadoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
@@ -95,6 +96,7 @@ class PermisoEmpleadoController extends Controller
             $datos['tipo_permiso_id'] =  $request->safe()->only(['tipo_permiso'])['tipo_permiso'];
             $datos['estado_permiso_id'] =  PermisoEmpleado::PENDIENTE;
             $permisoEmpleado = PermisoEmpleado::create($datos);
+            event(new PermisoEmpleadoEvent($permisoEmpleado));
             $modelo = new PermisoEmpleadoResource($permisoEmpleado);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -118,6 +120,7 @@ class PermisoEmpleadoController extends Controller
         $datos['estado_permiso_id'] = $request->safe()->only(['estado'])['estado'];
         $permisoEmpleado = PermisoEmpleado::find($permisoEmpleadoId);
         $permisoEmpleado->update($datos);
+        event(new PermisoEmpleadoEvent($permisoEmpleado));
         $modelo = new PermisoEmpleadoResource($permisoEmpleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));

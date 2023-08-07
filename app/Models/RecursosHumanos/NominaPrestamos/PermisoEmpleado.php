@@ -4,6 +4,7 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,5 +66,9 @@ class PermisoEmpleado extends Model implements Auditable
     public function empleado_info()
     {
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }
