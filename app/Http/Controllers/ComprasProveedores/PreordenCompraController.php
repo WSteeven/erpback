@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\PreordenCompraRequest;
 use App\Http\Resources\ComprasProveedores\PreordenCompraResource;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +29,10 @@ class PreordenCompraController extends Controller
      */
     public function index(Request $request)
     {
-        $results = PreordenCompra::all();
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) 
+            $results = PreordenCompra::ignoreRequest(['solicitante_id'])->filter()->get();
+        
+        $results = PreordenCompra::filter()->get();
         $results = PreordenCompraResource::collection($results);
 
         return response()->json(compact('results'));

@@ -246,7 +246,7 @@ Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgr
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
-Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
+Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'a}nular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
 //reportes
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);

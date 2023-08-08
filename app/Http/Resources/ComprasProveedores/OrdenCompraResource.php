@@ -17,6 +17,7 @@ class OrdenCompraResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $detalles = OrdenCompra::listadoProductos($this->id);
+        [$subtotal,  $iva, $descuento, $total] = OrdenCompra::obtenerSumaListado($this->id);
         $modelo = [
             'id' => $this->id,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
@@ -27,13 +28,31 @@ class OrdenCompraResource extends JsonResource
             'autorizacion' => $this->autorizacion->nombre,
             'autorizacion_id' => $this->autorizacion_id,
             'descripcion' => $this->descripcion,
-            'listadoProductos' => $detalles,
+            'proveedor' => $this->proveedor->empresa->razon_social,
+            'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado->nombre,
             'estado_id' => $this->estado_id,
-            'estado' => $this->estado,
+            'estado' => $this->estado->nombre,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
+            'categorias' => $this->categorias ? array_map('intval', explode(',', $this->categorias)) : null,
+            'forma' => $this->forma,
+            'tiempo' => $this->tiempo,
+            'fecha' => $this->fecha,
+            'listadoProductos' => $detalles,
+            'subtotal' => $subtotal,
+            'descuento' => $descuento,
+            'iva' => $iva,
+            'total' => $total,
 
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['autorizador'] = $this->autorizador_id;
+            $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['proveedor'] = $this->proveedor_id;
+            $modelo['estado'] = $this->estado_id;
+        }
         return $modelo;
     }
 }

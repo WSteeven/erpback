@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProveedorRequest;
-use App\Http\Resources\ProveedorResource;
+use App\Http\Requests\ComprasProveedores\ProveedorRequest;
+use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use App\Models\User;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;

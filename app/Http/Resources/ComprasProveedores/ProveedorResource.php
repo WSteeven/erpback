@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\ComprasProveedores;
 
 use App\Models\Proveedor;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,6 +21,7 @@ class ProveedorResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empresa' => $this->empresa_id,
+            'ruc' => $this->empresa->identificacion,
             'razon_social' => $this->empresa->razon_social,
             'sucursal' => $this->sucursal,
             'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,

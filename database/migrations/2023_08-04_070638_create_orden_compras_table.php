@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('proveedor_id')->nullable();
             $table->unsignedBigInteger('autorizador_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id')->nullable();
+            $table->text('causa_anulacion')->nullable();
             $table->unsignedBigInteger('preorden_id')->nullable();
             $table->unsignedBigInteger('pedido_id')->nullable();
             $table->text('observacion_aut')->nullable();
@@ -28,7 +29,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->enum('forma', [OrdenCompra::CONTADO, OrdenCompra::CREDITO])->default(OrdenCompra::CONTADO)->nullable();
             $table->enum('tiempo', [OrdenCompra::SEMANAL, OrdenCompra::QUINCENAL, OrdenCompra::MES])->nullable();
-            $table->unsignedBigInteger('fecha');
+            $table->date('fecha');
             $table->string('categorias');
             $table->timestamps(); 
 

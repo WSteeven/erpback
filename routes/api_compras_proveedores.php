@@ -6,7 +6,7 @@ use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
 use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
-use App\Models\OfertaProveedor;
+use App\Models\ComprasProveedores\OfertaProveedor;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources([
@@ -14,8 +14,8 @@ Route::apiResources([
     'contactos-proveedores' => ContactoProveedorController::class,
     'criterios-calificaciones' => CriterioCalificacionController::class,
     'detalles-departamentos-proveedor' => DetalleDepartamentoProveedorController::class,
-    'ordenes-compras'=>OrdenCompraController::class,
-    'preordenes-compras'=>PreordenCompraController::class,
+    'ordenes-compras' => OrdenCompraController::class,
+    'preordenes-compras' => PreordenCompraController::class,
 ], [
     'parameters' => [
         'contactos-proveedores' => 'contacto',
@@ -27,8 +27,15 @@ Route::apiResources([
     ],
     'middleware' => ['auth:sanctum']
 ]);
-Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()]);
-Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria']);
+Route::get('ofertas-proveedores', fn () => ['results' => OfertaProveedor::all()])->middleware('auth:sanctum');
+Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'auditoria'])->middleware('auth:sanctum');
 
 //show-preview
-Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraController::class, 'showPreview']);
+Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraController::class, 'showPreview'])->middleware('auth:sanctum');
+
+//anular
+Route::post('ordenes-compras/anular/{orden}', [OrdenCompraController::class, 'anular'])->middleware('auth:sanctum');
+
+
+//imprimir
+Route::get('ordenes-compras/imprimir/{orden}', [OrdenCompraController::class, 'imprimir'])->middleware('auth:sanctum');

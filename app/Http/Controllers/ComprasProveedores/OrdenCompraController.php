@@ -5,9 +5,16 @@ namespace App\Http\Controllers\ComprasProveedores;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
+use App\Http\Resources\ComprasProveedores\ProveedorResource;
+use App\Http\Resources\EmpleadoResource;
+use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
+use App\Models\Proveedor;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +39,13 @@ class OrdenCompraController extends Controller
     public function index(Request $request)
     {
         Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
-        $results = OrdenCompra::filter()->get();
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
+            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+        } else {
+            $results = OrdenCompra::filtrarOrdenesEmpleado($request);
+            Log::channel('testing')->info('Log', ['Esta en el else:']);
+            // $results = OrdenCompra::filter()->get();
+        }
         $results = OrdenCompraResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -55,10 +68,12 @@ class OrdenCompraController extends Controller
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-            
+
             Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             if (count($request->categorias) == 0) {
                 unset($datos['categorias']);
+            } else {
+                $datos['categorias'] = implode(',', $request->categorias);
             }
             //Creación de la orden de compra
             $orden = OrdenCompra::create($datos);
@@ -67,13 +82,66 @@ class OrdenCompraController extends Controller
 
             OrdenCompra::guardarDetalles($orden, $request->listadoProductos);
 
-            
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+        }
+    }
+
+    /**
+     * Consultar
+     */
+    public function show(OrdenCompra $orden)
+    {
+        $modelo = new OrdenCompraResource($orden);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Anular una orden de compra
+     */
+    public function anular(Request $request, OrdenCompra $orden)
+    {
+        Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
+        $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
+        $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+        $request->validate(['motivo' => ['required', 'string']]);
+        $orden->causa_anulacion = $request['motivo'];
+        $orden->autorizacion_id = $autorizacion->id;
+        $orden->estado_id = $estado->id;
+        $orden->save();
+
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Imprimir una orden de compra
+     */
+    public function imprimir(OrdenCompra $orden)
+    {
+        $proveedor = new ProveedorResource(Proveedor::find($orden->proveedor_id));
+        $empleado_solicita = Empleado::find($orden->solicitante_id);
+        $orden = new OrdenCompraResource($orden);
+        try {
+            $orden = $orden->resolve();
+            $proveedor = $proveedor->resolve();
+            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita']));
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+            $file = $pdf->output();
+
+            // return $pdf->download();
+            return $file;
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+            return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage().' '.$e->getLine(), 422);
         }
     }
 }

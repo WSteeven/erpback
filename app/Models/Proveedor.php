@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\ContactoProveedor;
+use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
