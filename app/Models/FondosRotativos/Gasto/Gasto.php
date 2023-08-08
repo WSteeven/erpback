@@ -147,6 +147,7 @@ class Gasto extends Model implements Auditable
             foreach ($gastos as $gasto) {
                 $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
+                $row['fecha_autorizacion']= $gasto->updated_at;
                 $row['lugar']= $gasto->lugar_info?->canton;
                 $row['factura']= $gasto->factura;
                 $row['num_comprobante']= $gasto->num_comprobante;
