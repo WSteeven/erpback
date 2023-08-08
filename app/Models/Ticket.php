@@ -118,4 +118,9 @@ class Ticket extends Model implements Auditable
     {
         return $this->hasMany(ActividadRealizadaSeguimientoTicket::class);
     }
+
+    public function motivoCanceladoTicket()
+    {
+        return $this->belongsTo(MotivoCanceladoTicket::class);
+    }
 }
