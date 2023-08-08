@@ -69,10 +69,7 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        //return new PrivateChannel('channel-name');
-        $nombre_chanel =  $this->permisoEmpleado->estado==1? 'permiso-empleado-'. $this->jefeInmediato:'permiso-empleado-'. $this->permisoEmpleado->empleado_id;
-        Log::channel('testing')->info('Log', ['canal de notificacion', $nombre_chanel]);
-
+        $nombre_chanel =  $this->permisoEmpleado->estado_permiso_id==1? 'permiso-empleado-'. $this->jefeInmediato:'permiso-empleado-'. $this->permisoEmpleado->empleado_id;
         return new Channel($nombre_chanel );
     }
 
