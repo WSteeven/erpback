@@ -257,6 +257,8 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
+Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'corregirPedido']);
+Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
