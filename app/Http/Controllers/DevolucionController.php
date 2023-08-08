@@ -164,8 +164,19 @@ class DevolucionController extends Controller
 
         // Respuesta
         $devolucion->update($datos);
+
+        //borrar los registros de la tabla intermedia para guardar los modificados
+        $devolucion->detalles()->detach();
+
+        //Guardar los productos seleccionados
+        foreach ($request->listadoProductos as $listado) {
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+        }
+
         $modelo = new DevolucionResource($devolucion->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+
 
         $msg = $devolucion->autoriza->nombres . ' ' . $devolucion->autoriza->apellidos . ' ha actualizado tu devolución, el estado de Autorización es: ' . $devolucion->autorizacion->nombre;
         event(new DevolucionActualizadaSolicitanteEvent($msg, $url, $devolucion, $devolucion->per_autoriza_id, $devolucion->solicitante_id, true)); //Se usa para notificar al tecnico que se actualizó la devolucion
