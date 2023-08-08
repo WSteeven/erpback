@@ -13,6 +13,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class PermisoEmpleadoEvent implements ShouldBroadcast
@@ -69,7 +70,9 @@ class PermisoEmpleadoEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         //return new PrivateChannel('channel-name');
-        $nombre_chanel =  $this->permisoEmpleado->estado==1? 'permiso-empleado'. $this->jefeInmediato:'permiso-empleado'. $this->permisoEmpleado->empleado_id;
+        $nombre_chanel =  $this->permisoEmpleado->estado==1? 'permiso-empleado-'. $this->jefeInmediato:'permiso-empleado-'. $this->permisoEmpleado->empleado_id;
+        Log::channel('testing')->info('Log', ['canal de notificacion', $nombre_chanel]);
+
         return new Channel($nombre_chanel );
     }
 
