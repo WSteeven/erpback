@@ -101,8 +101,8 @@ class TicketController extends Controller
             ActividadRealizadaSeguimientoTicket::create([
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
-                'observacion' => '« SISTEMA »',
-                'actividad_realizada' => '»»» ' . Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha transferido el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'observacion' => 'TICKET TRANSFERIDO',
+                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha transferido el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
@@ -254,10 +254,10 @@ class TicketController extends Controller
             'ticket_id' => $ticket->id,
         ]);
 
-        if ($this->ticketCalificado($ticket)) {
+        /*if ($this->ticketCalificado($ticket)) {
             $ticket->estado = Ticket::CALIFICADO;
             $ticket->save();
-        }
+        }*/
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket calificado exitosamente!';

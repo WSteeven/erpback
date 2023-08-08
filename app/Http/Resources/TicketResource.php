@@ -40,9 +40,12 @@ class TicketResource extends JsonResource
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
             'ticket_interno' => $this->ticket_interno,
+            'ticket_para_mi' => $this->ticket_para_mi,
             'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
             'calificaciones' => $this->calificacionesTickets,
-            'pendiente_calificar' => $this->verificarPendienteCalificar(),
+            'pendiente_calificar_solicitante' => $this->verificarPendienteCalificar('SOLICITANTE'),
+            'pendiente_calificar_responsable' => $this->verificarPendienteCalificar('RESPONSABLE'),
+            'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
         ];
 
 
@@ -57,8 +60,8 @@ class TicketResource extends JsonResource
         return $modelo;
     }
 
-    public function verificarPendienteCalificar()
+    public function verificarPendienteCalificar(string $solicitante_o_responsable)
     {
-        return !$this->calificacionesTickets()->where('calificador_id', Auth::user()->empleado->id)->exists();
+        return !$this->calificacionesTickets()->where('calificador_id', Auth::user()->empleado->id)->where('solicitante_o_responsable', $solicitante_o_responsable)->exists();
     }
 }

@@ -18,8 +18,8 @@ class SeguimientoSubtareaResource extends JsonResource
         return [
             'id' => $this->id,
             'trabajo_realizado' => $this->mapTrabajoRealizado(),
-            'observaciones' => $this->observaciones,
-            'materiales_tarea_ocupados' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),// ?? [],//materiales_tarea_ocupados,
+            'observaciones' => $this->numerar($this->observaciones),
+            'materiales_tarea_ocupados' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(), // ?? [],//materiales_tarea_ocupados,
             // 'historial_material_tarea_usado' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),
             'materiales_stock_ocupados' => $this->materiales_stock_ocupados,
             'materiales_devolucion' => $this->materiales_devolucion,
@@ -40,5 +40,13 @@ class SeguimientoSubtareaResource extends JsonResource
     private function imagenBase64($fotografia)
     {
         return 'data:image/png;base64,' . base64_encode(file_get_contents(url($fotografia)));
+    }
+
+    private function numerar($listado)
+    {
+        return collect($listado)->map(function ($item, $index) {
+            $item['id'] = $index + 1;
+            return $item;
+        });
     }
 }
