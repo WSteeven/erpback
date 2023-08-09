@@ -109,35 +109,19 @@ class DetalleProductoController extends Controller
             //Adaptacion de foreign keys
             $datos['producto_id'] = $request->safe()->only(['producto'])['producto'];
             $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
-            // $datos['span_id'] = $request->safe()->only(['span'])['span'];
-            // $datos['tipo_fibra_id'] = $request->safe()->only(['tipo_fibra'])['tipo_fibra'];
-            // $datos['hilo_id'] = $request->safe()->only(['hilos'])['hilos'];
-            // Log::channel('testing')->info('Log', ['Datos adaptados:', $datos]);
-            //Respuesta
-            $detalle = DetalleProducto::create($datos);
-            // $modelo = DetalleProducto::create($datos);
-            if ($request->categoria === 'INFORMATICA') {
-                $detalle->computadora()->create([
-                    // 'detalle_id'=>$datos['detalle_id'],
-                    'memoria_id' => $datos['ram'],
-                    'disco_id' => $datos['disco'],
-                    'procesador_id' => $datos['procesador'],
-                    'imei' => $datos['imei'],
-                ]);
-                DB::commit();
+            if (count($request->seriales) > 0) {
+                Log::channel('testing')->info('Log', ['Hay:', count($request->seriales), 'numeros de serie']);
+                foreach ($request->seriales as $item) {
+                    Log::channel('testing')->info('Log', ['Serial:', $item['serial']]);
+                    //aqui se pondria la siguiente linea
+                    $datos['serial'] = $item['serial'];
+                    $detalle = DetalleProducto::crearDetalle($request, $datos);
+                }
+            } else {
+                //Respuesta
+                $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
-            if ($request->es_fibra) {
-                $detalle->fibra()->create([
-                    // 'detalle_id'=>$datos['detalle_id'],
-                    'span_id' => $datos['span'],
-                    'tipo_fibra_id' => $datos['tipo_fibra'],
-                    'hilo_id' => $datos['hilos'],
-                    'punta_inicial' => $datos['punta_inicial'],
-                    'punta_final' => $datos['punta_final'],
-                    'custodia' => $datos['custodia'],
-                ]);
-                DB::commit();
-            }
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
