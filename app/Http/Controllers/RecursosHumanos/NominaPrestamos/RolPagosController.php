@@ -17,6 +17,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
@@ -67,7 +68,7 @@ class RolPagosController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO,true);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true);
         $rolpago->rol_firmado = $archivoJSON;
         $rolpago->estado = RolPago::FINALIZADO;
         $rolpago->save();
@@ -200,7 +201,7 @@ class RolPagosController extends Controller
     {
         $rolPago = RolPago::find($rolPagoId);
         $estado_mensaje = '';
-       switch ($request->estado) {
+        switch ($request->estado) {
             case RolPago::EJECUTANDO:
                 $estado_mensaje = ' Ejecutado el Rol de Pagos';
                 break;
@@ -227,8 +228,6 @@ class RolPagosController extends Controller
             $reportes =  ['roles_pago' => $results];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
-            Log::channel('testing')->info('Log', ['reporte', $reportes]);
-
             return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -237,4 +236,12 @@ class RolPagosController extends Controller
             ]);
         }
     }
+    public function actualizar_masivo(Request $request)
+    {
+        // Realizar la actualización masiva
+        RolPago::where('rol_pago_id',  $request->rol_pago_id)->where('estado', RolPago::CREADO)
+            ->update(['estado' => RolPago::EJECUTANDO]);
+        return response()->json(['mensaje' => 'Se ha comenzado a ejecutar todo el rol']);
+    }
+  
 }

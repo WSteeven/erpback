@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Exports\RolPagoExport;
+use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
@@ -18,14 +20,18 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
 
 class RolPagoMesController extends Controller
 {
     private $entidad = 'Rol de Pago';
+    private $reporteService;
 
     public function __construct()
     {
+        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.rol_pago_mes')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago_mes')->only('store');
     }
@@ -56,12 +62,12 @@ class RolPagoMesController extends Controller
     }
     private function tabla_roles(RolPagoMes $rol)
     {
-        $empleados_activos = Empleado::where('estado', 1)->where('id','!=',1)->get();
+        $empleados_activos = Empleado::where('estado', 1)->where('id', '!=', 1)->get();
         $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
         $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
         $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
         $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
-        $prestamos_hipotecarios = PrestamoHipotecario::where('mes',$rol->mes)
+        $prestamos_hipotecarios = PrestamoHipotecario::where('mes', $rol->mes)
             ->groupBy('empleado_id')
             ->select('empleado_id', DB::raw('SUM(valor) as total_valor'))
             ->get()
@@ -93,7 +99,7 @@ class RolPagoMesController extends Controller
             ->pluck('total_valor', 'solicitante');
         $roles_pago =  collect($empleados_activos)->map(function ($empleado) use ($rol, $sueldo_basico, $porcentaje_iess, $porcentaje_anticipo, $permisos_sin_recuperar,  $prestamos_hipotecarios, $prestamos_quirorafarios, $prestamos_empresariales, $extenciones_salud) {
             // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
-            $dias_permiso_sin_recuperar = $permisos_sin_recuperar->has($empleado->id)? $permisos_sin_recuperar[$empleado->id]:0;
+            $dias_permiso_sin_recuperar = $permisos_sin_recuperar->has($empleado->id) ? $permisos_sin_recuperar[$empleado->id] : 0;
             $dias = 30;
             $salario = $empleado->salario;
             $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
@@ -113,7 +119,7 @@ class RolPagoMesController extends Controller
             return [
                 'empleado_id' => $empleado->id,
                 'dias' => $dias,
-                'mes' =>$rol->mes,
+                'mes' => $rol->mes,
                 'sueldo' =>  $sueldo,
                 'decimo_tercero' =>  $decimo_tercero,
                 'decimo_cuarto' =>  $decimo_cuarto,
@@ -154,5 +160,50 @@ class RolPagoMesController extends Controller
         $rolPago = RolPagoMes::find($rolPagoId);
         $rolPago->delete();
         return $rolPago;
+    }
+    public function imprimir_rol_pago_general($rolPagoId)
+    {
+        try {
+            $nombre_reporte = 'rol_pagos';
+            $roles_pagos = RolPago::where('rol_pago_id', $rolPagoId)->get();
+            $results = RolPago::empaquetarListado($roles_pagos);
+            $maxColumEgresosValue = array_reduce($results, function ($carry, $item) {
+                return max($carry, $item['egresos_cantidad_columna']);
+            }, 0);
+            $maxColumIngresosValue = array_reduce($results, function ($carry, $item) {
+                return max($carry, $item['ingresos_cantidad_columna']);
+            }, 0);
+            $egresosColumNames = array();
+
+            array_map(function ($item) use (&$egresosColumNames) {
+                if ($item['egresos_cantidad_columna'] > 0) {
+                    foreach ($item['egresos'] as $egreso) {
+                        $egresosColumNames[] = $egreso['descuento']['nombre'];
+                    }
+                }
+            }, $results);
+            Log::channel('testing')->info('Log', ['columna_egresos', $egresosColumNames]);
+
+            $ingresosColumNames = array_map(function ($item) {
+                return $item['ingresos_cantidad_columna'] > 0 ? $item['ingresos'][0]['concepto_ingreso_info']['nombre'] : null;
+            }, $results);
+            $filteregresosColumNames = array_filter($egresosColumNames);
+            $filteringresoColumNames = array_filter($ingresosColumNames);
+            $reportes =  [
+                'roles_pago' => $results,
+                'cantidad_columna_ingresos' => $maxColumIngresosValue,
+                'cantidad_columna_egresos' => $maxColumEgresosValue,
+                'columnas_ingresos' => array_unique($filteringresoColumNames),
+                'columnas_egresos' => array_unique($filteregresosColumNames)
+            ];
+            $vista = 'recursos-humanos.rol_pago_mes';
+            $export_excel = new RolPagoMesExport($reportes);
+            return $this->reporteService->imprimir_reporte('excel', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
+        }
     }
 }

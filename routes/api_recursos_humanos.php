@@ -50,8 +50,8 @@ Route::apiResources(
         'licencia_empleado' => LicenciaEmpleadoController::class,
         'vacacion' => VacacionController::class,
         'estado_civil' => EstadoCivilController::class,
-        'areas'=> AreasController::class,
-        'familiares'=> FamiliaresControler::class,
+        'areas' => AreasController::class,
+        'familiares' => FamiliaresControler::class,
     ],
     [
         'parameters' => [],
@@ -61,6 +61,7 @@ Route::apiResources(
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('datos_empleado/{id}', [EmpleadoController::class, 'datos_empleado']);
     Route::post('rol_pago/estado/{rolPagoId}', [RolPagosController::class, 'cambiar_estado']);
+    Route::post('rol_pago/actualizar_masivo', [RolPagosController::class, 'actualizar_masivo']);
     Route::get('prestamos_hipotecario_empleado', [PrestamoHipotecarioController::class, 'prestamos_hipotecario_empleado']);
     Route::put('aprobar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'aprobar_prestamo_empresarial']);
     Route::put('rechazar_prestamo_empresarial', [SolicitudPrestamoEmpresarialController::class, 'rechazar_prestamo_empresarial']);
@@ -82,4 +83,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener_prestamo_empleado', [PrestamoEmpresarialController::class, 'obtener_prestamo_empleado']);
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);
     Route::get('imprimir_rol_pago/{rolPagoId}', [RolPagosController::class, 'imprimir_rol_pago']);
+    Route::get('imprimir_rol_pago_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_rol_pago_general']);
+
 });

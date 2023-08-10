@@ -105,6 +105,9 @@ class RolPago extends Model implements Auditable
             $row['supa'] = $rol_pago->empleado_info->supa;
             $row['ingresos'] = $rol_pago->ingreso_rol_pago;
             $row['egresos'] = $rol_pago->egreso_rol_pago;
+            $row['egresos_cantidad_columna'] = count($rol_pago->egreso_rol_pago);
+            $row['ingresos_cantidad_columna'] = count($rol_pago->ingreso_rol_pago);
+
             $results[$id] = $row;
 
             $id++;
