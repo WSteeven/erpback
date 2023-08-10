@@ -4,6 +4,7 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -44,5 +45,9 @@ class LicenciaEmpleado extends Model implements Auditable
     }
     public function estado_info(){
         return $this->hasOne(Autorizacion::class,'id', 'estado');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }

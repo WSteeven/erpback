@@ -4,6 +4,7 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,10 @@ class SolicitudPrestamoEmpresarial extends  Model implements Auditable
     }
     public function periodo_info(){
         return $this->hasOne(Periodo::class, 'id', 'periodo_id');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 
     private static $whiteListFilter = [

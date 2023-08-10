@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Events\VacacionEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
@@ -92,12 +93,12 @@ class VacacionController extends Controller
         $fechaActual = Carbon::now();
 
         // Calcula la diferencia entre las dos fechas en años
-        $diferencia = $fechaInicio->diffInYears($fechaActual);
-        if ($diferencia <= 1) {
+        $diferencia = $fechaInicio->diffInYears($request->fecha_inicio != null ? $request->fecha_inicio : $request->fecha_inicio_rango1_vacaciones);
+       /* if ($diferencia <= 1) {
             throw ValidationException::withMessages([
-                '404' => ['Vacaciones no disponibles debido a que no cumple un año trabajando en la empresa'],
+                '404' => ['Vacaciones no disponibles debido a fecha establecida es menor a un año de trabajo en la empresa'],
             ]);
-        }
+        }*/
 
 
         if ($empleado_tiene_vacaciones != null) {
@@ -108,11 +109,11 @@ class VacacionController extends Controller
         if ($request->numero_dias != null) {
             $dias_descuentos_permiso = intval(($request->descuento_vacaciones / 24));
             if ($dias_descuentos_permiso == 0) {
-                if ($request->numero_dias != 15) {
+               /* if ($request->numero_dias != 15) {
                     throw ValidationException::withMessages([
                         '404' => ['Por favor ingrese en rangos de vacaciones'],
                     ]);
-                }
+                }*/
             }
             $resta_dias_permiso = $request->numero_dias - $dias_descuentos_permiso;
             $total_dias_aceptable = 15 - $dias_descuentos_permiso;
@@ -136,6 +137,7 @@ class VacacionController extends Controller
         // 4. Crear la vacación y devolver la respuesta
         $datos['estado'] =  Vacacion::PENDIENTE;
         $vacacion = Vacacion::create($datos);
+        event(new VacacionEvent($vacacion));
         $modelo = new VacacionResource($vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -156,6 +158,7 @@ class VacacionController extends Controller
         $datos = $request->validated();
         $datos['estado'] = $request->estado;
         $Vacacion->update($datos);
+        event(new VacacionEvent($Vacacion));
         $modelo = new VacacionResource($Vacacion);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));

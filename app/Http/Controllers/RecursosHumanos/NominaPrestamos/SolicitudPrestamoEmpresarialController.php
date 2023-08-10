@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Events\SolicitudPrestamoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
@@ -67,6 +68,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
             $datos['foto'] = (new GuardarImagenIndividual($request->foto, RutasStorage::FOTOGRAFIAS_PRESTAMO_EMPRESARIAL))->execute();
         }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
+        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -103,6 +105,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $datos['estado'] = $request->estado;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
+        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
@@ -128,6 +131,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $PrestamoEmpresarial->valor_utilidad = $request->valor_utilidad;
         $PrestamoEmpresarial->id_solicitud_prestamo_empresarial = $SolicitudPrestamoEmpresarial->id;
         $PrestamoEmpresarial->save();
+        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         $this->tabla_plazos($PrestamoEmpresarial);
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = "Solicitud de Prestamo a sido Aprobada";
@@ -139,6 +143,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $datos['estado'] = 3;
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
+        event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = "Solicitud de Prestamo a sido Rechazada"; //Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));

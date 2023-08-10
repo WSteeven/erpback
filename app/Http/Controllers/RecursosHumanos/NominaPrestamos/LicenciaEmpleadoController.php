@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Events\LicenciaEmpleadoEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LicenciaEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoLicenciaEmpleadoResource;
@@ -72,10 +73,10 @@ class LicenciaEmpleadoController extends Controller
 
     public function create(Request $request)
     {
-        $permisoEmpleado = new LicenciaEmpleado();
-        $permisoEmpleado->nombre = $request->nombre;
-        $permisoEmpleado->save();
-        return $permisoEmpleado;
+        $licenciaEmpleado = new LicenciaEmpleado();
+        $licenciaEmpleado->nombre = $request->nombre;
+        $licenciaEmpleado->save();
+        return $licenciaEmpleado;
     }
 
     public function store(LicenciaEmpleadoRequest $request)
@@ -90,8 +91,9 @@ class LicenciaEmpleadoController extends Controller
             DB::beginTransaction();
             $datos['id_tipo_licencia'] =  $request->safe()->only(['tipo_licencia'])['tipo_licencia'];
             $datos['estado'] =  LicenciaEmpleado::PENDIENTE;
-            $permisoEmpleado = LicenciaEmpleado::create($datos);
-            $modelo = new LicenciaEmpleadoResource($permisoEmpleado);
+            $licenciaEmpleado = LicenciaEmpleado::create($datos);
+            event(new LicenciaEmpleadoEvent($licenciaEmpleado));
+            $modelo = new LicenciaEmpleadoResource($licenciaEmpleado);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -111,17 +113,18 @@ class LicenciaEmpleadoController extends Controller
     public function update(LicenciaEmpleadoRequest $request, $licenciaEmpleadoId)
     {
         $datos = $request->validated();
-        $permisoEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
-        $permisoEmpleado->update($datos);
-        $modelo = new LicenciaEmpleadoResource($permisoEmpleado);
+        $licenciaEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
+        $licenciaEmpleado->update($datos);
+        event(new LicenciaEmpleadoEvent($licenciaEmpleado));
+        $modelo = new LicenciaEmpleadoResource($licenciaEmpleado);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
 
     public function destroy($licenciaEmpleadoId)
     {
-        $permisoEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
-        $permisoEmpleado->delete();
-        return $permisoEmpleado;
+        $licenciaEmpleado = LicenciaEmpleado::find($licenciaEmpleadoId);
+        $licenciaEmpleado->delete();
+        return $licenciaEmpleado;
     }
 }

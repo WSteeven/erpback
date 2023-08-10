@@ -4,6 +4,7 @@ namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -46,6 +47,10 @@ class Vacacion extends Model implements Auditable
     public function estado_permiso_info()
     {
         return $this->belongsTo(Autorizacion::class, 'estado', 'id');
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
     private static $whiteListFilter = [
         'id',
