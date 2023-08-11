@@ -35,6 +35,7 @@ Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraControll
 
 //anular
 Route::post('ordenes-compras/anular/{orden}', [OrdenCompraController::class, 'anular'])->middleware('auth:sanctum');
+Route::post('preordenes-compras/anular/{preorden}', [PreordenCompraController::class, 'anular'])->middleware('auth:sanctum');
 
 
 //imprimir

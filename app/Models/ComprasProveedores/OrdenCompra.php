@@ -6,6 +6,7 @@ use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
+use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
@@ -130,6 +131,24 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
+   * Relacion polimorfica a una notificacion.
+   * Una orden de compra puede tener una o varias notificaciones.
+   */
+  public function notificaciones()
+  {
+    return $this->morphMany(Notificacion::class, 'notificable');
+  }
+
+  /**
+   * Relación para obtener la ultima notificacion de un modelo dado.
+   */
+  public function latestNotificacion()
+  {
+    return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+  }
+
+
+  /**
    * ______________________________________________________________________________________
    * FUNCIONES
    * ______________________________________________________________________________________
@@ -165,18 +184,19 @@ class OrdenCompra extends Model implements Auditable
    * La función "obtenerSumaListado" calcula el subtotal, el total, el descuento y el impuesto (IVA) de
    * una lista de artículos en función del ID de orden de compra dado.
    * 
-   * @param id El parámetro "id" es el ID de la orden de compra.
+   * @param int $id El parámetro "id" es el ID de la orden de compra.
    * 
    * @return una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
-  public static function obtenerSumaListado($id){
-    $detalles = ItemDetalleOrdenCompra::where('orden_compra_id',$id)->get();
+  public static function obtenerSumaListado($id)
+  {
+    $detalles = ItemDetalleOrdenCompra::where('orden_compra_id', $id)->get();
     $total = $detalles->sum('total');
-    $subtotal= $detalles->sum('subtotal');
-    $iva= $detalles->sum('iva');
+    $subtotal = $detalles->sum('subtotal');
+    $iva = $detalles->sum('iva');
     $descuento = $detalles->sum('descuento');
 
-    return [$subtotal,$iva,$descuento, $total];
+    return [$subtotal, $iva, $descuento, $total];
   }
 
   public static function guardarDetalles($orden, $items)
@@ -199,12 +219,12 @@ class OrdenCompra extends Model implements Auditable
       $orden->detalles()->sync($datos);
 
       Log::channel('testing')->info('Log', ['Request :', $orden->detalles()->count(), $orden->preorden_id]);
+      // aquí se modifica el estado de la preorden de compra
       if ($orden->detalles()->count() > 0 && $orden->preorden_id) {
-        Log::channel('testing')->info('Log', ['Entre al if :', $orden->detalles()->count(), $orden->preorden_id]);
         $preorden = PreordenCompra::find($orden->preorden_id);
+        $preorden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion
         $preorden->estado = EstadoTransaccion::COMPLETA;
         $preorden->save();
-        Log::channel('testing')->info('Log', ['fin del if :', $preorden]);
       }
       DB::commit();
     } catch (Exception $e) {
@@ -222,6 +242,4 @@ class OrdenCompra extends Model implements Auditable
     // $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
     return $results;
   }
-
- 
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\PedidoAutorizadoEvent;
 use App\Events\PedidoCreadoEvent;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

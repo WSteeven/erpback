@@ -13,4 +13,7 @@ enum TiposNotificaciones: string{
     case TICKET = 'TICKET';
     case PERMISO_EMPLEADO = 'PERMISO EMPLEADO';
     case PRESTAMO_EMPRESARIAL = 'PRESTAMO EMPRESARIAL';
+    //compras y proveedores
+    case PREORDEN = 'PREORDEN';
+    case ORDEN_COMPRA = 'ORDEN_COMPRA';
 }

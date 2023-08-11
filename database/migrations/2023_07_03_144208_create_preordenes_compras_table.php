@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('autorizador_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id')->nullable();
             $table->enum('estado', [EstadoTransaccion::PENDIENTE, EstadoTransaccion::COMPLETA, EstadoTransaccion::ANULADA])->default(EstadoTransaccion::PENDIENTE);
+            $table->text('causa_anulacion')->nullable();
             $table->timestamps();
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();

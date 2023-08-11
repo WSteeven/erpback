@@ -2,10 +2,14 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Events\ComprasProveedores\PreordenCreadaEvent;
+use App\Events\ComprasProveedores\PreordenEvent;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Models\Pedido;
+use App\Models\User;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
@@ -89,10 +93,45 @@ class PreordenCompra extends Model implements Auditable
     }
 
     /**
+     * Relacion polimorfica a una notificacion.
+     * Una preorden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES
      * ______________________________________________________________________________________
      */
+
+    /**
+     * La función genera un mensaje para una preorden de compra generada automáticamente, que
+     * incluye información sobre el solicitante y el autorizador.
+     * 
+     * @param PreordenCompra $preorden El parámetro "preorden" es una instancia de la clase
+     * "PreordenCompra". Representa una preorden de compra y contiene información como el ID de la
+     * preorden, el nombre de la persona que lo solicitó (solicitante) y el nombre de la persona que lo
+     * autorizó (autorizador).
+     * 
+     * @return string $msg una cadena que incluye el número de preorden de compra, el nombre de la persona que
+     * solicitó la preorden, el nombre de la persona que autorizó la preorden y un
+     * mensaje para verificar y generar la orden de compra respectiva.
+     */
+    public static function generarMensajePreordenAutomatica(PreordenCompra $preorden)
+    {
+        return 'Preorden de compra N° ' . $preorden->id . ' generada automaticamente por el sistema, solicitada por ' . $preorden->solicitante->nombres . ' ' . $preorden->solicitante->apellidos . ' y autorizada por ' . $preorden->autorizador->nombres . ' ' . $preorden->autorizador->apellidos . '. Por favor verifica y genera la respectiva orden de compra';
+    }
 
     /**
      * La función "generarPreorden" crea una preorden anticipado para una compra en función de un pedido y
@@ -107,6 +146,7 @@ class PreordenCompra extends Model implements Auditable
      */
     public static function generarPreorden($pedido, $items)
     {
+        $url = '/preordenes-compras';
         try {
             DB::beginTransaction();
             $preorden = PreordenCompra::create([
@@ -120,6 +160,8 @@ class PreordenCompra extends Model implements Auditable
             $preorden->detalles()->sync($items);
 
             DB::commit();
+            $msg = self::generarMensajePreordenAutomatica($preorden);
+            event(new PreordenCreadaEvent($msg, User::ROL_COMPRAS, $url, $preorden, true));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al generar la preorden de compra', $e->getMessage(), $e->getLine()]);

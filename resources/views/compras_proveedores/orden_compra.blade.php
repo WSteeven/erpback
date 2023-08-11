@@ -153,7 +153,7 @@
             <tr>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
+                        propiedad de JPCONSTRUCRED C.LTDA. <br> Utilizar únicamente para compras a proveedores autorizados
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         usuario:

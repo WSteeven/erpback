@@ -407,6 +407,13 @@ class Inventario extends Model implements Auditable
      */
     public static function verificarExistenciasDetalles($pedido)
     {
+        //estas categorias no generan preorden de compra
+        $categorias = [
+            'EQUIPOS',
+            'UNIFORMES',
+            'EPP',
+            'INFORMATICA',
+        ];
         if (self::verificarClienteSucursalPedido($pedido->sucursal_id)) {
             //obtener todas las sucursales pertenecientes a jpconstrucred o jeanpazmino
             $ids_sucursales = Sucursal::whereIn('cliente_id', [Cliente::JPCONSTRUCRED, Cliente::JEANPATRICIO])->get('id');
@@ -414,15 +421,20 @@ class Inventario extends Model implements Auditable
             try {
                 foreach ($pedido->detalles as $index => $detalle) {
                     Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
-                    $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
-                    if ($itemsInventario->sum('cantidad') < $detalle->pivot->cantidad) {
-                        $row['detalle_id'] = $detalle->id;
-                        $row['cantidad'] = $detalle->pivot->cantidad - $itemsInventario->sum('cantidad');
-                        Log::channel('testing')->info('Log', ['Lo que se va a agregar a los items de la preorden', $row]);
-                        $items[$index] = $row;
+                    // aqui se verifica si el detalle no pertenece a la categoria del array $categorias para continuar a generar la preorden 
+                    if(!in_array($detalle->producto->categoria->nombre, $categorias)){
+                        Log::channel('testing')->info('Log', ['La categoria es', $detalle->producto->categoria->nombre]);
+                        
+                        $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
+                        if ($itemsInventario->sum('cantidad') < $detalle->pivot->cantidad) {
+                            $row['detalle_id'] = $detalle->id;
+                            $row['cantidad'] = $detalle->pivot->cantidad - $itemsInventario->sum('cantidad');
+                            Log::channel('testing')->info('Log', ['Lo que se va a agregar a los items de la preorden', $row]);
+                            $items[$index] = $row;
+                        }
                     }
-                    Log::channel('testing')->info('Log', ['Todos los items', $items]);
                 }
+                Log::channel('testing')->info('Log', ['Todos los items', $items]);    
                 if (count($items) > 0) //Si hay al menos un item cuya cantidad no esté en inventario se genera una preorden de compra
                     PreordenCompra::generarPreorden($pedido, $items);
 

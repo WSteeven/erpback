@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\PreordenCompraRequest;
 use App\Http\Resources\ComprasProveedores\PreordenCompraResource;
 use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\EstadoTransaccion;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -84,6 +85,21 @@ class PreordenCompraController extends Controller
     public function showPreview(PreordenCompra $preorden)
     {
         $modelo = new PreordenCompraResource($preorden);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Anular una preorden de compra
+     */
+    public function anular(Request $request, PreordenCompra $preorden){
+        $request->validate(['motivo'=>['required', 'string']]);
+        $preorden->causa_anulacion = $request['motivo'];
+        $preorden->estado = EstadoTransaccion::ANULADA;
+        Log::channel('testing')->info('Log', ['Ultima notificacion de la preorden', $preorden->latestNotificacion()->get()]);
+        $preorden->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+        $preorden->save();
+
+        $modelo = new PreordenCompraResource($preorden->refresh());
         return response()->json(compact('modelo'));
     }
 }
