@@ -30,22 +30,13 @@ class DetallePedidoProductoObserver
      */
     public function updated(DetallePedidoProducto $detallePedidoProducto)
     {
-        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
+
         Log::channel('testing')->info('Log', ['Updated del observer de DetallePedidoProducto', $detallePedidoProducto]);
-        // $resultados = DB::table('detalle_pedido_producto')->where('pedido_id', '=', $detallePedidoProducto->pedido_id)->whereRaw('cantidad!=despachado')->get();
-        // $resultados = DetallePedidoProducto::where('pedido_id', '=', $detallePedidoProducto->pedido_id)->where('cantidad', '<>', 'despachado')->count();
-        $resultados = DB::select('select count(*) as cantidad from detalle_pedido_producto dpp where dpp.pedido_id=' . $detallePedidoProducto->pedido_id . ' and dpp.cantidad!=dpp.despachado');
-        Log::channel('testing')->info('Log', ['Resultados', $resultados[0]->cantidad]);
-        $pedido = Pedido::find($detallePedidoProducto->pedido_id);
-        if ($resultados[0]->cantidad>0) {
-            Log::channel('testing')->info('Log', ['todavia no esta completada']);
-            $pedido->update(['estado_id' => $estadoParcial->id]);
-        } else {
-            Log::channel('testing')->info('Log', ['el pedido esta completada!!']);
-            $pedido->update(['estado_id' => $estadoCompleta->id]);
-        }
+
+        DetallePedidoProducto::verificarDespachoItems($detallePedidoProducto);
     }
+
+
 
     /**
      * Handle the DetallePedidoProducto "deleted" event.
@@ -56,6 +47,7 @@ class DetallePedidoProductoObserver
     public function deleted(DetallePedidoProducto $detallePedidoProducto)
     {
         Log::channel('testing')->info('Log', ['Deleted del observer de DetallePedidoProducto', $detallePedidoProducto]);
+        DetallePedidoProducto::verificarDespachoItems($detallePedidoProducto);
     }
 
     /**
@@ -79,4 +71,6 @@ class DetallePedidoProductoObserver
     {
         //
     }
+
+    
 }

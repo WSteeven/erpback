@@ -91,7 +91,7 @@ class TransaccionBodegaEgresoController extends Controller
         $materialesTarea = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             return [
-                'item' => $index + 1,
+                'id' => $index + 1,
                 'producto' => Producto::find($detalle->producto_id)->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,

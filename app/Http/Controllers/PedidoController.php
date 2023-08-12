@@ -8,6 +8,7 @@ use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
+use App\Models\DetallePedidoProducto;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\User;
@@ -201,6 +202,54 @@ class PedidoController extends Controller
         return response()->json(compact('modelo'), 200);
     }
 
+    /**
+     * La función "corregirPedido" toma una solicitud y un pedido, actualiza la cantidad de productos
+     * del pedido, guarda los cambios y devuelve el pedido modificado como respuesta JSON.
+     * 
+     * @param Request request El parámetro  es una instancia de la clase Request, que
+     * representa una solicitud HTTP. Contiene información sobre la solicitud, como el método de
+     * solicitud, los encabezados y los datos de entrada.
+     * @param Pedido pedido El parámetro "" es una instancia del modelo "Pedido". Representa un
+     * pedido específico en el sistema.
+     * 
+     * @return una respuesta JSON con el pedido modificado como objeto PedidoResource.
+     */
+    public function corregirPedido(Request $request, Pedido $pedido)
+    {
+        //aqui se hace todo un proceso y se devuelve el pedido ya modificado
+        if (count($request->listadoProductos) > 0) {
+            foreach ($request->listadoProductos as $listado) {
+                $pedido->detalles()->updateExistingPivot($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $detalle = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $listado['id'])->first();
+                $detalle->cantidad = $listado['cantidad'];
+                $detalle->save();
+                DetallePedidoProducto::verificarDespachoItems($detalle);
+            }
+        }
+
+        $modelo = new PedidoResource($pedido);
+        return response()->json(compact('modelo'), 200);
+    }
+
+    /**
+     * La función `eliminarDetallePedido` elimina un artículo específico de un pedido y devuelve un
+     * mensaje de éxito.
+     * 
+     * @param Request request El parámetro  es una instancia de la clase Request, que se
+     * utiliza para recuperar los datos enviados en la solicitud HTTP. Contiene información como el
+     * método de solicitud, los encabezados y cualquier dato enviado en el cuerpo de la solicitud. En
+     * este caso, se utiliza para recuperar los valores del 'pedido
+     * 
+     * @return una respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito" (El
+     * elemento se ha eliminado con éxito).
+     */
+    public function eliminarDetallePedido(Request $request)
+    {
+        $detalle = DetallePedidoProducto::where('pedido_id', $request->pedido_id)->where('detalle_id', $request->detalle_id)->first();
+        $detalle->delete();
+        $mensaje = 'El item ha sido eliminado con éxito';
+        return response()->json(compact('mensaje'));
+    }
     /**
      * Imprimir
      */

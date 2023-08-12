@@ -387,6 +387,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function actualizarPedido($transaccion)
     {
+        // Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
         $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();
@@ -394,22 +395,27 @@ class TransaccionBodega extends Model implements Auditable
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
+            // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $itemInventario = Inventario::find($detalle['inventario_id']);
+                // Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $itemInventario]);
                 $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+                // Log::channel('testing')->info('Log', ['El detallePedido encontrado es: ', $detallePedido]);
                 if ($detallePedido) {
                     $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial']; //actualiza la cantidad de despachado del detalle_pedido_producto
                     $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
+                    // Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detallePedido]);
                     $d = DetalleProducto::find($itemInventario->detalle_id); //detalle producto completo para obtener el producto_id y encontrar los otros detalles relacionados a dicho producto_id
+                    // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
                     $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
-                    $esFibra = !!Fibra::find($detalle->id);
-                    if ($d->serial && !$esFibra) {
-                        $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-                        Log::channel('testing')->info('Log', ['Detalle del pedido que entro en esta seccion es: ', $detallePedido]);
-                        $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
-                        $detallePedido->save();
-                    }
+                    // Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
+                    
+                    
+                    $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
+                    // Log::channel('testing')->info('Log', ['El detallePedido que se va a satisfacer', $detallePedido]);
+                    $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
+                    $detallePedido->save();
                 }
             }
 
