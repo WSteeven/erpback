@@ -30,6 +30,7 @@ return new class extends Migration
             $table->foreign('estado_permiso_id')->references('id')->on('autorizaciones');
             $table->text('documento');
             $table->boolean('cargo_vacaciones');
+            $table->boolean('recupero');
             $table->timestamps();
         });
     }

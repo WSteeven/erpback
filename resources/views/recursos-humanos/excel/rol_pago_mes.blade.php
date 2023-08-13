@@ -23,22 +23,20 @@
 
 <body>
     @php
-        $numcol_ingreso = $cantidad_columna_ingresos + 3;
-        $numcool_egreso = $cantidad_columna_egresos + 5;
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+        $numcol_egreso = $cantidad_columna_egresos + 3;
     @endphp
     <table>
         <colgroup span="{{ $numcol_ingreso }}"></colgroup>
-        <colgroup span="{{ $numcool_egreso }}"></colgroup>
+        <colgroup span="{{ $numcol_egreso }}"></colgroup>
         <tr>
             <td rowspan="2">Empleado</td>
             <td rowspan="2">Cargo</td>
             <td rowspan="2">Sueldo</td>
             <td rowspan="2">Días Laborados</td>
-            <th colspan="{{ $numcol_ingreso }}" scope="colgroup">
-                INGRESOS({{ $numcol_ingreso }})</th>
+            <th colspan="{{ $numcol_ingreso }}" scope="colgroup">INGRESOS</th>
             <td rowspan="2">TOTAL INGRESOS</td>
-            <th colspan="{{ $numcool_egreso }}" scope="colgroup">
-                EGRESOS({{ $numcool_egreso }})</th>
+            <th colspan="{{ $numcol_egreso }}" scope="colgroup">EGRESOS</th>
             <td rowspan="2">TOTAL EGRESOS</td>
             <td rowspan="2">NETO A RECIBIR</td>
 
@@ -49,6 +47,9 @@
             <th scope="col">FONDOS DE RESERVA</th>
             <th scope="col">IESS (9.45%)</th>
             <th scope="col">ANTICIPO</th>
+            @foreach ($columnas_ingresos as $ingreso)
+                <th scope="col">{{ $ingreso }}</th>
+            @endforeach
             <th scope="col">PRESTAMO QUIROGRAFARIO</th>
             <th scope="col">PRESTAMO HIPOTECARIO</th>
             <th scope="col">SUPA</th>
@@ -65,6 +66,8 @@
                 <td>{{ $rol_pago['decimo_tercero'] }}</td>
                 <td>{{ $rol_pago['decimo_cuarto'] }}</td>
                 <td> {{ $rol_pago['fondos_reserva'] }}</td>
+                <td> {{ $rol_pago['iess'] }}</td>
+                <td>{{ $rol_pago['anticipo'] }}</td>
                 @foreach ($rol_pago['ingresos'] as $ingreso)
                     <td>{{ $ingreso->monto }}</td>
                 @endforeach
@@ -74,8 +77,6 @@
                     @endfor
                 @endif
                 <td>{{ $rol_pago['total_ingreso'] }}</td>
-                <td> {{ $rol_pago['iess'] }}</td>
-                <td>{{ $rol_pago['anticipo'] }}</td>
                 <td>{{ $rol_pago['prestamo_quirorafario'] }}</td>
                 <td>{{ $rol_pago['prestamo_hipotecario'] }}</td>
                 <td>{{ $rol_pago['supa'] }}</td>
@@ -91,6 +92,24 @@
                 <td>{{ $rol_pago['total'] }}</td>
             </tr>
         @endforeach
+        <tr>
+            <td colspan="2"><strong>TOTAL:&nbsp;</strong></td>
+            <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
+            <td>&nbsp;</td>
+            <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['iess'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['prestamo_quirorafario'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['prestamo_hipotecario'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}</td>
+            <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
+        </tr>
     </table>
 </body>
 

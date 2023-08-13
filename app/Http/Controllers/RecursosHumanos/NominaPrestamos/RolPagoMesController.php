@@ -165,39 +165,14 @@ class RolPagoMesController extends Controller
     {
         try {
             $nombre_reporte = 'rol_pagos';
-            $roles_pagos = RolPago::where('rol_pago_id', $rolPagoId)->get();
-            $results = RolPago::empaquetarListado($roles_pagos);
-            $maxColumEgresosValue = array_reduce($results, function ($carry, $item) {
-                return max($carry, $item['egresos_cantidad_columna']);
-            }, 0);
-            $maxColumIngresosValue = array_reduce($results, function ($carry, $item) {
-                return max($carry, $item['ingresos_cantidad_columna']);
-            }, 0);
-            $egresosColumNames = array();
 
-            array_map(function ($item) use (&$egresosColumNames) {
-                if ($item['egresos_cantidad_columna'] > 0) {
-                    foreach ($item['egresos'] as $egreso) {
-                        $egresosColumNames[] = $egreso['descuento']['nombre'];
-                    }
-                }
-            }, $results);
-            Log::channel('testing')->info('Log', ['columna_egresos', $egresosColumNames]);
-
-            $ingresosColumNames = array_map(function ($item) {
-                return $item['ingresos_cantidad_columna'] > 0 ? $item['ingresos'][0]['concepto_ingreso_info']['nombre'] : null;
-            }, $results);
-            $filteregresosColumNames = array_filter($egresosColumNames);
-            $filteringresoColumNames = array_filter($ingresosColumNames);
-            $reportes =  [
-                'roles_pago' => $results,
-                'cantidad_columna_ingresos' => $maxColumIngresosValue,
-                'cantidad_columna_egresos' => $maxColumEgresosValue,
-                'columnas_ingresos' => array_unique($filteringresoColumNames),
-                'columnas_egresos' => array_unique($filteregresosColumNames)
-            ];
+            // Fetch data with relationships
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info'])
+                ->where('rol_pago_id', $rolPagoId)->get();
+            $reportes = $this->generate_report_data($roles_pagos);
             $vista = 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes);
+
             return $this->reporteService->imprimir_reporte('excel', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -206,4 +181,72 @@ class RolPagoMesController extends Controller
             ]);
         }
     }
+
+    private function generate_report_data($roles_pagos)
+    {
+        $results = RolPago::empaquetarListado($roles_pagos);
+        $column_names = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
+        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
+        $column_names = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+        // Calculate the sum of specific columns from the main data array
+        $sumColumns = array_reduce($results, function ($carry, $item) {
+            $carry['sueldo'] += $item['sueldo'];
+            $carry['decimo_tercero'] += $item['decimo_tercero'];
+            $carry['decimo_cuarto'] += $item['decimo_cuarto'];
+            $carry['fondos_reserva'] += $item['fondos_reserva'];
+            $carry['iess'] += $item['iess'];
+            $carry['anticipo'] += $item['anticipo'];
+            $carry['total_ingreso'] += $item['total_ingreso'];
+            $carry['prestamo_quirorafario'] += $item['prestamo_quirorafario'];
+            $carry['prestamo_hipotecario'] += $item['prestamo_hipotecario'];
+            $carry['extension_conyugal'] += $item['extension_conyugal'];
+            $carry['prestamo_empresarial'] += $item['prestamo_empresarial'];
+            $carry['supa'] += $item['supa'];
+            $carry['total_egreso'] += $item['total_egreso'];
+            $carry['total'] += $item['total'];
+            return $carry;
+        }, [
+            'sueldo' => 0,
+            'decimo_tercero' => 0,
+            'decimo_cuarto' => 0,
+            'fondos_reserva' => 0,
+            'iess' => 0,
+            'anticipo' => 0,
+            'total_ingreso' => 0,
+            'prestamo_quirorafario' => 0,
+            'prestamo_hipotecario' => 0,
+            'extension_conyugal' => 0,
+            'prestamo_empresarial' => 0,
+            'supa' => 0,
+            'total_egreso' => 0,
+            'total' => 0,
+        ]);
+
+        return [
+            'roles_pago' => $results,
+            'cantidad_columna_ingresos' => $maxColumIngresosValue,
+            'cantidad_columna_egresos' => $maxColumEgresosValue,
+            'columnas_ingresos' => array_unique($column_names['ingresos']),
+            'columnas_egresos' => array_unique($column_names['egresos']),
+            'sumatoria' => $sumColumns,
+        ];
+    }
+
+    private function extract_column_names($results, $key1, $key2, $columnName)
+    {
+        $extractColumnName = function ($item) use ($key1, $key2, $columnName) {
+            $key1Data = $item[$key1];
+            return array_values(array_map(function ($subitem) use ($key2, $columnName) {
+                $subitemKey2 = $subitem[$key2];
+                return isset($subitemKey2[$columnName]) ? $subitemKey2[$columnName] : null;
+            }, array_filter($key1Data, function ($subitem) use ($key2) {
+                return isset($subitem[$key2]);
+            })));
+        };
+        $column_names = array_combine(['egresos', 'ingresos'], array_map($extractColumnName, $results));
+
+        return $column_names;
+    }
+
 }
