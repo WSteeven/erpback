@@ -186,8 +186,10 @@ class RolPagoMesController extends Controller
     {
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
+        $sums = $this->calculate_column_sum($column_names);
         $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
         $column_names = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $sums = $this->calculate_column_sum($column_names);
         $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
         // Calculate the sum of specific columns from the main data array
         $sumColumns = array_reduce($results, function ($carry, $item) {
@@ -230,23 +232,33 @@ class RolPagoMesController extends Controller
             'columnas_ingresos' => array_unique($column_names['ingresos']),
             'columnas_egresos' => array_unique($column_names['egresos']),
             'sumatoria' => $sumColumns,
+            'sumatoria_ingresos' => $sums['ingresos'],
+            'sumatoria_egresos' => $sums['egresos'],
         ];
     }
 
     private function extract_column_names($results, $key1, $key2, $columnName)
     {
-        $extractColumnName = function ($item) use ($key1, $key2, $columnName) {
-            $key1Data = $item[$key1];
-            return array_values(array_map(function ($subitem) use ($key2, $columnName) {
-                $subitemKey2 = $subitem[$key2];
-                return isset($subitemKey2[$columnName]) ? $subitemKey2[$columnName] : null;
-            }, array_filter($key1Data, function ($subitem) use ($key2) {
-                return isset($subitem[$key2]);
-            })));
-        };
-        $column_names = array_combine(['egresos', 'ingresos'], array_map($extractColumnName, $results));
-
+        $column_names = ['egresos' => [], 'ingresos' => []];
+        foreach ($results as $item) {
+            if ($item[$key1 . '_cantidad_columna'] > 0) {
+                foreach ($item[$key1] as $subitem) {
+                    if (isset($subitem[$key2])) {
+                        $column_names[$key1][] = $subitem[$key2][$columnName];
+                    }
+                }
+            }
+        }
         return $column_names;
     }
-
+    private function calculate_column_sum($column_names)
+    {
+        $sums = ['egresos' => 0, 'ingresos' => 0];
+        foreach ($column_names as $key => $values) {
+            foreach ($values as $value) {
+                $sums[$key] += $value;
+            }
+        }
+        return $sums;
+    }
 }
