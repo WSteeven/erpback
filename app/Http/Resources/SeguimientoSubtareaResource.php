@@ -20,13 +20,13 @@ class SeguimientoSubtareaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'trabajo_realizado' => $this->mapTrabajoRealizado(),
+            'trabajo_realizado' => [], //$this->mapTrabajoRealizado(),
             'observaciones' => $this->numerar($this->observaciones),
             'materiales_tarea_ocupados' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(), // ?? [],//materiales_tarea_ocupados,
             // 'historial_material_tarea_usado' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),
             'materiales_stock_ocupados' => $this->materiales_stock_ocupados,
             'materiales_devolucion' => $this->materiales_devolucion,
-            'subtarea' => $this->subtarea_id,
+            'subtarea' => $this->subtarea->id,
         ];
 
         if ($controller_method == 'show' || $controller_method == 'update') {
@@ -42,6 +42,7 @@ class SeguimientoSubtareaResource extends JsonResource
         return $this->trabajoRealizado->map(fn ($trabajo) => [
             'id' => $trabajo->id,
             'fecha_hora' => Carbon::parse($trabajo->fecha_hora)->format('d-m-Y H:i:s'),
+            // 'fotografia' => $trabajo->fotografia ? url($trabajo->fotografia) : null,
             'fotografia' => $trabajo->fotografia ? $this->imagenBase64($trabajo->fotografia) : null,
             'trabajo_realizado' => $trabajo->trabajo_realizado,
         ]);
@@ -64,7 +65,7 @@ class SeguimientoSubtareaResource extends JsonResource
     {
         return DB::table('seguimientos_materiales_subtareas')
             ->select(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS fecha"))
-            ->where('subtarea_id', $this->id)
+            ->where('subtarea_id', $this->subtarea->id)
             ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
             ->get();
     }

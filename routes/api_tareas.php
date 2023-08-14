@@ -11,6 +11,7 @@ use App\Http\Controllers\CausaIntervencionController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
+use App\Http\Controllers\DashboardTareaController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
@@ -122,3 +123,8 @@ Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaContr
  * Reportes
  ***********/
 Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
+
+/***********
+ * Dashboard
+ ***********/
+Route::get('dashboard', [DashboardTareaController::class, 'index']);
