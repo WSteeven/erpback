@@ -138,7 +138,9 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
                     <div align="center"><strong>FECHA</strong></div>
                 </td>
-
+                <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                    <div align="center"><strong>FECHA DE AUTORIZACION</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
@@ -178,6 +180,9 @@
                         <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                     </td>
                     <td style="font-size:10px">
+                        <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha_autorizacion'])) }}</div>
+                    </td>
+                    <td style="font-size:10px">
                         <div align="left">{{ $gasto['factura'] }}</div>
                     </td>
                     <td style="font-size:10px">
@@ -198,7 +203,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="8" style="font-size:10px" width="29%">
+                <td colspan="9" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">

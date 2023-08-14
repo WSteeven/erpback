@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
 
@@ -220,4 +222,51 @@ class DetalleProducto extends Model implements Auditable
      * FUNCIONES
      * _______________________________
      */
+    
+     /**
+     * La función `crearDetalle` crea un nuevo registro `DetalleProducto` en la base de datos y lo
+     * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
+     * solicitud.
+     * 
+     * @param request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
+     * como el método de solicitud, los encabezados y el cuerpo.
+     * @param datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
+     * nuevo registro "DetalleProducto". Las claves específicas y sus valores correspondientes en el
+     * arreglo dependen de los requerimientos del modelo "DetalleProducto".
+     * 
+     * @return la variable .
+     */
+    public static function crearDetalle($request, $datos){
+        try{
+            DB::beginTransaction();
+            
+            $detalle = DetalleProducto::create($datos);
+            if ($request->categoria === 'INFORMATICA') {
+            
+                $detalle->computadora()->create([
+                    'memoria_id' => $datos['ram'],
+                    'disco_id' => $datos['disco'],
+                    'procesador_id' => $datos['procesador'],
+                    'imei' => $datos['imei'],
+                ]);
+                DB::commit();
+            }
+            if ($request->es_fibra) {
+                $detalle->fibra()->create([
+                    'span_id' => $datos['span'],
+                    'tipo_fibra_id' => $datos['tipo_fibra'],
+                    'hilo_id' => $datos['hilos'],
+                    'punta_inicial' => $datos['punta_inicial'],
+                    'punta_final' => $datos['punta_final'],
+                    'custodia' => $datos['custodia'],
+                ]);
+                DB::commit();
+            }
+            DB::commit();
+        }catch(Exception $e){
+            DB::rollBack();
+            throw new Exception($e->getMessage());
+        }
+        return $detalle;
+    }
 }
