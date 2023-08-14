@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Departamento;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
