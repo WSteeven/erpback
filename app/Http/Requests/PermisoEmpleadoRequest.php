@@ -37,7 +37,8 @@ class PermisoEmpleadoRequest extends FormRequest
             'empleado_id' => 'nullable|exists:empleados,id',
             'estado' => 'nullable',
             'tieneDocumento' => 'required',
-            'cargo_vacaciones' => 'nullable'
+            'cargo_vacaciones' => 'nullable',
+            'aceptar_sugerencia' => 'nullable'
         ];
     }
     protected function prepareForValidation()

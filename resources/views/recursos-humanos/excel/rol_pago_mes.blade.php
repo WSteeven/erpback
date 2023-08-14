@@ -23,8 +23,26 @@
 
 <body>
     @php
+
         $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        $numcol_egreso = $cantidad_columna_egresos + 3;
+        $numcol_egreso = $cantidad_columna_egresos + 2;
+        $tiene_supa = $sumatoria['supa'] > 0;
+        $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+        $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+        if ($tiene_bono_recurente) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 6;
+        }
+        if ($tiene_bonificacion) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 6;
+        }
+        if ($tiene_bonificacion && $tiene_bono_recurente) {
+            $numcol_ingreso = $cantidad_columna_ingresos + 7;
+        }
+
+        if ($tiene_supa) {
+            $numcol_egreso = $cantidad_columna_egresos + 3;
+        }
+
     @endphp
     <table>
         <colgroup span="{{ $numcol_ingreso }}"></colgroup>
@@ -47,12 +65,20 @@
             <th scope="col">FONDOS DE RESERVA</th>
             <th scope="col">IESS (9.45%)</th>
             <th scope="col">ANTICIPO</th>
+            @if ($tiene_bonificacion)
+                <th scope="col">BONIFICACION</th>
+            @endif
+            @if ($tiene_bono_recurente)
+                <th scope="col">BONO RECURENTE</th>
+            @endif
             @foreach ($columnas_ingresos as $ingreso)
                 <th scope="col">{{ $ingreso }}</th>
             @endforeach
             <th scope="col">PRESTAMO QUIROGRAFARIO</th>
             <th scope="col">PRESTAMO HIPOTECARIO</th>
-            <th scope="col">SUPA</th>
+            @if ($tiene_supa)
+                <th scope="col">SUPA</th>
+            @endif
             @foreach ($columnas_egresos as $egreso)
                 <th scope="col">{{ $egreso }}</th>
             @endforeach
@@ -68,6 +94,12 @@
                 <td> {{ $rol_pago['fondos_reserva'] }}</td>
                 <td> {{ $rol_pago['iess'] }}</td>
                 <td>{{ $rol_pago['anticipo'] }}</td>
+                @if ($tiene_bonificacion)
+                    <td>{{ $rol_pago['bonificacion'] }}</td>
+                @endif
+                @if ($tiene_bono_recurente)
+                    <td>{{ $rol_pago['bono_recurente'] }}</td>
+                @endif
                 @foreach ($rol_pago['ingresos'] as $ingreso)
                     <td>{{ $ingreso->monto }}</td>
                 @endforeach
@@ -79,7 +111,9 @@
                 <td>{{ $rol_pago['total_ingreso'] }}</td>
                 <td>{{ $rol_pago['prestamo_quirorafario'] }}</td>
                 <td>{{ $rol_pago['prestamo_hipotecario'] }}</td>
-                <td>{{ $rol_pago['supa'] }}</td>
+                @if ($tiene_supa)
+                    <td>{{ $rol_pago['supa'] }}</td>
+                @endif
                 @foreach ($rol_pago['egresos'] as $descuento)
                     <td> {{ $descuento->monto }} </td>
                 @endforeach

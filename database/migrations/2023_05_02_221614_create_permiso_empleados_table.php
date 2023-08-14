@@ -31,6 +31,7 @@ return new class extends Migration
             $table->text('documento');
             $table->boolean('cargo_vacaciones');
             $table->boolean('recupero');
+            $table->boolean('aceptar_sugerencia');
             $table->timestamps();
         });
     }

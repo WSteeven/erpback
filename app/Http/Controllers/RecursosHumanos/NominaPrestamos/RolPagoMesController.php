@@ -50,7 +50,7 @@ class RolPagoMesController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $rolPago = RolPagoMes::create($datos);
-            $this->tabla_roles($rolPago);
+            $this->tabla_roles($rolPago, 'CREAR');
             $modelo = new RolPagoMesResource($rolPago);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -60,7 +60,164 @@ class RolPagoMesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    private function tabla_roles(RolPagoMes $rol)
+
+    public function show(RolPagoMes $rolPago,  $rolPagoId)
+    {
+        $rolPago = RolPagoMes::find($rolPagoId);
+        $modelo = new RolPagoMesResource($rolPago);
+        return response()->json(compact('modelo'), 200);
+    }
+
+    public function update(Request $request, $rolPagoId)
+    {
+        $rolPago = RolPagoMes::find($rolPagoId);
+        $rolPago->es_quincena = $request->es_quincena;
+        $rolPago->save();
+        $this->tabla_roles($rolPago, 'MODIFICAR');
+        $modelo = new RolPagoMesResource($rolPago);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
+
+    }
+
+    public function destroy($rolPagoId)
+    {
+        $rolPago = RolPagoMes::find($rolPagoId);
+        $rolPago->delete();
+        return $rolPago;
+    }
+    public function imprimir_rol_pago_general($rolPagoId)
+    {
+        try {
+            $nombre_reporte = 'rol_pagos';
+
+            // Fetch data with relationships
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info'])
+                ->where('rol_pago_id', $rolPagoId)->get();
+            $reportes = $this->generate_report_data($roles_pagos);
+            $vista = 'recursos-humanos.rol_pago_mes';
+            $export_excel = new RolPagoMesExport($reportes);
+
+            return $this->reporteService->imprimir_reporte('excel', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
+        }
+    }
+
+    private function generate_report_data($roles_pagos)
+    {
+        $results = RolPago::empaquetarListado($roles_pagos);
+        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
+        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
+        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+        // Calculate the sum of specific columns from the main data array
+        $sumColumns = array_reduce($results, function ($carry, $item) {
+            $carry['sueldo'] += $item['sueldo'];
+            $carry['decimo_tercero'] += $item['decimo_tercero'];
+            $carry['decimo_cuarto'] += $item['decimo_cuarto'];
+            $carry['fondos_reserva'] += $item['fondos_reserva'];
+            $carry['iess'] += $item['iess'];
+            $carry['anticipo'] += $item['anticipo'];
+            $carry['bonificacion'] += $item['bonificacion'];
+            $carry['bono_recurente'] += $item['bono_recurente'];
+            $carry['total_ingreso'] += $item['total_ingreso'];
+            $carry['prestamo_quirorafario'] += $item['prestamo_quirorafario'];
+            $carry['prestamo_hipotecario'] += $item['prestamo_hipotecario'];
+            $carry['extension_conyugal'] += $item['extension_conyugal'];
+            $carry['prestamo_empresarial'] += $item['prestamo_empresarial'];
+            $carry['supa'] += $item['supa'];
+            $carry['total_egreso'] += $item['total_egreso'];
+            $carry['total'] += $item['total'];
+            return $carry;
+        }, [
+            'sueldo' => 0,
+            'decimo_tercero' => 0,
+            'decimo_cuarto' => 0,
+            'fondos_reserva' => 0,
+            'iess' => 0,
+            'anticipo' => 0,
+            'bonificacion' => 0,
+            'bono_recurente' => 0,
+            'total_ingreso' => 0,
+            'prestamo_quirorafario' => 0,
+            'prestamo_hipotecario' => 0,
+            'extension_conyugal' => 0,
+            'prestamo_empresarial' => 0,
+            'supa' => 0,
+            'total_egreso' => 0,
+            'total' => 0,
+        ]);
+        return [
+            'roles_pago' => $results,
+            'cantidad_columna_ingresos' => $maxColumIngresosValue,
+            'cantidad_columna_egresos' => $maxColumEgresosValue,
+            'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
+            'columnas_egresos' => array_unique($column_names_egresos['egresos']),
+            'sumatoria' => $sumColumns,
+            'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
+            'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
+        ];
+    }
+
+    private function extract_column_names($results, $key1, $key2, $columnName)
+    {
+        $column_names = ['egresos' => [], 'ingresos' => []];
+        foreach ($results as $item) {
+            if ($item[$key1 . '_cantidad_columna'] > 0) {
+                foreach ($item[$key1] as $subitem) {
+                    $column_names[$key1][] = $subitem[$key2][$columnName];
+                }
+            }
+        }
+        return $column_names;
+    }
+    private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
+    {
+
+        $totalMontoIngresos = array_map(
+
+            function ($item) use ($maximo, $key_cantidad, $key1) {
+                $monto = array();
+                $i = 0;
+                if ($item[$key_cantidad] > 0) {
+                    foreach ($item[$key1] as $ingreso) {
+                        $monto[$i] = $ingreso['monto'];
+                        $i++;
+                    }
+                }
+                if ($item[$key_cantidad] == 0) {
+                    for ($j = 0; $j < $maximo; $j++) {
+                        $monto[$j] = 0;
+                    }
+                }
+                return $monto;
+            },
+            $data
+        );
+        $suma_monto = array_fill(0, $maximo, 0); // Inicializamos el arreglo de suma en ceros
+        for ($i = 0; $i < $maximo - 1; $i++) {
+            foreach ($totalMontoIngresos as $totalMonto) {
+                $suma_monto[$i] += $totalMonto[$i]; // Sumamos el monto en la posición $i
+            }
+        }
+
+        return $suma_monto;
+    }
+    /**
+     * La función "tabla_roles" calcula e inserta datos de nómina para empleados activos en función de
+     * varios factores, como salario, asignaciones, deducciones y préstamos.
+     *
+     * @param RolPagoMes rol El parámetro `` es una instancia de la clase `RolPagoMes`. Representa
+     * un mes de nómina y contiene información como el mes y si es una nómina quincenal o no.
+     *
+     * @return La función no devuelve nada. Está insertando datos en la tabla de la base de datos
+     * "RolPago" usando el método `insert()`.
+     */
+    private function tabla_roles(RolPagoMes $rol, $tipo)
     {
         $empleados_activos = Empleado::where('estado', 1)->where('id', '!=', 1)->get();
         $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
@@ -102,19 +259,37 @@ class RolPagoMesController extends Controller
             $dias_permiso_sin_recuperar = $permisos_sin_recuperar->has($empleado->id) ? $permisos_sin_recuperar[$empleado->id] : 0;
             $dias = 30;
             $salario = $empleado->salario;
-            $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
-            $decimo_tercero = ($salario / 360) * $dias;
-            $decimo_cuarto = ($sueldo_basico / 360) * $dias;
+            $decimo_tercero = 0;
+            $decimo_cuarto = 0;
             $fondos_reserva = 0;
-            $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-            $iess = ($sueldo) * $porcentaje_iess;
-            $anticipo = $sueldo *  $porcentaje_anticipo;
-            $prestamo_quirorafario = $prestamos_quirorafarios->has($empleado->id) ? $prestamos_quirorafarios[$empleado->id] : 0;
-            $prestamo_hipotecario = $prestamos_hipotecarios->has($empleado->id) ? $prestamos_hipotecarios[$empleado->id] : 0;
-            $extension_conyugal = $extenciones_salud->has($empleado->id) ? $extenciones_salud[$empleado->id] : 0;
-            $prestamo_empresarial = $prestamos_empresariales->has($empleado->id) ? $prestamos_empresariales[$empleado->id] : 0;
-            $supa = $empleado->supa;
-            $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa;
+            $iess = 0;
+            $anticipo = 0;
+            $prestamo_quirorafario =  0;
+            $prestamo_hipotecario =  0;
+            $extension_conyugal =  0;
+            $prestamo_empresarial =  0;
+            $ingresos = 0;
+            $egreso = 0;
+            $sueldo = 0;
+            if ($rol->es_quincena) {
+                $dias = 15;
+                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
+                $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
+            } else {
+                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
+                $decimo_tercero = ($salario / 360) * $dias;
+                $decimo_cuarto = ($sueldo_basico / 360) * $dias;
+                $fondos_reserva = 0;
+                $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
+                $iess = ($sueldo) * $porcentaje_iess;
+                $anticipo = $sueldo *  $porcentaje_anticipo;
+                $prestamo_quirorafario = $prestamos_quirorafarios->has($empleado->id) ? $prestamos_quirorafarios[$empleado->id] : 0;
+                $prestamo_hipotecario = $prestamos_hipotecarios->has($empleado->id) ? $prestamos_hipotecarios[$empleado->id] : 0;
+                $extension_conyugal = $extenciones_salud->has($empleado->id) ? $extenciones_salud[$empleado->id] : 0;
+                $prestamo_empresarial = $prestamos_empresariales->has($empleado->id) ? $prestamos_empresariales[$empleado->id] : 0;
+                $supa = $empleado->supa;
+                $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa;
+            }
             $total = abs($ingresos) - $egreso;
             return [
                 'empleado_id' => $empleado->id,
@@ -136,153 +311,49 @@ class RolPagoMesController extends Controller
                 'rol_pago_id' => $rol->id,
             ];
         })->toArray();
+        switch ($tipo) {
+            case 'CREAR':
+                RolPago::insert($roles_pago);
+                break;
+            case 'MODIFICAR':
+                $actualizacionMasiva = collect($roles_pago)->map(function ($item) {
+                    $empleadoId = $item['empleado_id'];
+                    unset($item['empleado_id']);
+                    return [
+                        'data' => $item,
+                        'empleado_id' => $empleadoId,
+                    ];
+                });
 
-        RolPago::insert($roles_pago);
-    }
+                foreach ($actualizacionMasiva as $actualizacion) {
+                    $empleadoId = $actualizacion['empleado_id'];
+                    $data = $actualizacion['data'];
 
-    public function show(RolPagoMes $rolPago,  $rolPagoId)
-    {
-        $rolPago = RolPagoMes::find($rolPagoId);
-        $modelo = new RolPagoMesResource($rolPago);
-        return response()->json(compact('modelo'), 200);
-    }
-
-    public function update(Request $request, $rolPagoId)
-    {
-        $rolPago = RolPagoMes::find($rolPagoId);
-        $rolPago->nombre = $request->nombre;
-        $rolPago->save();
-        return $rolPago;
-    }
-
-    public function destroy($rolPagoId)
-    {
-        $rolPago = RolPagoMes::find($rolPagoId);
-        $rolPago->delete();
-        return $rolPago;
-    }
-    public function imprimir_rol_pago_general($rolPagoId)
-    {
-        try {
-            $nombre_reporte = 'rol_pagos';
-
-            // Fetch data with relationships
-            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info'])
-                ->where('rol_pago_id', $rolPagoId)->get();
-            $reportes = $this->generate_report_data($roles_pagos);
-            $vista = 'recursos-humanos.rol_pago_mes';
-            $export_excel = new RolPagoMesExport($reportes);
-
-            return $this->reporteService->imprimir_reporte('excel', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
-        } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-            throw ValidationException::withMessages([
-                'Error al generar reporte' => [$e->getMessage()],
-            ]);
+                    RolPago::updateOrCreate(
+                        ['empleado_id' => $empleadoId, 'mes' => $data['mes']],
+                        $data
+                    );
+                }
+                break;
+            default:
+                # code...
+                break;
         }
     }
-
-    private function generate_report_data($roles_pagos)
+    public function verificarTodasRolesFinalizadas(Request $request)
     {
-        $results = RolPago::empaquetarListado($roles_pagos);
-        $column_names = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
-        $column_names = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
-        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
-
-
-        // Calculate the sum of specific columns from the main data array
-        $sumColumns = array_reduce($results, function ($carry, $item) {
-            $carry['sueldo'] += $item['sueldo'];
-            $carry['decimo_tercero'] += $item['decimo_tercero'];
-            $carry['decimo_cuarto'] += $item['decimo_cuarto'];
-            $carry['fondos_reserva'] += $item['fondos_reserva'];
-            $carry['iess'] += $item['iess'];
-            $carry['anticipo'] += $item['anticipo'];
-            $carry['total_ingreso'] += $item['total_ingreso'];
-            $carry['prestamo_quirorafario'] += $item['prestamo_quirorafario'];
-            $carry['prestamo_hipotecario'] += $item['prestamo_hipotecario'];
-            $carry['extension_conyugal'] += $item['extension_conyugal'];
-            $carry['prestamo_empresarial'] += $item['prestamo_empresarial'];
-            $carry['supa'] += $item['supa'];
-            $carry['total_egreso'] += $item['total_egreso'];
-            $carry['total'] += $item['total'];
-            return $carry;
-        }, [
-            'sueldo' => 0,
-            'decimo_tercero' => 0,
-            'decimo_cuarto' => 0,
-            'fondos_reserva' => 0,
-            'iess' => 0,
-            'anticipo' => 0,
-            'total_ingreso' => 0,
-            'prestamo_quirorafario' => 0,
-            'prestamo_hipotecario' => 0,
-            'extension_conyugal' => 0,
-            'prestamo_empresarial' => 0,
-            'supa' => 0,
-            'total_egreso' => 0,
-            'total' => 0,
-        ]);
-        Log::channel('testing')->info('Log', ['ingresos', $this->calculate_column_sum($results, $maxColumIngresosValue,'ingresos_cantidad_columna','ingresos')]);
-        Log::channel('testing')->info('Log', ['egresos', $this->calculate_column_sum($results, $maxColumEgresosValue,'egresos_cantidad_columna','egresos')]);
-
-        return [
-            'roles_pago' => $results,
-            'cantidad_columna_ingresos' => $maxColumIngresosValue,
-            'cantidad_columna_egresos' => $maxColumEgresosValue,
-            'columnas_ingresos' => array_unique($column_names['ingresos']),
-            'columnas_egresos' => array_unique($column_names['egresos']),
-            'sumatoria' => $sumColumns,
-            'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue,'ingresos_cantidad_columna','ingresos'),
-            'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue,'egresos_cantidad_columna','egresos'),
-        ];
+        $rol_pago = RolPagoMes::find($request['rol_pago_id']);
+        $totalSubrol_pagosNoFinalizadas = $rol_pago->rolPago()->whereIn('estado', [RolPago::EJECUTANDO, RolPago::REALIZADO])->count();
+        $estan_finalizadas = $totalSubrol_pagosNoFinalizadas == 0;
+        return response()->json(compact('estan_finalizadas'));
     }
-
-    private function extract_column_names($results, $key1, $key2, $columnName)
+    public function FinalizarRolPago(Request $request)
     {
-        $column_names = ['egresos' => [], 'ingresos' => []];
-        foreach ($results as $item) {
-            if ($item[$key1 . '_cantidad_columna'] > 0) {
-                foreach ($item[$key1] as $subitem) {
-                    if (isset($subitem[$key2])) {
-                        $column_names[$key1][] = $subitem[$key2][$columnName];
-                    }
-                }
-            }
-        }
-        return $column_names;
-    }
-    private function calculate_column_sum($data, $maximo,$key_cantidad,$key1)
-    {
-
-        $totalMontoIngresos = array_map(
-
-            function ($item) use ($maximo,$key_cantidad,$key1) {
-                $monto = array();
-                $i = 0;
-                if ($item[$key_cantidad] > 0) {
-                    foreach ($item[$key1] as $ingreso) {
-                        $monto[$i] = $ingreso['monto'];
-                        $i++;
-                    }
-                }
-                if ($item[$key_cantidad] == 0) {
-                    for ($j = 0; $j < $maximo; $j++) {
-                        $monto[$j] = 0;
-                    }
-                }
-                return $monto;
-            },
-            $data
-        );
-        $suma_monto = array_fill(0, $maximo, 0); // Inicializamos el arreglo de suma en ceros
-        for ($i = 0; $i < $maximo-1; $i++) {
-            foreach ($totalMontoIngresos as $totalMonto) {
-                $suma_monto[$i] += $totalMonto[$i]; // Sumamos el monto en la posición $i
-            }
-        }
-
-        return $suma_monto;
+        $rol_pago = RolPagoMes::find($request['rol_pago_id']);
+        $rol_pago->finalizado = true;
+        $rol_pago->save();
+        $modelo = new RolPagoMesResource($rol_pago);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

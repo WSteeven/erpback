@@ -20,6 +20,7 @@ class RolPagoMesResource extends JsonResource
             'nombre' => $this->nombre,
             'finalizado' => $this->finalizado,
             'cantidad_roles_empleado' => $this->rolPago->count(),
+            'es_quincena' => $this->es_quincena,
         ];
         return $modelo;
     }

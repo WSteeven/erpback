@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('nombre');
             $table->string('mes',7);
             $table->boolean('finalizado')->default(false);
+            $table->boolean('es_quincena')->default(false);
             $table->timestamps();
         });
     }

@@ -20,15 +20,17 @@ class RolPagoMes extends Model implements Auditable
     protected $fillable = [
         'mes',
         'nombre',
-        'finalizado'
+        'finalizado',
+        'es_quincena'
     ];
     private static $whiteListFilter = [
         'id',
         'mes',
         'nombre',
-        'finalizado'
+        'finalizado',
+        'es_quincena'
     ];
-    protected $casts = ['finalizado' => 'boolean'];
+    protected $casts = ['finalizado' => 'boolean','es_quincena'=>'boolean'];
     public function rolPago()
     {
         return $this->hasMany(RolPago::class,'rol_pago_id','id');

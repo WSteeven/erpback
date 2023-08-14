@@ -31,7 +31,8 @@ class PermisoEmpleado extends Model implements Auditable
         'observacion',
         'estado_permiso_id',
         'empleado_id',
-        'cargo_vacaciones'
+        'cargo_vacaciones',
+        'aceptar_sugerencia'
     ];
 
     private static $whiteListFilter = [
@@ -49,11 +50,13 @@ class PermisoEmpleado extends Model implements Auditable
         'justificacion',
         'observacion',
         'documento',
-        'cargo_vacaciones'
+        'cargo_vacaciones',
+        'aceptar_sugerencia'
 
     ];
     protected $casts = [
         'cargo_vacaciones' => 'boolean',
+        'aceptar_sugerencia' => 'boolean',
     ];
     public function tipo_permiso_info()
     {

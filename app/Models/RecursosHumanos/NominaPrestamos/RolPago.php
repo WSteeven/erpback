@@ -117,6 +117,6 @@ class RolPago extends Model implements Auditable
      // Relacion uno a muchos (inversa)
      public function rolPagoMes()
      {
-         return $this->belongsTo(RolPagoMes::class);
+         return $this->hasMany(RolPagoMes::class,'id_rol_pago', 'id');
      }
 }

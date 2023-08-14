@@ -38,6 +38,7 @@ class PermisoEmpleadoResource extends JsonResource
             'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
             'cargo_vacaciones' =>$this->cargo_vacaciones,
             'suguiere_fecha' =>$this->fecha_hora_reagendamiento?true:false,
+            'aceptar_sugerencia' =>$this->aceptar_sugerencia,
             'observacion' =>$this->observacion
         ];
         return $modelo;

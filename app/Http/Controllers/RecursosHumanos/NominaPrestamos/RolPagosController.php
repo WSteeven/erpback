@@ -165,7 +165,6 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
-        $datos['estado'] = RolPago::REALIZADO;
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 
@@ -243,5 +242,5 @@ class RolPagosController extends Controller
             ->update(['estado' => RolPago::EJECUTANDO]);
         return response()->json(['mensaje' => 'Se ha comenzado a ejecutar todo el rol']);
     }
-  
+
 }

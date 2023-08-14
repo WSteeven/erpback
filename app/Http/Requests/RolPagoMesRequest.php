@@ -26,6 +26,7 @@ class RolPagoMesRequest extends FormRequest
         return [
             'mes' => 'required | unique:rol_pago_mes,mes',
             'nombre' => 'required',
+            'es_quincena' => 'nullable'
         ];
     }
 }
