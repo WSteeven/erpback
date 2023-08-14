@@ -822,6 +822,9 @@ class TransaccionBodegaEgresoService
         return $results;
     }
 
+    /**
+     * Devuelve un listado de los materiales usados y su suma total por producto
+     */
     public function obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado)
     {
         $subtarea = Subtarea::find($idSubtarea);

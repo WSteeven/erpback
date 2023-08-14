@@ -116,6 +116,7 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
 Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
+Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
 
 /***********
  * Reportes

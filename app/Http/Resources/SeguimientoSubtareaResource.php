@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class SeguimientoSubtareaResource extends JsonResource
 {
@@ -15,7 +16,9 @@ class SeguimientoSubtareaResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo = [
             'id' => $this->id,
             'trabajo_realizado' => $this->mapTrabajoRealizado(),
             'observaciones' => $this->numerar($this->observaciones),
@@ -25,6 +28,13 @@ class SeguimientoSubtareaResource extends JsonResource
             'materiales_devolucion' => $this->materiales_devolucion,
             'subtarea' => $this->subtarea_id,
         ];
+
+        if ($controller_method == 'show' || $controller_method == 'update') {
+            $modelo['cliente'] = $this->cliente_id;
+            $modelo['fechas_historial_materiales_usados'] = $this->obtenerFechasHistorialMaterialesUsados();
+        }
+
+        return $modelo;
     }
 
     private function mapTrabajoRealizado()
@@ -48,5 +58,14 @@ class SeguimientoSubtareaResource extends JsonResource
             $item['id'] = $index + 1;
             return $item;
         });
+    }
+
+    private function obtenerFechasHistorialMaterialesUsados()
+    {
+        return DB::table('seguimientos_materiales_subtareas')
+            ->select(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS fecha"))
+            ->where('subtarea_id', $this->id)
+            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
+            ->get();
     }
 }
