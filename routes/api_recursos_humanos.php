@@ -77,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo_prestamo_hipotecario', [PrestamoHipotecarioController::class, 'archivo_prestamo_hipotecario']);
     Route::post('archivo_prestamo_quirorafario', [PrestamoQuirirafarioController::class, 'archivo_prestamo_quirorafario']);
     Route::post('archivo_rol_pago', [RolPagosController::class, 'archivo_rol_pago_empleado']);
+    Route::post('archivo_extencion_conyugal', [ExtensionCoverturaSaludController::class, 'archivo_extension_conyugal']);
     Route::get('nivel_endeudamiento', [RolPagosController::class, 'nivel_endeudamiento']);
     Route::get('descuentos_permiso', [VacacionController::class, 'descuentos_permiso']);
     Route::get('permisos_sin_recuperar', [PermisoEmpleadoController::class, 'permisos_sin_recuperar']);

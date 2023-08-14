@@ -43,8 +43,6 @@ class PrestamoHipotecarioController extends Controller
         try {
             $request->validated();
             $existe_prestamo = PrestamoHipotecario::where('mes', $request->mes)->count();
-            Log::channel('testing')->info('Log', ['existe prestamo', $existe_prestamo]);
-
             if ($existe_prestamo >0) {
                 throw ValidationException::withMessages([
                     'mes' => ['Mes duplicado, ya registro listado de prestamos hipotecarios del mes: '.$request->mes],
