@@ -101,12 +101,16 @@
             <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['iess'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
+            @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
+                <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+            @endforeach
             <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['prestamo_quirorafario'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['prestamo_hipotecario'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
+            @foreach ($sumatoria_egresos as $sumatoria_egreso)
+                <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
+            @endforeach
             <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}</td>
             <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
         </tr>

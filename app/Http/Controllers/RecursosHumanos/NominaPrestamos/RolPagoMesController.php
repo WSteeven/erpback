@@ -186,11 +186,11 @@ class RolPagoMesController extends Controller
     {
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $sums = $this->calculate_column_sum($column_names);
         $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
         $column_names = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
-        $sums = $this->calculate_column_sum($column_names);
         $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+
+
         // Calculate the sum of specific columns from the main data array
         $sumColumns = array_reduce($results, function ($carry, $item) {
             $carry['sueldo'] += $item['sueldo'];
@@ -224,6 +224,8 @@ class RolPagoMesController extends Controller
             'total_egreso' => 0,
             'total' => 0,
         ]);
+        Log::channel('testing')->info('Log', ['ingresos', $this->calculate_column_sum($results, $maxColumIngresosValue,'ingresos_cantidad_columna','ingresos')]);
+        Log::channel('testing')->info('Log', ['egresos', $this->calculate_column_sum($results, $maxColumEgresosValue,'egresos_cantidad_columna','egresos')]);
 
         return [
             'roles_pago' => $results,
@@ -232,8 +234,8 @@ class RolPagoMesController extends Controller
             'columnas_ingresos' => array_unique($column_names['ingresos']),
             'columnas_egresos' => array_unique($column_names['egresos']),
             'sumatoria' => $sumColumns,
-            'sumatoria_ingresos' => $sums['ingresos'],
-            'sumatoria_egresos' => $sums['egresos'],
+            'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue,'ingresos_cantidad_columna','ingresos'),
+            'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue,'egresos_cantidad_columna','egresos'),
         ];
     }
 
@@ -251,14 +253,36 @@ class RolPagoMesController extends Controller
         }
         return $column_names;
     }
-    private function calculate_column_sum($column_names)
+    private function calculate_column_sum($data, $maximo,$key_cantidad,$key1)
     {
-        $sums = ['egresos' => 0, 'ingresos' => 0];
-        foreach ($column_names as $key => $values) {
-            foreach ($values as $value) {
-                $sums[$key] += $value;
+
+        $totalMontoIngresos = array_map(
+
+            function ($item) use ($maximo,$key_cantidad,$key1) {
+                $monto = array();
+                $i = 0;
+                if ($item[$key_cantidad] > 0) {
+                    foreach ($item[$key1] as $ingreso) {
+                        $monto[$i] = $ingreso['monto'];
+                        $i++;
+                    }
+                }
+                if ($item[$key_cantidad] == 0) {
+                    for ($j = 0; $j < $maximo; $j++) {
+                        $monto[$j] = 0;
+                    }
+                }
+                return $monto;
+            },
+            $data
+        );
+        $suma_monto = array_fill(0, $maximo, 0); // Inicializamos el arreglo de suma en ceros
+        for ($i = 0; $i < $maximo-1; $i++) {
+            foreach ($totalMontoIngresos as $totalMonto) {
+                $suma_monto[$i] += $totalMonto[$i]; // Sumamos el monto en la posición $i
             }
         }
-        return $sums;
+
+        return $suma_monto;
     }
 }
