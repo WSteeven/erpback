@@ -647,4 +647,22 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+    public function otener_saldo_empleado_mes(Request $request)
+    {
+        // Obtener el primer día del mes
+        $primerDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->startOfMonth();
+        Log::channel('testing')->info('Log', ['mes inicio',  $primerDiaMes->format('Y-m-d')]);
+
+        // Obtener el último día del mes
+        $ultimoDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->endOfMonth();
+
+        Log::channel('testing')->info('Log', ['mes fin',  $ultimoDiaMes->format('Y-m-d')]);
+
+        $saldoUsuarioEnMes = SaldoGrupo::where('id_usuario',  $request->empleado)
+            ->where('fecha', '>=', $primerDiaMes->format('Y-m-d'))
+            ->where('fecha', '<=', $ultimoDiaMes->format('Y-m-d'))
+            ->orderBy('id', 'desc')
+            ->first();
+        return response()->json(compact('saldoUsuarioEnMes'));
+    }
 }

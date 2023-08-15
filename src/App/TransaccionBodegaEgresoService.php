@@ -822,10 +822,13 @@ class TransaccionBodegaEgresoService
         return $results;
     }
 
+    /**
+     * Devuelve un listado de los materiales usados y su suma total por producto
+     */
     public function obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado)
     {
         $subtarea = Subtarea::find($idSubtarea);
-        $fecha_inicio = Carbon::parse($subtarea->fecha_hora_ejecucion)->format('Y-m-d');
+        $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
         $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
 
         return DB::table('seguimientos_materiales_subtareas as sms')
@@ -834,9 +837,7 @@ class TransaccionBodegaEgresoService
             ->whereBetween('sms.created_at', [$fecha_inicio, $fecha_fin])
             ->where('empleado_id', $idEmpleado)
             ->where('subtarea_id', $idSubtarea)
-            ->groupBy('producto')
+            ->groupBy('detalle_producto_id')
             ->get();
-
-        // return response()->json(compact('results'));
     }
 }

@@ -51,6 +51,7 @@ use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
 use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
+use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -187,6 +188,7 @@ Route::apiResources(
         'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'recursos-humanos/tipo_contrato' => TipoContratoController::class,
         'recursos-humanos/rol_pago' => RolPagosController::class,
+        'forma_pago'=> FormaPagoController::class
     ],
     [
         'parameters' => [

@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Foundation\Auth\User as AuthUser;
 use Illuminate\Support\Facades\DB;
 
-class UserSeeder extends Seeder
+class UserSeederOld extends Seeder
 {
     /**
      * Run the database seeds.

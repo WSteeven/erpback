@@ -17,14 +17,12 @@ class BancoSeeder extends Seeder
     {
         Banco::insert([
             ['nombre' => 'Produbanco'],
-            ['nombre' => 'Pichincha'],
-            ['nombre' => 'Guayaquil'],
-            ['nombre' => 'Pacifico'],
-            ['nombre' => 'Internacional'],
-            ['nombre' => 'Bolivariano'],
+            ['nombre' => 'Banco Pichincha'],
+            ['nombre' => 'Banco del Pacifico'],
+            ['nombre' => 'Banco Internacional'],
+            ['nombre' => 'Banco Bolivariano'],
             ['nombre' => 'Banco del Austro'],
             ['nombre' => 'Banco de Loja'],
-            ['nombre' => 'Banco de Machala'],
             ['nombre' => 'Banco de Guayaquil'],
         ]);
     }

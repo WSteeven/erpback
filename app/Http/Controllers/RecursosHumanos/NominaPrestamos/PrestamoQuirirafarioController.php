@@ -5,10 +5,14 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PrestamoQuirorafarioRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoQuirorafarioResource;
+use App\Imports\PrestamoQuirorafarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\Shared\Utils;
 
 class PrestamoQuirirafarioController extends Controller
 {
@@ -30,9 +34,18 @@ class PrestamoQuirirafarioController extends Controller
     public function store(PrestamoQuirorafarioRequest $request)
     {
         try {
-            $datos = $request->validated();
+            $request->validated();
+            $existe_prestamo = PrestamoQuirorafario::where('mes', $request->mes)->count();
+            Log::channel('testing')->info('Log', ['existe prestamo', $existe_prestamo]);
 
-            return;
+            if ($existe_prestamo >0) {
+                throw ValidationException::withMessages([
+                    'mes' => ['Mes duplicado, ya registro listado de prestamos hipotecarios del mes: '.$request->mes],
+                ]);
+            }
+            $modelo = new PrestamoQuirorafario();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
@@ -45,9 +58,29 @@ class PrestamoQuirirafarioController extends Controller
         return response()->json(compact('modelo'), 200);
     }
     public function prestamos_quirorafario_empleado(Request $request){
-        $prestamo= PrestamoQuirorafario::where('empleado_id',$request->empleado)->where('mes',$request->mes)->sum('valor');
+        $prestamo = PrestamoQuirorafario::where('empleado_id', $request->empleado)->where('mes', $request->mes)->sum('valor');
         return response()->json(compact('prestamo'));
      }
+     public function archivo_prestamo_quirorafario(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+            Excel::import(new PrestamoQuirorafarioImport($request->mes), $request->file);
+            return response()->json(['mensaje' => 'Subido exitosamente!']);
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+    }
 
 
     public function update(Request $request, $prestamoQuirorafarioId)

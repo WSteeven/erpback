@@ -87,7 +87,6 @@ class TransaccionBodegaEgresoController extends Controller
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
         $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
 
-
         $materialesTarea = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             return [

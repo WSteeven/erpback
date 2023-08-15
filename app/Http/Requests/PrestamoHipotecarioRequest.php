@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class PrestamoHipotecarioRequest extends FormRequest
@@ -24,9 +25,9 @@ class PrestamoHipotecarioRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required|date_format:Y-m',
-            'empleado' => 'required|numeric',
-            'planilla' => 'required|string',
+            'mes' => 'required',
+            'tieneDocumento' => 'required',
         ];
     }
+   
 }
