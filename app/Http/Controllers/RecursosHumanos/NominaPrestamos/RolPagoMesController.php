@@ -48,6 +48,12 @@ class RolPagoMesController extends Controller
     {
         try {
             $datos = $request->validated();
+            $existe_mes =RolPagoMes::where('mess', $request->mes)->where('es_quincena','1')->get();
+            if (count($existe_mes) > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['Rol de Mes ya esta creado, porfavor ingrese un mes diferente'],
+                ]);
+            }
             DB::beginTransaction();
             $rolPago = RolPagoMes::create($datos);
             $this->tabla_roles($rolPago, 'CREAR');
@@ -273,7 +279,7 @@ class RolPagoMesController extends Controller
             $sueldo = 0;
             if ($rol->es_quincena) {
                 $dias = 15;
-                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
+                $sueldo = $sueldo *  $porcentaje_anticipo;
                 $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
             } else {
                 $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);

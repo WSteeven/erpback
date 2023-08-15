@@ -24,8 +24,8 @@ class RolPagoMesRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required | unique:rol_pago_mes,mes',
-            'nombre' => 'required',
+            'mes' => 'required',
+            'nombre' => 'required | unique:rol_pago_mes,nombre',
             'es_quincena' => 'nullable'
         ];
     }
