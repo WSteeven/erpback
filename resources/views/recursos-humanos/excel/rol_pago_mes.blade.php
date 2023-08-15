@@ -48,9 +48,11 @@
         <colgroup span="{{ $numcol_ingreso }}"></colgroup>
         <colgroup span="{{ $numcol_egreso }}"></colgroup>
         <tr>
+            <td rowspan="2">Item</td>
             <td rowspan="2">Empleado</td>
+            <td rowspan="2">Cedula</td>
             <td rowspan="2">Cargo</td>
-            <td rowspan="2">Sueldo</td>
+            <td rowspan="2">Sueldo Ganado</td>
             <td rowspan="2">Días Laborados</td>
             <th colspan="{{ $numcol_ingreso }}" scope="colgroup">INGRESOS</th>
             <td rowspan="2">TOTAL INGRESOS</td>
@@ -85,7 +87,9 @@
         </tr>
         @foreach ($roles_pago as $rol_pago)
             <tr>
+                <td>{{ $rol_pago['item'] }}</td>
                 <td>{{ $rol_pago['empleado_info'] }}</td>
+                <td>{{ $rol_pago['cedula'] }}</td>
                 <td>{{ $rol_pago['cargo'] }}</td>
                 <td>{{ $rol_pago['sueldo'] }}</td>
                 <td>{{ $rol_pago['dias_laborados'] }}</td>
@@ -127,7 +131,7 @@
             </tr>
         @endforeach
         <tr>
-            <td colspan="2"><strong>TOTAL:&nbsp;</strong></td>
+            <td colspan="4"><strong>TOTAL:&nbsp;</strong></td>
             <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
             <td>&nbsp;</td>
             <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}</td>
