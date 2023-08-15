@@ -20,6 +20,7 @@ class ProformaResource extends JsonResource
         [$subtotal,  $iva, $descuento, $total] = Proforma::obtenerSumaListado($this->id);
         $modelo = [
             'id' => $this->id,
+            'codigo' => $this->codigo,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
             'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
@@ -36,10 +37,11 @@ class ProformaResource extends JsonResource
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,
             'listadoProductos' => $detalles,
-            'subtotal' => $subtotal,
-            'descuento' => $descuento,
-            'iva' => $iva,
-            'total' => $total,
+            'iva' => $this->iva,
+            'sum_subtotal' => number_format($subtotal, 2),
+            'sum_descuento' => number_format($descuento, 2),
+            'sum_iva' => number_format($iva, 2),
+            'sum_total' => number_format($total, 2),
 
         ];
 
@@ -47,7 +49,7 @@ class ProformaResource extends JsonResource
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
-            $modelo['proveedor'] = $this->proveedor_id;
+            $modelo['cliente'] = $this->cliente_id;
             $modelo['estado'] = $this->estado_id;
         }
         return $modelo;

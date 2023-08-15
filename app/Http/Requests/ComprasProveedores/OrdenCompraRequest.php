@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ComprasProveedores;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OrdenCompraRequest extends FormRequest
@@ -24,6 +25,7 @@ class OrdenCompraRequest extends FormRequest
     public function rules()
     {
         return [
+            'codigo' => 'required|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
             'proveedor' => 'required|numeric|exists:proveedores,id',
             'autorizador' => 'required|numeric|exists:empleados,id',
@@ -38,6 +40,7 @@ class OrdenCompraRequest extends FormRequest
             'fecha' => 'required|string',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'categorias' => 'sometimes|nullable',
+            'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',
         ];
     }
@@ -56,6 +59,9 @@ class OrdenCompraRequest extends FormRequest
             if ($this->autorizacion === 2) {
                 $this->merge(['estado' => 2]);
             }
+        }
+        if (is_null($this->codigo) || $this->codigo === '') {
+            $this->merge(['codigo' => OrdenCompra::obtenerCodigo()]);
         }
     }
 }

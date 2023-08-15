@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\ComprasProveedores;
 
+use App\Models\ComprasProveedores\Proforma;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ProformaRequest extends FormRequest
@@ -24,6 +25,7 @@ class ProformaRequest extends FormRequest
     public function rules()
     {
         return [
+            'codigo' => 'required|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
             'cliente' => 'required|numeric|exists:clientes,id',
             'autorizador' => 'required|numeric|exists:empleados,id',
@@ -35,8 +37,8 @@ class ProformaRequest extends FormRequest
             'descripcion' => 'required|string',
             'forma' => 'required|string',
             'tiempo' => 'required|string',
-            'fecha' => 'required|string',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
+            'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',
         ];
     }
@@ -48,6 +50,8 @@ class ProformaRequest extends FormRequest
         }
         if ($this->autorizacion === null)
             $this->merge(['autorizacion' => 1, 'estado' => 1]);
-
+        if (is_null($this->codigo) || $this->codigo === '') {
+            $this->merge(['codigo' => Proforma::obtenerCodigo()]);
+        }
     }
 }

@@ -80,6 +80,7 @@ use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -191,7 +192,7 @@ Route::apiResources(
         'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'recursos-humanos/tipo_contrato' => TipoContratoController::class,
         'recursos-humanos/rol_pago' => RolPagosController::class,
-        'forma_pago'=> FormaPagoController::class
+        'forma_pago' => FormaPagoController::class
     ],
     [
         'parameters' => [
@@ -223,15 +224,31 @@ Route::apiResources(
 /**
  * Rutas para obtener empleados por cierto rol
  */
-Route::get('empleados-roles', function (Request $request){
+Route::get('empleados-roles', function (Request $request) {
     $results = [];
     $roles = [];
-    if(!is_null($request->roles)){
+    if (!is_null($request->roles)) {
         $roles = explode(',', $request->roles);
         $results = UserResource::collection(User::role($roles)->with('empleado')->get());
     }
     return response()->json(compact('results'));
 })->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+/**
+ * Ruta para obtener empleados por cierto permiso
+ */
+Route::get('empleados-permisos', function (Request $request) {
+    $permisos = [];
+    $results = [];
+    if (!is_null($request->permisos)) {
+        $permisos = explode(',', $request->permisos);
+        $permisos_consultados = Permission::whereIn('name', $permisos)->get();
+
+        $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+    }
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
+
+
 /**
  * Rutas para imprimir PDFs
  */

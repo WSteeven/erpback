@@ -187,4 +187,264 @@ class Utils
         }
         return $text;
     }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES (tomadas del codigo de Yefraina)
+     * ______________________________________________________________________________________
+     */
+
+     private static function unidad($numero)
+    {
+        switch ($numero) {
+            case 9:
+                return "NUEVE";
+            case 8:
+                return "OCHO";
+            case 7:
+                return "SIETE";
+            case 6:
+                return "SEIS";
+            case 5:
+                return "CINCO";
+            case 4:
+                return "CUATRO";
+            case 3:
+                return "TRES";
+            case 2:
+                return "DOS";
+            case 1:
+                return "UNO";
+            case 0:
+                return "";
+        }
+    }
+
+    private static function decena($numero)
+    {
+
+        if ($numero >= 90 && $numero <= 99) {
+            $numd = "NOVENTA ";
+            if ($numero > 90)
+                $numd = $numd . "Y " . (self::unidad($numero - 90));
+        } else if ($numero >= 80 && $numero <= 89) {
+            $numd = "OCHENTA ";
+            if ($numero > 80)
+                $numd = $numd . "Y " . (self::unidad($numero - 80));
+        } else if ($numero >= 70 && $numero <= 79) {
+            $numd = "SETENTA ";
+            if ($numero > 70)
+                $numd = $numd . "Y " . (self::unidad($numero - 70));
+        } else if ($numero >= 60 && $numero <= 69) {
+            $numd = "SESENTA ";
+            if ($numero > 60)
+                $numd = $numd . "Y " . (self::unidad($numero - 60));
+        } else if ($numero >= 50 && $numero <= 59) {
+            $numd = "CINCUENTA ";
+            if ($numero > 50)
+                $numd = $numd . "Y " . (self::unidad($numero - 50));
+        } else if ($numero >= 40 && $numero <= 49) {
+            $numd = "CUARENTA ";
+            if ($numero > 40)
+                $numd = $numd . "Y " . (self::unidad($numero - 40));
+        } else if ($numero >= 30 && $numero <= 39) {
+            $numd = "TREINTA ";
+            if ($numero > 30)
+                $numd = $numd . "Y " . (self::unidad($numero - 30));
+        } else if ($numero >= 20 && $numero <= 29) {
+            if ($numero == 20)
+                $numd = "VEINTE ";
+            else
+                $numd = "VEINTI" . (self::unidad($numero - 20));
+        } else if ($numero >= 10 && $numero <= 19) {
+            switch ($numero) {
+                case 10:
+                    return "DIEZ ";
+                case 11:
+                    return  "ONCE ";
+                case 12:
+                    return  "DOCE ";
+                case 13:
+                    return "TRECE ";
+                case 14:
+                    return  "CATORCE ";
+                case 15:
+                    return "QUINCE ";
+                case 16:
+                    return  "DIECISEIS ";
+                case 17:
+                    return  "DIECISIETE ";
+                case 18:
+                    return "DIECIOCHO ";
+                case 19:
+                    return  "DIECINUEVE ";
+            }
+        } else
+            $numd = self::unidad($numero);
+        return $numd;
+    }
+
+    private static function centena($numc)
+    {
+        if ($numc >= 100) {
+            if ($numc >= 900 && $numc <= 999) {
+                $numce = "NOVECIENTOS ";
+                if ($numc > 900)
+                    $numce = $numce . (self::decena($numc - 900));
+            } else if ($numc >= 800 && $numc <= 899) {
+                $numce = "OCHOCIENTOS ";
+                if ($numc > 800)
+                    $numce = $numce . (self::decena($numc - 800));
+            } else if ($numc >= 700 && $numc <= 799) {
+                $numce = "SETECIENTOS ";
+                if ($numc > 700)
+                    $numce = $numce . (self::decena($numc - 700));
+            } else if ($numc >= 600 && $numc <= 699) {
+                $numce = "SEISCIENTOS ";
+                if ($numc > 600)
+                    $numce = $numce . (self::decena($numc - 600));
+            } else if ($numc >= 500 && $numc <= 599) {
+                $numce = "QUINIENTOS ";
+                if ($numc > 500)
+                    $numce = $numce . (self::decena($numc - 500));
+            } else if ($numc >= 400 && $numc <= 499) {
+                $numce = "CUATROCIENTOS ";
+                if ($numc > 400)
+                    $numce = $numce . (self::decena($numc - 400));
+            } else if ($numc >= 300 && $numc <= 399) {
+                $numce = "TRESCIENTOS ";
+                if ($numc > 300)
+                    $numce = $numce . (self::decena($numc - 300));
+            } else if ($numc >= 200 && $numc <= 299) {
+                $numce = "DOSCIENTOS ";
+                if ($numc > 200)
+                    $numce = $numce . (self::decena($numc - 200));
+            } else if ($numc >= 100 && $numc <= 199) {
+                if ($numc == 100)
+                    $numce = "CIEN ";
+                else
+                    $numce = "CIENTO " . (self::decena($numc - 100));
+            }
+        } else
+            $numce = self::decena($numc);
+
+        return $numce;
+    }
+
+    private static function miles($nummero)
+    {
+        if ($nummero >= 1000 && $nummero < 2000) {
+            $numm = "MIL " . (self::centena($nummero % 1000));
+        }
+        if ($nummero >= 2000 && $nummero < 10000) {
+            $numm = self::unidad(Floor($nummero / 1000)) . " MIL " . (self::centena($nummero % 1000));
+        }
+        if ($nummero < 1000)
+            $numm = self::centena($nummero);
+
+        return $numm;
+    }
+
+    private static function decmiles($numdmero)
+    {
+        if ($numdmero == 10000)
+            $numde = "DIEZ MIL";
+        if ($numdmero > 10000 && $numdmero < 20000) {
+            $numde = self::decena(Floor($numdmero / 1000)) . "MIL " . (self::centena($numdmero % 1000));
+        }
+        if ($numdmero >= 20000 && $numdmero < 100000) {
+            $numde = self::decena(Floor($numdmero / 1000)) . " MIL " . (self::miles($numdmero % 1000));
+        }
+        if ($numdmero < 10000)
+            $numde = self::miles($numdmero);
+
+        return $numde;
+    }
+
+    private static function cienmiles($numcmero)
+    {
+        if ($numcmero == 100000)
+            $num_letracm = "CIEN MIL";
+        if ($numcmero >= 100000 && $numcmero < 1000000) {
+            $num_letracm = self::centena(Floor($numcmero / 1000)) . " MIL " . (self::centena($numcmero % 1000));
+        }
+        if ($numcmero < 100000)
+            $num_letracm = self::decmiles($numcmero);
+        return $num_letracm;
+    }
+
+    private static function millon($nummiero)
+    {
+        if ($nummiero >= 1000000 && $nummiero < 2000000) {
+            $num_letramm = "UN MILLON " . (self::cienmiles($nummiero % 1000000));
+        }
+        if ($nummiero >= 2000000 && $nummiero < 10000000) {
+            $num_letramm = self::unidad(Floor($nummiero / 1000000)) . " MILLONES " . (self::cienmiles($nummiero % 1000000));
+        }
+        if ($nummiero < 1000000)
+            $num_letramm = self::cienmiles($nummiero);
+
+        return $num_letramm;
+    }
+
+    private static function decmillon($numerodm)
+    {
+        if ($numerodm == 10000000)
+            $num_letradmm = "DIEZ MILLONES";
+        if ($numerodm > 10000000 && $numerodm < 20000000) {
+            $num_letradmm = self::decena(Floor($numerodm / 1000000)) . "MILLONES " . (self::cienmiles($numerodm % 1000000));
+        }
+        if ($numerodm >= 20000000 && $numerodm < 100000000) {
+            $num_letradmm = self::decena(Floor($numerodm / 1000000)) . " MILLONES " . (self::millon($numerodm % 1000000));
+        }
+        if ($numerodm < 10000000)
+            $num_letradmm = self::millon($numerodm);
+
+        return $num_letradmm;
+    }
+
+    private static function cienmillon($numcmeros)
+    {
+        if ($numcmeros == 100000000)
+            $num_letracms = "CIEN MILLONES";
+        if ($numcmeros >= 100000000 && $numcmeros < 1000000000) {
+            $num_letracms = self::centena(Floor($numcmeros / 1000000)) . " MILLONES " . (self::millon($numcmeros % 1000000));
+        }
+        if ($numcmeros < 100000000)
+            $num_letracms = self::decmillon($numcmeros);
+        return $num_letracms;
+    }
+
+    private static function milmillon($nummierod)
+    {
+        if ($nummierod >= 1000000000 && $nummierod < 2000000000) {
+            $num_letrammd = "MIL " . (self::cienmillon($nummierod % 1000000000));
+        }
+        if ($nummierod >= 2000000000 && $nummierod < 10000000000) {
+            $num_letrammd = self::unidad(Floor($nummierod / 1000000000)) . " MIL " . (self::cienmillon($nummierod % 1000000000));
+        }
+        if ($nummierod < 1000000000)
+            $num_letrammd = self::cienmillon($nummierod);
+
+        return $num_letrammd;
+    }
+
+
+    /**
+     * Esta función recibe un valor entero, double o decimal y retorna su expresión en texto.
+     * @param string $numero El numero entero o decimal del cual se obtendrá su valor en texto
+     * @return string El valor expresado en texto, tal como se muestra en los cheques. 
+     */
+    public static function  obtenerValorMonetarioTexto($numero)
+    {
+        Log::channel('testing')->info('Log', ['Balor recibido',$numero]);
+        $num = str_replace(",", "", $numero);
+        $num = number_format($num, 2, '.', '');
+        $cents = substr($num, strlen($num) - 2, strlen($num) - 1);
+        $num = (int)$num;
+
+        $numf = self::milmillon($num);
+
+        return " SON:  " . $numf . " CON " . $cents . "/100 DOLARES";
+    }
 }

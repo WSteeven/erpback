@@ -4,7 +4,6 @@ namespace App\Events\ComprasProveedores;
 
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
-use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;

@@ -95,7 +95,6 @@ class PreordenCompraController extends Controller
         $request->validate(['motivo'=>['required', 'string']]);
         $preorden->causa_anulacion = $request['motivo'];
         $preorden->estado = EstadoTransaccion::ANULADA;
-        Log::channel('testing')->info('Log', ['Ultima notificacion de la preorden', $preorden->latestNotificacion()->get()]);
         $preorden->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
         $preorden->save();
 

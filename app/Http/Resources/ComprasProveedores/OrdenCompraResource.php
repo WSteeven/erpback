@@ -20,6 +20,7 @@ class OrdenCompraResource extends JsonResource
         [$subtotal,  $iva, $descuento, $total] = OrdenCompra::obtenerSumaListado($this->id);
         $modelo = [
             'id' => $this->id,
+            'codigo' => $this->codigo,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
             'pedido' => $this->pedido_id,
@@ -39,10 +40,11 @@ class OrdenCompraResource extends JsonResource
             'tiempo' => $this->tiempo,
             'fecha' => $this->fecha,
             'listadoProductos' => $detalles,
-            'subtotal' => $subtotal,
-            'descuento' => $descuento,
-            'iva' => $iva,
-            'total' => $total,
+            'iva' => $this->iva,
+            'sum_subtotal' => number_format($subtotal, 2),
+            'sum_descuento' => number_format($descuento, 2),
+            'sum_iva' => number_format($iva, 2),
+            'sum_total' => number_format($total, 2),
 
         ];
 

@@ -10,6 +10,7 @@ use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Shared\Utils;
 
 class OrdenCompra extends Model implements Auditable
 {
@@ -28,6 +30,7 @@ class OrdenCompra extends Model implements Auditable
 
   public $table = 'cmp_ordenes_compras';
   public $fillable = [
+    'codigo',
     'solicitante_id',
     'proveedor_id',
     'autorizador_id',
@@ -42,6 +45,7 @@ class OrdenCompra extends Model implements Auditable
     'tiempo',
     'fecha',
     'categorias',
+    'iva',
   ];
 
 
@@ -241,5 +245,18 @@ class OrdenCompra extends Model implements Auditable
     })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
     // $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
     return $results;
+  }
+
+  /**
+   * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una
+   * longitud específica.
+   * 
+   * @return string una cadena que consta del año actual menos el mes actual, seguida de un código generado
+   * con una longitud de 3 dígitos.
+   */
+  public static function obtenerCodigo(){
+    $mes = Carbon::now()->format('m');
+    $suma = OrdenCompra::whereYear('created_at', date('Y'))->whereMonth('created_at', $mes)->count();
+    return date('y').'-'.$mes.Utils::generarCodigoConLongitud($suma+1, 3);
   }
 }

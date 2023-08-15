@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('cmp_proformas', function (Blueprint $table) {
             $table->id();
+            $table->string('codigo');
             $table->unsignedBigInteger('solicitante_id')->nullable();
             $table->unsignedBigInteger('cliente_id')->nullable();
             $table->unsignedBigInteger('autorizador_id')->nullable();
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->enum('forma', [OrdenCompra::CONTADO, OrdenCompra::CREDITO])->default(OrdenCompra::CONTADO)->nullable();
             $table->enum('tiempo', [OrdenCompra::SEMANAL, OrdenCompra::QUINCENAL, OrdenCompra::MES])->nullable();
+            $table->double('iva')->default(12.0);
             $table->timestamps();
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();

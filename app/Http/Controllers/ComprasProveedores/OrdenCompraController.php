@@ -94,7 +94,7 @@ class OrdenCompraController extends Controller
 
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
             if ($orden->estado_id === $estado_pendiente->id && $orden->autorizacion_id === $autorizacion_pendiente->id) {
-                event(new OrdenCompraCreadaEvent($orden, true));// crea el evento de la orden de compra al autorizador
+                event(new OrdenCompraCreadaEvent($orden, true)); // crea el evento de la orden de compra al autorizador
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -153,8 +153,8 @@ class OrdenCompraController extends Controller
 
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
             if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
-
-                event(new OrdenCompraActualizadaEvent($orden, true));// crea el evento de la orden de compra actualizada al solicitante
+                $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+                event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -177,6 +177,7 @@ class OrdenCompraController extends Controller
         $orden->causa_anulacion = $request['motivo'];
         $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
+        $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $orden->save();
 
         $modelo = new OrdenCompraResource($orden->refresh());
@@ -194,8 +195,10 @@ class OrdenCompraController extends Controller
         try {
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
+            $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
+            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
             Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita']));
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();

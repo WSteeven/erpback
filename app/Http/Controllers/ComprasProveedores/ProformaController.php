@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
+use App\Events\ComprasProveedores\ProformaActualizadaEvent;
+use App\Events\ComprasProveedores\ProformaCreadaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\ProformaRequest;
 use App\Http\Resources\ClienteResource;
@@ -11,6 +13,7 @@ use App\Models\Cliente;
 use App\Models\ComprasProveedores\Proforma;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -31,15 +34,22 @@ class ProformaController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request){
-        $results = Proforma::all();
+    public function index(Request $request)
+    {
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
+            $results = Proforma::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+        } else {
+            $results = Proforma::filtrarProformasEmpleado($request);
+        }
+        $results = ProformaResource::collection($results);
         return response()->json(compact('results'));
     }
 
     /**
      * Guardar
      */
-    public function store(ProformaRequest $request){
+    public function store(ProformaRequest $request)
+    {
         $autorizacion_pendiente = Autorizacion::where('nombre', Autorizacion::PENDIENTE)->first();
         $estado_pendiente = EstadoTransaccion::where('nombre', EstadoTransaccion::PENDIENTE)->first();
         try {
@@ -68,6 +78,10 @@ class ProformaController extends Controller
 
             DB::commit();
 
+            // aqui se debe lanzar la notificacion en caso de que la proforma sea autorizacion pendiente
+            if ($proforma->estado_id === $estado_pendiente->id && $proforma->autorizacion_id === $autorizacion_pendiente->id) {
+                event(new ProformaCreadaEvent($proforma, true));// crea el evento de la proforma al autorizador
+            }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -75,7 +89,6 @@ class ProformaController extends Controller
             Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
         }
-
     }
 
     /**
@@ -99,7 +112,7 @@ class ProformaController extends Controller
             //Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
-            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
@@ -120,16 +133,16 @@ class ProformaController extends Controller
 
             DB::commit();
 
-            // // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
-            // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
-
-            //     event(new OrdenCompraActualizadaEvent($orden, true));// crea el evento de la orden de compra actualizada al solicitante
-            // }
+            // // aqui se debe lanzar la notificacion en caso de que la proforma sea autorizacion pendiente
+            if ($proforma->estado_id === $estado_completo->id && $proforma->autorizacion_id === $autorizacion_aprobada->id) {
+                $proforma->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+                event(new ProformaActualizadaEvent($proforma, true));// crea el evento de la orden de compra actualizada al solicitante
+            }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['ERROR update de proformas:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
         }
     }
@@ -148,6 +161,7 @@ class ProformaController extends Controller
         $proforma->causa_anulacion = $request['motivo'];
         $proforma->autorizacion_id = $autorizacion->id;
         $proforma->estado_id = $estado->id;
+        $proforma->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
         $proforma->save();
 
         $modelo = new ProformaResource($proforma->refresh());
@@ -165,8 +179,9 @@ class ProformaController extends Controller
         try {
             $proforma = $proforma->resolve();
             $cliente = $cliente->resolve();
+            $valor = Utils::obtenerValorMonetarioTexto($proforma['sum_total']);
             Log::channel('testing')->info('Log', ['Elementos a imprimir', ['proforma' => $proforma, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['proforma', 'cliente', 'empleado_solicita']));
+            $pdf = Pdf::loadView('compras_proveedores.proforma', compact(['proforma', 'cliente', 'empleado_solicita', 'valor']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
@@ -179,6 +194,4 @@ class ProformaController extends Controller
             return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
         }
     }
-
-
 }

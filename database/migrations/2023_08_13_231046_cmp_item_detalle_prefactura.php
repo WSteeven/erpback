@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('cmp_item_detalle_prefactura', function (Blueprint $table){
             $table->id();
             $table->unsignedBigInteger('proforma_id');
+            $table->unsignedBigInteger('unidad_medida_id');
             $table->text('descripcion');
             $table->integer('cantidad');
             $table->integer('porcentaje_descuento')->default(0);
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('proforma_id')->references('id')->on('cmp_proformas')->cascadeOnDelete()->cascadeOnUpdate();
-
+            $table->foreign('unidad_medida_id')->references('id')->on('unidades_medidas')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

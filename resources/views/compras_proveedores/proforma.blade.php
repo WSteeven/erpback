@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Orden de compra N° {{ $orden['id'] }}</title>
+    <title>Proforma N° {{ $proforma['id'] }}</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
@@ -130,17 +130,17 @@
                     <table>
                         <tr>
                             <td align="right">
-                                <b style="font-size: 30px; margin-left: 30px">ORDEN DE COMPRA</b>
+                                <b style="font-size: 30px; margin-left: 30px">PROFORMA</b>
                             </td>
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$orden['codigo']}}
+                                <b>N° </b> {{$proforma['codigo']}}
                             </td>
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>Fecha: </b>{{ $orden['fecha'] }}
+                                <b>Fecha: </b>{{ date('Y-m-d', strtotime($proforma['created_at'])) }}
                             </td>
                         </tr>
                     </table>
@@ -153,8 +153,7 @@
             <tr>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. <br> Utilizar únicamente para compras a proveedores
-                        autorizados
+                        propiedad de JPCONSTRUCRED C.LTDA.
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         usuario:
@@ -174,27 +173,19 @@
                 <td width="60%" style="min-width: 100%">
                     <table style="width: 90%" border="1">
                         <tr>
-                            <td colspan="2" align="center"> PROVEEDOR</td>
+                            <td colspan="2" align="center"> CLIENTE</td>
                         </tr>
                         <tr>
                             <td>Razón social</td>
-                            <td>{{ $proveedor['razon_social'] }}</td>
+                            <td>{{ $cliente['razon_social'] }}</td>
                         </tr>
                         <tr>
                             <td>RUC</td>
-                            <td>{{ $proveedor['ruc'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Dirección</td>
-                            <td>{{ $proveedor['direccion'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Ubicación</td>
-                            <td>{{ $proveedor['ubicacion'] }}</td>
+                            <td>{{ $cliente['ruc'] }}</td>
                         </tr>
                         <tr>
                             <td>Solicitado por</td>
-                            <td>{{ $orden['solicitante'] }}<br>{{ $empleado_solicita->user->email }}</td>
+                            <td>{{ $proforma['solicitante'] }}<br>{{ $empleado_solicita->user->email }}</td>
                         </tr>
                     </table>
                 </td>
@@ -205,26 +196,26 @@
                         </tr>
                         <tr>
                             <td>Autorizado por</td>
-                            <td>{{ $orden['autorizador'] }}</td>
+                            <td>{{ $proforma['autorizador'] }}</td>
                         </tr>
                         <tr>
                             <td>Estado</td>
-                            <td>{{ $orden['autorizacion'] == 'CANCELADO' ? 'ANULADA - ' . $orden['estado'] : $orden['autorizacion'] }}
+                            <td>{{ $proforma['autorizacion'] == 'CANCELADO' ? 'ANULADA - ' . $proforma['estado'] : $proforma['autorizacion'] }}
                             </td>
                         </tr>
-                        @if ($orden['autorizacion'] == 'CANCELADO')
+                        @if ($proforma['autorizacion'] == 'CANCELADO')
                             <tr>
                                 <td>Causa anulación</td>
-                                <td>{{ $orden['causa_anulacion'] }}</td>
+                                <td>{{ $proforma['causa_anulacion'] }}</td>
                             </tr>
                         @endif
                         <tr>
                             <td>Forma de pago</td>
-                            <td>{{ $orden['forma'] }}</td>
+                            <td>{{ $proforma['forma'] }}</td>
                         </tr>
                         <tr>
                             <td>Tiempo de validez</td>
-                            <td>{{ $orden['tiempo'] }} a partir de la fecha de creación</td>
+                            <td>{{ $proforma['tiempo'] }} a partir de la fecha de creación</td>
                         </tr>
                     </table>
                 </td>
@@ -246,12 +237,12 @@
             </thead>
             <tbody>
 
-                @foreach ($orden['listadoProductos'] as $index => $item)
+                @foreach ($proforma['listadoProductos'] as $index => $item)
                     <tr class="row" style="width: auto">
                         {{-- <td>{{$index+1}}</td> --}}
                         <td align="center">{{ $item['cantidad'] }}</td>
                         <td align="center">{{ $item['descripcion'] }}</td>
-                        <td align="center">{{ $item['unidad_medida'] }}</td>
+                        <td align="center">{{ $item['unidad_medida_id'] }}</td>
                         <td align="center">{{ $item['precio_unitario'] }}</td>
                         <td align="center">{{ $item['descuento'] }}</td>
                         <td align="center">{{ $item['iva'] }}</td>
@@ -261,7 +252,7 @@
                 @endforeach
             </tbody>
         </table>
-        <p>{{ $valor }}</p>
+        <p>{{$valor}}</p>
         <table
             style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
             <tr>
@@ -271,7 +262,7 @@
                             <td align="center"> OBSERVACIONES</td>
                         </tr>
                         <tr>
-                            <td style="height: 100px" valign="top">{{ $orden['descripcion'] }}</td>
+                            <td style="height: 100px" valign="top">{{ $proforma['descripcion'] }}</td>
                         </tr>
                     </table>
                 </td>
@@ -279,19 +270,19 @@
                     <table align="right" border="1" style="max-width: 100%;width:70%">
                         <tr>
                             <td align="right">SUBTOTAL</td>
-                            <td align="center">{{ $orden['sum_subtotal'] }}</td>
+                            <td align="center">{{ $proforma['sum_subtotal'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">DESCUENTO</td>
-                            <td align="center">{{ $orden['sum_descuento'] }}</td>
+                            <td align="center">{{ $proforma['sum_descuento'] }}</td>
                         </tr>
                         <tr>
-                            <td align="right">IVA ({{ $orden['iva'] }}%)</td>
-                            <td align="center">{{ $orden['sum_iva'] }}</td>
+                            <td align="right">IVA ({{$proforma['iva']}}%)</td>
+                            <td align="center">{{ $proforma['sum_iva'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">TOTAL</td>
-                            <td align="center">{{ $orden['sum_total'] }}</td>
+                            <td align="center">{{ $proforma['sum_total'] }}</td>
                         </tr>
                     </table>
                 </td>

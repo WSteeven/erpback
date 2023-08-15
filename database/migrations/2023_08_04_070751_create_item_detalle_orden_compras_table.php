@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('detalle_id');
             $table->integer('cantidad');
             $table->integer('porcentaje_descuento')->default(0);
+            $table->double('descuento');
             $table->boolean('facturable')->default(true);
             $table->boolean('grava_iva')->default(true);
             $table->double('precio_unitario');

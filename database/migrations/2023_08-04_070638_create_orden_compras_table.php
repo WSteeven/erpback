@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('cmp_ordenes_compras', function (Blueprint $table) {
             $table->id();
+            $table->string('codigo');
             $table->unsignedBigInteger('solicitante_id')->nullable();
             $table->unsignedBigInteger('proveedor_id')->nullable();
             $table->unsignedBigInteger('autorizador_id')->nullable();
@@ -31,6 +32,7 @@ return new class extends Migration
             $table->enum('tiempo', [OrdenCompra::SEMANAL, OrdenCompra::QUINCENAL, OrdenCompra::MES])->nullable();
             $table->date('fecha');
             $table->string('categorias');
+            $table->double('iva')->default(12.0);
             $table->timestamps(); 
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();

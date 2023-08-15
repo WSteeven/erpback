@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\UnidadMedida;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -33,6 +34,13 @@ class ItemDetalleProforma extends Model implements Auditable
      */
     public function proforma(){
         return $this->belongsTo(Proforma::class);
+    }
+
+    /**
+     * Relacion uno a muchos
+     */
+    public function unidadMedida(){
+        return $this->belongsTo(UnidadMedida::class);
     }
 
 }
