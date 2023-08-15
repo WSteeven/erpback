@@ -26,9 +26,11 @@ return new class extends Migration
     public function down()
     {
         Schema::table('empleados', function (Blueprint $table) {
-            $table->string('correo_personal');
-            $table->string('nivel_academico');
-            $table->string('num_cuenta_bancaria');
+            $table->string('correo_personal')->after('telefono_empresa');
+            $table->string('nivel_academico')->after('fecha_ingreso');
+            $table ->string('talla_pantalon')->after('talla_guantes');
+            $table->unsignedBigInteger('banco')->after('talla_pantalon')->nullable();
+            $table->foreign('banco')->references('id')->on('bancos');
         });
     }
 };

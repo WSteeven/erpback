@@ -67,6 +67,12 @@ class EmpleadoRequest extends FormRequest
             'tiene_discapacidad'=>'required',
             'observacion'=>'required',
             'nivel_academico'=>'required',
+            'supa' =>'nullable',
+            'talla_zapato' =>'nullable',
+            'talla_camisa' =>'nullable',
+            'talla_guantes' =>'nullable',
+            'talla_pantalon' =>'nullable',
+            'banco' =>'required',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {

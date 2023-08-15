@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('mes',7);
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
-            $table->string('dependiente');
+            $table->unsignedBigInteger('dependiente');
+            $table->foreign('dependiente')->references('id')->on('familiares');
             $table->string('origen');
             $table->decimal('materia_grabada', 10, 2);
             $table->decimal('aporte', 10, 2);

@@ -53,6 +53,13 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco',
+
     ];
 
     private static $whiteListFilter = [
@@ -82,6 +89,12 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -234,7 +247,8 @@ class Empleado extends Model implements Auditable
         return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
-    public function ultimaBitacora(){
+    public function ultimaBitacora()
+    {
         return $this->hasOne(BitacoraVehicular::class, 'chofer_id', 'id')->latestOfMany();
     }
 
@@ -286,7 +300,7 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(EstadoCivil::class);
     }
-        /**
+    /**
      * Relación uno a uno.
      * Un empleado tiene uncuente aen un banco.
      */
@@ -294,7 +308,7 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(Banco::class);
     }
-         /**
+    /**
      * Relación uno a uno.
      * Un empleado tiene solo tipo de contrato
      */
@@ -302,7 +316,7 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(TipoContrato::class);
     }
-         /**
+    /**
      * Relación uno a uno.
      * Un empleado tiene solo tipo de sangre
      */

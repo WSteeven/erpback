@@ -12,6 +12,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
+use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
@@ -52,6 +53,8 @@ Route::apiResources(
         'estado_civil' => EstadoCivilController::class,
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
+        'banco' => BancoController::class,
+
     ],
     [
         'parameters' => [],
