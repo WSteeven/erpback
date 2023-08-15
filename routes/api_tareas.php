@@ -11,6 +11,7 @@ use App\Http\Controllers\CausaIntervencionController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
+use App\Http\Controllers\DashboardTareaController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
@@ -116,8 +117,14 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
 Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
+Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
 
 /***********
  * Reportes
  ***********/
 Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
+
+/***********
+ * Dashboard
+ ***********/
+Route::get('dashboard', [DashboardTareaController::class, 'index']);
