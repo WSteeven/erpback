@@ -16,4 +16,9 @@ enum TiposNotificaciones: string{
     case LICENCIA_EMPLEADO = 'LICENCIA EMPLEADO';
     case SOLICITUD_PRESTAMO_EMPRESARIAL = 'SOLICITUD PRESTAMO EMPRESARIAL';
     case VACACION = 'VACACION';
+    //compras y proveedores
+    case PREORDEN = 'PREORDEN';
+    case ORDEN_COMPRA = 'ORDEN_COMPRA';
+    case PROFORMA = 'PROFORMA';
+    case PREFACTURA = 'PREFACTURA';
 }

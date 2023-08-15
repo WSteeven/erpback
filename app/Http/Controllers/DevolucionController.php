@@ -164,6 +164,15 @@ class DevolucionController extends Controller
 
         // Respuesta
         $devolucion->update($datos);
+
+        //borrar los registros de la tabla intermedia para guardar los modificados
+        $devolucion->detalles()->detach();
+
+        //Guardar los productos seleccionados
+        foreach ($request->listadoProductos as $listado) {
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+        }
+
         $modelo = new DevolucionResource($devolucion->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

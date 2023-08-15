@@ -60,23 +60,32 @@ class DetalleProductoController extends Controller
                     break;
                 default: //todos
                     $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    if ($request->categoria_id && !is_null($request->categoria_id[0])) {
+                        $results = DetalleProducto::withWhereHas('producto', function ($query) use ($request) {
+                            $query->whereIn('categoria_id', $request->categoria_id);
+                        })->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    } else {
+                        $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
+                    }
+
+                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->limit(30)->get();
+                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
             }
         }
         if (!empty($campos)) {
-            Log::channel('testing')->info('Log', ['Que tiene campos:', $campos]);
-            Log::channel('testing')->info('Log', ['Pasó por el if de campos:']);
             $results = DetalleProducto::ignoreRequest(['campos', 'search'])->filter()->get($campos);
-            // return response()->json(compact('results'));
         } else if ($page) {
-            Log::channel('testing')->info('Log', ['Pasó por el if de page:']);
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
-            Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
             Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
+            // Log::channel('testing')->info('Log', ['Pasó por el if de search:']);
+            $results = DetalleProducto::search($search)->get();
+        } else if ($sucursal) {
+            // Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
             if ($request->cliente_id) $ids_detalles = Inventario::where('sucursal_id', $sucursal)->where('cliente_id', $request->cliente_id)->get('detalle_id');
             else {
                 $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
@@ -84,17 +93,16 @@ class DetalleProductoController extends Controller
             }
             $results = DetalleProducto::whereIn('id', $ids_detalles)->get();
             $r2 = DetalleProducto::whereNotIn('id', $ids_detalles_en_inventario)->get();
-            Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
+            // Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count(), $r2->count()]);
             $results = $results->concat($r2);
             Log::channel('testing')->info('Log', ['resultados filtrados:', $results->count()]);
         } else {
-            Log::channel('testing')->info('Log', ['Pasó por el else general:']);
             $results = DetalleProducto::ignoreRequest(['search'])->filter()->get();
-            // $results = DetalleProductoResource::collection($results);
         }
         $results = DetalleProductoResource::collection($results);
         return response()->json(compact('results'));
     }
+
 
     /**
      * Guardar
