@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources\ComprasProveedores;
 
-use App\Models\ComprasProveedores\Proforma;
+use App\Models\ComprasProveedores\Prefactura;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProformaResource extends JsonResource
+class PrefacturaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,8 +16,8 @@ class ProformaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        $detalles = Proforma::listadoProductos($this->id);
-        [$subtotal,  $iva, $descuento, $total] = Proforma::obtenerSumaListado($this->id);
+        $detalles = Prefactura::listadoProductos($this->id);
+        [$subtotal,  $iva, $descuento, $total] = Prefactura::obtenerSumaListado($this->id);
         $modelo = [
             'id' => $this->id,
             'codigo' => $this->codigo,
@@ -29,7 +29,6 @@ class ProformaResource extends JsonResource
             'autorizacion_id' => $this->autorizacion_id,
             'descripcion' => $this->descripcion,
             'cliente' => $this->cliente->empresa->razon_social,
-            'cliente_id' => $this->cliente_id,
             'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado->nombre,
             'estado_id' => $this->estado_id,

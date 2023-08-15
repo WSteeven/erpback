@@ -80,7 +80,7 @@ class ProformaController extends Controller
 
             // aqui se debe lanzar la notificacion en caso de que la proforma sea autorizacion pendiente
             if ($proforma->estado_id === $estado_pendiente->id && $proforma->autorizacion_id === $autorizacion_pendiente->id) {
-                event(new ProformaCreadaEvent($proforma, true));// crea el evento de la proforma al autorizador
+                event(new ProformaCreadaEvent($proforma, true)); // crea el evento de la proforma al autorizador
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -135,8 +135,8 @@ class ProformaController extends Controller
 
             // // aqui se debe lanzar la notificacion en caso de que la proforma sea autorizacion pendiente
             if ($proforma->estado_id === $estado_completo->id && $proforma->autorizacion_id === $autorizacion_aprobada->id) {
-                $proforma->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
-                event(new ProformaActualizadaEvent($proforma, true));// crea el evento de la orden de compra actualizada al solicitante
+                $proforma->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+                event(new ProformaActualizadaEvent($proforma, true)); // crea el evento de la orden de compra actualizada al solicitante
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -147,6 +147,14 @@ class ProformaController extends Controller
         }
     }
 
+    /**
+     * Consultar datos sin el método show
+     */
+    public function showPreview(Proforma $proforma)
+    {
+        $modelo = new ProformaResource($proforma);
+        return response()->json(compact('modelo'));
+    }
 
 
     /**
@@ -161,7 +169,7 @@ class ProformaController extends Controller
         $proforma->causa_anulacion = $request['motivo'];
         $proforma->autorizacion_id = $autorizacion->id;
         $proforma->estado_id = $estado->id;
-        $proforma->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+        $proforma->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $proforma->save();
 
         $modelo = new ProformaResource($proforma->refresh());

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('cmp_item_detalle_prefactura', function (Blueprint $table){
             $table->id();
-            $table->unsignedBigInteger('proforma_id');
+            $table->unsignedBigInteger('prefactura_id');
             $table->unsignedBigInteger('unidad_medida_id');
             $table->text('descripcion');
             $table->integer('cantidad');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->double('total');
             $table->timestamps();
 
-            $table->foreign('proforma_id')->references('id')->on('cmp_proformas')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('prefactura_id')->references('id')->on('cmp_prefacturas')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('unidad_medida_id')->references('id')->on('unidades_medidas')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }

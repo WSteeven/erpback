@@ -5,6 +5,7 @@ use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
 use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
 use App\Models\ComprasProveedores\OfertaProveedor;
@@ -18,6 +19,7 @@ Route::apiResources([
     'ordenes-compras' => OrdenCompraController::class,
     'preordenes-compras' => PreordenCompraController::class,
     'proformas' => ProformaController::class,
+    'prefacturas' => PrefacturaController::class,
 ], [
     'parameters' => [
         'contactos-proveedores' => 'contacto',
@@ -26,6 +28,7 @@ Route::apiResources([
         'detalles-departamentos-proveedor' => 'detalle',
         'ordenes-compras' => 'orden',
         'preordenes-compras' => 'preorden',
+        'prefacturas' => 'prefactura',
     ],
     'middleware' => ['auth:sanctum']
 ]);
@@ -34,13 +37,16 @@ Route::get('log-contactos-proveedores', [ContactoProveedorController::class, 'au
 
 //show-preview
 Route::get('preordenes-compras/show-preview/{preorden}', [PreordenCompraController::class, 'showPreview'])->middleware('auth:sanctum');
+Route::get('proformas/show-preview/{proforma}', [ProformaController::class, 'showPreview'])->middleware('auth:sanctum');
 
 //anular
 Route::post('ordenes-compras/anular/{orden}', [OrdenCompraController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('preordenes-compras/anular/{preorden}', [PreordenCompraController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('proformas/anular/{proforma}', [ProformaController::class, 'anular'])->middleware('auth:sanctum');
+Route::post('prefacturas/anular/{prefactura}', [PrefacturaController::class, 'anular'])->middleware('auth:sanctum');
 
 
 //imprimir
 Route::get('ordenes-compras/imprimir/{orden}', [OrdenCompraController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('proformas/imprimir/{proforma}', [ProformaController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'imprimir'])->middleware('auth:sanctum');
