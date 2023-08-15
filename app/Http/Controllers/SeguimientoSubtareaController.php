@@ -116,18 +116,39 @@ class SeguimientoSubtareaController extends Controller
         ]);
 
         $fecha_convertida = Carbon::createFromFormat('d-m-Y', $request['fecha'])->format('Y-m-d');
+        $idEmpleado = $request['empleado_id'];
+        $idSubtarea = $request['subtarea_id'];
+        $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
-        $results = DB::table('seguimientos_materiales_subtareas as sms')
+        /* $results = DB::table('seguimientos_materiales_subtareas as sms')
             ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', DB::raw('sms.cantidad_utilizada AS cantidad_utilizada'), 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados_tareas as met', 'dp.id', '=', 'met.detalle_producto_id')
             ->whereDate('sms.created_at', $fecha_convertida)
             ->where('sms.empleado_id', $request['empleado_id'])
             ->where('subtarea_id', $request['subtarea_id'])
+            ->groupBy('detalle_producto_id')
+            ->get(); */
+
+        $results = DB::table('seguimientos_materiales_subtareas as sms')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
+            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+            ->join('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
+                $join->on('dp.id', '=', 'met.detalle_producto_id')
+                    ->where('met.empleado_id', '=', $idEmpleado)
+                    ->where('met.tarea_id', '=', $idTarea);
+            })
+            ->whereDate('sms.created_at', $fecha_convertida)
+            ->where('sms.empleado_id', $idEmpleado)
+            ->where('sms.subtarea_id', $idSubtarea)
+            ->groupBy('detalle_producto_id')
             ->get();
+
 
         $servicio = new TransaccionBodegaEgresoService();
         $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+
+        Log::channel('testing')->info('Log', compact('materialesUsados'));
 
         $results = $results->map(function ($material, $index) use ($materialesUsados) {
             if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {

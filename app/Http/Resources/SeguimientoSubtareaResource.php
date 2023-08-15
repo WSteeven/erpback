@@ -20,7 +20,7 @@ class SeguimientoSubtareaResource extends JsonResource
 
         $modelo = [
             'id' => $this->id,
-            'trabajo_realizado' => [], //$this->mapTrabajoRealizado(),
+            'trabajo_realizado' => $this->mapTrabajoRealizado(),
             'observaciones' => $this->numerar($this->observaciones),
             'materiales_tarea_ocupados' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(), // ?? [],//materiales_tarea_ocupados,
             // 'historial_material_tarea_usado' => $this->subtarea?->seguimientosMaterialesSubtareas()->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get(),
