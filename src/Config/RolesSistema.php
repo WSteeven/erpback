@@ -1,0 +1,22 @@
+<?php
+
+namespace Src\Config;
+
+enum RolesSistema: string
+{
+    case ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
+    case ADMINISTRADOR = 'ADMINISTRADOR';
+    case BODEGA = 'BODEGA';
+    case COMPRAS = 'COMPRAS';
+    case CONTABILIDAD = 'CONTABILIDAD';
+    case COORDINADOR = 'COORDINADOR';
+    case COORDINADORBACKUP = 'COORDINADOR_BACKUP';
+    case EMPLEADO = 'EMPLEADO';
+    case FISCALIZADOR = 'FISCALIZADOR';
+    case GERENTE = 'GERENTE';
+    case JEFE_TECNICO = 'JEFE TECNICO';
+    case RRHH = 'RECURSOS HUMANOS';
+    case SECRETARIO = 'SECRETARIO';
+    case TECNICO_LIDER = 'LIDER DE GRUPO';
+    case TECNICO = 'TECNICO';
+}

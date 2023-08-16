@@ -51,6 +51,7 @@ use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
 use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
+use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MarcaController;
@@ -61,15 +62,25 @@ use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
+use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\ParroquiaResource;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\Pais;
 use App\Models\Parroquia;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -176,6 +187,12 @@ Route::apiResources(
         'fondos-rotativos/transferencia' => TransferenciasController::class,
         'fondos-rotativos/gasto-coordinador' => GastoCoordinadorController::class,
         'fondos-rotativos/motivo-gasto' => MotivoGastoController::class,
+        'recursos-humanos/motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
+        'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
+        'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
+        'recursos-humanos/tipo_contrato' => TipoContratoController::class,
+        'recursos-humanos/rol_pago' => RolPagosController::class,
+        'forma_pago' => FormaPagoController::class
     ],
     [
         'parameters' => [
@@ -205,6 +222,34 @@ Route::apiResources(
 );
 
 /**
+ * Rutas para obtener empleados por cierto rol
+ */
+Route::get('empleados-roles', function (Request $request) {
+    $results = [];
+    $roles = [];
+    if (!is_null($request->roles)) {
+        $roles = explode(',', $request->roles);
+        $results = UserResource::collection(User::role($roles)->with('empleado')->get());
+    }
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+/**
+ * Ruta para obtener empleados por cierto permiso
+ */
+Route::get('empleados-permisos', function (Request $request) {
+    $permisos = [];
+    $results = [];
+    if (!is_null($request->permisos)) {
+        $permisos = explode(',', $request->permisos);
+        $permisos_consultados = Permission::whereIn('name', $permisos)->get();
+
+        $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+    }
+    return response()->json(compact('results'));
+})->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
+
+
+/**
  * Rutas para imprimir PDFs
  */
 Route::get('activos-fijos/imprimir/{activo}', [ActivoFijoController::class, 'imprimir'])->middleware('auth:sanctum');
@@ -218,8 +263,12 @@ Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgr
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
-Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
+Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'a}nular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
+//reportes
+Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
+Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 
@@ -230,6 +279,8 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 //show-preview
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
+Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'corregirPedido']);
+Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
@@ -253,15 +304,16 @@ Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
-    Route::get('provincias', fn () => ['results' => Provincia::all()]);
-    Route::get('cantones', fn () => ['results' => Canton::all()]);
-    Route::get('parroquias', fn () => ['results' => Parroquia::all()]);
+    Route::get('paises', fn () => ['results' => Pais::all()]);
+    Route::get('provincias', fn (Request $request) => ['results' => Provincia::filter()->get()]);
+    Route::get('cantones', fn () => ['results' => Canton::ignoreRequest(['campos'])->filter()->get()]);
+    Route::get('parroquias', fn (Request $request) => ['results' => ParroquiaResource::collection(Parroquia::filter()->get())]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
     Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
     Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::post('fondos-rotativos/reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
-   // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
+    // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
     Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
     Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
@@ -276,7 +328,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
     Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
     Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
-
 });
 
 

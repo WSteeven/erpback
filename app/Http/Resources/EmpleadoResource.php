@@ -29,6 +29,7 @@ class EmpleadoResource extends JsonResource
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
+            'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
             'roles' => implode(', ', $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()),
@@ -55,6 +56,7 @@ class EmpleadoResource extends JsonResource
             $modelo['roles'] = $this->user->getRoleNames();
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;
+            $modelo['departamento'] = $this->departamento_id;
         }
 
         return $modelo;

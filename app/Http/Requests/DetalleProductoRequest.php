@@ -31,6 +31,7 @@ class DetalleProductoRequest extends FormRequest
         $rules = [
             'producto' => 'required|exists:productos,id',
             'descripcion' => 'required|string',
+            'marca' => 'required|exists:marcas,id',
             'modelo' => 'required|exists:modelos,id',
             'precio_compra' => 'sometimes|numeric',
             'serial' => 'nullable|string|sometimes|unique:detalles_productos',
@@ -73,7 +74,7 @@ class DetalleProductoRequest extends FormRequest
             Log::channel('testing')->info('Log', ['El detalle encontrado es: ', $detalle]);
             if (!is_null($detalle)) {
                 Log::channel('testing')->info('Log', ['Hay un detalle: ', $detalle]);
-                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial)!==$detalle->serial) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
+                if ($detalle->descripcion === strtoupper($this->descripcion) && strtoupper($this->serial)!==$detalle->serial && count($this->seriales)<1) $validator->errors()->add('descripcion', 'Ya hay un detalle registrado con la misma descripción');
             }
         });
     }

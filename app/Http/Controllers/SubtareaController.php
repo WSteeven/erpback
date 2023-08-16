@@ -173,8 +173,12 @@ class SubtareaController extends Controller
 
     public function realizar(Request $request, Subtarea $subtarea)
     {
+        // Validar si se puede realizar
+        $this->servicio->puedeRealizar($subtarea);
+
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
         $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
@@ -277,10 +281,11 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function finalizar(Subtarea $subtarea)
+    public function finalizar(Request $request, Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::FINALIZADO;
         $subtarea->fecha_hora_finalizacion = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
         $modelo = new SubtareaResource($subtarea->refresh());
@@ -312,4 +317,8 @@ class SubtareaController extends Controller
 
         return response()->json(compact('results'));
     }
+
+    /* public function puedeRealizar(Subtarea $subtarea) {
+        return $this->servicio->puedeRealizar($subtarea);
+    } */
 }

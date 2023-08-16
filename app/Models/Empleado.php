@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\RecursosHumanos\Area;
+use App\Models\RecursosHumanos\Banco;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -27,10 +29,10 @@ class Empleado extends Model implements Auditable
         'estado',
         'grupo_id',
         'cargo_id',
+        'departamento_id',
         'es_tecnico',
         'firma_url',
         'foto_url',
-        // 'es_responsable_grupo',
         'convencional',
         'telefono_empresa',
         'extension',
@@ -38,6 +40,26 @@ class Empleado extends Model implements Auditable
         'casa_propia',
         'vive_con_discapacitados',
         'responsable_discapacitados',
+        'tipo_sangre',
+        'direccion',
+        'estado_civil_id',
+        'correo_personal',
+        'area_id',
+        'num_cuenta_bancaria',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato_id',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco',
+
     ];
 
     private static $whiteListFilter = [
@@ -51,8 +73,28 @@ class Empleado extends Model implements Auditable
         'canton_id',
         'grupo_id',
         'cargo_id',
+        'departamento_id',
         'estado',
         'es_tecnico',
+        'tipo_sangre',
+        'dirrecion',
+        'estado_civil',
+        'correo_personal',
+        'area',
+        'num_cuenta',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -66,6 +108,7 @@ class Empleado extends Model implements Auditable
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'tiene_discapacidad' => 'boolean',
     ];
 
     public function toSearchableArray()
@@ -199,9 +242,14 @@ class Empleado extends Model implements Auditable
      * Realación muchos a muchos.
      * Un empleado registra varias bitacoras
      */
-    public function bitacoras(){
-        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
-        ->withPivot('fecha','hora_salida','hora_llegada', 'km_inicial', 'km_final','tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+    public function bitacoras()
+    {
+        return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
+            ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+    }
+    public function ultimaBitacora()
+    {
+        return $this->hasOne(BitacoraVehicular::class, 'chofer_id', 'id')->latestOfMany();
     }
 
     /**
@@ -218,6 +266,16 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Subtarea::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'responsable_id', 'id');
+    }
+
+    public function ticketsSolicitados()
+    {
+        return $this->hasMany(Ticket::class, 'solicitante_id', 'id');
+    }
+
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.
@@ -225,6 +283,49 @@ class Empleado extends Model implements Auditable
     public function cargo()
     {
         return $this->belongsTo(Cargo::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado pertenece a una sola area.
+     */
+    public function area()
+    {
+        return $this->belongsTo(Area::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene un solo estado civil.
+     */
+    public function estadoCivil()
+    {
+        return $this->belongsTo(EstadoCivil::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene uncuente aen un banco.
+     */
+    public function banco()
+    {
+        return $this->belongsTo(Banco::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de contrato
+     */
+    public function tipoContrato()
+    {
+        return $this->belongsTo(TipoContrato::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de sangre
+     */
+
+
+
+    public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
     }
 
     public function tareasCoordinador()
@@ -241,7 +342,7 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        if (!$empleado) return null;
+        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }

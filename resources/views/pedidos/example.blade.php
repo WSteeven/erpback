@@ -65,26 +65,25 @@
     </header>
     <!---------- pie de pag  pie de pag  pie de pag  pie de pag  pie de pag  pie de pag  pie de pag   --------------------    -->
     <footer>
-        <center>
-            <table width="100%">
-                <tbody>
+        <table width="100%">
+            <tbody>
 
-                    <tr>
-                        <td width="50%"></td>
-                        <td width="30%" align="right">
-                            <font size="1"><strong>TOTAL COMPROBANTE</strong></font>
-                        </td>
-                        <td width="10%" align="right">
-                            <font size="1">
-                        </td>
-                        <td width="10%" align="right">
-                            <font size="1">
-                            </font>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table width="100%"   ">
+                <tr>
+                    <td width="50%"></td>
+                    <td width="30%" align="right">
+                        <font size="1"><strong>TOTAL COMPROBANTE</strong></font>
+                    </td>
+                    <td width="10%" align="right">
+                        <font size="1">
+                    </td>
+                    <td width="10%" align="right">
+                        <font size="1">
+                        </font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table width="100%" ">
                 <tbody>
                     <tr>
                         <td align="center" style="border: black 1px solid;">
@@ -145,7 +144,14 @@
                     </tr>
                 </tbody>
             </table>
-        </center>
+            <script type="text/php">
+                if ( isset($pdf) ) {
+                    $pdf->page_script('
+                        $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                        $pdf->text(270, 820, "Pág $PAGE_NUM de $PAGE_COUNT", $font, 10);
+                    ');
+                }
+                </script>
     </footer>
     <!---------- cuerpo de   cuerpo de   cuerpo de   cuerpo de   cuerpo de   cuerpo de   cuerpo de    --------------------    -->
     <main>
@@ -175,55 +181,36 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <font size="1">
-                            vfdvfd
-                        </font>
-                    </td>
-                    <td>
-                        <font size="1">
-qwwqdeweqeq                        </font>
-                    </td>
-                    <td align="right">
-                        <font size="1">
-                            vfds
-                        </font>
-                    </td>
-                    <td align="right">
-                        <font size="1">
-                            vfdvfdvfd
-                        </font>
-                    </td>
-                </tr>
+                @php
+                    $collection = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61];
+                @endphp
+                   @foreach ($collection as $item)
+            <tr>
+                <td>
+                    <font size="1">
+                        vfdvfd
+                    </font>
+                </td>
+                <td>
+                    <font size="1">
+                        qwwqdeweqeq </font>
+                </td>
+                <td align="right">
+                    <font size="1">
+                        vfds
+                    </font>
+                </td>
+                <td align="right">
+                    <font size="1">
+                        vfdvfdvfd
+                    </font>
+                </td>
+            </tr>
+            @endforeach
             </tbody>
         </table>
         </center>
-    </main>
+        </main>
 </body>
 
 </html>
-<?php
-$html = ob_get_clean();
-//echo $html;
-
-require_once 'dompdf/autoload.inc.php';
-// reference the Dompdf namespace
-use Dompdf\Dompdf;
-
-// instantiate and use the dompdf class
-$dompdf = new Dompdf();
-
-$options = $dompdf->getOptions();
-$options->set(['isRemoteEnable' => true]);
-$dompdf->setOptions($options);
-
-$dompdf->loadHtml($html);
-
-$dompdf->setPaper('letter');
-
-$dompdf->render();
-
-$dompdf->stream('reporte.pdf', ['Attachment' => false]); ?>
-?> ?>
-?>

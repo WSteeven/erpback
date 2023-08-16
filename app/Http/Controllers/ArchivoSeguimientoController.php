@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchivoSeguimiento;
 use App\Models\Seguimiento;
+use App\Models\SeguimientoSubtarea;
 use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
@@ -28,7 +29,7 @@ class ArchivoSeguimientoController extends Controller
             'seguimiento_id' => 'required|numeric|integer',
         ]);
 
-        $seguimiento = Seguimiento::find($request['seguimiento_id']);
+        $seguimiento = SeguimientoSubtarea::find($request['seguimiento_id']);
 
         if (!$seguimiento) {
             throw ValidationException::withMessages([
@@ -61,7 +62,7 @@ class ArchivoSeguimientoController extends Controller
 
         // $archivo_seguimiento->update($request->all());
 
-        $seguimiento = Seguimiento::find($request['seguimiento_id']);
+        $seguimiento = SeguimientoSubtarea::find($request['seguimiento_id']);
 
         if (!$seguimiento) {
             throw ValidationException::withMessages([

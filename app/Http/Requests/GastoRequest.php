@@ -40,6 +40,7 @@ class GastoRequest extends FormRequest
             'num_tarea' => 'required',
             'subTarea' => 'nullable',
             'proyecto' => 'required',
+            'beneficiarios' => 'nullable',
             'ruc' => 'nullable|string',
             'factura' => 'nullable|string|max:22|min:17',
             'num_comprobante' => 'nullable|string|max:13',
@@ -61,6 +62,7 @@ class GastoRequest extends FormRequest
                 'num_tarea' => 'required',
                 'subTarea' => 'nullable',
                 'proyecto' => 'required',
+                'beneficiarios' => 'nullable',
                 'ruc' => 'nullable|string',
                 'factura' => 'nullable|string|max:22|min:17',
                 'num_comprobante' => 'nullable|string|max:13',
@@ -152,6 +154,11 @@ class GastoRequest extends FormRequest
         if (is_null($this->ruc)) {
             $this->merge([
                 'ruc' => '9999999999999',
+            ]);
+        }
+        if (is_null($this->kilometraje)) {
+            $this->merge([
+                'kilometraje' => 0,
             ]);
         }
     }

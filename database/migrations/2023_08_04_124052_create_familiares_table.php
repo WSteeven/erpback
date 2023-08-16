@@ -1,0 +1,38 @@
+<?php
+
+use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('familiares', function (Blueprint $table) {
+            $table->id();
+            $table->string('identificacion',10);
+            $table->enum('parentezco',[Familiares::CONYUGE,Familiares::HIJO,Familiares::HIJA]);
+            $table->string('nombres');
+            $table->string('apellidos');
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('familiares');
+    }
+};

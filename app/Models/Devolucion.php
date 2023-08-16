@@ -6,7 +6,6 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -22,9 +21,14 @@ class Devolucion extends Model implements Auditable
         'justificacion',
         'solicitante_id',
         'tarea_id',
+        'observacion_aut',
+        'autorizacion_id',
+        'per_autoriza_id',
         'canton_id',
         'stock_personal',
         'causa_anulacion',
+        'estado',
+        'estado_bodega',
     ];
 
     protected $casts = [
@@ -81,6 +85,38 @@ class Devolucion extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios pedidos son autorizados por una persona
+     */
+    public function autoriza()
+    {
+        return $this->belongsTo(Empleado::class, 'per_autoriza_id', 'id');
+    }
+
+    /**
+     * Relación uno a uno(inversa).
+     * Uno o varios pedidos solo pueden tener una autorización.
+     */
+    public function autorizacion()
+    {
+        return $this->belongsTo(Autorizacion::class);
+    }
+
+    /**
+     * Relación polimorfica a una notificación.
+     * Un pedido puede tener una o varias notificaciones.
+     */
+    public function notificaciones(){
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    /**
+     * Obtiene la ultima notificacion asociada a la devolucion.
+     */
+    public function latestNotificacion(){
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
 
     /**
      * ______________________________________________________________________________________
@@ -97,7 +133,6 @@ class Devolucion extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
-            Log::channel('testing')->info('Log', ['Detalle en el listado de devolucion:', $detalle]);
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;

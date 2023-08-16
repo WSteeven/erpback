@@ -74,7 +74,7 @@ class RolController extends Controller
         //Respuesta
         $request->validated();
         Log::channel('testing')->info('Log', ['Request ', $request->all()]);
-        $rol = Role::findById($request->id);
+        $rol = Role::find($request->id);
         Log::channel('testing')->info('Log', ['Rol ', $rol]);
         $rol->update($request->all());
         $modelo = new RolResource($rol->refresh());

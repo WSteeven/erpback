@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\DB;
@@ -75,7 +76,7 @@ class UserController extends Controller
     }
     public function resetearPassword(Request $request)
     {
-       $user = User::where('name',strtoupper($request->nombreUsuario))->first();
+        $user = User::where('name', strtoupper($request->nombreUsuario))->first();
         if (!$user) {
             throw ValidationException::withMessages([
                 '404' => ['Usuario no registrado!'],
@@ -121,43 +122,49 @@ class UserController extends Controller
 
         return response()->json(['mensaje' => 'El empleado ha sido actualizado con éxito', 'modelo' => new UserResource($user)]);
     }
-    public function autorizationUser()
+    public function autorizationUser(Request $request)
     {
         $user = Auth::user();
-        $jefe = Empleado::where('id',$user->empleado->jefe_id)->first()->usuario_id;
-        $users = User::role('AUTORIZADOR')->where('users.id', '!=', $user->id)->where('users.id','!=',$jefe)->orderby('users.name', 'asc')->get();
-        return response()->json(['results' => UserInfoResource::collection($users)]);
+        $jefe = Empleado::where('id', $user->empleado->jefe_id)->first();
+        $jefe = $jefe !== null ? $jefe->usuario_id : 0;
+        $users = Empleado::whereHas('user.roles', function ($query) use($user,$jefe) {
+            $query->where('name', 'AUTORIZADOR');
+            $query->where('users.id', '!=', $user->id);
+            $query->where('users.id', '!=', $jefe);
+        })->where('estado', $request->estado)->get();
+        return response()->json(['results' => EmpleadoResource::collection($users)]);
     }
-    public function recuperarPassword(Request $request){
+    public function recuperarPassword(Request $request)
+    {
         $email = $request->input('email');
         $usuario = User::where('email', $email)->first();
-        if($usuario){
+        if ($usuario) {
             $username =  explode("@", $email)[0];
             $confirmation_code = Str::random(9);
-            $credenciales =[
+            $credenciales = [
                 'email' => $email,
                 'username' =>  $username,
                 'confirmation_code' => $confirmation_code
             ];
-        $usuario->remember_token = $confirmation_code;
-        $usuario->save();
-        Mail::send('email.recoveryPassword',$credenciales, function($msj) use($email,$username){
-            $msj->to($email,$username);
-            $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
-        });
-        return response()
-        ->json('Porfavor revise su codigo de confirmacion en su  Correo Institucional ');
-        }
-        else {
-            return response()->json('Correo Institucional no existe',401);
+            $usuario->remember_token = $confirmation_code;
+            $usuario->save();
+            Mail::send('email.recoveryPassword', $credenciales, function ($msj) use ($email, $username) {
+                $msj->to($email, $username);
+                $msj->subject('Recuperacion de Contraseña de JPCONSTRUCRED');
+            });
+            return response()
+                ->json('Porfavor revise su codigo de confirmacion en su  Correo Institucional ');
+        } else {
+            return response()->json('Correo Institucional no existe', 401);
         }
     }
-    public function updateContrasenaRecovery (Request $request){
+    public function updateContrasenaRecovery(Request $request)
+    {
         $code = $request->input('code');
         $contrasena_usuario =  Hash::make($request->input('password'));
         $users = User::where('remember_token', $code)->first();
         if ($users == null) {
-            return response()->json('Correo no verificado',401);
+            return response()->json('Correo no verificado', 401);
         }
         $confirmation_code = ' ';
         $users->remember_token = $confirmation_code;

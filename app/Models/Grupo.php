@@ -13,8 +13,13 @@ class Grupo extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
+    const R1 = 'R1';
+    const R2 = 'R2';
+    const R3 = 'R3';
+    const R4 = 'R4';
+
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'activo'];
+    protected $fillable = ['nombre', 'region', 'activo'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -23,6 +28,7 @@ class Grupo extends Model implements Auditable
 
     private static $whiteListFilter = [
         'nombre',
+        'activo',
     ];
 
     /*public function tareas()
