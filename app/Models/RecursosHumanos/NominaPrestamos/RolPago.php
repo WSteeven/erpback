@@ -84,6 +84,7 @@ class RolPago extends Model implements Auditable
             $row['item'] = $id + 1;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
             $row['cedula'] =  $rol_pago->empleado_info->identificacion;
+            $row['salario'] =  $rol_pago->empleado_info->salario;
             $row['mes'] =  ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F \d\e Y'));
             $row['identificacion_empleado'] =  $rol_pago->empleado_info->identificacion;
             $row['cargo'] = $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '';
@@ -118,6 +119,6 @@ class RolPago extends Model implements Auditable
      // Relacion uno a muchos (inversa)
      public function rolPagoMes()
      {
-         return $this->hasMany(RolPagoMes::class,'id_rol_pago', 'id');
+         return $this->hasMany(RolPagoMes::class, 'id','rol_pago_id');
      }
 }

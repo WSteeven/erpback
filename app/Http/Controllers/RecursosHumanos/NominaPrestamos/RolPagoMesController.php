@@ -15,7 +15,9 @@ use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use App\Models\User;
 use Carbon\Carbon;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,12 +50,12 @@ class RolPagoMesController extends Controller
     {
         try {
             $datos = $request->validated();
-            $existe_mes =RolPagoMes::where('mess', $request->mes)->where('es_quincena','1')->get();
-            if (count($existe_mes) > 0) {
+            $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
+            /*  if (count($existe_mes) > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Rol de Mes ya esta creado, porfavor ingrese un mes diferente'],
                 ]);
-            }
+            }*/
             DB::beginTransaction();
             $rolPago = RolPagoMes::create($datos);
             $this->tabla_roles($rolPago, 'CREAR');
@@ -83,7 +85,6 @@ class RolPagoMesController extends Controller
         $modelo = new RolPagoMesResource($rolPago);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
-
     }
 
     public function destroy($rolPagoId)
@@ -92,19 +93,20 @@ class RolPagoMesController extends Controller
         $rolPago->delete();
         return $rolPago;
     }
-    public function imprimir_rol_pago_general($rolPagoId)
+    public function imprimir_rol_pago_general(Request $request, $rolPagoId)
     {
         try {
+            $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'rol_pagos';
-
             // Fetch data with relationships
-            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info'])
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes'])
                 ->where('rol_pago_id', $rolPagoId)->get();
+
             $reportes = $this->generate_report_data($roles_pagos);
             $vista = 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes);
 
-            return $this->reporteService->imprimir_reporte('excel', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -115,6 +117,14 @@ class RolPagoMesController extends Controller
 
     private function generate_report_data($roles_pagos)
     {
+        $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
+        $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
+        $creador_rol_pago = Empleado::whereHas('user', function ($query) {
+            $query->whereHas('permissions', function ($q) {
+                $q->where('name', 'puede.elaborar.rol_pago');
+            });
+        })->first();
+
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
         $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
@@ -122,6 +132,7 @@ class RolPagoMesController extends Controller
         $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
         // Calculate the sum of specific columns from the main data array
         $sumColumns = array_reduce($results, function ($carry, $item) {
+            $carry['salario'] += $item['salario'];
             $carry['sueldo'] += $item['sueldo'];
             $carry['decimo_tercero'] += $item['decimo_tercero'];
             $carry['decimo_cuarto'] += $item['decimo_cuarto'];
@@ -140,6 +151,7 @@ class RolPagoMesController extends Controller
             $carry['total'] += $item['total'];
             return $carry;
         }, [
+            'salario' => 0,
             'sueldo' => 0,
             'decimo_tercero' => 0,
             'decimo_cuarto' => 0,
@@ -159,11 +171,13 @@ class RolPagoMesController extends Controller
         ]);
         return [
             'roles_pago' => $results,
+            'periodo' => $periodo,
             'cantidad_columna_ingresos' => $maxColumIngresosValue,
             'cantidad_columna_egresos' => $maxColumEgresosValue,
             'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
             'columnas_egresos' => array_unique($column_names_egresos['egresos']),
             'sumatoria' => $sumColumns,
+            'creador_rol_pago' => $creador_rol_pago ,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
@@ -278,8 +292,9 @@ class RolPagoMesController extends Controller
             $egreso = 0;
             $sueldo = 0;
             if ($rol->es_quincena) {
-                $dias = 15;
+                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
                 $sueldo = $sueldo *  $porcentaje_anticipo;
+                $dias = 15;
                 $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
             } else {
                 $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
@@ -361,5 +376,11 @@ class RolPagoMesController extends Controller
         $modelo = new RolPagoMesResource($rol_pago);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
+    }
+    public function obtenerPeriodo($mes, $es_quincena)
+    {
+        $periodo =  $es_quincena ? 'DEL 1 AL  15 ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat(' F Y') : 'DEL 1 AL ' . Carbon::createFromFormat('m-Y', $mes)->locale('es')->translatedFormat('t F Y');
+        $periodo = strtoupper($periodo);
+        return "PERIODO: $periodo";
     }
 }
