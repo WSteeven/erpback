@@ -16,6 +16,8 @@ class MaterialEmpleadoTarea extends Model
     protected $fillable = [
         'cantidad_stock',
         'es_fibra',
+        'despachado',
+        'devuelto',
         'tarea_id',
         'empleado_id',
         'detalle_producto_id',

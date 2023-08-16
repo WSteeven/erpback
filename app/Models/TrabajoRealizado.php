@@ -28,6 +28,6 @@ class TrabajoRealizado extends Model implements Auditable
     // Relacion uno a muchos (inversa)
     public function seguimiento()
     {
-        return $this->belongsTo(Seguimiento::class);
+        return $this->belongsTo(SeguimientoSubtarea::class);
     }
 }

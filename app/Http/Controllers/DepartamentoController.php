@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DepartamentoRequest;
 use App\Http\Resources\DepartamentoResource;
 use App\Models\Departamento;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class DepartamentoController extends Controller
@@ -25,8 +27,9 @@ class DepartamentoController extends Controller
     /*********
      * Listar
      *********/
-    public function index()
+    public function index(Request $request)
     {
+        // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
         $results = $this->listar();
         return response()->json(compact('results'));
     }
@@ -37,8 +40,11 @@ class DepartamentoController extends Controller
      **********/
     public function store(DepartamentoRequest $request)
     {
+        $datos = $request->validated();
+        $datos['responsable_id'] = $datos['responsable'];
+
         //Respuesta
-        $modelo = Departamento::create($request->validated());
+        $modelo = Departamento::create($datos);
         $modelo = new DepartamentoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -61,8 +67,11 @@ class DepartamentoController extends Controller
      *************/
     public function update(DepartamentoRequest $request, Departamento  $departamento)
     {
+        $datos = $request->validated();
+        $datos['responsable_id'] = $datos['responsable'];
+
         // Respuesta
-        $departamento->update($request->validated());
+        $departamento->update($datos);
         $modelo = new DepartamentoResource($departamento->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

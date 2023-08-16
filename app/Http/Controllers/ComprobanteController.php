@@ -61,6 +61,7 @@ class ComprobanteController extends Controller
         // Log::channel('testing')->info('Log', ['[Despues de update] El comprobante a modificar es:', $comprobante]);
         $datos = $request->validated();
         $comprobante->update($datos);
+        $comprobante->refresh();
 
         if ($comprobante->firmada) {
             $transaccion = TransaccionBodega::find($comprobante->transaccion_id);

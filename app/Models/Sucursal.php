@@ -17,20 +17,30 @@ class Sucursal extends Model implements Auditable
     use Filterable;
 
     protected $table = "sucursales";
-    protected $fillable = ['lugar', 'telefono','extension', 'correo'];
+    protected $fillable = ['lugar', 'telefono', 'extension', 'correo', 'cliente_id'];
     // protected $fillable = ['lugar', 'telefono', 'correo', 'administrador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
 
-    private static $whiteListFilter=['*'];
+    private static $whiteListFilter = ['*'];
 
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+    /**
+     * La función "clientes" devuelve una relación entre el objeto actual y la clase "Cliente".
+     * 
+     * @return una relación entre el modelo actual y el modelo Cliente.
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 
     /**
      * Relacion uno a muchos
@@ -80,7 +90,8 @@ class Sucursal extends Model implements Auditable
      * Relacion uno a muchos.
      * En una sucursal se realizan varias transacciones
      */
-    public function transacciones(){
+    public function transacciones()
+    {
         return $this->hasMany(TransaccionBodega::class);
     }
 
@@ -88,14 +99,16 @@ class Sucursal extends Model implements Auditable
      * Relacion uno a muchos.
      * En una sucursal se realizan varias devoluciones
      */
-    public function devoluciones(){
+    public function devoluciones()
+    {
         return $this->hasMany(Devolucion::class);
     }
     /**
      * Relacion uno a muchos.
      * En una sucursal se realizan varios traspasos
      */
-    public function traspasos(){
+    public function traspasos()
+    {
         return $this->hasMany(Traspaso::class);
     }
 
@@ -107,7 +120,7 @@ class Sucursal extends Model implements Auditable
     {
         return $this->hasMany(Pedido::class);
     }
-    
+
     /**
      * Relación uno a muchos .
      * Una sucursal puede tener una o varias transferencias
@@ -120,7 +133,8 @@ class Sucursal extends Model implements Auditable
      * Relación uno a uno.
      * Una sucursal tiene un adminitrador
      */
-    public function administrador(){
+    public function administrador()
+    {
         return $this->belongsTo(User::class);
     }
 }

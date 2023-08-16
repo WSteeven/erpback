@@ -19,6 +19,7 @@ class ClienteResource extends JsonResource
         $modelo = [
             'id' => $this->id,
             'empresa' => $this->empresa_id,
+            'ruc' => $this->empresa->identificacion,
             'razon_social' => $this->empresa->razon_social,
             'canton' => $this->parroquia?->canton->canton,
             'parroquia' => $this->parroquia?->parroquia,

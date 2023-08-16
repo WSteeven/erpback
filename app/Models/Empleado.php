@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\RecursosHumanos\Area;
+use App\Models\RecursosHumanos\Banco;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -38,6 +40,26 @@ class Empleado extends Model implements Auditable
         'casa_propia',
         'vive_con_discapacitados',
         'responsable_discapacitados',
+        'tipo_sangre',
+        'direccion',
+        'estado_civil_id',
+        'correo_personal',
+        'area_id',
+        'num_cuenta_bancaria',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato_id',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco',
+
     ];
 
     private static $whiteListFilter = [
@@ -54,6 +76,25 @@ class Empleado extends Model implements Auditable
         'departamento_id',
         'estado',
         'es_tecnico',
+        'tipo_sangre',
+        'dirrecion',
+        'estado_civil',
+        'correo_personal',
+        'area',
+        'num_cuenta',
+        'salario',
+        'fecha_ingreso',
+        'fecha_salida',
+        'tipo_contrato',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -67,6 +108,7 @@ class Empleado extends Model implements Auditable
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'tiene_discapacidad' => 'boolean',
     ];
 
     public function toSearchableArray()
@@ -205,7 +247,8 @@ class Empleado extends Model implements Auditable
         return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
-    public function ultimaBitacora(){
+    public function ultimaBitacora()
+    {
         return $this->hasOne(BitacoraVehicular::class, 'chofer_id', 'id')->latestOfMany();
     }
 
@@ -223,6 +266,16 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(Subtarea::class);
     }
 
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class, 'responsable_id', 'id');
+    }
+
+    public function ticketsSolicitados()
+    {
+        return $this->hasMany(Ticket::class, 'solicitante_id', 'id');
+    }
+
     /**
      * Relación uno a uno.
      * Un empleado tiene solo un cargo.
@@ -231,6 +284,44 @@ class Empleado extends Model implements Auditable
     {
         return $this->belongsTo(Cargo::class);
     }
+    /**
+     * Relación uno a uno.
+     * Un empleado pertenece a una sola area.
+     */
+    public function area()
+    {
+        return $this->belongsTo(Area::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene un solo estado civil.
+     */
+    public function estadoCivil()
+    {
+        return $this->belongsTo(EstadoCivil::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene uncuente aen un banco.
+     */
+    public function banco()
+    {
+        return $this->belongsTo(Banco::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de contrato
+     */
+    public function tipoContrato()
+    {
+        return $this->belongsTo(TipoContrato::class);
+    }
+    /**
+     * Relación uno a uno.
+     * Un empleado tiene solo tipo de sangre
+     */
+
+
 
     public function departamento()
     {
@@ -251,7 +342,7 @@ class Empleado extends Model implements Auditable
 
     public static function extraerNombresApellidos(Empleado $empleado)
     {
-        if (!$empleado) return null;
+        // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
 }

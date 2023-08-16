@@ -46,6 +46,7 @@ class SubtareaResource extends JsonResource
             'subtarea_dependiente_id' => $this->subtarea_dependiente_id,
             'fecha_solicitud' => $this->tarea->fecha_solicitud,
             'cliente' => $this->tarea->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->tarea->cliente_id,
             'proyecto' => $this->tarea->proyecto?->codigo_proyecto,
             'ruta_tarea' => $this->tarea->rutaTarea?->ruta,
             'cliente_final' => $tarea->clienteFinal?->id_cliente_final,
@@ -71,12 +72,13 @@ class SubtareaResource extends JsonResource
             'dias_ocupados' => $this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null,
             'canton' => $this->obtenerCanton(),
             'es_responsable' => $this->verificarSiEsResponsable(),
-            'empleado_responsable' => $this->obtenerIdEmpleadoResponsable(), // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
-            'empleado' => $this->extraerNombresApellidos($this->empleado),
+            'empleado_responsable_id' => $this->obtenerIdEmpleadoResponsable(), // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
+            'empleado_responsable' => $this->extraerNombresApellidos($this->empleado),
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
-            'grupo' => $this->grupo?->nombre,
+            'grupo' => $this->grupoResponsable?->nombre,
             'tiene_subtareas' => $tarea->tiene_subtareas,
+            'causa_intervencion_id' => $this->causa_intervencion_id,
             // 'ejecutar_hoy' => $this->puedeEjecutarHoy(),
             'puede_ejecutar' => $this->verificarSiPuedeEjecutar(),
             'puede_suspender' => $this->puedeEjecutarHoy(),
@@ -97,7 +99,8 @@ class SubtareaResource extends JsonResource
             $modelo['subtarea_dependiente'] = $this->subtarea_dependiente_id;
             $modelo['empleado'] = $this->empleado_id;
             $modelo['grupo'] = $this->grupo_id;
-            $modelo['grupo_nombre'] = $this->grupo?->nombre;
+            $modelo['grupo_nombre'] = $this->grupoResponsable?->nombre;
+            $modelo['causa_intervencion'] = $this->causa_intervencion_id;
         }
 
         return $modelo;
@@ -212,25 +215,14 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
-        // if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-        // $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
-        // $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
-        // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
-
-        // if ($this->hora_inicio_trabajo) return $this->puedeEjecutarHoy() && $this->puedeIniciarHora() && $this->verificarSiEsResponsable() && !$existeTrabajoEjecutado;
-        // return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() se quita para q pueda usar el coordinador desde el front se valida el resto
-        // }
-
-        // if ($this->modo_asignacion_trabajo === Subtarea::POR_EMPLEADO) {
         $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
-        return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado; // $this->verificarSiEsResponsable() igual q arriba
-        // }
+        return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado;
     }
 
     private function verificarSiPuedeEjecutarOld()
     {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {
-            $existeTrabajoEjecutado = !!$this->grupo->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+            $existeTrabajoEjecutado = !!$this->grupoResponsable->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             // $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
             // Log::channel('testing')->info('Log', compact('existeTrabajoEjecutado'));
 

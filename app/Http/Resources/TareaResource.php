@@ -21,7 +21,6 @@ class TareaResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        // $primeraSubtarea = $this->subtareas?->first();
 
         $modelo = [
             'id' => $this->id,
@@ -31,7 +30,6 @@ class TareaResource extends JsonResource
             'titulo' => $this->titulo,
             'observacion' => $this->observacion,
             'novedad' => $this->novedad,
-            // 'tiene_subtareas' => $this->tiene_subtareas,
             'para_cliente_proyecto' => $this->para_cliente_proyecto,
             'ubicacion_trabajo' => $this->ubicacion_trabajo,
             'ruta_tarea' => $this->rutaTarea?->ruta,
@@ -45,26 +43,8 @@ class TareaResource extends JsonResource
             'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
             'medio_notificacion' => $this->medio_notificacion,
             'canton' => $this->obtenerCanton(),
-            // 'subtarea' => new SubtareaResource($primeraSubtarea),
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
-            // Subtarea
-             /* 'estado' => $primeraSubtarea ? $primeraSubtarea->estado : null,
-             'tipo_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->tipo_trabajo->descripcion : null) : null,
-             'fecha_solicitud' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_solicitud : null) : null,
-             'es_ventana' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->es_ventana : null) : null,
-             'fecha_hora_creacion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_creacion : null) : null,
-             'fecha_inicio_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? Carbon::parse($primeraSubtarea->fecha_inicio_trabajo)->format('d-m-Y') : null) : null,
-             'hora_inicio_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->hora_inicio_trabajo : null) : null,
-             'hora_fin_trabajo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->hora_fin_trabajo : null) : null,
-             'fecha_hora_asignacion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_asignacion : null) : null,
-             'fecha_hora_agendado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_agendado : null) : null,
-             'fecha_hora_ejecucion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_ejecucion : null) : null,
-             'fecha_hora_realizado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_realizado : null) : null,
-             'fecha_hora_finalizacion' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
-             'fecha_hora_' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->fecha_hora_finalizacion : null) : null,
-             'grupo' => !$this->tiene_subtareas ? ($primeraSubtarea ? $primeraSubtarea->grupo?->nombre : null) : null,
-             'empleado' => !$this->tiene_subtareas ? ($primeraSubtarea ? $this->extraerNombresApellidos($primeraSubtarea->empleado) : null) : null, */
         ];
 
         if ($controller_method == 'show') {

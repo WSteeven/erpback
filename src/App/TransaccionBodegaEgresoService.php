@@ -7,9 +7,11 @@ use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\Motivo;
+use App\Models\Subtarea;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -632,13 +634,210 @@ class TransaccionBodegaEgresoService
         return $results;
     }
 
-    public function getIdEmpleadoConMateriales() {
+    public function getIdEmpleadoConMateriales()
+    {
         $empleado = Auth::user()->empleado;
 
         if ($empleado->grupo_id) {
-
         } else {
-
         }
+    }
+
+    public static function filtrarEgresoPorTipoFiltro($request)
+    {
+        Log::channel('testing')->info('Log', ['Request', $request->all()]);
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $results = [];
+        switch ($request->tipo) {
+            case 0: //persona que solicita el ingreso
+                Log::channel('testing')->info('Log', ['Entró en solicitante']);
+                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->where('solicitante_id', $request->solicitante)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 1: //persona que autoriza
+                Log::channel('testing')->info('Log', ['Entró en autorizador']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('per_autoriza_id', $request->per_autoriza)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)), //start date
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s") //end date
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 2: //persona que retira
+                Log::channel('testing')->info('Log', ['Entró en persona que retira']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('per_retira_id', $request->per_retira)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)), //start date
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s") //end date
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 3: //persona responsable
+                Log::channel('testing')->info('Log', ['Entró en persona responsable']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('responsable_id', $request->responsable)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)), //start date
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s") //end date
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 4: //bodeguero
+                Log::channel('testing')->info('Log', ['Entró en bodeguero']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('per_atiende_id', $request->per_atiende)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)), //start date
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s") //end date
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 5: //motivos
+                Log::channel('testing')->info('Log', ['Entró en motivos']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->where('motivo_id', $request->motivo)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 6: //bodega o sucursal
+                Log::channel('testing')->info('Log', ['Entró en bodega o sucursal']);
+                if ($request->sucursal != 0)  $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('sucursal_id', $request->sucursal)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                else  $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereBetween(
+                    'created_at',
+                    [
+                        date('Y-m-d', strtotime($request->fecha_inicio)),
+                        $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                    ]
+                )->whereHas('comprobante', function ($q) {
+                    $q->where('firmada', request('firmada'));
+                })->orderBy('id', 'desc')->get();
+                break;
+            case 7: // pedido
+                Log::channel('testing')->info('Log', ['Entró en pedido']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('pedido_id', $request->pedido)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 8: // cliente
+                Log::channel('testing')->info('Log', ['Entró en cliente']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('cliente_id', $request->cliente)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 9: //tarea
+                Log::channel('testing')->info('Log', ['Entró en tarea']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('devolucion_id', $request->tarea)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            case 10: //transferencia
+                Log::channel('testing')->info('Log', ['Entró en transferencia']);
+                $results = TransaccionBodega::with('comprobante')
+                    ->whereIn('motivo_id', $motivos)->where('transferencia_id', $request->transferencia)
+                    ->whereBetween(
+                        'created_at',
+                        [
+                            date('Y-m-d', strtotime($request->fecha_inicio)),
+                            $request->fecha_fin ? date('Y-m-d', strtotime($request->fecha_fin)) : date("Y-m-d h:i:s")
+                        ]
+                    )->whereHas('comprobante', function ($q) {
+                        $q->where('firmada', request('firmada'));
+                    })->orderBy('id', 'desc')->get();
+                break;
+            default:
+                Log::channel('testing')->info('Log', ['Entró en default']);
+                $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                    $q->where('firmada', request('firmada'));
+                })->orderBy('id', 'desc')->get(); // todos los egresos
+                break;
+        }
+        return $results;
+    }
+
+    /**
+     * Devuelve un listado de los materiales usados y su suma total por producto
+     */
+    public function obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado)
+    {
+        $subtarea = Subtarea::find($idSubtarea);
+        $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
+        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
+
+        return DB::table('seguimientos_materiales_subtareas as sms')
+            ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
+            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+            ->whereBetween('sms.created_at', [$fecha_inicio, $fecha_fin])
+            ->where('empleado_id', $idEmpleado)
+            ->where('subtarea_id', $idSubtarea)
+            ->groupBy('detalle_producto_id')
+            ->get();
     }
 }

@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\DevolucionActualizadaSolicitanteEvent;
+use App\Events\DevolucionAutorizadaEvent;
+use App\Events\DevolucionCreadaEvent;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
+use App\Models\Autorizacion;
 use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
 use App\Models\Producto;
@@ -15,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\TryCatch;
 use Src\Shared\Utils;
 
@@ -40,25 +45,53 @@ class DevolucionController extends Controller
         $campos = explode(',', $request['page']);
         $results = [];
 
-        if ($request['campos']) {
-            $results = Devolucion::where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get($campos);
-            $results = DevolucionResource::collection($results);
-            return response()->json(compact('results'));
-        } else
-        if ($page) {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                $results = Devolucion::filtrarDevolucionesBodegueroConPaginacion($estado, $offset);
-                DevolucionResource::collection($results);
-            } else {
-                $results = Devolucion::filtrarDevolucionesEmpleadoConPaginacion($estado, $offset);
-                DevolucionResource::collection($results);
-            }
-        } else {
-            if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                $results = Devolucion::ignoreRequest(['campos'])->filter()->orderBy('updated_at', 'desc')->get();
-            } else {
-                $results = Devolucion::ignoreRequest(['campos'])->filter()->where('solicitante_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
-            }
+        switch ($request->estado) {
+            case 'PENDIENTE':
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
+                } else {
+                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
+                        ->where(function ($query) {
+                            $query->where('solicitante_id', auth()->user()->empleado->id)
+                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        })->orderBy('updated_at', 'desc')->get();
+                }
+                break;
+            case 'APROBADO':
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
+                } else {
+                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)
+                        ->where(function ($query) {
+                            $query->where('solicitante_id', auth()->user()->empleado->id)
+                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        })->orderBy('updated_at', 'desc')->get();
+                }
+                break;
+            case 'CANCELADO':
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                    $results = Devolucion::where('autorizacion_id', 3)->orderBy('updated_at', 'desc')->get();
+                } else {
+                    $results = Devolucion::where('autorizacion_id', 3)
+                        ->where(function ($query) {
+                            $query->where('solicitante_id', auth()->user()->empleado->id)
+                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        })->orderBy('updated_at', 'desc')->get();
+                }
+                break;
+            case 'ANULADA':
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                    $results = Devolucion::where('estado', Devolucion::ANULADA)->orderBy('updated_at', 'desc')->get();
+                } else {
+                    $results = Devolucion::where('estado', Devolucion::ANULADA)
+                        ->where(function ($query) {
+                            $query->where('solicitante_id', auth()->user()->empleado->id)
+                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                        })->orderBy('updated_at', 'desc')->get();
+                }
+                break;
+            default:
+                $results = Devolucion::where('solicitante_id', auth()->user()->empleado->id)->orWhere('per_autoriza_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
         }
 
         $results = DevolucionResource::collection($results);
@@ -71,7 +104,8 @@ class DevolucionController extends Controller
      */
     public function store(DevolucionRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Request recibida en devolucion:', $request->all()]);
+        Log::channel('testing')->info('Log', ['recibido en el store de devoluciones', $request->all()]);
+        $url = '/devoluciones';
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -79,16 +113,24 @@ class DevolucionController extends Controller
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['stock_personal'] = $request->es_para_stock;
 
             // Respuesta
             $devolucion = Devolucion::create($datos);
+            Log::channel('testing')->info('Log', ['devolucion creada', $devolucion]);
             $modelo = new DevolucionResource($devolucion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
                 $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
+
+
             DB::commit();
+            $msg = 'Devolución N°' . $devolucion->id . ' ' . $devolucion->solicitante->nombres . ' ' . $devolucion->solicitante->apellidos . ' ha realizado una devolución desde el lugar ' . $devolucion->canton->canton . ' . La autorización está ' . $devolucion->autorizacion->nombre;
+            event(new DevolucionCreadaEvent($msg, $url, $devolucion, $devolucion->solicitante_id, $devolucion->per_autoriza_id, false));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
@@ -111,16 +153,43 @@ class DevolucionController extends Controller
      */
     public function update(DevolucionRequest $request, Devolucion $devolucion)
     {
+        $url = '/devoluciones';
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
         $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+        $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+        $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
 
         // Respuesta
         $devolucion->update($datos);
+
+        //borrar los registros de la tabla intermedia para guardar los modificados
+        $devolucion->detalles()->detach();
+
+        //Guardar los productos seleccionados
+        foreach ($request->listadoProductos as $listado) {
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+        }
+
         $modelo = new DevolucionResource($devolucion->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        //modificar los detalles del listado en caso de requerirse
+        $devolucion->detalles()->detach();
+        foreach ($request->listadoProductos as $listado) {
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+        }
+
+        $msg = $devolucion->autoriza->nombres . ' ' . $devolucion->autoriza->apellidos . ' ha actualizado tu devolución, el estado de Autorización es: ' . $devolucion->autorizacion->nombre;
+        event(new DevolucionActualizadaSolicitanteEvent($msg, $url, $devolucion, $devolucion->per_autoriza_id, $devolucion->solicitante_id, true)); //Se usa para notificar al tecnico que se actualizó la devolucion
+
+        if ($devolucion->autorizacion->nombre === Autorizacion::APROBADO) {
+            $devolucion->latestNotificacion()->update(['leida' => true]);
+            $msg = 'Hay una devolución recién autorizada en la ciudad ' . $devolucion->canton->canton . ' pendiente de despacho';
+            event(new DevolucionAutorizadaEvent($msg, User::ROL_BODEGA, $url, $devolucion, true));
+        }
         return response()->json(compact('mensaje', 'modelo'));
     }
 
@@ -140,7 +209,6 @@ class DevolucionController extends Controller
      */
     public function showPreview(Devolucion $devolucion)
     {
-        Log::channel('testing')->info('Log', ['Devolucion es', $devolucion]);
         $modelo = new DevolucionResource($devolucion);
 
         return response()->json(compact('modelo'), 200);
@@ -165,7 +233,6 @@ class DevolucionController extends Controller
     public function imprimir(Devolucion $devolucion)
     {
         $resource = new DevolucionResource($devolucion);
-        Log::channel('testing')->info('Log', ['devolucion que se va a imprimir', $resource]);
         try {
             $pdf = Pdf::loadView('devoluciones.devolucion', $resource->resolve());
             $pdf->setPaper('A5', 'landscape');

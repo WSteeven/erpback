@@ -2,23 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\PreordenCompra;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Src\App\WhereRelationLikeCondition\InventarioCondicionWRLC;
 
 class Inventario extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    use Searchable;
 
 
     protected $table = "inventarios";
@@ -46,26 +44,22 @@ class Inventario extends Model implements Auditable
      * Eloquent Filtering
      */
     private static $whiteListFilter = ['*'];
-    private $aliasListFilter = [
-        'cliente.empresa.razon_social'=>'cliente',
-        'sucursal.lugar'=>'sucursal',
-        'condicion.nombre'=>'condicion',
-        'detalle.descripcion'=>'descripcion',
-    ];
-    public function EloquentFilterCustomDetection(): array{
-        return [
-            InventarioCondicionWRLC::class,
 
-        ];
-    }
+    // private $aliasListFilter = [
+    //     'cliente.empresa.razon_social'=>'cliente',
+    //     'sucursal.lugar'=>'sucursal',
+    //     'condicion.nombre'=>'condicion',
+    //     'detalle.descripcion'=>'descripcion',
+    // ];
 
-    /* public function toSearchableArray()
-    {
-        return [
-            'detalles_productos.descripcion' => '',
-            // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
-        ];
-    } */
+    // public function toSearchableArray()
+    // {
+    //     return $this->with('detalle')->toArray();
+    //     // return [
+    //     //     'detalles_productos.descripcion' => $this->detalle->descripcion,
+    //     //     // 'sucursal_id'=> $this->with('sucursal')->where('id', '=',$this->sucursal_id)->first()->toArray(),
+    //     // ];
+    // }
 
     /**
      * ______________________________________________________________________________________
@@ -290,8 +284,8 @@ class Inventario extends Model implements Auditable
                     ->where('cliente_id', $cliente_devuelve)
                     ->where('sucursal_id', $sucursal)
                     ->where('condicion_id', $itemRecibe->condicion_id)->first();
-                
-                    Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
+
+                Log::channel('testing')->info('Log', ['Item que devuelve: ', $itemDevuelve]);
                 $itemDevuelve->por_entregar -= $elemento['devolucion'];
                 $itemDevuelve->cantidad -= $elemento['devolucion'];
                 $itemDevuelve->save();
@@ -402,5 +396,66 @@ class Inventario extends Model implements Auditable
             DB::rollBack();
             throw $e;
         }
+    }
+
+    /**
+     * La función "verificarExistenciasDetalles" verifica si hay suficientes artículos en inventario
+     * para cada detalle en un pedido determinado y genera una preorden si es necesario.
+     * 
+     * @param pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema. Se
+     * utiliza para comprobar la existencia de detalles en el pedido.
+     */
+    public static function verificarExistenciasDetalles($pedido)
+    {
+        //estas categorias no generan preorden de compra
+        $categorias = [
+            'EQUIPOS',
+            'UNIFORMES',
+            'EPP',
+            'INFORMATICA',
+        ];
+        if (self::verificarClienteSucursalPedido($pedido->sucursal_id)) {
+            //obtener todas las sucursales pertenecientes a jpconstrucred o jeanpazmino
+            $ids_sucursales = Sucursal::whereIn('cliente_id', [Cliente::JPCONSTRUCRED, Cliente::JEANPATRICIO])->get('id');
+            $items = [];
+            try {
+                foreach ($pedido->detalles as $index => $detalle) {
+                    Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
+                    // aqui se verifica si el detalle no pertenece a la categoria del array $categorias para continuar a generar la preorden 
+                    if(!in_array($detalle->producto->categoria->nombre, $categorias)){
+                        Log::channel('testing')->info('Log', ['La categoria es', $detalle->producto->categoria->nombre]);
+                        
+                        $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
+                        if ($itemsInventario->sum('cantidad') < $detalle->pivot->cantidad) {
+                            $row['detalle_id'] = $detalle->id;
+                            $row['cantidad'] = $detalle->pivot->cantidad - $itemsInventario->sum('cantidad');
+                            Log::channel('testing')->info('Log', ['Lo que se va a agregar a los items de la preorden', $row]);
+                            $items[$index] = $row;
+                        }
+                    }
+                }
+                Log::channel('testing')->info('Log', ['Todos los items', $items]);    
+                if (count($items) > 0) //Si hay al menos un item cuya cantidad no esté en inventario se genera una preorden de compra
+                    PreordenCompra::generarPreorden($pedido, $items);
+
+                    
+            } catch (Exception $e) {
+                Log::channel('testing')->info('Log', ['Ha ocurrido un error en el metodo verificarExistencias', $e->getMessage(), $e->getLine()]);
+            }
+        }
+    }
+    /**
+     * La función "verificarClienteSucursalPedido" comprueba si una sucursal determinada pertenece a un
+     * cliente específico.
+     * 
+     * @param sucursal_id El parámetro "sucursal_id" es el ID de la sucursal o bodega.
+     * 
+     * @return un valor booleano. Si la condición es verdadera, devolverá verdadero. De lo contrario,
+     * devolverá falso.
+     */
+    public static function verificarClienteSucursalPedido($sucursal_id)
+    {
+        $sucursal = Sucursal::find($sucursal_id); //Busca la bodega para saber si los detalles deben crear una orden de compra o no
+        return $sucursal->cliente_id === Cliente::JEANPATRICIO || $sucursal->cliente_id === Cliente::JPCONSTRUCRED;
     }
 }

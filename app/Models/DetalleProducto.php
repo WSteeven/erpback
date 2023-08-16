@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Laravel\Scout\Searchable;
 
@@ -34,6 +38,7 @@ class DetalleProducto extends Model implements Auditable
     protected $fillable = [
         'producto_id',
         'descripcion',
+        'marca_id',
         'modelo_id',
         'serial',
         'precio_compra',
@@ -84,6 +89,22 @@ class DetalleProducto extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class);
     }
+
+    /**
+     * Relacion muchos a muchos.
+     * Un detalle puede pertenecer a varios clientes en el inventario.
+     */
+    public function clientes(){
+        return $this->belongsToMany(Cliente::class, 'cliente_id', 'detalle_id');
+    }
+
+    public function detalle_stock($detalle_id, $sucursal_id)
+    {
+        // SELECT SUM(cantidad) FROM inventarios where detalle_id=500 group by detalle_id
+        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->groupBy('detalle_id')->first('cantidad');
+    }
+
+
 
     /**
      * Relación uno a muchos.
@@ -140,6 +161,28 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
+    
+    
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una preorden.
+     */
+    public function detalleProductoPreordenCompra()
+    {
+        return $this->belongsToMany(PreordenCompra::class, 'cmp_item_detalle_preorden_compra', 'preorden_id', 'detalle_id')
+            ->withPivot('cantidad')->withTimestamps();
+    }
+    
+    
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios detalles de producto estan en una preorden.
+     */
+    public function detalleProductoOrdenCompra()
+    {
+        return $this->belongsToMany(OrdenCompra::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'detalle_id')
+        ->withPivot(['cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+    }
 
     /**
      * Relación muchos a muchos.
@@ -162,6 +205,14 @@ class DetalleProducto extends Model implements Auditable
         return $this->hasMany(ControlStock::class);
     }
 
+    /**
+     * Relacion uno a uno (inversa).
+     * Un detalle de producto tiene 1 y solo 1 marca
+     */
+    public function marca()
+    {
+        return $this->belongsTo(Marca::class);
+    }
     /**
      * Relacion uno a uno (inversa).
      * Un detalle de producto tiene 1 y solo 1 modelo
@@ -195,4 +246,51 @@ class DetalleProducto extends Model implements Auditable
      * FUNCIONES
      * _______________________________
      */
+    
+     /**
+     * La función `crearDetalle` crea un nuevo registro `DetalleProducto` en la base de datos y lo
+     * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
+     * solicitud.
+     * 
+     * @param request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
+     * como el método de solicitud, los encabezados y el cuerpo.
+     * @param datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
+     * nuevo registro "DetalleProducto". Las claves específicas y sus valores correspondientes en el
+     * arreglo dependen de los requerimientos del modelo "DetalleProducto".
+     * 
+     * @return la variable .
+     */
+    public static function crearDetalle($request, $datos){
+        try{
+            DB::beginTransaction();
+            
+            $detalle = DetalleProducto::create($datos);
+            if ($request->categoria === 'INFORMATICA') {
+            
+                $detalle->computadora()->create([
+                    'memoria_id' => $datos['ram'],
+                    'disco_id' => $datos['disco'],
+                    'procesador_id' => $datos['procesador'],
+                    'imei' => $datos['imei'],
+                ]);
+                DB::commit();
+            }
+            if ($request->es_fibra) {
+                $detalle->fibra()->create([
+                    'span_id' => $datos['span'],
+                    'tipo_fibra_id' => $datos['tipo_fibra'],
+                    'hilo_id' => $datos['hilos'],
+                    'punta_inicial' => $datos['punta_inicial'],
+                    'punta_final' => $datos['punta_final'],
+                    'custodia' => $datos['custodia'],
+                ]);
+                DB::commit();
+            }
+            DB::commit();
+        }catch(Exception $e){
+            DB::rollBack();
+            throw new Exception($e->getMessage());
+        }
+        return $detalle;
+    }
 }

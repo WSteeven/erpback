@@ -7,17 +7,20 @@ use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TrabajoAsignadoController;
 use App\Http\Controllers\ArchivoSubtareaController;
+use App\Http\Controllers\CausaIntervencionController;
 use App\Http\Controllers\ControlCambioController;
 use App\Http\Controllers\TipoElementoController;
 use App\Http\Controllers\ClienteFinalController;
+use App\Http\Controllers\DashboardTareaController;
 use App\Http\Controllers\TipoTrabajoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\MotivoPausaController;
 use App\Http\Controllers\MotivoSuspendidoController;
 use App\Http\Controllers\MovilizacionSubtareaController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ReporteModuloTareaController;
 use App\Http\Controllers\RutaTareaController;
-use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
@@ -29,6 +32,7 @@ Route::apiResources(
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
+        'causas-intervenciones' => CausaIntervencionController::class,
         'rutas-tareas' => RutaTareaController::class,
         'control-asistencias' => ControlAsistenciaController::class,
         'control-cambios' => ControlCambioController::class,
@@ -40,12 +44,13 @@ Route::apiResources(
         'motivos-pausas' => MotivoPausaController::class,
         'motivos-suspendidos' => MotivoSuspendidoController::class,
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
-        'seguimientos' => SeguimientoController::class,
+        'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
     ],
     [
         'parameters' => [
             'tipos-trabajos' => 'tipo_trabajo',
+            'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
             'clientes-finales' => 'cliente_final',
             'archivos-subtareas' => 'archivo_subtarea',
@@ -83,7 +88,7 @@ Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verifi
 // Transferir mis tareas activas
 Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
 
-Route::get('export-seguimiento/{seguimiento}', [SeguimientoController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{seguimiento}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
@@ -110,3 +115,16 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
+Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
+Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
+Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
+
+/***********
+ * Reportes
+ ***********/
+Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
+
+/***********
+ * Dashboard
+ ***********/
+Route::get('dashboard', [DashboardTareaController::class, 'index']);

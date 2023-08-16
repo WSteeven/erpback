@@ -13,15 +13,19 @@ class ReportePdfExcelService
     {
     }
 
-    public  function imprimir_reporte($tipo_ARCHIVO,$tamanio_pagina,$orientacion_pagina, $reportes, $nombre_reporte, $vista,object $export_excel){
+    public function imprimir_reporte($tipo_ARCHIVO, $tamanio_pagina, $orientacion_pagina, $reportes, $nombre_reporte, $vista, object $export_excel)
+    {
         switch ($tipo_ARCHIVO) {
             case 'excel':
                 return Excel::download($export_excel, $nombre_reporte . '.xlsx');
                 break;
             case 'pdf':
-                $pdf = Pdf::loadView($vista, $reportes);
+                $pdf = PDF::loadView($vista, $reportes);
+                $pdf->getDomPDF()->setCallbacks([
+                    'totalPages' => true,
+                ]);
                 $pdf->setPaper($tamanio_pagina, $orientacion_pagina);
-                return $pdf->download($nombre_reporte . '.pdf');
+                return $pdf->stream($nombre_reporte . '.pdf', ['pdf' => $pdf]);
                 break;
         }
     }

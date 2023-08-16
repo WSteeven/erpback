@@ -3,8 +3,12 @@
 namespace App\Http\Resources;
 
 use App\Models\Empleado;
+use App\Models\Ticket;
 use Carbon\Carbon;
+use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TicketResource extends JsonResource
 {
@@ -17,6 +21,8 @@ class TicketResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+        $pendiente_calificar_solicitante = $this->verificarPendienteCalificar('SOLICITANTE');
+        $pendiente_calificar_responsable = $this->verificarPendienteCalificar('RESPONSABLE');
 
         $modelo = [
             'id' => $this->id,
@@ -29,10 +35,25 @@ class TicketResource extends JsonResource
             'observaciones_solicitante' => $this->observaciones_solicitante,
             'calificacion_solicitante' => $this->calificacion_solicitante,
             'solicitante' => Empleado::extraerNombresApellidos($this->solicitante),
-            'responsable' => Empleado::extraerNombresApellidos($this->responsable),
-            'departamento_responsable' => $this->departamentoResponsable->nombre,
+            'solicitante_id' => $this->solicitante_id,
+            'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
+            'responsable_id' => $this->responsable_id,
+            'departamento_responsable' => $this->departamentoResponsable?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
+            'categoria_tipo_ticket' => $this->tipoTicket->categoriaTipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'motivo_ticket_no_solucionado' => $this->motivo_ticket_no_solucionado,
+            'ticket_interno' => $this->ticket_interno,
+            'ticket_para_mi' => $this->ticket_para_mi,
+            'puede_ejecutar' => !$this->responsable?->tickets()->where('estado', Ticket::EJECUTANDO)->count(),
+            'calificaciones' => $this->calificacionesTickets,
+            'pendiente_calificar_solicitante' => $pendiente_calificar_solicitante,
+            'pendiente_calificar_responsable' => $pendiente_calificar_responsable,
+            'calificado_solicitante' => $this->verificarSiCalificado('SOLICITANTE', $this->solicitante_id),
+            'calificado_responsable' => $this->verificarSiCalificado('RESPONSABLE', $this->responsable_id),
+            'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
+            'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivo(),
+            'tiempo_ocupado_pausas' => $this->calcularTiempoPausado(),
         ];
 
 
@@ -41,8 +62,34 @@ class TicketResource extends JsonResource
             $modelo['responsable'] = $this->responsable_id;
             $modelo['departamento_responsable'] = $this->departamento_responsable_id;
             $modelo['tipo_ticket'] = $this->tipo_ticket_id;
+            $modelo['categoria_tipo_ticket'] = $this->tipoTicket->categoria_tipo_ticket_id;
         }
 
         return $modelo;
+    }
+
+    public function verificarPendienteCalificar(string $solicitante_o_responsable)
+    {
+        return !$this->calificacionesTickets()->where('calificador_id', Auth::user()->empleado->id)->where('solicitante_o_responsable', $solicitante_o_responsable)->exists();
+    }
+
+    public function verificarSiCalificado(string $solicitante_o_responsable, $idEmpleado)
+    {
+        return $this->calificacionesTickets()->where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', $solicitante_o_responsable)->exists();
+    }
+
+    private function calcularTiempoEfectivo()
+    {
+        return in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]) ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_finalizado)->diffInSeconds(Carbon::parse($this->fecha_hora_ejecucion)))->cascade()->forHumans() : null;
+    }
+
+    private function calcularTiempoPausado()
+    {
+        if ($this->pausasTicket->count() > 0) {
+            $segundos = $this->pausasTicket()->sum(DB::raw('TIMESTAMPDIFF(SECOND, fecha_hora_pausa, fecha_hora_retorno)'));
+            return CarbonInterval::seconds($segundos)->cascade()->forHumans();
+        } else {
+            return null;
+        }
     }
 }
