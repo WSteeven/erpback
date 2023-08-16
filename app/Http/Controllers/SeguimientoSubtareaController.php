@@ -52,8 +52,8 @@ class SeguimientoSubtareaController extends Controller
         $subtarea->seguimiento_id = $seguimiento->id;
         $subtarea->save();
 
-        // Guardar fotografias
-        $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        // Guardar trabajos realizados
+        $this->seguimientoService->guardarTrabajosRealizados($datos, $seguimiento);
 
         // Material empleado tarea
         $this->seguimientoService->descontarMaterialTareaOcupadoStore($request);
@@ -74,16 +74,16 @@ class SeguimientoSubtareaController extends Controller
         $seguimiento->update($datos);
 
         // Eliminar imagenes
-        foreach ($seguimiento->trabajoRealizado as $trabajo) {
+        /* foreach ($seguimiento->trabajoRealizado as $trabajo) {
             $ruta = str_replace('storage', 'public', $trabajo->fotografia);
             Storage::delete($ruta);
-        }
+        } */
 
         // Eliminar fotografias anteriores
-        $seguimiento->trabajoRealizado()->delete();
+        // $seguimiento->trabajoRealizado()->delete();
 
-        // Guardar fotografias
-        $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        // Guardar trabajos realizados - solo se guardan los nuevos que son pasados por el frontend, los anteriores se mantienen
+        $this->seguimientoService->guardarTrabajosRealizados($datos, $seguimiento);
 
         // Material empleado tarea
         $this->seguimientoService->registrarSeguimientoMaterialTareaOcupadoUpdate($request);

@@ -42,8 +42,8 @@ class SeguimientoSubtareaResource extends JsonResource
         return $this->trabajoRealizado->map(fn ($trabajo) => [
             'id' => $trabajo->id,
             'fecha_hora' => Carbon::parse($trabajo->fecha_hora)->format('d-m-Y H:i:s'),
-            // 'fotografia' => $trabajo->fotografia ? url($trabajo->fotografia) : null,
-            'fotografia' => $trabajo->fotografia ? $this->imagenBase64($trabajo->fotografia) : null,
+            'fotografia' => $trabajo->fotografia ? url($trabajo->fotografia) : null,
+            // 'fotografia' => $trabajo->fotografia ? $this->imagenBase64($trabajo->fotografia) : null,
             'trabajo_realizado' => $trabajo->trabajo_realizado,
         ]);
     }
