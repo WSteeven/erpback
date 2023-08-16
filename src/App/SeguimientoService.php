@@ -17,7 +17,7 @@ use Src\Config\RutasStorage;
 
 class SeguimientoService
 {
-    public function guardarFotografias($datos, SeguimientoSubtarea $modelo)
+    public function guardarTrabajosRealizados($datos, SeguimientoSubtarea $modelo)
     {
         foreach ($datos['trabajo_realizado'] as $trabajo) {
             $trabajoRealizado = new TrabajoRealizado();
