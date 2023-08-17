@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
@@ -36,10 +37,12 @@ class RolPagosController extends Controller
 {
     private $entidad = 'Rol_de_pagos';
     private $reporteService;
+    private $nominaService;
 
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->nominaService = new NominaService();
         $this->middleware('can:puede.ver.rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago')->only('store');
     }

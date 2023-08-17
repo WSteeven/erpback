@@ -24,16 +24,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
+use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 use Src\Shared\Utils;
 
 class RolPagoMesController extends Controller
 {
     private $entidad = 'Rol de Pago';
     private $reporteService;
+    private $nominaService;
+    private $prestamoService;
 
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->nominaService = new NominaService();
+        $this->prestamoService = new PrestamoService();
         $this->middleware('can:puede.ver.rol_pago_mes')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago_mes')->only('store');
     }
@@ -177,7 +183,7 @@ class RolPagoMesController extends Controller
             'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
             'columnas_egresos' => array_unique($column_names_egresos['egresos']),
             'sumatoria' => $sumColumns,
-            'creador_rol_pago' => $creador_rol_pago ,
+            'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
@@ -239,46 +245,19 @@ class RolPagoMesController extends Controller
      */
     private function tabla_roles(RolPagoMes $rol, $tipo)
     {
-        $empleados_activos = Empleado::where('estado', 1)->where('id', '!=', 1)->get();
-        $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
-        $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
-        $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
+        $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->get();
+        $porcentaje_anticipo = NominaService::calcularPorcentajeAnticipo();
         $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
-        $prestamos_hipotecarios = PrestamoHipotecario::where('mes', $rol->mes)
-            ->groupBy('empleado_id')
-            ->select('empleado_id', DB::raw('SUM(valor) as total_valor'))
-            ->get()
-            ->pluck('total_valor', 'empleado_id');
-        $prestamos_quirorafarios = PrestamoQuirorafario::where('mes', $mes)
-            ->groupBy('empleado_id')
-            ->select('empleado_id', DB::raw('SUM(valor) as total_valor'))
-            ->get()
-            ->pluck(DB::raw('SUM(valor)'), 'empleado_id');
-        $permisos_sin_recuperar = DB::table('permiso_empleados')
-            ->whereRaw('DATE_FORMAT(fecha_hora_inicio, "%Y-%m") <= ?', [$mes])
-            ->whereRaw('DATE_FORMAT(fecha_hora_fin, "%Y-%m") >= ?', [$mes])
-            ->where('recupero', 0)
-            ->groupBy('empleado_id')
-            ->select('empleado_id', DB::raw('SUM(DATEDIFF(fecha_hora_fin, fecha_hora_inicio) + 1)  as total_dias_permiso'))
-            ->get()
-            ->pluck('total_dias_permiso', 'empleado_id');
-        $extenciones_salud = ExtensionCoverturaSalud::where('mes', $mes)
-            ->groupBy('empleado_id')
-            ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'))
-            ->get()
-            ->pluck('total_valor', 'empleado_id');
-        $prestamos_empresariales = PrestamoEmpresarial::where('estado', 'ACTIVO')
-            ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$mes])
-            ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
-            ->groupBy('prestamo_empresarial.id') // Agrupamos por el ID del préstamo empresarial
-            ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'))
-            ->get()
-            ->pluck('total_valor', 'solicitante');
-        $roles_pago =  collect($empleados_activos)->map(function ($empleado) use ($rol, $sueldo_basico, $porcentaje_iess, $porcentaje_anticipo, $permisos_sin_recuperar,  $prestamos_hipotecarios, $prestamos_quirorafarios, $prestamos_empresariales, $extenciones_salud) {
+        $this->nominaService->setMes($mes);
+        $this->prestamoService->setMes($mes);
+        $prestamos_hipotecarios =  $this->prestamoService->prestamosHipotecarios( true, true);
+        $prestamos_quirorafarios = $this->prestamoService->prestamosQuirografarios( true, true);
+        $extenciones_salud =$this->nominaService->extensionesCoberturaSalud( true, true);
+        $prestamos_empresariales =$this->prestamoService->prestamosEmpresariales( true, true);
+        $roles_pago =  collect($empleados_activos)->map(function ($empleado) use ($rol, $porcentaje_anticipo,  $prestamos_hipotecarios, $prestamos_quirorafarios, $prestamos_empresariales, $extenciones_salud) {
+            $this->nominaService->setEmpleado($empleado->id);
             // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
-            $dias_permiso_sin_recuperar = $permisos_sin_recuperar->has($empleado->id) ? $permisos_sin_recuperar[$empleado->id] : 0;
             $dias = 30;
-            $salario = $empleado->salario;
             $decimo_tercero = 0;
             $decimo_cuarto = 0;
             $fondos_reserva = 0;
@@ -292,22 +271,21 @@ class RolPagoMesController extends Controller
             $egreso = 0;
             $sueldo = 0;
             if ($rol->es_quincena) {
-                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
-                $sueldo = $sueldo *  $porcentaje_anticipo;
+                $sueldo = $this->nominaService->calcularSueldo($dias) *  $porcentaje_anticipo;
                 $dias = 15;
                 $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
             } else {
-                $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
-                $decimo_tercero = ($salario / 360) * $dias;
-                $decimo_cuarto = ($sueldo_basico / 360) * $dias;
+                $sueldo =  $this->nominaService->calcularSueldo($dias);
+                $decimo_tercero = $this->nominaService->calcularDecimo(3,$dias);
+                $decimo_cuarto = $this->nominaService->calcularDecimo(4,$dias);
                 $fondos_reserva = 0;
                 $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess = ($sueldo) * $porcentaje_iess;
+                $iess = $this->nominaService->calcularAporteIESS();
                 $anticipo = $sueldo *  $porcentaje_anticipo;
-                $prestamo_quirorafario = $prestamos_quirorafarios->has($empleado->id) ? $prestamos_quirorafarios[$empleado->id] : 0;
-                $prestamo_hipotecario = $prestamos_hipotecarios->has($empleado->id) ? $prestamos_hipotecarios[$empleado->id] : 0;
-                $extension_conyugal = $extenciones_salud->has($empleado->id) ? $extenciones_salud[$empleado->id] : 0;
-                $prestamo_empresarial = $prestamos_empresariales->has($empleado->id) ? $prestamos_empresariales[$empleado->id] : 0;
+                $prestamo_quirorafario =  count( $prestamos_quirorafarios)>0? $prestamos_quirorafarios[$empleado->id] : 0;
+                $prestamo_hipotecario = count( $prestamos_hipotecarios)>0 ? $prestamos_hipotecarios[$empleado->id] : 0;
+                $extension_conyugal =  count( $extenciones_salud)>0 ? $extenciones_salud[$empleado->id] : 0;
+                $prestamo_empresarial = count( $prestamos_empresariales)>0  ? $prestamos_empresariales[$empleado->id] : 0;
                 $supa = $empleado->supa;
                 $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa;
             }
@@ -332,6 +310,7 @@ class RolPagoMesController extends Controller
                 'rol_pago_id' => $rol->id,
             ];
         })->toArray();
+
         switch ($tipo) {
             case 'CREAR':
                 RolPago::insert($roles_pago);
