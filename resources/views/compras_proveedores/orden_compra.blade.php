@@ -135,7 +135,7 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$orden['codigo']}}
+                                <b>N° </b> {{ $orden['codigo'] }}
                             </td>
                         </tr>
                         <tr>
@@ -250,7 +250,7 @@
                     <tr class="row" style="width: auto">
                         {{-- <td>{{$index+1}}</td> --}}
                         <td align="center">{{ $item['cantidad'] }}</td>
-                        <td align="center">{{ $item['descripcion'] }}</td>
+                        <td align="center">{{ $item['producto'] }}: &nbsp; {{ $item['descripcion'] }}</td>
                         <td align="center">{{ $item['unidad_medida'] }}</td>
                         <td align="center">{{ $item['precio_unitario'] }}</td>
                         <td align="center">{{ $item['descuento'] }}</td>
