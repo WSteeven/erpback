@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ActividadRealizadaSeguimientoTicketRequest;
 use App\Http\Resources\ActividadRealizadaSeguimientoTicketResource;
-use App\Models\ActividadRealizadaSeguimientoTicket;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use App\Models\ActividadRealizadaSeguimientoTicket;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Carbon\Carbon;
 
 class ActividadRealizadaSeguimientoTicketController extends Controller
 {
