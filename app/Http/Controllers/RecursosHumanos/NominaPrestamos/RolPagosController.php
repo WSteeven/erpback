@@ -81,6 +81,7 @@ class RolPagosController extends Controller
     public function index_archivo_rol_pago_empleado(Request $request)
     {
         $results = RolPago::where('id', $request->rol_pago_id)->get();
+
         $results = ArchivoRolPagoResource::collection($results);
         return response()->json(compact('results'));
     }
