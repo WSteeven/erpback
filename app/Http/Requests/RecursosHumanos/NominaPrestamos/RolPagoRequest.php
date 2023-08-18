@@ -1,12 +1,8 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;

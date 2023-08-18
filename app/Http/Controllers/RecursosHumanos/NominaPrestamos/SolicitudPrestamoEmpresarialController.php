@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\SolicitudPrestamoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SolicitudPrestamoEmpresarialRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\Periodo;

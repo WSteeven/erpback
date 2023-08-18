@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EstadoCivilRequest extends FormRequest
+class PrestamoQuirorafarioRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class EstadoCivilRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class EstadoCivilRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'mes' => 'required',
+            'tieneDocumento' => 'required',
         ];
     }
 }

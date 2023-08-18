@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PrestamoEmpresarialRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialResource;
 use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;

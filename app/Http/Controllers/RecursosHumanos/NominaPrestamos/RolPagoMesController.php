@@ -2,22 +2,14 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use App\Exports\RolPagoExport;
 use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RolPagoMesRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
-use App\Models\User;
 use Carbon\Carbon;
-use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -56,12 +48,12 @@ class RolPagoMesController extends Controller
     {
         try {
             $datos = $request->validated();
-            //  $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
-            /*  if (count($existe_mes) > 0) {
+            $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
+            if ($request->es_quincena == false && count($existe_mes) == 0) {
                 throw ValidationException::withMessages([
-                    '404' => ['Rol de Mes ya esta creado, porfavor ingrese un mes diferente'],
+                    '404' => ['Porfavor primero realice el Rol de Pagos de Quincena'],
                 ]);
-            }*/
+            }
             DB::beginTransaction();
             $rolPago = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rolPago);
@@ -70,7 +62,10 @@ class RolPagoMesController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }

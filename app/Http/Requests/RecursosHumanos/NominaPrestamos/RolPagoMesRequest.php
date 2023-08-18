@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EstadoTransaccionRequest extends FormRequest
+class RolPagoMesRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,15 @@ class EstadoTransaccionRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|unique:estados_transacciones_bodega'
+            'mes' => 'required',
+            'nombre' => 'required | unique:rol_pago_mes,nombre',
+            'es_quincena' => 'nullable'
         ];
     }
+    public function messages(): array
+{
+    return [
+        'required | unique:rol_pago_mes,nombre' => 'Rol de Pagos ya existe porfavor ingrese uno diferente',
+    ];
+}
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RolPagoMesRequest extends FormRequest
+class PlazoPrestamoEmpresarialRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class RolPagoMesRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,9 +24,7 @@ class RolPagoMesRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required',
-            'nombre' => 'required | unique:rol_pago_mes,nombre',
-            'es_quincena' => 'nullable'
+            //
         ];
     }
 }

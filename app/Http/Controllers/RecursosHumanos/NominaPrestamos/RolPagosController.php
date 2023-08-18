@@ -5,7 +5,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RolPagoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoRolPagoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoResource;
 use App\Models\Empleado;

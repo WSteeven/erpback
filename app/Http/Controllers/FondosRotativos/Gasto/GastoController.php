@@ -23,7 +23,7 @@ use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use App\Models\User;
-use App\Models\Vehiculo;
+use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
