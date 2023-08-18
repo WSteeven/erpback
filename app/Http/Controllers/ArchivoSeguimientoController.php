@@ -26,10 +26,10 @@ class ArchivoSeguimientoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'seguimiento_id' => 'required|numeric|integer',
+            'subtarea_id' => 'required|numeric|integer',
         ]);
 
-        $seguimiento = SeguimientoSubtarea::find($request['seguimiento_id']);
+        $seguimiento = SeguimientoSubtarea::find($request['subtarea_id']);
 
         if (!$seguimiento) {
             throw ValidationException::withMessages([
@@ -57,12 +57,12 @@ class ArchivoSeguimientoController extends Controller
     public function update(Request $request, ArchivoSeguimiento $archivo_seguimiento)
     {
         $request->validate([
-            'seguimiento_id' => 'required|numeric|integer',
+            'subtarea_id' => 'required|numeric|integer',
         ]);
 
         // $archivo_seguimiento->update($request->all());
 
-        $seguimiento = SeguimientoSubtarea::find($request['seguimiento_id']);
+        $seguimiento = SeguimientoSubtarea::find($request['subtarea_id']);
 
         if (!$seguimiento) {
             throw ValidationException::withMessages([

@@ -30,17 +30,17 @@ class SeguimientoSubtareaController extends Controller
         $this->seguimientoService = new SeguimientoService();
     }
 
-    public function index()
+    /* public function index()
     {
         $results = SeguimientoSubtarea::filter()->get();
         return response()->json(compact('results'));
-    }
+    } */
 
-    public function show(SeguimientoSubtarea $seguimiento)
+    /* public function show(SeguimientoSubtarea $seguimiento)
     {
         $modelo = new SeguimientoSubtareaResource($seguimiento);
         return response()->json(compact('modelo'));
-    }
+    } */
 
     public function store(SeguimientoSubtareaRequest $request)
     {
@@ -52,8 +52,8 @@ class SeguimientoSubtareaController extends Controller
         $subtarea->seguimiento_id = $seguimiento->id;
         $subtarea->save();
 
-        // Guardar fotografias
-        $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        // Guardar trabajos realizados
+        $this->seguimientoService->guardarTrabajosRealizados($datos, $seguimiento);
 
         // Material empleado tarea
         $this->seguimientoService->descontarMaterialTareaOcupadoStore($request);
@@ -74,16 +74,16 @@ class SeguimientoSubtareaController extends Controller
         $seguimiento->update($datos);
 
         // Eliminar imagenes
-        foreach ($seguimiento->trabajoRealizado as $trabajo) {
+        /* foreach ($seguimiento->trabajoRealizado as $trabajo) {
             $ruta = str_replace('storage', 'public', $trabajo->fotografia);
             Storage::delete($ruta);
-        }
+        } */
 
         // Eliminar fotografias anteriores
-        $seguimiento->trabajoRealizado()->delete();
+        // $seguimiento->trabajoRealizado()->delete();
 
-        // Guardar fotografias
-        $this->seguimientoService->guardarFotografias($datos, $seguimiento);
+        // Guardar trabajos realizados - solo se guardan los nuevos que son pasados por el frontend, los anteriores se mantienen
+        $this->seguimientoService->guardarTrabajosRealizados($datos, $seguimiento);
 
         // Material empleado tarea
         $this->seguimientoService->registrarSeguimientoMaterialTareaOcupadoUpdate($request);
@@ -120,16 +120,6 @@ class SeguimientoSubtareaController extends Controller
         $idSubtarea = $request['subtarea_id'];
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
-        /* $results = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', DB::raw('sms.cantidad_utilizada AS cantidad_utilizada'), 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
-            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
-            ->join('materiales_empleados_tareas as met', 'dp.id', '=', 'met.detalle_producto_id')
-            ->whereDate('sms.created_at', $fecha_convertida)
-            ->where('sms.empleado_id', $request['empleado_id'])
-            ->where('subtarea_id', $request['subtarea_id'])
-            ->groupBy('detalle_producto_id')
-            ->get(); */
-
         $results = DB::table('seguimientos_materiales_subtareas as sms')
             ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
@@ -148,7 +138,7 @@ class SeguimientoSubtareaController extends Controller
         $servicio = new TransaccionBodegaEgresoService();
         $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
 
-        Log::channel('testing')->info('Log', compact('materialesUsados'));
+        // Log::channel('testing')->info('Log', compact('materialesUsados'));
 
         $results = $results->map(function ($material, $index) use ($materialesUsados) {
             if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {
@@ -163,7 +153,24 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('results'));
     }
 
+    public function obtenerFechasHistorialMaterialesUsados(Request $request, Subtarea $subtarea)
+    {
+        $results = DB::table('seguimientos_materiales_subtareas')
+            ->select(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS fecha"))
+            ->where('subtarea_id', $subtarea->id)
+            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
+            ->get();
+
+        return response()->json(compact('results'));
+    }
+
     public function actualizarCantidadUtilizadaHistorial(Request $request)
+    {
+        $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTareaHistorial($request);
+        return response()->json(compact('modelo'));
+    }
+
+    public function actualizarCantidadUtilizadaMaterialTarea(Request $request)
     {
         $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
         return response()->json(compact('modelo'));

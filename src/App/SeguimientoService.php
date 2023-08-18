@@ -17,7 +17,7 @@ use Src\Config\RutasStorage;
 
 class SeguimientoService
 {
-    public function guardarFotografias($datos, SeguimientoSubtarea $modelo)
+    public function guardarTrabajosRealizados($datos, SeguimientoSubtarea $modelo)
     {
         foreach ($datos['trabajo_realizado'] as $trabajo) {
             $trabajoRealizado = new TrabajoRealizado();
@@ -32,17 +32,20 @@ class SeguimientoService
     /********************
      * Material de tarea
      ********************/
-    public function descontarMaterialTareaOcupadoStore($request)
+    /* public function descontarMaterialTareaOcupadoStore($request)
     {
         $materialesOcupados = $request['materiales_tarea_ocupados'];
-        $tareaId = $request['tarea_id'];
+        $idTarea = $request['tarea_id'];
+        $idEmpleado = $request['empleado_id'];
 
         foreach ($materialesOcupados as $materialOcupado) {
-            $materialEmpleadoTarea = MaterialEmpleadoTarea::where('empleado_id', $request['empleado_id'])->where('detalle_producto_id', $materialOcupado['detalle_producto_id'])->where('tarea_id', $tareaId)->first();
+            $idDetalleProducto = $materialOcupado['detalle_producto_id'];
+
+            $materialEmpleadoTarea = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->first();
             $materialEmpleadoTarea->cantidad_stock = $materialEmpleadoTarea->cantidad_stock - $materialOcupado['cantidad_utilizada'];
             $materialEmpleadoTarea->save();
         }
-    }
+    } */
 
     public function descontarMaterialTareaOcupadoUpdate($request)
     {
@@ -134,6 +137,42 @@ class SeguimientoService
             'detalle_producto_id' => 'required|numeric|integer',
             'cantidad_utilizada' => 'required|numeric|integer',
             'cantidad_anterior' => 'required|numeric|integer',
+        ]);
+
+        $idEmpleado = $request['empleado_id'];
+        $idSubtarea = $request['subtarea_id'];
+        $idDetalleProducto = $request['detalle_producto_id'];
+        $cantidadUtilizada = $request['cantidad_utilizada'];
+
+        $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+
+        if ($materialSubtarea) {
+            $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
+            $materialSubtarea->save();
+        } else {
+            $idGrupo = Empleado::find($request['empleado_id'])->grupo_id;
+
+            SeguimientoMaterialSubtarea::create([
+                'cantidad_utilizada' => $cantidadUtilizada,
+                'subtarea_id' => $idSubtarea,
+                'empleado_id' => $idEmpleado,
+                'grupo_id' => $idGrupo,
+                'detalle_producto_id' => $idDetalleProducto,
+            ]);
+        }
+
+        return $this->actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request);
+    }
+
+    public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTareaHistorial($request)
+    {
+        $request->validate([
+            'empleado_id' => 'required|numeric|integer',
+            'tarea_id' => 'required|numeric|integer',
+            'subtarea_id' => 'required|numeric|integer',
+            'detalle_producto_id' => 'required|numeric|integer',
+            'cantidad_utilizada' => 'required|numeric|integer',
+            'cantidad_anterior' => 'required|numeric|integer',
             'fecha' => 'required|string',
         ]);
 
@@ -161,7 +200,6 @@ class SeguimientoService
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
         $cantidadAnterior = $request['cantidad_anterior'];
-        $fecha = $request['fecha'];
 
         $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->first();
         $material->cantidad_stock += (isset($cantidadAnterior) ? $cantidadAnterior : 0)  - $cantidadUtilizada;
@@ -183,15 +221,9 @@ class SeguimientoService
         $servicio = new TransaccionBodegaEgresoService();
         $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado);
 
-        // $results = $results->map(function ($material, $index) use ($materialesUsados) {
-        // if ($materialesUsados->contains('detalle_producto_id', $modelo['detalle_producto_id'])) {
         $modelo['total_cantidad_utilizada'] = intval($materialesUsados->first(function ($item) use ($material) {
             return $item->detalle_producto_id === $material->detalle_producto_id;
         })->suma_total);
-        // }
-        // $material->id = $index + 1;
-        // return $material;
-        // });
 
         return $modelo;
     }
