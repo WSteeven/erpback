@@ -30,7 +30,7 @@ use Src\Shared\Utils;
 
 class RolPagoMesController extends Controller
 {
-    private $entidad = 'Rol de Pago';
+    private $entidad = 'rol_pago';
     private $reporteService;
     private $nominaService;
     private $prestamoService;
@@ -56,7 +56,7 @@ class RolPagoMesController extends Controller
     {
         try {
             $datos = $request->validated();
-            $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
+            //  $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
             /*  if (count($existe_mes) > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Rol de Mes ya esta creado, porfavor ingrese un mes diferente'],
@@ -64,14 +64,14 @@ class RolPagoMesController extends Controller
             }*/
             DB::beginTransaction();
             $rolPago = RolPagoMes::create($datos);
-            $this->tabla_roles($rolPago, 'CREAR');
             $modelo = new RolPagoMesResource($rolPago);
+            $this->tabla_roles($rolPago);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -243,101 +243,59 @@ class RolPagoMesController extends Controller
      * @return La función no devuelve nada. Está insertando datos en la tabla de la base de datos
      * "RolPago" usando el método `insert()`.
      */
-    private function tabla_roles(RolPagoMes $rol, $tipo)
+    private function tabla_roles(RolPagoMes $rol)
     {
-        $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->get();
-        $porcentaje_anticipo = NominaService::calcularPorcentajeAnticipo();
-        $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
-        $this->nominaService->setMes($mes);
-        $this->prestamoService->setMes($mes);
-        $prestamos_hipotecarios =  $this->prestamoService->prestamosHipotecarios( true, true);
-        $prestamos_quirorafarios = $this->prestamoService->prestamosQuirografarios( true, true);
-        $extenciones_salud =$this->nominaService->extensionesCoberturaSalud( true, true);
-        $prestamos_empresariales =$this->prestamoService->prestamosEmpresariales( true, true);
-        $roles_pago =  collect($empleados_activos)->map(function ($empleado) use ($rol, $porcentaje_anticipo,  $prestamos_hipotecarios, $prestamos_quirorafarios, $prestamos_empresariales, $extenciones_salud) {
-            $this->nominaService->setEmpleado($empleado->id);
-            // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
-            $dias = 30;
-            $decimo_tercero = 0;
-            $decimo_cuarto = 0;
-            $fondos_reserva = 0;
-            $iess = 0;
-            $anticipo = 0;
-            $prestamo_quirorafario =  0;
-            $prestamo_hipotecario =  0;
-            $extension_conyugal =  0;
-            $prestamo_empresarial =  0;
-            $ingresos = 0;
-            $egreso = 0;
-            $sueldo = 0;
-            if ($rol->es_quincena) {
-                $sueldo = $this->nominaService->calcularSueldo($dias) *  $porcentaje_anticipo;
-                $dias = 15;
-                $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-            } else {
-                $sueldo =  $this->nominaService->calcularSueldo($dias);
-                $decimo_tercero = $this->nominaService->calcularDecimo(3,$dias);
-                $decimo_cuarto = $this->nominaService->calcularDecimo(4,$dias);
-                $fondos_reserva = 0;
-                $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess = $this->nominaService->calcularAporteIESS();
-                $anticipo = $sueldo *  $porcentaje_anticipo;
-                $prestamo_quirorafario =  count( $prestamos_quirorafarios)>0? $prestamos_quirorafarios[$empleado->id] : 0;
-                $prestamo_hipotecario = count( $prestamos_hipotecarios)>0 ? $prestamos_hipotecarios[$empleado->id] : 0;
-                $extension_conyugal =  count( $extenciones_salud)>0 ? $extenciones_salud[$empleado->id] : 0;
-                $prestamo_empresarial = count( $prestamos_empresariales)>0  ? $prestamos_empresariales[$empleado->id] : 0;
-                $supa = $empleado->supa;
-                $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa;
+        try {
+            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->get();
+            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $this->nominaService->setMes($mes);
+            $this->prestamoService->setMes($mes);
+            $roles_pago = [];
+            foreach ($empleados_activos as $empleado) {
+                $this->nominaService->setEmpleado($empleado->id);
+                $this->prestamoService->setEmpleado($empleado->id);
+                // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
+                $dias = $rol->es_quincena ? 15 : 30;
+                $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
+                $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
+                $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
+                $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva();
+                $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
+                $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
+                $anticipo =  $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
+                $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
+                $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
+                $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
+                $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
+                $supa =  $rol->es_quincena ? 0 : $empleado->supa;
+                $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
+                $total = abs($ingresos) - $egreso;
+                $roles_pago[] = [
+                    'empleado_id' => $empleado->id,
+                    'dias' => $dias,
+                    'mes' => $rol->mes,
+                    'sueldo' => $sueldo,
+                    'decimo_tercero' => $decimo_tercero,
+                    'decimo_cuarto' => $decimo_cuarto,
+                    'fondos_reserva' => $fondos_reserva,
+                    'total_ingreso' => $ingresos,
+                    'iess' => $iess,
+                    'anticipo' => $anticipo,
+                    'prestamo_quirorafario' => $prestamo_quirorafario,
+                    'prestamo_hipotecario' => $prestamo_hipotecario,
+                    'extension_conyugal' => $extension_conyugal,
+                    'prestamo_empresarial' => $prestamo_empresarial,
+                    'total_egreso' => $egreso,
+                    'total' => $total,
+                    'rol_pago_id' => $rol->id,
+                ];
             }
-            $total = abs($ingresos) - $egreso;
-            return [
-                'empleado_id' => $empleado->id,
-                'dias' => $dias,
-                'mes' => $rol->mes,
-                'sueldo' =>  $sueldo,
-                'decimo_tercero' =>  $decimo_tercero,
-                'decimo_cuarto' =>  $decimo_cuarto,
-                'fondos_reserva' =>  $fondos_reserva,
-                'total_ingreso' =>  $ingresos,
-                'iess' =>  $iess,
-                'anticipo' =>  $anticipo,
-                'prestamo_quirorafario' =>  $prestamo_quirorafario,
-                'prestamo_hipotecario' =>  $prestamo_hipotecario,
-                'extension_conyugal' =>  $extension_conyugal,
-                'prestamo_empresarial' =>  $prestamo_empresarial,
-                'total_egreso' =>  $egreso,
-                'total' =>  $total,
-                'rol_pago_id' => $rol->id,
-            ];
-        })->toArray();
-
-        switch ($tipo) {
-            case 'CREAR':
-                RolPago::insert($roles_pago);
-                break;
-            case 'MODIFICAR':
-                $actualizacionMasiva = collect($roles_pago)->map(function ($item) {
-                    $empleadoId = $item['empleado_id'];
-                    unset($item['empleado_id']);
-                    return [
-                        'data' => $item,
-                        'empleado_id' => $empleadoId,
-                    ];
-                });
-
-                foreach ($actualizacionMasiva as $actualizacion) {
-                    $empleadoId = $actualizacion['empleado_id'];
-                    $data = $actualizacion['data'];
-
-                    RolPago::updateOrCreate(
-                        ['empleado_id' => $empleadoId, 'mes' => $data['mes']],
-                        $data
-                    );
-                }
-                break;
-            default:
-                # code...
-                break;
+            RolPago::insert($roles_pago);
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar rol pago por empleado' => [$ex->getMessage()],
+            ]);
         }
     }
     public function verificarTodasRolesFinalizadas(Request $request)

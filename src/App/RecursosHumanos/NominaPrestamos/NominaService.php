@@ -4,6 +4,8 @@ namespace Src\App\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +24,7 @@ class NominaService
     }
     public function setMes($mes)
     {
-        $this->mes = Carbon::parse($mes)->format('Y-m');
+        $this->mes = $mes;
     }
     public function setEmpleado($id_empleado)
     {
@@ -66,10 +68,10 @@ class NominaService
                 return $query->get();
             }
         } else {
-            $query->where('empleado_id',  $this->id_empleado)
+            $extension_conyugal =  $query->where('empleado_id',  $this->id_empleado)
                 ->groupBy('empleado_id')
-                ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'));
-            $suma =  $query == null ? 0 : $query->pluck('total_valor', 'empleado_id');
+                ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'))->first();
+            $suma =   $extension_conyugal == null ? 0 : $extension_conyugal->total_valor;
             return $suma != 0 ? [$this->id_empleado] : 0;
         }
     }
@@ -93,9 +95,16 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(4) / 100;
     }
-    public  function calcularSueldo($dias)
+    public  function calcularSueldo($dias = 30, $es_quincena = false)
     {
-        return ($this->empleado->salario / 30) * ($dias - $this->permisoEmpleado());
+        $sueldo = 0;
+        if ($es_quincena) {
+
+            $sueldo = (($this->empleado->salario / 30) * (30)) *  $this->calcularPorcentajeAnticipo();
+        } else {
+            $sueldo = ($this->empleado->salario / 30) * ($dias - $this->permisoEmpleado());
+        }
+        return $sueldo;
     }
 
     public function calcularAporteIESS()
@@ -114,5 +123,30 @@ class NominaService
                 return (NominaService::calcularSueldoBasico() / 360) * $dias;
                 break;
         }
+    }
+    public function calcularAnticipo()
+    {
+        $mes_rol_anterior= Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
+        $rol_usuario = RolPago::join('rol_pago_mes', 'rol_pago.rol_pago_id', '=', 'rol_pago_mes.id')
+            ->where('rol_pago.empleado_id', $this->id_empleado)
+            ->where('rol_pago_mes.mes', $mes_rol_anterior)
+            ->where('rol_pago_mes.es_quincena', 1)
+            ->select('rol_pago.*')
+            ->first();
+        return $rol_usuario != null ? $rol_usuario->total : 0;
+    }
+    public function calcularFondosReserva()
+    {
+        $fondosDeReserva = 0;
+        // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
+        $fechaIngreso = Carbon::parse($this->empleado->fecha_ingreso);
+        // Obtén la fecha actual
+        $hoy = Carbon::now();
+        // Calcula la diferencia en días entre las dos fechas
+        $diasTrabajados = $hoy->diffInDays($fechaIngreso);
+        if ($diasTrabajados >= 366) {
+            $fondosDeReserva = $this->empleado->salario * 0.0833; // 8.33% del sueldo
+        }
+        return $fondosDeReserva;
     }
 }

@@ -52,6 +52,7 @@ class RolPagosController extends Controller
         $results = [];
         $results = RolPago::ignoreRequest(['campos'])->filter()->get();
         $results = RolPagoResource::collection($results);
+
         return response()->json(compact('results'));
     }
     public function archivo_rol_pago_empleado(Request $request)

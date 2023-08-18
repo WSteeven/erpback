@@ -23,7 +23,8 @@ class PrestamoService
 
     public function setMes($mes)
     {
-        $this->mes = Carbon::parse($mes)->format('Y-m');
+
+         $this->mes =  $mes;
     }
 
     public function setEmpleado($id_empleado = null)
@@ -31,7 +32,7 @@ class PrestamoService
         $this->id_empleado = $id_empleado;
     }
 
-    private function query($query, $todos, $key_empleado = 'empleado_id')
+    private function query($query, $todos = false, $key_empleado = 'empleado_id')
     {
         if (!$todos) {
             $query->where($key_empleado, $this->id_empleado);
@@ -52,7 +53,7 @@ class PrestamoService
                 }
             } else {
                 $suma =  $query == null ? 0 : $query->pluck('total_valor',  $key_empleado);
-                return $suma != 0? [$this->id_empleado]:0;
+                return $suma != 0 ? [$this->id_empleado] : 0;
             }
         } else {
             $query = $this->query($model, $todos, $key_empleado);
@@ -67,8 +68,8 @@ class PrestamoService
                     return $query->get();
                 }
             } else {
-                $suma =  $query == null ? 0 : $query->pluck('total_valor',  $key_empleado);
-                return $suma != 0? [$this->id_empleado]:0;
+                $prestamo = $query->first();
+                return $prestamo != null  ?  $prestamo->valor : 0;
             }
         }
     }
@@ -85,14 +86,27 @@ class PrestamoService
         return $this->getPrestamos($query, $todos, $pluck);
     }
 
-    public function prestamosEmpresariales($todos = false, $pluck = false)
-    {
-        $query = PrestamoEmpresarial::where('estado', 'ACTIVO')
-            ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$this->mes])
-            ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
-            ->groupBy('prestamo_empresarial.id') // Agrupamos por el ID del préstamo empresarial
-            ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'))
-            ->where('solicitante', $this->id_empleado);
-        return $this->getPrestamos(null, $todos, $pluck, 'solicitante', $query);
+    public function prestamosEmpresariales( $todos = false, $pluck = false)
+{
+    $query = PrestamoEmpresarial::where('estado', 'ACTIVO')
+        ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$this->mes])
+        ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial');
+
+    if ($todos) {
+        $query->groupBy('prestamo_empresarial.id')
+            ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'));
+
+        if ($pluck) {
+            return $query->pluck('total_valor', 'solicitante');
+        } else {
+            return $query->get();
+        }
+    } else {
+        $query->where('solicitante', $this->id_empleado)
+            ->groupBy('solicitante')
+            ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'));
+        $prestamo =    $query->first();
+        return $prestamo != null ?$prestamo->total_valor:0;
     }
+}
 }
