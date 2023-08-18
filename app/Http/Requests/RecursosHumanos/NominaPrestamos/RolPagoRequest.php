@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
-use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
+use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 
 class RolPagoRequest extends FormRequest
 {
@@ -58,6 +56,10 @@ class RolPagoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $empleado = Empleado::find($this->empleado);
+        $nominaService = new NominaService($this->mes);
+        $prestamoService = new PrestamoService($this->mes);
+        $nominaService->setEmpleado($this->empleado);
+        $prestamoService->setEmpleado($this->empleado);
         /*$fechaInicio = Carbon::parse($empleado->fecha_ingreso);
         $fechaFin = $fechaInicio->copy()->addMonths(13);*/
         $salario = $empleado->salario;
@@ -100,16 +102,10 @@ class RolPagoRequest extends FormRequest
             $anticipo = $sueldo *  $porcentaje_anticipo;
 
             $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-            $prestamo_quirorafario = PrestamoQuirorafario::where('empleado_id', $empleado->id)->where('mes', $this->mes)->sum('valor');
-            $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $this->mes)->sum('valor');
-            $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $this->mes)->sum('aporte');
-            $prestamo_empresarial = PrestamoEmpresarial::where('estado', 'ACTIVO')
-                ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$this->mes])
-                ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
-                ->groupBy('prestamo_empresarial.id') // Agrupamos por el ID del préstamo empresarial
-                ->select('solicitante', DB::raw('SUM(plazos.valor_a_pagar) as total_valor'))
-                ->get()
-                ->pluck('total_valor', 'solicitante');
+            $prestamo_quirorafario =  $prestamoService->prestamosQuirografarios();
+            $prestamo_hipotecario = $prestamoService->prestamosHipotecarios();
+            $extension_conyugal = $nominaService->extensionesCoberturaSalud();
+            $prestamo_empresarial =$prestamoService->prestamosEmpresariales();
             $totalEgresos = $totalIngresos = !empty($this->egresos)
                 ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                     return $acumulado + (float) $egreso['monto'];

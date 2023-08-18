@@ -187,11 +187,7 @@ Route::apiResources(
         'fondos-rotativos/transferencia' => TransferenciasController::class,
         'fondos-rotativos/gasto-coordinador' => GastoCoordinadorController::class,
         'fondos-rotativos/motivo-gasto' => MotivoGastoController::class,
-        'recursos-humanos/motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
-        'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
-        'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
-        'recursos-humanos/tipo_contrato' => TipoContratoController::class,
-        'recursos-humanos/rol_pago' => RolPagosController::class,
+
         'forma_pago' => FormaPagoController::class
     ],
     [

@@ -29,7 +29,6 @@ class Vacacion extends Model implements Auditable
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
-        'solicitud',
         'estado',
 
     ];
@@ -62,7 +61,6 @@ class Vacacion extends Model implements Auditable
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
-        'solicitud',
         'estado'
     ];
 }

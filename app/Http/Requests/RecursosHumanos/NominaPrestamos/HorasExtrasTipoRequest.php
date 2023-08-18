@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PrestamoHipotecarioRequest extends FormRequest
+class HorasExtrasTipoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +13,7 @@ class PrestamoHipotecarioRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -25,9 +24,7 @@ class PrestamoHipotecarioRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required',
-            'tieneDocumento' => 'required',
+            //
         ];
     }
-   
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RolPagoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoRolPagoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoResource;
 use App\Models\Empleado;
@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
@@ -36,10 +37,12 @@ class RolPagosController extends Controller
 {
     private $entidad = 'Rol_de_pagos';
     private $reporteService;
+    private $nominaService;
 
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->nominaService = new NominaService();
         $this->middleware('can:puede.ver.rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago')->only('store');
     }
@@ -49,6 +52,7 @@ class RolPagosController extends Controller
         $results = [];
         $results = RolPago::ignoreRequest(['campos'])->filter()->get();
         $results = RolPagoResource::collection($results);
+
         return response()->json(compact('results'));
     }
     public function archivo_rol_pago_empleado(Request $request)

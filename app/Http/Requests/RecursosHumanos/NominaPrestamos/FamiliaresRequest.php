@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use Illuminate\Foundation\Http\FormRequest;

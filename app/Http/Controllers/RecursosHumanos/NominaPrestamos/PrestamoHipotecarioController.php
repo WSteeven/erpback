@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PrestamoHipotecarioRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoHipotecarioResource;
 use App\Imports\PrestamoHipotecarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;

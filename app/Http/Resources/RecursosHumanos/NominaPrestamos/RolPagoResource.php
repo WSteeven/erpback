@@ -46,7 +46,8 @@ class RolPagoResource extends JsonResource
             'total_egreso' => $this->total_egreso,
             'total' => $this->total,
             'estado' => $this->estado,
-            'rol_pago_id' => $this->rol_pago_id
+            'rol_pago_id' => $this->rol_pago_id,
+            'es_quincena' => $this->rolPagoMes->es_quincena,
         ];
         return $modelo;
     }
@@ -114,8 +115,7 @@ class RolPagoResource extends JsonResource
     {
         $arregloOriginal = $egresos->toArray();
         // Creamos una función anónima para transformar cada elemento del arreglo
-        $arregloTransformado = array_map(function ($elemento)
-        {
+        $arregloTransformado = array_map(function ($elemento) {
             // Creamos un nuevo elemento con los datos del elemento original
             $nuevoElemento = [
                 "id" => $elemento["id"],

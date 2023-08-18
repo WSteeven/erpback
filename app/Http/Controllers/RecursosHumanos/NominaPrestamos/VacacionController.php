@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\VacacionEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\VacacionRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\VacacionRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\VacacionResource;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;

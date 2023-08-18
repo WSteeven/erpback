@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\HorasExtrasSubTipoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoResource;
 use App\Models\RecursosHumanos\NominaPrestamos\HorasExtraSubTipo;
 use Exception;
