@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\ArchivoSeguimiento;
 use App\Models\Seguimiento;
 use App\Models\SeguimientoSubtarea;
+use App\Models\Subtarea;
 use Illuminate\Http\Request;
 use Src\Config\RutasStorage;
 use Src\Shared\EliminarArchivo;
 use Src\Shared\GuardarArchivo;
 use Illuminate\Validation\ValidationException;
+use Src\Shared\Utils;
 
 class ArchivoSeguimientoController extends Controller
 {
@@ -29,11 +31,12 @@ class ArchivoSeguimientoController extends Controller
             'subtarea_id' => 'required|numeric|integer',
         ]);
 
-        $seguimiento = SeguimientoSubtarea::find($request['subtarea_id']);
+        $subtarea = Subtarea::find($request['subtarea_id']);
+        /* $seguimiento = SeguimientoSubtarea::find($request['subtarea_id']); */
 
-        if (!$seguimiento) {
+        if (!$subtarea) {
             throw ValidationException::withMessages([
-                'seguimiento' => ['El seguimiento no existe'],
+                'subtarea' => ['La subtarea no existe'],
             ]);
         }
 
@@ -43,8 +46,8 @@ class ArchivoSeguimientoController extends Controller
             ]);
         }
 
-        $guardarArchivo = new GuardarArchivo($seguimiento, $request, RutasStorage::ARCHIVOS_SEGUIMIENTO);
-        $modelo = $guardarArchivo->execute();
+        $modelo = $this->guardarArchivo($subtarea, $request, RutasStorage::ARCHIVOS_SEGUIMIENTO);
+        // $modelo = $guardarArchivo->execute();
 
         return response()->json(['modelo' => $modelo, 'mensaje' => 'Subido exitosamente!']);
 
@@ -76,8 +79,8 @@ class ArchivoSeguimientoController extends Controller
             ]);
         }
 
-        $guardarArchivo = new GuardarArchivo($seguimiento, $request, RutasStorage::ARCHIVOS_SEGUIMIENTO);
-        $modelo = $guardarArchivo->execute();
+        $modelo = $this->guardarArchivo($seguimiento, $request, RutasStorage::ARCHIVOS_SEGUIMIENTO);
+        // $modelo = $guardarArchivo->execute();
 
         return response()->json(['modelo' => $archivo_seguimiento->refresh(), 'mensaje' => 'Información actualizada exitosamente!']);
     }
@@ -90,5 +93,18 @@ class ArchivoSeguimientoController extends Controller
             $eliminar->execute();
         }
         return response()->json(['mensaje' => 'Archivo eliminado exitosamente!']);
+    }
+
+    public function guardarArchivo(Subtarea $subtarea, Request $request, RutasStorage $ruta)
+    {
+        $archivo = $request->file('file');
+
+        $path = $archivo->store($ruta->value);
+        $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
+        return $subtarea->archivosSeguimiento()->create([
+            'nombre' => $archivo->getClientOriginalName(),
+            'ruta' => $ruta_relativa,
+            'tamanio_bytes' => filesize($archivo)
+        ]);
     }
 }
