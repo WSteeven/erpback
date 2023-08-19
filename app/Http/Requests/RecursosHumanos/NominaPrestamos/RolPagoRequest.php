@@ -4,10 +4,7 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
-use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
-use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\DB;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 
@@ -55,64 +52,35 @@ class RolPagoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $empleado = Empleado::find($this->empleado);
         $nominaService = new NominaService($this->mes);
         $prestamoService = new PrestamoService($this->mes);
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
-        /*$fechaInicio = Carbon::parse($empleado->fecha_ingreso);
-        $fechaFin = $fechaInicio->copy()->addMonths(13);*/
-        $salario = $empleado->salario;
-        $sueldo_basico =  Rubros::find(2) != null ? Rubros::find(2)->valor_rubro : 0;
-        $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
-        $porcentaje_anticipo = Rubros::find(4) != null ? Rubros::find(4)->valor_rubro / 100 : 0;
-        $dias_permiso_sin_recuperar = $this->dias_permiso_sin_recuperar;
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
-        $decimo_tercero = 0;
-        $decimo_cuarto = 0;
-        $fondos_reserva = 0;
-        $iess = 0;
-        $anticipo = 0;
-        $prestamo_quirorafario =  0;
-        $prestamo_hipotecario =  0;
-        $extension_conyugal =  0;
-        $prestamo_empresarial =  0;
-        $ingresos = 0;
-        $egreso = 0;
-        $sueldo = 0;
-        $bono_recurente = 0;
-        $bonificacion = 0;
         $dias = $this->dias;
-        $totalIngresos = $totalIngresos = !empty($this->ingresos)
+        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena);
+        $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
+        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
+        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva();
+        $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
+        $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
+        $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)
             ? array_reduce($this->ingresos, function ($acumulado, $ingreso) {
                 return $acumulado + (float) $ingreso['monto'];
             }, 0)
             : 0;
-        if ($rol->es_quincena) {
-            $dias = 15;
-            $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
-            $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-        } else {
-            $sueldo = ($salario / 30) * ($dias - $dias_permiso_sin_recuperar);
-            $decimo_tercero = ($salario / 360) * $dias;
-            $decimo_cuarto = ($sueldo_basico / 360) * $dias;
-            $bono_recurente = $this->bono_recurente;
-            $bonificacion = $this->bonificacion;
-            $iess = ($sueldo) * $porcentaje_iess;
-            $anticipo = $sueldo *  $porcentaje_anticipo;
-
-            $ingresos = $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-            $prestamo_quirorafario =  $prestamoService->prestamosQuirografarios();
-            $prestamo_hipotecario = $prestamoService->prestamosHipotecarios();
-            $extension_conyugal = $nominaService->extensionesCoberturaSalud();
-            $prestamo_empresarial =$prestamoService->prestamosEmpresariales();
-            $totalEgresos = $totalIngresos = !empty($this->egresos)
-                ? array_reduce($this->egresos, function ($acumulado, $egreso) {
-                    return $acumulado + (float) $egreso['monto'];
-                }, 0) : 0;
-            $egreso = $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
-        }
-
+        $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
+        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS();
+        $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
+        $prestamo_quirorafario =   $rol->es_quincena ? 0 : $prestamoService->prestamosQuirografarios();
+        $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();
+        $extension_conyugal =  $rol->es_quincena ? 0 : $nominaService->extensionesCoberturaSalud();
+        $prestamo_empresarial = $rol->es_quincena ? 0 : $prestamoService->prestamosEmpresariales();
+        $totalEgresos = $totalEgresos = !empty($this->egresos)
+            ? array_reduce($this->egresos, function ($acumulado, $egreso) {
+                return $acumulado + (float) $egreso['monto'];
+            }, 0) : 0;
+        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
         $total = abs($ingresos) - $egreso;
         $this->merge([
             'sueldo' =>  $sueldo,
