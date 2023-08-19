@@ -35,7 +35,7 @@ class TareaResource extends JsonResource
             // 'ubicacion_trabajo' => $this->ubicacion_trabajo,
             // 'ruta_tarea' => $this->rutaTarea?->ruta,
             // 'proyecto' => $this->proyecto?->codigo_proyecto,
-            // 'proyecto_id' => $this->proyecto_id,
+            'proyecto_id' => $this->proyecto_id,
             // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'coordinador' => Empleado::extraerNombresApellidos($this->coordinador),
             // 'cliente' => $this->obtenerCliente(),
