@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('tipo_sangre')->after('responsable_discapacitados');
             $table->text('direccion')->after('tipo_sangre');
             $table->string('correo_personal')->after('tipo_sangre');
-            $table->decimal('supa',8,2)->after('direccion');
+            $table->decimal('supa',8,2)->nullable()->after('direccion');
             $table->decimal('salario',8,2)->after('supa');
-            $table->string('num_cuenta_bancaria')->after('salario');
+            $table->string('num_cuenta_bancaria')->after('salario')->nullable();
             $table->boolean('tiene_discapacidad')->after('num_cuenta_bancaria');
             $table->string('fecha_ingreso')->after('tiene_discapacidad')->nullable();
             $table->string('fecha_salida')->after('fecha_ingreso')->nullable();

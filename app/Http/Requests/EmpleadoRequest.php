@@ -61,6 +61,7 @@ class EmpleadoRequest extends FormRequest
             'num_cuenta_bancaria'=>'required',
             'salario'=>'required',
             'fecha_ingreso'=>'required',
+            'fecha_salida'=>'nullable',
             'tipo_contrato_id'=> 'required',
             'tiene_grupo'=>'required',
             'tiene_discapacidad'=>'required',
