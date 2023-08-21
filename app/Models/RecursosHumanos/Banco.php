@@ -15,11 +15,13 @@ class Banco extends Model implements Auditable
     use Filterable;
     protected $table = 'bancos';
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'codigo'
     ];
 
     private static $whiteListFilter = [
         'id',
+        'codigo',
         'nombre',
     ];
 }
