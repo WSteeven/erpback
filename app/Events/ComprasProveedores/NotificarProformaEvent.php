@@ -53,6 +53,6 @@ class NotificarProformaEvent implements ShouldBroadcast
 
     public function obtenerMensaje()
     {
-        return 'La proforma N°' . $this->proforma->id . ' que generaste el ' . $this->proforma->created_at . ' ha llegado a su fecha de vencimiento, por favor anula o convierte en prefactura la proforma. Quedan ' . Utils::obtenerDiasRestantes($this->proforma->created_at, $this->diasRestantes) . ' días para anulación automatica';
+        return 'La proforma N°' . $this->proforma->id . ' que generaste el ' . date('Y-m-d h:i:s a', strtotime($this->proforma->created_at)) . ' ha llegado a su fecha de vencimiento, por favor anula o convierte en prefactura la proforma. Quedan ' . Utils::obtenerDiasRestantes($this->proforma->created_at, $this->diasRestantes) . ' días para anulación automatica';
     }
 }

@@ -3,8 +3,8 @@
 {{-- Aquí codigo PHP --}}
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
     $rol_pago = $roles_pago[0];
 @endphp
 
@@ -28,7 +28,7 @@
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url('img/logoBN10.png');
             background-repeat: no-repeat;
             background-position: center;
         }

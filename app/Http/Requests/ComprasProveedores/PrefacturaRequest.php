@@ -28,9 +28,6 @@ class PrefacturaRequest extends FormRequest
             'codigo' => 'required|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
             'cliente' => 'required|numeric|exists:clientes,id',
-            'autorizador' => 'required|numeric|exists:empleados,id',
-            'autorizacion' => 'required|numeric|exists:autorizaciones,id',
-            'observacion_aut' => 'nullable|sometimes|string',
             'observacion_est' => 'nullable|sometimes|string',
             'descripcion' => 'required|string',
             'forma' => 'required|string',
@@ -43,11 +40,8 @@ class PrefacturaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->autorizacion === 2) {
+        if (is_null($this->estado) || $this->estado === '')
             $this->merge(['estado' => 2]);
-        }
-        if ($this->autorizacion === null)
-            $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if (is_null($this->codigo) || $this->codigo === '') {
             $this->merge(['codigo' => Prefactura::obtenerCodigo()]);
         }

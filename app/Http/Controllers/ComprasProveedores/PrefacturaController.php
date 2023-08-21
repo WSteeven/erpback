@@ -50,7 +50,6 @@ class PrefacturaController extends Controller
      */
     public function store(PrefacturaRequest $request)
     {
-        $autorizacion_pendiente = Autorizacion::where('nombre', Autorizacion::PENDIENTE)->first();
         $estado_pendiente = EstadoTransaccion::where('nombre', EstadoTransaccion::PENDIENTE)->first();
         try {
             DB::beginTransaction();
@@ -58,8 +57,6 @@ class PrefacturaController extends Controller
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
@@ -79,9 +76,9 @@ class PrefacturaController extends Controller
             DB::commit();
 
             // aqui se debe lanzar la notificacion en caso de que la prefactura sea autorizacion pendiente
-            if ($prefactura->estado_id === $estado_pendiente->id && $prefactura->autorizacion_id === $autorizacion_pendiente->id) {
-                event(new PrefacturaCreadaEvent($prefactura, true));// crea el evento de la prefactura al autorizador
-            }
+            // if ($prefactura->estado_id === $estado_pendiente->id && $prefactura->autorizacion_id === $autorizacion_pendiente->id) {
+            //     event(new PrefacturaCreadaEvent($prefactura, true));// crea el evento de la prefactura al autorizador
+            // }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -105,7 +102,6 @@ class PrefacturaController extends Controller
      */
     public function update(PrefacturaRequest $request, Prefactura $prefactura)
     {
-        $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
             DB::beginTransaction();
@@ -113,8 +109,6 @@ class PrefacturaController extends Controller
             $datos = $request->validated();
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
-            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
@@ -134,10 +128,10 @@ class PrefacturaController extends Controller
             DB::commit();
 
             // // aqui se debe lanzar la notificacion en caso de que la prefactura sea autorizacion pendiente
-            if ($prefactura->estado_id === $estado_completo->id && $prefactura->autorizacion_id === $autorizacion_aprobada->id) {
-                $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
-                event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
-            }
+            // if ($prefactura->estado_id === $estado_completo->id && $prefactura->autorizacion_id === $autorizacion_aprobada->id) {
+                // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+                // event(new PrefacturaActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
+            // }
 
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -155,13 +149,11 @@ class PrefacturaController extends Controller
     public function anular(Request $request, Prefactura $prefactura)
     {
         Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
-        $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
         $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         $request->validate(['motivo' => ['required', 'string']]);
         $prefactura->causa_anulacion = $request['motivo'];
-        $prefactura->autorizacion_id = $autorizacion->id;
         $prefactura->estado_id = $estado->id;
-        $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+        // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
         $prefactura->save();
 
         $modelo = new PrefacturaResource($prefactura->refresh());

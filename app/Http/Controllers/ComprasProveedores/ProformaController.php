@@ -19,13 +19,16 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\ComprasProveedores\ProformaService;
 use Src\Shared\Utils;
 
 class ProformaController extends Controller
 {
     private $entidad = 'Proforma';
+    private ProformaService $servicio;
     public function __construct()
     {
+        $this->servicio = new ProformaService();
         $this->middleware('can:puede.ver.proformas')->only('index', 'show');
         $this->middleware('can:puede.crear.proformas')->only('store');
         $this->middleware('can:puede.editar.proformas')->only('update');
@@ -36,10 +39,11 @@ class ProformaController extends Controller
      */
     public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Request en Proformas:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
-            $results = Proforma::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+            $results = $this->servicio->filtrarProformasAdministrador($request);
         } else {
-            $results = Proforma::filtrarProformasEmpleado($request);
+            $results = $this->servicio->filtrarProformasEmpleado($request);
         }
         $results = ProformaResource::collection($results);
         return response()->json(compact('results'));
