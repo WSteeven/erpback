@@ -2,7 +2,7 @@
 <html lang="es">
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
     $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 @endphp
 
@@ -16,8 +16,8 @@
         }
 
         body {
-            /* background-image: url('img/logoJPBN_10.png'); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url('img/logoBN10.png'); */
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }

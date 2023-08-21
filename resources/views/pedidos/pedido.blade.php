@@ -4,8 +4,8 @@
 @php
     $fecha = new Datetime();
     $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'RESPONSABLE: ' . $responsable . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
 @endphp
 
 <head>
@@ -17,7 +17,7 @@
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url('img/logoBN10.png');
             background-repeat: no-repeat;
             background-position: center;
         }

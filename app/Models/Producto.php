@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use App\Http\Resources\DetalleProductoResource;
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 class Producto extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable;
+    use HasFactory, UppercaseValuesTrait, Filterable, Searchable;
     use AuditableModel;
 
     protected $table = "productos";
@@ -26,6 +28,13 @@ class Producto extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'nombre' => $this->nombre,
+        ];
+    }
 
     public static function cantidadDetalles($id)
     {
@@ -66,4 +75,13 @@ class Producto extends Model implements Auditable
         return $this->belongsTo(UnidadMedida::class);
     }
 
+    /**
+     * Relación muchos a muchos.
+     * Uno o varios productos estan en una orden de compra.
+     */
+    public function productoOrdenCompra()
+    {
+        return $this->belongsToMany(OrdenCompra::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
+            ->withPivot(['descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+    }
 }

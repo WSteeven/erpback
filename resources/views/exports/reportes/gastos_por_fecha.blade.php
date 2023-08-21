@@ -4,7 +4,7 @@
     <style>
         body {
             font-family: sans-serif;
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -101,7 +101,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; ">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logo.png')) }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
                     <div class="col-md-7" align="center"><b>REPORTE SEMANAL DE GASTOS DEL

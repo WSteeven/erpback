@@ -1,7 +1,7 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
 @endphp
 
 <head>
@@ -15,8 +15,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }

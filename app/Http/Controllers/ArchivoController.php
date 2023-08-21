@@ -15,6 +15,9 @@ class ArchivoController extends Controller
     }
 
     public function store(Request $request){
+        if($request->entidad){
+            //
+        }
         $request->validate(['file'=>'required']);
 
         if(!$request->hasFile('file')){
@@ -23,8 +26,6 @@ class ArchivoController extends Controller
 
     }
 
-    public function guardarArchivoSeguimiento($entidad, Request $request, RutasStorage $ruta){
-        
-    }
+    
 
 }

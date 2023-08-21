@@ -50,3 +50,9 @@ Route::post('prefacturas/anular/{prefactura}', [PrefacturaController::class, 'an
 Route::get('ordenes-compras/imprimir/{orden}', [OrdenCompraController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('proformas/imprimir/{proforma}', [ProformaController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'imprimir'])->middleware('auth:sanctum');
+
+//listar archivos
+Route::get('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('detalles-departamentos-proveedor/files/{detalle}', [DetalleDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
+//guardar archivos
+Route::post('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'storeFiles'])->middleware('auth:sanctum');

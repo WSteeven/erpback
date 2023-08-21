@@ -2,8 +2,11 @@
 
 namespace Src\Shared;
 
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Type\Integer;
 
 class Utils
 {
@@ -189,12 +192,62 @@ class Utils
     }
 
     /**
+     * La función "mayusc" en PHP convierte una cadena a mayúsculas.
+     * 
+     * @param string $value El parámetro de valor es una cadena que desea convertir a mayúsculas.
+     * 
+     * @return String el valor de entrada convertido a mayúsculas.
+     */
+    public static function mayusc($value)
+    {
+        return strtoupper($value);
+    }
+
+    /**
+     * La función "obtenerNumeroEnCadena" toma una cadena como entrada en formato "7 dias", "15 dias", "30 dias", etc. 
+     * y devuelve el primer valor numérico encontrado en la cadena.
+     * 
+     * @param string $cadena El parámetro "cadena" es una cadena que contiene dos palabras o números
+     * separados por espacios.
+     * 
+     * @return int un valor entero.
+     */
+    public static function obtenerNumeroEnCadena(string $cadena)
+    {
+        $partes = explode(" ", $cadena);
+        if (count($partes) > 0 && is_numeric($partes[0])) return intval($partes[0]);
+        return -1;
+    }
+
+
+    /**
+     * La función "obtenerDiasRestantes" calcula el número de días que faltan entre una fecha
+     * determinada y la fecha actual más un número de días especificado.
+     * 
+     * @param DateTime $fecha El parámetro  es un objeto DateTime que representa la fecha de
+     * inicio.
+     * @param int diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
+     * días a sumar a la fecha dada.
+     * 
+     * @return int el número de días que quedan entre la fecha actual y la suma de las fechas dadas
+     */
+    public static function obtenerDiasRestantes(DateTime $fecha, int $diasAsumar)
+    {
+        $nuevaFecha = $fecha->addDays($diasAsumar);
+
+        $diferencia = Carbon::now()->diffInDays($nuevaFecha, false);
+        return $diferencia;
+    }
+
+
+
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES (tomadas del codigo de Yefraina)
      * ______________________________________________________________________________________
      */
 
-     private static function unidad($numero)
+    private static function unidad($numero)
     {
         switch ($numero) {
             case 9:
@@ -437,7 +490,7 @@ class Utils
      */
     public static function  obtenerValorMonetarioTexto($numero)
     {
-        Log::channel('testing')->info('Log', ['Balor recibido',$numero]);
+        Log::channel('testing')->info('Log', ['Balor recibido', $numero]);
         $num = str_replace(",", "", $numero);
         $num = number_format($num, 2, '.', '');
         $cents = substr($num, strlen($num) - 2, strlen($num) - 1);

@@ -21,9 +21,17 @@ class Archivo extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
     // Relación polimorfica
-    public function archivable(){
+    public function archivable()
+    {
         return $this->morphTo();
     }
 
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    
 }

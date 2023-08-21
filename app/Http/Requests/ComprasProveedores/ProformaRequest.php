@@ -45,11 +45,10 @@ class ProformaRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        if ($this->autorizacion === 2) {
-            $this->merge(['estado' => 2]);
-        }
-        if ($this->autorizacion === null)
-            $this->merge(['autorizacion' => 1, 'estado' => 1]);
+        if ($this->autorizacion === 2) $this->merge(['estado' => 1]);
+        if ($this->autorizacion === null)$this->merge(['autorizacion' => 1, 'estado' => 1]);
+        if($this->autorizacion===1) $this->merge(['estado' => 1]);
+        
         if (is_null($this->codigo) || $this->codigo === '') {
             $this->merge(['codigo' => Proforma::obtenerCodigo()]);
         }

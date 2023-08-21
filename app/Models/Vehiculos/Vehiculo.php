@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Empleado;
 use App\Models\Modelo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -36,7 +37,9 @@ class Vehiculo extends Model implements Auditable
     const AWD='AWD';
     const FOUR_WD='4WD';
     const TODOTERRENO='4X4';
-
+    const DOSXUNO='2X1';
+    const DOSXDOS='2X2';
+    
     //Transmisiones
     // const MANUAL='MANUAL';
     // const AUTOMATICA='AUTOMATICA';

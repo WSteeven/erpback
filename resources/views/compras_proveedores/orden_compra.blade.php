@@ -1,7 +1,7 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
 @endphp
 
 <head>
@@ -15,8 +15,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -135,7 +135,7 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$orden['codigo']}}
+                                <b>N° </b> {{ $orden['codigo'] }}
                             </td>
                         </tr>
                         <tr>
@@ -250,7 +250,7 @@
                     <tr class="row" style="width: auto">
                         {{-- <td>{{$index+1}}</td> --}}
                         <td align="center">{{ $item['cantidad'] }}</td>
-                        <td align="center">{{ $item['descripcion'] }}</td>
+                        <td align="center">{{ $item['producto'] }}: &nbsp; {{ $item['descripcion'] }}</td>
                         <td align="center">{{ $item['unidad_medida'] }}</td>
                         <td align="center">{{ $item['precio_unitario'] }}</td>
                         <td align="center">{{ $item['descuento'] }}</td>
