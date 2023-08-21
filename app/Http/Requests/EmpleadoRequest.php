@@ -63,7 +63,6 @@ class EmpleadoRequest extends FormRequest
             'fecha_ingreso'=>'required',
             'tipo_contrato_id'=> 'required',
             'tiene_grupo'=>'required',
-            'convencional'=>'required',
             'tiene_discapacidad'=>'required',
             'observacion'=>'required',
             'nivel_academico'=>'required',

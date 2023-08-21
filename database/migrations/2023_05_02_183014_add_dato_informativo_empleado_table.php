@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::table('empleados', function (Blueprint $table) {
             $table->string('tipo_sangre')->after('responsable_discapacitados');
             $table->text('direccion')->after('tipo_sangre');
+            $table->string('correo_personal')->after('tipo_sangre');
             $table->decimal('supa',8,2)->after('direccion');
             $table->decimal('salario',8,2)->after('supa');
             $table->string('num_cuenta_bancaria')->after('salario');
