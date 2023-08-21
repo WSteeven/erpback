@@ -30,7 +30,7 @@ class SolicitudPrestamoEvent implements ShouldBroadcast
     public function __construct($solicitudPrestamo)
     {
         $this->jefeInmediato = Departamento::where('id', 7)->first()->responsable_id;
-        $ruta = $solicitudPrestamo->estado == 1 ? '/autorizar-solicitudPrestamo' : '/solicitudPrestamo';
+        $ruta =  '/solicitud-prestamo-empresarial';
         $this->solicitudPrestamo = $solicitudPrestamo;
         $informativa = false;
         switch ($solicitudPrestamo->estado) {
