@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\LicenciaEmpleadoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LicenciaEmpleadoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoLicenciaEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoResource;
 use App\Models\Empleado;

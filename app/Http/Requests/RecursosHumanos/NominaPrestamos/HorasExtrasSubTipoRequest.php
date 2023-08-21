@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PlazoPrestamoEmpresarialRequest extends FormRequest
+class HorasExtrasSubTipoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

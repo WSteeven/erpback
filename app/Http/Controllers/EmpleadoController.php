@@ -58,6 +58,7 @@ class EmpleadoController extends Controller
         }
 
         // Procesar respuesta
+        if(request('rol')) return EmpleadoResource::collection(Empleado::whereIn('id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($search) return $this->servicio->search($search);
 

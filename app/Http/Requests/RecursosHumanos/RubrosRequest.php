@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RecursosHumanos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ExtensionCoverturaSaludRequest extends FormRequest
+class RubrosRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ExtensionCoverturaSaludRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,8 +24,7 @@ class ExtensionCoverturaSaludRequest extends FormRequest
     public function rules()
     {
         return [
-            'mes' => 'required',
-            'tieneDocumento' => 'required',
+            //
         ];
     }
 }

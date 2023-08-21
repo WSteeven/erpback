@@ -54,7 +54,11 @@ Route::apiResources(
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
-
+        'motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
+        'permiso_empleado' => PermisoEmpleadoController::class,
+        'estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
+        'tipo_contrato' => TipoContratoController::class,
+        'rol_pago' => RolPagosController::class,
     ],
     [
         'parameters' => [],

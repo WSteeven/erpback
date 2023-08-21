@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PeriodoRequest extends FormRequest
+class ActividadRealizadaSeguimientoSubtareaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class PeriodoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,10 @@ class PeriodoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'fecha_hora' => 'required|string',
+            'trabajo_realizado' => 'required|string',
+            'fotografia' => 'nullable|string',
+            'subtarea' => 'required|numeric|integer',
         ];
     }
 }

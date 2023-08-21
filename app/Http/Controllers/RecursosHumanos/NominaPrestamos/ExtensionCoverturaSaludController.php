@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ExtensionCoverturaSaludRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludResource;
 use App\Imports\ExtensionCoverturaSaludImport;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud ;

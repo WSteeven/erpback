@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('bancos', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre');
-            $table->string('codigo');
-            $table->timestamps();
+        Schema::table('archivos_seguimientos', function (Blueprint $table) {
+            $table->integer('subtarea_id');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('bancos');
+        Schema::table('archivos_seguimientos', function (Blueprint $table) {
+            $table->dropColumn('subtarea_id');
+        });
     }
 };

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\PermisoEmpleadoEvent;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PermisoEmpleadoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PermisoEmpleadoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoPermisoEmpleadoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PermisoEmpleadoResource;
 use App\Models\Empleado;
