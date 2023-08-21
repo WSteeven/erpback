@@ -13,7 +13,7 @@ class ExtensionCoverturaSalud extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'extension_covertura_salud';
+    protected $table = 'extension_cobertura_salud';
     protected $fillable = [
         'mes','empleado_id','dependiente','origen','materia_grabada','aporte','aporte_porcentaje','aprobado','observacion'
     ];
