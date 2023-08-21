@@ -23,10 +23,6 @@ class PrefacturaResource extends JsonResource
             'codigo' => $this->codigo,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
-            'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
-            'autorizador_id' => $this->autorizador_id,
-            'autorizacion' => $this->autorizacion->nombre,
-            'autorizacion_id' => $this->autorizacion_id,
             'descripcion' => $this->descripcion,
             'cliente' => $this->cliente->empresa->razon_social,
             'causa_anulacion' => $this->causa_anulacion,
@@ -47,8 +43,6 @@ class PrefacturaResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['solicitante'] = $this->solicitante_id;
-            $modelo['autorizador'] = $this->autorizador_id;
-            $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['estado'] = $this->estado_id;
         }

@@ -108,3 +108,5 @@ class EmpleadoRequest extends FormRequest
         ]);
     }
 }
+
+

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\ContactoProveedor;
+use App\Models\ComprasProveedores\ContactoProveedor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

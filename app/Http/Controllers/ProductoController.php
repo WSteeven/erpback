@@ -26,6 +26,7 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Request recibida en productos', $request->all()]);
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $results = [];
@@ -33,13 +34,26 @@ class ProductoController extends Controller
             $results = Producto::all($campos);
             $results =ProductoResource::collection($results);
             return response()->json(compact('results'));
-        } else
-        if ($page) {
-            $results = Producto::simplePaginate($request['offset']);
-        } else {
-            $results = Producto::ignoreRequest(['campos'])->filter()->get();
-            // Log::channel('testing')->info('Log', ['Listado solicitado', $results]);
-            // Log::channel('testing')->info('Log', ['Listado solicitado pasado por el resource', $results]);
+        } else if($request->categoria_id && is_null($request->categoria_id[0])){
+            if($request['search']){
+                $results = Producto::search($request['search'])->get();
+                Log::channel('testing')->info('Log', ['entro en searcgh', $results]);
+            }else{
+                $results = Producto::ignoreRequest(['campos', 'categoria_id'])->filter()->get();
+                Log::channel('testing')->info('Log', ['entro en if 42', $results]);
+            }
+        }else{
+            if($request->search){
+                // $results = Producto::ignoreRequest(['campos','search'])->filter()->search($request['search'])->get();
+                $results = Producto::search($request->search)
+                ->when($request->categoria_id, function($query) use ($request){
+                    return $query->whereIn('categoria_id', $request->categoria_id);
+                })->get();
+                Log::channel('testing')->info('Log', ['entro en else 52', $results]);
+            }else{
+                $results = Producto::ignoreRequest(['campos'])->filter()->get();
+                Log::channel('testing')->info('Log', ['entro en else 50', $results]);
+            }
         }
         $results = ProductoResource::collection($results);
         return response()->json(compact('results'));

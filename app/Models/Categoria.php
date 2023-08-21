@@ -6,12 +6,13 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
 class Categoria extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable;
+    use HasFactory, UppercaseValuesTrait, Filterable, Searchable;
     use AuditableModel;
     protected $table = 'categorias';
 	protected $fillable = ['nombre'];

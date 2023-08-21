@@ -264,6 +264,11 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(SeguimientoMaterialSubtarea::class);
     }
 
+    public function trabajosRealizados()
+    {
+        return $this->hasMany(TrabajoRealizado::class);
+    }
+
     /*********
      * Scopes
      *********/
