@@ -48,11 +48,12 @@ class EmpleadoResource extends JsonResource
             'vive_con_discapacitados' => $this->vive_con_discapacitados,
             'responsable_discapacitados' => $this->responsable_discapacitados,
             //nuevos campos
+            'correo_personal' => $this->correo_personal,
             'tipo_sangre' => $this->tipo_sangre,
             'direccion' => $this->direccion,
             'supa' => $this->supa,
             'salario' => $this->salario,
-            'num_cuenta_bancaria' => $this->num_cuenta_bancaria,
+            'num_cuenta' => $this->num_cuenta_bancaria,
             'banco' => $this->banco,
             'banco_info' => $this->banco_info ? $this->banco_info->nombre : null,
             'tiene_discapacidad' => $this->tiene_discapacidad,
@@ -61,12 +62,14 @@ class EmpleadoResource extends JsonResource
             'talla_zapato' => $this->talla_zapato,
             'talla_camisa' => $this->talla_camisa,
             'talla_guantes' => $this->talla_guantes,
+            'nivel_academico' => $this->nivel_academico,
             'estado_civil' => $this->estado_civil_id,
             'estado_civil_info' => $this->estadoCivil  ? $this->estadoCivil->nombre : null,
             'area' =>  $this->area_id,
             'area_info' =>  $this->area ? $this->area->nombre : null,
             'tipo_contrato' => $this->tipo_contrato_id,
             'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
+            'observacion' => $this->observacion
 
         ];
 
