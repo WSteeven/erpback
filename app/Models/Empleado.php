@@ -298,15 +298,15 @@ class Empleado extends Model implements Auditable
      */
     public function estadoCivil()
     {
-        return $this->belongsTo(EstadoCivil::class);
+        return $this->hasOne(EstadoCivil::class,'id','estado_civil_id');
     }
     /**
      * Relación uno a uno.
      * Un empleado tiene uncuente aen un banco.
      */
-    public function banco()
+    public function banco_info()
     {
-        return $this->belongsTo(Banco::class);
+        return $this->hasOne(Banco::class,'id','banco');
     }
     /**
      * Relación uno a uno.
@@ -314,7 +314,7 @@ class Empleado extends Model implements Auditable
      */
     public function tipoContrato()
     {
-        return $this->belongsTo(TipoContrato::class);
+        return $this->belongsTo(TipoContrato::class,'tipo_contrato_id','id');
     }
     /**
      * Relación uno a uno.
@@ -345,4 +345,5 @@ class Empleado extends Model implements Auditable
         // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
+
 }
