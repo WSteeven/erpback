@@ -17,10 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+use Src\Config\ClientesCorporativos;
 
 class SubtareaService
 {
-    public function __construct() { }
+    public function __construct()
+    {
+    }
 
     public function guardarSubtarea(SubtareaRequest $request)
     {
@@ -115,21 +118,21 @@ class SubtareaService
 
     public function puedeRealizar(Subtarea $subtarea)
     {
-        $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
+        // $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
-        if (!in_array($subtarea->tipo_trabajo_id, $ids) && !$seguimiento) throw ValidationException::withMessages([
+        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {/*  && !$seguimiento) throw ValidationException::withMessages([
             'falta_seguimiento' => ['Debe registrar actividades en el seguimiento!'],
-        ]);
+        ]); */
 
-        if ($seguimiento) {
-            if ($seguimiento->trabajoRealizado->count() < 3)
+
+            if ($subtarea->trabajosRealizados->count() < 3)
                 throw ValidationException::withMessages([
                     'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
                 ]);
 
-            if ($subtarea->tarea->cliente_id == 3) {
-                if ($seguimiento->archivos->count() === 0)
+            if ($subtarea->tarea->cliente_id == ClientesCorporativos::NEDETEL) {
+                if ($subtarea->archivosSeguimiento->count() === 0)
                     throw ValidationException::withMessages([
                         'archivo_requerido' => ['Debe subir al menos un archivo en el formulario de seguimiento!'],
                     ]);
