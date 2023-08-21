@@ -95,18 +95,19 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(4) / 100;
     }
-    public  function calcularSueldo($dias = 30, $es_quincena = false)
+    public function calcularSueldo($dias = 30, $es_quincena = false, $porcentaje_anticipo = 0)
     {
-        $sueldo = 0;
+        $porcentaje_anticipo = $porcentaje_anticipo / 100;
+        $salario_diario = $this->empleado->salario / 30;
         if ($es_quincena) {
-
-            $sueldo = (($this->empleado->salario / 30) * (30)) *  $this->calcularPorcentajeAnticipo();
+            $porcentaje_usar = $porcentaje_anticipo > 0 ? $porcentaje_anticipo : $this->calcularPorcentajeAnticipo();
+            $sueldo = $salario_diario * 30 * $porcentaje_usar;
         } else {
-            $sueldo = ($this->empleado->salario / 30) * ($dias - $this->permisoEmpleado());
+            $dias_trabajados = $dias - $this->permisoEmpleado();
+            $sueldo = $salario_diario * $dias_trabajados;
         }
         return $sueldo;
     }
-
     public function calcularAporteIESS()
     {
         $sueldo = $this->calcularSueldo(30);
@@ -126,7 +127,7 @@ class NominaService
     }
     public function calcularAnticipo()
     {
-        $mes_rol_anterior= Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
+        $mes_rol_anterior = Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
         $rol_usuario = RolPago::join('rol_pago_mes', 'rol_pago.rol_pago_id', '=', 'rol_pago_mes.id')
             ->where('rol_pago.empleado_id', $this->id_empleado)
             ->where('rol_pago_mes.mes', $mes_rol_anterior)
