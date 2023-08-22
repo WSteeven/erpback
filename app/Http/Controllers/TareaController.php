@@ -67,7 +67,7 @@ class TareaController extends Controller
     public function index()
     {
         $results = $this->listar();
-        $results = TareaResource::collection($results);
+        if (!request('campos')) $results = TareaResource::collection($results);
         return response()->json(compact('results'));
     }
 

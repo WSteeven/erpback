@@ -31,15 +31,15 @@ class TareaResource extends JsonResource
             'titulo' => $this->titulo,
             // 'observacion' => $this->observacion,
             // 'novedad' => $this->novedad,
-            // 'para_cliente_proyecto' => $this->para_cliente_proyecto,
-            // 'ubicacion_trabajo' => $this->ubicacion_trabajo,
-            // 'ruta_tarea' => $this->rutaTarea?->ruta,
+            /* 'para_cliente_proyecto' => $this->para_cliente_proyecto,
+            'ubicacion_trabajo' => $this->ubicacion_trabajo,
+            'ruta_tarea' => $this->rutaTarea?->ruta, */
             // 'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
             // 'cliente' => $this->obtenerCliente(),
-            // 'cliente_id' => $this->cliente_id,
+            'cliente_id' => $this->cliente_id,
             // 'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
             // 'medio_notificacion' => $this->medio_notificacion,
@@ -55,6 +55,10 @@ class TareaResource extends JsonResource
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['ruta_tarea'] = $this->ruta_tarea_id;
+            $modelo['para_cliente_proyecto'] = $this->para_cliente_proyecto;
+            $modelo['ubicacion_trabajo'] = $this->ubicacion_trabajo;
+            $modelo['observacion'] = $this->observacion;
+            $modelo['fecha_solicitud'] = $this->fecha_solicitud;
         }
 
         return $modelo;
