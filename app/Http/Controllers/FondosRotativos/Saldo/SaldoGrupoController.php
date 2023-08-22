@@ -504,6 +504,7 @@ class SaldoGrupoController extends Controller
             $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
+
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -513,6 +514,12 @@ class SaldoGrupoController extends Controller
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
+            $saldo_ultimo = $saldo_anterior['saldo_actual'];
+            foreach ($reportes_unidos as $item) {
+                if ($item != null) {
+                    $saldo_ultimo = $saldo_ultimo + $item['ingreso'] - $item['gasto'];
+                }
+            }
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
@@ -520,6 +527,7 @@ class SaldoGrupoController extends Controller
                 'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'saldo_ultimo' => $saldo_ultimo,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -529,6 +537,10 @@ class SaldoGrupoController extends Controller
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
             ];
+
+
+
+
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);

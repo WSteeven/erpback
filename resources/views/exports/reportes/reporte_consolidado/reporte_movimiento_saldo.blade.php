@@ -161,7 +161,7 @@
             <tr height="29">
                 <td height="15">
                     <div align="left">
-                        <b>SALDO ACTUAL:</b>  {{  number_format($nuevo_saldo, 2, ',', ' ')  }}
+                        <b>SALDO ACTUAL:</b>  {{  number_format($saldo_ultimo, 2, ',', ' ')  }}
                     </div>
                 </td>
             </tr>

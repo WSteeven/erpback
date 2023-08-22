@@ -69,6 +69,7 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function guardar_arreglo($id,$ingreso,$gasto,$saldo){
         $row = [];
+       // $saldo =0;
         $row['item'] = $id + 1;
         $row['fecha'] = $saldo['created_at'];
         $row['fecha_creacion'] = $saldo['created_at'];
@@ -77,6 +78,7 @@ class SaldoGrupo extends  Model implements Auditable
         $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
+       // $row['saldo_count'] = $ingreso -$gasto;
         return $row;
     }
     private static function saldoAnterior($id, $fecha, $saldo_anterior)
