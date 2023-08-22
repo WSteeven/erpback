@@ -16,7 +16,7 @@ class Vacacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'vacacion';
+    protected $table = 'vacaciones';
     const PENDIENTE = 1;
     const APROBADO = 2;
     const CANCELADO = 3;

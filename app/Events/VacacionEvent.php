@@ -29,7 +29,7 @@ class VacacionEvent implements ShouldBroadcast
      */
     public function __construct($vacacion)
     {
-        $ruta = $vacacion->estado == 1 ? '/autorizar-vacacion' : '/vacacion';
+        $ruta = '/vacacion';
         $this->vacacion = $vacacion;
         $informativa = false;
         switch ($vacacion->estado) {
