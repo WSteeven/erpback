@@ -61,14 +61,17 @@ class TransaccionBodegaEgresoController extends Controller
 
         $results = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
-                'item' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'id' => $index + 1,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
             ];
         });
 
@@ -93,9 +96,11 @@ class TransaccionBodegaEgresoController extends Controller
 
         $materialesTarea = collect($results)->map(function ($item, $index) use($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
                 'id' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
@@ -103,7 +108,8 @@ class TransaccionBodegaEgresoController extends Controller
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
-                // 'medida' => 'm',
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
             ];
         });
 
