@@ -136,6 +136,7 @@ class EmpleadoController extends Controller
                 'talla_guantes' => $datos['talla_guantes'],
                 'talla_pantalon' => $datos['talla_pantalon'],
                 'banco' => $datos['banco'],
+                'genero' => $datos['genero'],
 
             ]);
 
