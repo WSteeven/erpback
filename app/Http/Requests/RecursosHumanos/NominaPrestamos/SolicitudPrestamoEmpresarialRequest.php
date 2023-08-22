@@ -39,7 +39,7 @@ class SolicitudPrestamoEmpresarialRequest extends FormRequest
                 'motivo' => 'nullable|string',
                 'foto' => 'nullable|string',
                  'estado' => 'required|numeric',
-                'observacion' => 'required|string',
+                'observacion' => 'nullable|string',
             ];
         } else {
             $rules = [
