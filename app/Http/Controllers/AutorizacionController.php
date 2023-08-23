@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AutorizacionRequest;
 use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
+use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
@@ -20,17 +22,19 @@ class AutorizacionController extends Controller
 
     }
     /**
-     * Listar 
+     * Listar
      */
     public function index(Request $request)
     {
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $results = [];
+    // $user =  Auth::user();
+
         if($request['campos']){
             $results = Autorizacion::ignoreRequest(['campos'])->filter()->get($campos);
-            return response()->json(compact('results'));    
-        }else 
+            return response()->json(compact('results'));
+        }else
         if ($page) {
             $results = Autorizacion::simplePaginate($request['offset']);
             AutorizacionResource::collection($results);
@@ -47,7 +51,7 @@ class AutorizacionController extends Controller
  */
     public function store(AutorizacionRequest $request)
     {
-        
+
         // Respuesta
         $modelo = Autorizacion::create($request->validated());
         $modelo = new AutorizacionResource($modelo);

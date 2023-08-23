@@ -32,6 +32,7 @@ use App\Models\Comprobante;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\Subtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
@@ -60,14 +61,17 @@ class TransaccionBodegaEgresoController extends Controller
 
         $results = collect($results)->map(function ($item, $index) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
-                'item' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'id' => $index + 1,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
             ];
         });
 
@@ -83,24 +87,36 @@ class TransaccionBodegaEgresoController extends Controller
             'empleado_id' => 'required|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
+
         // $empleado_id = Auth::user()->empleado->id;
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-        $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
 
-        $materialesTarea = collect($results)->map(function ($item, $index) {
+        $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+        $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+
+        // Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
+
+        $materialesTarea = collect($results)->map(function ($item, $index) use($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
                 'id' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
-                // 'medida' => 'm',
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
             ];
         });
+
+        // Fusionar
+        // $materialesTarea = $materialesUtilizadosHoy->
 
         if ($request['subtarea_id']) {
             $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);

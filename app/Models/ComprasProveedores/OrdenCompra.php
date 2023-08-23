@@ -8,6 +8,7 @@ use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use App\Models\Pedido;
+use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
@@ -73,12 +74,12 @@ class OrdenCompra extends Model implements Auditable
 
   /**
    * Relación muchos a muchos. 
-   * Una orden de compra tiene varios detalles de productos.
+   * Una orden de compra tiene varios productos asociados.
    */
-  public function detalles()
+  public function productos()
   {
-    return $this->belongsToMany(DetalleProducto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'detalle_id')
-      ->withPivot(['cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+    return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
+      ->withPivot(['descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
   /**
    * Relación uno a uno.
@@ -157,28 +158,28 @@ class OrdenCompra extends Model implements Auditable
    * FUNCIONES
    * ______________________________________________________________________________________
    */
+
   public static function listadoProductos(int $id)
   {
-    $detalles = OrdenCompra::find($id)->detalles()->get();
-    // Log::channel('testing')->info('Log', ['los detalles consultados', $detalles]);
+    $productos = OrdenCompra::find($id)->productos()->get();
+    // Log::channel('testing')->info('Log', ['los productos consultados', $productos]);
     $results = [];
     $row = [];
-    foreach ($detalles as $index => $detalle) {
-      $row['id'] = $detalle->id;
-      $row['producto'] = $detalle->producto->nombre;
-      $row['descripcion'] = $detalle->descripcion;
-      $row['categoria'] = $detalle->producto->categoria->nombre;
-      $row['unidad_medida'] = $detalle->producto->unidadMedida->nombre;
-      $row['serial'] = $detalle->serial;
-      $row['cantidad'] = $detalle->pivot->cantidad;
-      $row['precio_unitario'] = $detalle->pivot->precio_unitario;
-      $row['porcentaje_descuento'] = $detalle->pivot->porcentaje_descuento;
-      $row['descuento'] = $detalle->pivot->subtotal * $detalle->pivot->porcentaje_descuento / 100;
-      $row['iva'] = $detalle->pivot->iva;
-      $row['subtotal'] = $detalle->pivot->subtotal;
-      $row['total'] = $detalle->pivot->total;
-      $row['facturable'] = (bool)$detalle->pivot->facturable;
-      $row['grava_iva'] = (bool)$detalle->pivot->grava_iva;
+    foreach ($productos as $index => $producto) {
+      $row['id'] = $producto->id;
+      $row['producto'] = $producto->nombre;
+      $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
+      $row['categoria'] = $producto->categoria->nombre;
+      $row['unidad_medida'] = $producto->unidadMedida->nombre;
+      $row['cantidad'] = $producto->pivot->cantidad;
+      $row['precio_unitario'] = $producto->pivot->precio_unitario;
+      $row['porcentaje_descuento'] = $producto->pivot->porcentaje_descuento;
+      $row['descuento'] = $producto->pivot->subtotal * $producto->pivot->porcentaje_descuento / 100;
+      $row['iva'] = $producto->pivot->iva;
+      $row['subtotal'] = $producto->pivot->subtotal;
+      $row['total'] = $producto->pivot->total;
+      $row['facturable'] = (bool)$producto->pivot->facturable;
+      $row['grava_iva'] = (bool)$producto->pivot->grava_iva;
       $results[$index] = $row;
     }
 
@@ -205,11 +206,13 @@ class OrdenCompra extends Model implements Auditable
 
   public static function guardarDetalles($orden, $items)
   {
+    Log::channel('testing')->info('Log', ['Request :', $orden, $items]);
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) {
         return [
-          'detalle_id' => $detalle['id'],
+          'producto_id' => $detalle['id'],
+          'descripcion' => $detalle['descripcion']?Utils::mayusc($detalle['descripcion']):$detalle['producto'],
           'cantidad' => $detalle['cantidad'],
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
           'facturable' => $detalle['facturable'],
@@ -220,11 +223,11 @@ class OrdenCompra extends Model implements Auditable
           'total' => $detalle['total'],
         ];
       }, $items);
-      $orden->detalles()->sync($datos);
+      $orden->productos()->sync($datos);
 
-      Log::channel('testing')->info('Log', ['Request :', $orden->detalles()->count(), $orden->preorden_id]);
+      Log::channel('testing')->info('Log', ['Request :', $orden->productos()->count(), $orden->preorden_id]);
       // aquí se modifica el estado de la preorden de compra
-      if ($orden->detalles()->count() > 0 && $orden->preorden_id) {
+      if ($orden->productos()->count() > 0 && $orden->preorden_id) {
         $preorden = PreordenCompra::find($orden->preorden_id);
         $preorden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion
         $preorden->estado = EstadoTransaccion::COMPLETA;
@@ -232,7 +235,7 @@ class OrdenCompra extends Model implements Auditable
       }
       DB::commit();
     } catch (Exception $e) {
-      Log::channel('testing')->info('Log', ['Error en metodo guardar detalles de orden de compras', $e->getMessage(), $e->getLine()]);
+      Log::channel('testing')->info('Log', ['Error en metodo guardar productos de orden de compras', $e->getMessage(), $e->getLine()]);
       throw new Exception($e->getMessage());
     }
   }
@@ -254,9 +257,10 @@ class OrdenCompra extends Model implements Auditable
    * @return string una cadena que consta del año actual menos el mes actual, seguida de un código generado
    * con una longitud de 3 dígitos.
    */
-  public static function obtenerCodigo(){
+  public static function obtenerCodigo()
+  {
     $mes = Carbon::now()->format('m');
     $suma = OrdenCompra::whereYear('created_at', date('Y'))->whereMonth('created_at', $mes)->count();
-    return date('y').'-'.$mes.Utils::generarCodigoConLongitud($suma+1, 3);
+    return date('y') . '-' . $mes . Utils::generarCodigoConLongitud($suma + 1, 3);
   }
 }

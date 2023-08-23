@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
+
+use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use Illuminate\Foundation\Http\FormRequest;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
+use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
+
+class RolPagoRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            'rol_pago_id' => 'required',
+            'empleado' => 'required',
+            'mes' => 'required',
+            'dias' => 'required',
+            'sueldo' => 'required',
+            'anticipo' => 'required',
+            'ingresos' => 'nullable',
+            'decimo_tercero' =>  'required',
+            'decimo_cuarto' => 'required',
+            'total_ingreso' => 'required',
+            'bonificacion' => 'nullable',
+            'bono_recurente' => 'nullable',
+            'prestamo_quirorafario' => 'required',
+            'prestamo_hipotecario' => 'required',
+            'prestamo_empresarial' => 'required',
+            'egresos' => 'nullable',
+            'iess' =>  'required',
+            'extension_conyugal' => 'required',
+            'total_egreso' => 'required',
+            'total' => 'required'
+        ];
+    }
+    protected function prepareForValidation()
+    {
+        $nominaService = new NominaService($this->mes);
+        $prestamoService = new PrestamoService($this->mes);
+        $nominaService->setEmpleado($this->empleado);
+        $prestamoService->setEmpleado($this->empleado);
+        $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
+        $dias = $this->dias;
+        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena, $this->porcentaje_anticipo !==null ? $this->porcentaje_anticipo:0);
+        $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
+        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
+        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva();
+        $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
+        $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
+        $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)
+            ? array_reduce($this->ingresos, function ($acumulado, $ingreso) {
+                return $acumulado + (float) $ingreso['monto'];
+            }, 0)
+            : 0;
+        $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
+        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS();
+        $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
+        $prestamo_quirorafario =   $rol->es_quincena ? 0 : $prestamoService->prestamosQuirografarios();
+        $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();
+        $extension_conyugal =  $rol->es_quincena ? 0 : $nominaService->extensionesCoberturaSalud();
+        $prestamo_empresarial = $rol->es_quincena ? 0 : $prestamoService->prestamosEmpresariales();
+        $totalEgresos = $totalEgresos = !empty($this->egresos)
+            ? array_reduce($this->egresos, function ($acumulado, $egreso) {
+                return $acumulado + (float) $egreso['monto'];
+            }, 0) : 0;
+        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
+        $total = abs($ingresos) - $egreso;
+        $this->merge([
+            'sueldo' =>  $sueldo,
+            'decimo_tercero' =>  $decimo_tercero,
+            'decimo_cuarto' =>  $decimo_cuarto,
+            'fondos_reserva' =>  $fondos_reserva,
+            'total_ingreso' =>  $ingresos,
+            'iess' =>  $iess,
+            'anticipo' =>  $anticipo,
+            'prestamo_quirorafario' =>  $prestamo_quirorafario,
+            'prestamo_hipotecario' =>  $prestamo_hipotecario,
+            'extension_conyugal' =>  $extension_conyugal,
+            'prestamo_empresarial' =>  $prestamo_empresarial,
+            'total_egreso' =>  $egreso,
+            'total' =>  $total,
+        ]);
+    }
+}

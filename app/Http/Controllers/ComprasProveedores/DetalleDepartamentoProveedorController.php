@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ComprasProveedores;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ComprasProveedores\DetalleDepartamentoProveedorResource;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -78,5 +79,26 @@ class DetalleDepartamentoProveedorController extends Controller
     public function destroy(DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
     {
         //
+    }
+
+    /**
+     * Listar todos los archivos de un determinado detalle
+     */
+    public function indexFiles(Request $request, $detalle)
+    {
+        $results = [];
+        Log::channel('testing')->info('Log', ['Recibido del front en indexFiles', $request->all(), $detalle]);
+        try {
+            $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
+            if ($detalle_dept) {
+                $results = $detalle_dept->archivos()->get();
+            }
+            
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'));
+        }
+        return response()->json(compact('results'));
     }
 }

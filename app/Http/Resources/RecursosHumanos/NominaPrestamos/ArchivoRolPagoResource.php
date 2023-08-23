@@ -16,9 +16,9 @@ class ArchivoRolPagoResource extends JsonResource
     {
         $modelo = [
             'id' => $this->id,
-            'nombre' =>$this->documento!= null?json_decode($this->documento)->nombre:'',
-            'ruta' =>$this->documento?json_decode($this->documento)->ruta:null,
-            'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
+            'nombre' =>$this->rol_firmado!= null?json_decode($this->rol_firmado)->nombre:'',
+            'ruta' =>$this->rol_firmado?json_decode($this->rol_firmado)->ruta:null,
+            'tamanio_bytes' =>$this->rol_firmado!= null?json_decode($this->rol_firmado)->tamanio_bytes:0,
         ];
         return $modelo;
     }

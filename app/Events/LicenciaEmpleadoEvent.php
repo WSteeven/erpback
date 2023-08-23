@@ -26,7 +26,7 @@ class LicenciaEmpleadoEvent implements ShouldBroadcast
      */
     public function __construct($licenciaEmpleado)
     {
-        $ruta = $licenciaEmpleado->estado == 1? '/autorizar-licenciaEmpleado':'/licenciaEmpleado';
+        $ruta = 'licencia-empleado';
         $this->licenciaEmpleado = $licenciaEmpleado;
         $informativa = false;
         switch ($licenciaEmpleado->estado) {

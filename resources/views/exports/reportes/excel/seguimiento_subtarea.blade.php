@@ -3,8 +3,8 @@
 
 @php
 $fecha = new Datetime();
-$logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-$logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+$logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+$logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
 @endphp
 
 <head>
@@ -60,7 +60,7 @@ $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('im
             {{-- Fila 0 --}}
             <tr>
                 <td>&nbsp;</td>
-                <td><img src="{{ public_path('img/logoJP.png') }}" width="90" /></td>
+                <td><img src="{{ public_path('img/logo.png') }}" width="90" /></td>
                 <td>&nbsp;</td>
             </tr>
 

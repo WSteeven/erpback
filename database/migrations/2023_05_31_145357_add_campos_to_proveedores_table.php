@@ -15,15 +15,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('proveedores', function (Blueprint $table) {
-            // $table->string('sucursal');
-            // $table->unsignedBigInteger('parroquia_id')->nullable();
-            // $table->text('direccion');
-            // $table->string('celular')->nullable();
-            // $table->string('telefono')->nullable();
+            $table->string('sucursal');
+            $table->unsignedBigInteger('parroquia_id')->nullable();
+            $table->text('direccion');
+            $table->string('celular')->nullable();
+            $table->string('telefono')->nullable();
             $table->double('calificacion')->nullable();
             $table->enum('estado_calificado', [Proveedor::SIN_CALIFICAR, Proveedor::SIN_CONFIGURAR, Proveedor::PARCIAL, Proveedor::CALIFICADO])->nullable();
 
-            // $table->foreign('parroquia_id')->references('id')->on('parroquias')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('parroquia_id')->references('id')->on('parroquias')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

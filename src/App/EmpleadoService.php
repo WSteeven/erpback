@@ -39,7 +39,7 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '<>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 
@@ -49,7 +49,7 @@ class EmpleadoService
         $indice = array_search('responsable_departamento', $campos);
         if($indice) unset($campos[$indice]);
 
-        $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
+        $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '>', 1)->get($campos);
         $ids = $this->obtenerIdsResponsablesDepartamentos();
 
         if ($indice) {
@@ -69,7 +69,7 @@ class EmpleadoService
 
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos'])->filter()->where('id', '<>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 

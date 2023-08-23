@@ -33,6 +33,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ComprobanteController;
+use App\Http\Controllers\ConfiguracionGeneralController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\TableroController;
@@ -137,6 +138,7 @@ Route::apiResources(
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
+        'configuracion' => ConfiguracionGeneralController::class,
         'control-stocks' => ControlStockController::class,
         'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
@@ -187,11 +189,7 @@ Route::apiResources(
         'fondos-rotativos/transferencia' => TransferenciasController::class,
         'fondos-rotativos/gasto-coordinador' => GastoCoordinadorController::class,
         'fondos-rotativos/motivo-gasto' => MotivoGastoController::class,
-        'recursos-humanos/motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
-        'recursos-humanos/permiso_empleado' => PermisoEmpleadoController::class,
-        'recursos-humanos/estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
-        'recursos-humanos/tipo_contrato' => TipoContratoController::class,
-        'recursos-humanos/rol_pago' => RolPagosController::class,
+
         'forma_pago' => FormaPagoController::class
     ],
     [

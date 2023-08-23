@@ -50,7 +50,7 @@
     <table align="center" class="principal" width="90%">
         <tr>
             <td width="15%"><img
-                    src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                    src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
                     width="90"></td>
             <td width="85%" colspan="2">
                 <p class="encabezado-rol"> <strong>JP CONSTRUCRED C.LTDA</strong></p>
