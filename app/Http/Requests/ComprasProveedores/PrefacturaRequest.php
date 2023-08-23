@@ -26,6 +26,7 @@ class PrefacturaRequest extends FormRequest
     {
         return [
             'codigo' => 'required|string',
+            'proforma' => 'nullable|sometimes|numeric|exists:cmp_proformas,id',
             'solicitante' => 'required|numeric|exists:empleados,id',
             'cliente' => 'required|numeric|exists:clientes,id',
             'observacion_est' => 'nullable|sometimes|string',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Departamento;
@@ -47,17 +48,22 @@ class ProveedorController extends Controller
 
             Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             //Respuesta
-            $modelo = Proveedor::create($datos);
-            $modelo->servicios_ofertados()->attach($request->tipos_ofrece);
-            $modelo->categorias_ofertadas()->attach($datos['categorias_ofrece']);
-            $modelo->departamentos_califican()->sync($request->departamentos);
+            $proveedor = Proveedor::create($datos);
+            $proveedor->servicios_ofertados()->attach($request->tipos_ofrece);
+            $proveedor->categorias_ofertadas()->attach($datos['categorias_ofrece']);
+            $proveedor->departamentos_califican()->sync($request->departamentos);
             if(!in_array($departamento_contable->id, $request->departamentos)){
-                $modelo->departamentos_califican()->attach($departamento_contable->id);
+                $proveedor->departamentos_califican()->attach($departamento_contable->id);
             }
-            $modelo = new ProveedorResource($modelo);
+            $modelo = new ProveedorResource($proveedor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
             DB::commit();
+            
+            Log::channel('testing')->info('Log', ['Modelo a recorrer', $proveedor->departamentos_califican]);
+            foreach($proveedor->departamentos_califican as $departamento){
+                event(new CalificacionProveedorEvent($proveedor, auth()->user()->empleado->id, $departamento['responsable_id'], false));
+            }
+
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
