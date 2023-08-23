@@ -59,7 +59,7 @@ class Empleado extends Model implements Auditable
         'talla_guantes',
         'talla_pantalon',
         'banco',
-
+        'genero',
     ];
 
     private static $whiteListFilter = [

@@ -69,7 +69,8 @@ class EmpleadoResource extends JsonResource
             'area_info' =>  $this->area ? $this->area->nombre : null,
             'tipo_contrato' => $this->tipo_contrato_id,
             'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
-            'observacion' => $this->observacion
+            'observacion' => $this->observacion,
+            'genero' => $this->genero
 
         ];
 

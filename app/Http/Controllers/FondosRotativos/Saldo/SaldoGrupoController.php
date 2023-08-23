@@ -35,14 +35,17 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\FondosRotativos\SaldoService;
 
 class SaldoGrupoController extends Controller
 {
     private $entidad = 'saldo_grupo';
     private $reporteService;
+    private $saldoService;
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->saldoService = new SaldoService();
         $this->middleware('can:puede.ver.saldo')->only('index', 'show');
         $this->middleware('can:puede.crear.saldo')->only('store');
         $this->middleware('can:puede.editar.saldo')->only('update');
@@ -508,6 +511,22 @@ class SaldoGrupoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
                 ->first();
+                $salt_ant =floatval($saldo_anterior != null ? $saldo_anterior->saldo_actual : 0);
+                $salt_ant = floatval($salt_ant);
+                $nuevo_elemento = [
+                    'item' => 1,
+                    'fecha' => $fecha_anterior,
+                    'fecha_creacion' =>  $saldo_anterior == null ? $fecha : $saldo_anterior->created_at,
+                    'num_comprobante' => '',
+                    'descripcion' => 'SALDO ANTERIOR',
+                    'observacion' => '',
+                    'ingreso' => 0,
+                    'gasto' => 0,
+                    'saldo' => $salt_ant
+                ];
+                $reportes_unidos =  collect($reportes_unidos)
+                ->prepend($nuevo_elemento)
+                ->toArray();
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->usuario)->first();
@@ -536,6 +555,7 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+
 
     /**
      * It's a function that receives two parameters, one of them is a request object and the other is a

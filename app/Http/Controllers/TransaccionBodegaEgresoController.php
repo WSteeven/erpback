@@ -87,12 +87,14 @@ class TransaccionBodegaEgresoController extends Controller
             'empleado_id' => 'required|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
+
         // $empleado_id = Auth::user()->empleado->id;
         // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
+
         $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
-        Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
+        // Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
 
         $materialesTarea = collect($results)->map(function ($item, $index) use($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);

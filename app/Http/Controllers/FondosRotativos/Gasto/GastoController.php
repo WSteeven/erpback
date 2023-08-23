@@ -98,6 +98,16 @@ class GastoController extends Controller
     {
         DB::beginTransaction();
         try {
+            $numFacturaObjeto = [
+                [
+                    "detalle" => 16,
+                    "cantidad" => 22,
+                ],
+                [
+                    "detalle" => 10,
+                    "cantidad" => 17,
+                ],
+            ];
             $datos = $request->validated();
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
