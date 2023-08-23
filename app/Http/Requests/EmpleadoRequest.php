@@ -65,14 +65,14 @@ class EmpleadoRequest extends FormRequest
             'tipo_contrato_id'=> 'required',
             'tiene_grupo'=>'required',
             'tiene_discapacidad'=>'required',
-            'observacion'=>'required',
             'nivel_academico'=>'required',
             'supa' =>'nullable',
             'talla_zapato' =>'nullable',
-            'talla_camisa' =>'nullable',
+            'talla_camisa' =>'required',
             'talla_guantes' =>'nullable',
-            'talla_pantalon' =>'nullable',
+            'talla_pantalon' =>'required',
             'banco' =>'required',
+            'genero' =>'required',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
