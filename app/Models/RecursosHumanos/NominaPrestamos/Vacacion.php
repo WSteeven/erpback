@@ -16,7 +16,7 @@ class Vacacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'vacacion';
+    protected $table = 'vacaciones';
     const PENDIENTE = 1;
     const APROBADO = 2;
     const CANCELADO = 3;
@@ -29,7 +29,6 @@ class Vacacion extends Model implements Auditable
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
-        'solicitud',
         'estado',
 
     ];
@@ -62,7 +61,6 @@ class Vacacion extends Model implements Auditable
         'fecha_fin_rango1_vacaciones',
         'fecha_inicio_rango2_vacaciones',
         'fecha_fin_rango2_vacaciones',
-        'solicitud',
         'estado'
     ];
 }

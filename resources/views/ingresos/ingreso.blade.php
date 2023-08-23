@@ -8,7 +8,7 @@
     if ($cliente->logo_url) {
         $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
     } else {
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
     }
     if ($persona_entrega->firma_url) {
         $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
@@ -27,7 +27,7 @@
         }
 
         body {
-            /* background-image: url('img/logoJPBN_10.png'); */
+            /* background-image: url('img/logoBN10.png'); */
             background-repeat: no-repeat;
             background-position: center;
         }

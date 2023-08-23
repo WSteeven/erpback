@@ -58,6 +58,7 @@ class EmpleadoController extends Controller
         }
 
         // Procesar respuesta
+        if (request('rol')) return EmpleadoResource::collection(Empleado::whereIn('id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($search) return $this->servicio->search($search);
 
@@ -113,6 +114,7 @@ class EmpleadoController extends Controller
                 'jefe_id' => $datos['jefe_id'],
                 'canton_id' => $datos['canton_id'],
                 'cargo_id' => $datos['cargo_id'],
+                'departamento_id' => $datos['departamento_id'],
                 'grupo_id' => $datos['grupo_id'],
                 'firma_url' => $datos['firma_url'],
                 'tipo_sangre' => $datos['tipo_sangre'],
@@ -123,7 +125,7 @@ class EmpleadoController extends Controller
                 'num_cuenta_bancaria' => $datos['num_cuenta_bancaria'],
                 'salario' => $datos['salario'],
                 'fecha_ingreso' => $datos['fecha_ingreso'],
-                'fecha_salida'=>$datos['fecha_salida'],
+                'fecha_salida' => $datos['fecha_salida'] ? $datos['fecha_salida'] : null,
                 'tipo_contrato_id' => $datos['tipo_contrato_id'],
                 'tiene_discapacidad' => $datos['tiene_discapacidad'],
                 'observacion' => $datos['observacion'],
@@ -134,6 +136,7 @@ class EmpleadoController extends Controller
                 'talla_guantes' => $datos['talla_guantes'],
                 'talla_pantalon' => $datos['talla_pantalon'],
                 'banco' => $datos['banco'],
+                'genero' => $datos['genero'],
 
             ]);
 

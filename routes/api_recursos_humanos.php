@@ -14,10 +14,12 @@ use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoEmpresarialController;
@@ -26,6 +28,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpres
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
+use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -54,7 +57,11 @@ Route::apiResources(
         'areas' => AreasController::class,
         'familiares' => FamiliaresControler::class,
         'banco' => BancoController::class,
-
+        'motivo_permiso_empleado' => MotivoPermisoEmpleadoController::class,
+        'permiso_empleado' => PermisoEmpleadoController::class,
+        'estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
+        'tipo_contrato' => TipoContratoController::class,
+        'rol_pago' => RolPagosController::class,
     ],
     [
         'parameters' => [],

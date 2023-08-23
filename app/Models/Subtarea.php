@@ -175,6 +175,11 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
+    public function archivosSeguimiento()
+    {
+        return $this->hasMany(ArchivoSeguimiento::class, 'subtarea_id', 'id');
+    }
+
     public function pausasSubtarea()
     {
         return $this->hasMany(PausaSubtarea::class);
@@ -257,6 +262,11 @@ class Subtarea extends Model implements Auditable
     public function seguimientosMaterialesSubtareas()
     {
         return $this->hasMany(SeguimientoMaterialSubtarea::class);
+    }
+
+    public function trabajosRealizados()
+    {
+        return $this->hasMany(TrabajoRealizado::class);
     }
 
     /*********

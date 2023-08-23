@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FamiliaresRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\FamiliaresRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\FamiliaresResource;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use Exception;

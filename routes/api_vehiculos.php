@@ -1,11 +1,9 @@
 <?php
 
-use App\Http\Controllers\BitacoraVehicularController;
-use App\Http\Controllers\CombustibleController;
-use App\Http\Controllers\VehiculoController;
-use App\Http\Resources\EmpleadoResource;
+use App\Http\Controllers\Vehiculos\BitacoraVehicularController;
+use App\Http\Controllers\Vehiculos\CombustibleController;
+use App\Http\Controllers\Vehiculos\VehiculoController;
 use App\Http\Resources\UserResource;
-use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 

@@ -9,6 +9,7 @@ use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\DetallePedidoProducto;
+use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\User;
@@ -94,6 +95,11 @@ class PedidoController extends Controller
                 $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
             }
             DB::commit();
+
+            if ($pedido->autorizacion->nombre == Autorizacion::APROBADO) {
+                //Metodo para verificar si el detalle existe en alguna bodega de propiedad del cliente de la bodega
+                Inventario::verificarExistenciasDetalles($pedido);
+            }
 
             /* Sending a notification to the user who autorized the order. */
             //logica para los eventos de las notificaciones
@@ -374,7 +380,8 @@ class PedidoController extends Controller
     }
     public function example()
     {
-        $pdf = Pdf::loadView('pedidos.example');
+        $pdf = new Pdf();
+        $pdf = Pdf::loadView('pedidos.example', compact('pdf'));
         $pdf->render();
         return $pdf->stream();
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActividadRealizadaSeguimientoSubtareaController;
 use App\Http\Controllers\ArchivoSeguimientoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
 use App\Http\Controllers\ReporteControlMaterialController;
@@ -46,6 +47,7 @@ Route::apiResources(
         'movilizacion-subtarea' => MovilizacionSubtareaController::class,
         'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
+        'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
     ],
     [
         'parameters' => [
@@ -59,6 +61,7 @@ Route::apiResources(
             'motivos-suspendidos' => 'motivo_suspendido',
             'rutas-tareas' => 'ruta_tarea',
             'archivos-seguimientos' => 'archivo_seguimiento',
+            'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
         ],
     ]
 );
@@ -115,8 +118,10 @@ Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'ob
 
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
-Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
+// Route::get('obtener-suma-material-tarea-usado', [SeguimientoSubtareaController::class, 'obtenerSumaMaterialTareaUsado']);
+Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);
 Route::get('obtener-historial-material-tarea-usado-por-fecha', [SeguimientoSubtareaController::class, 'obtenerHistorialMaterialTareaUsadoPorFecha']);
+Route::post('actualizar-cantidad-utilizada-tarea', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaMaterialTarea']);
 Route::post('actualizar-cantidad-utilizada-historial', [SeguimientoSubtareaController::class, 'actualizarCantidadUtilizadaHistorial']);
 
 /***********

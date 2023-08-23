@@ -1,0 +1,214 @@
+<?php
+
+namespace App\Http\Controllers\ComprasProveedores;
+
+use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
+use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
+use App\Events\ComprasProveedores\OrdenCompraEvent;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
+use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
+use App\Http\Resources\ComprasProveedores\ProveedorResource;
+use App\Http\Resources\EmpleadoResource;
+use App\Models\Autorizacion;
+use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\Empleado;
+use App\Models\EstadoTransaccion;
+use App\Models\Proveedor;
+use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\Shared\Utils;
+
+class OrdenCompraController extends Controller
+{
+    private $entidad = 'Orden de compra';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.ordenes_compras')->only('index', 'show');
+        $this->middleware('can:puede.crear.ordenes_compras')->only('store');
+        $this->middleware('can:puede.editar.ordenes_compras')->only('update');
+        $this->middleware('can:puede.eliminar.ordenes_compras')->only('destroy');
+    }
+
+    /**
+     * Listar
+     */
+    public function index(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
+            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+        } else {
+            $results = OrdenCompra::filtrarOrdenesEmpleado($request);
+            Log::channel('testing')->info('Log', ['Esta en el else:']);
+            // $results = OrdenCompra::filter()->get();
+        }
+        $results = OrdenCompraResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar
+     */
+    public function store(OrdenCompraRequest $request)
+    {
+        $autorizacion_pendiente = Autorizacion::where('nombre', Autorizacion::PENDIENTE)->first();
+        $estado_pendiente = EstadoTransaccion::where('nombre', EstadoTransaccion::PENDIENTE)->first();
+
+        Log::channel('testing')->info('Log', ['Request recibida en ordenes de compras:', $request->all()]);
+        try {
+            DB::beginTransaction();
+            //Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
+            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+
+            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            if (count($request->categorias) == 0) {
+                unset($datos['categorias']);
+            } else {
+                $datos['categorias'] = implode(',', $request->categorias);
+            }
+            //Creación de la orden de compra
+            $orden = OrdenCompra::create($datos);
+            // Guardar los detalles de la orden de compra
+            OrdenCompra::guardarDetalles($orden, $request->listadoProductos);
+
+            //Respuesta
+            $modelo = new OrdenCompraResource($orden);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+
+            DB::commit();
+
+            // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
+            if ($orden->estado_id === $estado_pendiente->id && $orden->autorizacion_id === $autorizacion_pendiente->id) {
+                event(new OrdenCompraCreadaEvent($orden, true)); // crea el evento de la orden de compra al autorizador
+            }
+
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
+            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+        }
+    }
+
+    /**
+     * Consultar
+     */
+    public function show(OrdenCompra $orden)
+    {
+        $modelo = new OrdenCompraResource($orden);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Actualizar
+     */
+    public function update(OrdenCompraRequest $request, OrdenCompra $orden)
+    {
+        $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
+        $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        try {
+            DB::beginTransaction();
+            //Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
+            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
+            if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
+
+            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            if (count($request->categorias) == 0) {
+                unset($datos['categorias']);
+            } else {
+                $datos['categorias'] = implode(',', $request->categorias);
+            }
+            //Creación de la orden de compra
+            $orden->update($datos);
+            // Sincronizar los detalles de la orden de compra
+            OrdenCompra::guardarDetalles($orden, $request->listadoProductos);
+
+            //Respuesta
+            $modelo = new OrdenCompraResource($orden);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+
+            DB::commit();
+
+            // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
+            if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
+                $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+                event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
+            }
+
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR store de ordenes de compras:', $e->getMessage(), $e->getLine()]);
+            return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+        }
+    }
+
+    /**
+     * Anular una orden de compra
+     */
+    public function anular(Request $request, OrdenCompra $orden)
+    {
+        Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
+        $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
+        $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+        $request->validate(['motivo' => ['required', 'string']]);
+        $orden->causa_anulacion = $request['motivo'];
+        $orden->autorizacion_id = $autorizacion->id;
+        $orden->estado_id = $estado->id;
+        $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+        $orden->save();
+
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Imprimir una orden de compra
+     */
+    public function imprimir(OrdenCompra $orden)
+    {
+        $proveedor = new ProveedorResource(Proveedor::find($orden->proveedor_id));
+        $empleado_solicita = Empleado::find($orden->solicitante_id);
+        $orden = new OrdenCompraResource($orden);
+        try {
+            $orden = $orden->resolve();
+            $proveedor = $proveedor->resolve();
+            $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
+            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
+            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor']));
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+            $file = $pdf->output();
+
+            // return $pdf->download();
+            return $file;
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+            return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
+        }
+    }
+}

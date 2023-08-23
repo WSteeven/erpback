@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProveedorRequest;
-use App\Http\Resources\ProveedorResource;
+use App\Http\Requests\ComprasProveedores\ProveedorRequest;
+use App\Http\Resources\ComprasProveedores\ProveedorResource;
+use App\Models\Departamento;
 use App\Models\Proveedor;
-use Illuminate\Http\Request;
+use App\Models\User;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ProveedorController extends Controller
@@ -23,7 +27,7 @@ class ProveedorController extends Controller
      */
     public function index()
     {
-        $results = ProveedorResource::collection(Proveedor::all());
+        $results = ProveedorResource::collection(Proveedor::filter()->get());
         return response()->json(compact('results'));
     }
 
@@ -33,16 +37,34 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
-        //Adaptación de foreign keys
-        $datos = $request->validated();
-        $datos['empresa_id']=$request->safe()->only(['empresa'])['empresa'];
-        
-        //Respuesta
-        $modelo = Proveedor::create($datos);
-        $modelo = new ProveedorResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
-        return response()->json(compact('mensaje', 'modelo'));
+            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+            //Respuesta
+            $modelo = Proveedor::create($datos);
+            $modelo->servicios_ofertados()->attach($request->tipos_ofrece);
+            $modelo->categorias_ofertadas()->attach($datos['categorias_ofrece']);
+            $modelo->departamentos_califican()->sync($request->departamentos);
+            if(!in_array($departamento_contable->id, $request->departamentos)){
+                $modelo->departamentos_califican()->attach($departamento_contable->id);
+            }
+            $modelo = new ProveedorResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
+            return response()->json(compact('mensaje'), 500);
+            //throw $th;
+        }
     }
 
 
@@ -61,12 +83,34 @@ class ProveedorController extends Controller
      */
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
-        //Respuesta
-        $proveedor->update($request->validated());
-        $modelo = new ProveedorResource($proveedor->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-
-        return response()->json(compact('mensaje', 'modelo'));
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
+        try {
+            DB::beginTransaction();
+            //Adaptación de foreign keys
+            $datos = $request->validated();
+            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+            $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
+            
+            //Respuesta
+            $proveedor->update($datos);
+            
+            //attaching related models
+            $proveedor->servicios_ofertados()->sync($request->tipos_ofrece);
+            $proveedor->categorias_ofertadas()->sync($request->categorias_ofrece);
+            $proveedor->departamentos_califican()->sync($request->departamentos);
+            if(!in_array($departamento_contable->id, $request->departamentos)){
+                $proveedor->departamentos_califican()->attach($departamento_contable->id);
+            }
+            $modelo = new ProveedorResource($proveedor->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error:', $e->getLine(), $e->getMessage()]);
+            return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()], 422);
+        }
     }
 
 
