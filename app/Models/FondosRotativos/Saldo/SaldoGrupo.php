@@ -46,7 +46,7 @@ class SaldoGrupo extends  Model implements Auditable
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
-            $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
+          //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
             $id += 1;
             $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
