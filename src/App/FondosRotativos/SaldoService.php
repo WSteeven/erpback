@@ -43,8 +43,6 @@ class SaldoService
     }
     public function SaldoEstadoCuenta($fechaInicio = null, $fechaFin = null)
     {
-        Log::channel('testing')->info('Log', ['fecha inicio', $fechaInicio]);
-
         $fechaInicio == null ? $this->fechaInicio : $this->fechaInicio;
         $fechaFin == null ? $this->fechaFin : $this->fechaFin;
 
@@ -95,16 +93,33 @@ class SaldoService
         $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $this->idEmpleado, $fecha_anterior, $saldo_anterior);
         $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
         $saldo_ultimo = $saldo_anterior ? $saldo_anterior['saldo_actual'] : 0;
+        $salt_ant = floatval($saldo_anterior != null ? $saldo_anterior->saldo_actual : 0);
+        $salt_ant = floatval($salt_ant);
+        $saldo_ini =  $saldo_ultimo !=  $salt_ant ?   $saldo_ultimo : $salt_ant;
+        $nuevo_elemento = [
+            'item' => 1,
+            'fecha' => $fecha_anterior,
+            'fecha_creacion' =>  $saldo_anterior == null ? $fecha : $saldo_anterior->created_at,
+            'num_comprobante' => '',
+            'descripcion' => 'SALDO ANTERIOR',
+            'observacion' => '',
+            'ingreso' => 0,
+            'gasto' => 0,
+            'saldo' => $saldo_ini
+        ];
+        $reportes_unidos =  collect($reportes_unidos)
+            ->prepend($nuevo_elemento)
+            ->toArray();
         foreach ($reportes_unidos as $item) {
             if ($item != null) {
                 $saldo_ultimo = $saldo_ultimo + $item['ingreso'] - $item['gasto'];
             }
         }
 
-        return $saldo_ultimo;
+        return  $saldo_ultimo !=  $salt_ant ?   $saldo_ultimo : $salt_ant;
     }
     public function EstadoCuentaAnterior()
     {
-        return $this->SaldoEstadoCuenta($this->getFechaMesAnterior()['inicio'],$this->getFechaMesAnterior()['fin']);
+        return $this->SaldoEstadoCuenta($this->getFechaMesAnterior()['inicio'], $this->getFechaMesAnterior()['fin']);
     }
 }

@@ -71,7 +71,7 @@ class SaldoGrupo extends  Model implements Auditable
         $row = [];
        // $saldo =0;
         $row['item'] = $id + 1;
-        $row['fecha'] = $saldo['created_at'];
+        $row['fecha'] = isset( $saldo['fecha_viat']) ?$saldo['fecha_viat']:$saldo['fecha'];
         $row['fecha_creacion'] = $saldo['created_at'];
         $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
         $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);

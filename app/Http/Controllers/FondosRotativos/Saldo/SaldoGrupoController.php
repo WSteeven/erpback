@@ -440,9 +440,6 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $this->saldoService->setFechaInicio($fecha_inicio);
-            $this->saldoService->setFechaFin($fecha_fin);
-            $this->saldoService->setIdEmpleado($request->usuario);
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
             $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
@@ -506,40 +503,35 @@ class SaldoGrupoController extends Controller
                 ->where('tipo_saldo', 'Encuadre')
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-
-            $nuevo_elemento = [
-                'item' => 1,
-                'fecha' => $fecha_anterior,
-                'fecha_creacion' =>  $saldo_anterior == null ? $fecha : $saldo_anterior->created_at,
-                'num_comprobante' => '',
-                'descripcion' => 'SALDO ANTERIOR',
-                'observacion' => '',
-                'ingreso' => 0,
-                'gasto' => 0,
-                'saldo' => $this->saldoService->EstadoCuentaAnterior()
-            ];
             //Unir todos los reportes
             $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
-            $reportes_unidos =  collect($reportes_unidos)
-                ->prepend($nuevo_elemento)
-                ->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
                 ->first();
+                $salt_ant =floatval($saldo_anterior != null ? $saldo_anterior->saldo_actual : 0);
+                $salt_ant = floatval($salt_ant);
+                $nuevo_elemento = [
+                    'item' => 1,
+                    'fecha' => $fecha_anterior,
+                    'fecha_creacion' =>  $saldo_anterior == null ? $fecha : $saldo_anterior->created_at,
+                    'num_comprobante' => '',
+                    'descripcion' => 'SALDO ANTERIOR',
+                    'observacion' => '',
+                    'ingreso' => 0,
+                    'gasto' => 0,
+                    'saldo' => $salt_ant
+                ];
+                $reportes_unidos =  collect($reportes_unidos)
+                ->prepend($nuevo_elemento)
+                ->toArray();
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
-            $saldo_ultimo = $saldo_anterior['saldo_actual'];
-            foreach ($reportes_unidos as $item) {
-                if ($item != null) {
-                    $saldo_ultimo = $saldo_ultimo + $item['ingreso'] - $item['gasto'];
-                }
-            }
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
@@ -547,7 +539,6 @@ class SaldoGrupoController extends Controller
                 'empleado' => $empleado,
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
-                'saldo_ultimo' => $saldo_ultimo,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -557,10 +548,6 @@ class SaldoGrupoController extends Controller
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
             ];
-
-
-
-
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
@@ -568,6 +555,7 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+
 
     /**
      * It's a function that receives two parameters, one of them is a request object and the other is a
