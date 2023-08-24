@@ -60,6 +60,8 @@ class Empleado extends Model implements Auditable
         'talla_pantalon',
         'banco',
         'genero',
+        'esta_en_rol_pago',
+        'realiza_factura',
     ];
 
     private static $whiteListFilter = [
@@ -94,7 +96,10 @@ class Empleado extends Model implements Auditable
         'talla_camisa',
         'talla_guantes',
         'talla_pantalon',
-        'banco'
+        'banco',
+        'genero',
+        'esta_en_rol_pago',
+        'realiza_factura',
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -104,6 +109,8 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
+        'esta_en_rol_pago' => 'boolean',
+        'realiza_factura' => 'boolean',
         'estado' => 'boolean',
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',

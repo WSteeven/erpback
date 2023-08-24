@@ -137,7 +137,8 @@ class EmpleadoController extends Controller
                 'talla_pantalon' => $datos['talla_pantalon'],
                 'banco' => $datos['banco'],
                 'genero' => $datos['genero'],
-
+                'esta_en_rol_pago'=> $datos['esta_en_rol_pago'],
+                'realiza_factura' => $datos['realiza_factura'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
