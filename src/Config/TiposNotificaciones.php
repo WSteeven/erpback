@@ -21,4 +21,5 @@ enum TiposNotificaciones: string{
     case ORDEN_COMPRA = 'ORDEN_COMPRA';
     case PROFORMA = 'PROFORMA';
     case PREFACTURA = 'PREFACTURA';
+    case PROVEEDOR = 'PROVEEDOR';
 }

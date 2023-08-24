@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('grupos', function (Blueprint $table) {
-            $table->unsignedBigInteger('coordinador_id')->nullable();
-            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+        Schema::table('empleados', function (Blueprint $table) {
+            $table->boolean('esta_en_rol_pago')->after('banco')->default('1')->nullable();
+            $table->boolean('realiza_factura')->after('esta_en_rol_pago')->default('0')->nullable();
         });
     }
 
@@ -26,8 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('grupos', function (Blueprint $table) {
-            $table->dropColumn('coordinador_id');
-        });
+        //
     }
 };

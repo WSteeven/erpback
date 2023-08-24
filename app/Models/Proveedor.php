@@ -82,6 +82,24 @@ class Proveedor extends Model implements Auditable
     }
 
     /**
+     * Relacion polimorfica a una notificacion.
+     * Un proveedor puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES
      * ______________________________________________________________________________________

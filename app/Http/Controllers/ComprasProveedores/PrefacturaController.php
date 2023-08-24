@@ -11,6 +11,7 @@ use App\Http\Resources\ComprasProveedores\PrefacturaResource;
 use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\ComprasProveedores\Prefactura;
+use App\Models\ComprasProveedores\Proforma;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
@@ -50,7 +51,7 @@ class PrefacturaController extends Controller
      */
     public function store(PrefacturaRequest $request)
     {
-        $estado_pendiente = EstadoTransaccion::where('nombre', EstadoTransaccion::PENDIENTE)->first();
+        $estado_completado = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
             DB::beginTransaction();
             //Adaptacion de foreign keys
@@ -58,7 +59,7 @@ class PrefacturaController extends Controller
             $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
-            if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
+            if ($request->proforma) $datos['proforma_id'] = $request->safe()->only(['proforma'])['proforma'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
 
             Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
@@ -67,6 +68,14 @@ class PrefacturaController extends Controller
             $prefactura = Prefactura::create($datos);
             // Guardar los detalles de la orden de compra
             Prefactura::guardarDetalles($prefactura, $request->listadoProductos);
+
+            if($prefactura->proforma_id){
+                $proforma = Proforma::find($prefactura->proforma_id);
+                if($proforma){
+                    $proforma->estado_id = $estado_completado->id;
+                    $proforma->save();
+                }
+            }
 
             //Respuesta
             $modelo = new PrefacturaResource($prefactura);

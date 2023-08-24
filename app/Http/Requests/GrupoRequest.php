@@ -27,6 +27,7 @@ class GrupoRequest extends FormRequest
             'nombre' => 'required|string',
             'region' => 'nullable|string',
             'activo' => 'required|boolean',
+            'coordinador' => 'required|numeric|integer',
         ];
     }
 }

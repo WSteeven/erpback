@@ -70,9 +70,11 @@ class EmpleadoRequest extends FormRequest
             'talla_zapato' =>'nullable',
             'talla_camisa' =>'required',
             'talla_guantes' =>'nullable',
-            'talla_pantalon' =>'required',
+            'talla_pantalon' =>'nullable',
             'banco' =>'required',
             'genero' =>'required',
+            'esta_en_rol_pago'=>'required',
+            'realiza_factura'=>'required',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
