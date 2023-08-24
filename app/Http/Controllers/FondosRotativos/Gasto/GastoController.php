@@ -98,6 +98,7 @@ class GastoController extends Controller
     {
         DB::beginTransaction();
         try {
+            $datos = $request->validated();
             $numFacturaObjeto = [
                 [
                     "detalle" => 16,
@@ -108,7 +109,14 @@ class GastoController extends Controller
                     "cantidad" => 17,
                 ],
             ];
-            $datos = $request->validated();
+            $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
+            $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+            $num_fact = str_replace(' ', '',  $datos['factura']);
+            if (strlen($num_fact) < $cantidad) {
+                throw ValidationException::withMessages([
+                    '404' => ['número de digitos en factura son incompletos porfavor ingrese ' . $cantidad . ' digitos en factura'],
+                ]);
+            }
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];

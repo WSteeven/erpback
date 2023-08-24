@@ -62,6 +62,7 @@ class EmpleadoResource extends JsonResource
             'talla_zapato' => $this->talla_zapato,
             'talla_camisa' => $this->talla_camisa,
             'talla_guantes' => $this->talla_guantes,
+            'talla_pantalon' => $this->tallapantalon,
             'nivel_academico' => $this->nivel_academico,
             'estado_civil' => $this->estado_civil_id,
             'estado_civil_info' => $this->estadoCivil  ? $this->estadoCivil->nombre : null,
@@ -70,7 +71,9 @@ class EmpleadoResource extends JsonResource
             'tipo_contrato' => $this->tipo_contrato_id,
             'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
             'observacion' => $this->observacion,
-            'genero' => $this->genero
+            'genero' => $this->genero,
+            'esta_en_rol_pago'=> $this-> esta_en_rol_pago,
+            'realiza_factura'=> $this-> realiza_factura
 
         ];
 
