@@ -95,13 +95,12 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(4) / 100;
     }
-    public function calcularSueldo($dias = 30, $es_quincena = false, $porcentaje_anticipo = 0)
+    public function calcularSueldo($dias = 30, $es_quincena = false, $sueldo=0)
     {
-        $porcentaje_anticipo = $porcentaje_anticipo / 100;
+
         $salario_diario = $this->empleado->salario / 30;
         if ($es_quincena) {
-            $porcentaje_usar = $porcentaje_anticipo > 0 ? $porcentaje_anticipo : $this->calcularPorcentajeAnticipo();
-            $sueldo = $salario_diario * 30 * $porcentaje_usar;
+            $sueldo = $sueldo;
         } else {
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
