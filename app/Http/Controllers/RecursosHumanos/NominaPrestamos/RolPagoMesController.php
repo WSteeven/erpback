@@ -125,6 +125,7 @@ class RolPagoMesController extends Controller
                 $q->where('name', 'puede.elaborar.rol_pago');
             });
         })->first();
+        Log::channel('testing')->info('Log', ['error', $creador_rol_pago]);
 
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
