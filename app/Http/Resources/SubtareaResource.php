@@ -76,6 +76,7 @@ class SubtareaResource extends JsonResource
             'empleado_responsable' => $this->extraerNombresApellidos($this->empleado),
             'fiscalizador' => $this->extraerNombresApellidos($this->tarea->fiscalizador),
             'coordinador' => $this->extraerNombresApellidos($this->tarea->coordinador),
+            'coordinador_id' => $this->tarea->coordinador_id,
             'grupo' => $this->grupoResponsable?->nombre,
             'tiene_subtareas' => $tarea->tiene_subtareas,
             'causa_intervencion_id' => $this->causa_intervencion_id,
