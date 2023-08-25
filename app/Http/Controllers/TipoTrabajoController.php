@@ -30,8 +30,9 @@ class TipoTrabajoController extends Controller
             $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {*/
 
-        if($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
-        else $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
+        /*if($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
+        else $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());*/
+        $results = TipoTrabajoResource::collection(TipoTrabajo::all());
 
         return response()->json(compact('results'));
     }
