@@ -39,7 +39,7 @@ class DashboardTareaService
         return Subtarea::whereIn('tarea_id', function ($query) use ($fechaInicio, $fechaFin, $coordinador) {
             $query->select('id')
                 ->from('tareas')
-                ->whereBetween('created_at', [Carbon::parse($fechaInicio), Carbon::parse($fechaFin)])
+                ->whereBetween('created_at', [$fechaInicio, $fechaFin])
                 ->where('coordinador_id', $coordinador->id);
         })->get();
         // ->pluck('estado');

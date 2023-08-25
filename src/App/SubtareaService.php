@@ -90,7 +90,7 @@ class SubtareaService
         // Monitor
         if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
             // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
-            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->orderBy('fecha_hora_agendado', 'desc')->get();
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get();//->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
         }
 
