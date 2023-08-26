@@ -16,19 +16,14 @@ class ProyectoController extends Controller
 
     public function listar()
     {
-        $esCoordinador = Auth::user()->hasRole(User::ROL_COORDINADOR);
-        $esJefeTecnico = Auth::user()->hasRole(User::ROL_JEFE_TECNICO);
-
-        if ($esCoordinador) return Proyecto::ignoreRequest(['campos'])->filter()->porCoordinador()->get();
-        else if ($esCoordinador && $esJefeTecnico) return Proyecto::ignoreRequest(['campos'])->filter()->get();
-        else return Proyecto::ignoreRequest(['campos'])->filter()->get();
-
-
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        return Proyecto::ignoreRequest(['campos'])->filter()->get($campos);
     }
 
     public function index()
     {
-        $results = ProyectoResource::collection($this->listar());
+        $results = $this->listar();
+        if(!request('campos')) $results = ProyectoResource::collection($results);
         return response()->json(compact('results'));
     }
 
