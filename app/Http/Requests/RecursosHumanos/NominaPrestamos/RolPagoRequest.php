@@ -58,7 +58,7 @@ class RolPagoRequest extends FormRequest
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
         $dias = $this->dias;
-        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena, $this->porcentaje_anticipo !==null ? $this->porcentaje_anticipo:0);
+        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva();

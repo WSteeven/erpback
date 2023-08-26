@@ -11,8 +11,7 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -131,7 +130,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -288,7 +287,7 @@
             <thead>
                 <th align="center">
                     __________________________________________<br />
-                    <b>{{ $creador_rol_pago->nombres.' '.$creador_rol_pago->apellidos }}</b>
+                    <b>{{ $creador_rol_pago->nombres.''.$creador_rol_pago->apellidos }}</b>
                     <br>
                     <b>ELABORADO</b>
                 </th>
