@@ -23,7 +23,7 @@ class NotificacionService
      */
     public function obtenerNotificacionesRolBodega($campos)
     {
-        if ($campos) {
+        if (!$campos[0] === '') {
             $results = Notificacion::ignoreRequest(['campos'])
                 ->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
                 ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
@@ -31,20 +31,20 @@ class NotificacionService
         } else {
             $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
                 ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
-                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
 
         return $results;
     }
     public function obtenerNotificacionesRolCompras($campos)
     {
-        if ($campos) {
+        if (!$campos[0] === '') {
             $results = Notificacion::ignoreRequest(['campos'])
                 ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         } else {
             $results = Notificacion::where('mensaje', 'LIKE', '%Preorden de compra N°%')
-                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
 
         return $results;
@@ -73,7 +73,7 @@ class NotificacionService
                 $results = $this->obtenerNotificacionesRolCompras($campos);
                 break;
             default:
-                if ($campos) $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(100)->get($campos);
+                if (!$campos[0] === '') $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(100)->get($campos);
                 else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
 
