@@ -23,7 +23,7 @@ class DashboardTareaService
         return $coordinador->tareasCoordinador()->where('finalizado', 1)->fechaInicioFin()->count();
     }
 
-    public function filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, $estadoSubtarea)
+    public function contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, $estadoSubtarea)
     {
         return $subtareasFechaInicioFin->filter(fn ($subtarea) => $subtarea === $estadoSubtarea)->count();
     }
@@ -42,7 +42,22 @@ class DashboardTareaService
                 ->whereBetween('created_at', [$fechaInicio, $fechaFin])
                 ->where('coordinador_id', $coordinador->id);
         })->get();
-        // ->pluck('estado');
+    }
+
+    public function obtenerSubtareasFechaInicioFinGrupo(array $idsGrupos)
+    {
+        $fechaInicio = request('fecha_inicio');
+        $fechaFin = request('fecha_fin');
+
+        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        return Subtarea::whereIn('tarea_id', function ($query) use ($fechaInicio, $fechaFin, $idsGrupos) {
+            $query->select('id')
+                ->from('tareas')
+                ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
+                // ->where('grupo_id', $idGrupo);
+        })->get();
     }
 
     public function generarListadoCantidadesPorEstadosSubtareas(

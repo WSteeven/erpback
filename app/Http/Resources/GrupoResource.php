@@ -15,7 +15,7 @@ class GrupoResource extends JsonResource
      */
     public function toArray($request)
     {
-        $controller_method = $request->route()->getActionMethod();
+        $controller_method = $request->route()->getActionMethod();|
 
         $modelo = [
             'id' => $this->id,

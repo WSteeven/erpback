@@ -99,23 +99,25 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            $numFacturaObjeto = [
-                [
-                    "detalle" => 16,
-                    "cantidad" => 22,
-                ],
-                [
-                    "detalle" => 10,
-                    "cantidad" => 17,
-                ],
-            ];
-            $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
-            $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
-            $num_fact = str_replace(' ', '',  $datos['factura']);
-            if (strlen($num_fact) < $cantidad) {
-                throw ValidationException::withMessages([
-                    '404' => ['número de digitos en factura son incompletos porfavor ingrese ' . $cantidad . ' digitos en factura'],
-                ]);
+            if ($datos['factura'] != null) {
+                $numFacturaObjeto = [
+                    [
+                        "detalle" => 16,
+                        "cantidad" => 22,
+                    ],
+                    [
+                        "detalle" => 10,
+                        "cantidad" => 17,
+                    ],
+                ];
+                $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
+                $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+                $num_fact = str_replace(' ', '',  $datos['factura']);
+                if (strlen($num_fact) < $cantidad) {
+                    throw ValidationException::withMessages([
+                        '404' => ['número de digitos en factura son incompletos porfavor ingrese ' . $cantidad . ' digitos en factura'],
+                    ]);
+                }
             }
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];

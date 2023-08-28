@@ -30,17 +30,18 @@ class DashboardTareaController extends Controller
         $cantidadTareasActivas = $this->dashboardTareaService->obtenerCantidadTareasActivas($coordinador);
         $cantidadTareasFinalizadas = $this->dashboardTareaService->obtenerCantidadTareasFinalizadas($coordinador);
 
-        $subtareas = $this->dashboardTareaService->obtenerSubtareasFechaInicioFin($coordinador);
-        $subtareasFechaInicioFin = $subtareas->pluck('estado');
-        $subtareas = SubtareaResource::collection($subtareas);
+        $subtareasCoordinador = $this->dashboardTareaService->obtenerSubtareasFechaInicioFin($coordinador);
+        $subtareasGrupo = $this->dashboardTareaService->obtenerSubtareasFechaInicioFinGrupo($coordinador->id);
+        $subtareasFechaInicioFin = $subtareasCoordinador->pluck('estado');
+        $subtareasCoordinador = SubtareaResource::collection($subtareasCoordinador);
 
-        $cantidadSubtareasAgendadas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::AGENDADO);
-        $cantidadSubtareasEjecutadas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::EJECUTANDO);
-        $cantidadSubtareasPausadas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::PAUSADO);
-        $cantidadSubtareasSuspendidas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::SUSPENDIDO);
-        $cantidadSubtareasCanceladas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::CANCELADO);
-        $cantidadSubtareasRealizadas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::REALIZADO);
-        $cantidadSubtareasFinalizadas = $this->dashboardTareaService->filtrarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::FINALIZADO);
+        $cantidadSubtareasAgendadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::AGENDADO);
+        $cantidadSubtareasEjecutadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::EJECUTANDO);
+        $cantidadSubtareasPausadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::PAUSADO);
+        $cantidadSubtareasSuspendidas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::SUSPENDIDO);
+        $cantidadSubtareasCanceladas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::CANCELADO);
+        $cantidadSubtareasRealizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::REALIZADO);
+        $cantidadSubtareasFinalizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::FINALIZADO);
 
         $cantidadesPorEstadosSubtareas = $this->dashboardTareaService->generarListadoCantidadesPorEstadosSubtareas(
             $cantidadSubtareasAgendadas,
@@ -66,7 +67,8 @@ class DashboardTareaController extends Controller
             'cantidadSubtareasCanceladas',
             'cantidadSubtareasRealizadas',
             'cantidadSubtareasFinalizadas',
-            'subtareas',
+            'subtareasCoordinador',
+            'subtareasGrupo',
             'cantidadesPorEstadosSubtareas',
             'cantidadesSubtareasPorGrupo',
         );
