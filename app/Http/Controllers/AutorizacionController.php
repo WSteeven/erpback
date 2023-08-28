@@ -6,8 +6,10 @@ use App\Http\Requests\AutorizacionRequest;
 use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
@@ -29,7 +31,9 @@ class AutorizacionController extends Controller
         $campos = explode(',', $request['campos']);
         $results = [];
         $es_validado = false;
-        // $user =  Auth::user();
+         $user =  Auth::user();
+        $es_autorizador=$user->can('puede.autorizar.permiso_nomina');
+        $es_administrador= $user->hasRole([User::ROL_ADMINISTRADOR]);
         if ($request->es_validado) {
             $es_validado = true;
         }
