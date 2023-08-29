@@ -6,8 +6,10 @@ use App\Http\Requests\AutorizacionRequest;
 use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
@@ -19,7 +21,6 @@ class AutorizacionController extends Controller
         $this->middleware('can:puede.crear.autorizaciones')->only('store');
         $this->middleware('can:puede.editar.autorizaciones')->only('update');
         $this->middleware('can:puede.eliminar.autorizaciones')->only('update');
-
     }
     /**
      * Listar
@@ -29,12 +30,21 @@ class AutorizacionController extends Controller
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $results = [];
-    // $user =  Auth::user();
-
-        if($request['campos']){
-            $results = Autorizacion::ignoreRequest(['campos'])->filter()->get($campos);
+        $es_validado = false;
+         $user =  Auth::user();
+        $es_autorizador=$user->can('puede.autorizar.permiso_nomina');
+        $es_administrador= $user->hasRole([User::ROL_ADMINISTRADOR]);
+        if ($request->es_validado) {
+            $es_validado = true;
+        }
+        if ($request['campos']) {
+            if ($es_validado == false) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado'])->where('id', '!=', 4)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado'])->filter()->get($campos);
             return response()->json(compact('results'));
-        }else
+        } else
         if ($page) {
             $results = Autorizacion::simplePaginate($request['offset']);
             AutorizacionResource::collection($results);
@@ -46,9 +56,9 @@ class AutorizacionController extends Controller
         return response()->json(compact('results'));
     }
 
-/**
- * Guardar
- */
+    /**
+     * Guardar
+     */
     public function store(AutorizacionRequest $request)
     {
 
@@ -59,9 +69,9 @@ class AutorizacionController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-/**
- * Consultar
- */
+    /**
+     * Consultar
+     */
     public function show(Autorizacion $autorizacion)
     {
         $modelo = new AutorizacionResource($autorizacion);
@@ -78,9 +88,9 @@ class AutorizacionController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-/**
- * Eliminar
- */
+    /**
+     * Eliminar
+     */
     public function destroy(Autorizacion $autorizacion)
     {
         $autorizacion->delete();

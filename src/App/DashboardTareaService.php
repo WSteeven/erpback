@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\Subtarea;
 use App\Models\Ticket;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -44,7 +45,7 @@ class DashboardTareaService
         })->get();
     }
 
-    public function obtenerSubtareasFechaInicioFinGrupo(array $idsGrupos)
+    public function obtenerSubtareasFechaInicioFinGrupo( $idsGrupos)
     {
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');
@@ -52,12 +53,21 @@ class DashboardTareaService
         $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
         $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
 
-        return Subtarea::whereIn('tarea_id', function ($query) use ($fechaInicio, $fechaFin, $idsGrupos) {
+        return Subtarea::whereIn('grupo_id', $idsGrupos)->whereIn('tarea_id', function ($query) use ($fechaInicio, $fechaFin) {
             $query->select('id')
                 ->from('tareas')
                 ->whereBetween('created_at', [$fechaInicio, $fechaFin]);
-                // ->where('grupo_id', $idGrupo);
         })->get();
+    }
+
+    public function obtenerIdsGruposCoordinador(int $idCoordinador)
+    {
+        return DB::table('subtareas')
+            ->join('tareas', 'tareas.id', '=', 'subtareas.tarea_id')
+            ->where('tareas.coordinador_id', $idCoordinador)
+            ->groupBy('subtareas.grupo_id')
+            ->select('subtareas.grupo_id')
+            ->pluck('grupo_id');
     }
 
     public function generarListadoCantidadesPorEstadosSubtareas(
