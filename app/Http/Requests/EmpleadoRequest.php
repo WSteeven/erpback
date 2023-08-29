@@ -75,6 +75,7 @@ class EmpleadoRequest extends FormRequest
             'genero' =>'required',
             'esta_en_rol_pago'=>'required',
             'realiza_factura'=>'required',
+            'observacion'=>'nullable',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
