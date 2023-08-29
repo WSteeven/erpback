@@ -9,6 +9,7 @@ use App\Models\Ticket;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\App\DashboardTareaService;
 
 class DashboardTareaController extends Controller
@@ -31,7 +32,9 @@ class DashboardTareaController extends Controller
         $cantidadTareasFinalizadas = $this->dashboardTareaService->obtenerCantidadTareasFinalizadas($coordinador);
 
         $subtareasCoordinador = $this->dashboardTareaService->obtenerSubtareasFechaInicioFin($coordinador);
-        $subtareasGrupo = $this->dashboardTareaService->obtenerSubtareasFechaInicioFinGrupo($coordinador->id);
+        $idsGruposCoordinador = $this->dashboardTareaService->obtenerIdsGruposCoordinador($idCoordinador);
+        // Log::channel('testing')->info('Log', ['idsGruposCoordinador', $idsGruposCoordinador]);
+        $subtareasGrupo = SubtareaResource::collection($this->dashboardTareaService->obtenerSubtareasFechaInicioFinGrupo($idsGruposCoordinador));
         $subtareasFechaInicioFin = $subtareasCoordinador->pluck('estado');
         $subtareasCoordinador = SubtareaResource::collection($subtareasCoordinador);
 
