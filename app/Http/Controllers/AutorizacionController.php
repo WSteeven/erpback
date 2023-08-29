@@ -31,18 +31,26 @@ class AutorizacionController extends Controller
         $campos = explode(',', $request['campos']);
         $results = [];
         $es_validado = false;
+        $es_jefe_inmediato =false;
          $user =  Auth::user();
         $es_autorizador=$user->can('puede.autorizar.permiso_nomina');
         $es_administrador= $user->hasRole([User::ROL_ADMINISTRADOR]);
         if ($request->es_validado) {
             $es_validado = true;
         }
+        if ($request->es_jefe_inmediato) {
+            $es_jefe_inmediato =true;
+        }
         if ($request['campos']) {
-            if ($es_validado == false) {
-                $results = Autorizacion::ignoreRequest(['campos', 'es_validado'])->where('id', '!=', 4)->filter()->get($campos);
+            if($es_jefe_inmediato){
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado','es_jefe_inmediato'])->where('id',2)->filter()->get($campos);
                 return response()->json(compact('results'));
             }
-            $results = Autorizacion::ignoreRequest(['campos', 'es_validado'])->filter()->get($campos);
+            if ($es_validado == false) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado','es_jefe_inmediato'])->where('id', '!=', 4)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado','es_jefe_inmediato'])->filter()->get($campos);
             return response()->json(compact('results'));
         } else
         if ($page) {
@@ -50,7 +58,8 @@ class AutorizacionController extends Controller
             AutorizacionResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Autorizacion::filter()->get();
+
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado','es_jefe_inmediato'])->filter()->get();
         }
         AutorizacionResource::collection($results);
         return response()->json(compact('results'));
