@@ -3,6 +3,7 @@
 namespace Src\App\ComprasProveedores;
 
 use App\Models\ComprasProveedores\Proforma;
+use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 
 class ProformaService
@@ -49,11 +50,14 @@ class ProformaService
             case 2:
                 $results = Proforma::where('estado_id', EstadosTransacciones::PENDIENTE)->ignoreRequest(['solicitante_id', 'autorizador_id',])->filter()->get();
                 return $results;
-            case 3://cuando esta cancelada la autorizacion o cuando está anulada
-                $results = Proforma::ignoreRequest(['solicitante_id', 'autorizador_id', 'autorizacion_id'])->filter()->orWhere('estado_id', EstadosTransacciones::ANULADA)->get();
+            case 3: //cuando esta cancelada la autorizacion o cuando está anulada
+                $results = Proforma::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->where('estado_id', EstadosTransacciones::ANULADA)->get();
                 return $results;
             case 4: //cuando esta completa porque se asocio una prefactura
                 $results = Proforma::where('estado_id', EstadosTransacciones::COMPLETA)->ignoreRequest(['solicitante_id', 'autorizador_id', 'autorizacion_id'])->filter()->get();
+                return $results;
+            case 5: //cuando esta aprobada la autorizacion pero se anula el prefacturado
+                $results = Proforma::where('estado_id', EstadosTransacciones::ANULADA)->where('autorizacion_id', Autorizaciones::APROBADO)->ignoreRequest(['solicitante_id', 'autorizador_id', 'autorizacion_id'])->filter()->get();
                 return $results;
             default:
                 $results = Proforma::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();

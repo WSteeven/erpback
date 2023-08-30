@@ -202,13 +202,23 @@ class OrdenCompraController extends Controller
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
-            $file = $pdf->output();
-
+            $file = $pdf->output(); //se genera el pdf
+            $filename = 'orden_' . $orden['id'].'_' . time().'.pdf'; //se le da un nombre al archivo
+            //Se guarda el pdf
+            $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'compras'.DIRECTORY_SEPARATOR.'ordenes_compras'.DIRECTORY_SEPARATOR.$filename;
+            file_put_contents($ruta,$file);
             // return $pdf->download();
             return $file;
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
         }
+    }
+
+    /**
+     * Enviar mail al proveedor
+     */
+    public function sendMail(OrdenCompra $orden){
+        Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
     }
 }
