@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ComprasProveedores;
 
 use App\Events\ComprasProveedores\ProformaActualizadaEvent;
 use App\Events\ComprasProveedores\ProformaCreadaEvent;
+use App\Events\ComprasProveedores\ProformaModificadaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\ProformaRequest;
 use App\Http\Resources\ClienteResource;
@@ -20,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ComprasProveedores\ProformaService;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class ProformaController extends Controller
@@ -39,7 +42,6 @@ class ProformaController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request en Proformas:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
             $results = $this->servicio->filtrarProformasAdministrador($request);
         } else {
@@ -68,7 +70,7 @@ class ProformaController extends Controller
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
 
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados store:', $datos]);
 
             //Creación de la orden de compra
             $proforma = Proforma::create($datos);
@@ -123,7 +125,7 @@ class ProformaController extends Controller
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
 
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados update:', $datos]);
 
             //Creación de la proforma
             $proforma->update($datos);
@@ -131,16 +133,29 @@ class ProformaController extends Controller
             Proforma::guardarDetalles($proforma, $request->listadoProductos);
 
             //Respuesta
-            $modelo = new ProformaResource($proforma);
+            $modelo = new ProformaResource($proforma->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
 
+            
+            /* En caso que se cancela/anula una proforma, se actualiza su estado a anulado. */
+            if ($proforma->autorizacion_id == Autorizaciones::CANCELADO) {
+                // Log::channel('testing')->info('Log', ['entro en el if:', $proforma->autorizacion_id]);
+                $proforma->estado_id = EstadosTransacciones::ANULADA;
+                $proforma->save();
+            }
             DB::commit();
 
-            // // aqui se debe lanzar la notificacion en caso de que la proforma sea autorizacion pendiente
-            if ($proforma->estado_id === $estado_completo->id && $proforma->autorizacion_id === $autorizacion_aprobada->id) {
-                $proforma->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
-                event(new ProformaActualizadaEvent($proforma, true)); // crea el evento de la orden de compra actualizada al solicitante
+            //si la persona que modifica la proforma es el mismo solicitante se envia la notificacion al autorizador
+            //caso contrario se envia al solicitante si de aprobo o anulo su proforma
+            if(auth()->user()->empleado->id == $proforma->solicitante_id){
+                event(new ProformaModificadaEvent($proforma, true));
+            }else{
+                // aqui se debe lanzar la notificacion en caso de que la proforma no sea autorizacion pendiente
+                if ($proforma->autorizacion_id !== Autorizaciones::PENDIENTE) {
+                    $proforma->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+                    event(new ProformaActualizadaEvent($proforma, true)); // crea el evento de la orden de compra actualizada al solicitante
+                }
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -166,7 +181,7 @@ class ProformaController extends Controller
      */
     public function anular(Request $request, Proforma $proforma)
     {
-        Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
         $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
         $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         $request->validate(['motivo' => ['required', 'string']]);

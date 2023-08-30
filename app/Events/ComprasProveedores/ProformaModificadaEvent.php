@@ -2,7 +2,6 @@
 
 namespace App\Events\ComprasProveedores;
 
-use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\Proforma;
 use App\Models\Notificacion;
 use Illuminate\Broadcasting\Channel;
@@ -12,10 +11,9 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
-class ProformaActualizadaEvent implements ShouldBroadcast
+class ProformaModificadaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,7 +29,8 @@ class ProformaActualizadaEvent implements ShouldBroadcast
     public function __construct($proforma, $informativa)
     {
         $this->proforma = $proforma;
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::PROFORMA, $proforma->autorizador_id, $proforma->solicitante_id, $proforma, $informativa);
+
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::PROFORMA, $proforma->solicitante_id, $proforma->autorizador_id, $proforma, $informativa);
     }
 
     /**
@@ -41,7 +40,7 @@ class ProformaActualizadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('proformas-actualizadas-tracker-' . $this->proforma->solicitante_id);
+        return new Channel('proformas-modificadas-tracker-' . $this->proforma->autorizador_id);
     }
     public function broadcastAs()
     {
@@ -50,11 +49,6 @@ class ProformaActualizadaEvent implements ShouldBroadcast
 
     public function obtenerMensaje()
     {
-        if ($this->proforma->autorizacion->nombre == Autorizacion::APROBADO)
-            return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha aprobado tu proforma N° ' . $this->proforma->id;
-        if ($this->proforma->autorizacion->nombre == Autorizacion::CANCELADO)
-            return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha anulado tu proforma N° ' . $this->proforma->id;
-
-        return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha modificado la proforma que generaste. Proforma N° ' . $this->proforma->id;
+        return $this->proforma->solicitante->nombres . ' ' . $this->proforma->solicitante->apellidos . ' ha modificado la proforma N°' . $this->proforma->id;
     }
 }
