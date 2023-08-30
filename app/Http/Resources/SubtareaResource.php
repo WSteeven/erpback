@@ -105,6 +105,8 @@ class SubtareaResource extends JsonResource
         }
 
         return $modelo;
+        //$campos = $request->campos; // ?: ['campo1', 'campo2', 'campo3'];
+        //return $this->only($campos);
     }
 
     private function formatTimestamp($timestamp)

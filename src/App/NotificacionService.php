@@ -4,6 +4,7 @@ namespace Src\App;
 
 use App\Models\Notificacion;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class NotificacionService
 {
@@ -14,11 +15,11 @@ class NotificacionService
     /**
      * La función "obtenerNotificacionesRolBodega" recupera notificaciones en función del rol BODEGA
      * y campos especificados.
-     * 
+     *
      * @param mixed $campos El parámetro "campos" se utiliza para especificar los campos/columnas que se deben
      * recuperar del modelo "Notificación". Es un parámetro opcional y puede ser una matriz de nombres
      * de campo o una cadena de nombres de campo separados por comas.
-     * 
+     *
      * @return Illuminate\Database\Eloquent\Collection $results una colección de objetos de Notificación.
      */
     public function obtenerNotificacionesRolBodega($campos)
@@ -53,13 +54,13 @@ class NotificacionService
     /**
      * La función "obtenerNotificacionesRol" recupera notificaciones en función del rol del usuario y
      * campos especificados.
-     * 
+     *
      * @param string $rol El parámetro "rol" representa el rol de un usuario. Puede tener valores como "bodega"
      * o "compras" que corresponden a roles específicos en el sistema.
      * @param mixed $campos El parámetro "campos" se utiliza para especificar los campos o columnas que desea
      * recuperar de la base de datos. Es un parámetro opcional y se puede utilizar para limitar la
      * cantidad de datos devueltos en los resultados.
-     * 
+     *
      * @return Illuminate\Database\Eloquent\Collection una lista de notificaciones.
      */
     public function obtenerNotificacionesRol($rol, $campos)
@@ -74,7 +75,7 @@ class NotificacionService
                 break;
             default:
                 if (!$campos[0] === '') $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(100)->get($campos);
-                else $results = Notificacion::where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+                else $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
         }
 
         return $results;
