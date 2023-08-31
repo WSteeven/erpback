@@ -41,6 +41,7 @@ class TareaRequest extends FormRequest
             'subtarea' => 'nullable',
             'ruta_tarea' => 'nullable|numeric|integer',
             'finalizado' => 'nullable|boolean',
+            'metraje_tendido' => 'nullable|numeric|integer',
         ];
     }
 }

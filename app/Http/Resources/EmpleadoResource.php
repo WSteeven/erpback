@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class EmpleadoResource extends JsonResource
 {
@@ -14,6 +15,7 @@ class EmpleadoResource extends JsonResource
      */
     public function toArray($request)
     {
+        $campos = $request->query('campos') ? explode(',', $request->query('campos')) : [];
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
@@ -24,7 +26,7 @@ class EmpleadoResource extends JsonResource
             'fecha_nacimiento' => $this->fecha_nacimiento,
             'email' => $this->user ? $this->user->email : '',
             // 'password'=>bcrypt($this->user->password),
-            'usuario' => $this->user->name,
+            'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
@@ -32,14 +34,11 @@ class EmpleadoResource extends JsonResource
             'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
-            'roles' => implode(', ', $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()),
-            // 'roles' => $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray(),
-            'permisos' => $this->user->getAllPermissions(),
+            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
+            'permisos' => $this->user?->getAllPermissions(),
             'cargo' => $this->cargo?->nombre,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'foto_url' => $this->foto_url ? url($this->foto_url) : null,
-            // 'es_responsable_grupo' => $this->es_responsable_grupo,
-            // 'es_lider' => $this->esTecnicoLider(),
             'convencional' => $this->convencional ? $this->convencional : null,
             'telefono_empresa' => $this->telefono_empresa ? $this->telefono_empresa : null,
             'extension' => $this->extension ? $this->extension : null,
@@ -74,7 +73,6 @@ class EmpleadoResource extends JsonResource
             'genero' => $this->genero,
             'esta_en_rol_pago'=> $this-> esta_en_rol_pago,
             'realiza_factura'=> $this-> realiza_factura
-
         ];
 
         if ($controller_method == 'show') {
@@ -87,6 +85,14 @@ class EmpleadoResource extends JsonResource
             $modelo['departamento'] = $this->departamento_id;
         }
 
-        return $modelo;
+        // Filtra los campos personalizados y añádelos a la respuesta si existen
+        $data = [];
+        foreach ($campos as $campo) {
+            if (isset($modelo[$campo])) {
+                // $modelo[$campo] = $this->{$campo};
+                $data[$campo] = $this->{$campo};
+            }
+        }
+        return count($campos) ? $data : $modelo;
     }
 }
