@@ -10,6 +10,7 @@ use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Http\Resources\EmpleadoResource;
+use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\ComprasProveedores\PreordenCompra;
@@ -22,14 +23,19 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\ComprasProveedores\OrdenCompraService;
 use Src\Shared\Utils;
 
 class OrdenCompraController extends Controller
 {
     private $entidad = 'Orden de compra';
+    private OrdenCompraService $servicio;
     public function __construct()
     {
+        $this->servicio = new OrdenCompraService();
         $this->middleware('can:puede.ver.ordenes_compras')->only('index', 'show');
         $this->middleware('can:puede.crear.ordenes_compras')->only('store');
         $this->middleware('can:puede.editar.ordenes_compras')->only('update');
@@ -189,36 +195,47 @@ class OrdenCompraController extends Controller
      */
     public function imprimir(OrdenCompra $orden)
     {
-        $proveedor = new ProveedorResource(Proveedor::find($orden->proveedor_id));
-        $empleado_solicita = Empleado::find($orden->solicitante_id);
-        $orden = new OrdenCompraResource($orden);
+        $orden_compra = $orden;
         try {
-            $orden = $orden->resolve();
-            $proveedor = $proveedor->resolve();
-            $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor']));
-            $pdf->setPaper('A4', 'portrait');
-            $pdf->setOption(['isRemoteEnabled' => true]);
-            $pdf->render();
-            $file = $pdf->output(); //se genera el pdf
-            $filename = 'orden_' . $orden['id'].'_' . time().'.pdf'; //se le da un nombre al archivo
-            //Se guarda el pdf
-            $ruta = storage_path().DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'compras'.DIRECTORY_SEPARATOR.'ordenes_compras'.DIRECTORY_SEPARATOR.$filename;
-            file_put_contents($ruta,$file);
-            // return $pdf->download();
-            return $file;
+
+            if ($orden_compra->file && Storage::exists($orden_compra->file)) {
+                //En caso de que el archivo exista se sirve el archivo
+                Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
+                return Storage::download($orden_compra->file);
+            } else {
+                try {
+                    $ruta = $this->servicio->generarPdf($orden, true, true);
+                    Log::channel('testing')->info('Log', ['ruta', $ruta]);
+                } catch (Exception $e) {
+                    Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+                    return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
+                }
+            }
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
-            return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
+            Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
+            $mensaje = $e->getMessage() . '. ' . $e->getLine();
+            return response()->json(compact('mensaje'));
         }
     }
 
     /**
      * Enviar mail al proveedor
      */
-    public function sendMail(OrdenCompra $orden){
+    public function sendMail(OrdenCompra $orden)
+    {
         Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
+        try {
+            if ($orden->proveedor->empresa->correo) {
+                Mail::to($orden->proveedor->empresa->correo)->send(new EnviarMailOrdenCompraProveedor($orden));
+                $mensaje = 'Email enviado correctamente al provedor';
+            } else {
+                $mensaje = 'El proveedor no tiene un correo asociado para enviar el email';
+            }
+            return response()->json(compact('mensaje'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['Error OrdenCompraProveedorController sendMail', $e->getMessage(), $e->getLine()]);
+            $mensaje = $e->getMessage() . '. ' . $e->getLine();
+            return response()->json(compact('mensaje'));
+        }
     }
 }

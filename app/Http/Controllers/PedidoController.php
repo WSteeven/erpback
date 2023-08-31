@@ -278,6 +278,8 @@ class PedidoController extends Controller
             return $file;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage().'. '.$ex->getLine();
+            return response()->json(compact('mensaje'));
         }
     }
 

@@ -56,3 +56,7 @@ Route::get('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamen
 Route::get('detalles-departamentos-proveedor/files/{detalle}', [DetalleDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
 //guardar archivos
 Route::post('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+
+//enviar pdfs
+Route::get('ordenes-compras/toProveedor/{orden}', [OrdenCompraController::class, 'sendMail'])->middleware('auth:sanctum');
