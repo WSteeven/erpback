@@ -62,7 +62,7 @@ class EmpleadoResource extends JsonResource
             'talla_zapato' => $this->talla_zapato,
             'talla_camisa' => $this->talla_camisa,
             'talla_guantes' => $this->talla_guantes,
-            'talla_pantalon' => $this->tallapantalon,
+            'talla_pantalon' => $this->talla_pantalon,
             'nivel_academico' => $this->nivel_academico,
             'estado_civil' => $this->estado_civil_id,
             'estado_civil_info' => $this->estadoCivil  ? $this->estadoCivil->nombre : null,
