@@ -24,6 +24,7 @@ class DashboardTareaController extends Controller
     public function index()
     {
         $idCoordinador = request('empleado_id');
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
 
         // Busqueda del coordinador
         $coordinador = Empleado::find($idCoordinador);
@@ -31,12 +32,9 @@ class DashboardTareaController extends Controller
         $cantidadTareasActivas = $this->dashboardTareaService->obtenerCantidadTareasActivas($coordinador);
         $cantidadTareasFinalizadas = $this->dashboardTareaService->obtenerCantidadTareasFinalizadas($coordinador);
 
-        $subtareasCoordinador = $this->dashboardTareaService->obtenerSubtareasFechaInicioFin($coordinador);
-        $idsGruposCoordinador = $this->dashboardTareaService->obtenerIdsGruposCoordinador($idCoordinador);
-        // Log::channel('testing')->info('Log', ['idsGruposCoordinador', $idsGruposCoordinador]);
-        $subtareasGrupo = SubtareaResource::collection($this->dashboardTareaService->obtenerSubtareasFechaInicioFinGrupo($idsGruposCoordinador));
+        $subtareasCoordinador = $this->dashboardTareaService->obtenerSubtareasFechaInicioFin($coordinador, $campos);
         $subtareasFechaInicioFin = $subtareasCoordinador->pluck('estado');
-        $subtareasCoordinador = SubtareaResource::collection($subtareasCoordinador);
+        // Log::channel('testing')->info('Log', compact('subtareasCoordinador'));
 
         $cantidadSubtareasAgendadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::AGENDADO);
         $cantidadSubtareasEjecutadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::EJECUTANDO);
@@ -46,6 +44,9 @@ class DashboardTareaController extends Controller
         $cantidadSubtareasRealizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::REALIZADO);
         $cantidadSubtareasFinalizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::FINALIZADO);
 
+        /********
+         Listados
+         *********/
         $cantidadesPorEstadosSubtareas = $this->dashboardTareaService->generarListadoCantidadesPorEstadosSubtareas(
             $cantidadSubtareasAgendadas,
             $cantidadSubtareasEjecutadas,
@@ -56,10 +57,15 @@ class DashboardTareaController extends Controller
             $cantidadSubtareasFinalizadas
         );
 
-        // Listados
-        $cantidadesSubtareasPorGrupo = $this->obtenerCantidadSubtareasPorGrupos($idCoordinador);
+        $subtareasCoordinador = SubtareaResource::collection($subtareasCoordinador);
+        $idsGruposCoordinador = $this->dashboardTareaService->obtenerIdsGruposCoordinador($idCoordinador);
+        $subtareasGrupo = SubtareaResource::collection($this->dashboardTareaService->obtenerSubtareasFechaInicioFinGrupo($idsGruposCoordinador, $idCoordinador));
+        $idsEmpleadosCoordinador = $this->dashboardTareaService->obtenerIdsEmpleadosCoordinador($idCoordinador);
+        $subtareasEmpleado = SubtareaResource::collection($this->dashboardTareaService->obtenerSubtareasFechaInicioFinEmpleado($idsEmpleadosCoordinador, $idCoordinador));
 
-        // Respuesta
+        /**********
+        Respuesta
+        ***********/
         $results = compact(
             'cantidadTareasActivas',
             'cantidadTareasFinalizadas',
@@ -71,15 +77,15 @@ class DashboardTareaController extends Controller
             'cantidadSubtareasRealizadas',
             'cantidadSubtareasFinalizadas',
             'subtareasCoordinador',
+            'subtareasEmpleado',
             'subtareasGrupo',
             'cantidadesPorEstadosSubtareas',
-            'cantidadesSubtareasPorGrupo',
         );
 
         return response()->json(compact('results'));
     }
 
-    private function obtenerCantidadSubtareasPorGrupos($idCoordinador)
+    /* BORRRAR - private function obtenerCantidadSubtareasPorGrupos($idCoordinador)
     {
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');
@@ -92,11 +98,11 @@ class DashboardTareaController extends Controller
             ->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')
             ->join('grupos', 'subtareas.grupo_id', '=', 'grupos.id')
             ->where('tareas.coordinador_id', $idCoordinador)
-            ->whereBetween('subtareas.created_at', [$fechaInicio, $fechaFin])
+            ->whereBetween('tareas.created_at', [$fechaInicio, $fechaFin])
             ->groupBy('subtareas.grupo_id')
             ->groupBy('subtareas.estado')
             ->get();
-    }
+    } */
 }
 
 /**
