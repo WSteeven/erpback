@@ -20,7 +20,7 @@ class ArchivoService
     /**
      * La función guarda un archivo en una ubicación de almacenamiento específica y crea una entrada
      * correspondiente en la base de datos.
-     * 
+     *
      * @param Model entidad El parámetro "entidad" es una instancia de una clase modelo. Representa la
      * entidad u objeto con el que desea asociar el archivo cargado.
      * @param UploadedFile archivo El parámetro "archivo" es una instancia de la clase UploadedFile,
@@ -29,7 +29,7 @@ class ArchivoService
      * @param RutasStorage ruta El parámetro `` es una instancia de la clase `RutasStorage`, que
      * representa la ruta de almacenamiento donde se guardará el archivo. Contiene una propiedad
      * `value` que contiene el valor real de la ruta de almacenamiento.
-     * 
+     *
      * @return el objeto modelo creado.
      */
     public static function guardar(Model $entidad, UploadedFile $archivo, RutasStorage $ruta)
