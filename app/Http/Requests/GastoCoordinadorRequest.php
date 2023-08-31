@@ -36,10 +36,10 @@ class GastoCoordinadorRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $user = Auth::user();
+        $user =Auth::user()->empleado->id;
         $this->merge([
             'fecha_gasto' =>  date('Y-m-d'),
-            'id_usuario' => $user->id,
+            'id_usuario' => $user,
         ]);
 
     }
