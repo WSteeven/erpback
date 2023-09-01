@@ -14,6 +14,21 @@ class ExtensionCoverturaSaludResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $modelo = [
+            'id' => $this->id,
+            'mes' =>$this->identificacion,
+            'dependiente_' =>$this->dependiente,
+            'dependiente_info' => $this->dependiente_info != null ? $this->dependiente_info->nombres . ' ' . $this->dependiente_info->apellidos : '',
+            'empleado' =>$this->empleado_id,
+            'empleado_info' => $this->empleado_info != null ? $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos : '',
+            'origen' =>$this->origen,
+            'materia_grabada' =>$this->materia_grabada,
+            'aporte' => $this->aporte,
+            'aporte_porcentaje' => $this->aporte_porcentaje ,
+            'aprobado'=> $this->aprobado,
+            'observacion'=> $this->observacion,
+
+        ];
+        return $modelo;
     }
 }

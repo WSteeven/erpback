@@ -37,7 +37,7 @@ class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidat
     public function rules(): array
     {
         return [
-            '*.cedula' => ['string', 'required'],
+            '*.cedula' => ['required'],
             '*.nut' => ['integer', 'required','unique:prestamo_quirorafario,nut'],
             '*.valor' => ['numeric', 'required'],
         ];
