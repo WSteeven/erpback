@@ -49,7 +49,6 @@ class SolicitudFondosEvent implements ShouldBroadcast
     public function broadcastOn()
     {
         $nombre_chanel ='solicitud-fondos-'. $this->destinatario;
-        Log::channel('testing')->info('Log', ['nombre canal',$nombre_chanel]);
         return new Channel($nombre_chanel );
     }
     public function broadcastAs()

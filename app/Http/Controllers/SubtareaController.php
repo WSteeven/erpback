@@ -28,7 +28,7 @@ class SubtareaController extends Controller
 
     public function list()
     {
-
+        //$campos = request('campos') ? explode(',', request('campos')) : '*';
         return $this->subtareaService->obtenerTodos();
     }
 

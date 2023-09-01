@@ -27,6 +27,8 @@ class ProformaResource extends JsonResource
             'autorizador_id' => $this->autorizador_id,
             'autorizacion' => $this->autorizacion->nombre,
             'autorizacion_id' => $this->autorizacion_id,
+            'descuento_general' => $this->descuento_general,
+            'observacion_aut' => $this->observacion_aut,
             'descripcion' => $this->descripcion,
             'cliente' => $this->cliente->empresa->razon_social,
             'cliente_id' => $this->cliente_id,

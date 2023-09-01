@@ -2,6 +2,9 @@
 @php
     $fecha = new Datetime();
     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    if ($empleado_solicita->firma_url) {
+        $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -97,6 +100,7 @@
 </head>
 
 <body>
+    {{-- encabezado --}}
     <header>
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
@@ -148,6 +152,7 @@
             </tr>
         </table>
     </header>
+    {{-- pie de pagina --}}
     <footer>
         <table style="width: 100%;">
             <tr>
@@ -296,6 +301,33 @@
                     </table>
                 </td>
             </tr>
+        </table>
+        {{-- firma en la orden de compra --}}
+        <table class="firma" style="width: 100%; margin-bottom: 10px; margin-top: 50px">
+            <thead>
+                <th align="center">
+                    @isset($firma_solicitante)
+                        <img src="{{ $firma_solicitante }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($firma_solicitante)
+                        ___________________<br />
+                    @endempty
+                    <b>SOLICITADO POR</b>
+                </th>
+                <th align="center"></th>
+                <th align="center"></th>
+            </thead>
+            <tbody>
+                <tr align="center">
+                    <td>{{ $empleado_solicita->nombres }} {{ $empleado_solicita->apellidos }} <br>
+                        {{ $empleado_solicita->identificacion }}
+                    </td>
+                    <td></td>
+                    <td>
+
+                    </td>
+                </tr>
+            </tbody>
         </table>
 
     </main>

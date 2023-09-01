@@ -38,9 +38,9 @@ class EmpleadoController extends Controller
     public function list()
     {
         // Obtener parametros
-        $rol = request('rol');
+        $rol = explode(',', request('rol'));
         $search = request('search');
-        $campos = explode(',', request('campos'));
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
 
         $user = User::find(auth()->id());
 
@@ -58,7 +58,7 @@ class EmpleadoController extends Controller
         }
 
         // Procesar respuesta
-        if (request('rol')) return EmpleadoResource::collection(Empleado::whereIn('id', User::role($rol)->pluck('id'))->get());
+        if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos);// EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($search) return $this->servicio->search($search);
 

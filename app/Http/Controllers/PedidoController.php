@@ -170,6 +170,11 @@ class PedidoController extends Controller
             }
             DB::commit();
 
+            if ($pedido->autorizacion->nombre == Autorizacion::APROBADO) {
+                //Metodo para verificar si el detalle existe en alguna bodega de propiedad del cliente de la bodega
+                Inventario::verificarExistenciasDetalles($pedido);
+            }
+
 
             Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
             Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
@@ -278,6 +283,8 @@ class PedidoController extends Controller
             return $file;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage().'. '.$ex->getLine();
+            return response()->json(compact('mensaje'));
         }
     }
 
