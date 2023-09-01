@@ -31,8 +31,8 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
+            // Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
+            // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
             $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
@@ -48,7 +48,7 @@ class OrdenCompraService
                 //Se actualiza la ruta en la orden de compra 
                 $orden_compra->file = $ruta;
                 $orden_compra->save();
-                Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
+                // Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
 
                 if ($descargar) {
                     return Storage::download($ruta, $filename);

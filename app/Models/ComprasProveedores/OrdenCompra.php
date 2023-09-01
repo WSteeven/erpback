@@ -10,6 +10,7 @@ use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Proveedor;
+use App\Models\Tarea;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -39,6 +40,7 @@ class OrdenCompra extends Model implements Auditable
     'observacion_aut',
     'preorden_id',
     'pedido_id',
+    'tarea_id',
     'estado_id',
     'observacion_est',
     'descripcion',
@@ -97,6 +99,14 @@ class OrdenCompra extends Model implements Auditable
   public function pedido()
   {
     return $this->belongsTo(Pedido::class);
+  }
+
+  /**
+   * Relación uno a uno.
+   * Una orden de compra puede tener asociada una tarea
+   */
+  public function tarea(){
+    return $this->belongsTo(Tarea::class);
   }
 
   /**

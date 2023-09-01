@@ -69,6 +69,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoControll
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
+use App\Http\Resources\CantonResource;
 use App\Http\Resources\ParroquiaResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
@@ -302,9 +303,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
     Route::get('obtener-fecha', fn () => Carbon::now()->format('d-m-Y'));
     Route::get('obtener-hora', fn () => Carbon::now()->format('H:i:s'));
-    Route::get('paises', fn () => ['results' => Pais::all()]);
+    Route::get('paises', fn () => ['results' => Pais::filter()->get()]);
     Route::get('provincias', fn (Request $request) => ['results' => Provincia::filter()->get()]);
-    Route::get('cantones', fn () => ['results' => Canton::ignoreRequest(['campos'])->filter()->get()]);
+    Route::get('cantones', function () {
+        $results = Canton::ignoreRequest(['campos'])->filter()->get();
+        $results = CantonResource::collection($results);
+        //  return 'results' => Canton::ignoreRequest(['campos'])->filter()->get());
+        return response()->json(compact('results'));
+    });
     Route::get('parroquias', fn (Request $request) => ['results' => ParroquiaResource::collection(Parroquia::filter()->get())]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);

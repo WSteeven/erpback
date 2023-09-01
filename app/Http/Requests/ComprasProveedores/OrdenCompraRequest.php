@@ -32,6 +32,7 @@ class OrdenCompraRequest extends FormRequest
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'preorden' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
             'pedido' => 'nullable|sometimes|numeric|exists:pedidos,id',
+            'tarea' => 'nullable|sometimes|numeric|exists:tareas,id',
             'observacion_aut' => 'nullable|sometimes|string',
             'observacion_est' => 'nullable|sometimes|string',
             'descripcion' => 'required|string',

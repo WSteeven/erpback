@@ -82,7 +82,7 @@ class Empleado extends Model implements Auditable
         'dirrecion',
         'estado_civil',
         'correo_personal',
-        'area',
+        'area_id',
         'num_cuenta',
         'salario',
         'fecha_ingreso',
