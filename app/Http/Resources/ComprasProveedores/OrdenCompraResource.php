@@ -23,7 +23,10 @@ class OrdenCompraResource extends JsonResource
             'codigo' => $this->codigo,
             'solicitante' => $this->solicitante->nombres . ' ' . $this->solicitante->apellidos,
             'solicitante_id' => $this->solicitante_id,
+            'preorden' => $this->preorden_id,
             'pedido' => $this->pedido_id,
+            'tarea' => $this->tarea?->titulo,
+            'tarea_id' => $this->tarea_id,
             'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
             'autorizador_id' => $this->autorizador_id,
             'autorizacion' => $this->autorizacion->nombre,
@@ -54,6 +57,7 @@ class OrdenCompraResource extends JsonResource
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['proveedor'] = $this->proveedor_id;
             $modelo['estado'] = $this->estado_id;
+            $modelo['tarea'] = $this->tarea_id;
         }
         return $modelo;
     }

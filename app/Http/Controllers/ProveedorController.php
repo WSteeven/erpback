@@ -9,6 +9,7 @@ use App\Models\Departamento;
 use App\Models\Proveedor;
 use App\Models\User;
 use Exception;
+use Hamcrest\Type\IsInteger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -39,7 +40,7 @@ class ProveedorController extends Controller
     public function store(ProveedorRequest $request)
     {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
+        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
             DB::beginTransaction();
             $datos = $request->validated();
@@ -52,15 +53,20 @@ class ProveedorController extends Controller
             $proveedor->servicios_ofertados()->attach($request->tipos_ofrece);
             $proveedor->categorias_ofertadas()->attach($datos['categorias_ofrece']);
             $proveedor->departamentos_califican()->sync($request->departamentos);
-            if(!in_array($departamento_contable->id, $request->departamentos)){
-                $proveedor->departamentos_califican()->attach($departamento_contable->id);
+            if (is_int($request->departamentos)) {
+                if ($departamento_financiero->id != $request->departamentos)
+                    $proveedor->departamentos_califican()->attach($departamento_financiero->id);
+            } else {
+                if (!in_array($departamento_financiero->id, $request->departamentos)) {
+                    $proveedor->departamentos_califican()->attach($departamento_financiero->id);
+                }
             }
             $modelo = new ProveedorResource($proveedor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
-            
+
             Log::channel('testing')->info('Log', ['Modelo a recorrer', $proveedor->departamentos_califican]);
-            foreach($proveedor->departamentos_califican as $departamento){
+            foreach ($proveedor->departamentos_califican as $departamento) {
                 event(new CalificacionProveedorEvent($proveedor, auth()->user()->empleado->id, $departamento['responsable_id'], false));
             }
 
@@ -90,22 +96,22 @@ class ProveedorController extends Controller
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        $departamento_contable = Departamento::where('nombre',User::ROL_CONTABILIDAD)->first();
+        $departamento_contable = Departamento::where('nombre', User::ROL_CONTABILIDAD)->first();
         try {
             DB::beginTransaction();
             //Adaptación de foreign keys
             $datos = $request->validated();
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
-            
+
             //Respuesta
             $proveedor->update($datos);
-            
+
             //attaching related models
             $proveedor->servicios_ofertados()->sync($request->tipos_ofrece);
             $proveedor->categorias_ofertadas()->sync($request->categorias_ofrece);
             $proveedor->departamentos_califican()->sync($request->departamentos);
-            if(!in_array($departamento_contable->id, $request->departamentos)){
+            if (!in_array($departamento_contable->id, $request->departamentos)) {
                 $proveedor->departamentos_califican()->attach($departamento_contable->id);
             }
             $modelo = new ProveedorResource($proveedor->refresh());
