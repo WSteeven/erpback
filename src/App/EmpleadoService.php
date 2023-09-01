@@ -14,14 +14,24 @@ class EmpleadoService
     {
     }
 
-    public function obtenerEmpleadosPorRol(string $rol)
+    public function getUsersWithRoles($roles, $campos)
+    {
+        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })->pluck('id');
+
+        return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
+
+        // return $users;
+    }
+    /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
     {
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
         $empleados = Empleado::ignoreRequest(['rol'])->filter()->where('estado', true)->get();
         $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
         EmpleadoResource::collection($results);
         return $results;
-    }
+    } */
 
     public function obtenerPaginacion($offset)
     {
@@ -47,7 +57,7 @@ class EmpleadoService
     {
         // Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
         $indice = array_search('responsable_departamento', $campos);
-        if($indice) unset($campos[$indice]);
+        if ($indice) unset($campos[$indice]);
 
         $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '>', 1)->get($campos);
         $ids = $this->obtenerIdsResponsablesDepartamentos();

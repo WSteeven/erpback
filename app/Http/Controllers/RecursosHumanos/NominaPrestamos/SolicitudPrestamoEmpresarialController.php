@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Events\SolicitudPrestamoEvent;
+use App\Events\SolicitudPrestamoGerenciaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\SolicitudPrestamoEmpresarialResource;
@@ -69,6 +70,9 @@ class SolicitudPrestamoEmpresarialController extends Controller
         }
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::create($datos);
         event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
+        if ($SolicitudPrestamoEmpresarial->estado == 4) {
+            event(new SolicitudPrestamoGerenciaEvent($SolicitudPrestamoEmpresarial));
+        }
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
@@ -106,6 +110,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
         $SolicitudPrestamoEmpresarial = SolicitudPrestamoEmpresarial::where('id', $request->id)->first();
         $SolicitudPrestamoEmpresarial->update($datos);
         event(new SolicitudPrestamoEvent($SolicitudPrestamoEmpresarial));
+        event(new SolicitudPrestamoGerenciaEvent($SolicitudPrestamoEmpresarial));
         $modelo = new SolicitudPrestamoEmpresarialResource($SolicitudPrestamoEmpresarial);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
@@ -172,13 +177,13 @@ class SolicitudPrestamoEmpresarialController extends Controller
             array_push($plazos, $plazo);
         }
         if ($valor_utilidad != 0) {
-            $periodo = Periodo::where('id',$prestamo->periodo_id)->first();
+            $periodo = Periodo::where('id', $prestamo->periodo_id)->first();
             $nombrePeriodo = $periodo->nombre;
             $anio = explode('-', $nombrePeriodo)[0];
             $indice =  $prestamo->plazo + 1;
             $plazo = [
                 'num_cuota' =>  $indice,
-                'fecha_vencimiento' =>'30-04-'.$anio,
+                'fecha_vencimiento' => '30-04-' . $anio,
                 'valor_couta' =>  $valor_utilidad,
                 'valor_pagado' => 0,
                 'valor_a_pagar' => 0,
@@ -186,7 +191,7 @@ class SolicitudPrestamoEmpresarialController extends Controller
             ];
             array_push($plazos, $plazo);
         }
-         $this->crear_plazos($prestamo, $plazos);
+        $this->crear_plazos($prestamo, $plazos);
     }
     public function calcular_fechas($cuota, $plazo, PrestamoEmpresarial $prestamo)
     {

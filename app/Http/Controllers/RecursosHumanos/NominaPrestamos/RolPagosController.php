@@ -72,7 +72,7 @@ class RolPagosController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true,$rolpago->empleado_id);
         $rolpago->rol_firmado = $archivoJSON;
         $rolpago->estado = RolPago::FINALIZADO;
         $rolpago->save();
@@ -152,12 +152,10 @@ class RolPagosController extends Controller
         $prestamo_hipotecario = PrestamoHipotecario::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('valor');
         $extension_conyugal = ExtensionCoverturaSalud::where('empleado_id', $empleado->id)->where('mes', $mes)->sum('aporte');
         $sueldo = $salario;
-        Log::channel('testing')->info('Log', ['sueldo', $sueldo]);
-
         $iess = ($sueldo) * $porcentaje_iess;
         $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess), 2);
-        $porcentaje_endeudamiento = round(($total_descuento / $sueldo), 2) * 100;
-        $porcentaje_endeudamiento = ($porcentaje_endeudamiento);
+        $porcentaje_endeudamiento =($total_descuento / $sueldo) * 100;
+        $porcentaje_endeudamiento = round(($porcentaje_endeudamiento),2);
 
         $results = [
             'total_descuento' => $total_descuento,

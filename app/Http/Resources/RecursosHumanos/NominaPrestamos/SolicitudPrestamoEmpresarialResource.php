@@ -25,6 +25,7 @@ class SolicitudPrestamoEmpresarialResource extends JsonResource
             'plazo' => $this->plazo,
             'motivo' =>  $this->motivo,
             'observacion' => $this->observacion,
+            'cargo_utilidad' =>$this->periodo_id != null ? true:false,
             'periodo' =>   $this->periodo_id,
             'periodo_info' => $this->periodo_info? $this->periodo_info->nombre:'' ,
             'valor_utilidad' => $this->valor_utilidad,
