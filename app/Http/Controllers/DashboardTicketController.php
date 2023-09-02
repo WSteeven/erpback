@@ -116,6 +116,7 @@ class DashboardTicketController extends Controller
             'ticketsPorDepartamentoEstadoFinalizadoSolucionado',
             'ticketsPorDepartamentoEstadoFinalizadoSinSolucion',
             'ticketsPorDepartamentoEstadoCalificado',
+            'creados',
         );
 
         return response()->json(compact('results'));
