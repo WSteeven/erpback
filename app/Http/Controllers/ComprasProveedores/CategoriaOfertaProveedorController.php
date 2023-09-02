@@ -27,7 +27,6 @@ class CategoriaOfertaProveedorController extends Controller
     public function index(Request $request)
     {
         $results = CategoriaOfertaProveedor::all();
-        Log::channel('testing')->info('Log', ['listado de categorias', $results]);
         $results = CategoriaOfertaProveedorResource::collection($results);
         return response()->json(compact('results'));
     }

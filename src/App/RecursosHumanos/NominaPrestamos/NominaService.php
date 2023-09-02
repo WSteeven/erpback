@@ -57,7 +57,9 @@ class NominaService
     }
     public function extensionesCoberturaSalud($todos = false, $pluck = false)
     {
-        $query = ExtensionCoverturaSalud::where('mes', $this->mes);
+        $mes_convertido = Carbon::createFromFormat('Y-m', $this->mes)->format('m-Y');
+
+        $query = ExtensionCoverturaSalud::where('mes', $mes_convertido);
         if ($todos) {
             $query->groupBy('empleado_id')
                 ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'));
@@ -72,7 +74,7 @@ class NominaService
                 ->groupBy('empleado_id')
                 ->select('empleado_id', DB::raw('SUM(aporte) as total_valor'))->first();
             $suma =   $extension_conyugal == null ? 0 : $extension_conyugal->total_valor;
-            return $suma != 0 ? [$this->id_empleado] : 0;
+            return $suma != 0 ? $suma : 0;
         }
     }
     public static function  obtenerValorRubro($rubroId)
