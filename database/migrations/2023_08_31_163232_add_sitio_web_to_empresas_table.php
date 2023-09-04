@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('cmp_ordenes_compras', function (Blueprint $table) {
-            $table->unsignedBigInteger('tarea_id')->nullable()->after('iva');
-            $table->text('file')->nullable()->after('tarea_id');
-
-            $table->foreign('tarea_id')->references('id')->on('tareas')->nullOnDelete()->cascadeOnUpdate();
+        Schema::table('empresas', function (Blueprint $table) {
+            $table->text('sitio_web')->nullable()->after('nombre_comercial');
         });
     }
 
@@ -28,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('cmp_ordenes_compras', function (Blueprint $table) {
+        Schema::table('empresas', function (Blueprint $table) {
             //
         });
     }

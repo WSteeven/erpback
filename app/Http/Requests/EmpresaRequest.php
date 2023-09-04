@@ -39,7 +39,8 @@ class EmpresaRequest extends FormRequest
             'ciudad' => 'string|nullable',
             'direccion' => 'string|nullable',
             'agente_retencion' => 'boolean|required',
-            'tipo_negocio'=>['required', Rule::in([Empresa::RIMPE_IVA, Empresa::RIMPE_SIN_IVA])]
+            'tipo_negocio'=>['required', Rule::in([Empresa::RIMPE_IVA, Empresa::RIMPE_SIN_IVA])],
+            'sitio_web' => 'string|nullable',
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $empresa = $this->route()->parameter('empresa');

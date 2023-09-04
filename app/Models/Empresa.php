@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,7 @@ class Empresa extends Model implements Auditable
         'direccion',
         'agente_retencion',
         'tipo_negocio',
+        'sitio_web',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -56,6 +58,10 @@ class Empresa extends Model implements Auditable
     public function proveedor()
     {
         return $this->hasOne(Proveedor::class);
+    }
+    public function contactos()
+    {
+        return $this->hasMany(ContactoProveedor::class);
     }
     /*
     public function telefonos(){

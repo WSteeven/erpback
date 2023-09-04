@@ -23,6 +23,7 @@ class ProveedorResource extends JsonResource
             'empresa' => $this->empresa_id,
             'ruc' => $this->empresa->identificacion,
             'razon_social' => $this->empresa->razon_social,
+            'sitio_web' => $this->empresa->sitio_web,
             'sucursal' => $this->sucursal,
             'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,
             'parroquia' => $this->parroquia_id,
@@ -30,21 +31,21 @@ class ProveedorResource extends JsonResource
             'celular' => $this->celular,
             'telefono' => $this->telefono,
             'estado' => $this->estado,
-            'tipos_ofrece' => $this->servicios_ofertados->map(fn($item)=>$item->id),
-            'departamentos' => $this->departamentos_califican->map(fn($item)=>$item->id),
+            'tipos_ofrece' => $this->servicios_ofertados->map(fn ($item) => $item->id),
+            'departamentos' => $this->departamentos_califican->map(fn ($item) => $item->id),
             'related_departamentos' => $this->departamentos_califican,
-            'calificacion' => $this->calificacion?$this->calificacion:0,
-            'estado_calificado' => $this->estado_calificado?$this->estado_calificado: Proveedor::SIN_CONFIGURAR,
+            'calificacion' => $this->calificacion ? $this->calificacion : 0,
+            'estado_calificado' => $this->estado_calificado ? $this->estado_calificado : Proveedor::SIN_CONFIGURAR,
             // 'calificacion' => $calificacion,
             // 'estado_calificado' => $estado,
         ];
 
         if ($controller_method == 'show') {
             //listados
-            $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn($item)=>$item->id);
-            $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn($item)=>$item->id);
-            $modelo['departamentos'] = $this->departamentos_califican->map(fn($item)=>$item->id);
-            $modelo['contactos'] = ContactoProveedorResource::collection($this->contactos);
+            $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn ($item) => $item->id);
+            $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn ($item) => $item->id);
+            $modelo['departamentos'] = $this->departamentos_califican->map(fn ($item) => $item->id);
+            $modelo['contactos'] = ContactoProveedorResource::collection($this->empresa->contactos);
         }
         return $modelo;
     }

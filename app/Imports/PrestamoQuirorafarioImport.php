@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -24,6 +25,8 @@ class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidat
      */
     public function model(array $row)
     {
+        Log::channel('testing')->info('Log', ['array', $row['cedula']]);
+
         return new PrestamoQuirorafario([
             "mes" => $this->mes,
             "empleado_id" => $this->empleados[$row['cedula']],
@@ -34,7 +37,7 @@ class PrestamoQuirorafarioImport implements ToModel, WithHeadingRow, WithValidat
     public function rules(): array
     {
         return [
-            '*.cedula' => ['string', 'required'],
+            '*.cedula' => ['required'],
             '*.nut' => ['integer', 'required','unique:prestamo_quirorafario,nut'],
             '*.valor' => ['numeric', 'required'],
         ];

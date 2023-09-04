@@ -27,7 +27,8 @@ class ContactoProveedorController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request){
+    public function index(Request $request)
+    {
         $results = ContactoProveedorResource::collection(ContactoProveedor::filter()->get());
         return response()->json(compact('results'));
     }
@@ -41,7 +42,8 @@ class ContactoProveedorController extends Controller
             DB::beginTransaction();
             //Adaptación de foreign keys
             $datos = $request->validated();
-            $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+            $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+            if ($request->proveedor) $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
 
             //Respuesta
             $modelo = ContactoProveedor::create($datos);
@@ -52,8 +54,8 @@ class ContactoProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            $mensaje = '('.$e->getLine().') Hubo un erorr: '. $e->getMessage();
-            return response()->json(compact('mensaje'),500);
+            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
+            return response()->json(compact('mensaje'), 500);
             //throw $th;
         }
     }
@@ -76,7 +78,8 @@ class ContactoProveedorController extends Controller
     {
         //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
+        $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
+        if ($request->proveedor) $datos['proveedor_id'] = $request->safe()->only(['proveedor'])['proveedor'];
 
         //Respuesta
         $contacto->update($datos);
@@ -97,11 +100,12 @@ class ContactoProveedorController extends Controller
         return response()->json(compact('mensaje'));
     }
 
-    public function auditoria(Request $request){
-        if($request->id){
+    public function auditoria(Request $request)
+    {
+        if ($request->id) {
             $contactoProveedor = ContactoProveedor::find($request->id);
-            $results = $contactoProveedor->audits()->orderBy('updated_at', 'desc')->get(); 
-        }else{
+            $results = $contactoProveedor->audits()->orderBy('updated_at', 'desc')->get();
+        } else {
             $results = Audit::where('auditable_type', ContactoProveedor::class)->with('user')->orderBy('created_at', 'desc')->get();
         }
         $results = AuditResource::collection($results);

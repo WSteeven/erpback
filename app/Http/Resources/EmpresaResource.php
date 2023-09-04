@@ -31,6 +31,7 @@ class EmpresaResource extends JsonResource
             'direccion' => $this->direccion,
             'agente_retencion' => $this->agente_retencion,
             'tipo_negocio' => $this->tipo_negocio,
+            'sitio_web' => $this->sitio_web,
         ];
 
         if ($controller_method == 'show') {

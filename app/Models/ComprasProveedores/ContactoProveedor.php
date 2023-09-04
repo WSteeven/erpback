@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Empresa;
 use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -17,7 +18,7 @@ class ContactoProveedor extends Model implements Auditable
     use UppercaseValuesTrait;
     use Filterable;
 
-    protected $table = 'contactos_proveedores';
+    protected $table = 'cmp_contactos_proveedores';
     protected $fillable = [
         "nombres",
         "apellidos",
@@ -25,12 +26,14 @@ class ContactoProveedor extends Model implements Auditable
         "ext",
         "correo",
         "tipo_contacto",
+        "empresa_id",
         "proveedor_id",
     ];
 
     const TECNICO = 'TECNICO'; //contacto tecnico
     const FINANCIERO = 'FINANCIERO'; //contacto financiero
     const COMERCIAL = 'COMERCIAL'; //contacto comercial
+    // const WEB = 'SITIO WEB'; //contacto SITIO WEB
 
 
     private static $whiteListFilter = ['*'];
@@ -39,7 +42,11 @@ class ContactoProveedor extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+    public function empresa(){
+        return $this->belongsTo(Empresa::class);
+    }
     public function proveedor(){
         return $this->belongsTo(Proveedor::class);
     }
+
 }
