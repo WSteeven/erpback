@@ -4,6 +4,7 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -52,8 +53,9 @@ class RolPagoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $nominaService = new NominaService($this->mes);
-        $prestamoService = new PrestamoService($this->mes);
+        $mes = Carbon::createFromFormat('m-Y', $this->mes)->format('Y-m');
+        $nominaService = new NominaService($mes);
+        $prestamoService = new PrestamoService($mes);
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
@@ -70,7 +72,7 @@ class RolPagoRequest extends FormRequest
             }, 0)
             : 0;
         $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS();
+        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS($dias);
         $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
         $prestamo_quirorafario =   $rol->es_quincena ? 0 : $prestamoService->prestamosQuirografarios();
         $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();

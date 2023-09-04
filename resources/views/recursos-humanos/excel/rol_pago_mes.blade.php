@@ -39,7 +39,7 @@
 <body>
     @php
         $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        $numcol_egreso = $cantidad_columna_egresos + 3;
+        $numcol_egreso = $cantidad_columna_egresos + 5;
         $tiene_supa = $sumatoria['supa'] > 0;
         $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
         $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
@@ -54,7 +54,7 @@
         }
 
         if ($tiene_supa) {
-            $numcol_egreso = $cantidad_columna_egresos + 3;
+            $numcol_egreso = $cantidad_columna_egresos + 6;
         }
     @endphp
     <table
@@ -189,6 +189,14 @@
                                                         style="text-align: center !important;
                                                 background-color: #BDD7EE;">
                                                         PRESTAMO HIPOTECARIO</th>
+                                                        <th scope="col"class="encabezado-egresos"
+                                                        style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                                                        PRESTAMO</th>
+                                                        <th scope="col"class="encabezado-egresos"
+                                                        style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                                                        EXT CONYUGAL</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -237,6 +245,8 @@
                                                         <td>{{ $rol_pago['total_ingreso'] }}</td>
                                                         <td>{{ $rol_pago['prestamo_quirorafario'] }}</td>
                                                         <td>{{ $rol_pago['prestamo_hipotecario'] }}</td>
+                                                        <td>{{ $rol_pago['prestamo_empresarial'] }}</td>
+                                                        <td>{{ $rol_pago['extension_conyugal'] }}</td>
                                                         <td>{{ $rol_pago['anticipo'] }}</td>
                                                         @if ($tiene_supa)
                                                             <td>{{ $rol_pago['supa'] }}</td>

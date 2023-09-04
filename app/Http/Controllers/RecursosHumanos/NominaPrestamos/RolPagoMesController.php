@@ -101,8 +101,10 @@ class RolPagoMesController extends Controller
             $nombre_reporte = 'rol_pagos';
             // Fetch data with relationships
             $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes'])
-                ->where('rol_pago_id', $rolPagoId)->get();
-
+                ->where('rol_pago_id', $rolPagoId)
+                ->join('empleados', 'rol_pago.empleado_id', '=', 'empleados.id') // Reemplaza 'empleado_id' con la clave real de la relación
+                ->orderBy('empleados.apellidos') // Reemplaza 'apellido' con el nombre real de la columna de apellidos
+                ->get();
             $reportes = $this->generate_report_data($roles_pagos);
             $vista = 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes);
@@ -240,7 +242,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago','1')->where('realiza_factura','0')->get();
+            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
