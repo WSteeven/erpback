@@ -133,26 +133,8 @@ class RolPagoMesController extends Controller
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
         $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
         // Calculate the sum of specific columns from the main data array
-        $sumColumns = array_reduce($results, function ($carry, $item) {
-            $carry['salario'] += $item['salario'];
-            $carry['sueldo'] += $item['sueldo'];
-            $carry['decimo_tercero'] += $item['decimo_tercero'];
-            $carry['decimo_cuarto'] += $item['decimo_cuarto'];
-            $carry['fondos_reserva'] += $item['fondos_reserva'];
-            $carry['iess'] += $item['iess'];
-            $carry['anticipo'] += $item['anticipo'];
-            $carry['bonificacion'] += $item['bonificacion'];
-            $carry['bono_recurente'] += $item['bono_recurente'];
-            $carry['total_ingreso'] += $item['total_ingreso'];
-            $carry['prestamo_quirorafario'] += $item['prestamo_quirorafario'];
-            $carry['prestamo_hipotecario'] += $item['prestamo_hipotecario'];
-            $carry['extension_conyugal'] += $item['extension_conyugal'];
-            $carry['prestamo_empresarial'] += $item['prestamo_empresarial'];
-            $carry['supa'] += $item['supa'];
-            $carry['total_egreso'] += $item['total_egreso'];
-            $carry['total'] += $item['total'];
-            return $carry;
-        }, [
+        // Inicializa un array asociativo para almacenar las sumas
+        $sumColumns = [
             'salario' => 0,
             'sueldo' => 0,
             'decimo_tercero' => 0,
@@ -170,7 +152,31 @@ class RolPagoMesController extends Controller
             'supa' => 0,
             'total_egreso' => 0,
             'total' => 0,
-        ]);
+        ];
+
+        // Itera a través del array $results y suma los valores en las columnas
+        foreach ($results as $item) {
+            $sumColumns['salario'] += $item['salario'];
+            $sumColumns['sueldo'] += $item['sueldo'];
+            $sumColumns['decimo_tercero'] += $item['decimo_tercero'];
+            $sumColumns['decimo_cuarto'] += $item['decimo_cuarto'];
+            $sumColumns['fondos_reserva'] += $item['fondos_reserva'];
+            $sumColumns['iess'] += $item['iess'];
+            $sumColumns['anticipo'] += $item['anticipo'];
+            $sumColumns['bonificacion'] += $item['bonificacion'];
+            $sumColumns['bono_recurente'] += $item['bono_recurente'];
+            $sumColumns['total_ingreso'] += $item['total_ingreso'];
+            $sumColumns['prestamo_quirorafario'] += $item['prestamo_quirorafario'];
+            $sumColumns['prestamo_hipotecario'] += $item['prestamo_hipotecario'];
+            $sumColumns['extension_conyugal'] += $item['extension_conyugal'];
+            $sumColumns['prestamo_empresarial'] += $item['prestamo_empresarial'];
+            $sumColumns['supa'] += $item['supa'];
+            $sumColumns['total_egreso'] += $item['total_egreso'];
+            $sumColumns['total'] += $item['total'];
+        }
+
+        // El resultado deseado se encuentra ahora en el array $sumColumns
+
         return [
             'roles_pago' => $results,
             'periodo' => $periodo,
