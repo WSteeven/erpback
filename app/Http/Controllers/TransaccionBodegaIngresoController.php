@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
+use Src\Config\ClientesCorporativos;
 use Src\Config\TiposReportesIngresos;
 use Src\Shared\Utils;
 
@@ -57,6 +58,9 @@ class TransaccionBodegaIngresoController extends Controller
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
+        }
+        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));

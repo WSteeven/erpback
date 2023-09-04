@@ -22,31 +22,38 @@ class Empresa extends Model implements Auditable
         'tipo_contribuyente',
         'razon_social',
         'nombre_comercial',
-        'celular',
-        'telefono',
+        // 'celular',
+        // 'telefono',
         'correo',
         'canton_id',
-        'ciudad',
+        // 'ciudad',
         'direccion',
         'agente_retencion',
-        'tipo_negocio',
+        'regimen_tributario',
         'sitio_web',
+        'lleva_contabilidad',
+        'contribuyente_especial',
+        'actividad_economica',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'agente_retencion'=>'boolean'
+        'agente_retencion'=>'boolean',
+        'lleva_contabilidad'=>'boolean',
+        'contribuyente_especial'=>'boolean',
     ];
 
     private static $whiteListFilter = ['*'];
 
-    const NATURAL = 'NATURAL'; //persona natural
-    const PRIVADA = 'PRIVADA'; //sociedad privada
+    //Tipo de contribuyente
+    const NATURAL = 'PERSONA NATURAL'; //persona natural
+    const SOCIEDAD = 'SOCIEDAD'; //sociedad privada
     const PUBLICA = 'PUBLICA'; //sociedad publica
 
-    //tipos de negocio
-    const RIMPE_IVA = 'RIMPE CON IVA';
-    const RIMPE_SIN_IVA = 'RIMPE SIN IVA';
+    //regimen tributario
+    const RIMPE_EMPRENDEDOR = 'RIMPE EMPRENDEDOR';
+    const RIMPE_NEGOCIOS_POPULARES = 'RIMPE NEGOCIOS POPULARES';
+    const GENERAL = 'GENERAL';
     /**
      * Relacion uno a uno
      */
@@ -55,9 +62,9 @@ class Empresa extends Model implements Auditable
         return $this->hasOne(Cliente::class);
     }
 
-    public function proveedor()
+    public function proveedores()
     {
-        return $this->hasOne(Proveedor::class);
+        return $this->hasMany(Proveedor::class);
     }
     public function contactos()
     {
