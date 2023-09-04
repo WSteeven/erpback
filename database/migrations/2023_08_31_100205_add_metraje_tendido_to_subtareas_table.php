@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('subtareas', function (Blueprint $table) {
-            $table->unsignedInteger('metraje_tendido');
+            $table->unsignedInteger('metraje_tendido')->nullable();
         });
     }
 
