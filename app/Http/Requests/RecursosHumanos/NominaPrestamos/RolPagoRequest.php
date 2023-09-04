@@ -72,7 +72,7 @@ class RolPagoRequest extends FormRequest
             }, 0)
             : 0;
         $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS();
+        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS($dias);
         $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
         $prestamo_quirorafario =   $rol->es_quincena ? 0 : $prestamoService->prestamosQuirografarios();
         $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();

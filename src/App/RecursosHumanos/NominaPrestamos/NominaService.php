@@ -109,9 +109,9 @@ class NominaService
         }
         return $sueldo;
     }
-    public function calcularAporteIESS()
+    public function calcularAporteIESS($dias =30)
     {
-        $sueldo = $this->calcularSueldo(30);
+        $sueldo = $this->calcularSueldo($dias);
         $iess = ($sueldo) * NominaService::calcularPorcentajeIESS();
         return $iess;
     }
