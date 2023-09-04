@@ -19,6 +19,7 @@ class Parroquia extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+    protected $cache = true;
 
     private static $whiteListFilter = ['*'];
 

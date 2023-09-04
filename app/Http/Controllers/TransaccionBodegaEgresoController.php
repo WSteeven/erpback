@@ -37,6 +37,7 @@ use App\Models\Subtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
+use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaEgresoController extends Controller
 {
@@ -168,6 +169,9 @@ class TransaccionBodegaEgresoController extends Controller
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
+        }
+        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));

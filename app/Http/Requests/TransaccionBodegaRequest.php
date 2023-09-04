@@ -240,7 +240,7 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_autoriza' => auth()->user()->empleado->jefe_id,
             ]);
         }
-        if (auth()->user()->hasRole([User::ROL_BODEGA])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_BODEGA_TELCONET])) {
             $this->merge([
                 'autorizacion' => 2
             ]);

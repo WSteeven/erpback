@@ -44,12 +44,13 @@ class PedidoController extends Controller
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
             $results = Pedido::filtrarPedidosAdministrador($estado);
-        } else
-        if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = Pedido::filtrarPedidosActivosFijos($estado);
+        } else if(auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)){
+            $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
