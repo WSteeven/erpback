@@ -67,191 +67,108 @@
                             </td>
                         </tr>
 
-                        <tr>
-                            <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-                                    class="gastos">
-                                    <tr>
-                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
-                                            colspan="7">
-                                            <div class="col-md-7" align="center">Transferencias Enviadas</div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td width="15%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>FECHA</strong></div>
-                                        </td>
-                                        <td width="17%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>REMITENTE</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>DESTINATARIO</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>MONTO</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong># Cuenta</strong></div>
-                                        </td>
-                                        <td width="35%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>MOTIVO</strong></div>
-                                        </td>
-                                        <td width="24%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
-                                        </td>
-                                    </tr>
-                                    @if (sizeof($transferencias_enviadas) == 0)
+                        @if ($empleado == null)
+                            <tr>
+                                <td>
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                        class="gastos">
                                         <tr>
-                                            <td colspan="7">
-                                                <div align="center">NO HAY TRANSFERENCIAS ENVIADAS</div>
+                                            <td width="15%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>FECHA</strong></div>
+                                            </td>
+                                            <td width="17%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>REMITENTE</strong></div>
+                                            </td>
+                                            <td width="20%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>DESTINATARIO</strong></div>
+                                            </td>
+                                            <td width="20%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>MONTO</strong></div>
+                                            </td>
+                                            <td width="20%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>#COMPROBANTE</strong></div>
+                                            </td>
+                                            <td width="35%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>MOTIVO</strong></div>
+                                            </td>
+                                            <td width="24%" bgcolor="#a9d08e">
+                                                <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                             </td>
                                         </tr>
-                                    @else
-                                        @foreach ($transferencias_enviadas as $transferencia_enviada)
+                                        @if ($transferencia_total == 0)
                                             <tr>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->fecha }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->usuario_envia->nombres . ' ' . $transferencia_enviada->usuario_envia->apellidos }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->usuario_recibe->nombres . ' ' . $transferencia_enviada->usuario_recibe->apellidos }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->monto }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->cuenta }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->motivo }}
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ $transferencia_enviada->observacion }}
-                                                    </div>
+                                                <td colspan="7">
+                                                    <div align="center">NO HAY TRANSFERENCIAS </div>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @else
+                                            @foreach ($transferencias as $transferencia_data)
+                                                <tr>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->fecha }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->monto }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->cuenta }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->motivo }}
+                                                        </div>
+                                                    </td>
+                                                    <td style="font-size:10px">
+                                                        <div align="center">
+                                                            {{ $transferencia_data->observacion }}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td colspan="5" style="font-size:10px">
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
+                                                            :&nbsp;</strong></div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ number_format($transferencia_total, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    </table>
+                                </td>
+                            </tr>
+                        @endif
+                        @if ($empleado != null)
+                            <tr>
+                                <td>
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                        class="gastos">
                                         <tr>
-                                            <td>&nbsp;</td>
-                                            <td colspan="5" style="font-size:10px">
-                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                        ENVIADAS:&nbsp;</strong></div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}
-                                                </div>
+                                            <td width="100%"
+                                                style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                                colspan="7">
+                                                <div class="col-md-7" align="center">Transferencias Enviadas</div>
                                             </td>
                                         </tr>
-                                    @endif
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                @if($empleado == null)
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
-                                    <tr>
-                                        <td width="15%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>FECHA</strong></div>
-                                        </td>
-                                        <td width="17%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>REMITENTE</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>DESTINATARIO</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>MONTO</strong></div>
-                                        </td>
-                                        <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>#COMPROBANTE</strong></div>
-                                        </td>
-                                        <td width="35%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>MOTIVO</strong></div>
-                                        </td>
-                                        <td width="24%" bgcolor="#a9d08e">
-                                            <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
-                                        </td>
-                                    </tr>
-                                    @if ($transferencia_total == 0)
-                                        <tr>
-                                            <td colspan="7">
-                                                <div align="center">NO HAY TRANSFERENCIAS </div>
-                                            </td>
-                                        </tr>
-                                    @else
-                                    @foreach ( $transferencias as $transferencia_data)
-                                    <tr>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->fecha }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->monto }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->cuenta }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->motivo }}
-                                            </div>
-                                        </td>
-                                        <td style="font-size:10px">
-                                            <div align="center">
-                                                {{ $transferencia_data->observacion }}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                            <td colspan="5" style="font-size:10px">
-                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS :&nbsp;</strong></div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">{{ number_format($transferencia_total, 2, ',', '.') }}</div>
-                                            </td>
-                                        </tr>
-                                    @endif
-                                </table>
-                                @endif
-                                @if ($empleado != null)
-                                    <p
-                                        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
-                                    <div class="col-md-7" align="center"><b>Transferencias Enviadas</b></div>
-                                    </p>
-                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                         <tr>
                                             <td width="15%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>FECHA</strong></div>
@@ -324,20 +241,29 @@
                                             <tr>
                                                 <td>&nbsp;</td>
                                                 <td colspan="5" style="font-size:10px">
-                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
+                                                            ENVIADAS:&nbsp;</strong></div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ number_format($transferencia_total, 2, ',', ' ') }}</div>
+                                                    <div align="center">
+                                                        {{ number_format($transferencia_enviada, 2, ',', ' ') }}</div>
                                                 </td>
                                             </tr>
                                         @endif
                                     </table>
-                                    <br>
-                                    <p
-                                        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
-                                    <div class="col-md-7" align="center"><b>Transferencias Recibidas</b></div>
-                                    </p>
-                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
+                                        class="gastos">
+                                        <tr>
+                                            <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="7">
+                                            <div class="col-md-7" align="center">Transferencias Recibidas</div>
+                                        </td>
+                                        </tr>
+
                                         <tr>
                                             <td width="15%" bgcolor="#a9d08e">
                                                 <div align="center"><strong>FECHA</strong></div>
@@ -410,17 +336,19 @@
                                             <tr>
                                                 <td>&nbsp;</td>
                                                 <td colspan="5" style="font-size:10px">
-                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
+                                                    <div align="right"><strong>TOTAL DE TRANSFERENCIAS
+                                                            RECIBIDAS:&nbsp;</strong></div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                                                    <div align="center">
+                                                        {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
                                                 </td>
                                             </tr>
                                         @endif
                                     </table>
-                                @endif
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        @endif
                     </table>
                 </div>
             </td>

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
+use App\Exports\TranferenciaSaldoExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
@@ -723,7 +724,7 @@ class SaldoGrupoController extends Controller
 
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_transferencia_saldo';
-            $export_excel = new ConsolidadoExport($reportes);
+            $export_excel = new TranferenciaSaldoExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);

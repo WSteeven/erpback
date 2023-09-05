@@ -286,7 +286,7 @@
                             <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ number_format($transferencia_total, 2, ',', ' ') }}</div>
+                            <div align="center">{{ number_format($transferencia_enviada, 2, ',', ' ') }}</div>
                         </td>
                     </tr>
                 @endif
