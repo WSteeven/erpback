@@ -100,11 +100,18 @@ class RolPagoMesController extends Controller
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'rol_pagos';
             // Fetch data with relationships
-            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes'])
+            /*$roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes','egreso_rol_pago','empleado_info'])
                 ->where('rol_pago_id', $rolPagoId)
-                ->join('empleados', 'rol_pago.empleado_id', '=', 'empleados.id') // Reemplaza 'empleado_id' con la clave real de la relación
-                ->orderBy('empleados.apellidos') // Reemplaza 'apellido' con el nombre real de la columna de apellidos
+             //   ->join('empleados', 'rol_pago.empleado_id', '=', 'empleados.id') // Reemplaza 'empleado_id' con la clave real de la relación
+         //       ->orderBy('empleados.apellidos') // Reemplaza 'apellido' con el nombre real de la columna de apellidos
+                ->get();*/
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago', 'empleado_info' => function ($query) {
+                $query->orderBy('apellidos', 'asc');
+            }])
+                ->where('rol_pago_id', $rolPagoId)
                 ->get();
+            Log::channel('testing')->info('Log', ['roles de pago', $roles_pagos]);
+
             $reportes = $this->generate_report_data($roles_pagos);
             $vista = 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes);
