@@ -17,8 +17,8 @@ class DetalleDepartamentoProveedorResource extends JsonResource
         return [
             'id'=>$this->id,
             'departamento'=>$this->departamento->nombre,
-            'razon_social'=>$this->proveedor->empresa->razon_social,
-            'sucursal'=>$this->proveedor->sucursal,
+            'razon_social'=>$this->proveedor?->empresa->razon_social,
+            'sucursal'=>$this->proveedor?->sucursal,
             'empleado'=>$this->empleado ? $this->empleado->nombres . ' ' . $this->empleado->apellidos : 'N/A',
             'calificacion'=>$this->calificacion,
             'fecha_calificacion'=>$this->fecha_calificacion,
