@@ -29,18 +29,21 @@ class EmpresaRequest extends FormRequest
     {
         $rules =  [
             'identificacion' => 'required|min:10|max:13|unique:empresas,identificacion',
-            'tipo_contribuyente' => ['required', Rule::in([Empresa::NATURAL, Empresa::PRIVADA, Empresa::PUBLICA])],
+            'tipo_contribuyente' => ['required', Rule::in([Empresa::NATURAL, Empresa::SOCIEDAD])],
             'razon_social' => 'string|required',
             'nombre_comercial' => 'string|nullable',
-            'celular' => 'string|nullable',
-            'telefono' => 'string|nullable',
+            // 'celular' => 'string|nullable',
+            // 'telefono' => 'string|nullable',
             'correo' => 'email|nullable',
             'canton' => 'integer|exists:cantones,id',
-            'ciudad' => 'string|nullable',
+            // 'ciudad' => 'string|nullable',
             'direccion' => 'string|nullable',
             'agente_retencion' => 'boolean|required',
-            'tipo_negocio'=>['required', Rule::in([Empresa::RIMPE_IVA, Empresa::RIMPE_SIN_IVA])],
+            'regimen_tributario' => ['required', Rule::in([Empresa::RIMPE_EMPRENDEDOR, Empresa::RIMPE_NEGOCIOS_POPULARES, Empresa::GENERAL])],
             'sitio_web' => 'string|nullable',
+            'lleva_contabilidad' => 'boolean|required',
+            'contribuyente_especial' => 'boolean|required',
+            'actividad_economica' => 'string|nullable',
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $empresa = $this->route()->parameter('empresa');
@@ -58,10 +61,10 @@ class EmpresaRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if(substr_count($this->identificacion,'9')<9){
+            if (substr_count($this->identificacion, '9') < 9) {
                 $validador = new ValidarIdentificacion();
-                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc='.$this->identificacion);
-                if(!(($validador->validarCedula($this->identificacion))||($existeRUC->body()=='true'))){
+                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->identificacion);
+                if (!(($validador->validarCedula($this->identificacion)) || ($existeRUC->body() == 'true'))) {
                     $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
                 }
             }

@@ -219,6 +219,35 @@ class Pedido extends Model implements Auditable
         }
         return $results;
     }
+    public static function filtrarPedidosBodegueroTelconet($estado)
+    {
+        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        $results = [];
+        if ($autorizacion) {
+            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->where(function ($query) use($idsSucursalesTelconet) {
+                $query->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('responsable_id', auth()->user()->empleado->id)
+                    ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+            })->orderBy('id', 'DESC')->get();
+        } elseif ($estado === $estadoTransaccion->nombre) {
+            $results = Pedido::where('estado_id', $estadoTransaccion->id)->where(function ($query) use($idsSucursalesTelconet) {
+                $query->where('solicitante_id', auth()->user()->empleado->id)
+                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                    ->orWhere('responsable_id', auth()->user()->empleado->id)
+                    ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+            })->orderBy('id', 'DESC')->get();
+            return $results;
+        } else {
+            $results = Pedido::whereIn('sucursal_id', $idsSucursalesTelconet)->orderBy('id', 'DESC')->get();
+            return $results;
+        }
+
+
+        return $results;
+    }
 
 
     /**

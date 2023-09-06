@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('canton_id')->nullable()->after('correo');
             $table->string('ciudad')->nullable()->after('canton_id');
             $table->boolean('agente_retencion')->after('direccion')->default(false);
-            $table->enum('tipo_negocio', [Empresa::RIMPE_IVA, Empresa::RIMPE_SIN_IVA])->default(null)->after('agente_retencion');
+            $table->enum('tipo_negocio', [Empresa::RIMPE_EMPRENDEDOR, Empresa::RIMPE_NEGOCIOS_POPULARES])->default(null)->after('agente_retencion');
 
 
             $table->foreign('canton_id')->references('id')->on('cantones');

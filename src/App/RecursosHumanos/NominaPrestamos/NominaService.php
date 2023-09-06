@@ -141,11 +141,15 @@ class NominaService
     {
         $fondosDeReserva = 0;
         // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
-        $fechaIngreso = Carbon::parse($this->empleado->fecha_ingreso);
+        $fechaIngreso = Carbon::parse($this->empleado->fecha_vinculacion);
+        Log::channel('testing')->info('Log', ['fecha_ingreso', $fechaIngreso]);
+
         // Obtén la fecha actual
         $hoy = Carbon::now();
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
+        Log::channel('testing')->info('Log', ['diasTrabajados', $diasTrabajados]);
+
         if ($diasTrabajados >= 366) {
             $fondosDeReserva = $this->empleado->salario * 0.0833; // 8.33% del sueldo
         }

@@ -26,8 +26,8 @@ return new class extends Migration
             $table->unsignedBigInteger('proveedor_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('empresa_id')->references('id')->on('empresas')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('proveedor_id')->references('id')->on('proveedores')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('empresa_id')->references('id')->on('empresas')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('proveedor_id')->references('id')->on('proveedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
