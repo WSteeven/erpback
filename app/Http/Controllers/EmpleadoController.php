@@ -125,6 +125,7 @@ class EmpleadoController extends Controller
                 'num_cuenta_bancaria' => $datos['num_cuenta_bancaria'],
                 'salario' => $datos['salario'],
                 'fecha_ingreso' => $datos['fecha_ingreso'],
+                'fecha_vinculacion' => $datos['fecha_ingreso'],
                 'fecha_salida' => $datos['fecha_salida'] ? $datos['fecha_salida'] : null,
                 'tipo_contrato_id' => $datos['tipo_contrato_id'],
                 'tiene_discapacidad' => $datos['tiene_discapacidad'],
