@@ -43,8 +43,10 @@ class AutorizacionController extends Controller
             }
         }
         if ($es_autorizador) {
-            $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', '!=', 4)->where('id', '!=', 3)->filter()->get($campos);
-            return response()->json(compact('results'));
+            if (!$es_administrador) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', '!=', 4)->where('id', '!=', 3)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
         }
 
         if ($request->es_validado) {
@@ -53,16 +55,20 @@ class AutorizacionController extends Controller
         if ($request->es_jefe_inmediato) {
             $es_jefe_inmediato = true;
         }
+
         if ($request['campos']) {
+            Log::channel('testing')->info('Log', ['tipo','campos']);
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->filter()->get($campos);
             if ($es_jefe_inmediato) {
+                Log::channel('testing')->info('Log', ['tipo','jefe_inmediato']);
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', 2)->filter()->get($campos);
                 return response()->json(compact('results'));
             }
             if ($es_validado == false) {
+                Log::channel('testing')->info('Log', ['tipo','validador']);
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', '!=', 4)->filter()->get($campos);
                 return response()->json(compact('results'));
             }
-            $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->filter()->get($campos);
             return response()->json(compact('results'));
         } else
         if ($page) {
