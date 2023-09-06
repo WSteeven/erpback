@@ -96,7 +96,7 @@ class ProveedorController extends Controller
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        $departamento_contable = Departamento::where('nombre', User::ROL_CONTABILIDAD)->first();
+        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
             DB::beginTransaction();
             //Adaptación de foreign keys
@@ -111,8 +111,8 @@ class ProveedorController extends Controller
             $proveedor->servicios_ofertados()->sync($request->tipos_ofrece);
             $proveedor->categorias_ofertadas()->sync($request->categorias_ofrece);
             $proveedor->departamentos_califican()->sync($request->departamentos);
-            if (!in_array($departamento_contable->id, $request->departamentos)) {
-                $proveedor->departamentos_califican()->attach($departamento_contable->id);
+            if (!in_array($departamento_financiero->id, $request->departamentos)) {
+                $proveedor->departamentos_califican()->attach($departamento_financiero->id);
             }
             $modelo = new ProveedorResource($proveedor->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

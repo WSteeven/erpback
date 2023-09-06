@@ -11,9 +11,17 @@ use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\DashboardTicketService;
 
 class DashboardTicketController extends Controller
 {
+    private DashboardTicketService $service;
+
+    public function __construct()
+    {
+        $this->service = new DashboardTicketService();
+    }
+
     public function index()
     {
         // Obtencion de parametros
@@ -89,8 +97,9 @@ class DashboardTicketController extends Controller
         $ticketsPorDepartamentoEstadoCalificado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::CALIFICADO);
 
         // nuevo
-        $ticketsCreadosADepartamentos = TicketResource::collection($this->obtenerCantidadTicketsSolicitadosPorDepartamento());
-        $ticketsRecibidosPorDepartamentos = TicketResource::collection($this->obtenerCantidadTicketsRecibidosPorDepartamento());
+        $ticketsCreadosADepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsSolicitadosPorDepartamento());
+        $ticketsRecibidosPorDepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsRecibidosPorDepartamento());
+        $ticketsAsignadsAlDepartamento = TicketResource::collection($this->service->obtenerTicketsFechaInicioFinEmpleadosSubordinados());
 
         $results = compact(
             'cantTicketsCreados',
@@ -111,6 +120,7 @@ class DashboardTicketController extends Controller
             'tiemposTicketsFinalizados',
             'ticketsCreadosADepartamentos',
             'ticketsRecibidosPorDepartamentos',
+            'ticketsAsignadsAlDepartamento',
             // Listados
             'ticketsPorEstado',
             'creados',
@@ -160,58 +170,6 @@ class DashboardTicketController extends Controller
     {
         $segundos = $ticket->pausasTicket()->sum(DB::raw('TIMESTAMPDIFF(SECOND, fecha_hora_pausa, fecha_hora_retorno)'));
         return CarbonInterval::seconds($segundos)->cascade()->forHumans();
-    }
-
-    private function obtenerCantidadTicketsSolicitadosPorDepartamento()
-    {
-        // Obtencion de parametros
-        $idEmpleado = request('empleado_id');
-        $fechaInicio = request('fecha_inicio');
-        $fechaFin = request('fecha_fin');
-
-        // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
-
-        /* return Ticket::join('departamentos', 'tickets.departamento_responsable_id', '=', 'departamentos.id')
-            ->select('departamentos.nombre', DB::raw('COUNT(*) as total'))
-            ->where('solicitante_id', $idEmpleado)
-            ->groupBy('departamentos.nombre')
-            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
-            ->get(); */
-
-        return Ticket::where('solicitante_id', $idEmpleado)
-            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
-            ->get();
-        // ->select('departamentos.nombre', DB::raw('COUNT(*) as total'))
-        // ->groupBy('departamentos.nombre')
-    }
-
-    private function obtenerCantidadTicketsRecibidosPorDepartamento()
-    {
-        // Obtencion de parametros
-        $idEmpleado = request('empleado_id');
-        $fechaInicio = request('fecha_inicio');
-        $fechaFin = request('fecha_fin');
-
-        // Conversion de fechas
-        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
-        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
-
-        /*return DB::table('tickets')->join('empleados as emp', 'tickets.solicitante_id', '=', 'emp.id')
-            ->join('departamentos as dep', 'emp.departamento_id', '=', 'dep.id')
-            ->where('tickets.responsable_id', $idEmpleado)
-            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
-            ->groupBy('dep.nombre')
-            ->selectRaw('COUNT(tickets.codigo) as total, dep.nombre')
-            ->get();*/
-
-        $res =  Ticket::where('responsable_id', $idEmpleado)
-            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
-            ->get();
-
-            Log::channel('testing')->info('Log', compact('res'));
-            return $res;
     }
 
     private function obtenerTicketsPorEstado()
