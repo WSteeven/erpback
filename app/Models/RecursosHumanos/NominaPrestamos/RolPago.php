@@ -82,6 +82,7 @@ class RolPago extends Model implements Auditable
         foreach ($rol_pagos as $rol_pago) {
 
             $row['item'] = $id + 1;
+            $row['id'] =  $rol_pago->id;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
             $row['cedula'] =  $rol_pago->empleado_info->identificacion;
             $row['salario'] =  $rol_pago->empleado_info->salario;

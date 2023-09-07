@@ -129,12 +129,15 @@ class RolPagoMesController extends Controller
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-       $colum_value= $this->colum_values($results, 'egresos');
-       Log::channel('testing')->info('Log', ['valores egreso: ', $colum_value]);
-
-        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
+        $colum_ingreso_value = $this->colum_values($results, 'ingresos');
+        $colum_egreso_value = $this->colum_values($results, 'egresos');
+        $columnas_egresos = array_unique($column_names_egresos['egresos']);
+        $maxColumEgresosValue = count($columnas_egresos);
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
-        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+        $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
+        $maxColumIngresosValue = count($columnas_ingresos);
+        Log::channel('testing')->info('Log', ['suma_ingresos:', $maxColumIngresosValue]);
+
         // Calculate the sum of specific columns from the main data array
         // Inicializa un array asociativo para almacenar las sumas
         $sumColumns = [
@@ -183,30 +186,33 @@ class RolPagoMesController extends Controller
             'periodo' => $periodo,
             'cantidad_columna_ingresos' => $maxColumIngresosValue,
             'cantidad_columna_egresos' => $maxColumEgresosValue,
-            'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
-            'columnas_egresos' => array_unique($column_names_egresos['egresos']),
+            'colum_ingreso_value' => $colum_ingreso_value,
+            'colum_egreso_value' => $colum_egreso_value,
+            'columnas_ingresos' => $columnas_ingresos,
+            'columnas_egresos' =>  $columnas_egresos,
             'sumatoria' => $sumColumns,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
     }
-private function colum_values($data,$key1){
-    // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
-$groupedData = [];
-foreach ($data as $item) {
-// Recorremos el arreglo original y agrupamos los objetos por descuento_id
-foreach ($item[$key1] as $item) {
-    $descuentoId = $item['descuento_id'];
-    if (!isset($groupedData[$descuentoId])) {
-        $groupedData[$descuentoId] = [];
+    private function colum_values($data, $key1)
+    {
+        // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
+        $groupedData = [];
+        foreach ($data as $item) {
+            // Recorremos el arreglo original y agrupamos los objetos por descuento_id
+            foreach ($item[$key1] as $item) {
+                $descuentoId = $item['descuento_id'] . '.' . explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1];
+                if (!isset($groupedData[$descuentoId])) {
+                    $groupedData[$descuentoId] = [];
+                }
+                $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
+            }
+        }
+        return $groupedData;
     }
-    $groupedData[$descuentoId][] = $item;
-}}
 
-return $groupedData;
-
-}
     private function extract_column_names($results, $key1, $key2, $columnName)
     {
         $column_names = ['egresos' => [], 'ingresos' => []];
@@ -255,8 +261,8 @@ return $groupedData;
                         }
                     } else {
                         if ($clave != 0) {
-                        // Si no existe, crea la clave y asigna el valor actual
-                        $resultados[$clave] = floatval($valor);
+                            // Si no existe, crea la clave y asigna el valor actual
+                            $resultados[$clave] = floatval($valor);
                         }
                     }
                 }

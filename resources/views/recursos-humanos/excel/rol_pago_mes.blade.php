@@ -43,6 +43,8 @@
         $tiene_supa = $sumatoria['supa'] > 0;
         $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
         $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+        $carry = [];
+        $index = 0;
         if ($tiene_bono_recurente) {
             $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
@@ -264,10 +266,42 @@
                                                         @foreach ($rol_pago['ingresos'] as $ingreso)
                                                             <td>{{ $ingreso->monto }}</td>
                                                         @endforeach
-                                                        @if ($rol_pago['ingresos_cantidad_columna'] == 0)
-                                                            @for ($i = 0; $i < $cantidad_columna_ingresos; $i++)
-                                                                <td>0 </td>
-                                                            @endfor
+                                                        @if ($cantidad_columna_ingresos > 0)
+                                                            @if ($rol_pago['egresos_cantidad_columna'] > 0)
+                                                                @foreach ($colum_egreso_value as $clave => $value)
+                                                                    @foreach ($value as $subvalue)
+                                                                        @if ($subvalue['id'] == $rol_pago['id'])
+                                                                            @php
+                                                                                array_push($carry, $clave);
+                                                                            @endphp
+
+                                                                            @if ($index - 1 !== -1)
+                                                                                @if ($carry[$index] !== $carry[$index - 1])
+                                                                                    <td>0i</td>
+                                                                                @endif
+                                                                            @endif
+
+                                                                            <td>{{ $subvalue['valor'] }}</td>
+
+
+                                                                            @if ($index - 1 !== -1)
+                                                                                @if ($carry[$index] == $carry[$index - 1])
+                                                                                    <td>0i</td>
+                                                                                @endif
+                                                                            @else
+                                                                                <td>0i</td>
+                                                                            @endif
+
+                                                                            @php
+                                                                                $index++;
+                                                                            @endphp
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
+                                                            @else
+                                                                <td>0i</td>
+                                                                <td>0i</td>
+                                                            @endif
                                                         @endif
                                                         <td>{{ $rol_pago['total_ingreso'] }}</td>
                                                         <td> {{ $rol_pago['iess'] }}</td>
@@ -276,17 +310,46 @@
                                                         <td>{{ $rol_pago['prestamo_empresarial'] }}</td>
                                                         <td>{{ $rol_pago['extension_conyugal'] }}</td>
                                                         <td>{{ $rol_pago['anticipo'] }}</td>
+
                                                         @if ($tiene_supa)
                                                             <td>{{ $rol_pago['supa'] }}</td>
                                                         @endif
+                                                        @if ($cantidad_columna_egresos > 0)
+                                                            @if ($rol_pago['egresos_cantidad_columna'] > 0)
+                                                                @foreach ($colum_egreso_value as $clave => $value)
+                                                                    @foreach ($value as $subvalue)
+                                                                        @if ($subvalue['id'] == $rol_pago['id'])
+                                                                            @php
+                                                                                array_push($carry, $clave);
+                                                                            @endphp
 
-                                                        @foreach ($rol_pago['egresos'] as $descuento)
-                                                            <td> {{ $descuento->monto }} </td>
-                                                        @endforeach
-                                                        @if ($rol_pago['egresos_cantidad_columna'] == 0)
-                                                            @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
-                                                                <td>0 </td>
-                                                            @endfor
+                                                                            @if ($index - 1 !== -1)
+                                                                                @if ($carry[$index] !== $carry[$index - 1])
+                                                                                    <td>0</td>
+                                                                                @endif
+                                                                            @endif
+
+                                                                            <td>{{ $subvalue['valor'] }}</td>
+
+
+                                                                            @if ($index - 1 !== -1)
+                                                                                @if ($carry[$index] == $carry[$index - 1])
+                                                                                    <td>0</td>
+                                                                                @endif
+                                                                            @else
+                                                                                <td>0</td>
+                                                                            @endif
+
+                                                                            @php
+                                                                                $index++;
+                                                                            @endphp
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
+                                                            @else
+                                                                <td>0</td>
+                                                                <td>0</td>
+                                                            @endif
                                                         @endif
                                                         <td>{{ $rol_pago['total_egreso'] }}</td>
                                                         <td>{{ $rol_pago['total'] }}</td>
@@ -324,7 +387,7 @@
                                                     </td>
                                                     <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @foreach ($sumatoria_egresos as $sumatoria_egreso)
-                                                        <td>{{number_format($sumatoria_egreso) }}</td>
+                                                        <td>{{ number_format($sumatoria_egreso) }}</td>
                                                     @endforeach
                                                     <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
                                                     </td>
