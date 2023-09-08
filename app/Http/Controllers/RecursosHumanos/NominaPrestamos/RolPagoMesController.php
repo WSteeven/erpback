@@ -136,10 +136,10 @@ class RolPagoMesController extends Controller
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
         $maxColumIngresosValue = count($columnas_ingresos);
-        Log::channel('testing')->info('Log', ['suma_ingresos:', $maxColumIngresosValue]);
+
+
 
         // Calculate the sum of specific columns from the main data array
-        // Inicializa un array asociativo para almacenar las sumas
         $sumColumns = [
             'salario' => 0,
             'sueldo' => 0,
@@ -180,6 +180,8 @@ class RolPagoMesController extends Controller
             $sumColumns['total_egreso'] += $item['total_egreso'];
             $sumColumns['total'] += $item['total'];
         }
+        //$this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')
+        Log::channel('testing')->info('Log', ['suma: ', $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')]);
         // El resultado deseado se encuentra ahora en el array $sumColumns
         return [
             'roles_pago' => $results,
@@ -203,7 +205,9 @@ class RolPagoMesController extends Controller
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
-                $descuentoId = $item['descuento_id'] . '.' . explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1];
+                //$item['descuento_type'] !== null? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1]:'Ingreso'
+                $type_colum =  $item['descuento_type'] !== null ? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1] : 'Ingreso';
+                $descuentoId = $item['descuento_id'] . '.' . $type_colum;
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }
@@ -227,9 +231,6 @@ class RolPagoMesController extends Controller
     }
     private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
     {
-        /*
-        Log::channel('testing')->info('Log', ['items suma: ' . $key1, $suma_monto]);
-*/
         $totalMontoIngresos = array_map(
 
             function ($item) use ($maximo, $key_cantidad, $key1) {
@@ -241,7 +242,7 @@ class RolPagoMesController extends Controller
                 }
                 if ($item[$key_cantidad] == 0) {
                     for ($j = 0; $j < $maximo; $j++) {
-                        $monto[$j] = 0;
+                     //   $monto[$j] = 0;
                     }
                 }
                 return $monto;

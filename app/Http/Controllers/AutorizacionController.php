@@ -36,13 +36,17 @@ class AutorizacionController extends Controller
         $es_autorizador = $user->can('puede.autorizar.permiso_nomina');
         $es_administrador = $user->hasRole([User::ROL_ADMINISTRADOR]);
         $es_validador = $user->can('puede.ver.campo.validado');
-        if ($es_validador) {
+        $es_modulo_rhh = false;
+        if ($request->es_modulo_rhh) {
+            $es_validado = true;
+        }
+        if ($es_validador && $es_modulo_rhh) {
             if (!$es_administrador) {
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', '=', 3)->orwhere('id', '=', 4)->filter()->get($campos);
                 return response()->json(compact('results'));
             }
         }
-        if ($es_autorizador) {
+        if ($es_autorizador && $es_modulo_rhh) {
             if (!$es_administrador) {
                 $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato'])->where('id', '!=', 4)->where('id', '!=', 3)->filter()->get($campos);
                 return response()->json(compact('results'));

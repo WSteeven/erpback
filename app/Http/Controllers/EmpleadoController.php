@@ -139,6 +139,7 @@ class EmpleadoController extends Controller
                 'banco' => $datos['banco'],
                 'genero' => $datos['genero'],
                 'esta_en_rol_pago'=> $datos['esta_en_rol_pago'],
+                'acumula_fondos_reserva'=> $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
             ]);
 
