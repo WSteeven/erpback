@@ -34,5 +34,7 @@ enum RutasStorage: string
     case DOCUMENTOS_LICENCIA_EMPLEADO = 'public/documentos_licencia_empleado';
     case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
+    case EMPRESAS = 'public/empresas/';
+    case PROVEEDORES = 'public/proveedores/empresas/';
 
 }

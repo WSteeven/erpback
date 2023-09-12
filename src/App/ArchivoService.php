@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Throwable;
@@ -32,12 +33,12 @@ class ArchivoService
      *
      * @return el objeto modelo creado.
      */
-    public static function guardar(Model $entidad, UploadedFile $archivo, RutasStorage $ruta)
+    public static function guardar(Model $entidad, UploadedFile $archivo, RutasStorage|string $ruta)
     {
         try {
             DB::beginTransaction();
 
-            $path = $archivo->store($ruta->value);
+            $path = $archivo->store($ruta);
             $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
             $modelo =  $entidad->archivos()->create([
                 'nombre' => $archivo->getClientOriginalName(),
@@ -48,6 +49,7 @@ class ArchivoService
             return $modelo;
         } catch (Throwable $th) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Error en el guardar de Archivo Service', $th->getMessage(), $th->getCode(), $th->getLine()]);
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
         }
     }

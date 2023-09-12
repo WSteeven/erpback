@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\ComprasProveedores\ContactoProveedorResource;
+use App\Http\Resources\ComprasProveedores\DatoBancarioProveedorResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EmpresaResource extends JsonResource
@@ -27,6 +28,7 @@ class EmpresaResource extends JsonResource
             'correo' => $this->correo,
             'pais' => $this->canton?->provincia->pais->pais,
             'provincia' => $this->canton?->provincia->provincia,
+            'nombre_provincia' => $this->canton?->provincia->provincia,
             'canton' => $this->canton?->canton,
             // 'ciudad' => $this->ciudad,
             'direccion' => $this->direccion,
@@ -36,6 +38,11 @@ class EmpresaResource extends JsonResource
             'lleva_contabilidad' => $this->lleva_contabilidad,
             'contribuyente_especial' => $this->contribuyente_especial,
             'actividad_economica' => $this->actividad_economica,
+            'created_at' => date('d/m/Y H:i:s', strtotime($this->created_at)),
+            'updated_at' => date('d/m/Y H:i:s', strtotime($this->updated_at)),
+            'representante_legal' => $this->representante_legal,
+            'identificacion_representante' => $this->identificacion_representante,
+            'antiguedad_proveedor' => $this->antiguedad_proveedor,
         ];
 
         if ($controller_method == 'show') {
@@ -43,7 +50,8 @@ class EmpresaResource extends JsonResource
             $modelo['provincia'] = $this->canton?->provincia_id;
             $modelo['canton'] = $this->canton_id;
             $modelo['contactos'] = ContactoProveedorResource::collection($this->contactos);
-            $modelo['sucursal'] = count($this->proveedores)>0 ? 'Sucursal ' . count($this->proveedores) : 'matriz';
+            $modelo['datos_bancarios'] = DatoBancarioProveedorResource::collection($this->datos_bancarios);
+            $modelo['sucursal'] = count($this->proveedores) > 0 ? 'Sucursal ' . count($this->proveedores) : 'matriz';
         }
         return $modelo;
     }

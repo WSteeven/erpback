@@ -30,6 +30,10 @@ class Proveedor extends Model implements Auditable
         "telefono",
         "calificacion",
         "estado_calificado",
+        "forma_pago",
+        "referencia",
+        "plazo_credito",
+        "anticipos",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

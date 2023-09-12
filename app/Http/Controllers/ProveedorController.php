@@ -12,13 +12,17 @@ use Exception;
 use Hamcrest\Type\IsInteger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class ProveedorController extends Controller
 {
     private $entidad = 'Proveedor';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.proveedores')->only('store');
         $this->middleware('can:puede.editar.proveedores')->only('update');
@@ -61,8 +65,26 @@ class ProveedorController extends Controller
                     $proveedor->departamentos_califican()->attach($departamento_financiero->id);
                 }
             }
+
+            //guardando la logistica del proveedor
+            $proveedor->empresa->logistica()->create([
+                'tiempo_entrega' => $request->tiempo_entrega,
+                'envios' => $request->envios,
+                'tipo_envio' => $request->tipo_envio,
+                'transporte_incluido' => $request->transporte_incluido,
+                'costo_transporte' => $request->costo_transporte,
+                'garantia' => $request->garantia,
+            ]);
+            //Verificando si hay archivos en la request
+            if ($request->allFiles()) {
+                foreach ($request->files() as $archivo) {
+                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                }
+            }
+
             $modelo = new ProveedorResource($proveedor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
 
             Log::channel('testing')->info('Log', ['Modelo a recorrer', $proveedor->departamentos_califican]);
@@ -114,6 +136,39 @@ class ProveedorController extends Controller
             if (!in_array($departamento_financiero->id, $request->departamentos)) {
                 $proveedor->departamentos_califican()->attach($departamento_financiero->id);
             }
+
+            //guardando la logistica del proveedor
+            if ($proveedor->empresa->logistica()->first()) {
+                Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
+                $proveedor->empresa->logistica()->update([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' => $request->tipo_envio,
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'costo_transporte' => $request->costo_transporte,
+                    'garantia' => $request->garantia,
+                ]);
+            } else {
+                // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
+                Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
+                $proveedor->empresa->logistica()->create([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'costo_transporte' => $request->costo_transporte,
+                    'garantia' => $request->garantia,
+                ]);
+            }
+            Log::channel('testing')->info('Log', ['Intentamnos almacenar archivos:',]);
+            //Verificando si hay archivos en la request
+            if ($request->allFiles()) {
+                foreach ($request->files() as $archivo) {
+                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                }
+            }
+            Log::channel('testing')->info('Log', ['Se almacenaron los archivos:',]);
+
             $modelo = new ProveedorResource($proveedor->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

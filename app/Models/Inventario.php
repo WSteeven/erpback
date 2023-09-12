@@ -409,8 +409,9 @@ class Inventario extends Model implements Auditable
     {
         //estas categorias no generan preorden de compra
         $categorias = [
+            'EQUIPO PROPIO',
             'EQUIPOS',
-            'UNIFORMES',
+            'UNIFORME',
             'EPP',
             'INFORMATICA',
         ];
