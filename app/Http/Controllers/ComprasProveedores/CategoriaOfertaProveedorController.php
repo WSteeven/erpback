@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\CategoriaOfertaProveedorRequest;
 use App\Http\Resources\ComprasProveedores\CategoriaOfertaProveedorResource;
 use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
+use App\Models\Departamento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -36,13 +37,19 @@ class CategoriaOfertaProveedorController extends Controller
      */
     public function store(CategoriaOfertaProveedorRequest $request)
     {
+        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_oferta_id'] = $request->safe()->only(['tipo_oferta'])['tipo_oferta'];
 
         // Respuesta
-        $modelo  = CategoriaOfertaProveedor::create($datos);
-        $modelo = new CategoriaOfertaProveedorResource($modelo);
+        $categoria  = CategoriaOfertaProveedor::create($datos);
+        $categoria->departamentos_responsables()->sync($request->departamentos);
+        if(!in_array($departamento_financiero->id, $request->departamentos)){
+            $categoria->departamentos_responsables()->attach($departamento_financiero->id);
+        }
+
+        $modelo = new CategoriaOfertaProveedorResource($categoria);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -61,9 +68,16 @@ class CategoriaOfertaProveedorController extends Controller
      */
     public function update(CategoriaOfertaProveedorRequest $request, CategoriaOfertaProveedor $categoria)
     {
+        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_oferta_id'] = $request->safe()->only(['tipo_oferta'])['tipo_oferta'];
+
+        //attaching related models
+        $categoria->departamentos_responsables()->sync($request->departamentos);
+        if(!in_array($departamento_financiero->id, $request->departamentos)){
+            $categoria->departamentos_responsables()->attach($departamento_financiero->id);
+        }
 
         // Respuesta
         $categoria->update($datos);

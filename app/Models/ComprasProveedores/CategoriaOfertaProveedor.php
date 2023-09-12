@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Departamento;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,11 +37,21 @@ class CategoriaOfertaProveedor extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     /**
-      * Relación uno a muchos.
-      * Una o muchas categoria pertenece a un tipo de oferta
-      */
-     public function oferta(){
+    /**
+     * Relación uno a muchos.
+     * Una o muchas categoria pertenece a un tipo de oferta
+     */
+    public function oferta()
+    {
         return $this->belongsTo(OfertaProveedor::class, 'tipo_oferta_id', 'id');
-     }
+    }
+
+    /**
+     * Relación muchos a muchos.
+     */
+    public function departamentos_responsables()
+    {
+        return $this->belongsToMany(Departamento::class, 'cmp_detalle_categoria_departamento_proveedor', 'categoria_id', 'departamento_id')
+            ->withTimestamps();
+    }
 }
