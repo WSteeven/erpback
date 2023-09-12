@@ -168,6 +168,8 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
+        Log::channel('testing')->info('Log', ['rol de pago', $datos]);
+
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 

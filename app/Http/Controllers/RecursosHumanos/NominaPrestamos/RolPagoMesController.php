@@ -288,7 +288,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->get();
+            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->orderBy('apellidos','asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -301,7 +301,7 @@ class RolPagoMesController extends Controller
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
-                $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva();
+                $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
                 $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
                 $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
                 $anticipo =  $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
@@ -331,6 +331,8 @@ class RolPagoMesController extends Controller
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
                 ];
+                Log::channel('testing')->info('Log', ['error', $roles_pago]);
+
             }
             RolPago::insert($roles_pago);
         } catch (Exception $ex) {
