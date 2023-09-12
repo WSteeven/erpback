@@ -100,18 +100,11 @@ class RolPagoMesController extends Controller
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'rol_pagos';
             // Fetch data with relationships
-            /*$roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes','egreso_rol_pago','empleado_info'])
-                ->where('rol_pago_id', $rolPagoId)
-             //   ->join('empleados', 'rol_pago.empleado_id', '=', 'empleados.id') // Reemplaza 'empleado_id' con la clave real de la relación
-         //       ->orderBy('empleados.apellidos') // Reemplaza 'apellido' con el nombre real de la columna de apellidos
-                ->get();*/
             $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago', 'empleado_info' => function ($query) {
                 $query->orderBy('apellidos', 'asc');
             }])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-            Log::channel('testing')->info('Log', ['roles de pago', $roles_pagos]);
-
             $reportes = $this->generate_report_data($roles_pagos);
             $vista = 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes);
@@ -136,11 +129,17 @@ class RolPagoMesController extends Controller
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
+        $colum_ingreso_value = $this->colum_values($results, 'ingresos');
+        $colum_egreso_value = $this->colum_values($results, 'egresos');
+        $columnas_egresos = array_unique($column_names_egresos['egresos']);
+        $maxColumEgresosValue = count($columnas_egresos);
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
-        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+        $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
+        $maxColumIngresosValue = count($columnas_ingresos);
+
+
+
         // Calculate the sum of specific columns from the main data array
-        // Inicializa un array asociativo para almacenar las sumas
         $sumColumns = [
             'salario' => 0,
             'sueldo' => 0,
@@ -181,21 +180,41 @@ class RolPagoMesController extends Controller
             $sumColumns['total_egreso'] += $item['total_egreso'];
             $sumColumns['total'] += $item['total'];
         }
-
+        //$this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')
+        Log::channel('testing')->info('Log', ['suma: ', $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')]);
         // El resultado deseado se encuentra ahora en el array $sumColumns
-
         return [
             'roles_pago' => $results,
             'periodo' => $periodo,
             'cantidad_columna_ingresos' => $maxColumIngresosValue,
             'cantidad_columna_egresos' => $maxColumEgresosValue,
-            'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
-            'columnas_egresos' => array_unique($column_names_egresos['egresos']),
+            'colum_ingreso_value' => $colum_ingreso_value,
+            'colum_egreso_value' => $colum_egreso_value,
+            'columnas_ingresos' => $columnas_ingresos,
+            'columnas_egresos' =>  $columnas_egresos,
             'sumatoria' => $sumColumns,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
+    }
+    private function colum_values($data, $key1)
+    {
+        // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
+        $groupedData = [];
+        foreach ($data as $item) {
+            // Recorremos el arreglo original y agrupamos los objetos por descuento_id
+            foreach ($item[$key1] as $item) {
+                //$item['descuento_type'] !== null? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1]:'Ingreso'
+                $type_colum =  $item['descuento_type'] !== null ? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1] : 'Ingreso';
+                $descuentoId = $item['descuento_id'] . '.' . $type_colum;
+                if (!isset($groupedData[$descuentoId])) {
+                    $groupedData[$descuentoId] = [];
+                }
+                $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
+            }
+        }
+        return $groupedData;
     }
 
     private function extract_column_names($results, $key1, $key2, $columnName)
@@ -212,35 +231,49 @@ class RolPagoMesController extends Controller
     }
     private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
     {
-
         $totalMontoIngresos = array_map(
 
             function ($item) use ($maximo, $key_cantidad, $key1) {
                 $monto = array();
-                $i = 0;
                 if ($item[$key_cantidad] > 0) {
-                    foreach ($item[$key1] as $ingreso) {
-                        $monto[$i] = $ingreso['monto'];
-                        $i++;
+                    foreach ($item[$key1] as $subitem) {
+                        $monto[$subitem['descuento_id']] = $subitem['monto'];
                     }
                 }
                 if ($item[$key_cantidad] == 0) {
                     for ($j = 0; $j < $maximo; $j++) {
-                        $monto[$j] = 0;
+                     //   $monto[$j] = 0;
                     }
                 }
                 return $monto;
             },
             $data
         );
-        $suma_monto = array_fill(0, $maximo, 0); // Inicializamos el arreglo de suma en ceros
-        for ($i = 0; $i < $maximo - 1; $i++) {
-            foreach ($totalMontoIngresos as $totalMonto) {
-                $suma_monto[$i] += $totalMonto[$i]; // Sumamos el monto en la posición $i
+        $resultados = [];
+        foreach ($totalMontoIngresos as $elemento) {
+            // Verifica si el elemento es un arreglo asociativo (objeto JSON)
+            if (is_array($elemento) && count($elemento) > 0) {
+                foreach ($elemento as $clave => $valor) {
+                    // Verifica si la clave ya existe en los resultados
+                    if (array_key_exists($clave, $resultados)) {
+                        if ($clave != 0) {
+                            // Si existe, suma el valor actual al valor existente
+                            $resultados[$clave] += floatval($valor);
+                        }
+                    } else {
+                        if ($clave != 0) {
+                            // Si no existe, crea la clave y asigna el valor actual
+                            $resultados[$clave] = floatval($valor);
+                        }
+                    }
+                }
             }
         }
-
-        return $suma_monto;
+        $arreglo = $resultados;
+        if (is_object($resultados)) {
+            $arreglo = [$resultados];
+        }
+        return $arreglo;
     }
     /**
      * La función "tabla_roles" calcula e inserta datos de nómina para empleados activos en función de

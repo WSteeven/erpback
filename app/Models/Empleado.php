@@ -62,6 +62,7 @@ class Empleado extends Model implements Auditable
         'banco',
         'genero',
         'esta_en_rol_pago',
+        'acumula_fondos_reserva',
         'realiza_factura',
     ];
 
@@ -101,6 +102,7 @@ class Empleado extends Model implements Auditable
         'banco',
         'genero',
         'esta_en_rol_pago',
+        'acumula_fondos_reserva',
         'realiza_factura',
     ];
 
@@ -118,6 +120,8 @@ class Empleado extends Model implements Auditable
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
         'tiene_discapacidad' => 'boolean',
+        'acumula_fondos_reserva' => 'boolean',
+
     ];
 
     public function toSearchableArray()

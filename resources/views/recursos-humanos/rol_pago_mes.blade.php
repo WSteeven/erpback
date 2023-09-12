@@ -197,7 +197,7 @@
                     <th scope="col" class="encabezado-ingresos">BONO RECURENTE</th>
                 @endif
                 @foreach ($columnas_ingresos as $ingreso)
-                    <th scope="col"class="encabezado-ingresos">{{ $ingreso }}</th>
+                    <th scope="col"class="encabezado-ingresos">{{ strtoupper( $ingreso) }}</th>
                 @endforeach
                 <th scope="col"class ="encabezado-egresos">PRESTAMO QUIROGRAFARIO</th>
                 <th scope="col"class ="encabezado-egresos">PRESTAMO HIPOTECARIO</th>
@@ -207,7 +207,7 @@
                     <th scope="col"class ="encabezado-egresos">SUPA</th>
                 @endif
                 @foreach ($columnas_egresos as $egreso)
-                    <th scope="col"class ="encabezado-egresos">{{ $egreso }}</th>
+                    <th scope="col"class ="encabezado-egresos">{{ strtoupper($egreso) }}</th>
                 @endforeach
             </tr>
             @foreach ($roles_pago as $rol_pago)
