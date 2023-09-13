@@ -22,7 +22,6 @@ class RolPago extends Model implements Auditable
     const REALIZADO = 'REALIZADO';
     const FINALIZADO = 'FINALIZADO';
     protected $fillable = [
-
         'empleado_id',
         'mes',
         'dias',
@@ -35,6 +34,7 @@ class RolPago extends Model implements Auditable
         'prestamo_quirorafario',
         'prestamo_hipotecario',
         'prestamo_empresarial',
+        'fondos_reserva',
         'total_ingreso',
         'iess',
         'total_egreso',
@@ -54,10 +54,13 @@ class RolPago extends Model implements Auditable
         'sueldo',
         'total_ingreso',
         'total_egreso',
+
         'total',
         'estado',
         'rol_pago_id',
-        'rol_firmado'
+        'rol_firmado',
+        'fondos_reserva',
+
     ];
 
     public function empleado_info()
