@@ -86,7 +86,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             if ($detalle_dept) {
                 $results = $detalle_dept->archivos()->get();
             }
-            
+
             return response()->json(compact('results'));
         } catch (Exception $ex) {
             $mensaje = $ex->getMessage();
@@ -95,7 +95,7 @@ class CalificacionDepartamentoProveedorController extends Controller
         return response()->json(compact('results'));
     }
 
-    
+
     public function storeFiles(Request $request, $detalle)
     {
         Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
@@ -105,7 +105,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             if ($detalle_dept) {
                 if ($request->allFiles()) {
                     foreach ($request->allFiles() as $archivo) {
-                        $archivo = $this->archivoService->guardar($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES);
+                        $archivo = $this->archivoService->guardar($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
                         array_push($modelo, $archivo);
                     }
                 }

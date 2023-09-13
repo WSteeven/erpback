@@ -129,7 +129,7 @@ class EmpresaController extends Controller
         try {
             if ($request->allFiles()) {
                 foreach ($request->allFiles() as $archivo) {
-                    $archivo = $this->archivoService->guardar($empresa, $archivo, RutasStorage::EMPRESAS->value . $empresa->identificacion . '/');
+                    $archivo = $this->archivoService->guardar($empresa, $archivo, RutasStorage::EMPRESAS->value . $empresa->identificacion);
                     array_push($modelo, $archivo);
                     // $archivo = $this->archivoService->guardar($empresa, $archivo, 'public/empresas/'.$empresa->identificacion.'/');
                 }
