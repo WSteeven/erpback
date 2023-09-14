@@ -8,11 +8,19 @@ use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
 use Src\Shared\Utils;
 
 class DetalleDepartamentoProveedorController extends Controller
 {
     private $entidad = 'Calificación';
+    private $archivoService;
+
+    public function __construct()
+    {
+        $this->archivoService = new ArchivoService();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -87,13 +95,11 @@ class DetalleDepartamentoProveedorController extends Controller
     public function indexFiles(Request $request, $detalle)
     {
         $results = [];
-        Log::channel('testing')->info('Log', ['Recibido del front en indexFiles', $request->all(), $detalle]);
+        Log::channel('testing')->info('Log', ['Recibido del front en indexFiles en detalleDeptProvControler', $request->all(), $detalle]);
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
-            if ($detalle_dept) {
-                $results = $detalle_dept->archivos()->get();
-            }
-            
+            if ($detalle_dept) $results = $this->archivoService->listarArchivos($detalle_dept);
+
             return response()->json(compact('results'));
         } catch (Exception $ex) {
             $mensaje = $ex->getMessage();

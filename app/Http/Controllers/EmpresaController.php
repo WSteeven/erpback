@@ -100,16 +100,8 @@ class EmpresaController extends Controller
      */
     public function indexFiles(Request $request, Empresa $empresa)
     {
-        $results = [];
-
-        $results = [];
-        // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles de empresas', $request->all(), $empresa]);
-        // Log::channel('testing')->info('Log', [' indexFiles de empresas', $empresa]);
         try {
-            // $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
-            if ($empresa) {
-                $results = $empresa->archivos()->get();
-            }
+            $results = $this->archivoService->listarArchivos($empresa);
 
             return response()->json(compact('results'));
         } catch (Exception $ex) {
@@ -124,22 +116,13 @@ class EmpresaController extends Controller
      */
     public function storeFiles(Request $request, Empresa $empresa)
     {
-        // Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $empresa]);
-        $modelo = [];
         try {
-            if ($request->allFiles()) {
-                foreach ($request->allFiles() as $archivo) {
-                    $archivo = $this->archivoService->guardar($empresa, $archivo, RutasStorage::EMPRESAS->value . $empresa->identificacion . '/');
-                    array_push($modelo, $archivo);
-                    // $archivo = $this->archivoService->guardar($empresa, $archivo, 'public/empresas/'.$empresa->identificacion.'/');
-                }
-            }
-
+            $modelo = $this->archivoService->guardarArchivo($empresa, $request->file, RutasStorage::EMPRESAS->value . $empresa->identificacion);
             $mensaje = 'Archivo subido correctamente';
         } catch (\Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpresaController', $th->getMessage(), $th->getCode(), $th->getLine()]);
-            return response()->json(compact('mensaje'));
+            return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }

@@ -10,6 +10,7 @@ use App\Models\Proveedor;
 use App\Models\User;
 use Exception;
 use Hamcrest\Type\IsInteger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
@@ -70,9 +71,8 @@ class ProveedorController extends Controller
             $proveedor->empresa->logistica()->create([
                 'tiempo_entrega' => $request->tiempo_entrega,
                 'envios' => $request->envios,
-                'tipo_envio' => $request->tipo_envio,
+                'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
                 'transporte_incluido' => $request->transporte_incluido,
-                'costo_transporte' => $request->costo_transporte,
                 'garantia' => $request->garantia,
             ]);
             //Verificando si hay archivos en la request
@@ -145,7 +145,6 @@ class ProveedorController extends Controller
                     'envios' => $request->envios,
                     'tipo_envio' => $request->tipo_envio,
                     'transporte_incluido' => $request->transporte_incluido,
-                    'costo_transporte' => $request->costo_transporte,
                     'garantia' => $request->garantia,
                 ]);
             } else {
@@ -156,7 +155,6 @@ class ProveedorController extends Controller
                     'envios' => $request->envios,
                     'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
                     'transporte_incluido' => $request->transporte_incluido,
-                    'costo_transporte' => $request->costo_transporte,
                     'garantia' => $request->garantia,
                 ]);
             }
@@ -189,5 +187,19 @@ class ProveedorController extends Controller
         $proveedor->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Desactivar un proveedor
+     */
+    public function anular(Request $request, Proveedor $proveedor)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $proveedor->causa_inactivacion = $request->motivo;
+        $proveedor->estado = !$proveedor->estado;
+        $proveedor->save();
+
+        $modelo = new ProveedorResource($proveedor->refresh());
+        return response()->json(compact('modelo'));
     }
 }

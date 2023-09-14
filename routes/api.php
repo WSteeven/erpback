@@ -267,6 +267,7 @@ Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngr
 
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
+Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
 //reportes
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);

@@ -46,12 +46,11 @@ class ProveedorResource extends JsonResource
 
             //Logistica del proveedor
             'tiempo_entrega' => $this->empresa->logistica?->tiempo_entrega,
-            'envios' => $this->empresa->logistica?->envios,
+            'envios' => $this->empresa->logistica?->envios||false,
             'tipo_envio' => $this->empresa->logistica?->tipo_envio,
             // 'tipo_envio' => Utils::convertirStringComasArray($this->empresa->logistica->tipo_envio),
-            'transporte_incluido' => $this->empresa->logistica?->transporte_incluido,
-            'costo_transporte' => $this->empresa->logistica?->costo_transporte,
-            'garantia' => $this->empresa->logistica?->garantia,
+            'transporte_incluido' => $this->empresa->logistica?->transporte_incluido||false,
+            'garantia' => $this->empresa->logistica?->garantia||false,
         ];
         // Log::channel('testing')->info('Log', ['Tipo de envio', $this->empresa->logistica->tipo_envio]);
 
