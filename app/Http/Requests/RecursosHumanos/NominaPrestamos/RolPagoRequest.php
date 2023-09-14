@@ -45,12 +45,14 @@ class RolPagoRequest extends FormRequest
             'prestamo_quirorafario' => 'required',
             'prestamo_hipotecario' => 'required',
             'prestamo_empresarial' => 'required',
+            'medio_tiempo' => 'nullable',
             'egresos' => 'nullable',
             'iess' =>  'required',
             'extension_conyugal' => 'required',
             'fondos_reserva' => 'nullable',
             'total_egreso' => 'required',
             'total' => 'required',
+
 
         ];
     }
