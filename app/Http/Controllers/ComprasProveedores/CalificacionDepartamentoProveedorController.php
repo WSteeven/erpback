@@ -105,7 +105,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             if ($detalle_dept) {
                 if ($request->allFiles()) {
                     foreach ($request->allFiles() as $archivo) {
-                        $archivo = $this->archivoService->guardar($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
+                        $archivo = $this->archivoService->guardarArchivo($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
                         array_push($modelo, $archivo);
                     }
                 }

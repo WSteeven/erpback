@@ -243,6 +243,9 @@ class Utils
         if(is_array($array) && count($array)>0){
             return implode($separator, $array);
         }else{
+            if(empty($array)){
+                return null;
+            }
             return $array;
         }
     }

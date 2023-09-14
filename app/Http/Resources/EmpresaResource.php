@@ -43,6 +43,8 @@ class EmpresaResource extends JsonResource
             'representante_legal' => $this->representante_legal,
             'identificacion_representante' => $this->identificacion_representante,
             'antiguedad_proveedor' => $this->antiguedad_proveedor,
+            'es_cliente' => $this->es_cliente,
+            'es_proveedor' => $this->es_proveedor,
         ];
 
         if ($controller_method == 'show') {

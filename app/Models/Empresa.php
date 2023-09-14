@@ -39,6 +39,8 @@ class Empresa extends Model implements Auditable
         'representante_legal',
         'identificacion_representante',
         'antiguedad_proveedor',
+        'es_cliente',
+        'es_proveedor',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -46,6 +48,8 @@ class Empresa extends Model implements Auditable
         'agente_retencion'=>'boolean',
         'lleva_contabilidad'=>'boolean',
         'contribuyente_especial'=>'boolean',
+        'es_cliente'=>'boolean',
+        'es_proveedor'=>'boolean',
     ];
 
     private static $whiteListFilter = ['*'];
