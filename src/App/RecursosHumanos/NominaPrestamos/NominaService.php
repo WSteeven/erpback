@@ -117,7 +117,7 @@ class NominaService
     {
         $sueldo = $this->calcularSueldo($dias);
         $iess = ($sueldo) * NominaService::calcularPorcentajeIESS();
-        return $iess;
+        return number_format($iess, 2, ',', '.') ;
     }
     public function calcularDecimo($tipo, $dias)
     {
@@ -153,6 +153,6 @@ class NominaService
         if ($diasTrabajados >= 366 && $this->empleado->acumula_fondos_reserva == 0) {
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
         }
-        return $fondosDeReserva;
+        return number_format($fondosDeReserva, 2, ',', '.');
     }
 }
