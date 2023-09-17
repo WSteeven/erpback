@@ -347,7 +347,9 @@
                                             @endforeach
                                         @endforeach
                                     @else
-                                        <td>0</td>
+                                    @for($i = 0; $i <= $cantidad_columna_ingresos; $i++)
+                                    <td>0</td>
+                                    @endfor
                                     @endif
                                 @endif
                                 <td>{{ $rol_pago['total_ingreso'] }}</td>
@@ -394,8 +396,9 @@
                                             @endforeach
                                         @endforeach
                                     @else
+                                    @for($i = 0; $i <= $cantidad_columna_egresos; $i++)
                                         <td>0</td>
-                                        <td>0</td>
+                                    @endfor
                                     @endif
                                 @endif
                                 <td>{{ $rol_pago['total_egreso'] }}</td>
