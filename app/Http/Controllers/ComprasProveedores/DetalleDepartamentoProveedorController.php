@@ -95,7 +95,7 @@ class DetalleDepartamentoProveedorController extends Controller
     public function indexFiles(Request $request, $detalle)
     {
         $results = [];
-        Log::channel('testing')->info('Log', ['Recibido del front en indexFiles en detalleDeptProvControler', $request->all(), $detalle]);
+        // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles en detalleDeptProvControler', $request->all(), $detalle]);
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) $results = $this->archivoService->listarArchivos($detalle_dept);
