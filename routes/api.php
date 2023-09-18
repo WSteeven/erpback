@@ -355,6 +355,7 @@ Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('a
  * Listar Archivos
  */
 Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])->middleware('auth:sanctum');
+Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 /**
