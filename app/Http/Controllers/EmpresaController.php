@@ -5,14 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EmpresaRequest;
 use App\Http\Resources\EmpresaResource;
 use App\Models\Empresa;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class EmpresaController extends Controller
 {
     private $entidad = 'Empresa';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.empresas')->only('index', 'show');
         $this->middleware('can:puede.crear.empresas')->only('store');
         $this->middleware('can:puede.editar.empresas')->only('update');
@@ -26,7 +32,7 @@ class EmpresaController extends Controller
     {
         $results = [];
 
-        $results = Empresa::filter()->get();
+        $results = Empresa::filter()->orderBy('razon_social', 'asc')->get();
         $results = EmpresaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -39,7 +45,7 @@ class EmpresaController extends Controller
     {
         // Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['canton_id']=$request->safe()->only(['canton'])['canton'];
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         //Respuesta
         $modelo = Empresa::create($datos);
         $modelo = new EmpresaResource($modelo);
@@ -68,8 +74,8 @@ class EmpresaController extends Controller
         Log::channel('testing')->info('Log', ['Antes de validar', $request->all()]);
         $datos = $request->validated();
         Log::channel('testing')->info('Log', ['Despues de validar', $request->all()]);
-        $datos['canton_id']=$request->safe()->only(['canton'])['canton'];
-        
+        $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
+
         //Respuesta
         $empresa->update($datos);
         $modelo = new EmpresaResource($empresa->refresh());
@@ -87,5 +93,37 @@ class EmpresaController extends Controller
         $empresa->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, Empresa $empresa)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($empresa);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Empresa $empresa)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($empresa, $request->file, RutasStorage::EMPRESAS->value . $empresa->identificacion);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpresaController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

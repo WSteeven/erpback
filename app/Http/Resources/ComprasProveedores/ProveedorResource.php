@@ -4,6 +4,8 @@ namespace App\Http\Resources\ComprasProveedores;
 
 use App\Models\Proveedor;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
+use Src\Shared\Utils;
 
 class ProveedorResource extends JsonResource
 {
@@ -36,9 +38,21 @@ class ProveedorResource extends JsonResource
             'related_departamentos' => $this->departamentos_califican,
             'calificacion' => $this->calificacion ? $this->calificacion : 0,
             'estado_calificado' => $this->estado_calificado ? $this->estado_calificado : Proveedor::SIN_CONFIGURAR,
-            // 'calificacion' => $calificacion,
-            // 'estado_calificado' => $estado,
+            "forma_pago" => $this->forma_pago,
+            "referencia" => $this->referencia,
+            "plazo_credito" => $this->plazo_credito,
+            "anticipos" => $this->anticipos,
+
+
+            //Logistica del proveedor
+            'tiempo_entrega' => $this->empresa->logistica?->tiempo_entrega,
+            'envios' => $this->empresa->logistica?->envios||false,
+            'tipo_envio' => $this->empresa->logistica?->tipo_envio,
+            // 'tipo_envio' => Utils::convertirStringComasArray($this->empresa->logistica->tipo_envio),
+            'transporte_incluido' => $this->empresa->logistica?->transporte_incluido||false,
+            'garantia' => $this->empresa->logistica?->garantia||false,
         ];
+        // Log::channel('testing')->info('Log', ['Tipo de envio', $this->empresa->logistica->tipo_envio]);
 
         if ($controller_method == 'show') {
             //listados

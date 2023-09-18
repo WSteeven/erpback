@@ -38,24 +38,47 @@
 
 <body>
     @php
-        $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        $numcol_egreso = $cantidad_columna_egresos + 3;
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+        $numcol_egreso = $cantidad_columna_egresos + 6;
         $tiene_supa = $sumatoria['supa'] > 0;
         $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
         $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+        $carry_ingreso = [];
+        $index_ingreso = 0;
+        $carry_egreso = [];
+        $index_egreso = 0;
         if ($tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
+            $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
         if ($tiene_bonificacion) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
+            $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
         if ($tiene_bonificacion && $tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 6;
+            $numcol_ingreso = $cantidad_columna_ingresos + 5;
         }
 
         if ($tiene_supa) {
-            $numcol_egreso = $cantidad_columna_egresos + 3;
+            $numcol_egreso = $cantidad_columna_egresos + 7;
         }
+        $sumColumns = [
+            'salario' => 0,
+            'sueldo' => 0,
+            'decimo_tercero' => 0,
+            'decimo_cuarto' => 0,
+            'fondos_reserva' => 0,
+            'iess' => 0,
+            'anticipo' => 0,
+            'bonificacion' => 0,
+            'bono_recurente' => 0,
+            'total_ingreso' => 0,
+            'prestamo_quirorafario' => 0,
+            'prestamo_hipotecario' => 0,
+            'extension_conyugal' => 0,
+            'prestamo_empresarial' => 0,
+            'supa' => 0,
+            'total_egreso' => 0,
+            'total' => 0,
+        ];
     @endphp
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
@@ -121,6 +144,10 @@
                                                     <td
                                                         rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
+                                                        CIUDAD</td>
+                                                    <td
+                                                        rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                                                         SUELDO</td>
                                                     <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
                                                     </td>
@@ -159,10 +186,6 @@
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color:#FFF2CC;">
                                                         FONDOS DE RESERVA</th>
-                                                    <th
-                                                        scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color:#FFF2CC;">
-                                                        IESS (9.45%)</th>
                                                     @if ($tiene_bonificacion)
                                                         <th scope="col"
                                                             class="encabezado-ingresos"style="text-align: center !important;
@@ -179,16 +202,29 @@
                                                         <th
                                                             scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color:#FFF2CC;">
-                                                            {{ $ingreso }}</th>
+                                                            {{ strtoupper($ingreso) }}</th>
                                                     @endforeach
+                                                    <th
+                                                        scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                               background-color: #BDD7EE;">
+                                                        IESS (9.45%)</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
                                                 background-color: #BDD7EE;">
                                                         PRESTAMO QUIROGRAFARIO</th>
+
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
                                                 background-color: #BDD7EE;">
                                                         PRESTAMO HIPOTECARIO</th>
+                                                    <th scope="col"class="encabezado-egresos"
+                                                        style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                                                        PRESTAMO</th>
+                                                    <th scope="col"class="encabezado-egresos"
+                                                        style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                                                        EXT CONYUGAL</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -204,58 +240,116 @@
                                                         <th scope="col"class="encabezado-egresos"
                                                             style="text-align: center !important;
                                                     background-color: #BDD7EE;">
-                                                            {{ $egreso }}</th>
+                                                            {{ strtoupper($egreso) }}</th>
                                                     @endforeach
                                                 </tr>
                                                 @foreach ($roles_pago as $rol_pago)
+                                                    @php
+                                                        $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
+                                                    @endphp
                                                     <tr>
                                                         <td>{{ $rol_pago['item'] }}</td>
                                                         <td>{{ $rol_pago['empleado_info'] }}</td>
                                                         <td>{{ $rol_pago['cedula'] }}</td>
                                                         <td>{{ $rol_pago['cargo'] }}</td>
-                                                        <td>{{ $rol_pago['salario'] }}</td>
+                                                        <td>{{ $rol_pago['ciudad'] }}</td>
+                                                        <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
                                                         <td>{{ $rol_pago['dias_laborados'] }}</td>
-                                                        <td>{{ $rol_pago['sueldo'] }}</td>
-                                                        <td>{{ $rol_pago['decimo_tercero'] }}</td>
-                                                        <td>{{ $rol_pago['decimo_cuarto'] }}</td>
-                                                        <td> {{ $rol_pago['fondos_reserva'] }}</td>
-                                                        <td> {{ $rol_pago['iess'] }}</td>
+                                                        <td>{{ number_format($rol_pago['sueldo'], 2, ',', '.') }}</td>
+                                                        <td>{{ number_format($rol_pago['decimo_tercero'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td>{{ number_format($rol_pago['decimo_cuarto'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td> {{ number_format($rol_pago['fondos_reserva'], 2, ',', '.') }}
+                                                        </td>
                                                         @if ($tiene_bonificacion)
-                                                            <td>{{ $rol_pago['bonificacion'] }}</td>
+                                                            <td>{{ number_format($rol_pago['bonificacion'], 2, ',', '.') }}
+                                                            </td>
                                                         @endif
                                                         @if ($tiene_bono_recurente)
-                                                            <td>{{ $rol_pago['bono_recurente'] }}</td>
+                                                            <td>{{ number_format($rol_pago['bono_recurente'], 2, ',', '.') }}
+                                                            </td>
                                                         @endif
-                                                        @foreach ($rol_pago['ingresos'] as $ingreso)
-                                                            <td>{{ $ingreso->monto }}</td>
-                                                        @endforeach
-                                                        @if ($rol_pago['ingresos_cantidad_columna'] == 0)
-                                                            @for ($i = 0; $i < $cantidad_columna_ingresos; $i++)
-                                                                <td>0 </td>
-                                                            @endfor
+                                                        @if ($cantidad_columna_ingresos > 0)
+                                                            @if ($rol_pago['ingresos_cantidad_columna'] > 0)
+                                                                @foreach ($colum_ingreso_value as $ingreso)
+                                                                    @foreach ($ingreso as $ingreso_value)
+                                                                        @if ($ingreso_value['id'] === $rol_pago['id'])
+                                                                            <td>{{ number_format($ingreso_value['valor'], 2, ',', '.') }}
+                                                                            </td>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
+                                                            @else
+                                                                @for ($i = 0; $i <= $cantidad_columna_ingresos - 1; $i++)
+                                                                    <td>0</td>
+                                                                @endfor
+                                                            @endif
                                                         @endif
-                                                        <td>{{ $rol_pago['total_ingreso'] }}</td>
-                                                        <td>{{ $rol_pago['prestamo_quirorafario'] }}</td>
-                                                        <td>{{ $rol_pago['prestamo_hipotecario'] }}</td>
-                                                        <td>{{ $rol_pago['anticipo'] }}</td>
-                                                        @if ($tiene_supa)
-                                                            <td>{{ $rol_pago['supa'] }}</td>
-                                                        @endif
+                                                        <td>{{ number_format($rol_pago['total_ingreso'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td> {{ number_format($rol_pago['iess'], 2, ',', '.') }}</td>
+                                                        <td>{{ number_format($rol_pago['prestamo_quirorafario'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td>{{ number_format($rol_pago['prestamo_hipotecario'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td>{{ number_format($rol_pago['prestamo_empresarial'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td>{{ number_format($rol_pago['extension_conyugal'], 2, ',', '.') }}
+                                                        </td>
+                                                        <td>{{ number_format($rol_pago['anticipo'], 2, ',', '.') }}
+                                                        </td>
 
-                                                        @foreach ($rol_pago['egresos'] as $descuento)
-                                                            <td> {{ $descuento->monto }} </td>
-                                                        @endforeach
-                                                        @if ($rol_pago['egresos_cantidad_columna'] == 0)
-                                                            @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
-                                                                <td>0 </td>
-                                                            @endfor
+                                                        @if ($tiene_supa)
+                                                            <td>{{ number_format($rol_pago['supa'], 2, ',', '.') }}
+                                                            </td>
                                                         @endif
-                                                        <td>{{ $rol_pago['total_egreso'] }}</td>
+                                                        @if ($cantidad_columna_egresos > 0)
+                                                            @if ($rol_pago['egresos_cantidad_columna'] > 0)
+                                                            @foreach ($colum_egreso_value as $clave => $value)
+                                                            @foreach ($value as $subvalue)
+                                                                @if ($subvalue['id'] == $rol_pago['id'])
+                                                                    @php
+                                                                        array_push($carry_egreso, $clave);
+                                                                    @endphp
+
+                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
+                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
+                                                                        <td>0</td> {{-- Agregar un td al inicio con 0 --}}
+                                                                    @endif
+
+                                                                    <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}</td>
+
+                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
+                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
+                                                                        <td>0</td> {{-- Agregar un td al final con 0 --}}
+                                                                    @elseif ($carry_egreso[$index_egreso] == '6.DescuentosGenerales') {{-- Cuando sea 6.DescuentosGenerales --}}
+                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
+                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
+                                                                    @elseif ($carry_egreso[$index_egreso] == '2.Multas') {{-- Cuando sea 2.Multa --}}
+                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
+                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
+                                                                    @endif
+
+                                                                    @php
+                                                                        $index_egreso++;
+                                                                    @endphp
+                                                                @endif
+                                                            @endforeach
+                                                        @endforeach
+                                                            @else
+                                                                @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
+                                                                    <td>0</td>
+                                                                @endfor
+                                                            @endif
+                                                        @endif
+                                                        <td>{{ number_format($rol_pago['total_egreso'], 2, ',', '.') }}
+                                                        </td>
                                                         <td>{{ $rol_pago['total'] }}</td>
                                                     </tr>
                                                 @endforeach
                                                 <tr style="background-color: #FFE699">
-                                                    <td colspan="4" style="text-align: center">
+                                                    <td colspan="5" style="text-align: center">
                                                         <strong>TOTALES&nbsp;</strong>
                                                     </td>
                                                     <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
@@ -267,20 +361,24 @@
                                                     </td>
                                                     <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                                                     </td>
-                                                    <td>{{ number_format($sumatoria['iess'], 2, ',', '.') }}</td>
-                                                    <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
                                                         <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                                                     @endforeach
                                                     <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                                                     </td>
-                                                    <td>{{ number_format($sumatoria['prestamo_quirorafario'], 2, ',', '.') }}
+                                                    <td>{{ number_format($sumatoria['iess'], 2, ',', '.') }}</td>
+                                                    <td>{{ number_format($sumColumns['prestamo_quirorafario'], 2, ',', '.') }}
                                                     </td>
                                                     <td>{{ number_format($sumatoria['prestamo_hipotecario'], 2, ',', '.') }}
+                                                    </td>
+                                                    <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
                                                     </td>
                                                     @if ($tiene_supa)
                                                         <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                                                     @endif
+                                                    <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
+                                                    </td>
+                                                    <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @foreach ($sumatoria_egresos as $sumatoria_egreso)
                                                         <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                                                     @endforeach

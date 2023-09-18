@@ -117,6 +117,14 @@ class Devolucion extends Model implements Auditable
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos(){
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
+
 
     /**
      * ______________________________________________________________________________________

@@ -5,20 +5,27 @@ namespace App\Http\Controllers;
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
+use App\Models\Archivo;
+use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use App\Models\User;
 use Exception;
 use Hamcrest\Type\IsInteger;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class ProveedorController extends Controller
 {
     private $entidad = 'Proveedor';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.proveedores')->only('store');
         $this->middleware('can:puede.editar.proveedores')->only('update');
@@ -61,8 +68,25 @@ class ProveedorController extends Controller
                     $proveedor->departamentos_califican()->attach($departamento_financiero->id);
                 }
             }
+
+            //guardando la logistica del proveedor
+            $proveedor->empresa->logistica()->create([
+                'tiempo_entrega' => $request->tiempo_entrega,
+                'envios' => $request->envios,
+                'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
+                'transporte_incluido' => $request->transporte_incluido,
+                'garantia' => $request->garantia,
+            ]);
+            //Verificando si hay archivos en la request
+            if ($request->allFiles()) {
+                foreach ($request->files() as $archivo) {
+                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                }
+            }
+
             $modelo = new ProveedorResource($proveedor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
 
             Log::channel('testing')->info('Log', ['Modelo a recorrer', $proveedor->departamentos_califican]);
@@ -96,7 +120,7 @@ class ProveedorController extends Controller
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
-        $departamento_contable = Departamento::where('nombre', User::ROL_CONTABILIDAD)->first();
+        $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
             DB::beginTransaction();
             //Adaptación de foreign keys
@@ -111,9 +135,40 @@ class ProveedorController extends Controller
             $proveedor->servicios_ofertados()->sync($request->tipos_ofrece);
             $proveedor->categorias_ofertadas()->sync($request->categorias_ofrece);
             $proveedor->departamentos_califican()->sync($request->departamentos);
-            if (!in_array($departamento_contable->id, $request->departamentos)) {
-                $proveedor->departamentos_califican()->attach($departamento_contable->id);
+            if (!in_array($departamento_financiero->id, $request->departamentos)) {
+                $proveedor->departamentos_califican()->attach($departamento_financiero->id);
             }
+
+            //guardando la logistica del proveedor
+            if ($proveedor->empresa->logistica()->first()) {
+                Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
+                $proveedor->empresa->logistica()->update([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' => $request->tipo_envio,
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'garantia' => $request->garantia,
+                ]);
+            } else {
+                // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
+                Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
+                $proveedor->empresa->logistica()->create([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'garantia' => $request->garantia,
+                ]);
+            }
+            Log::channel('testing')->info('Log', ['Intentamnos almacenar archivos:',]);
+            //Verificando si hay archivos en la request
+            if ($request->allFiles()) {
+                foreach ($request->files() as $archivo) {
+                    $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
+                }
+            }
+            Log::channel('testing')->info('Log', ['Se almacenaron los archivos:',]);
+
             $modelo = new ProveedorResource($proveedor->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
@@ -134,5 +189,36 @@ class ProveedorController extends Controller
         $proveedor->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Desactivar un proveedor
+     */
+    public function anular(Request $request, Proveedor $proveedor)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $proveedor->causa_inactivacion = $request->motivo;
+        $proveedor->estado = !$proveedor->estado;
+        $proveedor->save();
+
+        $modelo = new ProveedorResource($proveedor->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Listar archivos enlazados a los detalle_departamento_proveedor de un proveedor dado
+     */
+    public function indexFilesDepartamentosCalificadores(Proveedor $proveedor)
+    {
+        $results = [];
+        try {
+            $idsDetallesDepartamentos = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor->id)->get('id');
+            $results = Archivo::whereIn('archivable_id', $idsDetallesDepartamentos)->get();
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $ex->getMessage(), $ex->getCode(), $ex->getLine()]);
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
     }
 }

@@ -57,6 +57,8 @@ class EmpleadoResource extends JsonResource
             'banco_info' => $this->banco_info ? $this->banco_info->nombre : null,
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'fecha_ingreso' => $this->fecha_ingreso,
+            'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
+            'fecha_vinculacion' => $this->fecha_vinculacion,
             'fecha_salida' => $this->fecha_salida,
             'talla_zapato' => $this->talla_zapato,
             'talla_camisa' => $this->talla_camisa,
@@ -72,6 +74,7 @@ class EmpleadoResource extends JsonResource
             'observacion' => $this->observacion,
             'genero' => $this->genero,
             'esta_en_rol_pago'=> $this-> esta_en_rol_pago,
+            'acumula_fondos_reserva' => $this-> acumula_fondos_reserva,
             'realiza_factura'=> $this-> realiza_factura
         ];
 

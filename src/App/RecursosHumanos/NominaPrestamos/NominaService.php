@@ -97,23 +97,27 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(4) / 100;
     }
-    public function calcularSueldo($dias = 30, $es_quincena = false, $sueldo=0)
+    public static function calcularPorcentajeFondoReserva()
+    {
+        return NominaService::obtenerValorRubro(5) / 100;
+    }
+    public function calcularSueldo($dias = 30, $es_quincena = false, $sueldo = 0)
     {
 
         $salario_diario = $this->empleado->salario / 30;
         if ($es_quincena) {
-            $sueldo = $sueldo;
+            $sueldo = $sueldo !==0?$sueldo :$this->empleado->salario* NominaService::calcularPorcentajeAnticipo();
         } else {
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
         }
         return $sueldo;
     }
-    public function calcularAporteIESS()
+    public function calcularAporteIESS($dias = 30)
     {
-        $sueldo = $this->calcularSueldo(30);
+        $sueldo = $this->calcularSueldo($dias);
         $iess = ($sueldo) * NominaService::calcularPorcentajeIESS();
-        return $iess;
+        return floatval(number_format($iess, 2)) ;
     }
     public function calcularDecimo($tipo, $dias)
     {
@@ -137,18 +141,18 @@ class NominaService
             ->first();
         return $rol_usuario != null ? $rol_usuario->total : 0;
     }
-    public function calcularFondosReserva()
+    public function calcularFondosReserva($dias = 30)
     {
         $fondosDeReserva = 0;
         // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
-        $fechaIngreso = Carbon::parse($this->empleado->fecha_ingreso);
+        $fechaIngreso = Carbon::parse($this->empleado->fecha_vinculacion);
         // Obtén la fecha actual
         $hoy = Carbon::now();
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
-        if ($diasTrabajados >= 366) {
-            $fondosDeReserva = $this->empleado->salario * 0.0833; // 8.33% del sueldo
+        if ($diasTrabajados >= 366 && $this->empleado->acumula_fondos_reserva == 0) {
+            $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
         }
-        return $fondosDeReserva;
+        return floatval(number_format($fondosDeReserva, 2));
     }
 }

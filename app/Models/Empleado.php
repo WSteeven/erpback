@@ -48,6 +48,7 @@ class Empleado extends Model implements Auditable
         'num_cuenta_bancaria',
         'salario',
         'fecha_ingreso',
+        'fecha_vinculacion',
         'fecha_salida',
         'tipo_contrato_id',
         'tiene_discapacidad',
@@ -61,6 +62,7 @@ class Empleado extends Model implements Auditable
         'banco',
         'genero',
         'esta_en_rol_pago',
+        'acumula_fondos_reserva',
         'realiza_factura',
     ];
 
@@ -86,6 +88,7 @@ class Empleado extends Model implements Auditable
         'num_cuenta',
         'salario',
         'fecha_ingreso',
+        'fecha_vinculacion',
         'fecha_salida',
         'tipo_contrato',
         'tiene_discapacidad',
@@ -99,6 +102,7 @@ class Empleado extends Model implements Auditable
         'banco',
         'genero',
         'esta_en_rol_pago',
+        'acumula_fondos_reserva',
         'realiza_factura',
     ];
 
@@ -116,6 +120,8 @@ class Empleado extends Model implements Auditable
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
         'tiene_discapacidad' => 'boolean',
+        'acumula_fondos_reserva' => 'boolean',
+
     ];
 
     public function toSearchableArray()

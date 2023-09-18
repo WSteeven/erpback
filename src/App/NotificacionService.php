@@ -27,10 +27,27 @@ class NotificacionService
         if (!$campos[0] === '') {
             $results = Notificacion::ignoreRequest(['campos'])
                 ->where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
+                ->whereNot('mensaje', 'LIKE', '%telconet%')
                 ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         } else {
             $results = Notificacion::where('mensaje', 'LIKE', '%pedido recién autorizado en la sucursal%')
+                ->whereNot('mensaje', 'LIKE', '%telconet%')
+                ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
+                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        }
+
+        return $results;
+    }
+    public function obtenerNotificacionesRolBodegaTelconet($campos)
+    {
+        if (!$campos[0] === '') {
+            $results = Notificacion::ignoreRequest(['campos'])
+                ->where('mensaje', 'LIKE', '%telconet%')
+                ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
+                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
+        } else {
+            $results = Notificacion::where('mensaje', 'LIKE', '%telconet%')
                 ->orWhere('mensaje', 'LIKE', '%Hay una devolución recién autorizada en la ciudad%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
@@ -70,6 +87,9 @@ class NotificacionService
             case User::ROL_BODEGA:
                 $results = $this->obtenerNotificacionesRolBodega($campos);
                 break;
+                case User::ROL_BODEGA_TELCONET:
+                    $results = $this->obtenerNotificacionesRolBodegaTelconet($campos);
+                    break;
             case User::ROL_COMPRAS:
                 $results = $this->obtenerNotificacionesRolCompras($campos);
                 break;

@@ -30,6 +30,10 @@ class Proveedor extends Model implements Auditable
         "telefono",
         "calificacion",
         "estado_calificado",
+        "forma_pago",
+        "referencia",
+        "plazo_credito",
+        "anticipos",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -193,11 +197,11 @@ class Proveedor extends Model implements Auditable
      * Si son 2 departamentos la distribucion de pesos es la siguiente:
      *     Area especializada  = 60 %
      *     Area financiera(compras)     = 40 %
-     * 
+     *
      * @param data El parámetro `$data` es una matriz que contiene información sobre los departamentos
      * y sus respectivas calificaciones. Cada elemento de la matriz representa un departamento y tiene
      * la siguiente estructura: [departamento_id, calificacion]
-     * 
+     *
      * @return la suma calculada de pesos basada en los datos dados.
      */
     private static function calcularPesos($data)
@@ -205,7 +209,7 @@ class Proveedor extends Model implements Auditable
         $user_compras = User::with('empleado')->whereHas("roles", function ($q) {
             $q->where("name", User::ROL_COMPRAS);
         })->first();
-        // Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
+        Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
         $suma = 0;
         switch (count($data)) {
             case 0:

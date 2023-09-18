@@ -12,6 +12,7 @@ use App\Models\DetallePedidoProducto;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\Sucursal;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
@@ -44,12 +45,13 @@ class PedidoController extends Controller
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
             $results = Pedido::filtrarPedidosAdministrador($estado);
-        } else
-        if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
             $results = Pedido::filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = Pedido::filtrarPedidosActivosFijos($estado);
+        } else if(auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)){
+            $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
             $results = Pedido::filtrarPedidosEmpleado($estado);
@@ -66,8 +68,9 @@ class PedidoController extends Controller
      */
     public function store(PedidoRequest $request)
     {
+        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request recibida en pedido:', $request->all()]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -108,7 +111,11 @@ class PedidoController extends Controller
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                    return $item->id == $pedido->sucursal_id;
+                });
+                if($esPedidoTelconet)event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
                 event(new PedidoCreadoEvent($msg, $url,  $pedido, $pedido->solicitante_id, $pedido->per_autoriza_id, false));
@@ -136,8 +143,9 @@ class PedidoController extends Controller
      */
     public function update(PedidoRequest $request, Pedido $pedido)
     {
+        $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
         $url = '/pedidos';
-        Log::channel('testing')->info('Log', ['entro en el update del pedido',]);
+        // Log::channel('testing')->info('Log', ['entro en el update del pedido',$idsSucursalesTelconet]);
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -176,12 +184,16 @@ class PedidoController extends Controller
             }
 
 
-            Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
-            Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
+            // Log::channel('testing')->info('Log', ['antes de verificar si se aprobó', $pedido]);
+            // Log::channel('testing')->info('Log', ['Verificar las notificaciones', $pedido->latestNotificacion()]);
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                    return $item->id == $pedido->sucursal_id;
+                });
+                if($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -216,13 +228,13 @@ class PedidoController extends Controller
     /**
      * La función "corregirPedido" toma una solicitud y un pedido, actualiza la cantidad de productos
      * del pedido, guarda los cambios y devuelve el pedido modificado como respuesta JSON.
-     * 
+     *
      * @param Request request El parámetro  es una instancia de la clase Request, que
      * representa una solicitud HTTP. Contiene información sobre la solicitud, como el método de
      * solicitud, los encabezados y los datos de entrada.
      * @param Pedido pedido El parámetro "" es una instancia del modelo "Pedido". Representa un
      * pedido específico en el sistema.
-     * 
+     *
      * @return una respuesta JSON con el pedido modificado como objeto PedidoResource.
      */
     public function corregirPedido(Request $request, Pedido $pedido)
@@ -245,12 +257,12 @@ class PedidoController extends Controller
     /**
      * La función `eliminarDetallePedido` elimina un artículo específico de un pedido y devuelve un
      * mensaje de éxito.
-     * 
+     *
      * @param Request request El parámetro  es una instancia de la clase Request, que se
      * utiliza para recuperar los datos enviados en la solicitud HTTP. Contiene información como el
      * método de solicitud, los encabezados y cualquier dato enviado en el cuerpo de la solicitud. En
      * este caso, se utiliza para recuperar los valores del 'pedido
-     * 
+     *
      * @return una respuesta JSON que contiene el mensaje "El elemento ha sido eliminado con éxito" (El
      * elemento se ha eliminado con éxito).
      */
@@ -278,7 +290,7 @@ class PedidoController extends Controller
             $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
 
             // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-            Log::channel('testing')->info('Log', ['El pedido es', $resource]);
+            // Log::channel('testing')->info('Log', ['El pedido es', $resource]);
             // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
             return $file;
         } catch (Exception $ex) {

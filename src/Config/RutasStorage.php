@@ -24,6 +24,7 @@ enum RutasStorage: string
     case SEGUIMIENTO = 'public/seguimiento'; // fotografias
     case ARCHIVOS_SEGUIMIENTO = 'public/archivos_seguimiento';
     case JUSTIFICACION_PERMISO_EMPLEADO  = 'public/justificacion_permiso_empleado';
+	case DEVOLUCIONES = 'public/devoluciones/evidencias';
 	case PEDIDOS = 'public/pedidos/evidencias';
 	case CLIENTES = 'public/clientes/logos';
     case TICKETS = 'public/tickets';
@@ -34,5 +35,7 @@ enum RutasStorage: string
     case DOCUMENTOS_LICENCIA_EMPLEADO = 'public/documentos_licencia_empleado';
     case DOCUMENTOS_ROL_EMPLEADO = 'roles_de_pago';
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
+    case EMPRESAS = 'public/empresas/';
+    case PROVEEDORES = 'public/proveedores/empresas/';
 
 }

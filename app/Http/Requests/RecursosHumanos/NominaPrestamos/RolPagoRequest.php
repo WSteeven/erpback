@@ -4,7 +4,9 @@ namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 
@@ -43,17 +45,22 @@ class RolPagoRequest extends FormRequest
             'prestamo_quirorafario' => 'required',
             'prestamo_hipotecario' => 'required',
             'prestamo_empresarial' => 'required',
+            'medio_tiempo' => 'nullable',
             'egresos' => 'nullable',
             'iess' =>  'required',
             'extension_conyugal' => 'required',
+            'fondos_reserva' => 'nullable',
             'total_egreso' => 'required',
-            'total' => 'required'
+            'total' => 'required',
+
+
         ];
     }
     protected function prepareForValidation()
     {
-        $nominaService = new NominaService($this->mes);
-        $prestamoService = new PrestamoService($this->mes);
+        $mes = Carbon::createFromFormat('m-Y', $this->mes)->format('Y-m');
+        $nominaService = new NominaService($mes);
+        $prestamoService = new PrestamoService($mes);
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
@@ -61,7 +68,8 @@ class RolPagoRequest extends FormRequest
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
-        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva();
+        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
+        Log::channel('testing')->info('Log', ['fondos de reserva',$this->dias, $fondos_reserva]);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
         $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)
@@ -70,7 +78,7 @@ class RolPagoRequest extends FormRequest
             }, 0)
             : 0;
         $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $bonificacion + $bono_recurente + $totalIngresos;
-        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS();
+        $iess =  $rol->es_quincena ? 0 : $nominaService->calcularAporteIESS($dias);
         $anticipo = $rol->es_quincena ? 0 : $nominaService->calcularAnticipo();
         $prestamo_quirorafario =   $rol->es_quincena ? 0 : $prestamoService->prestamosQuirografarios();
         $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();

@@ -21,13 +21,17 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\TryCatch;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class DevolucionController extends Controller
 {
     private $entidad = 'Devolución';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.devoluciones')->only('index', 'show');
         $this->middleware('can:puede.crear.devoluciones')->only('store');
         $this->middleware('can:puede.editar.devoluciones')->only('update');
@@ -47,7 +51,7 @@ class DevolucionController extends Controller
 
         switch ($request->estado) {
             case 'PENDIENTE':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                     $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
@@ -58,7 +62,7 @@ class DevolucionController extends Controller
                 }
                 break;
             case 'APROBADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                     $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)
@@ -69,7 +73,7 @@ class DevolucionController extends Controller
                 }
                 break;
             case 'CANCELADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                     $results = Devolucion::where('autorizacion_id', 3)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('autorizacion_id', 3)
@@ -80,7 +84,7 @@ class DevolucionController extends Controller
                 }
                 break;
             case 'ANULADA':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE])) {
+                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
                     $results = Devolucion::where('estado', Devolucion::ANULADA)->orderBy('updated_at', 'desc')->get();
                 } else {
                     $results = Devolucion::where('estado', Devolucion::ANULADA)
@@ -249,5 +253,32 @@ class DevolucionController extends Controller
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
         }
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, Devolucion $devolucion){
+        try{
+            $results = $this->archivoService->listarArchivos($devolucion);
+        }catch(Exception $e){
+            $mensaje = $e->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Devolucion $devolucion){
+        try {
+            $modelo  = $this->archivoService->guardarArchivo($devolucion, $request->file, RutasStorage::DEVOLUCIONES->value.$devolucion->id);
+            $mensaje = 'Archivo subido correctamente';
+        }catch(Exception $ex){
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'), 200);
     }
 }

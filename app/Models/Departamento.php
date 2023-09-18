@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,5 +43,9 @@ class Departamento extends Model implements Auditable
             ->withPivot(['calificacion', 'fecha_calificacion'])
             ->withTimestamps();
     }
-
+    public function categorias_proveedores()
+    {
+        return $this->belongsToMany(CategoriaOfertaProveedor::class, 'cmp_detalle_categoria_departamento_proveedor', 'departamento_id', 'categoria_id')
+            ->withTimestamps();
+    }
 }

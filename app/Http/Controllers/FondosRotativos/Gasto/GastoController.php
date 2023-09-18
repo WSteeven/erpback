@@ -113,11 +113,20 @@ class GastoController extends Controller
                 $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
                 $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
                 $num_fact = str_replace(' ', '',  $datos['factura']);
-                if (strlen($num_fact) < $cantidad) {
-                    throw ValidationException::withMessages([
-                        '404' => ['número de digitos en factura son incompletos porfavor ingrese ' . $cantidad . ' digitos en factura'],
-                    ]);
+                if($request->detalle ==16){
+                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                        throw ValidationException::withMessages([
+                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                        ]);
+                    }
+                }else{
+                    if (strlen($num_fact) < $cantidad) {
+                        throw ValidationException::withMessages([
+                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                        ]);
+                    }
                 }
+
             }
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];

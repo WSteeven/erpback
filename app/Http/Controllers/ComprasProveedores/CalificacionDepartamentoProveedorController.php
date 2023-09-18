@@ -43,19 +43,28 @@ class CalificacionDepartamentoProveedorController extends Controller
 
             $modelos = [];
             $detalle = DetalleDepartamentoProveedor::where('departamento_id', auth()->user()->empleado->departamento_id)->where('proveedor_id', $request->proveedor_id)->first();
-            if ($request->criterios) {
-                foreach ($request->criterios as $criterio) {
-                    $calificacion = CalificacionDepartamentoProveedor::create([
-                        'detalle_departamento_id' => $detalle->id,
-                        'criterio_calificacion_id' => $criterio['id'],
-                        'comentario' => array_key_exists('comentario', $criterio) ? $criterio['comentario'] : null,
-                        'peso' => $criterio['peso'],
-                        'puntaje' => $criterio['puntaje'],
-                        'calificacion' => $criterio['calificacion']
-                    ]);
-                    array_push($modelos, $calificacion);
-                }
-            }
+            $datos = array_map(function ($detalle){
+                return [
+                    'criterio_calificacion_id' => $detalle['id'],
+                    'comentario' => array_key_exists('comentario', $detalle) ? $detalle['comentario'] : null,
+                    'peso' => $detalle['peso'],
+                    'puntaje' => $detalle['puntaje'],
+                    'calificacion' => $detalle['calificacion']
+                ];
+            }, $request->criterios);
+            $detalle->calificaciones_criterios()->sync($datos);
+            // if ($request->criterios) {
+            //     foreach ($request->criterios as $criterio) {
+            //         $calificacion = CalificacionDepartamentoProveedor::create([
+                //             'detalle_departamento_id' => $detalle->id,
+            //             'comentario' => array_key_exists('comentario', $criterio) ? $criterio['comentario'] : null,
+            //             'peso' => $criterio['peso'],
+            //             'puntaje' => $criterio['puntaje'],
+            //             'calificacion' => $criterio['calificacion']
+            //         ]);
+            //         array_push($modelos, $calificacion);
+            //     }
+            // }
 
             DB::commit();
             //despues del commit se guarda la calificacion en el departamento
@@ -80,13 +89,13 @@ class CalificacionDepartamentoProveedorController extends Controller
     public function indexFiles(Request $request, $detalle)
     {
         $results = [];
-        Log::channel('testing')->info('Log', ['Recibido del front en indexFiles', $request->all(), $detalle]);
+        // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles', $request->all(), $detalle]);
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
                 $results = $detalle_dept->archivos()->get();
             }
-            
+
             return response()->json(compact('results'));
         } catch (Exception $ex) {
             $mensaje = $ex->getMessage();
@@ -95,17 +104,17 @@ class CalificacionDepartamentoProveedorController extends Controller
         return response()->json(compact('results'));
     }
 
-    
+
     public function storeFiles(Request $request, $detalle)
     {
-        Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
+        // Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
         $modelo = [];
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
                 if ($request->allFiles()) {
                     foreach ($request->allFiles() as $archivo) {
-                        $archivo = $this->archivoService->guardar($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES);
+                        $archivo = $this->archivoService->guardarArchivo($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
                         array_push($modelo, $archivo);
                     }
                 }
