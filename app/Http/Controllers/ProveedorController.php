@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
+use App\Models\Archivo;
+use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use App\Models\User;
@@ -201,5 +203,22 @@ class ProveedorController extends Controller
 
         $modelo = new ProveedorResource($proveedor->refresh());
         return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Listar archivos enlazados a los detalle_departamento_proveedor de un proveedor dado
+     */
+    public function indexFilesDepartamentosCalificadores(Proveedor $proveedor)
+    {
+        $results = [];
+        try {
+            $idsDetallesDepartamentos = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor->id)->get('id');
+            $results = Archivo::whereIn('archivable_id', $idsDetallesDepartamentos)->get();
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $ex->getMessage(), $ex->getCode(), $ex->getLine()]);
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
     }
 }
