@@ -129,8 +129,8 @@ class RolPagoMesController extends Controller
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $colum_ingreso_value = $this->colum_values($results, 'ingresos');
-        $colum_egreso_value = $this->colum_values($results, 'egresos');
+        $colum_ingreso_value = $this->colum_values($results, 'ingresos','concepto_ingreso_info');
+        $colum_egreso_value = $this->colum_values($results, 'egresos','descuento');
         $columnas_egresos = array_unique($column_names_egresos['egresos']);
         $maxColumEgresosValue = count($columnas_egresos);
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
@@ -180,8 +180,9 @@ class RolPagoMesController extends Controller
             $sumColumns['total_egreso'] += $item['total_egreso'];
             $sumColumns['total'] += $item['total'];
         }
-        //$this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')
-        Log::channel('testing')->info('Log', ['suma: ', $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos')]);
+    /*    $clave = array_search('Subsidio al IESS', $columnas_egresos);
+        Log::channel('testing')->info('Log', ['index columna: ', $clave]);*/
+
         // El resultado deseado se encuentra ahora en el array $sumColumns
         return [
             'roles_pago' => $results,
@@ -198,16 +199,14 @@ class RolPagoMesController extends Controller
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
     }
-    private function colum_values($data, $key1)
+    private function colum_values($data, $key1, $key2)
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
-                //$item['descuento_type'] !== null? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1]:'Ingreso'
-                $type_colum =  $item['descuento_type'] !== null ? explode('App\\Models\\RecursosHumanos\\NominaPrestamos\\', $item['descuento_type'])[1] : 'Ingreso';
-                $descuentoId = $item['descuento_id'] . '.' . $type_colum;
+                $descuentoId =  $item[$key2]->nombre;
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }

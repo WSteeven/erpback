@@ -306,37 +306,36 @@
                                                         @endif
                                                         @if ($cantidad_columna_egresos > 0)
                                                             @if ($rol_pago['egresos_cantidad_columna'] > 0)
-                                                            @foreach ($colum_egreso_value as $clave => $value)
-                                                            @foreach ($value as $subvalue)
-                                                                @if ($subvalue['id'] == $rol_pago['id'])
-                                                                    @php
-                                                                        array_push($carry_egreso, $clave);
-                                                                    @endphp
+                                                                @foreach ($colum_egreso_value as $clave => $value)
+                                                                    @foreach ($value as $subvalue)
+                                                                        @if ($subvalue['id'] == $rol_pago['id'])
+                                                                            @php
+                                                                                array_push($carry_egreso, $clave);
+                                                                                $size_array = count($columnas_egresos) - 1;
+                                                                                $index = array_search($carry_egreso[$index_egreso], $columnas_egresos);
+                                                                            @endphp
+                                                                            @if ($index > $size_array)
+                                                                                @for ($i = 0; $i < $index - 1; $i++)
+                                                                                    <td>0</td>
+                                                                                @endfor
+                                                                            @else
+                                                                                @for ($i = 0; $i < $index; $i++)
+                                                                                    <td>0</td>
+                                                                                @endfor
+                                                                            @endif
 
-                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
-                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar un td al inicio con 0 --}}
-                                                                    @endif
+                                                                            <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}
+                                                                            </td>
 
-                                                                    <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}</td>
-
-                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
-                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar un td al final con 0 --}}
-                                                                    @elseif ($carry_egreso[$index_egreso] == '6.DescuentosGenerales') {{-- Cuando sea 6.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
-                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
-                                                                    @elseif ($carry_egreso[$index_egreso] == '2.Multas') {{-- Cuando sea 2.Multa --}}
-                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
-                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
-                                                                    @endif
-
-                                                                    @php
-                                                                        $index_egreso++;
-                                                                    @endphp
-                                                                @endif
-                                                            @endforeach
-                                                        @endforeach
+                                                                            @for ($i = 0; $i < $size_array - $index; $i++)
+                                                                                <td>0</td>
+                                                                            @endfor
+                                                                            @php
+                                                                                $index_egreso++;
+                                                                            @endphp
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
                                                             @else
                                                                 @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
                                                                     <td>0</td>
