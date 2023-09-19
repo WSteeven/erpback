@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\ArchivoService;
+use Src\App\ComprasProveedores\ProveedorService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -23,9 +24,11 @@ class ProveedorController extends Controller
 {
     private $entidad = 'Proveedor';
     private $archivoService;
+    private $proveedorService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->proveedorService = new ProveedorService();
         $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.proveedores')->only('store');
         $this->middleware('can:puede.editar.proveedores')->only('update');
@@ -108,6 +111,15 @@ class ProveedorController extends Controller
      * Consultar
      */
     public function show(Proveedor $proveedor)
+    {
+        $modelo = new ProveedorResource($proveedor);
+        return response()->json(compact('modelo'));
+    }
+    
+    /**
+     * Consultar sin el show en los resources
+     */
+    public function showPreview(Proveedor $proveedor)
     {
         $modelo = new ProveedorResource($proveedor);
         return response()->json(compact('modelo'));
@@ -204,6 +216,32 @@ class ProveedorController extends Controller
         $modelo = new ProveedorResource($proveedor->refresh());
         return response()->json(compact('modelo'));
     }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
+        $results = [];
+        $request['empresa.razon_social'] = $request->razon_social;
+        $results = $this->proveedorService->filtrarProveedores($request);
+        switch ($request->accion) {
+            case 'excel':
+
+                break;
+            case 'pdf':
+
+                break;
+            default:
+                Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+        }
+        $results = ProveedorResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+
+
 
     /**
      * Listar archivos enlazados a los detalle_departamento_proveedor de un proveedor dado

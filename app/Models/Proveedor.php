@@ -47,7 +47,11 @@ class Proveedor extends Model implements Auditable
     const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
 
 
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = [
+        'empresa.razon_social',
+        'empresa.nombre_comercial',
+        '*',
+    ];
 
     /**
      * ______________________________________________________________________________________
@@ -59,6 +63,9 @@ class Proveedor extends Model implements Auditable
         return $this->belongsTo(Empresa::class);
     }
 
+    // public function canton(){
+    //     return $this->belongsTo(Canton::class)
+    // }
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);

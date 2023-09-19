@@ -269,10 +269,25 @@ Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'a
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
-//reportes
+/******************************************************
+ * REPORTES DE BODEGA
+ ******************************************************/
+//Reportes de pedidos
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+//Reportes de ingresos y egresos
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
+//Reportes inventario
+Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
+Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
+Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']);
+
+/******************************************************
+ * REPORTES DE COMPRAS Y PROVEEDORES
+ ******************************************************/
+Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
+
+
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
 
@@ -288,16 +303,13 @@ Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetalleP
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
+Route::get('proveedores/show-preview/{proveedor}', [ProveedorController::class, 'showPreview']);
 
 Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
 
-//Reportes inventario
-Route::get('reporte-inventario/pdf/{id}', [InventarioController::class, 'reporteInventarioPdf']);
-Route::get('reporte-inventario/excel/{id}', [InventarioController::class, 'reporteInventarioExcel']);
-Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']);
 
 
 Route::get('all-items', [InventarioController::class, 'vista']);
