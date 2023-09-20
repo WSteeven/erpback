@@ -99,7 +99,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:12px">
-                            <div align="center"><strong>ROL DE PAGOS {{ $periodo }}
+                            <div align="center"><strong>{{ $nombre }}
                                 </strong>
                             </div>
                         </td>
