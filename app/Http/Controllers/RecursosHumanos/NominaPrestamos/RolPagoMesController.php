@@ -100,15 +100,14 @@ class RolPagoMesController extends Controller
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'rol_pagos';
             // Fetch data with relationships
-            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago', 'empleado_info' => function ($query) {
-                $query->orderBy('apellidos', 'asc');
-            }])
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-            $reportes = $this->generate_report_data($roles_pagos);
-            $vista = 'recursos-humanos.rol_pago_mes';
-            $export_excel = new RolPagoMesExport($reportes);
-
+                $rol_pago=  RolPagoMes::where('id', $rolPagoId)->first();
+                $es_quincena =$rol_pago->es_quincena;
+            $reportes = $this->generate_report_data($roles_pagos,$rol_pago->nombre);
+            $vista = $es_quincena?'recursos-humanos.rol_pago_quincena':'recursos-humanos.rol_pago_mes';
+            $export_excel = new RolPagoMesExport($reportes, $es_quincena );
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -118,7 +117,7 @@ class RolPagoMesController extends Controller
         }
     }
 
-    private function generate_report_data($roles_pagos)
+    private function generate_report_data($roles_pagos,$nombre)
     {
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
@@ -180,9 +179,6 @@ class RolPagoMesController extends Controller
             $sumColumns['total_egreso'] += $item['total_egreso'];
             $sumColumns['total'] += $item['total'];
         }
-    /*    $clave = array_search('Subsidio al IESS', $columnas_egresos);
-        Log::channel('testing')->info('Log', ['index columna: ', $clave]);*/
-
         // El resultado deseado se encuentra ahora en el array $sumColumns
         return [
             'roles_pago' => $results,
@@ -194,6 +190,7 @@ class RolPagoMesController extends Controller
             'columnas_ingresos' => $columnas_ingresos,
             'columnas_egresos' =>  $columnas_egresos,
             'sumatoria' => $sumColumns,
+            'nombre'=>$nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
@@ -231,8 +228,10 @@ class RolPagoMesController extends Controller
     private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
     {
         $totalMontoIngresos = array_map(
-
             function ($item) use ($maximo, $key_cantidad, $key1) {
+                Log::channel('testing')->info('Log', ['key_cantidad', $key_cantidad]);
+                Log::channel('testing')->info('Log', ['key1', $key1]);
+                Log::channel('testing')->info('Log', ['totales', $item]);
                 $monto = array();
                 if ($item[$key_cantidad] > 0) {
                     foreach ($item[$key1] as $subitem) {
