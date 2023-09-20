@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
@@ -82,7 +83,7 @@ class Proveedor extends Model implements Auditable
     }
     public function categorias_ofertadas()
     {
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
+        return $this->belongsToMany(CategoriaOfertaProveedor::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
             ->withTimestamps();
     }
     public function departamentos_califican()

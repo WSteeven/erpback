@@ -46,6 +46,11 @@ class CategoriaOfertaProveedor extends Model implements Auditable
         return $this->belongsTo(OfertaProveedor::class, 'tipo_oferta_id', 'id');
     }
 
+    public function categorias_proveedores(){
+        return $this->belongsToMany(Proveedor::class, 'detalle_categoria_proveedor','categoria_id','proveedor_id')
+        ->withTimestamps();
+    }
+
     /**
      * Relación muchos a muchos.
      */
