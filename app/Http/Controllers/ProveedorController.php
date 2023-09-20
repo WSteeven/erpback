@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
+use App\Exports\ComprasPRoveedores\ProveedorExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
@@ -10,13 +11,16 @@ use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Hamcrest\Type\IsInteger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\ProveedorService;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -25,10 +29,12 @@ class ProveedorController extends Controller
     private $entidad = 'Proveedor';
     private $archivoService;
     private $proveedorService;
+    private $reporteService;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
         $this->proveedorService = new ProveedorService();
+        $this->reporteService = new ReportePdfExcelService();
         $this->middleware('can:puede.ver.proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.proveedores')->only('store');
         $this->middleware('can:puede.editar.proveedores')->only('update');
@@ -73,13 +79,27 @@ class ProveedorController extends Controller
             }
 
             //guardando la logistica del proveedor
-            $proveedor->empresa->logistica()->create([
-                'tiempo_entrega' => $request->tiempo_entrega,
-                'envios' => $request->envios,
-                'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
-                'transporte_incluido' => $request->transporte_incluido,
-                'garantia' => $request->garantia,
-            ]);
+            if ($proveedor->empresa->logistica()->first()) {
+                Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
+                $proveedor->empresa->logistica()->update([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'garantia' => $request->garantia,
+                ]);
+            } else {
+                // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
+                Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
+                $proveedor->empresa->logistica()->create([
+                    'tiempo_entrega' => $request->tiempo_entrega,
+                    'envios' => $request->envios,
+                    'tipo_envio' =>  Utils::convertArrayToString($request->tipo_envio, ','),
+                    'transporte_incluido' => $request->transporte_incluido,
+                    'garantia' => $request->garantia,
+                ]);
+            }
+
             //Verificando si hay archivos en la request
             if ($request->allFiles()) {
                 foreach ($request->files() as $archivo) {
@@ -115,7 +135,7 @@ class ProveedorController extends Controller
         $modelo = new ProveedorResource($proveedor);
         return response()->json(compact('modelo'));
     }
-    
+
     /**
      * Consultar sin el show en los resources
      */
@@ -157,7 +177,7 @@ class ProveedorController extends Controller
                 $proveedor->empresa->logistica()->update([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
-                    'tipo_envio' => $request->tipo_envio,
+                    'tipo_envio' => Utils::convertArrayToString($request->tipo_envio, ','),
                     'transporte_incluido' => $request->transporte_incluido,
                     'garantia' => $request->garantia,
                 ]);
@@ -224,17 +244,39 @@ class ProveedorController extends Controller
     {
         Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
         $results = [];
-        $request['empresa.razon_social'] = $request->razon_social;
-        $results = $this->proveedorService->filtrarProveedores($request);
-        switch ($request->accion) {
-            case 'excel':
-
-                break;
-            case 'pdf':
-
-                break;
-            default:
-                Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+        try {
+            $vista = 'compras_proveedores.proveedores.proveedores';
+            $request['empresa.razon_social'] = $request->razon_social;
+            $results = $this->proveedorService->filtrarProveedores($request);
+            $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
+            switch ($request->accion) {
+                case 'excel':
+                    $export_excel = new ProveedorExport($registros);
+                    return $this->reporteService->imprimir_reporte('excel', 'A4', 'landscape', $registros, 'reporte_proveedores', $vista, $export_excel);
+                    break;
+                case 'pdf':
+                    try {
+                        $reportes = $registros;
+                        $peticion = $request->all();
+                        Log::channel('testing')->info('Log', ['Lo que se va a imprimir', $reportes, $peticion]);
+                        $pdf = Pdf::loadView($vista, compact(['reportes', 'peticion']));
+                        $pdf->setPaper('A4', 'landscape');
+                        $pdf->render();
+                        // return $pdf->output();
+                        return $pdf->stream();
+                        // return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', $reportes, 'reporte_proveedores', $vista);
+                    } catch (Exception $ex) {
+                        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    }
+                    break;
+                default:
+                    Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getMessage()],
+            ]);
         }
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
