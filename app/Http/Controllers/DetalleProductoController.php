@@ -44,7 +44,10 @@ class DetalleProductoController extends Controller
                 case 'only_sucursal':
                     //aqui se lista solo los detalles que estan en la bodega seleccionada
                     $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
-                    $results = DetalleProducto::whereIn('id', $ids_detalles)->orderBy('descripcion', 'asc')->get();
+                    $results = DetalleProducto::whereIn('id', $ids_detalles)
+                        ->when($request->search, function ($query) use ($request) {
+                            $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
+                        })->orderBy('descripcion', 'asc')->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;

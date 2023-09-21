@@ -1,19 +1,30 @@
-<html>
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Rol de Pagos</title>
+    <title>Rol de pagos</title>
     <style>
         @page {
             margin: 2px 15px 5px 15px;
         }
 
         body {
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
             background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
             background-repeat: no-repeat;
             background-position: center;
+        }
+
+        .contenido {
+            position: relative;
+            top: 80px;
+            left: 0cm;
+            right: 0cm;
+            margin-bottom: 4.3cm;
+            font-size: 12px;
         }
 
         /** Definir las reglas del encabezado **/
@@ -47,15 +58,6 @@
             content: counter(page);
         }
 
-        main {
-            position: relative;
-            top: 80px;
-            left: 0cm;
-            right: 0cm;
-            margin-bottom: 4.3cm;
-            font-size: 12px;
-        }
-
         div {
             color: #000000 !important;
         }
@@ -66,7 +68,7 @@
         }
 
         table.datos {
-            font-size:4pt;
+            font-size: 3pt;
             width: 100%;
             border-collapse: collapse;
         }
@@ -76,20 +78,25 @@
             border: 1px solid black;
             padding: 8px;
         }
-        .encabezado-datos{
+
+        .encabezado-datos {
             text-align: center !important;
             background-color: #DBDBDB;
         }
-        .encabezado-ingresos{
+
+        .encabezado-ingresos {
             background-color: #FFF2CC;
+
         }
-        .encabezado-egresos{
+
+        .encabezado-egresos {
             background-color: #BDD7EE;
         }
 
         .row {
             width: 100%;
         }
+
         .firma {
             table-layout: fixed;
             width: 100%;
@@ -97,51 +104,51 @@
             font-size: 7pt;
             padding-top: 7%;
         }
-
     </style>
 </head>
 @php
+    $fecha = new Datetime();
     $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        $numcol_egreso = $cantidad_columna_egresos + 6;
-        $tiene_supa = $sumatoria['supa'] > 0;
-        $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-        $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-        $carry_ingreso = [];
-        $index_ingreso = 0;
-        $carry_egreso = [];
-        $index_egreso = 0;
-        if ($tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        }
-        if ($tiene_bonificacion) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        }
-        if ($tiene_bonificacion && $tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        }
+    $numcol_egreso = $cantidad_columna_egresos + 6;
+    $tiene_supa = $sumatoria['supa'] > 0;
+    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+    $carry_ingreso = [];
+    $index_ingreso = 0;
+    $carry_egreso = [];
+    $index_egreso = 0;
+    if ($tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion && $tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+    }
 
-        if ($tiene_supa) {
-            $numcol_egreso = $cantidad_columna_egresos + 7;
-        }
-        $sumColumns = [
-            'salario' => 0,
-            'sueldo' => 0,
-            'decimo_tercero' => 0,
-            'decimo_cuarto' => 0,
-            'fondos_reserva' => 0,
-            'iess' => 0,
-            'anticipo' => 0,
-            'bonificacion' => 0,
-            'bono_recurente' => 0,
-            'total_ingreso' => 0,
-            'prestamo_quirorafario' => 0,
-            'prestamo_hipotecario' => 0,
-            'extension_conyugal' => 0,
-            'prestamo_empresarial' => 0,
-            'supa' => 0,
-            'total_egreso' => 0,
-            'total' => 0,
-        ];
+    if ($tiene_supa) {
+        $numcol_egreso = $cantidad_columna_egresos + 7;
+    }
+    $sumColumns = [
+        'salario' => 0,
+        'sueldo' => 0,
+        'decimo_tercero' => 0,
+        'decimo_cuarto' => 0,
+        'fondos_reserva' => 0,
+        'iess' => 0,
+        'anticipo' => 0,
+        'bonificacion' => 0,
+        'bono_recurente' => 0,
+        'total_ingreso' => 0,
+        'prestamo_quirorafario' => 0,
+        'prestamo_hipotecario' => 0,
+        'extension_conyugal' => 0,
+        'prestamo_empresarial' => 0,
+        'supa' => 0,
+        'total_egreso' => 0,
+        'total' => 0,
+    ];
 @endphp
 
 <body>
@@ -179,280 +186,259 @@
             </tr>
         </table>
     </footer>
-    <main>
-        @if (isset($periodo))
-            <p
-                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
-            <div align="center"><strong>{{ $periodo }}
-                </strong></div>
-            </p>
-            <br>
-        @endif
-        <table width="100%">
-
-            <tr>
-                <td height="55px;">
-                    <table width="100%" border="1" align="left" cellpadding="0"
-                        cellspacing="0" class="datos">
-                        <colgroup span="{{ $numcol_ingreso }}"></colgroup>
-                        <colgroup span="{{ $numcol_egreso }}"></colgroup>
-                        <tr class="encabezado-datos" style="text-align: center ">
-                            <td rowspan="2"
-                                style="text-align: center !important;
-                        background-color: #DBDBDB;">
-                                ITEM</td>
-                            <td
-                                rowspan="2"style="text-align: center !important;
-                        background-color: #DBDBDB;">
-                                EMPLEADO</td>
-                            <td
-                                rowspan="2"style="  text-align: center !important;
-                        background-color: #DBDBDB;">
-                                CEDULA</td>
-                            <td
-                                rowspan="2"style="  text-align: center !important;
-                        background-color: #DBDBDB;">
-                                CARGO</td>
-                            <td
-                                rowspan="2"style="  text-align: center !important;
-                        background-color: #DBDBDB;">
-                                CIUDAD</td>
-                            <td
-                                rowspan="2"style="  text-align: center !important;
-                        background-color: #DBDBDB;">
-                                SUELDO</td>
-                            <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
-                            </td>
-                            <th colspan="{{ $numcol_ingreso }}" scope="colgroup"
-                                class="encabezado-ingresos"
-                                style="text-align: center !important;
-                        background-color: #FFF2CC;">
-                                INGRESOS</th>
-                            <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
-                            </td>
-                            <th colspan="{{ $numcol_egreso }}" scope="colgroup"
-                                class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                EGRESOS</th>
-                            <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
-                            </td>
-                            <td rowspan="2" style="background-color:#A9D08E">NETO A RECIBIR
-                            </td>
-
-                        </tr>
-                        <tr class="encabezado-datos">
-                            <td
-                                scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                        background-color: #FFF2CC;">
-                                SUELDO GANADO</td>
-                            <th
-                                scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                        background-color: #FFF2CC;">
-                                DECIMO XII</th>
-                            <th
-                                scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                        background-color: #FFF2CC;">
-                                DECIMO XIV</th>
-                            <th
-                                scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                        background-color:#FFF2CC;">
-                                FONDOS DE RESERVA</th>
-                            @if ($tiene_bonificacion)
-                                <th scope="col"
-                                    class="encabezado-ingresos"style="text-align: center !important;
-                        background-color: #FFF2CC;">
-                                    BONIFICACION</th>
-                            @endif
-                            @if ($tiene_bono_recurente)
-                                <th scope="col"
-                                    class="encabezado-ingresos"style="text-align: center !important;
-                        background-color:#FFF2CC;">
-                                    BONO RECURENTE</th>
-                            @endif
-                            @foreach ($columnas_ingresos as $ingreso)
-                                <th
-                                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                        background-color:#FFF2CC;">
-                                    {{ strtoupper($ingreso) }}</th>
-                            @endforeach
-                            <th
-                                scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                       background-color: #BDD7EE;">
-                                IESS (9.45%)</th>
-                            <th scope="col"class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                PRESTAMO QUIROGRAFARIO</th>
-
-                            <th scope="col"class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                PRESTAMO HIPOTECARIO</th>
-                            <th scope="col"class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                PRESTAMO</th>
-                            <th scope="col"class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                EXT CONYUGAL</th>
-                            <th scope="col"class="encabezado-egresos"
-                                style="text-align: center !important;
-                        background-color: #BDD7EE;">
-                                ANTICIPO</th>
-
-                            @if ($tiene_supa)
-                                <th scope="col"class="encabezado-egresos"
-                                    style="text-align: center !important;
-                            background-color: #BDD7EE;">
-                                    SUPA</th>
-                            @endif
-                            @foreach ($columnas_egresos as $egreso)
-                                <th scope="col"class="encabezado-egresos"
-                                    style="text-align: center !important;
-                            background-color: #BDD7EE;">
-                                    {{ strtoupper($egreso) }}</th>
-                            @endforeach
-                        </tr>
-                        @foreach ($roles_pago as $rol_pago)
-                            @php
-                                $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
-                            @endphp
-                            <tr>
-                                <td>{{ $rol_pago['item'] }}</td>
-                                <td>{{ $rol_pago['empleado_info'] }}</td>
-                                <td>{{ $rol_pago['cedula'] }}</td>
-                                <td>{{ $rol_pago['cargo'] }}</td>
-                                <td>{{ $rol_pago['ciudad'] }}</td>
-                                <td>{{ $rol_pago['salario'] }}</td>
-                                <td>{{ $rol_pago['dias_laborados'] }}</td>
-                                <td>{{ $rol_pago['sueldo'] }}</td>
-                                <td>{{ $rol_pago['decimo_tercero'] }}</td>
-                                <td>{{ $rol_pago['decimo_cuarto'] }}</td>
-                                <td> {{ $rol_pago['fondos_reserva'] }}</td>
-                                @if ($tiene_bonificacion)
-                                    <td>{{ $rol_pago['bonificacion'] }}</td>
-                                @endif
-                                @if ($tiene_bono_recurente)
-                                    <td>{{ $rol_pago['bono_recurente'] }}</td>
-                                @endif
-                                @if ($cantidad_columna_ingresos > 0)
-                                    @if ($rol_pago['ingresos_cantidad_columna'] > 0)
-                                        @foreach ($colum_ingreso_value as $ingreso)
-                                            @foreach ($ingreso as $ingreso_value)
-                                                @if ($ingreso_value['id'] === $rol_pago['id'])
-                                                    <td>{{ $ingreso_value['valor'] }}</td>
-                                                @endif
-                                            @endforeach
-                                        @endforeach
-                                    @else
-                                    @for($i = 0; $i <= $cantidad_columna_ingresos; $i++)
-                                    <td>0</td>
-                                    @endfor
-                                    @endif
-                                @endif
-                                <td>{{ $rol_pago['total_ingreso'] }}</td>
-                                <td> {{ $rol_pago['iess'] }}</td>
-                                <td>{{ $rol_pago['prestamo_quirorafario'] }}</td>
-                                <td>{{ $rol_pago['prestamo_hipotecario'] }}</td>
-                                <td>{{ $rol_pago['prestamo_empresarial'] }}</td>
-                                <td>{{ $rol_pago['extension_conyugal'] }}</td>
-                                <td>{{ $rol_pago['anticipo'] }}</td>
-
-                                @if ($tiene_supa)
-                                    <td>{{ $rol_pago['supa'] }}</td>
-                                @endif
-                                @if ($cantidad_columna_egresos > 0)
-                                    @if ($rol_pago['egresos_cantidad_columna'] > 0)
-                                        @foreach ($colum_egreso_value as $clave => $value)
-                                            @foreach ($value as $subvalue)
-                                                @if ($subvalue['id'] == $rol_pago['id'])
-                                                    @php
-                                                        array_push($carry_egreso, $clave);
-                                                    @endphp
-
-                                                    @if ($index_egreso - 1 !== -1)
-                                                        @if ($carry_egreso[$index_egreso] !== $carry_egreso[$index_egreso - 1])
-                                                            <td>0</td>
-                                                        @endif
-                                                    @endif
-
-                                                    <td>{{ $subvalue['valor'] }}</td>
-
-
-                                                    @if ($index_egreso - 1 !== -1)
-                                                        @if ($carry_egreso[$index_egreso] == $carry_egreso[$index_egreso - 1])
-                                                            <td>0</td>
-                                                        @endif
-                                                    @else
-                                                        <td>0</td>
-                                                    @endif
-
-                                                    @php
-                                                        $index_egreso++;
-                                                    @endphp
-                                                @endif
-                                            @endforeach
-                                        @endforeach
-                                    @else
-                                    @for($i = 0; $i <= $cantidad_columna_egresos; $i++)
-                                        <td>0</td>
-                                    @endfor
-                                    @endif
-                                @endif
-                                <td>{{ $rol_pago['total_egreso'] }}</td>
-                                <td>{{ $rol_pago['total'] }}</td>
-                            </tr>
-                        @endforeach
-                        <tr style="background-color: #FFE699">
-                            <td colspan="5" style="text-align: center">
-                                <strong>TOTALES&nbsp;</strong>
-                            </td>
-                            <td> {{  number_format($sumatoria['salario'], 2, ',', '.')  }}</td>
-                            <td>&nbsp;</td>
-                            <td> {{  number_format($sumatoria['sueldo'], 2, ',', '.')  }}</td>
-                            <td>{{  number_format($sumatoria['decimo_tercero'], 2, ',', '.')  }}
-                            </td>
-                            <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.')  }}
-                            </td>
-                            <td>{{number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
-                            </td>
-                            @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                                <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
-                            @endforeach
-                            <td>{{number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
-                            </td>
-                            <td>{{number_format($sumatoria['iess'], 2, ',', '.') }}</td>
-                            <td>{{number_format($sumColumns['prestamo_quirorafario'], 2, ',', '.') }}
-                            </td>
-                            <td>{{number_format($sumatoria['prestamo_hipotecario'], 2, ',', '.') }}
-                            </td>
-                            <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
-                            </td>
-                            @if ($tiene_supa)
-                                <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
-                            @endif
-                            <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
-                            </td>
-                            <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
-                            @foreach ($sumatoria_egresos as $sumatoria_egreso)
-                                <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
-                            @endforeach
-                            <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
-                            </td>
-                            <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
-                        </tr>
-                    </table>
-
+    <div class="contenido">
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
+        <div align="center"><strong>{{ $nombre }}
+            </strong></div>
+        </p>
+        <br>
+        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="datos">
+            <colgroup span="{{ $numcol_ingreso }}"></colgroup>
+            <colgroup span="{{ $numcol_egreso }}"></colgroup>
+            <tr class="encabezado-datos" style="text-align: center ">
+                <td rowspan="2"
+                    style="text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    ITEM</td>
+                <td
+                    rowspan="2"style="text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    EMPLEADO</td>
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    CEDULA</td>
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    CARGO</td>
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    CIUDAD</td>
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    SUELDO</td>
+                <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
                 </td>
+                <th colspan="{{ $numcol_ingreso }}" scope="colgroup" class="encabezado-ingresos"
+                    style="text-align: center !important;
+                                                background-color: #FFF2CC;">
+                    INGRESOS</th>
+                <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
+                </td>
+                <th colspan="{{ $numcol_egreso }}" scope="colgroup" class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    EGRESOS</th>
+                <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
+                </td>
+                <td rowspan="2" style="background-color:#A9D08E">NETO A RECIBIR
+                </td>
+
+            </tr>
+            <tr class="encabezado-datos">
+                <td
+                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color: #FFF2CC;">
+                    SUELDO GANADO</td>
+                <th
+                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color: #FFF2CC;">
+                    DECIMO XII</th>
+                <th
+                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color: #FFF2CC;">
+                    DECIMO XIV</th>
+                <th
+                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color:#FFF2CC;">
+                    FONDOS DE RESERVA</th>
+                @if ($tiene_bonificacion)
+                    <th scope="col"
+                        class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color: #FFF2CC;">
+                        BONIFICACION</th>
+                @endif
+                @if ($tiene_bono_recurente)
+                    <th scope="col"
+                        class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color:#FFF2CC;">
+                        BONO RECURENTE</th>
+                @endif
+                @foreach ($columnas_ingresos as $ingreso)
+                    <th
+                        scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                                background-color:#FFF2CC;">
+                        {{ strtoupper($ingreso) }}</th>
+                @endforeach
+                <th
+                    scope="col"class="encabezado-ingresos"style="text-align: center !important;
+                                               background-color: #BDD7EE;">
+                    IESS (9.45%)</th>
+                <th scope="col"class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    PRESTAMO QUIROGRAFARIO</th>
+
+                <th scope="col"class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    PRESTAMO HIPOTECARIO</th>
+                <th scope="col"class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    PRESTAMO</th>
+                <th scope="col"class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    EXT CONYUGAL</th>
+                <th scope="col"class="encabezado-egresos"
+                    style="text-align: center !important;
+                                                background-color: #BDD7EE;">
+                    ANTICIPO</th>
+
+                @if ($tiene_supa)
+                    <th scope="col"class="encabezado-egresos"
+                        style="text-align: center !important;
+                                                    background-color: #BDD7EE;">
+                        SUPA</th>
+                @endif
+                @foreach ($columnas_egresos as $egreso)
+                    <th scope="col"class="encabezado-egresos"
+                        style="text-align: center !important;
+                                                    background-color: #BDD7EE;">
+                        {{ strtoupper($egreso) }}</th>
+                @endforeach
+            </tr>
+            @foreach ($roles_pago as $rol_pago)
+                @php
+                    $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
+                @endphp
+                <tr>
+                    <td>{{ $rol_pago['item'] }}</td>
+                    <td>{{ $rol_pago['empleado_info'] }}</td>
+                    <td>{{ $rol_pago['cedula'] }}</td>
+                    <td>{{ $rol_pago['cargo'] }}</td>
+                    <td>{{ $rol_pago['ciudad'] }}</td>
+                    <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
+                    <td>{{ $rol_pago['dias_laborados'] }}</td>
+                    <td>{{ number_format($rol_pago['sueldo'], 2, ',', '.') }}</td>
+                    <td>{{ number_format($rol_pago['decimo_tercero'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($rol_pago['decimo_cuarto'], 2, ',', '.') }}
+                    </td>
+                    <td> {{ number_format($rol_pago['fondos_reserva'], 2, ',', '.') }}
+                    </td>
+                    @if ($tiene_bonificacion)
+                        <td>{{ number_format($rol_pago['bonificacion'], 2, ',', '.') }}
+                        </td>
+                    @endif
+                    @if ($tiene_bono_recurente)
+                        <td>{{ number_format($rol_pago['bono_recurente'], 2, ',', '.') }}
+                        </td>
+                    @endif
+                    @if ($cantidad_columna_ingresos > 0)
+                        @if ($rol_pago['ingresos_cantidad_columna'] > 0)
+                            @foreach ($colum_ingreso_value as $ingreso)
+                                @foreach ($ingreso as $ingreso_value)
+                                    @if ($ingreso_value['id'] === $rol_pago['id'])
+                                        <td>{{ number_format($ingreso_value['valor'], 2, ',', '.') }}
+                                        </td>
+                                    @endif
+                                @endforeach
+                            @endforeach
+                        @else
+                            @for ($i = 0; $i <= $cantidad_columna_ingresos - 1; $i++)
+                                <td>0</td>
+                            @endfor
+                        @endif
+                    @endif
+                    <td>{{ number_format($rol_pago['total_ingreso'], 2, ',', '.') }}
+                    </td>
+                    <td> {{ number_format($rol_pago['iess'], 2, ',', '.') }}</td>
+                    <td>{{ number_format($rol_pago['prestamo_quirorafario'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($rol_pago['prestamo_hipotecario'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($rol_pago['prestamo_empresarial'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($rol_pago['extension_conyugal'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ number_format($rol_pago['anticipo'], 2, ',', '.') }}
+                    </td>
+
+                    @if ($tiene_supa)
+                        <td>{{ number_format($rol_pago['supa'], 2, ',', '.') }}
+                        </td>
+                    @endif
+                    @if ($cantidad_columna_egresos > 0)
+                        @if ($rol_pago['egresos_cantidad_columna'] > 0)
+                            @foreach ($colum_egreso_value as $clave => $value)
+                                @foreach ($value as $subvalue)
+                                    @if ($subvalue['id'] == $rol_pago['id'])
+                                        <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}
+                                        </td>
+                                    @endif
+                                @endforeach
+                            @endforeach
+                        @else
+                            @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
+                                <td>0</td>
+                            @endfor
+                        @endif
+                    @endif
+                    <td>{{ number_format($rol_pago['total_egreso'], 2, ',', '.') }}
+                    </td>
+                    <td>{{ $rol_pago['total'] }}</td>
+                </tr>
+            @endforeach
+            <tr style="background-color: #FFE699">
+                <td colspan="5" style="text-align: center">
+                    <strong>TOTALES&nbsp;</strong>
+                </td>
+                <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
+                <td>&nbsp;</td>
+                <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
+                </td>
+                @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
+                    <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                @endforeach
+                <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['iess'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumColumns['prestamo_quirorafario'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['prestamo_hipotecario'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
+                </td>
+                @if ($tiene_supa)
+                    <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
+                @endif
+                <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
+                @foreach ($sumatoria_egresos as $sumatoria_egreso)
+                    <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
+                @endforeach
+                <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
+                </td>
+                <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
             </tr>
         </table>
         <table class="firma" style="width: 100%;">
             <thead>
                 <th align="center">
                     __________________________________________<br />
-                    <b>{{ $creador_rol_pago->nombres.''.$creador_rol_pago->apellidos }}</b>
+                    <b>{{ $creador_rol_pago->nombres . '' . $creador_rol_pago->apellidos }}</b>
                     <br>
                     <b>ELABORADO</b>
                 </th>
@@ -466,12 +452,12 @@
             </thead>
 
         </table>
-    </main>
+    </div>
     <script type="text/php">
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 785, $text, $font, 12);
+                $pdf->page_text(10, 550, $text, $font, 12);
         }
     </script>
 </body>

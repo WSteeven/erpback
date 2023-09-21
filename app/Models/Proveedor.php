@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
@@ -47,7 +48,11 @@ class Proveedor extends Model implements Auditable
     const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
 
 
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = [
+        'empresa.razon_social',
+        'empresa.nombre_comercial',
+        '*',
+    ];
 
     /**
      * ______________________________________________________________________________________
@@ -59,6 +64,9 @@ class Proveedor extends Model implements Auditable
         return $this->belongsTo(Empresa::class);
     }
 
+    // public function canton(){
+    //     return $this->belongsTo(Canton::class)
+    // }
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);
@@ -75,7 +83,7 @@ class Proveedor extends Model implements Auditable
     }
     public function categorias_ofertadas()
     {
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
+        return $this->belongsToMany(CategoriaOfertaProveedor::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
             ->withTimestamps();
     }
     public function departamentos_califican()

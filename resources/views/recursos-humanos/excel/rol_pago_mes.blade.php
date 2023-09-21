@@ -43,10 +43,6 @@
         $tiene_supa = $sumatoria['supa'] > 0;
         $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
         $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-        $carry_ingreso = [];
-        $index_ingreso = 0;
-        $carry_egreso = [];
-        $index_egreso = 0;
         if ($tiene_bono_recurente) {
             $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
@@ -99,7 +95,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:12px">
-                            <div align="center"><strong>ROL DE PAGOS {{ $periodo }}
+                            <div align="center"><strong>{{ $nombre }}
                                 </strong>
                             </div>
                         </td>
@@ -306,37 +302,14 @@
                                                         @endif
                                                         @if ($cantidad_columna_egresos > 0)
                                                             @if ($rol_pago['egresos_cantidad_columna'] > 0)
-                                                            @foreach ($colum_egreso_value as $clave => $value)
-                                                            @foreach ($value as $subvalue)
-                                                                @if ($subvalue['id'] == $rol_pago['id'])
-                                                                    @php
-                                                                        array_push($carry_egreso, $clave);
-                                                                    @endphp
-
-                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
-                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar un td al inicio con 0 --}}
-                                                                    @endif
-
-                                                                    <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}</td>
-
-                                                                    {{-- Agregar los td al inicio y al final según las condiciones --}}
-                                                                    @if ($carry_egreso[$index_egreso] == '7.DescuentosGenerales') {{-- Cuando sea 7.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar un td al final con 0 --}}
-                                                                    @elseif ($carry_egreso[$index_egreso] == '6.DescuentosGenerales') {{-- Cuando sea 6.DescuentosGenerales --}}
-                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
-                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
-                                                                    @elseif ($carry_egreso[$index_egreso] == '2.Multas') {{-- Cuando sea 2.Multa --}}
-                                                                        <td>0</td> {{-- Agregar el primer td al final con 0 --}}
-                                                                        <td>0</td> {{-- Agregar el segundo td al final con 0 --}}
-                                                                    @endif
-
-                                                                    @php
-                                                                        $index_egreso++;
-                                                                    @endphp
-                                                                @endif
-                                                            @endforeach
-                                                        @endforeach
+                                                                @foreach ($colum_egreso_value as $clave => $value)
+                                                                    @foreach ($value as $subvalue)
+                                                                        @if ($subvalue['id'] == $rol_pago['id'])
+                                                                            <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}
+                                                                            </td>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endforeach
                                                             @else
                                                                 @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
                                                                     <td>0</td>

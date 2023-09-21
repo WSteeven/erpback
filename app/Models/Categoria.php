@@ -33,8 +33,5 @@ class Categoria extends Model implements Auditable
     {
         return $this->hasMany(Producto::class);
     }
-    public function categorias_proveedores(){
-        return $this->belongsToMany(Proveedor::class, 'detalle_categoria_proveedor','categoria_id','proveedor_id')
-        ->withTimestamps();
-    }
+    
 }
