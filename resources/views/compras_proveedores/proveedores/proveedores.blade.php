@@ -167,7 +167,7 @@
                 <td class="encabezado-tabla-rol"><strong>DEPT. CALIFICADORES</strong></td>
             </thead>
             <tbody>
-                @foreach ($reportes as $rpt)
+                @foreach ($reporte as $rpt)
                     <tr>
                         <td>{{ $rpt['ruc'] }}</td>
                         <td>{{ $rpt['razon_social'] }}</td>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte de Proveedores</title>
+    <title>Datos Bancarios de Proveedores</title>
     <style>
         @page {
             margin: 100px 25px;
@@ -99,7 +99,7 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:12px">
-                            <div align="center"><strong>REPORTE DE PROVEEDORES
+                            <div align="center"><strong>CONTACTOS DE PROVEEDORES
                                 </strong>
                             </div>
                         </td>
@@ -129,32 +129,28 @@
                                         <td
                                             style="  text-align: center !important;
                                 background-color: #DBDBDB;">
-                                            CIUDAD</td>
+                                            BANCO</td>
                                         <td
                                             style="  text-align: center !important;
                                 background-color: #DBDBDB;">
-                                            DIRECCION</td>
+                                            TIPO DE CUENTA</td>
                                         <td
                                             style="  text-align: center !important;
                                 background-color: #DBDBDB;">
-                                            CELULAR</td>
-                                        <td style="background-color:#DBDBDB">ESTADO</td>
-                                        <td style="background-color:#DBDBDB">CALIFICACION</td>
-                                        <td style="background-color:#DBDBDB">CATEGORIAS</td>
-                                        <td style="background-color:#DBDBDB">DEPT. CALIFICADORES</td>
+                                            NUMERO DE CUENTA</td>
+                                        <td style="background-color:#DBDBDB">IDENTIFICACION</td>
+                                        <td style="background-color:#DBDBDB">TITULAR DE LA CUENTA</td>
                                     </tr>
 
                                     @foreach ($reporte as $rpt)
                                         <tr>
                                             <td>{{ $rpt['ruc'] }}</td>
                                             <td>{{ $rpt['razon_social'] }}</td>
-                                            <td>{{ $rpt['ciudad'] }}</td>
-                                            <td>{{ $rpt['direccion'] }}</td>
-                                            <td>{{ $rpt['celular'] }}</td>
-                                            <td>{{ $rpt['estado_calificado'] }}</td>
-                                            <td>{{ $rpt['calificacion'] }}</td>
-                                            <td>{{ $rpt['categorias'] }}</td>
-                                            <td>{{ $rpt['departamentos'] }}</td>
+                                            <td>{{ $rpt['banco'] }}</td>
+                                            <td>{{ $rpt['tipo_cuenta'] }}</td>
+                                            <td>{{ $rpt['numero_cuenta'] }}</td>
+                                            <td>{{ $rpt['identificacion'] }}</td>
+                                            <td>{{ $rpt['propietario_cuenta'] }}</td>
                                         </tr>
                                     @endforeach
                                 </table>

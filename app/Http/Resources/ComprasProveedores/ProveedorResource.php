@@ -5,6 +5,7 @@ namespace App\Http\Resources\ComprasProveedores;
 use App\Models\Proveedor;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
+use Src\App\ComprasProveedores\ProveedorService;
 use Src\Shared\Utils;
 
 class ProveedorResource extends JsonResource
@@ -18,6 +19,7 @@ class ProveedorResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
+        [$salud, $descripcion] = ProveedorService::datosProveedor($this);
         $modelo = [
             'id' => $this->id,
             'empresa' => $this->empresa_id,
@@ -42,6 +44,8 @@ class ProveedorResource extends JsonResource
             "referencia" => $this->referencia,
             "plazo_credito" => $this->plazo_credito,
             "anticipos" => $this->anticipos,
+            "salud" => $salud,
+            "observaciones" => $descripcion,
 
 
             //Logistica del proveedor

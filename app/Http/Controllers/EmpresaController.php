@@ -71,9 +71,9 @@ class EmpresaController extends Controller
     public function update(EmpresaRequest $request, Empresa  $empresa)
     {
         // Adaptación de foreign keys
-        Log::channel('testing')->info('Log', ['Antes de validar', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Antes de validar', $request->all()]);
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['Despues de validar', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Despues de validar', $request->all()]);
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         //Respuesta

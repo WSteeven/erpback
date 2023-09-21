@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\ProveedorService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -63,7 +64,7 @@ class ProveedorController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
-            Log::channel('testing')->info('Log', ['Datos validados', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             //Respuesta
             $proveedor = Proveedor::create($datos);
             $proveedor->servicios_ofertados()->attach($request->tipos_ofrece);
@@ -80,7 +81,7 @@ class ProveedorController extends Controller
 
             //guardando la logistica del proveedor
             if ($proveedor->empresa->logistica()->first()) {
-                Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
+                // Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
                 $proveedor->empresa->logistica()->update([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -90,7 +91,7 @@ class ProveedorController extends Controller
                 ]);
             } else {
                 // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
-                Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
+                // Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
                 $proveedor->empresa->logistica()->create([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -173,7 +174,7 @@ class ProveedorController extends Controller
 
             //guardando la logistica del proveedor
             if ($proveedor->empresa->logistica()->first()) {
-                Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
+                // Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
                 $proveedor->empresa->logistica()->update([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -183,7 +184,7 @@ class ProveedorController extends Controller
                 ]);
             } else {
                 // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
-                Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
+                // Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
                 $proveedor->empresa->logistica()->create([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -192,14 +193,13 @@ class ProveedorController extends Controller
                     'garantia' => $request->garantia,
                 ]);
             }
-            Log::channel('testing')->info('Log', ['Intentamnos almacenar archivos:',]);
+
             //Verificando si hay archivos en la request
             if ($request->allFiles()) {
                 foreach ($request->files() as $archivo) {
                     $archivo = $this->archivoService->guardar($proveedor->empresa, $archivo, RutasStorage::PROVEEDORES);
                 }
             }
-            Log::channel('testing')->info('Log', ['Se almacenaron los archivos:',]);
 
             $modelo = new ProveedorResource($proveedor->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -218,6 +218,9 @@ class ProveedorController extends Controller
      */
     public function destroy(Proveedor $proveedor)
     {
+        $proveedor->departamentos_califican()->detach();
+        $proveedor->servicios_ofertados()->detach();
+        $proveedor->categorias_ofertadas()->detach();
         $proveedor->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
@@ -249,17 +252,20 @@ class ProveedorController extends Controller
             $request['empresa.razon_social'] = $request->razon_social;
             $results = $this->proveedorService->filtrarProveedores($request);
             $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
+            $contactos = $this->proveedorService->empaquetarDatosContactos($results, 'razon_social');
+            $datosBancarios= $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
             switch ($request->accion) {
                 case 'excel':
-                    $export_excel = new ProveedorExport($registros);
-                    return $this->reporteService->imprimir_reporte('excel', 'A4', 'landscape', $registros, 'reporte_proveedores', $vista, $export_excel);
+                    $reporte = $registros;
+                    Log::channel('testing')->info('Log', ['Lo que se va a imprimir', $reporte, $contactos, $datosBancarios]);
+                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios)), 'reporte_proveedores.xlsx');
+                    // return $this->reporteService->imprimir_reporte('excel', 'A4', 'landscape', $reporte, 'reporte_proveedores', $vista, $export_excel);
                     break;
                 case 'pdf':
                     try {
-                        $reportes = $registros;
+                        $reporte = $registros;
                         $peticion = $request->all();
-                        Log::channel('testing')->info('Log', ['Lo que se va a imprimir', $reportes, $peticion]);
-                        $pdf = Pdf::loadView($vista, compact(['reportes', 'peticion']));
+                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion']));
                         $pdf->setPaper('A4', 'landscape');
                         $pdf->render();
                         // return $pdf->output();
@@ -270,7 +276,7 @@ class ProveedorController extends Controller
                     }
                     break;
                 default:
-                    Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
+                    // Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
             }
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
