@@ -43,10 +43,6 @@
         $tiene_supa = $sumatoria['supa'] > 0;
         $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
         $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-        $carry_ingreso = [];
-        $index_ingreso = 0;
-        $carry_egreso = [];
-        $index_egreso = 0;
         if ($tiene_bono_recurente) {
             $numcol_ingreso = $cantidad_columna_ingresos + 4;
         }
@@ -309,30 +305,8 @@
                                                                 @foreach ($colum_egreso_value as $clave => $value)
                                                                     @foreach ($value as $subvalue)
                                                                         @if ($subvalue['id'] == $rol_pago['id'])
-                                                                            @php
-                                                                                array_push($carry_egreso, $clave);
-                                                                                $size_array = count($columnas_egresos) - 1;
-                                                                                $index = array_search($carry_egreso[$index_egreso], $columnas_egresos);
-                                                                            @endphp
-                                                                            @if ($index > $size_array)
-                                                                                @for ($i = 0; $i < $index - 1; $i++)
-                                                                                    <td>0</td>
-                                                                                @endfor
-                                                                            @else
-                                                                                @for ($i = 0; $i < $index; $i++)
-                                                                                    <td>0</td>
-                                                                                @endfor
-                                                                            @endif
-
                                                                             <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}
                                                                             </td>
-
-                                                                            @for ($i = 0; $i < $size_array - $index; $i++)
-                                                                                <td>0</td>
-                                                                            @endfor
-                                                                            @php
-                                                                                $index_egreso++;
-                                                                            @endphp
                                                                         @endif
                                                                     @endforeach
                                                                 @endforeach

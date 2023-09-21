@@ -193,39 +193,45 @@
             </strong></div>
         </p>
         <br>
-        <table width="95%" border="1" align="left" cellpadding="0" cellspacing="0" class="datos">
+        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="datos">
             <colgroup span="{{ $numcol_ingreso }}"></colgroup>
             <colgroup span="{{ $numcol_egreso }}"></colgroup>
             <tr class="encabezado-datos" style="text-align: center ">
-                <td rowspan="2" style="text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td rowspan="2"
+                    style="text-align: center !important;
+                                                background-color: #DBDBDB;">
                     ITEM</td>
-                <td rowspan="2"style="text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td
+                    rowspan="2"style="text-align: center !important;
+                                                background-color: #DBDBDB;">
                     EMPLEADO</td>
-                <td rowspan="2"style="  text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                     CEDULA</td>
-                <td rowspan="2"style="  text-align: center !important;
-                 background-color: #DBDBDB;">
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                     CARGO</td>
-                <td rowspan="2"style="  text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                     CIUDAD</td>
-                <td rowspan="2"style="  text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td
+                    rowspan="2"style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                     SUELDO</td>
                 <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
                 </td>
                 <th colspan="{{ $numcol_ingreso }}" scope="colgroup" class="encabezado-ingresos"
                     style="text-align: center !important;
-                    background-color: #FFF2CC;">
+                                                background-color: #FFF2CC;">
                     INGRESOS</th>
                 <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
                 </td>
                 <th colspan="{{ $numcol_egreso }}" scope="colgroup" class="encabezado-egresos"
                     style="text-align: center !important;
-                    background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     EGRESOS</th>
                 <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
                 </td>
@@ -236,74 +242,74 @@
             <tr class="encabezado-datos">
                 <td
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
-        background-color: #FFF2CC;">
+                                                background-color: #FFF2CC;">
                     SUELDO GANADO</td>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
-        background-color: #FFF2CC;">
+                                                background-color: #FFF2CC;">
                     DECIMO XII</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
-        background-color: #FFF2CC;">
+                                                background-color: #FFF2CC;">
                     DECIMO XIV</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
-        background-color:#FFF2CC;">
+                                                background-color:#FFF2CC;">
                     FONDOS DE RESERVA</th>
                 @if ($tiene_bonificacion)
                     <th scope="col"
                         class="encabezado-ingresos"style="text-align: center !important;
-        background-color: #FFF2CC;">
+                                                background-color: #FFF2CC;">
                         BONIFICACION</th>
                 @endif
                 @if ($tiene_bono_recurente)
                     <th scope="col"
                         class="encabezado-ingresos"style="text-align: center !important;
-        background-color:#FFF2CC;">
+                                                background-color:#FFF2CC;">
                         BONO RECURENTE</th>
                 @endif
                 @foreach ($columnas_ingresos as $ingreso)
                     <th
                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-        background-color:#FFF2CC;">
+                                                background-color:#FFF2CC;">
                         {{ strtoupper($ingreso) }}</th>
                 @endforeach
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
-       background-color: #BDD7EE;">
+                                               background-color: #BDD7EE;">
                     IESS (9.45%)</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
-        background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     PRESTAMO QUIROGRAFARIO</th>
 
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
-        background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     PRESTAMO HIPOTECARIO</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
-        background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     PRESTAMO</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
-        background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     EXT CONYUGAL</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
-        background-color: #BDD7EE;">
+                                                background-color: #BDD7EE;">
                     ANTICIPO</th>
 
                 @if ($tiene_supa)
                     <th scope="col"class="encabezado-egresos"
                         style="text-align: center !important;
-            background-color: #BDD7EE;">
+                                                    background-color: #BDD7EE;">
                         SUPA</th>
                 @endif
                 @foreach ($columnas_egresos as $egreso)
                     <th scope="col"class="encabezado-egresos"
                         style="text-align: center !important;
-            background-color: #BDD7EE;">
+                                                    background-color: #BDD7EE;">
                         {{ strtoupper($egreso) }}</th>
                 @endforeach
             </tr>
@@ -339,7 +345,7 @@
                             @foreach ($colum_ingreso_value as $ingreso)
                                 @foreach ($ingreso as $ingreso_value)
                                     @if ($ingreso_value['id'] === $rol_pago['id'])
-                                        <td style="width: 5%;">{{ number_format($ingreso_value['valor'], 2, ',', '.') }}
+                                        <td>{{ number_format($ingreso_value['valor'], 2, ',', '.') }}
                                         </td>
                                     @endif
                                 @endforeach
@@ -373,30 +379,8 @@
                             @foreach ($colum_egreso_value as $clave => $value)
                                 @foreach ($value as $subvalue)
                                     @if ($subvalue['id'] == $rol_pago['id'])
-                                        @php
-                                            array_push($carry_egreso, $clave);
-                                            $size_array = count($columnas_egresos) - 1;
-                                            $index = array_search($carry_egreso[$index_egreso], $columnas_egresos);
-                                        @endphp
-                                        @if ($index > $size_array)
-                                            @for ($i = 0; $i < $index - 1; $i++)
-                                                <td>0</td>
-                                            @endfor
-                                        @else
-                                            @for ($i = 0; $i < $index; $i++)
-                                                <td>0</td>
-                                            @endfor
-                                        @endif
-
                                         <td>{{ number_format($subvalue['valor'], 2, ',', '.') }}
                                         </td>
-
-                                        @for ($i = 0; $i < $size_array - $index; $i++)
-                                            <td>0</td>
-                                        @endfor
-                                        @php
-                                            $index_egreso++;
-                                        @endphp
                                     @endif
                                 @endforeach
                             @endforeach

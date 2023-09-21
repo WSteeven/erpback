@@ -103,11 +103,11 @@ class RolPagoMesController extends Controller
             $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-                $rol_pago=  RolPagoMes::where('id', $rolPagoId)->first();
-                $es_quincena =$rol_pago->es_quincena;
-            $reportes = $this->generate_report_data($roles_pagos,$rol_pago->nombre);
-            $vista = $es_quincena?'recursos-humanos.rol_pago_quincena':'recursos-humanos.rol_pago_mes';
-            $export_excel = new RolPagoMesExport($reportes, $es_quincena );
+            $rol_pago =  RolPagoMes::where('id', $rolPagoId)->first();
+            $es_quincena = $rol_pago->es_quincena;
+            $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
+            $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
+            $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -117,7 +117,7 @@ class RolPagoMesController extends Controller
         }
     }
 
-    private function generate_report_data($roles_pagos,$nombre)
+    private function generate_report_data($roles_pagos, $nombre)
     {
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
@@ -128,12 +128,12 @@ class RolPagoMesController extends Controller
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $colum_ingreso_value = $this->colum_values($results, 'ingresos','concepto_ingreso_info');
-        $colum_egreso_value = $this->colum_values($results, 'egresos','descuento');
-        $columnas_egresos = array_unique($column_names_egresos['egresos']);
-        $maxColumEgresosValue = count($columnas_egresos);
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
+        $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info');
+        $columnas_egresos = array_unique($column_names_egresos['egresos']);
+        $colum_egreso_value = $this->colum_values($results, $columnas_egresos, 'egresos', 'descuento');
+        $maxColumEgresosValue = count($columnas_egresos);
         $maxColumIngresosValue = count($columnas_ingresos);
 
 
@@ -190,24 +190,38 @@ class RolPagoMesController extends Controller
             'columnas_ingresos' => $columnas_ingresos,
             'columnas_egresos' =>  $columnas_egresos,
             'sumatoria' => $sumColumns,
-            'nombre'=>$nombre,
+            'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
     }
-    private function colum_values($data, $key1, $key2)
+    private function colum_values($data, $column_name, $key1, $key2)
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
+        $size_array = count($column_name) - 1;
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
                 $descuentoId =  $item[$key2]->nombre;
+                $index = array_search($descuentoId, $column_name);
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }
+                if ($index > $size_array) {
+                    for ($i = 0; $i < $index - 1; $i++) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    }
+                } else {
+                    for ($i = 0; $i < $index; $i++) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    }
+                }
                 $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
+                for ($i = 0; $i < $size_array - $index; $i++) {
+                    $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                }
             }
         }
         return $groupedData;
@@ -228,10 +242,7 @@ class RolPagoMesController extends Controller
     private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
     {
         $totalMontoIngresos = array_map(
-            function ($item) use ($maximo, $key_cantidad, $key1) {
-                Log::channel('testing')->info('Log', ['key_cantidad', $key_cantidad]);
-                Log::channel('testing')->info('Log', ['key1', $key1]);
-                Log::channel('testing')->info('Log', ['totales', $item]);
+            function ($item) use ($maximo, $key_cantidad, $key1, $data) {
                 $monto = array();
                 if ($item[$key_cantidad] > 0) {
                     foreach ($item[$key1] as $subitem) {
@@ -240,7 +251,7 @@ class RolPagoMesController extends Controller
                 }
                 if ($item[$key_cantidad] == 0) {
                     for ($j = 0; $j < $maximo; $j++) {
-                     //   $monto[$j] = 0;
+                        //   $monto[$j] = 0;
                     }
                 }
                 return $monto;
@@ -286,7 +297,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario','!=', 0)->orderBy('apellidos','asc')->get();
+            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -329,8 +340,6 @@ class RolPagoMesController extends Controller
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
                 ];
-                Log::channel('testing')->info('Log', ['error', $roles_pago]);
-
             }
             RolPago::insert($roles_pago);
         } catch (Exception $ex) {
