@@ -56,7 +56,7 @@
         if ($tiene_bonificacion && $tiene_bono_recurente) {
             $numcol_ingreso = $cantidad_columna_ingresos + 5;
         }
-        
+
         if ($tiene_supa) {
             $numcol_egreso = $cantidad_columna_egresos + 7;
         }
@@ -88,7 +88,8 @@
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                     <tr>
                         <td width="17%">
-                            <div align="center"></div>
+                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                    width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
                             <div align="center">JPCONSTRUCRED C.LTDA</div>

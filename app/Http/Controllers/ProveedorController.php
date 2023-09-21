@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
-use App\Exports\ComprasPRoveedores\ProveedorExport;
+use App\Exports\ComprasProveedores\ProveedorExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;

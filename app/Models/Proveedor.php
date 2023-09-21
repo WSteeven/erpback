@@ -49,8 +49,6 @@ class Proveedor extends Model implements Auditable
 
 
     private static $whiteListFilter = [
-        'empresa.razon_social',
-        'empresa.nombre_comercial',
         '*',
     ];
 
