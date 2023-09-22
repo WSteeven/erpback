@@ -41,7 +41,7 @@ class CalificacionProveedorEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        Log::channel('testing')->info('Log', ['Notificacion en evento de calificación:', $this->notificacion]);
+        // Log::channel('testing')->info('Log', ['Notificacion en evento de calificación:', $this->notificacion]);
         return new Channel('proveedores-tracker-'.$this->notificacion->per_destinatario_id);
     }
     public function broadcastAs(){

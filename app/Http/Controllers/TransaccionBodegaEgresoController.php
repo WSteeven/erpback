@@ -33,7 +33,6 @@ use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialSubtarea;
-use App\Models\Subtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;

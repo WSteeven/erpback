@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 
@@ -44,11 +45,15 @@ class RolPagoRequest extends FormRequest
             'prestamo_quirorafario' => 'required',
             'prestamo_hipotecario' => 'required',
             'prestamo_empresarial' => 'required',
+            'medio_tiempo' => 'nullable',
             'egresos' => 'nullable',
             'iess' =>  'required',
             'extension_conyugal' => 'required',
+            'fondos_reserva' => 'nullable',
             'total_egreso' => 'required',
-            'total' => 'required'
+            'total' => 'required',
+
+
         ];
     }
     protected function prepareForValidation()
@@ -63,7 +68,8 @@ class RolPagoRequest extends FormRequest
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
-        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva();
+        $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
+        Log::channel('testing')->info('Log', ['fondos de reserva',$this->dias, $fondos_reserva]);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
         $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)

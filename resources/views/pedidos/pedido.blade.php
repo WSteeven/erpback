@@ -177,6 +177,7 @@
                         <td>Tarea: <b>{{ $tarea }}</b></td>
                     </tr>
                 @endif
+                <tr><td>Responsable: <b>{{ $responsable }}</b></td></tr>
             </thead>
         </table>
         <!-- aqui va el listado de productos -->

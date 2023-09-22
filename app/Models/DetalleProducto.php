@@ -101,7 +101,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalle_stock($detalle_id, $sucursal_id)
     {
         // SELECT SUM(cantidad) FROM inventarios where detalle_id=500 group by detalle_id
-        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->groupBy('detalle_id')->first('cantidad');
+        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->orderBy('cantidad', 'ASC')->first('cantidad');
     }
 
 

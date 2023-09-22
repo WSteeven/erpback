@@ -100,22 +100,14 @@ class RolPagoMesController extends Controller
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'rol_pagos';
             // Fetch data with relationships
-            /*$roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes','egreso_rol_pago','empleado_info'])
-                ->where('rol_pago_id', $rolPagoId)
-             //   ->join('empleados', 'rol_pago.empleado_id', '=', 'empleados.id') // Reemplaza 'empleado_id' con la clave real de la relación
-         //       ->orderBy('empleados.apellidos') // Reemplaza 'apellido' con el nombre real de la columna de apellidos
-                ->get();*/
-            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago', 'empleado_info' => function ($query) {
-                $query->orderBy('apellidos', 'asc');
-            }])
+            $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
                 ->where('rol_pago_id', $rolPagoId)
                 ->get();
-            Log::channel('testing')->info('Log', ['roles de pago', $roles_pagos]);
-
-            $reportes = $this->generate_report_data($roles_pagos);
-            $vista = 'recursos-humanos.rol_pago_mes';
-            $export_excel = new RolPagoMesExport($reportes);
-
+            $rol_pago =  RolPagoMes::where('id', $rolPagoId)->first();
+            $es_quincena = $rol_pago->es_quincena;
+            $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
+            $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
+            $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -125,7 +117,7 @@ class RolPagoMesController extends Controller
         }
     }
 
-    private function generate_report_data($roles_pagos)
+    private function generate_report_data($roles_pagos, $nombre)
     {
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
         $periodo = $this->obtenerPeriodo($roles_pagos[0]->mes, $es_quincena);
@@ -136,11 +128,17 @@ class RolPagoMesController extends Controller
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $maxColumEgresosValue = max(array_column($results, 'egresos_cantidad_columna'));
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
-        $maxColumIngresosValue = max(array_column($results, 'ingresos_cantidad_columna'));
+        $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
+        $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info');
+        $columnas_egresos = array_unique($column_names_egresos['egresos']);
+        $colum_egreso_value = $this->colum_values($results, $columnas_egresos, 'egresos', 'descuento');
+        $maxColumEgresosValue = count($columnas_egresos);
+        $maxColumIngresosValue = count($columnas_ingresos);
+
+
+
         // Calculate the sum of specific columns from the main data array
-        // Inicializa un array asociativo para almacenar las sumas
         $sumColumns = [
             'salario' => 0,
             'sueldo' => 0,
@@ -181,21 +179,52 @@ class RolPagoMesController extends Controller
             $sumColumns['total_egreso'] += $item['total_egreso'];
             $sumColumns['total'] += $item['total'];
         }
-
         // El resultado deseado se encuentra ahora en el array $sumColumns
-
         return [
             'roles_pago' => $results,
             'periodo' => $periodo,
             'cantidad_columna_ingresos' => $maxColumIngresosValue,
             'cantidad_columna_egresos' => $maxColumEgresosValue,
-            'columnas_ingresos' => array_unique($column_names_ingresos['ingresos']),
-            'columnas_egresos' => array_unique($column_names_egresos['egresos']),
+            'colum_ingreso_value' => $colum_ingreso_value,
+            'colum_egreso_value' => $colum_egreso_value,
+            'columnas_ingresos' => $columnas_ingresos,
+            'columnas_egresos' =>  $columnas_egresos,
             'sumatoria' => $sumColumns,
+            'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
+    }
+    private function colum_values($data, $column_name, $key1, $key2)
+    {
+        // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
+        $groupedData = [];
+        $size_array = count($column_name) - 1;
+        foreach ($data as $item) {
+            // Recorremos el arreglo original y agrupamos los objetos por descuento_id
+            foreach ($item[$key1] as $item) {
+                $descuentoId =  $item[$key2]->nombre;
+                $index = array_search($descuentoId, $column_name);
+                if (!isset($groupedData[$descuentoId])) {
+                    $groupedData[$descuentoId] = [];
+                }
+                if ($index > $size_array) {
+                    for ($i = 0; $i < $index - 1; $i++) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    }
+                } else {
+                    for ($i = 0; $i < $index; $i++) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    }
+                }
+                $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
+                for ($i = 0; $i < $size_array - $index; $i++) {
+                    $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                }
+            }
+        }
+        return $groupedData;
     }
 
     private function extract_column_names($results, $key1, $key2, $columnName)
@@ -212,35 +241,48 @@ class RolPagoMesController extends Controller
     }
     private function calculate_column_sum($data, $maximo, $key_cantidad, $key1)
     {
-
         $totalMontoIngresos = array_map(
-
-            function ($item) use ($maximo, $key_cantidad, $key1) {
+            function ($item) use ($maximo, $key_cantidad, $key1, $data) {
                 $monto = array();
-                $i = 0;
                 if ($item[$key_cantidad] > 0) {
-                    foreach ($item[$key1] as $ingreso) {
-                        $monto[$i] = $ingreso['monto'];
-                        $i++;
+                    foreach ($item[$key1] as $subitem) {
+                        $monto[$subitem['descuento_id']] = $subitem['monto'];
                     }
                 }
                 if ($item[$key_cantidad] == 0) {
                     for ($j = 0; $j < $maximo; $j++) {
-                        $monto[$j] = 0;
+                        //   $monto[$j] = 0;
                     }
                 }
                 return $monto;
             },
             $data
         );
-        $suma_monto = array_fill(0, $maximo, 0); // Inicializamos el arreglo de suma en ceros
-        for ($i = 0; $i < $maximo - 1; $i++) {
-            foreach ($totalMontoIngresos as $totalMonto) {
-                $suma_monto[$i] += $totalMonto[$i]; // Sumamos el monto en la posición $i
+        $resultados = [];
+        foreach ($totalMontoIngresos as $elemento) {
+            // Verifica si el elemento es un arreglo asociativo (objeto JSON)
+            if (is_array($elemento) && count($elemento) > 0) {
+                foreach ($elemento as $clave => $valor) {
+                    // Verifica si la clave ya existe en los resultados
+                    if (array_key_exists($clave, $resultados)) {
+                        if ($clave != 0) {
+                            // Si existe, suma el valor actual al valor existente
+                            $resultados[$clave] += floatval($valor);
+                        }
+                    } else {
+                        if ($clave != 0) {
+                            // Si no existe, crea la clave y asigna el valor actual
+                            $resultados[$clave] = floatval($valor);
+                        }
+                    }
+                }
             }
         }
-
-        return $suma_monto;
+        $arreglo = $resultados;
+        if (is_object($resultados)) {
+            $arreglo = [$resultados];
+        }
+        return $arreglo;
     }
     /**
      * La función "tabla_roles" calcula e inserta datos de nómina para empleados activos en función de
@@ -255,7 +297,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->get();
+            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -268,7 +310,7 @@ class RolPagoMesController extends Controller
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
-                $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva();
+                $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
                 $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
                 $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
                 $anticipo =  $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Traits\UppercaseValuesTrait;
@@ -30,6 +31,10 @@ class Proveedor extends Model implements Auditable
         "telefono",
         "calificacion",
         "estado_calificado",
+        "forma_pago",
+        "referencia",
+        "plazo_credito",
+        "anticipos",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -43,7 +48,9 @@ class Proveedor extends Model implements Auditable
     const SIN_CONFIGURAR = 'SIN CONFIGURAR'; //cuando no se ha enlazado departamentos calificadores
 
 
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = [
+        '*',
+    ];
 
     /**
      * ______________________________________________________________________________________
@@ -55,6 +62,9 @@ class Proveedor extends Model implements Auditable
         return $this->belongsTo(Empresa::class);
     }
 
+    // public function canton(){
+    //     return $this->belongsTo(Canton::class)
+    // }
     public function parroquia()
     {
         return $this->belongsTo(Parroquia::class);
@@ -71,7 +81,7 @@ class Proveedor extends Model implements Auditable
     }
     public function categorias_ofertadas()
     {
-        return $this->belongsToMany(Categoria::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
+        return $this->belongsToMany(CategoriaOfertaProveedor::class, 'detalle_categoria_proveedor', 'proveedor_id', 'categoria_id')
             ->withTimestamps();
     }
     public function departamentos_califican()
@@ -193,11 +203,11 @@ class Proveedor extends Model implements Auditable
      * Si son 2 departamentos la distribucion de pesos es la siguiente:
      *     Area especializada  = 60 %
      *     Area financiera(compras)     = 40 %
-     * 
+     *
      * @param data El parámetro `$data` es una matriz que contiene información sobre los departamentos
      * y sus respectivas calificaciones. Cada elemento de la matriz representa un departamento y tiene
      * la siguiente estructura: [departamento_id, calificacion]
-     * 
+     *
      * @return la suma calculada de pesos basada en los datos dados.
      */
     private static function calcularPesos($data)
@@ -205,7 +215,7 @@ class Proveedor extends Model implements Auditable
         $user_compras = User::with('empleado')->whereHas("roles", function ($q) {
             $q->where("name", User::ROL_COMPRAS);
         })->first();
-        // Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
+        Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
         $suma = 0;
         switch (count($data)) {
             case 0:

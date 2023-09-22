@@ -75,6 +75,7 @@ class EmpleadoRequest extends FormRequest
             'banco' =>'required',
             'genero' =>'required',
             'esta_en_rol_pago'=>'required',
+            'acumula_fondos_reserva'=>'nullable',
             'realiza_factura'=>'required',
             'observacion'=>'nullable',
         ];

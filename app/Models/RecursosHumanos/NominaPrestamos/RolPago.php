@@ -22,7 +22,6 @@ class RolPago extends Model implements Auditable
     const REALIZADO = 'REALIZADO';
     const FINALIZADO = 'FINALIZADO';
     protected $fillable = [
-
         'empleado_id',
         'mes',
         'dias',
@@ -35,13 +34,16 @@ class RolPago extends Model implements Auditable
         'prestamo_quirorafario',
         'prestamo_hipotecario',
         'prestamo_empresarial',
+        'fondos_reserva',
         'total_ingreso',
         'iess',
         'total_egreso',
         'total',
         'estado',
         'rol_pago_id',
-        'rol_firmado'
+        'rol_firmado',
+        'medio_tiempo',
+        'fondos_reserva',
 
     ];
     private static $whiteListFilter = [
@@ -57,8 +59,13 @@ class RolPago extends Model implements Auditable
         'total',
         'estado',
         'rol_pago_id',
-        'rol_firmado'
+        'rol_firmado',
+        'fondos_reserva',
+        'medio_tiempo',
+
+
     ];
+    protected $casts = ['medio_tiempo' => 'boolean'];
 
     public function empleado_info()
     {
@@ -82,12 +89,14 @@ class RolPago extends Model implements Auditable
         foreach ($rol_pagos as $rol_pago) {
 
             $row['item'] = $id + 1;
+            $row['id'] =  $rol_pago->id;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
             $row['cedula'] =  $rol_pago->empleado_info->identificacion;
             $row['salario'] =  $rol_pago->empleado_info->salario;
             $row['mes'] =  ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F \d\e Y'));
             $row['identificacion_empleado'] =  $rol_pago->empleado_info->identificacion;
             $row['cargo'] = $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '';
+            $row['ciudad'] = $rol_pago->empleado_info->canton != null ? $rol_pago->empleado_info->canton->canton : '';
             $row['dias_laborados'] = $rol_pago->dias;
             $row['sueldo'] = $rol_pago->sueldo;
             $row['decimo_tercero'] = $rol_pago->decimo_tercero;

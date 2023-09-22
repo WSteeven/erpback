@@ -37,7 +37,7 @@ class CriterioCalificacionController extends Controller
                 $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->filter()->get();
             }
         } else {
-            $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->filter()->get();
+            $results = CriterioCalificacion::where('departamento_id', auth()->user()->empleado->departamento_id)->ignoreRequest(['only_me'])->filter()->get();
         }
         $results = CriterioCalificacionResource::collection($results);
         return response()->json(compact('results'));

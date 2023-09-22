@@ -44,6 +44,11 @@ class EmpresaRequest extends FormRequest
             'lleva_contabilidad' => 'boolean|required',
             'contribuyente_especial' => 'boolean|required',
             'actividad_economica' => 'string|nullable',
+            'representante_legal' => 'nullable|sometimes|required_if:tipo_contribuyente,SOCIEDAD',
+            'identificacion_representante' => 'nullable|sometimes|required_if:tipo_contribuyente,SOCIEDAD',
+            'antiguedad_proveedor' => 'nullable|sometimes|string',
+            'es_cliente' => 'sometimes|boolean',
+            'es_proveedor' => 'sometimes|boolean',
         ];
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
             $empresa = $this->route()->parameter('empresa');

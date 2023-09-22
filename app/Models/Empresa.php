@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\ComprasProveedores\ContactoProveedor;
+use App\Models\ComprasProveedores\DatoBancarioProveedor;
+use App\Models\ComprasProveedores\LogisticaProveedor;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +36,11 @@ class Empresa extends Model implements Auditable
         'lleva_contabilidad',
         'contribuyente_especial',
         'actividad_economica',
+        'representante_legal',
+        'identificacion_representante',
+        'antiguedad_proveedor',
+        'es_cliente',
+        'es_proveedor',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -41,6 +48,8 @@ class Empresa extends Model implements Auditable
         'agente_retencion'=>'boolean',
         'lleva_contabilidad'=>'boolean',
         'contribuyente_especial'=>'boolean',
+        'es_cliente'=>'boolean',
+        'es_proveedor'=>'boolean',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -70,6 +79,14 @@ class Empresa extends Model implements Auditable
     {
         return $this->hasMany(ContactoProveedor::class);
     }
+    public function datos_bancarios()
+    {
+        return $this->hasMany(DatoBancarioProveedor::class);
+    }
+    public function logistica()
+    {
+        return $this->hasOne(LogisticaProveedor::class);
+    }
     /*
     public function telefonos(){
         return $this->hasMany(Telefono::class);
@@ -86,5 +103,13 @@ class Empresa extends Model implements Auditable
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+
+     /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     * 
+     */
+    public function archivos(){
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

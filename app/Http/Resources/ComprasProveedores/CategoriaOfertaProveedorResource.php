@@ -21,6 +21,8 @@ class CategoriaOfertaProveedorResource extends JsonResource
             'tipo_oferta' => $this->oferta->nombre,
             'tipo_oferta_id' => $this->tipo_oferta_id,
             'estado' => $this->estado,
+            'departamentos' => $this->departamentos_responsables->map(fn ($item) => $item->id),
+            'nombres_departamentos' => $this->departamentos_responsables->map(fn ($item) => $item->nombre),
 
         ];
 

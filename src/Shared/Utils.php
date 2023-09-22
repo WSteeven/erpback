@@ -239,6 +239,19 @@ class Utils
         return $diferencia;
     }
 
+    public static function convertArrayToString($array, $separator)
+    {
+        // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
+        if (is_array($array) && count($array) > 0) {
+            // Log::channel('testing')->info('Log', ['Array transformado',implode($separator, $array)]);
+            return implode($separator, $array);
+        } else {
+            if (empty($array)) {
+                return null;
+            }
+            return $array;
+        }
+    }
 
 
     /**

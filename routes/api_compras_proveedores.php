@@ -4,15 +4,18 @@ use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorCon
 use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
 use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
+use App\Http\Controllers\ComprasProveedores\DatoBancarioProveedorController;
 use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
+use App\Http\Controllers\EmpresaController;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources([
+    'datos-bancarios-proveedores' => DatoBancarioProveedorController::class,
     'calificaciones-proveedores' => CalificacionDepartamentoProveedorController::class,
     'categorias-ofertas' => CategoriaOfertaProveedorController::class,
     'contactos-proveedores' => ContactoProveedorController::class,
@@ -28,6 +31,7 @@ Route::apiResources([
         'categorias-ofertas' => 'categoria',
         'criterios-calificaciones' => 'criterio',
         'calificaciones-proveedores' => 'calificacion',
+        'datos-bancarios-proveedores' => 'dato',
         'detalles-departamentos-proveedor' => 'detalle',
         'ordenes-compras' => 'orden',
         'preordenes-compras' => 'preorden',

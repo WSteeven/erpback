@@ -15,7 +15,7 @@ class ConfiguracionGeneralController extends Controller
     public function __construct()
     {
         $this->middleware('can:puede.ver.configuracion_general')->only('index', 'show');
-        $this->middleware('can:puede.editar.configuracion_general')->only('update');
+        $this->middleware('can:puede.editar.configuracion_general')->only('store');
     }
 
     /**
@@ -39,13 +39,16 @@ class ConfiguracionGeneralController extends Controller
     /**
      * actualizar
      */
-    public function update(ConfiguracionGeneralRequest $request, ConfiguracionGeneral $configuracion)
+    public function store(ConfiguracionGeneralRequest $request)
     {
         $datos = $request->validated();
 
-        $configuracion->update($datos);
-        $modelo = new ConfiguracionGeneralResource($configuracion->update());
+        $configuracion = ConfiguracionGeneral::first();
 
+        if ($configuracion) $configuracion->update($datos);
+        $configuracion = ConfiguracionGeneral::create($datos);
+
+        $modelo = new ConfiguracionGeneralResource($configuracion->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));

@@ -109,6 +109,9 @@ class ContactoProveedorController extends Controller
             $results = Audit::where('auditable_type', ContactoProveedor::class)->with('user')->orderBy('created_at', 'desc')->get();
         }
         $results = AuditResource::collection($results);
+        
+        return response()->json(compact('results'));
+        
         // $contacto = ContactoProveedor::first();
         // $results['usuario que realiza'] = $contacto->audits()->with('user')->get();
         // $results['metadatos'] = $contacto->audits()->latest()->first()->getMetadata();
@@ -118,6 +121,5 @@ class ContactoProveedorController extends Controller
         // $results = $producto->audits()->with('user')->get(); //obtiene el usuario que hizo la evento
         // $results = $producto->audits()->latest()->first()->getMetadata(); //obtiene los metadatos de un evento
         // $results = $producto->audits()->latest()->first()->getModified(); //obtiene las propiedades modificadas del registro afectado
-        return response()->json(compact('results'));
     }
 }

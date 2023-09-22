@@ -4,6 +4,9 @@ namespace App\Http\Resources\ComprasProveedores;
 
 use App\Models\Proveedor;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
+use Src\App\ComprasProveedores\ProveedorService;
+use Src\Shared\Utils;
 
 class ProveedorResource extends JsonResource
 {
@@ -15,9 +18,8 @@ class ProveedorResource extends JsonResource
      */
     public function toArray($request)
     {
-        [$calificacion, $estado] = Proveedor::obtenerCalificacion($this->id);
-        // return parent::toArray($request);
         $controller_method = $request->route()->getActionMethod();
+        [$salud, $descripcion] = ProveedorService::datosProveedor($this);
         $modelo = [
             'id' => $this->id,
             'empresa' => $this->empresa_id,
@@ -26,22 +28,38 @@ class ProveedorResource extends JsonResource
             'sitio_web' => $this->empresa->sitio_web,
             'sucursal' => $this->sucursal,
             'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,
-            'parroquia' => $this->parroquia_id,
+            'canton' => $this->parroquia?->canton->canton,
+            'parroquia' => $this->parroquia?->parroquia,
             'direccion' => $this->direccion,
             'celular' => $this->celular,
             'telefono' => $this->telefono,
             'estado' => $this->estado,
             'tipos_ofrece' => $this->servicios_ofertados->map(fn ($item) => $item->id),
+            'categorias_ofrece' => $this->categorias_ofertadas->map(fn ($item) => $item->id),
             'departamentos' => $this->departamentos_califican->map(fn ($item) => $item->id),
             'related_departamentos' => $this->departamentos_califican,
             'calificacion' => $this->calificacion ? $this->calificacion : 0,
             'estado_calificado' => $this->estado_calificado ? $this->estado_calificado : Proveedor::SIN_CONFIGURAR,
-            // 'calificacion' => $calificacion,
-            // 'estado_calificado' => $estado,
+            "forma_pago" => $this->forma_pago,
+            "referencia" => $this->referencia,
+            "plazo_credito" => $this->plazo_credito,
+            "anticipos" => $this->anticipos,
+            "salud" => $salud,
+            "observaciones" => $descripcion,
+
+
+            //Logistica del proveedor
+            'tiempo_entrega' => $this->empresa->logistica?->tiempo_entrega,
+            'envios' => $this->empresa->logistica?->envios || false,
+            // 'tipo_envio' => $this->empresa->logistica?->tipo_envio,
+            'tipo_envio' => $this->empresa->logistica?->tipo_envio ? Utils::convertirStringComasArray($this->empresa->logistica?->tipo_envio) : null,
+            'transporte_incluido' => $this->empresa->logistica?->transporte_incluido || false,
+            'garantia' => $this->empresa->logistica?->garantia || false,
         ];
 
         if ($controller_method == 'show') {
             //listados
+            $modelo['parroquia'] = $this->parroquia_id;
             $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn ($item) => $item->id);
             $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn ($item) => $item->id);
             $modelo['departamentos'] = $this->departamentos_califican->map(fn ($item) => $item->id);
