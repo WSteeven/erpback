@@ -24,7 +24,24 @@ class ConfiguracionGeneralRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'logo_claro' => 'required|string',
+            'logo_oscuro' => 'required|string',
+            'logo_marca_agua' => 'required|string',
+            'ruc' => 'required|string',
+            'representante' => 'required|string',
+            'razon_social' => 'required|string',
+            'nombre_comercial' => 'required|string',
+            'direccion_principal' => 'required|string',
+            'telefono' => 'required|string',
+            'moneda' => 'required|string',
+            'tipo_contribuyente' => 'required|string',
+            'celular1' => 'required|string',
+            'celular2' => 'required|string',
+            'correo_principal' => 'required|string',
+            'correo_secundario' => 'required|string',
+            'sitio_web' => 'required|string',
+            'direccion_secundaria1' => 'required|string',
+            'direccion_secundaria2' => 'required|string',
         ];
     }
 }
