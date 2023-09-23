@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
+use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
@@ -10,10 +11,8 @@ use App\Models\Archivo;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\Departamento;
 use App\Models\Proveedor;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Hamcrest\Type\IsInteger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -253,7 +252,7 @@ class ProveedorController extends Controller
             $results = $this->proveedorService->filtrarProveedores($request);
             $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
             $contactos = $this->proveedorService->empaquetarDatosContactos($results, 'razon_social');
-            $datosBancarios= $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
+            $datosBancarios = $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
             switch ($request->accion) {
                 case 'excel':
                     $reporte = $registros;
@@ -286,6 +285,23 @@ class ProveedorController extends Controller
         }
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    public function reporteCalificacion(Proveedor $proveedor)
+    {
+        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor]);
+        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor->departamentos_califican()->get()]);
+        foreach ($proveedor->departamentos_califican()->get() as $detalle) {
+            $detalle_departamentos = DetalleDepartamentoProveedor::find($detalle->pivot->id); 
+            Log::channel('testing')->info('Log', ['Detalle', $detalle_departamentos]); //este es el detalle_departamento_proveedor, de aqui obtendras la calificacion global y el empleado que califica
+            foreach ($detalle_departamentos->calificaciones_criterios()->get() as $criterio) {
+                Log::channel('testing')->info('Log', ['Criterio', $criterio->pivot]); //estas son las calificaciones del departamento en curso
+            }
+        }
+        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor->departamentos_califican()->calificaciones_criterios()]);
+        // $registros = Proveedor::find($proveedor->id);
+        // Log::channel('testing')->info('Log', ['ProveedorController -> registros', $registros]);
+        // return Excel::download(new CalificacionProveedorExcel(collect($registros)), 'calificacion_proveedor_' . $proveedor->empresa->ruc . '.xlsx');
     }
 
 

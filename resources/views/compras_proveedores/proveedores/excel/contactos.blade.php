@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte de Proveedores</title>
+    <title>Contactos de Proveedores</title>
     <style>
         @page {
             margin: 100px 25px;
@@ -88,7 +88,7 @@
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                     <tr>
                         <td width="17%">
-                            <div align="center"></div>
+                            <img src="{{ public_path('img/logo.png') }}" width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
                             <div align="center">JPCONSTRUCRED C.LTDA</div>

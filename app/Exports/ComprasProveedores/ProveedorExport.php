@@ -37,7 +37,7 @@ class ProveedorExport implements WithMultipleSheets
         return $sheets;
     }
 }
-class ProveedoresExport implements FromView, WithTitle
+class ProveedoresExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder
 {
 
     protected $proveedores;
@@ -47,6 +47,18 @@ class ProveedoresExport implements FromView, WithTitle
         $this->proveedores = $proveedores;
     }
 
+    public function bindValue(Cell $cell, $value)
+    {
+        if (is_numeric($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
+        // else return default behavior
+        return parent::bindValue($cell, $value);
+    }
+    
     public function view(): View
     {
         return view('compras_proveedores.proveedores.excel.proveedores', ['reporte' => $this->proveedores,]);
@@ -57,7 +69,7 @@ class ProveedoresExport implements FromView, WithTitle
         return 'Proveedores'; // Nombre de la primera hoja
     }
 }
-class ContactosExport implements FromView, WithTitle
+class ContactosExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder
 {
 
     protected $contactos;
@@ -65,6 +77,18 @@ class ContactosExport implements FromView, WithTitle
     public function __construct($contactos)
     {
         $this->contactos = $contactos;
+    }
+
+    public function bindValue(Cell $cell, $value)
+    {
+        if (is_numeric($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
+        // else return default behavior
+        return parent::bindValue($cell, $value);
     }
 
     public function view(): View

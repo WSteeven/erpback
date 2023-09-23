@@ -68,13 +68,14 @@ class ProveedorService
 
     public function empaquetarDatos($datos, string $var_ordenacion)
     {
-        Log::channel('testing')->info('Log', ['Datos antes de empaquetar', $datos]);
+        // Log::channel('testing')->info('Log', ['Datos antes de empaquetar', $datos]);
         $results = [];
         $cont = 0;
         foreach ($datos as $d) {
             $row['ruc'] = $d->empresa->identificacion;
             $row['razon_social'] = $d->empresa->razon_social;
             $row['ciudad'] = $d->empresa->canton?->canton;
+            $row['establecimiento'] = $d->sucursal;
             $row['direccion'] = $d->direccion;
             $row['celular'] = $d->celular;
             $row['calificacion'] = $d->calificacion;
@@ -95,9 +96,10 @@ class ProveedorService
 
     public function empaquetarDatosContactos($datos, string $var_ordenacion)
     {
-        Log::channel('testing')->info('Log', ['Datos antes de empaquetar', $datos]);
+        // Log::channel('testing')->info('Log', ['Datos antes de empaquetar', $datos->unique('empresa_id')]);
         $results = [];
         $cont = 0;
+        $datos = $datos->unique('empresa_id'); //se elimina los rucs repetidos, esto se realizado debido a que una razon social puede tener varias sucursales
         foreach ($datos as $d) {
             foreach ($d->empresa->contactos as $contacto) {
                 $row['ruc'] = $d->empresa->identificacion;
@@ -117,11 +119,12 @@ class ProveedorService
             // return $b[$var_ordenacion] <=> $a[$var_ordenacion]; //ordena de mayor a menor o de Z a A
         });
 
+        // Log::channel('testing')->info('Log', ['Datos de contactos después de empaquetar', $results]);
         return $results;
     }
     public function empaquetarDatosBancariosProveedor($datos, string $var_ordenacion)
     {
-        // Log::channel('testing')->info('Log', ['Datos antes de empaquetar', $datos]);
+        $datos = $datos->unique('empresa_id'); //se elimina los rucs repetidos, esto se realizado debido a que una razon social puede tener varias sucursales
         $results = [];
         $cont = 0;
         foreach ($datos as $d) {

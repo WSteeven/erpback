@@ -88,8 +88,7 @@
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                     <tr>
                         <td width="17%">
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
-                    width="90">
+                            <img src="{{ public_path('img/logo.png') }}" width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
                             <div align="center">JPCONSTRUCRED C.LTDA</div>
@@ -117,7 +116,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
+                                <table width="100%" style="border: 3px solid #000000;">
                                     <tr>
                                         <td
                                             style="text-align: center !important;
@@ -131,6 +130,10 @@
                                             style="  text-align: center !important;
                                 background-color: #DBDBDB;">
                                             CIUDAD</td>
+                                        <td
+                                            style="  text-align: center !important;
+                                background-color: #DBDBDB;">
+                                            ESTABLECIMIENTO</td>
                                         <td
                                             style="  text-align: center !important;
                                 background-color: #DBDBDB;">
@@ -150,6 +153,7 @@
                                             <td>{{ $rpt['ruc'] }}</td>
                                             <td>{{ $rpt['razon_social'] }}</td>
                                             <td>{{ $rpt['ciudad'] }}</td>
+                                            <td>{{ $rpt['establecimiento'] }}</td>
                                             <td>{{ $rpt['direccion'] }}</td>
                                             <td>{{ $rpt['celular'] }}</td>
                                             <td>{{ $rpt['estado_calificado'] }}</td>
