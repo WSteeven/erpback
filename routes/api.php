@@ -128,6 +128,9 @@ Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new Use
 /* Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
     return $request->user()->allPermissions;
 }); */
+// Configuracion general
+Route::get('configuracion', [ConfiguracionGeneralController::class, 'index']);
+Route::middleware('auth:sanctum')->post('configuracion', [ConfiguracionGeneralController::class, 'store']);
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
@@ -141,7 +144,7 @@ Route::apiResources(
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
-        'configuracion' => ConfiguracionGeneralController::class,
+        // 'configuracion' => ConfiguracionGeneralController::class,
         'control-stocks' => ControlStockController::class,
         'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,

@@ -36,12 +36,12 @@ class ConfiguracionGeneralRequest extends FormRequest
             'moneda' => 'required|string',
             'tipo_contribuyente' => 'required|string',
             'celular1' => 'required|string',
-            'celular2' => 'required|string',
+            'celular2' => 'nullable|string',
             'correo_principal' => 'required|string',
-            'correo_secundario' => 'required|string',
+            'correo_secundario' => 'nullable|string',
             'sitio_web' => 'required|string',
-            'direccion_secundaria1' => 'required|string',
-            'direccion_secundaria2' => 'required|string',
+            'direccion_secundaria1' => 'nullable|string',
+            'direccion_secundaria2' => 'nullable|string',
         ];
     }
 }

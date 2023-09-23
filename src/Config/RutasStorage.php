@@ -37,5 +37,5 @@ enum RutasStorage: string
     case CALIFICACIONES_PROVEEDORES = 'public/proveedores/calificaciones_proveedores';
     case EMPRESAS = 'public/empresas/';
     case PROVEEDORES = 'public/proveedores/empresas/';
-
+    case CONFIGURACION_GENERAL = 'public/configuracion_general';
 }

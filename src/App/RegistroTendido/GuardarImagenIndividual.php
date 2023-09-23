@@ -10,11 +10,13 @@ class GuardarImagenIndividual
 {
     private String $imagen_base64;
     private RutasStorage $ruta;
+    private String $nombre_predeterminado;
 
-    public function __construct(string $imagen_base64, RutasStorage $ruta)
+    public function __construct(string $imagen_base64, RutasStorage $ruta, string $nombre_predeterminado = null)
     {
         $this->imagen_base64 = $imagen_base64;
         $this->ruta = $ruta;
+        $this->nombre_predeterminado = $nombre_predeterminado;
     }
 
     public function execute()
@@ -23,7 +25,7 @@ class GuardarImagenIndividual
         $extension = Utils::obtenerExtension($this->imagen_base64);
 
         $directorio = $this->ruta->value;
-        $nombre_archivo = Utils::generarNombreArchivoAleatorio($extension);
+        $nombre_archivo = $this->nombre_predeterminado . '.' . $extension ?? Utils::generarNombreArchivoAleatorio($extension);
         $ruta_relativa = Utils::obtenerRutaRelativaImagen($directorio, $nombre_archivo);
         $ruta_absoluta = Utils::obtenerRutaAbsolutaImagen($directorio, $nombre_archivo);
 
