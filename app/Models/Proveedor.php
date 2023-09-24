@@ -87,7 +87,7 @@ class Proveedor extends Model implements Auditable
     public function departamentos_califican()
     {
         return $this->belongsToMany(Departamento::class, 'detalle_departamento_proveedor', 'proveedor_id', 'departamento_id')
-            ->withPivot(['calificacion', 'fecha_calificacion'])
+            ->withPivot(['id','empleado_id','calificacion', 'fecha_calificacion'])
             ->withTimestamps();
     }
 

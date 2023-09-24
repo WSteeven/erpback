@@ -55,7 +55,7 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
-    public function calificaciones_criterios(){
+    public function calificaciones_criterios(){ 
         return $this->belongsToMany(CriterioCalificacion::class, 'calificacion_departamento_proveedor', 'detalle_departamento_id', 'criterio_calificacion_id')
         ->withPivot('comentario', 'peso', 'puntaje', 'calificacion')->withTimestamps();
     }

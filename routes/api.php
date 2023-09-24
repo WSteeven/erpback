@@ -265,9 +265,10 @@ Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimi
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
-//anular ingreso
+/*********************************************************
+ * ANULACIONES
+ ********************************************************/
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
-
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
@@ -289,6 +290,7 @@ Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']
  * REPORTES DE COMPRAS Y PROVEEDORES
  ******************************************************/
 Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
+Route::get('proveedores/imprimir-calificacion/{proveedor}', [ProveedorController::class, 'reporteCalificacion']);
 
 
 //gestionar egresos
