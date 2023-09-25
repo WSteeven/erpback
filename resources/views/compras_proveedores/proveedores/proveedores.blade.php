@@ -3,8 +3,8 @@
 {{-- Aquí codigo PHP --}}
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     // $rol_pago = $roles_pago[0];
 @endphp
 
@@ -28,9 +28,10 @@
         }
 
         body {
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del pie de página **/
@@ -122,8 +123,8 @@
                     <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td>
-                    <p class="encabezado-rol"> <strong>JP CONSTRUCRED C.LTDA</strong></p>
-                    <p class="encabezado-rol"><strong>RUC 0993375739001</strong></p>
+                    <p class="encabezado-rol"> <strong>{{$configuracion['razon_social']}}</strong></p>
+                    <p class="encabezado-rol"><strong>RUC {{$configuracion['ruc']}}</strong></p>
                     <div class="encabezado-rol"><b>REPORTE DE PROVEEDORES </b></div>
                 </td>
                 <td>
@@ -139,7 +140,7 @@
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
-                        propiedad de JP CONSTRUCRED C. LTDA. <br>Válida únicamente para fines autorizados.
+                        propiedad de {{$configuracion['razon_social']}} <br>Válida únicamente para fines autorizados.
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}

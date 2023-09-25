@@ -8,6 +8,7 @@ use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
 use App\Http\Resources\VistaInventarioPerchaResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
@@ -250,20 +251,21 @@ class InventarioController extends Controller
      */
     public function reporteInventarioPdf($id)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $items = [];
-        if($id==0){
+        if ($id == 0) {
             $items = Inventario::where('cantidad', '>', 0)
-            ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
-        }else{
+                ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+        } else {
             $items = Inventario::where('sucursal_id',  $id)->where('cantidad', '>', 0)
-            ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
+                ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
         }
         $resource = InventarioResourceExcel::collection($items);
         Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
         try {
             $reporte = $resource->resolve();
             // Log::channel('testing')->info('Log', ['Elementos pasados por el resource', $reporte]);
-            $pdf = Pdf::loadView('bodega.reportes.inventario_sucursal', compact(['reporte']));
+            $pdf = Pdf::loadView('bodega.reportes.inventario_sucursal', compact(['reporte', 'configuracion']));
             $pdf->setPaper('A4', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
@@ -286,6 +288,7 @@ class InventarioController extends Controller
 
     public function kardex(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         $cont = 0;
@@ -339,7 +342,7 @@ class InventarioController extends Controller
                 break;
             case 'pdf':
                 try {
-                    $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results'));
+                    $pdf = Pdf::loadView('bodega.reportes.kardex', compact('results', 'configuracion'));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
                     $file = $pdf->output();

@@ -28,28 +28,28 @@ class SolicitudFondosEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($solicitud,$contabilidad)
+    public function __construct($solicitud, $contabilidad)
     {
         $this->solicitud = $solicitud;
-        $this->destinatario = $contabilidad->id ;
+        $this->destinatario = $contabilidad->id;
         $remitente = $this->obtenerEmpleado($this->solicitud->id_usuario)->id;
-        $this->notificacion = Notificacion::crearNotificacion('Te han realizado una solicitud de Fondos Rotativos','/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente,$contabilidad->empleado->id,$solicitud,true);
+        $this->notificacion = Notificacion::crearNotificacion('Te han realizado una solicitud de Fondos Rotativos', '/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente, $contabilidad->empleado->id, $solicitud, true);
     }
 
     public function obtenerEmpleado($id)
     {
-        return Empleado::where('usuario_id',$id)->first();
+        return Empleado::where('usuario_id', $id)->first();
     }
 
-   /**
+    /**
      * Get the channels the event should broadcast on.
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
     public function broadcastOn()
     {
-        $nombre_chanel ='solicitud-fondos-'. $this->destinatario;
-        return new Channel($nombre_chanel );
+        $nombre_chanel = 'solicitud-fondos-' . $this->destinatario;
+        return new Channel($nombre_chanel);
     }
     public function broadcastAs()
     {
