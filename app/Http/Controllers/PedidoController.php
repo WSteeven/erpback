@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\PedidoAutorizadoEvent;
 use App\Events\PedidoCreadoEvent;
 use App\Events\PedidoEvent;
+use App\Exports\Bodega\PedidoExport;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
@@ -17,9 +18,12 @@ use App\Models\Sucursal;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Permission\Models\Role;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
@@ -323,57 +327,78 @@ class PedidoController extends Controller
 
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $estadisticas = [];
-        // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
-        switch ($request->autorizacion) {
-            case 0:
-                switch ($request->estado) {
-                    case 0:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                        }
-                        break;
-                    default:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                        }
+        $results = new Collection();
+        switch ($request->accion) {
+            case 'excel':
+                $registros = $results;
+                return Excel::download(new PedidoExport(collect($results)), 'reporte_pedidos.xlsx');
+                break;
+            case 'pdf':
+                try {
+                    $vista = 'pedidos.pedido';
+                    $pdf = Pdf::loadView($vista, compact(['reporte', 'configuracion']));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw ValidationException::withMessages([
+                        'Error al generar reporte' => [$ex->getMessage()],
+                    ]);
                 }
                 break;
             default:
-                switch ($request->estado) {
+                switch ($request->autorizacion) {
                     case 0:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        switch ($request->estado) {
+                            case 0:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
+                                break;
+                            default:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
                         }
                         break;
                     default:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        switch ($request->estado) {
+                            case 0:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
+                                break;
+                            default:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
                         }
                 }
+                // calculo de las estadisticas que se mostraran en grafico de pie
+                $count_autorizados = $results->countBy('autorizacion_id');
+                $count_estados = $results->countBy('estado_id');
+                if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
+                if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
+                if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
+                if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
+                if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
+                if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
+                if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
         }
-        // calculo de las estadisticas que se mostraran en grafico de pie
-        $count_autorizados = $results->countBy('autorizacion_id');
-        $count_estados = $results->countBy('estado_id');
-        if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
-        if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
-        if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
-        if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
-        if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
-        if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
-        if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
         // Log::channel('testing')->info('Log', ['Conteo de autorizados:', $count_autorizados, $count_estados]);
         // Log::channel('testing')->info('Log', ['Estadisticas:', $estadisticas]);
 
