@@ -62,8 +62,7 @@ class GastoCoordinadorController extends Controller
             $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
             $modelo = GastoCoordinador::create($datos);
             $modelo->detalle_motivo_info()->sync($request->motivo);
-            $contabilidad = User::with('empleado')->where('name', 'mvalarezo')->first();
-            event(new SolicitudFondosEvent($modelo, $contabilidad));
+            event(new SolicitudFondosEvent($modelo));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

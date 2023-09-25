@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\GastoCoordinador;
 use App\Models\Notificacion;
@@ -28,14 +29,15 @@ class SolicitudFondosEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($solicitud, $contabilidad)
+    public function __construct($solicitud)
     {
+        $contabilidad = Departamento::where('id',2)->first();
         $this->solicitud = $solicitud;
-        $this->destinatario = $contabilidad->id;
-        $remitente = $this->obtenerEmpleado($this->solicitud->id_usuario)->id;
-        $this->notificacion = Notificacion::crearNotificacion('Te han realizado una solicitud de Fondos Rotativos', '/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente, $contabilidad->empleado->id, $solicitud, true);
+        $this->destinatario = $contabilidad->responsable_id ;
+        $remitente = $this->solicitud->id_usuario;
+        $empleado_remitente = $this->obtenerEmpleado($remitente);
+        $this->notificacion = Notificacion::crearNotificacion ($empleado_remitente->nombres.' '. $empleado_remitente->apellidos.' Te han realizado una solicitud de Fondos Rotativos por un monto de $'.$solicitud->monto,'/notificaciones', TiposNotificaciones::AUTORIZACION_GASTO, $remitente,$contabilidad->responsable_id,$solicitud,true);
     }
-
     public function obtenerEmpleado($id)
     {
         return Empleado::where('usuario_id', $id)->first();
