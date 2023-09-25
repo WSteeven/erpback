@@ -40,7 +40,7 @@ class SolicitudFondosEvent implements ShouldBroadcast
     }
     public function obtenerEmpleado($id)
     {
-        return Empleado::where('usuario_id', $id)->first();
+        return Empleado::where('id', $id)->first();
     }
 
     /**
