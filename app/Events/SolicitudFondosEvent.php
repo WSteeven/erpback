@@ -29,7 +29,7 @@ class SolicitudFondosEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct($solicitud, $contabilidad)
+    public function __construct($solicitud)
     {
         $contabilidad = Departamento::where('id',2)->first();
         $this->solicitud = $solicitud;
