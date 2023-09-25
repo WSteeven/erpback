@@ -8,6 +8,7 @@ use App\Events\PedidoEvent;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
+use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
 use App\Models\Inventario;
 use App\Models\Pedido;
@@ -50,7 +51,7 @@ class PedidoController extends Controller
             $results = Pedido::filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = Pedido::filtrarPedidosActivosFijos($estado);
-        } else if(auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)){
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
             $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
@@ -111,10 +112,10 @@ class PedidoController extends Controller
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if($esPedidoTelconet)event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
@@ -189,10 +190,10 @@ class PedidoController extends Controller
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
@@ -278,9 +279,10 @@ class PedidoController extends Controller
      */
     public function imprimir(Pedido $pedido)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new PedidoResource($pedido);
         try {
-            $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
+            $pdf = Pdf::loadView('pedidos.pedido', ['pedido' => $resource->resolve(), 'configuracion' => $configuracion]);
             $pdf->setPaper('A5', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
@@ -290,12 +292,12 @@ class PedidoController extends Controller
             $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
 
             // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-            // Log::channel('testing')->info('Log', ['El pedido es', $resource]);
+            // Log::channel('testing')->info('Log', ['El pedido es', $resource, $configuracion]);
             // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
             return $file;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-            $mensaje = $ex->getMessage().'. '.$ex->getLine();
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
     }

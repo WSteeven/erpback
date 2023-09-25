@@ -9,6 +9,7 @@ use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -244,6 +245,7 @@ class ProveedorController extends Controller
      */
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
         $results = [];
         try {
@@ -264,7 +266,7 @@ class ProveedorController extends Controller
                     try {
                         $reporte = $registros;
                         $peticion = $request->all();
-                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion']));
+                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
                         $pdf->setPaper('A4', 'landscape');
                         $pdf->render();
                         // return $pdf->output();

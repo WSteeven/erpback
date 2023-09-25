@@ -36,7 +36,7 @@ class GastoCoordinadorController extends Controller
     public function index()
     {
         $results = [];
-        $usuario = Auth::user()->empleado;
+        $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
             $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->get();
