@@ -2,6 +2,9 @@
 
 namespace Src\App\ComprasProveedores;
 
+use App\Models\ComprasProveedores\CriterioCalificacion;
+use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Models\Proveedor;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -145,6 +148,46 @@ class ProveedorService
             return $a[$var_ordenacion] <=> $b[$var_ordenacion]; //ordena de menor a mayor o de A a Z
             // return $b[$var_ordenacion] <=> $a[$var_ordenacion]; //ordena de mayor a menor o de Z a A
         });
+
+        return $results;
+    }
+
+    public function empaquetarDatosCalificacionProveedor($proveedor)
+    {
+        $results = [];
+        $cont = 0;
+        // Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor->departamentos_califican()->get()]);
+        foreach ($proveedor->departamentos_califican()->get() as $detalle) {
+            // Log::channel('testing')->info('Log', ['Det', $detalle]); //este es el detalle_departamento_proveedor, de aqui obtendras la calificacion global y el empleado que califica
+            $row['ruc']  = $proveedor->empresa->identificacion;
+            $row['razon_social']  = $proveedor->empresa->razon_social;
+            $row['sucursal']  = $proveedor->sucursal;
+            $row['departamento']  = $detalle->nombre;
+            $detalle_departamentos = DetalleDepartamentoProveedor::find($detalle->pivot->id);
+            $row['empleado'] = $detalle_departamentos->empleado?->nombres . ' ' . $detalle_departamentos->empleado?->apellidos;
+            $row['calificacion'] = $detalle_departamentos->calificacion;
+            $row['fecha_calificacion'] = $detalle_departamentos->fecha_calificacion;
+            $calificaciones_bienes = [];
+            $calificaciones_servicios = [];
+            // Log:channel('testing')->info('Log', ['Detalle', $detalle_departamentos]); //este es el detalle_departamento_proveedor, de aqui obtendras la calificacion global y el empleado que califica
+            foreach ($detalle_departamentos->calificaciones_criterios()->get() as $index => $criterio) {
+                // Log::channel('testing')->info('Log', ['Criterio', $criterio]); //estas son las calificaciones del departamento en curso
+                // Log::channel('testing')->info('Log', ['Pivote', $criterio->pivot]); //estas son las calificaciones del departamento en curso
+                $calificacion['criterio'] = $criterio->nombre;
+                $calificacion['comentario'] = $criterio->pivot->comentario;
+                $calificacion['peso'] = $criterio->pivot->peso;
+                $calificacion['puntaje'] = $criterio->pivot->puntaje;
+                $calificacion['calificacion'] = $criterio->pivot->calificacion;
+                if ($criterio->oferta->nombre == OfertaProveedor::BIENES)
+                    $calificaciones_bienes[$index] = $calificacion;
+                else $calificaciones_servicios[$index] = $calificacion;
+            }
+            $row['calificaciones_bienes'] = $calificaciones_bienes;
+            $row['calificaciones_servicios'] = $calificaciones_servicios;
+            $results[$cont] = $row;
+            $cont++;
+        }
+        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacionProveedor->empaquetarDatos', $results]);
 
         return $results;
     }

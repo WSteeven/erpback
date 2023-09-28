@@ -31,7 +31,7 @@ class OrdenCompraCreadaEvent implements ShouldBroadcast
     {
         $this->orden = $orden;
 
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::ORDEN_COMPRA, $orden->solicitante_id, $orden->destinatario_id, $orden, $informativa);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::ORDEN_COMPRA, $orden->solicitante_id, $orden->autorizador_id, $orden, $informativa);
     }
 
     /**

@@ -32,7 +32,7 @@ class OrdenCompraResource extends JsonResource
             'autorizacion' => $this->autorizacion->nombre,
             'autorizacion_id' => $this->autorizacion_id,
             'descripcion' => $this->descripcion,
-            'proveedor' => $this->proveedor->empresa->razon_social,
+            'proveedor' => $this->proveedor?->empresa->razon_social,
             'causa_anulacion' => $this->causa_anulacion,
             'estado' => $this->estado->nombre,
             'estado_id' => $this->estado_id,
