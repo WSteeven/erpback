@@ -29,6 +29,7 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use App\Models\Comprobante;
+use App\Models\ConfiguracionGeneral;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -96,7 +97,7 @@ class TransaccionBodegaEgresoController extends Controller
 
         // Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
 
-        $materialesTarea = collect($results)->map(function ($item, $index) use($materialesUtilizadosHoy) {
+        $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -109,7 +110,7 @@ class TransaccionBodegaEgresoController extends Controller
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
             ];
@@ -355,6 +356,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new TransaccionBodegaResource($transaccion);
         $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->per_atiende_id);
@@ -362,8 +364,8 @@ class TransaccionBodegaEgresoController extends Controller
         try {
             $transaccion = $resource->resolve();
 
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
-            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente']));
+            // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
+            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -381,6 +383,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $results = [];
         $registros = [];
         switch ($request->accion) {
@@ -396,7 +399,7 @@ class TransaccionBodegaEgresoController extends Controller
                     $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
                     $reporte = $registros;
                     $peticion = $request->all();
-                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion']));
+                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion', 'configuracion']));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
                     return $pdf->output();

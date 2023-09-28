@@ -8,6 +8,7 @@ use App\Http\Resources\ClienteResource;
 use App\Http\Resources\TransaccionBodegaResource;
 use App\Models\Cliente;
 use App\Models\Condicion;
+use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProducto;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\Devolucion;
@@ -30,7 +31,6 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Config\ClientesCorporativos;
-use Src\Config\TiposReportesIngresos;
 use Src\Shared\Utils;
 
 class TransaccionBodegaIngresoController extends Controller
@@ -316,6 +316,7 @@ class TransaccionBodegaIngresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new TransaccionBodegaResource($transaccion);
         $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->solicitante_id);
@@ -323,7 +324,7 @@ class TransaccionBodegaIngresoController extends Controller
         try {
             Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende, 'cliente' => $cliente]]);
             $transaccion = $resource->resolve();
-            $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende', 'cliente']));
+            $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -342,6 +343,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function reportes(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
+        $configuracion = ConfiguracionGeneral::first();
         $results = [];
         $registros = [];
         switch ($request->accion) {
@@ -359,7 +361,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $registros = TransaccionBodega::obtenerDatosReporteIngresos($results);
                     $reporte = $registros;
                     $peticion = $request->all();
-                    $pdf = Pdf::loadView('bodega.reportes.ingresos_bodega', compact(['reporte', 'peticion']));
+                    $pdf = Pdf::loadView('bodega.reportes.ingresos_bodega', compact(['reporte', 'peticion', 'configuracion']));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
                     return $pdf->output();

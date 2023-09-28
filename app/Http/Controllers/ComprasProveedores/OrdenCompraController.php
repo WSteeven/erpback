@@ -4,28 +4,20 @@ namespace App\Http\Controllers\ComprasProveedores;
 
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
-use App\Events\ComprasProveedores\OrdenCompraEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
-use App\Http\Resources\ComprasProveedores\ProveedorResource;
-use App\Http\Resources\EmpleadoResource;
 use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
-use App\Models\ComprasProveedores\PreordenCompra;
-use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
-use App\Models\Proveedor;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ComprasProveedores\OrdenCompraService;
 use Src\Shared\Utils;
 
@@ -67,7 +59,6 @@ class OrdenCompraController extends Controller
         $autorizacion_pendiente = Autorizacion::where('nombre', Autorizacion::PENDIENTE)->first();
         $estado_pendiente = EstadoTransaccion::where('nombre', EstadoTransaccion::PENDIENTE)->first();
 
-        // Log::channel('testing')->info('Log', ['Request recibida en ordenes de compras:', $request->all()]);
         try {
             DB::beginTransaction();
             //Adaptacion de foreign keys
@@ -80,7 +71,7 @@ class OrdenCompraController extends Controller
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-
+            
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             if (count($request->categorias) == 0) {
                 unset($datos['categorias']);
@@ -90,8 +81,9 @@ class OrdenCompraController extends Controller
             //Creación de la orden de compra
             $orden = OrdenCompra::create($datos);
             // Guardar los detalles de la orden de compra
-            OrdenCompra::guardarDetalles($orden, $request->listadoProductos);
-
+            OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
+            Log::channel('testing')->info('Log', ['Paso guardar ordenes de compras y detalles:']);
+            
             //Respuesta
             $modelo = new OrdenCompraResource($orden);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -142,15 +134,15 @@ class OrdenCompraController extends Controller
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
-            if (count($request->categorias) == 0) {
-                unset($datos['categorias']);
-            } else {
-                $datos['categorias'] = implode(',', $request->categorias);
-            }
+            // if()if (count($request->categorias) == 0) {
+            //     unset($datos['categorias']);
+            // } else {
+            //     $datos['categorias'] = implode(',', $request->categorias);
+            // }
             //Creación de la orden de compra
             $orden->update($datos);
             // Sincronizar los detalles de la orden de compra
-            OrdenCompra::guardarDetalles($orden, $request->listadoProductos);
+            OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'actualizar');
 
             //Respuesta
             $modelo = new OrdenCompraResource($orden);

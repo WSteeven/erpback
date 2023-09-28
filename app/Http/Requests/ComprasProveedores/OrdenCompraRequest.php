@@ -27,7 +27,7 @@ class OrdenCompraRequest extends FormRequest
         return [
             'codigo' => 'required|string',
             'solicitante' => 'required|numeric|exists:empleados,id',
-            'proveedor' => 'required|numeric|exists:proveedores,id',
+            'proveedor' => 'nullable|numeric|exists:proveedores,id',
             'autorizador' => 'required|numeric|exists:empleados,id',
             'autorizacion' => 'required|numeric|exists:autorizaciones,id',
             'preorden' => 'nullable|sometimes|numeric|exists:cmp_preordenes_compras,id',
@@ -36,8 +36,8 @@ class OrdenCompraRequest extends FormRequest
             'observacion_aut' => 'nullable|sometimes|string',
             'observacion_est' => 'nullable|sometimes|string',
             'descripcion' => 'required|string',
-            'forma' => 'required|string',
-            'tiempo' => 'required|string',
+            'forma' => 'nullable|string',
+            'tiempo' => 'nullable|string',
             'fecha' => 'required|string',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'categorias' => 'sometimes|nullable',
@@ -50,7 +50,7 @@ class OrdenCompraRequest extends FormRequest
     {
         $this->merge(['fecha' => date('Y-m-d', strtotime($this->fecha))]);
         if ($this->autorizacion === 2 && $this->preorden) $this->merge(['estado' => 2]);
-        
+
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);
 

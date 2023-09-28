@@ -9,6 +9,7 @@ use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
 use App\Models\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -244,6 +245,7 @@ class ProveedorController extends Controller
      */
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
         $results = [];
         try {
@@ -264,7 +266,7 @@ class ProveedorController extends Controller
                     try {
                         $reporte = $registros;
                         $peticion = $request->all();
-                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion']));
+                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
                         $pdf->setPaper('A4', 'landscape');
                         $pdf->render();
                         // return $pdf->output();
@@ -289,19 +291,14 @@ class ProveedorController extends Controller
 
     public function reporteCalificacion(Proveedor $proveedor)
     {
-        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor]);
-        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor->departamentos_califican()->get()]);
-        foreach ($proveedor->departamentos_califican()->get() as $detalle) {
-            $detalle_departamentos = DetalleDepartamentoProveedor::find($detalle->pivot->id); 
-            Log::channel('testing')->info('Log', ['Detalle', $detalle_departamentos]); //este es el detalle_departamento_proveedor, de aqui obtendras la calificacion global y el empleado que califica
-            foreach ($detalle_departamentos->calificaciones_criterios()->get() as $criterio) {
-                Log::channel('testing')->info('Log', ['Criterio', $criterio->pivot]); //estas son las calificaciones del departamento en curso
-            }
+        try {
+            $registros = $this->proveedorService->empaquetarDatosCalificacionProveedor($proveedor);
+
+            return Excel::download(new CalificacionProveedorExcel(collect($registros)), 'calificacion_proveedor.xlsx');
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error en reporte de calificacion de proveedores', $ex->getMessage(), $ex->getLine()]);
+            return response()->json(['message' => 'Error de validacion' . $ex->getMessage() . $ex->getLine()], 422);
         }
-        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacion', $proveedor->departamentos_califican()->calificaciones_criterios()]);
-        // $registros = Proveedor::find($proveedor->id);
-        // Log::channel('testing')->info('Log', ['ProveedorController -> registros', $registros]);
-        // return Excel::download(new CalificacionProveedorExcel(collect($registros)), 'calificacion_proveedor_' . $proveedor->empresa->ruc . '.xlsx');
     }
 
 
