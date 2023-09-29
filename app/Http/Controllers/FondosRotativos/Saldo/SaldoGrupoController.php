@@ -22,6 +22,7 @@ use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Exports\TranferenciaSaldoExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
@@ -634,6 +635,7 @@ class SaldoGrupoController extends Controller
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
+            $configuracion = ConfiguracionGeneral::first();
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
@@ -642,6 +644,7 @@ class SaldoGrupoController extends Controller
                 'usuario' => $usuario,
                 'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
                 'acreditaciones' => $acreditaciones,
+                'configuracion'=>$configuracion,
                 'gastos' => $gastos,
                 'gastos_reporte' => $gastos_reporte,
                 'transferencia' => $transferencia,

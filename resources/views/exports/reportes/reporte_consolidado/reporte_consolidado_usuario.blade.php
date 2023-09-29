@@ -149,6 +149,7 @@
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
+                                                        {{ $configuracion }}
                                                         {{ $empleado->nombres.' '.$empleado->apellidos }}
                                                     </div>
                                                 </td>
