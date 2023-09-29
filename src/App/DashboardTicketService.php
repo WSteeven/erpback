@@ -62,4 +62,38 @@ class DashboardTicketService
 
         return Ticket::whereIn('responsable_id', $idsEmpleados)->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin)->get();
     }
+
+    public function obtenerCantidadTicketsPorDepartamentoEstado($estado)
+    {
+        $fechaInicio = request('fecha_inicio');
+        $fechaFin = request('fecha_fin');
+
+        // Conversion de fechas
+        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        $departamentoResponsableId = request('departamento_responsable_id');
+
+        return Ticket::select('*', 'tickets.estado')
+            ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+            ->where('departamento_responsable_id', $departamentoResponsableId)
+            ->where('tickets.estado', $estado)
+            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
+            ->get();
+
+        /* return DB::table('tickets')->select(DB::raw("CONCAT(empleados.nombres, ' ', empleados.apellidos) AS responsable"), 'tickets.*')
+            ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+            ->where('departamento_responsable_id', $departamentoResponsableId)
+            ->where('tickets.estado', $estado)
+            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
+            ->get(); */
+
+        /* return DB::table('tickets')->select(DB::raw("CONCAT(empleados.nombres, ' ', empleados.apellidos) AS responsable"), DB::raw('COUNT(tickets.codigo) as total_tickets'), 'tickets.estado')
+            ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+            ->where('departamento_responsable_id', $departamentoResponsableId)
+            ->where('tickets.estado', $estado)
+            ->whereBetween('tickets.created_at', [$fechaInicio, $fechaFin])->orWhere('tickets.created_at', $fechaFin)
+            ->groupBy('responsable')
+            ->get(); */
+    }
 }

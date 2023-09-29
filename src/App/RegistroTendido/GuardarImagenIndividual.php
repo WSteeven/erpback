@@ -16,7 +16,7 @@ class GuardarImagenIndividual
     {
         $this->imagen_base64 = $imagen_base64;
         $this->ruta = $ruta;
-        $this->nombre_predeterminado = $nombre_predeterminado;
+        $this->nombre_predeterminado = $nombre_predeterminado ?? '';
     }
 
     public function execute()
