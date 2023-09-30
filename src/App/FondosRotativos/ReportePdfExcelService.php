@@ -40,7 +40,9 @@ class ReportePdfExcelService
     public function imprimir_reporte($tipo_archivo, $tamanio_pagina, $orientacion_pagina, $reportes, $nombre_reporte, $vista, object $export_excel = null)
     {
         try {
-
+            $configuracion = ConfiguracionGeneral::first();
+            $reportes['configuracion']= $configuracion;
+            $reportes['copyright']= 'Esta informacion es propiedad de '. $configuracion->razon_social.' - Prohibida su divulgacion';
             switch ($tipo_archivo) {
                 case 'excel':
                     return Excel::download($export_excel, $nombre_reporte . '.xlsx');
@@ -51,8 +53,9 @@ class ReportePdfExcelService
                         'totalPages' => true,
                     ]);
                     $pdf->setPaper($tamanio_pagina, $orientacion_pagina);
+                    $configuracion = ConfiguracionGeneral::first();
 
-                    return $pdf->stream($nombre_reporte . '.pdf', ['pdf' => $pdf]);
+                    return $pdf->stream($nombre_reporte . '.pdf', ['pdf' => $pdf,'configuracion'=>$configuracion,]);
                     break;
             }
         } catch (Throwable $th) {
