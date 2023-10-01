@@ -72,7 +72,7 @@ class RolPagosController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true,$rolpago->empleado_id);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_ROL_EMPLEADO, true, $rolpago->empleado_id);
         $rolpago->rol_firmado = $archivoJSON;
         $rolpago->estado = RolPago::FINALIZADO;
         $rolpago->save();
@@ -109,31 +109,64 @@ class RolPagosController extends Controller
     }
     private function GuardarIngresos($ingreso, $rolPago)
     {
-        $datos = $ingreso;
-        $datos['id_rol_pago'] =  $rolPago->id;
         DB::beginTransaction();
-        $rolPago = IngresoRolPago::create($datos);
-        DB::commit();
+        try {
+            $ingresoData = [
+                'id_rol_pago' => $rolPago->id,
+                'monto' => $ingreso['monto'],
+                'concepto' => $ingreso['concepto'],
+            ];
+
+            IngresoRolPago::updateOrInsert(
+                ['id_rol_pago' => $ingresoData['id_rol_pago'], 'concepto' => $ingresoData['concepto']],
+                $ingresoData
+            );
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+        }
     }
     private function GuardarEgresos($egreso, $rolPago)
     {
-        $datos = $egreso;
-        $datos['id_rol_pago'] =  $rolPago->id;
-        DB::beginTransaction();
-        $id_descuento = $datos['id_descuento'];
-        $entidad = null;
-        switch ($datos['tipo']) {
-            case 'DESCUENTO_GENERAL':
-                $entidad = DescuentosGenerales::find($id_descuento);
-                break;
-            case 'MULTA':
-                $entidad = Multas::find($id_descuento);
-                break;
-            default:
-                break;
+        try {
+            DB::beginTransaction();
+
+            $id_descuento = $egreso['id_descuento'];
+            $tipo = null;
+            $entidad = null;
+
+            switch ($egreso['tipo']) {
+                case 'DESCUENTO_GENERAL':
+                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
+                    $entidad = DescuentosGenerales::find($id_descuento);
+                    break;
+                case 'MULTA':
+                    $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\Multas';
+                    $entidad = Multas::find($id_descuento);
+                    break;
+            }
+
+            if (!$entidad) {
+                throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
+            }
+
+            $id_rol_pago = $rolPago->id;
+            $existe_egreso = EgresoRolPago::where('id_rol_pago', $id_rol_pago)
+                ->where('descuento_id', $id_descuento)
+                ->where('descuento_type', $tipo)
+                ->count();
+
+            if ($existe_egreso == 0) {
+                EgresoRolPago::crearEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
+            } else {
+                EgresoRolPago::editarEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
         }
-        $rolPago = EgresoRolPago::crearEgresoRol($datos['id_rol_pago'], $datos['monto'], $entidad);
-        DB::commit();
     }
     public function show(RolPago $rolPago)
     {
@@ -154,8 +187,8 @@ class RolPagosController extends Controller
         $sueldo = $salario;
         $iess = ($sueldo) * $porcentaje_iess;
         $total_descuento =  round(($supa + $prestamo_hipotecario + $extension_conyugal + $prestamo_quirorafario + $iess), 2);
-        $porcentaje_endeudamiento =($total_descuento / $sueldo) * 100;
-        $porcentaje_endeudamiento = round(($porcentaje_endeudamiento),2);
+        $porcentaje_endeudamiento = ($total_descuento / $sueldo) * 100;
+        $porcentaje_endeudamiento = round(($porcentaje_endeudamiento), 2);
 
         $results = [
             'total_descuento' => $total_descuento,
@@ -247,5 +280,4 @@ class RolPagosController extends Controller
             ->update(['estado' => RolPago::EJECUTANDO]);
         return response()->json(['mensaje' => 'Se ha comenzado a ejecutar todo el rol']);
     }
-
 }
