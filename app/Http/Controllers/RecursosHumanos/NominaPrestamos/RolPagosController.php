@@ -280,4 +280,11 @@ class RolPagosController extends Controller
             ->update(['estado' => RolPago::EJECUTANDO]);
         return response()->json(['mensaje' => 'Se ha comenzado a ejecutar todo el rol']);
     }
+    public function finalizar_masivo(Request $request)
+    {
+        // Realizar la actualización masiva
+        RolPago::where('rol_pago_id',  $request->rol_pago_id)->where('estado', RolPago::EJECUTANDO)
+            ->update(['estado' => RolPago::FINALIZADO]);
+        return response()->json(['mensaje' => 'Se ha finalizado todo el rol']);
+    }
 }
