@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class RechazarGastoJob implements ShouldQueue
 {
@@ -32,7 +33,11 @@ class RechazarGastoJob implements ShouldQueue
      */
     public function handle()
     {
-        $gasto = Gasto::where('estado',3)->update(array('estado' => 2, 'detalle_estado' =>'RECHAZADO POR EL SISTEMA'));
-        event(new FondoRotativoEvent($gasto));
+        $gasto_pendientes = Gasto::where('estado', 3)->get();
+        foreach ($gasto_pendientes as $gasto) {
+            $gasto->estado =2;
+            event(new FondoRotativoEvent($gasto));
+        }
+        $gasto = Gasto::where('estado', 3)->update(array('estado' => 2, 'detalle_estado' => 'RECHAZADO POR EL SISTEMA'));
     }
 }
