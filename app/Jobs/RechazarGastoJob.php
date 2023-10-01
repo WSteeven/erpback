@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\FondoRotativoEvent;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -32,6 +33,6 @@ class RechazarGastoJob implements ShouldQueue
     public function handle()
     {
         $gasto = Gasto::where('estado',3)->update(array('estado' => 2, 'detalle_estado' =>'RECHAZADO POR EL SISTEMA'));
-
+        event(new FondoRotativoEvent($gasto));
     }
 }
