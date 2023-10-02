@@ -1,5 +1,9 @@
 <html>
-
+@php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +15,8 @@
         }
 
         body {
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -80,10 +85,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-@endphp
 
 <body>
     <header>
@@ -92,7 +93,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                            src="{{$logo_principal }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -108,9 +109,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -122,88 +121,88 @@
         </table>
     </footer>
     <main>
-        @if($empleado == null)
-        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
-            <tr>
-                <td width="15%" bgcolor="#a9d08e">
-                    <div align="center"><strong>FECHA</strong></div>
-                </td>
-                <td width="17%" bgcolor="#a9d08e">
-                    <div align="center"><strong>REMITENTE</strong></div>
-                </td>
-                <td width="20%" bgcolor="#a9d08e">
-                    <div align="center"><strong>DESTINATARIO</strong></div>
-                </td>
-                <td width="20%" bgcolor="#a9d08e">
-                    <div align="center"><strong>MONTO</strong></div>
-                </td>
-                <td width="20%" bgcolor="#a9d08e">
-                    <div align="center"><strong>#COMPROBANTE</strong></div>
-                </td>
-                <td width="35%" bgcolor="#a9d08e">
-                    <div align="center"><strong>MOTIVO</strong></div>
-                </td>
-                <td width="24%" bgcolor="#a9d08e">
-                    <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
-                </td>
-            </tr>
-            @if ($transferencia_total == 0)
+        @if ($empleado == null)
+            <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                 <tr>
-                    <td colspan="7">
-                        <div align="center">NO HAY TRANSFERENCIAS </div>
+                    <td width="15%" bgcolor="#a9d08e">
+                        <div align="center"><strong>FECHA</strong></div>
+                    </td>
+                    <td width="17%" bgcolor="#a9d08e">
+                        <div align="center"><strong>REMITENTE</strong></div>
+                    </td>
+                    <td width="20%" bgcolor="#a9d08e">
+                        <div align="center"><strong>DESTINATARIO</strong></div>
+                    </td>
+                    <td width="20%" bgcolor="#a9d08e">
+                        <div align="center"><strong>MONTO</strong></div>
+                    </td>
+                    <td width="20%" bgcolor="#a9d08e">
+                        <div align="center"><strong>#COMPROBANTE</strong></div>
+                    </td>
+                    <td width="35%" bgcolor="#a9d08e">
+                        <div align="center"><strong>MOTIVO</strong></div>
+                    </td>
+                    <td width="24%" bgcolor="#a9d08e">
+                        <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                     </td>
                 </tr>
-            @else
-            @foreach ( $transferencias as $transferencia_data)
-            <tr>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->fecha }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->monto }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->cuenta }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->motivo }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="center">
-                        {{ $transferencia_data->observacion }}
-                    </div>
-                </td>
-            </tr>
-        @endforeach
-                <tr>
-                    <td>&nbsp;</td>
-                    <td colspan="5" style="font-size:10px">
-                        <div align="right"><strong>TOTAL DE TRANSFERENCIAS :&nbsp;</strong></div>
-                    </td>
-                    <td style="font-size:10px">
-                        <div align="center">{{ number_format($transferencia_total, 2, ',', '.') }}</div>
-                    </td>
-                </tr>
-            @endif
-        </table>
+                @if ($transferencia_total == 0)
+                    <tr>
+                        <td colspan="7">
+                            <div align="center">NO HAY TRANSFERENCIAS </div>
+                        </td>
+                    </tr>
+                @else
+                    @foreach ($transferencias as $transferencia_data)
+                        <tr>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->fecha }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->usuario_envia->nombres . ' ' . $transferencia_data->usuario_envia->apellidos }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->usuario_recibe->nombres . ' ' . $transferencia_data->usuario_recibe->apellidos }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->monto }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->cuenta }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->motivo }}
+                                </div>
+                            </td>
+                            <td style="font-size:10px">
+                                <div align="center">
+                                    {{ $transferencia_data->observacion }}
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td colspan="5" style="font-size:10px">
+                            <div align="right"><strong>TOTAL DE TRANSFERENCIAS :&nbsp;</strong></div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">{{ number_format($transferencia_total, 2, ',', '.') }}</div>
+                        </td>
+                    </tr>
+                @endif
+            </table>
         @endif
         @if ($empleado != null)
             <p

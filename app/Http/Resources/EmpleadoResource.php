@@ -75,7 +75,8 @@ class EmpleadoResource extends JsonResource
             'genero' => $this->genero,
             'esta_en_rol_pago'=> $this-> esta_en_rol_pago,
             'acumula_fondos_reserva' => $this-> acumula_fondos_reserva,
-            'realiza_factura'=> $this-> realiza_factura
+            'realiza_factura'=> $this-> realiza_factura,
+            'familiares' => $this->familiares_info
         ];
 
         if ($controller_method == 'show') {
