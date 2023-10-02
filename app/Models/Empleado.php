@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -312,6 +313,10 @@ class Empleado extends Model implements Auditable
     public function estadoCivil()
     {
         return $this->hasOne(EstadoCivil::class,'id','estado_civil_id');
+    }
+    public function familiares_info()
+    {
+        return $this->hasMany(Familiares::class,'empleado_id','id');
     }
     /**
      * Relación uno a uno.
