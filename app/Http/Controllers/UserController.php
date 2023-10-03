@@ -130,7 +130,7 @@ class UserController extends Controller
         ->join('empleados', 'users.id', '=', 'empleados.usuario_id')
         ->where('users.id', '!=', $user->id)
         ->where('users.id','!=',$jefe)
-        ->where('empleados.estado',1)->orderby('users.name', 'asc')->get();
+        ->where('empleados.estado','!=',false)->orderby('users.name', 'asc')->get();
         return response()->json(['results' => UserInfoResource::collection($users)]);
     }
     public function recuperarPassword(Request $request)

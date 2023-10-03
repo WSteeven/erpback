@@ -2,19 +2,24 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Exports\RolPagoExport;
 use App\Exports\RolPagoGeneralExport;
 use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
+use App\Mail\RolPagoEmail;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use App\Models\User;
+use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
@@ -116,6 +121,30 @@ class RolPagoMesController extends Controller
                 'Error al generar reporte' => [$e->getMessage()],
             ]);
         }
+    }
+    public function enviarRoles($rolPagoId)
+    {
+        $rolesPago = RolPago::where('rol_pago_id', $rolPagoId)->get();
+        foreach ($rolesPago as $rol_pago) {
+            $empleado = Empleado::where('id',$rol_pago->empleado_id)->first();
+            $this->enviar_rol_pago($rol_pago->id, $empleado);
+        }
+    }
+    public function enviar_rol_pago($rolPagoId,$destinatario)
+    {
+        $nombre_reporte = 'rol_pagos';
+        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
+        $results = RolPago::empaquetarListado($roles_pagos);
+        $reportes =  ['roles_pago' => $results];
+        $vista = 'recursos-humanos.rol_pagos';
+        $export_excel = new RolPagoExport($reportes);
+        $pdfContent = $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        $user = User::where('id', $destinatario->usuario_id)->first();
+        // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
+        //Mail::to($user->email)
+
+        Mail::to('hsimbana@jpconstrucred.com')
+            ->send(new RolPagoEmail($results, $pdfContent));
     }
     public function imprimir_reporte_general(Request $request, $rolPagoId)
     {
