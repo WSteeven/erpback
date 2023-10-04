@@ -2,25 +2,32 @@
 
 namespace App\Mail;
 
+use App\Models\Empleado;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class RolPagoEmail extends Mailable
 {
     use Queueable, SerializesModels;
-
+private $reportes;
+private $pdf;
+private Empleado $empleado;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($reportes, $pdf,$empleado)
     {
-        //
+        $this->reportes = $reportes;
+        $this->pdf = $pdf;
+        $this->empleado = $empleado;
     }
 
     /**
@@ -44,6 +51,7 @@ class RolPagoEmail extends Mailable
     {
         return new Content(
             view: 'recursos-humanos.rol_pagos',
+            with: $this->reportes
         );
     }
 
@@ -54,6 +62,10 @@ class RolPagoEmail extends Mailable
      */
     public function attachments()
     {
-        return [];
+      /*  $filename ='rol_pago'. time() . '.pdf';
+        $ruta = 'public' . DIRECTORY_SEPARATOR . 'compras' . DIRECTORY_SEPARATOR . 'ordenes_compras' . DIRECTORY_SEPARATOR . $filename;
+        $path =Storage::put($ruta, $this->pdf);
+        return Attachment::fromStorage($path)->as('rol_pago' )->withMime('application/pdf');*/
+
     }
 }
