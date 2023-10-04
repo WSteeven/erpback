@@ -125,9 +125,39 @@ class RolPago extends Model implements Auditable
         }
         return $results;
     }
-     // Relacion uno a muchos (inversa)
-     public function rolPagoMes()
-     {
-         return $this->hasOne(RolPagoMes::class, 'id','rol_pago_id');
-     }
+    public static function empaquetarCash($rol_pagos)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($rol_pagos as $rol_pago) {
+
+            $row['item'] = $id + 1;
+            $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+            $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
+            //    $row['email'] =  $rol_pago->empleado_info->email;
+            $row['tipo_pago'] = 'PA';
+            $row['tipo_pago'] = 'PA';
+            $row['numero_cuenta_empresa'] = '02653010903';
+            $row['moneda'] = 'USD';
+            $row['forma_pago'] = 'CTA';
+            $row['forma_pago'] = 'CTA';
+            $row['codigo_banco'] = '0036';
+            $row['tipo_cuenta'] = 'AHO';
+            $row['tipo_documento_empleado'] = 'C';
+            $row['mes'] = strtoupper('PAGO ROL FIN DE MES ' . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
+            $row['cedula'] =  $rol_pago->empleado_info->identificacion;
+            $row['total'] = $rol_pago->total;
+            $results[$id] = $row;
+
+            $id++;
+        }
+        return $results;
+    }
+    // Relacion uno a muchos (inversa)
+    public function rolPagoMes()
+    {
+        return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
+    }
 }
