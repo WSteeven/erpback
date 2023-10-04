@@ -126,11 +126,10 @@ class RolPagoMesController extends Controller
     {
         $rolesPago = RolPago::where('rol_pago_id', $rolPagoId)->get();
         $empleado = Empleado::where('id',26)->first();
-        $this->enviar_rol_pago(503, $empleado);
-       /* foreach ($rolesPago as $rol_pago) {
+        foreach ($rolesPago as $rol_pago) {
             $empleado = Empleado::where('id',$rol_pago->empleado_id)->first();
             $this->enviar_rol_pago($rol_pago->id, $empleado);
-        }*/
+        }
     }
     public function enviar_rol_pago($rolPagoId,$destinatario)
     {
@@ -140,12 +139,10 @@ class RolPagoMesController extends Controller
         $reportes =  ['roles_pago' => $results];
         $vista = 'recursos-humanos.rol_pagos';
         $export_excel = new RolPagoExport($reportes);
-        $pdfContent = $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        $pdfContent = $this->reporteService->enviar_pdf( 'A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();
         // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
-        //Mail::to($user->email)
-
-        Mail::to('hsimbana@jpconstrucred.com')
+        Mail::to($user->email)
             ->send(new RolPagoEmail($reportes, $pdfContent,$destinatario));
     }
     public function imprimir_reporte_general(Request $request, $rolPagoId)

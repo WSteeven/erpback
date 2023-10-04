@@ -63,4 +63,15 @@ class ReportePdfExcelService
             throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine());
         }
     }
+    public function enviar_pdf($tamanio_pagina, $orientacion_pagina, $reportes, $vista){
+        $configuracion = ConfiguracionGeneral::first();
+        $reportes['configuracion']= $configuracion;
+        $reportes['copyright']= 'Esta informacion es propiedad de '. $configuracion->razon_social.' - Prohibida su divulgacion';
+        $pdf = Pdf::loadView($vista, $reportes);
+        $pdf->setPaper($tamanio_pagina, $orientacion_pagina);
+        $pdf->setOption(['isRemoteEnabled' => true]);
+        $pdf->render();
+        $file = $pdf->output(); //se genera el pdf
+        return $file;
+    }
 }
