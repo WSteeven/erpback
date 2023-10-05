@@ -221,11 +221,16 @@ class EmpleadoController extends Controller
         if (!is_null($request->password)) {
             // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);
             $empleado->user()->update([
-                'name' => $request->usuario,
-                'email' => $request->email,
+                /*'name' => $request->usuario,
+                'email' => $request->email,*/
                 'password' => bcrypt($request->password),
             ]);
         }
+
+        $empleado->user()->update([
+            'name' => $request->usuario,
+            'email' => $request->email,
+        ]);
 
         // $empleado->user()->update(['status' => $request->estado === 'ACTIVO' ? true : false]);
         $modelo = new EmpleadoResource($empleado->refresh());

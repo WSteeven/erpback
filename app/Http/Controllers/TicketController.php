@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ActualizarNotificacionesEvent;
 use App\Events\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
@@ -106,8 +107,10 @@ class TicketController extends Controller
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
+            event(new ActualizarNotificacionesEvent());
         } else {
             event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+            event(new ActualizarNotificacionesEvent());
         }
 
         return response()->json(compact('modelo', 'mensaje'));
@@ -123,6 +126,7 @@ class TicketController extends Controller
         $mensaje = 'Ticket ejecutado exitosamente!';
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -150,6 +154,8 @@ class TicketController extends Controller
         $mensaje = 'Ticket pausado exitosamente!';
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
+
         // event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -167,6 +173,7 @@ class TicketController extends Controller
         $mensaje = 'Ticket reanudado exitosamente!';
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
 
         //event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
         return response()->json(compact('modelo', 'mensaje'));
@@ -184,6 +191,7 @@ class TicketController extends Controller
         $mensaje = 'Ticket finalizado exitosamente!';
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -205,6 +213,7 @@ class TicketController extends Controller
         $mensaje = 'Ticket finalizado exitosamente!';
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -234,6 +243,7 @@ class TicketController extends Controller
         $mensaje = 'Ticket rechazado exitosamente!';
 
         event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('modelo', 'mensaje'));
     }

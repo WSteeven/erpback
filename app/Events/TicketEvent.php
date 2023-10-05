@@ -37,6 +37,8 @@ class TicketEvent implements ShouldBroadcast
         $ruta = '/tickets-asignados';
         $mensaje = $this->obtenerMensaje();
 
+        $ticket->notificaciones()->update(['leida' => 1]);
+
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::TICKET, $emisor, $destinatario, $ticket, true);
     }
 
@@ -62,7 +64,7 @@ class TicketEvent implements ShouldBroadcast
                 return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . '.';
             case Ticket::PAUSADO:
                 // $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . '.';// MOTIVO: ' . $motivo;
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . '.'; // MOTIVO: ' . $motivo;
             case Ticket::RECHAZADO:
                 $motivo = $this->ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
                 return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . '. MOTIVO: ' . $motivo;
