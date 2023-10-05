@@ -57,19 +57,21 @@ class TicketEvent implements ShouldBroadcast
     {
         switch ($this->ticket->estado) {
             case Ticket::ASIGNADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha asignado el ticket ' . $this->ticket->codigo . '.';
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha ASIGNADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
             case Ticket::REASIGNADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha transferido el ticket ' . $this->ticket->codigo . '.';
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha REASIGNADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
             case Ticket::EJECUTANDO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . '.';
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . ' con asunto: '  . $this->ticket->asunto;
             case Ticket::PAUSADO:
-                // $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . '.'; // MOTIVO: ' . $motivo;
+                $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('created_at', 'DESC')->first()->motivo;
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
             case Ticket::RECHAZADO:
                 $motivo = $this->ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . '. MOTIVO: ' . $motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
+            case Ticket::CANCELADO:
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha CANCELADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $this->ticket->motivoCanceladoTicket?->motivo;
             case Ticket::FINALIZADO_SOLUCIONADO || Ticket::FINALIZADO_SOLUCIONADO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha FINALIZADO el ticket ' . $this->ticket->codigo . '.';
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha FINALIZADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
         }
     }
 }
