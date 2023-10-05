@@ -102,4 +102,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'FinalizarRolPago']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
+    Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
+
 });

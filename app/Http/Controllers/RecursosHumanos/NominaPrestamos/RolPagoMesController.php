@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Exports\CashRolPagoExport;
 use App\Exports\RolPagoExport;
 use App\Exports\RolPagoGeneralExport;
 use App\Exports\RolPagoMesExport;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -125,14 +127,26 @@ class RolPagoMesController extends Controller
     public function enviarRoles($rolPagoId)
     {
         $rolesPago = RolPago::where('rol_pago_id', $rolPagoId)->get();
-        $empleado = Empleado::where('id',26)->first();
-        $this->enviar_rol_pago(503, $empleado);
-       /* foreach ($rolesPago as $rol_pago) {
-            $empleado = Empleado::where('id',$rol_pago->empleado_id)->first();
+        $empleado = Empleado::where('id', 26)->first();
+        foreach ($rolesPago as $rol_pago) {
+            $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
             $this->enviar_rol_pago($rol_pago->id, $empleado);
-        }*/
+        }
     }
-    public function enviar_rol_pago($rolPagoId,$destinatario)
+
+    public function crear_cash_rol_pago($rolPagoId)
+    {
+        $nombre_reporte = 'rol_pagos_general';
+        $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
+            ->where('rol_pago_id', $rolPagoId)
+            ->get();
+            $results = RolPago::empaquetarCash($roles_pagos);
+            $reporte = ['reporte' => $results];
+         $export_excel = new CashRolPagoExport($reporte);
+         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+
+    }
+    public function enviar_rol_pago($rolPagoId, $destinatario)
     {
         $nombre_reporte = 'rol_pagos';
         $roles_pagos = RolPago::where('id', $rolPagoId)->get();
@@ -140,13 +154,11 @@ class RolPagoMesController extends Controller
         $reportes =  ['roles_pago' => $results];
         $vista = 'recursos-humanos.rol_pagos';
         $export_excel = new RolPagoExport($reportes);
-        $pdfContent = $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();
         // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
-        //Mail::to($user->email)
-
-        Mail::to('hsimbana@jpconstrucred.com')
-            ->send(new RolPagoEmail($reportes, $pdfContent,$destinatario));
+        Mail::to($user->email)
+            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario));
     }
     public function imprimir_reporte_general(Request $request, $rolPagoId)
     {
