@@ -86,7 +86,9 @@ class PrestamoEmpresarialController extends Controller
                 'pago_couta' => false,
                 'num_cuota' => $plazo['num_cuota'],
                 'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'valor_couta' => $plazo['valor_couta'],
                 'valor_a_pagar' => $plazo['valor_couta']
+
             ];
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazosActualizados);
