@@ -74,7 +74,7 @@ class DashboardTicketService
 
         $departamentoResponsableId = request('departamento_responsable_id');
 
-        return Ticket::select('*', 'tickets.estado')
+        return Ticket::select('*', 'tickets.id', 'tickets.estado')
             ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
             ->where('departamento_responsable_id', $departamentoResponsableId)
             ->where('tickets.estado', $estado)
