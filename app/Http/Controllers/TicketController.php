@@ -56,6 +56,7 @@ class TicketController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('mensaje', 'modelo'));
     }
