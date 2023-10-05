@@ -226,7 +226,7 @@ class DetalleProducto extends Model implements Auditable
      * Relación uno a uno (inversa).
      * Un detalle es un activo fijo.
      */
-    public function activo()
+    public function activo_fijo()
     {
         return $this->hasOne(ActivoFijo::class);
     }

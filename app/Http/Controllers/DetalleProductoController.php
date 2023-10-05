@@ -124,13 +124,13 @@ class DetalleProductoController extends Controller
                 $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
 
+            $modelo = new DetalleProductoResource($detalle);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
         }
-        $modelo = new DetalleProductoResource($detalle);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -230,7 +230,7 @@ class DetalleProductoController extends Controller
      * Desactivar un detalle especifico
      */
     public function desactivar(DetalleProducto $detalle){
-        Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
+        // Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
         $detalle->activo = !$detalle->activo;
         $detalle->save();
 
