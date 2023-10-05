@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
-use Maatwebsite\Excel\Excel;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -141,10 +141,9 @@ class RolPagoMesController extends Controller
             ->where('rol_pago_id', $rolPagoId)
             ->get();
             $results = RolPago::empaquetarCash($roles_pagos);
-
-        Log::channel('testing')->info('Log', ['roles_pagos', $results]);
-        // $export_excel = new CashRolPagoExport($reporte);
-        // return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+            $reporte = ['reporte' => $results];
+         $export_excel = new CashRolPagoExport($reporte);
+         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
 
     }
     public function enviar_rol_pago($rolPagoId, $destinatario)
