@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Events\PedidoAutorizadoEvent;
 use App\Events\PedidoCreadoEvent;
-use App\Events\PedidoEvent;
 use App\Exports\Bodega\PedidoExport;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
@@ -24,7 +23,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
-use Spatie\Permission\Models\Role;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -64,7 +62,11 @@ class PedidoController extends Controller
 
 
         // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
-        $results = PedidoResource::collection($results);
+        if(!empty($results)){
+            $results = PedidoResource::collection($results);
+        }else{
+            $results = [];
+        }
         return response()->json(compact('results'));
     }
 

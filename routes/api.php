@@ -228,31 +228,11 @@ Route::apiResources(
 /**
  * Rutas para obtener empleados por cierto rol
  */
-Route::get('empleados-roles', function (Request $request) {
-    $results = [];
-    $roles = [];
-    if (!is_null($request->roles)) {
-        $roles = explode(',', $request->roles);
-        $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
-            $query->where('estado', true);
-        })->get());
-    }
-    return response()->json(compact('results'));
-})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+Route::get('empleados-roles',  [EmpleadoController::class, 'empleadosRoles'])->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
 /**
  * Ruta para obtener empleados por cierto permiso
  */
-Route::get('empleados-permisos', function (Request $request) {
-    $permisos = [];
-    $results = [];
-    if (!is_null($request->permisos)) {
-        $permisos = explode(',', $request->permisos);
-        $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-
-        $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
-    }
-    return response()->json(compact('results'));
-})->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
+Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos'] )->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
 
 
 /**

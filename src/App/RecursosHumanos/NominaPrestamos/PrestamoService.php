@@ -2,6 +2,7 @@
 
 namespace Src\App\RecursosHumanos\NominaPrestamos;
 
+use App\Models\RecursosHumanos\NominaPrestamos\PlazoPrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoEmpresarial;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
@@ -110,10 +111,27 @@ class PrestamoService
                 ->where('prestamo_empresarial.solicitante', $this->id_empleado)
                 ->whereYear('plazo_prestamo_empresarial.fecha_vencimiento', $anio)
                 ->whereMonth('plazo_prestamo_empresarial.fecha_vencimiento', $mes)
+                ->where('plazo_prestamo_empresarial.pago_couta', 0)
                 ->selectRaw('SUM(plazo_prestamo_empresarial.valor_a_pagar) as total_valor')
                 ->first();
 
             return $prestamo->total_valor != null ? $prestamo->total_valor : 0;
+        }
+    }
+    public function pagarPrestamoEmpresarial()
+    {
+        list($anio, $mes) = explode('-', $this->mes);
+        $prestamo = PlazoPrestamoEmpresarial::whereYear('fecha_vencimiento', $anio)
+            ->whereMonth('fecha_vencimiento', $mes)
+            ->where('pago_couta', 0)
+            ->first();
+        Log::channel('testing')->info('Log', ['prestamo pagado', $prestamo]);
+        if ($prestamo != null) {
+            $prestamo->valor_pagado = $prestamo->valor_a_pagar;
+            $prestamo->valor_a_pagar = 0;
+            $prestamo->fecha_pago = $prestamo->fecha_vencimiento;
+            $prestamo->pago_couta = 1;
+            $prestamo->save();
         }
     }
 }

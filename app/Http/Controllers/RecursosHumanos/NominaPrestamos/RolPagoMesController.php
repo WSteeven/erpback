@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
+use App\Exports\CashRolPagoExport;
+use App\Exports\RolPagoExport;
+use App\Exports\RolPagoGeneralExport;
 use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
+use App\Mail\RolPagoEmail;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
+use App\Models\User;
+use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Excel;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
@@ -116,7 +124,80 @@ class RolPagoMesController extends Controller
             ]);
         }
     }
+    public function enviarRoles($rolPagoId)
+    {
+        $rolesPago = RolPago::where('rol_pago_id', $rolPagoId)->get();
+        $empleado = Empleado::where('id', 26)->first();
+        foreach ($rolesPago as $rol_pago) {
+            $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+            $this->enviar_rol_pago($rol_pago->id, $empleado);
+        }
+    }
 
+    public function crear_cash_rol_pago($rolPagoId)
+    {
+        $nombre_reporte = 'rol_pagos_general';
+        $roles_pagos = RolPago::with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])
+            ->where('rol_pago_id', $rolPagoId)
+            ->get();
+            $results = RolPago::empaquetarCash($roles_pagos);
+
+        Log::channel('testing')->info('Log', ['roles_pagos', $results]);
+        // $export_excel = new CashRolPagoExport($reporte);
+        // return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+
+    }
+    public function enviar_rol_pago($rolPagoId, $destinatario)
+    {
+        $nombre_reporte = 'rol_pagos';
+        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
+        $results = RolPago::empaquetarListado($roles_pagos);
+        $reportes =  ['roles_pago' => $results];
+        $vista = 'recursos-humanos.rol_pagos';
+        $export_excel = new RolPagoExport($reportes);
+        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
+        $user = User::where('id', $destinatario->usuario_id)->first();
+        // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
+        Mail::to($user->email)
+            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario));
+    }
+    public function imprimir_reporte_general(Request $request, $rolPagoId)
+    {
+        $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
+        $nombre_reporte = 'rol_pagos_general';
+        $roles_de_pago = RolPago::where('rol_pago_id', $rolPagoId)->with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])->get();
+        $sumatoria = RolPago::where('rol_pago_id', $rolPagoId)
+            ->select(
+                DB::raw('SUM(decimo_tercero) as decimo_tercero'),
+                DB::raw('SUM(decimo_cuarto) as decimo_cuarto'),
+                DB::raw('SUM(fondos_reserva) as fondos_reserva'),
+                DB::raw('SUM(bonificacion) as bonificacion'),
+                DB::raw('SUM(total_ingreso) as total_ingreso'),
+                DB::raw('SUM(comisiones) as comisiones'),
+                DB::raw('SUM(iess) as iess'),
+                DB::raw('SUM(anticipo) as anticipo'),
+                DB::raw('SUM(prestamo_quirorafario) as prestamo_quirorafario'),
+                DB::raw('SUM(prestamo_hipotecario) as prestamo_hipotecario'),
+                DB::raw('SUM(extension_conyugal) as extension_conyugal'),
+                DB::raw('SUM(prestamo_empresarial) as prestamo_empresarial'),
+                DB::raw('SUM(bono_recurente) as bono_recurente'),
+                DB::raw('SUM(total_egreso) as total_egreso'),
+                DB::raw('SUM(total) as total'),
+            )
+            ->first();
+        $results = RolPago::empaquetarListado($roles_de_pago);
+        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $column_names_ingresos =  array_unique($column_names_ingresos['ingresos']);
+        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
+        $column_names_egresos = array_unique($column_names_egresos['egresos']);
+        $colum_ingreso_value = $this->colum_values($results,  $column_names_ingresos, 'ingresos', 'concepto_ingreso_info');
+        $colum_egreso_value = $this->colum_values($results, $column_names_egresos, 'egresos', 'descuento');
+        $rolPago = RolPagoMes::where('id', $rolPagoId)->first();
+        $reportes = ['reporte' => $sumatoria, 'rolPago' => $rolPago, 'ingresos' => $this->sumatoria_llaves($colum_ingreso_value), 'egresos' => $this->sumatoria_llaves($colum_egreso_value)];
+        $vista = 'recursos-humanos.reporte_general';
+        $export_excel = new RolPagoGeneralExport($reportes);
+        return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+    }
     private function generate_report_data($roles_pagos, $nombre)
     {
         $es_quincena = RolPagoMes::where('mes', $roles_pagos[0]->mes)->where('es_quincena', '1')->first() != null ? true : false;
@@ -195,6 +276,21 @@ class RolPagoMesController extends Controller
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
             'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
         ];
+    }
+    private function sumatoria_llaves($data)
+    {
+        // Inicializa un arreglo asociativo para almacenar la sumatoria por llaves
+        $sumatoria_por_llaves = [];
+
+        // Itera a través de la estructura de datos y calcula la suma por llaves y campo "valor"
+        foreach ($data as $key => $value) {
+            Log::channel('testing')->info('Log', ['key', $key]);
+            $sumatoria = array_sum(array_map(function ($entry) {
+                return floatval($entry["valor"]);
+            }, $value));
+            $sumatoria_por_llaves[$key] = $sumatoria;
+        }
+        return $sumatoria_por_llaves;
     }
     private function colum_values($data, $column_name, $key1, $key2)
     {
@@ -317,6 +413,9 @@ class RolPagoMesController extends Controller
                 $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
+                if (!$rol->es_quincena) {
+                    $this->prestamoService->pagarPrestamoEmpresarial();
+                }
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
                 $supa =  $rol->es_quincena ? 0 : $empleado->supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
