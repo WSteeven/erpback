@@ -9,6 +9,7 @@ use App\Http\Resources\TicketResource;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\CalificacionTicket;
 use App\Models\Empleado;
+use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;
 use App\Models\TicketRechazado;
 use Carbon\Carbon;
@@ -78,6 +79,10 @@ class TicketController extends Controller
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket cancelado exitosamente!';
+
+        event(new TicketEvent($ticket->refresh(), $modelo->solicitante_id, $modelo->responsable_id));
+        event(new ActualizarNotificacionesEvent());
+
         return response()->json(compact('modelo', 'mensaje'));
     }
 
@@ -103,8 +108,8 @@ class TicketController extends Controller
             ActividadRealizadaSeguimientoTicket::create([
                 'ticket_id' => $ticket->id,
                 'fecha_hora' => Carbon::now(),
-                'observacion' => 'TICKET TRANSFERIDO',
-                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha transferido el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'observacion' => 'TICKET REASIGNADO',
+                'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
@@ -147,8 +152,8 @@ class TicketController extends Controller
         ActividadRealizadaSeguimientoTicket::create([
             'ticket_id' => $ticket->id,
             'fecha_hora' => Carbon::now(),
-            'observacion' => '« SISTEMA »',
-            'actividad_realizada' => '»»» ' . Empleado::extraerNombresApellidos($ticket->responsable) . ' ha pausado el ticket.',
+            'observacion' => 'TICKET PAUSADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos($ticket->responsable) . ' ha pausado el ticket por el motivo: ' . MotivoPausaTicket::find($motivo_pausa_id)->motivo,
         ]);
 
         $modelo = new TicketResource($ticket->refresh());
