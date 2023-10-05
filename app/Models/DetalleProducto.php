@@ -101,7 +101,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalle_stock($detalle_id, $sucursal_id)
     {
         // SELECT SUM(cantidad) FROM inventarios where detalle_id=500 group by detalle_id
-        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->orderBy('cantidad', 'ASC')->first('cantidad');
+        return Inventario::where('sucursal_id', $sucursal_id)->where('detalle_id', $detalle_id)->orderBy('cantidad', 'desc')->first('cantidad');
     }
 
 
@@ -161,8 +161,8 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
-    
-    
+
+
     /**
      * Relación muchos a muchos.
      * Uno o varios detalles de producto estan en una preorden.
@@ -172,8 +172,8 @@ class DetalleProducto extends Model implements Auditable
         return $this->belongsToMany(PreordenCompra::class, 'cmp_item_detalle_preorden_compra', 'preorden_id', 'detalle_id')
             ->withPivot('cantidad')->withTimestamps();
     }
-    
-    
+
+
     /**
      * Relación muchos a muchos.
      * Uno o varios detalles de producto estan en una preorden.
@@ -246,27 +246,27 @@ class DetalleProducto extends Model implements Auditable
      * FUNCIONES
      * _______________________________
      */
-    
+
      /**
      * La función `crearDetalle` crea un nuevo registro `DetalleProducto` en la base de datos y lo
      * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
      * solicitud.
-     * 
+     *
      * @param request El parámetro  es un objeto que contiene los datos de la solicitud HTTP,
      * como el método de solicitud, los encabezados y el cuerpo.
      * @param datos El parámetro "datos" es un arreglo que contiene los datos necesarios para crear un
      * nuevo registro "DetalleProducto". Las claves específicas y sus valores correspondientes en el
      * arreglo dependen de los requerimientos del modelo "DetalleProducto".
-     * 
+     *
      * @return la variable .
      */
     public static function crearDetalle($request, $datos){
         try{
             DB::beginTransaction();
-            
+
             $detalle = DetalleProducto::create($datos);
             if ($request->categoria === 'INFORMATICA') {
-            
+
                 $detalle->computadora()->create([
                     'memoria_id' => $datos['ram'],
                     'disco_id' => $datos['disco'],

@@ -248,6 +248,7 @@ Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgr
 /*********************************************************
  * ANULACIONES
  ********************************************************/
+Route::post('detalles/anular/{detalle}', [DetalleProductoController::class, 'desactivar']);
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
