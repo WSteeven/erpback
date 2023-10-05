@@ -105,7 +105,8 @@ class OrdenCompra extends Model implements Auditable
    * Relación uno a uno.
    * Una orden de compra puede tener asociada una tarea
    */
-  public function tarea(){
+  public function tarea()
+  {
     return $this->belongsTo(Tarea::class);
   }
 
@@ -214,15 +215,18 @@ class OrdenCompra extends Model implements Auditable
     return [$subtotal, $iva, $descuento, $total];
   }
 
-  public static function guardarDetalles($orden, $items)
+  public static function guardarDetalles($orden, $items, $metodo)
   {
-    Log::channel('testing')->info('Log', ['Request :', $orden, $items]);
+    // Log::channel('testing')->info('Log', ['Request :', $orden, $items]);
     try {
       DB::beginTransaction();
-      $datos = array_map(function ($detalle) {
+      $datos = array_map(function ($detalle) use ($metodo) {
+        Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
+        if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
+        // Log::channel('testing')->info('Log', ['Producto:', $producto]);
         return [
-          'producto_id' => $detalle['id'],
-          'descripcion' => $detalle['descripcion']?Utils::mayusc($detalle['descripcion']):$detalle['producto'],
+          'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
+          'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
           'cantidad' => $detalle['cantidad'],
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
           'facturable' => $detalle['facturable'],
@@ -233,9 +237,10 @@ class OrdenCompra extends Model implements Auditable
           'total' => $detalle['total'],
         ];
       }, $items);
+      Log::channel('testing')->info('Log', ['Datos:', $datos]);
       $orden->productos()->sync($datos);
 
-      Log::channel('testing')->info('Log', ['Request :', $orden->productos()->count(), $orden->preorden_id]);
+      Log::channel('testing')->info('Log', ['linea 241 :', $orden->productos()->count(), $orden->preorden_id]);
       // aquí se modifica el estado de la preorden de compra
       if ($orden->productos()->count() > 0 && $orden->preorden_id) {
         $preorden = PreordenCompra::find($orden->preorden_id);

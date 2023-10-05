@@ -23,11 +23,11 @@ class ArchivoService
     /**
      * La función "listarArchivos" recupera una lista de archivos asociados con una entidad modelo
      * determinada en PHP.
-     * 
+     *
      * @param Model entidad El parámetro "entidad" es una instancia de la clase `Model`. Representa
      * una entidad o un objeto modelo que tiene una relación con la tabla `archivos`. Se supone que la
      * tabla `archivos` es una tabla relacionada con el modelo `entidad`, y la tabla `archivos`
-     * 
+     *
      * @return results archivos asociados con la entidad modelo dada.
      */
     public static function listarArchivos(Model $entidad)
@@ -61,7 +61,7 @@ class ArchivoService
     {
         try {
             DB::beginTransaction();
-            self::crearDirectorioconPermisos($ruta);
+            self::crearDirectorioConPermisos($ruta);
             $path = $archivo->store($ruta);
             $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
             $modelo =  $entidad->archivos()->create([
@@ -81,11 +81,11 @@ class ArchivoService
 
     /**
      * La función crea un directorio con permisos en PHP usando la clase Storage del framework Laravel.
-     * 
+     *
      * @param string ruta El parámetro "ruta" es una cadena que representa la ruta del directorio que
      * se debe crear.
      */
-    private static function crearDirectorioconPermisos(string $ruta)
+    private static function crearDirectorioConPermisos(string $ruta)
     {
         try {
             if (!Storage::exists($ruta)) {

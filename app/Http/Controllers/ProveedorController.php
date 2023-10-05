@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
+use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
 use App\Models\Proveedor;
-use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
-use Hamcrest\Type\IsInteger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -245,6 +245,7 @@ class ProveedorController extends Controller
      */
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
         $results = [];
         try {
@@ -253,7 +254,7 @@ class ProveedorController extends Controller
             $results = $this->proveedorService->filtrarProveedores($request);
             $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
             $contactos = $this->proveedorService->empaquetarDatosContactos($results, 'razon_social');
-            $datosBancarios= $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
+            $datosBancarios = $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
             switch ($request->accion) {
                 case 'excel':
                     $reporte = $registros;
@@ -265,7 +266,7 @@ class ProveedorController extends Controller
                     try {
                         $reporte = $registros;
                         $peticion = $request->all();
-                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion']));
+                        $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
                         $pdf->setPaper('A4', 'landscape');
                         $pdf->render();
                         // return $pdf->output();
@@ -286,6 +287,18 @@ class ProveedorController extends Controller
         }
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    public function reporteCalificacion(Proveedor $proveedor)
+    {
+        try {
+            $registros = $this->proveedorService->empaquetarDatosCalificacionProveedor($proveedor);
+
+            return Excel::download(new CalificacionProveedorExcel(collect($registros)), 'calificacion_proveedor.xlsx');
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error en reporte de calificacion de proveedores', $ex->getMessage(), $ex->getLine()]);
+            return response()->json(['message' => 'Error de validacion' . $ex->getMessage() . $ex->getLine()], 422);
+        }
     }
 
 

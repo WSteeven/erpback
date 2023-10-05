@@ -128,6 +128,9 @@ Route::middleware('auth:sanctum')->get('/user', fn (Request $request) => new Use
 /* Route::middleware('auth:sanctum')->get('/user/permisos', function (Request $request) {
     return $request->user()->allPermissions;
 }); */
+// Configuracion general
+Route::get('configuracion', [ConfiguracionGeneralController::class, 'index']);
+Route::middleware('auth:sanctum')->post('configuracion', [ConfiguracionGeneralController::class, 'store']);
 
 Route::post('validar_cedula', [ValidarCedulaController::class, 'validarCedula']);
 Route::post('validar_ruc', [ValidarCedulaController::class, 'validarRUC']);
@@ -141,7 +144,7 @@ Route::apiResources(
         'categorias' => CategoriaController::class,
         'clientes' => ClienteController::class,
         'condiciones' => CondicionController::class,
-        'configuracion' => ConfiguracionGeneralController::class,
+        // 'configuracion' => ConfiguracionGeneralController::class,
         'control-stocks' => ControlStockController::class,
         'comprobantes' => ComprobanteController::class,
         'codigos-clientes' => CodigoClienteController::class,
@@ -225,31 +228,11 @@ Route::apiResources(
 /**
  * Rutas para obtener empleados por cierto rol
  */
-Route::get('empleados-roles', function (Request $request) {
-    $results = [];
-    $roles = [];
-    if (!is_null($request->roles)) {
-        $roles = explode(',', $request->roles);
-        $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
-            $query->where('estado', true);
-        })->get());
-    }
-    return response()->json(compact('results'));
-})->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
+Route::get('empleados-roles',  [EmpleadoController::class, 'empleadosRoles'])->middleware('auth:sanctum'); //usuarios con uno o varios roles enviados desde el front
 /**
  * Ruta para obtener empleados por cierto permiso
  */
-Route::get('empleados-permisos', function (Request $request) {
-    $permisos = [];
-    $results = [];
-    if (!is_null($request->permisos)) {
-        $permisos = explode(',', $request->permisos);
-        $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-
-        $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
-    }
-    return response()->json(compact('results'));
-})->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
+Route::get('empleados-permisos', [EmpleadoController::class, 'empleadoPermisos'] )->middleware('auth:sanctum'); //usuarios con uno o varios permisos enviados desde el front
 
 
 /**
@@ -262,9 +245,11 @@ Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimi
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
 
-//anular ingreso
+/*********************************************************
+ * ANULACIONES
+ ********************************************************/
+Route::post('detalles/anular/{detalle}', [DetalleProductoController::class, 'desactivar']);
 Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngresoController::class, 'anular'])->middleware('auth:sanctum');
-
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
@@ -286,6 +271,7 @@ Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']
  * REPORTES DE COMPRAS Y PROVEEDORES
  ******************************************************/
 Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
+Route::get('proveedores/imprimir-calificacion/{proveedor}', [ProveedorController::class, 'reporteCalificacion']);
 
 
 //gestionar egresos

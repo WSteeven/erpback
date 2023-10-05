@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Events\PedidoAutorizadoEvent;
 use App\Events\PedidoCreadoEvent;
-use App\Events\PedidoEvent;
+use App\Exports\Bodega\PedidoExport;
 use App\Http\Requests\PedidoRequest;
 use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
+use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
 use App\Models\Inventario;
 use App\Models\Pedido;
@@ -16,10 +17,12 @@ use App\Models\Sucursal;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -50,7 +53,7 @@ class PedidoController extends Controller
             $results = Pedido::filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
             $results = Pedido::filtrarPedidosActivosFijos($estado);
-        } else if(auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)){
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
             $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
@@ -59,7 +62,11 @@ class PedidoController extends Controller
 
 
         // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
-        $results = PedidoResource::collection($results);
+        if(!empty($results)){
+            $results = PedidoResource::collection($results);
+        }else{
+            $results = [];
+        }
         return response()->json(compact('results'));
     }
 
@@ -111,10 +118,10 @@ class PedidoController extends Controller
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' indicando que tú eres el responsable de los materiales, el estado del pedido es ' . $pedido->autorizacion->nombre;
                 event(new PedidoCreadoEvent($msg, $url, $pedido, $pedido->solicitante_id, $pedido->responsable_id, false));
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if($esPedidoTelconet)event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             } else {
                 $msg = 'Pedido N°' . $pedido->id . ' ' . $pedido->solicitante->nombres . ' ' . $pedido->solicitante->apellidos . ' ha realizado un pedido en la sucursal ' . $pedido->sucursal->lugar . ' y está ' . $pedido->autorizacion->nombre . ' de autorización';
@@ -189,10 +196,10 @@ class PedidoController extends Controller
             if ($pedido->autorizacion->nombre === Autorizacion::APROBADO) {
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 $msg = 'Hay un pedido recién autorizado en la sucursal ' . $pedido->sucursal->lugar . ' pendiente de despacho';
-                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido){
+                $esPedidoTelconet = collect($idsSucursalesTelconet)->contains(function ($item) use ($pedido) {
                     return $item->id == $pedido->sucursal_id;
                 });
-                if($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
+                if ($esPedidoTelconet) event(new PedidoAutorizadoEvent($msg, User::BODEGA_TELCONET, $url, $pedido, true));
                 else event(new PedidoAutorizadoEvent($msg, User::ROL_BODEGA, $url, $pedido, true));
             }
 
@@ -278,9 +285,10 @@ class PedidoController extends Controller
      */
     public function imprimir(Pedido $pedido)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new PedidoResource($pedido);
         try {
-            $pdf = Pdf::loadView('pedidos.pedido', $resource->resolve());
+            $pdf = Pdf::loadView('pedidos.pedido', ['pedido' => $resource->resolve(), 'configuracion' => $configuracion]);
             $pdf->setPaper('A5', 'landscape');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
@@ -290,12 +298,12 @@ class PedidoController extends Controller
             $ruta = storage_path() . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'pedidos' . DIRECTORY_SEPARATOR . $filename;
 
             // $filename = storage_path('public\\pedidos\\').'Pedido_'.$resource->id.'_'.time().'.pdf';
-            // Log::channel('testing')->info('Log', ['El pedido es', $resource]);
+            // Log::channel('testing')->info('Log', ['El pedido es', $resource, $configuracion]);
             // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
             return $file;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-            $mensaje = $ex->getMessage().'. '.$ex->getLine();
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'));
         }
     }
@@ -321,57 +329,78 @@ class PedidoController extends Controller
 
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $estadisticas = [];
-        // Log::channel('testing')->info('Log', ['Request recibida:', $request->all()]);
-        switch ($request->autorizacion) {
-            case 0:
-                switch ($request->estado) {
-                    case 0:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                        }
-                        break;
-                    default:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                        }
+        $results = new Collection();
+        switch ($request->accion) {
+            case 'excel':
+                $registros = $results;
+                return Excel::download(new PedidoExport(collect($results)), 'reporte_pedidos.xlsx');
+                break;
+            case 'pdf':
+                try {
+                    $vista = 'pedidos.pedido';
+                    $pdf = Pdf::loadView($vista, compact(['reporte', 'configuracion']));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw ValidationException::withMessages([
+                        'Error al generar reporte' => [$ex->getMessage()],
+                    ]);
                 }
                 break;
             default:
-                switch ($request->estado) {
+                switch ($request->autorizacion) {
                     case 0:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        switch ($request->estado) {
+                            case 0:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
+                                break;
+                            default:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
                         }
                         break;
                     default:
-                        if ($request->fecha_inicio && $request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                        }
-                        if ($request->fecha_inicio && !$request->fecha_fin) {
-                            $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                        switch ($request->estado) {
+                            case 0:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
+                                break;
+                            default:
+                                if ($request->fecha_inicio && $request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
+                                }
+                                if ($request->fecha_inicio && !$request->fecha_fin) {
+                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
+                                }
                         }
                 }
+                // calculo de las estadisticas que se mostraran en grafico de pie
+                $count_autorizados = $results->countBy('autorizacion_id');
+                $count_estados = $results->countBy('estado_id');
+                if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
+                if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
+                if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
+                if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
+                if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
+                if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
+                if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
         }
-        // calculo de las estadisticas que se mostraran en grafico de pie
-        $count_autorizados = $results->countBy('autorizacion_id');
-        $count_estados = $results->countBy('estado_id');
-        if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
-        if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
-        if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
-        if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
-        if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
-        if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
-        if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
         // Log::channel('testing')->info('Log', ['Conteo de autorizados:', $count_autorizados, $count_estados]);
         // Log::channel('testing')->info('Log', ['Estadisticas:', $estadisticas]);
 

@@ -11,7 +11,11 @@ class OfertaProveedor extends Model
     use HasFactory;
     public $table = 'ofertas_proveedores';
     public $fillable = ['nombre'];
-
+   
+   
+    //TIPOS DE OFERTAS 
+    const BIENES ='BIENES';
+    const SERVICIOS='SERVICIOS';
 
     public function servicios_ofertados()
     {

@@ -36,12 +36,12 @@ class GastoCoordinadorController extends Controller
     public function index()
     {
         $results = [];
-        $usuario = Auth::user()->empleado;
+        $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->orderBy('fecha_gasto','desc')->get();
         } else {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->id)->get();
+            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto','desc')->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -62,8 +62,7 @@ class GastoCoordinadorController extends Controller
             $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
             $modelo = GastoCoordinador::create($datos);
             $modelo->detalle_motivo_info()->sync($request->motivo);
-            $contabilidad = User::with('empleado')->where('name', 'mvalarezo')->first();
-            event(new SolicitudFondosEvent($modelo, $contabilidad));
+            event(new SolicitudFondosEvent($modelo));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

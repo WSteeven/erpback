@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use App\Traits\UppercaseValuesTrait;
 
 class ConfiguracionGeneral extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel;
-    
+    use HasFactory, UppercaseValuesTrait, AuditableModel;
+
 
     protected $table = 'configuraciones_generales';
     protected $fillable = [

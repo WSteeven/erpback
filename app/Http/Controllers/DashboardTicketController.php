@@ -88,18 +88,20 @@ class DashboardTicketController extends Controller
         $tiemposTicketsFinalizados = $this->mapearTickets($ticketsFinalizados);
 
         $ticketsPorEstado = TicketResource::collection($this->obtenerTicketsPorEstado()); //$this->ajustarEstadosPorEstado($this->obtenerTicketsPorEstado());
-        $ticketsPorDepartamentoEstadoAsignado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::ASIGNADO);
-        $ticketsPorDepartamentoEstadoReasignado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::REASIGNADO);
-        $ticketsPorDepartamentoEstadoEjecutando = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::EJECUTANDO);
-        $ticketsPorDepartamentoEstadoPausado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::PAUSADO);
-        $ticketsPorDepartamentoEstadoFinalizadoSolucionado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO);
-        $ticketsPorDepartamentoEstadoFinalizadoSinSolucion = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SIN_SOLUCION);
-        $ticketsPorDepartamentoEstadoCalificado = $this->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::CALIFICADO);
+        // Log::channel('testing')->info('Log', compact('temporal'));
+        $temporal = $this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::ASIGNADO);
+        $ticketsPorDepartamentoEstadoAsignado = TicketResource::collection($temporal);
+        $ticketsPorDepartamentoEstadoReasignado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::REASIGNADO));
+        $ticketsPorDepartamentoEstadoEjecutando = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::EJECUTANDO));
+        $ticketsPorDepartamentoEstadoPausado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::PAUSADO));
+        $ticketsPorDepartamentoEstadoFinalizadoSolucionado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO));
+        $ticketsPorDepartamentoEstadoFinalizadoSinSolucion = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SIN_SOLUCION));
+        $ticketsPorDepartamentoEstadoCalificado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::CALIFICADO));
 
         // nuevo
         $ticketsCreadosADepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsSolicitadosPorDepartamento());
         $ticketsRecibidosPorDepartamentos = TicketResource::collection($this->service->obtenerCantidadTicketsRecibidosPorDepartamento());
-        $ticketsAsignadsAlDepartamento = TicketResource::collection($this->service->obtenerTicketsFechaInicioFinEmpleadosSubordinados());
+        // $ticketsAsignadsAlDepartamento = TicketResource::collection($this->service->obtenerTicketsFechaInicioFinEmpleadosSubordinados());
 
         $results = compact(
             'cantTicketsCreados',
@@ -120,7 +122,7 @@ class DashboardTicketController extends Controller
             'tiemposTicketsFinalizados',
             'ticketsCreadosADepartamentos',
             'ticketsRecibidosPorDepartamentos',
-            'ticketsAsignadsAlDepartamento',
+            // 'ticketsAsignadsAlDepartamento',
             // Listados
             'ticketsPorEstado',
             'creados',
@@ -133,6 +135,7 @@ class DashboardTicketController extends Controller
             'ticketsPorDepartamentoEstadoFinalizadoSinSolucion',
             'ticketsPorDepartamentoEstadoCalificado',
             'creados',
+            // 'ticketsAsignadsAlDepartamento',
         );
 
         return response()->json(compact('results'));
@@ -193,7 +196,10 @@ class DashboardTicketController extends Controller
             ->get();
     }
 
-    private function obtenerCantidadTicketsPorDepartamentoEstado($estado)
+    // hueso carnudo - 1libra
+
+
+    private function obtenerCantidadTicketsPorDepartamentoEstadoOld($estado)
     {
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');

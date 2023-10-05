@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Permission;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 
@@ -379,5 +380,26 @@ class EmpleadoController extends Controller
         $nuevoJefe->syncRoles($nuevosRolesNuevoJefe);
 
         return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
+    }
+    public function empleadosRoles(Request $request){
+        $results = [];
+        $roles = [];
+        if (!is_null($request->roles)) {
+            $roles = explode(',', $request->roles);
+            $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
+                $query->where('estado', true);
+            })->get());
+        }
+        return response()->json(compact('results'));
+    }
+    public function empleadoPermisos (Request $request) {
+        $permisos = [];
+        $results = [];
+        if (!is_null($request->permisos)) {
+            $permisos = explode(',', $request->permisos);
+            $permisos_consultados = Permission::whereIn('name', $permisos)->get();
+            $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+        }
+        return response()->json(compact('results'));
     }
 }

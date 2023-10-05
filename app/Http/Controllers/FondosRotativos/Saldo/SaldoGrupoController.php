@@ -22,6 +22,7 @@ use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Exports\TranferenciaSaldoExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
@@ -514,8 +515,8 @@ class SaldoGrupoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
                 ->first();
-            $salt_ant = floatval($saldo_anterior != null ? $saldo_anterior->saldo_actual : 0);
-            $salt_ant = floatval($salt_ant);
+            $estado_cuenta_anterior = $request->fecha_inicio!='01-06-2023'? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario):$saldo_anterior->saldo_actual;
+            $salt_ant =  $estado_cuenta_anterior != 0 ? $estado_cuenta_anterior : $saldo_anterior->saldo_actual;
             $nuevo_elemento = [
                 'item' => 1,
                 'fecha' => $fecha_anterior,
@@ -531,7 +532,7 @@ class SaldoGrupoController extends Controller
                 ->prepend($nuevo_elemento)
                 ->toArray();
             $sub_total = 0;
-            $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
+            $nuevo_saldo = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
@@ -541,7 +542,7 @@ class SaldoGrupoController extends Controller
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'saldo_anterior' => $saldo_anterior != null ? $salt_ant : 0,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -671,11 +672,11 @@ class SaldoGrupoController extends Controller
             $transferencias = Transferencias::where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-                Log::channel('testing')->info('Log', ['transferencia', $transferencias]);
+            Log::channel('testing')->info('Log', ['transferencia', $transferencias]);
 
             $transferencia_total = Transferencias::where('estado', 1)
-            ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-            ->sum('monto');
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
 
 
             $empleado = null;

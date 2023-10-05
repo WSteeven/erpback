@@ -144,7 +144,7 @@ class Devolucion extends Model implements Auditable
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
-            $row['serial'] = $detalle->pivot->serial;
+            $row['serial'] = $detalle->serial;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $results[$id] = $row;

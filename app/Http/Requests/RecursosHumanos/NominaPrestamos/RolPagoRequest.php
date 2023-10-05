@@ -69,7 +69,6 @@ class RolPagoRequest extends FormRequest
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
-        Log::channel('testing')->info('Log', ['fondos de reserva',$this->dias, $fondos_reserva]);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
         $totalIngresos =  $rol->es_quincena ? 0 : $totalIngresos = !empty($this->ingresos)
