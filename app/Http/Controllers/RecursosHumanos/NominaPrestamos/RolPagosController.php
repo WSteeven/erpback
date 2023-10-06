@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ArchivoRolPagoResource;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoResource;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
@@ -267,7 +268,9 @@ class RolPagosController extends Controller
             $nombre_reporte = 'rol_pagos';
             $roles_pagos = RolPago::where('id', $rolPagoId)->get();
             $results = RolPago::empaquetarListado($roles_pagos);
-            $reportes =  ['roles_pago' => $results];
+            $recursosHumanos =Departamento::where('id', 7)->first()->responsable_id;
+            $responsable = Empleado::where('id', $recursosHumanos)->first();
+            $reportes =  ['roles_pago' => $results,'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
             return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);

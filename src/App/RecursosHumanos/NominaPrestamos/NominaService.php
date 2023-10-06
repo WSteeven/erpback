@@ -3,6 +3,7 @@
 namespace Src\App\RecursosHumanos\NominaPrestamos;
 
 use App\Mail\RolPagoEmail;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
@@ -198,7 +199,9 @@ class NominaService
         $nombre_reporte = 'rol_pagos';
         $roles_pagos = RolPago::where('id', $rolPagoId)->get();
         $results = RolPago::empaquetarListado($roles_pagos);
-        $reportes =  ['roles_pago' => $results];
+        $recursosHumanos =Departamento::where('id', 7)->first()->responsable_id;
+        $responsable = Empleado::where('id', $recursosHumanos)->first();
+        $reportes =  ['roles_pago' => $results,'responsable' => $responsable];
         $vista = 'recursos-humanos.rol_pagos';
         $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();

@@ -40,7 +40,7 @@ class RolPagoEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            // from: new Address('Roles de JP CONSTRUCRED'),
+             from: new Address('no-reply@jpconstrucred.com','JP CONSTRUCRED C.LTDA'),
             subject: 'Rol de Pagos de ' . $this->reportes['roles_pago'][0]['mes'],
         );
     }
