@@ -132,6 +132,8 @@ class RolPagoMesController extends Controller
             $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
             $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
         }
+        $mensaje = 'Rol de pago enviado correctamente';
+        return response()->json(compact('mensaje'));
     }
 
     public function crear_cash_rol_pago($rolPagoId)
@@ -144,7 +146,6 @@ class RolPagoMesController extends Controller
             $reporte = ['reporte' => $results];
          $export_excel = new CashRolPagoExport($reporte);
          return Excel::download($export_excel, $nombre_reporte . '.xlsx');
-
     }
 
     public function imprimir_reporte_general(Request $request, $rolPagoId)

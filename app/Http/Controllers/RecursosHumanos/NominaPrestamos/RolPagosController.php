@@ -86,10 +86,13 @@ class RolPagosController extends Controller
         $results = ArchivoRolPagoResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function enviar_rolPago_empleado($rolPagoId){
+    public function enviar_rolPago_empleado($rolPagoId)
+    {
         $rol_pago = RolPago::where('id', $rolPagoId)->first();
         $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
         $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
+        $mensaje = 'Rol de pago enviado correctamente';
+        return response()->json(compact('mensaje'));
     }
     public function store(RolPagoRequest $request)
     {
@@ -268,9 +271,9 @@ class RolPagosController extends Controller
             $nombre_reporte = 'rol_pagos';
             $roles_pagos = RolPago::where('id', $rolPagoId)->get();
             $results = RolPago::empaquetarListado($roles_pagos);
-            $recursosHumanos =Departamento::where('id', 7)->first()->responsable_id;
+            $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;
             $responsable = Empleado::where('id', $recursosHumanos)->first();
-            $reportes =  ['roles_pago' => $results,'responsable' => $responsable];
+            $reportes =  ['roles_pago' => $results, 'responsable' => $responsable];
             $vista = 'recursos-humanos.rol_pagos';
             $export_excel = new RolPagoExport($reportes);
             return $this->reporteService->imprimir_reporte('pdf', 'A5', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
