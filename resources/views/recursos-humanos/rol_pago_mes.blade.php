@@ -24,7 +24,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 4.3cm;
-            font-size: 12px;
+            font-size: 20px;
         }
 
         /** Definir las reglas del encabezado **/
@@ -68,7 +68,7 @@
         }
 
         table.datos {
-            font-size: 3pt;
+            font-size: 9pt;
             width: 100%;
             border-collapse: collapse;
         }
@@ -209,33 +209,32 @@
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     CEDULA</td>
-                <td
+                <!--<td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
-                    CARGO</td>
-                <td
+                    CARGO</td> -->
+                <!--<td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
-                    CIUDAD</td>
+                    CIUDAD</td>-->
                 <td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     SUELDO</td>
-                <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
-                </td>
+                <td rowspan="2" style="background-color: #F8CBAD">DIAS </td>
                 <th colspan="{{ $numcol_ingreso }}" scope="colgroup" class="encabezado-ingresos"
                     style="text-align: center !important;
                                                 background-color: #FFF2CC;">
                     INGRESOS</th>
-                <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
+                <td rowspan="2" style="background-color: #FFE699">TTII
                 </td>
                 <th colspan="{{ $numcol_egreso }}" scope="colgroup" class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
                     EGRESOS</th>
-                <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
+                <td rowspan="2" style="background-color: #CCCCFF">TTEE
                 </td>
-                <td rowspan="2" style="background-color:#A9D08E">NETO A RECIBIR
+                <td rowspan="2" style="background-color:#A9D08E">TTROL
                 </td>
 
             </tr>
@@ -247,15 +246,15 @@
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color: #FFF2CC;">
-                    DECIMO XII</th>
+                    XIIIROL</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color: #FFF2CC;">
-                    DECIMO XIV</th>
+                    XIVROL</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color:#FFF2CC;">
-                    FONDOS DE RESERVA</th>
+                    FDRAROL</th>
                 @if ($tiene_bonificacion)
                     <th scope="col"
                         class="encabezado-ingresos"style="text-align: center !important;
@@ -281,12 +280,12 @@
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    PRESTAMO QUIROGRAFARIO</th>
+                    PRSQRG</th>
 
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    PRESTAMO HIPOTECARIO</th>
+                    PRHIPO</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -294,7 +293,7 @@
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    EXT CONYUGAL</th>
+                    EXTCONYUGE</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -321,8 +320,8 @@
                     <td>{{ $rol_pago['item'] }}</td>
                     <td>{{ $rol_pago['empleado_info'] }}</td>
                     <td>{{ $rol_pago['cedula'] }}</td>
-                    <td>{{ $rol_pago['cargo'] }}</td>
-                    <td>{{ $rol_pago['ciudad'] }}</td>
+                   <!-- <td>{{-- $rol_pago['cargo'] --}}</td>-->
+                    <!--<td>$rol_pago['ciuda --}}d'] --}}</td>-->
                     <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
                     <td>{{ $rol_pago['dias_laborados'] }}</td>
                     <td>{{ number_format($rol_pago['sueldo'], 2, ',', '.') }}</td>
@@ -396,7 +395,7 @@
                 </tr>
             @endforeach
             <tr style="background-color: #FFE699">
-                <td colspan="5" style="text-align: center">
+                <td colspan="3" style="text-align: center">
                     <strong>TOTALES&nbsp;</strong>
                 </td>
                 <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
@@ -457,7 +456,7 @@
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 550, $text, $font, 12);
+                $pdf->page_text(10, 800, $text, $font, 12);
         }
     </script>
 </body>

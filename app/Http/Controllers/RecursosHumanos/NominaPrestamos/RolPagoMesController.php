@@ -116,7 +116,7 @@ class RolPagoMesController extends Controller
             $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A3', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -195,8 +195,8 @@ class RolPagoMesController extends Controller
             });
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
-        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'abreviatura');
+        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'abreviatura');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
         $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info');
         $columnas_egresos = array_unique($column_names_egresos['egresos']);
