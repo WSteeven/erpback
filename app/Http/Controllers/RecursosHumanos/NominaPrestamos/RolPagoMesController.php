@@ -130,7 +130,7 @@ class RolPagoMesController extends Controller
         $empleado = Empleado::where('id', 26)->first();
         foreach ($rolesPago as $rol_pago) {
             $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-            $this->enviar_rol_pago($rol_pago->id, $empleado);
+            $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
         }
     }
 
@@ -146,20 +146,7 @@ class RolPagoMesController extends Controller
          return Excel::download($export_excel, $nombre_reporte . '.xlsx');
 
     }
-    public function enviar_rol_pago($rolPagoId, $destinatario)
-    {
-        $nombre_reporte = 'rol_pagos';
-        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
-        $results = RolPago::empaquetarListado($roles_pagos);
-        $reportes =  ['roles_pago' => $results];
-        $vista = 'recursos-humanos.rol_pagos';
-        $export_excel = new RolPagoExport($reportes);
-        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
-        $user = User::where('id', $destinatario->usuario_id)->first();
-        // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
-        Mail::to($user->email)
-            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario));
-    }
+
     public function imprimir_reporte_general(Request $request, $rolPagoId)
     {
         $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;

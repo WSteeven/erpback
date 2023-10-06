@@ -64,7 +64,9 @@ class RolPagoRequest extends FormRequest
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
-        $dias = $this->dias;
+        $dias =  $nominaService->calcularDias($rol->es_quincena?15:30,$this->dias);
+        Log::channel('testing')->info('Log', ['dias', $dias]);
+
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
@@ -90,6 +92,7 @@ class RolPagoRequest extends FormRequest
         $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
         $total = abs($ingresos) - $egreso;
         $this->merge([
+            'dias' => $dias,
             'sueldo' =>  $sueldo,
             'decimo_tercero' =>  $decimo_tercero,
             'decimo_cuarto' =>  $decimo_cuarto,

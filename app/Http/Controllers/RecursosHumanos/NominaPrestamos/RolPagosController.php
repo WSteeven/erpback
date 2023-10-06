@@ -85,6 +85,11 @@ class RolPagosController extends Controller
         $results = ArchivoRolPagoResource::collection($results);
         return response()->json(compact('results'));
     }
+    public function enviar_rolPago_empleado($rolPagoId){
+        $rol_pago = RolPago::where('id', $rolPagoId)->first();
+        $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
+        $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
+    }
     public function store(RolPagoRequest $request)
     {
         try {
