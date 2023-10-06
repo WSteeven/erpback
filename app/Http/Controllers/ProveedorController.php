@@ -63,6 +63,7 @@ class ProveedorController extends Controller
             $datos = $request->validated();
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
+            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
 
             // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             //Respuesta
@@ -160,7 +161,8 @@ class ProveedorController extends Controller
             $datos = $request->validated();
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
-
+            $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
+            
             //Respuesta
             $proveedor->update($datos);
 

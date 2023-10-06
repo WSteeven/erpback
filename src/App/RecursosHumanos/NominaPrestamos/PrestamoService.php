@@ -107,15 +107,14 @@ class PrestamoService
             }
         } else {
             list($anio, $mes) = explode('-', $this->mes);
-            $prestamo = PrestamoEmpresarial::join('plazo_prestamo_empresarial', 'prestamo_empresarial.id', '=', 'plazo_prestamo_empresarial.id_prestamo_empresarial')
-                ->where('prestamo_empresarial.solicitante', $this->id_empleado)
-                ->whereYear('plazo_prestamo_empresarial.fecha_vencimiento', $anio)
-                ->whereMonth('plazo_prestamo_empresarial.fecha_vencimiento', $mes)
-                ->where('plazo_prestamo_empresarial.pago_couta', 0)
-                ->selectRaw('SUM(plazo_prestamo_empresarial.valor_a_pagar) as total_valor')
-                ->first();
-
-            return $prestamo->total_valor != null ? $prestamo->total_valor : 0;
+            $prestamo = PlazoPrestamoEmpresarial::
+            join('prestamo_empresarial',  'plazo_prestamo_empresarial.id_prestamo_empresarial', '=','prestamo_empresarial.id')
+            ->where('prestamo_empresarial.solicitante', $this->id_empleado)
+            ->whereYear('fecha_vencimiento', $anio)
+            ->whereMonth('fecha_vencimiento', $mes)
+            ->where('pago_couta', 0)
+            ->sum('valor_a_pagar');
+            return $prestamo != null ? $prestamo : 0;
         }
     }
     public function pagarPrestamoEmpresarial()
