@@ -116,7 +116,7 @@ class RolPagoMesController extends Controller
             $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A3', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -130,8 +130,10 @@ class RolPagoMesController extends Controller
         $empleado = Empleado::where('id', 26)->first();
         foreach ($rolesPago as $rol_pago) {
             $empleado = Empleado::where('id', $rol_pago->empleado_id)->first();
-            $this->enviar_rol_pago($rol_pago->id, $empleado);
+            $this->nominaService->enviar_rol_pago($rol_pago->id, $empleado);
         }
+        $mensaje = 'Rol de pago enviado correctamente';
+        return response()->json(compact('mensaje'));
     }
 
     public function crear_cash_rol_pago($rolPagoId)
@@ -144,22 +146,8 @@ class RolPagoMesController extends Controller
             $reporte = ['reporte' => $results];
          $export_excel = new CashRolPagoExport($reporte);
          return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+    }
 
-    }
-    public function enviar_rol_pago($rolPagoId, $destinatario)
-    {
-        $nombre_reporte = 'rol_pagos';
-        $roles_pagos = RolPago::where('id', $rolPagoId)->get();
-        $results = RolPago::empaquetarListado($roles_pagos);
-        $reportes =  ['roles_pago' => $results];
-        $vista = 'recursos-humanos.rol_pagos';
-        $export_excel = new RolPagoExport($reportes);
-        $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
-        $user = User::where('id', $destinatario->usuario_id)->first();
-        // Enviar el correo electrónico con el PDF adjunto utilizando la clase Mailable
-        Mail::to($user->email)
-            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario));
-    }
     public function imprimir_reporte_general(Request $request, $rolPagoId)
     {
         $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
@@ -207,8 +195,8 @@ class RolPagoMesController extends Controller
             });
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
-        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'nombre');
-        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'nombre');
+        $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'abreviatura');
+        $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'abreviatura');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
         $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info');
         $columnas_egresos = array_unique($column_names_egresos['egresos']);

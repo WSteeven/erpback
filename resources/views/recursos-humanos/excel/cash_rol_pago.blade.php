@@ -26,7 +26,7 @@
                 <td width='35%'>{{ $cash['tipo_documento_empleado'] }}</td>
                 <td width='100%'>{{ $cash['empleado_info'] }}</td>
                 <td width='100%'>{{ $cash['referencia'] }}</td>
-                <td width='100%'>{{ $cash['email'] }}</td>
+                <td width='100%'> |{{ $cash['email'] }}</td>
             </tr>
         @endforeach
 
