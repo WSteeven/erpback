@@ -261,7 +261,7 @@ class ProveedorController extends Controller
                 case 'excel':
                     $reporte = $registros;
                     Log::channel('testing')->info('Log', ['Lo que se va a imprimir', $reporte, $contactos, $datosBancarios]);
-                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios)), 'reporte_proveedores.xlsx');
+                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion), 'reporte_proveedores.xlsx');
                     // return $this->reporteService->imprimir_reporte('excel', 'A4', 'landscape', $reporte, 'reporte_proveedores', $vista, $export_excel);
                     break;
                 case 'pdf':

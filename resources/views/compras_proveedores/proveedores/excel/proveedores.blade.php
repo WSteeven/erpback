@@ -37,49 +37,6 @@
 </head>
 
 <body>
-    {{-- @php
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        $numcol_egreso = $cantidad_columna_egresos + 6;
-        $tiene_supa = $sumatoria['supa'] > 0;
-        $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-        $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-        $carry_ingreso = [];
-        $index_ingreso = 0;
-        $carry_egreso = [];
-        $index_egreso = 0;
-        if ($tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        }
-        if ($tiene_bonificacion) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 4;
-        }
-        if ($tiene_bonificacion && $tiene_bono_recurente) {
-            $numcol_ingreso = $cantidad_columna_ingresos + 5;
-        }
-
-        if ($tiene_supa) {
-            $numcol_egreso = $cantidad_columna_egresos + 7;
-        }
-        $sumColumns = [
-            'salario' => 0,
-            'sueldo' => 0,
-            'decimo_tercero' => 0,
-            'decimo_cuarto' => 0,
-            'fondos_reserva' => 0,
-            'iess' => 0,
-            'anticipo' => 0,
-            'bonificacion' => 0,
-            'bono_recurente' => 0,
-            'total_ingreso' => 0,
-            'prestamo_quirorafario' => 0,
-            'prestamo_hipotecario' => 0,
-            'extension_conyugal' => 0,
-            'prestamo_empresarial' => 0,
-            'supa' => 0,
-            'total_egreso' => 0,
-            'total' => 0,
-        ];
-    @endphp --}}
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <tr>
@@ -88,7 +45,7 @@
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
                     <tr>
                         <td width="17%">
-                            <img src="{{ public_path('img/logo.png') }}" width="90">
+                            <img src="{{ public_path($configuracion['logo_claro']) }}" width="90">
                         </td>
                         <td width="83%" style="font-size:16px; font-weight:bold">
                             <div align="center">JPCONSTRUCRED C.LTDA</div>

@@ -2,9 +2,12 @@
 
 namespace App\Exports\ComprasProveedores;
 
+use App\Models\ConfiguracionGeneral;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -19,9 +22,11 @@ class ProveedorExport implements WithMultipleSheets
     protected $proveedores;
     protected $contactos;
     protected $datosBancarios;
+    protected $configuracion;
 
-    public function __construct($proveedores, $contactos, $datosBancarios)
+    public function __construct($proveedores, $contactos, $datosBancarios, $configuracion)
     {
+        $this->configuracion = $configuracion;
         $this->proveedores = $proveedores;
         $this->contactos = $contactos;
         $this->datosBancarios = $datosBancarios;
@@ -30,21 +35,23 @@ class ProveedorExport implements WithMultipleSheets
     public function sheets(): array
     {
         $sheets = [];
-        $sheets[1] = new ProveedoresExport($this->proveedores);
-        $sheets[2] = new ContactosExport($this->contactos);
-        $sheets[3] = new DatosBancariosExport($this->datosBancarios);
+        $sheets[1] = new ProveedoresExport($this->proveedores, $this->configuracion);
+        $sheets[2] = new ContactosExport($this->contactos, $this->configuracion);
+        $sheets[3] = new DatosBancariosExport($this->datosBancarios, $this->configuracion);
 
         return $sheets;
     }
 }
-class ProveedoresExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder
+class ProveedoresExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths
 {
 
     protected $proveedores;
+    protected $configuracion;
 
-    public function __construct($proveedores)
+    public function __construct($proveedores, $configuracion)
     {
         $this->proveedores = $proveedores;
+        $this->configuracion = $configuracion;
     }
 
     public function bindValue(Cell $cell, $value)
@@ -58,10 +65,20 @@ class ProveedoresExport extends DefaultValueBinder implements FromView, WithTitl
         // else return default behavior
         return parent::bindValue($cell, $value);
     }
-    
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 30,
+            'B' => 30,
+        ];
+    }
     public function view(): View
     {
-        return view('compras_proveedores.proveedores.excel.proveedores', ['reporte' => $this->proveedores,]);
+        return view('compras_proveedores.proveedores.excel.proveedores', [
+            'reporte' => $this->proveedores,
+            'configuracion' => $this->configuracion,
+        ]);
     }
 
     public function title(): string
@@ -69,14 +86,16 @@ class ProveedoresExport extends DefaultValueBinder implements FromView, WithTitl
         return 'Proveedores'; // Nombre de la primera hoja
     }
 }
-class ContactosExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder
+class ContactosExport extends DefaultValueBinder implements FromView, WithTitle, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths
 {
 
     protected $contactos;
+    protected $configuracion;
 
-    public function __construct($contactos)
+    public function __construct($contactos, $configuracion)
     {
         $this->contactos = $contactos;
+        $this->configuracion = $configuracion;
     }
 
     public function bindValue(Cell $cell, $value)
@@ -91,9 +110,16 @@ class ContactosExport extends DefaultValueBinder implements FromView, WithTitle,
         return parent::bindValue($cell, $value);
     }
 
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 30,
+            'B' => 30,
+        ];
+    }
     public function view(): View
     {
-        return view('compras_proveedores.proveedores.excel.contactos', ['reporte' => $this->contactos,]);
+        return view('compras_proveedores.proveedores.excel.contactos', ['reporte' => $this->contactos, 'configuracion' => $this->configuracion,]);
     }
 
     public function title(): string
@@ -101,14 +127,16 @@ class ContactosExport extends DefaultValueBinder implements FromView, WithTitle,
         return 'Contactos de Proveedores'; // Nombre de la segunda hoja
     }
 }
-class DatosBancariosExport extends DefaultValueBinder implements WithCustomValueBinder, FromView, WithTitle
+class DatosBancariosExport extends DefaultValueBinder implements WithCustomValueBinder, FromView, WithTitle, ShouldAutoSize, WithColumnWidths
 {
 
     protected $datos;
+    protected $configuracion;
 
-    public function __construct($datos)
+    public function __construct($datos, $configuracion)
     {
         $this->datos = $datos;
+        $this->configuracion = $configuracion;
     }
     public function bindValue(Cell $cell, $value)
     {
@@ -122,9 +150,16 @@ class DatosBancariosExport extends DefaultValueBinder implements WithCustomValue
         return parent::bindValue($cell, $value);
     }
 
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 30,
+            'B' => 30,
+        ];
+    }
     public function view(): View
     {
-        return view('compras_proveedores.proveedores.excel.datos_bancarios', ['reporte' => $this->datos,]);
+        return view('compras_proveedores.proveedores.excel.datos_bancarios', ['reporte' => $this->datos, 'configuracion' => $this->configuracion,]);
     }
 
     public function title(): string
