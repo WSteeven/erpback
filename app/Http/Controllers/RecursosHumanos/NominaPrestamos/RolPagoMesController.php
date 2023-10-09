@@ -390,6 +390,8 @@ class RolPagoMesController extends Controller
                 $this->prestamoService->setEmpleado($empleado->id);
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
                 $dias = $rol->es_quincena ? 15 : 30;
+                $dias = $this->nominaService->calcularDias($rol->es_quincena?15:30,$dias);
+                $salario = $this->nominaService->calcularSalario();
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
@@ -411,6 +413,7 @@ class RolPagoMesController extends Controller
                     'empleado_id' => $empleado->id,
                     'dias' => $dias,
                     'mes' => $rol->mes,
+                    'salario'=>$salario,
                     'sueldo' => $sueldo,
                     'decimo_tercero' => $decimo_tercero,
                     'decimo_cuarto' => $decimo_cuarto,

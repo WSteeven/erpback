@@ -26,6 +26,7 @@ class RolPago extends Model implements Auditable
         'empleado_id',
         'mes',
         'dias',
+        'salario',
         'sueldo',
         'anticipo',
         'bonificacion',

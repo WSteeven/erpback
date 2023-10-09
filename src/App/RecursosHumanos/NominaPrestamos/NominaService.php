@@ -152,6 +152,9 @@ class NominaService
         }
         return $sueldo;
     }
+    public function calcularSalario(){
+        return $this->empleado->salario;
+    }
     public function calcularAporteIESS($dias = 30)
     {
         $sueldo = $this->calcularSueldo($dias);
