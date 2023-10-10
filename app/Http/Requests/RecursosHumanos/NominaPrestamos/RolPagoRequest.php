@@ -84,11 +84,12 @@ class RolPagoRequest extends FormRequest
         $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();
         $extension_conyugal =  $rol->es_quincena ? 0 : $nominaService->extensionesCoberturaSalud();
         $prestamo_empresarial = $rol->es_quincena ? 0 : $prestamoService->prestamosEmpresariales();
+        $supa =  $rol->es_quincena ? 0 : $nominaService->calcularSupa();
         $totalEgresos = $totalEgresos = !empty($this->egresos)
             ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
             }, 0) : 0;
-        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
+        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos+$supa;
         $total = abs($ingresos) - $egreso;
         $this->merge([
             'dias' => $dias,

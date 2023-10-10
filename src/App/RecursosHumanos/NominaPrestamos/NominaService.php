@@ -28,7 +28,6 @@ class NominaService
         $this->mes = $mes == null ? Carbon::now() : $mes;
         $this->empleado = new Empleado();
         $this->reporteService = new ReportePdfExcelService();
-
     }
     public function setMes($mes)
     {
@@ -90,7 +89,10 @@ class NominaService
         $rubro = Rubros::find($rubroId);
         return $rubro != null ? $rubro->valor_rubro : 0;
     }
-
+    public  function calcularSupa()
+    {
+        return $this->empleado->supa;
+    }
     public static function calcularSueldoBasico()
     {
         return NominaService::obtenerValorRubro(2);
@@ -109,7 +111,7 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(5) / 100;
     }
-    public  function calcularDias($cantidad_dias,$dias =30)
+    public  function calcularDias($cantidad_dias, $dias = 30)
     {
         // Fecha ingresada en formato dd-mm-yyyy
         $fechaIngresada = $this->empleado->fecha_ingreso;
@@ -119,15 +121,14 @@ class NominaService
 
         // Obtiene la fecha actual
         $fechaActual = Carbon::now();
-        $diasRestantes =0;
+        $diasRestantes = 0;
         // Verifica si la fecha ingresada pertenece al mes actual
         if ($fechaCarbon->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
             if ($fechaCarbon->day < $cantidad_dias) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
                 $diasRestantes = $fechaActual->day - $fechaCarbon->day;
-                Log::channel('testing')->info('Log', ['paso2','dias restantes',$diasRestantes]);
-
+                Log::channel('testing')->info('Log', ['paso2', 'dias restantes', $diasRestantes]);
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
                 $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
@@ -152,7 +153,8 @@ class NominaService
         }
         return $sueldo;
     }
-    public function calcularSalario(){
+    public function calcularSalario()
+    {
         return $this->empleado->salario;
     }
     public function calcularAporteIESS($dias = 30)
@@ -202,9 +204,9 @@ class NominaService
         $nombre_reporte = 'rol_pagos';
         $roles_pagos = RolPago::where('id', $rolPagoId)->get();
         $results = RolPago::empaquetarListado($roles_pagos);
-        $recursosHumanos =Departamento::where('id', 7)->first()->responsable_id;
+        $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;
         $responsable = Empleado::where('id', $recursosHumanos)->first();
-        $reportes =  ['roles_pago' => $results,'responsable' => $responsable];
+        $reportes =  ['roles_pago' => $results, 'responsable' => $responsable];
         $vista = 'recursos-humanos.rol_pagos';
         $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();

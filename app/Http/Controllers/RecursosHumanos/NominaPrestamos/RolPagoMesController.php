@@ -143,6 +143,10 @@ class RolPagoMesController extends Controller
             ->where('rol_pago_id', $rolPagoId)
             ->get();
             $results = RolPago::empaquetarCash($roles_pagos);
+            $results = collect($results)->map(function ($elemento, $index) {
+                $elemento['item'] = $index + 1;
+                return $elemento;
+            })->all();
             $reporte = ['reporte' => $results];
          $export_excel = new CashRolPagoExport($reporte);
          return Excel::download($export_excel, $nombre_reporte . '.xlsx');
@@ -195,6 +199,10 @@ class RolPagoMesController extends Controller
             });
         })->first();
         $results = RolPago::empaquetarListado($roles_pagos);
+        $results = collect($results)->map(function ($elemento, $index) {
+            $elemento['item'] = $index + 1;
+            return $elemento;
+        })->all();
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'abreviatura');
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'abreviatura');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
@@ -425,13 +433,14 @@ class RolPagoMesController extends Controller
                     'prestamo_hipotecario' => $prestamo_hipotecario,
                     'extension_conyugal' => $extension_conyugal,
                     'prestamo_empresarial' => $prestamo_empresarial,
+                    'supa'=>$supa,
                     'total_egreso' => $egreso,
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
                 ];
             }
             RolPago::insert($roles_pago);
-        } catch (Exception $ex) {
+       } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],

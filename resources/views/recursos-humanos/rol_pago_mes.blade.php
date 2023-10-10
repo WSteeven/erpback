@@ -68,7 +68,7 @@
         }
 
         table.datos {
-            font-size: 9pt;
+            font-size: 8pt;
             width: 100%;
             border-collapse: collapse;
         }
@@ -320,7 +320,7 @@
                     <td>{{ $rol_pago['item'] }}</td>
                     <td>{{ $rol_pago['empleado_info'] }}</td>
                     <td>{{ $rol_pago['cedula'] }}</td>
-                   <!-- <td>{{-- $rol_pago['cargo'] --}}</td>-->
+                    <!-- <td>{{-- $rol_pago['cargo'] --}}</td>-->
                     <!--<td>$rol_pago['ciuda --}}d'] --}}</td>-->
                     <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
                     <td>{{ $rol_pago['dias_laborados'] }}</td>
@@ -393,14 +393,15 @@
                     </td>
                     <td>{{ $rol_pago['total'] }}</td>
                 </tr>
+
             @endforeach
             <tr style="background-color: #FFE699">
                 <td colspan="3" style="text-align: center">
                     <strong>TOTALES&nbsp;</strong>
                 </td>
-                <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
                 <td>&nbsp;</td>
-                <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
                 <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
                 </td>
                 <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
@@ -408,7 +409,7 @@
                 <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                 </td>
                 @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                    <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                    <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                 @endforeach
                 <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                 </td>
@@ -419,11 +420,11 @@
                 </td>
                 <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
                 </td>
+                <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
+                </td>
                 @if ($tiene_supa)
                     <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                 @endif
-                <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
-                </td>
                 <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @foreach ($sumatoria_egresos as $sumatoria_egreso)
                     <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>

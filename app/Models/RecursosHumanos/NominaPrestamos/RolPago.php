@@ -125,6 +125,8 @@ class RolPago extends Model implements Auditable
 
             $id++;
         }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
         return $results;
     }
     public static function empaquetarCash($rol_pagos)
@@ -134,8 +136,6 @@ class RolPago extends Model implements Auditable
         $row = [];
 
         foreach ($rol_pagos as $rol_pago) {
-            Log::channel('testing')->info('Log', ['rol pago', $rol_pago->empleado_info->user->email]);
-
             $row['item'] = $id + 1;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
             $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
@@ -154,11 +154,19 @@ class RolPago extends Model implements Auditable
 
             $id++;
         }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
         return $results;
     }
     // Relacion uno a muchos (inversa)
     public function rolPagoMes()
     {
         return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
+    }
+    private static function  ordenar_por_nombres_apellidos($a, $b)
+    {
+        $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];
+        $nameB = $b['empleado_info'] . ' ' . $b['empleado_info'];
+        return strcmp($nameA, $nameB);
     }
 }
