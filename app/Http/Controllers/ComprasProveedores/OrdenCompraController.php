@@ -18,16 +18,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class OrdenCompraController extends Controller
 {
     private $entidad = 'Orden de compra';
     private OrdenCompraService $servicio;
+    private $archivoService;
+
     public function __construct()
     {
         $this->servicio = new OrdenCompraService();
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.ordenes_compras')->only('index', 'show');
         $this->middleware('can:puede.crear.ordenes_compras')->only('store');
         $this->middleware('can:puede.editar.ordenes_compras')->only('update');
@@ -71,7 +76,7 @@ class OrdenCompraController extends Controller
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
-            
+
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             if (count($request->categorias) == 0) {
                 unset($datos['categorias']);
@@ -83,7 +88,7 @@ class OrdenCompraController extends Controller
             // Guardar los detalles de la orden de compra
             OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
             Log::channel('testing')->info('Log', ['Paso guardar ordenes de compras y detalles:']);
-            
+
             //Respuesta
             $modelo = new OrdenCompraResource($orden);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -233,5 +238,37 @@ class OrdenCompraController extends Controller
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, OrdenCompra $orden)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($orden);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, OrdenCompra $orden)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($orden, $request->file, RutasStorage::NOVEDADES_ORDENES_COMPRAS->value);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

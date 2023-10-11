@@ -12,6 +12,7 @@ use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Departamento;
 use App\Models\Proveedor;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -44,9 +45,21 @@ class ProveedorController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = ProveedorResource::collection(Proveedor::filter()->get());
+        if ($request->boolean('filtrarProveedores')) {
+            if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD]))
+                $results = Proveedor::ignoreRequest(['filtrarProveedores'])->filter()->get();
+            else {
+                $results = Proveedor::whereHas('departamentos_califican', function ($query) {
+                    $query->where('departamento_id', auth()->user()->empleado->departamento_id);
+                })->ignoreRequest(['filtrarProveedores'])->filter()->get();
+            }
+        } else {
+            $results = Proveedor::ignoreRequest(['filtrarProveedores'])->filter()->get();
+        }
+
+        $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -162,7 +175,7 @@ class ProveedorController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
             $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
-            
+
             //Respuesta
             $proveedor->update($datos);
 
