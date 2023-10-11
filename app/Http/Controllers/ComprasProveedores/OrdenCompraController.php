@@ -199,12 +199,11 @@ class OrdenCompraController extends Controller
 
             if ($orden_compra->file && Storage::exists($orden_compra->file)) {
                 //En caso de que el archivo exista se sirve el archivo
-                // Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
+                Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
                 return Storage::download($orden_compra->file);
             } else {
                 try {
-                    $ruta = $this->servicio->generarPdf($orden, true, true);
-                    // Log::channel('testing')->info('Log', ['ruta', $ruta]);
+                    return $this->servicio->generarPdf($orden, true, true);
                 } catch (Exception $e) {
                     Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
                     return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);

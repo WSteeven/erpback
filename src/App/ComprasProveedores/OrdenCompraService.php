@@ -5,6 +5,7 @@ namespace Src\App\ComprasProveedores;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\Proveedor;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -23,6 +24,7 @@ class OrdenCompraService
     public static function generarPdf(OrdenCompra $orden_compra, $guardar, $descargar)
     {
         try {
+            $configuracion = ConfiguracionGeneral::first();
             $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);
@@ -31,9 +33,9 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            // Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
-            // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor']));
+            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
+            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
+            $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
@@ -48,11 +50,13 @@ class OrdenCompraService
                 //Se actualiza la ruta en la orden de compra 
                 $orden_compra->file = $ruta;
                 $orden_compra->save();
-                // Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
-
+                Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
+                
                 if ($descargar) {
+                    Log::channel('testing')->info('Log', ['Descargar orden de compra', $ruta]);
                     return Storage::download($ruta, $filename);
                 } else {
+                    Log::channel('testing')->info('Log', ['NO Descargar orden de compra', $ruta]);
                     return $ruta;
                 }
             } else {
