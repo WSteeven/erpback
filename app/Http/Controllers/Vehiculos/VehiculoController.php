@@ -9,13 +9,17 @@ use App\Models\Vehiculos\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class VehiculoController extends Controller
 {
     private $entidad = 'Vehiculo';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.vehiculos')->only('index', 'show');
         $this->middleware('can:puede.crear.vehiculos')->only('store');
         $this->middleware('can:puede.editar.vehiculos')->only('update');
@@ -107,5 +111,33 @@ class VehiculoController extends Controller
         $vehiculo->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, Vehiculo $vehiculo){
+        try{
+            $results = $this->archivoService->listarArchivos($vehiculo);
+        }catch(Exception $e){
+            $mensaje = $e->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Vehiculo $vehiculo){
+        try {
+            $modelo  = $this->archivoService->guardarArchivo($vehiculo, $request->file, RutasStorage::VEHICULOS->value.$vehiculo->placa);
+            $mensaje = 'Archivo subido correctamente';
+
+            return response()->json(compact('mensaje', 'modelo'), 200);
+        }catch(Exception $ex){
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 }

@@ -22,3 +22,12 @@ Route::apiResources(
 );
 
 Route::get('empleados-choferes', fn () => ['results' => UserResource::collection(User::role(User::CHOFER)->with('empleado')->get())])->middleware('auth:sanctum'); //usuarios con rol de chofer
+
+
+// listar archivos
+Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
+
+// guardar archivos
+Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+

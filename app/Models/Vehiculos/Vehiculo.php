@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Archivo;
 use App\Models\Empleado;
 use App\Models\Modelo;
 use App\Traits\UppercaseValuesTrait;
@@ -39,7 +40,7 @@ class Vehiculo extends Model implements Auditable
     const TODOTERRENO='4X4';
     const DOSXUNO='2X1';
     const DOSXDOS='2X2';
-    
+
     //Transmisiones
     // const MANUAL='MANUAL';
     // const AUTOMATICA='AUTOMATICA';
@@ -83,5 +84,13 @@ class Vehiculo extends Model implements Auditable
     public function bitacoras(){
         return $this->belongsToMany(Empleado::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
         ->withPivot('fecha','hora_salida','hora_llegada', 'km_inicial', 'km_final','tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos(){
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }
