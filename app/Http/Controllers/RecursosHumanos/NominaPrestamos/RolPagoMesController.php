@@ -116,7 +116,9 @@ class RolPagoMesController extends Controller
             $reportes = $this->generate_report_data($roles_pagos, $rol_pago->nombre);
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
-            return $this->reporteService->imprimir_reporte($tipo, 'A3', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            $orientacion = $es_quincena ? 'portail':'landscape';
+            $tipo_pagina=$es_quincena ? 'A4':'A3';
+            return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -388,7 +390,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('estado', 1)->where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
+            $empleados_activos = Empleado::where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);

@@ -40,7 +40,7 @@
             line-height: 1.5cm;
         }
 
-        /** Definir las reglas del pie de página **/
+        /** Definir las reglas del pie de pﾃ｡gina **/
         footer {
             position: fixed;
             bottom: 10px;
@@ -138,10 +138,7 @@
                     CEDULA</td>
                 <td style="  text-align: center !important;
                     background-color: #DBDBDB;">
-                    CARGO</td>
-                <td style="  text-align: center !important;
-                    background-color: #DBDBDB;">
-                    CIUDAD</td>
+                    DEPARTAMENTO</td>
                 <td style="background-color:#A9D08E">NETO A RECIBIR
                 </td>
             </tr>
@@ -151,13 +148,12 @@
                     <td>{{ $rol_pago['item'] }}</td>
                     <td>{{ $rol_pago['empleado_info'] }}</td>
                     <td>{{ $rol_pago['cedula'] }}</td>
-                    <td>{{ $rol_pago['cargo'] }}</td>
-                    <td>{{ $rol_pago['ciudad'] }}</td>
+                    <td>{{ $rol_pago['departamento'] }}</td>
                     <td>{{ $rol_pago['total'] }}</td>
                 </tr>
             @endforeach
             <tr style="background-color: #FFE699">
-                <td colspan="5" style="text-align: center">
+                <td colspan="4" style="text-align: center">
                     <strong>TOTALES&nbsp;</strong>
                 </td>
                 <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
@@ -174,7 +170,7 @@
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>ING. JEAN PATRICIO PAZMIÑO BARROS</b>
+                    <b>ING. JEAN PATRICIO PAZMIﾃ前 BARROS</b>
                     <br>
                     <b>APROBADO </b>
                 </th>
@@ -184,9 +180,9 @@
     </div>
     <script type="text/php">
         if (isset($pdf)) {
-                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $text = "Pﾃ｡g {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 550, $text, $font, 12);
+                $pdf->page_text(10, 750, $text, $font, 12);
         }
     </script>
 </body>

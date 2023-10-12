@@ -63,6 +63,7 @@ class Empleado extends Model implements Auditable
         'banco',
         'genero',
         'esta_en_empleado',
+        'esta_en_rol_pago',
         'acumula_fondos_reserva',
         'realiza_factura',
     ];
@@ -80,6 +81,7 @@ class Empleado extends Model implements Auditable
         'cargo_id',
         'departamento_id',
         'estado',
+        'esta_en_rol_pago',
         'es_tecnico',
         'tipo_sangre',
         'dirrecion',
@@ -120,6 +122,7 @@ class Empleado extends Model implements Auditable
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'esta_en_rol_pago' => 'boolean',
         'tiene_discapacidad' => 'boolean',
         'acumula_fondos_reserva' => 'boolean',
 
