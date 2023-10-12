@@ -32,6 +32,7 @@ class RolPagoResource extends JsonResource
             'mes' => $this->mes,
             'anticipo' => number_format($this->anticipo, 2, ',', '.'),
             'iess' =>  number_format($this->iess, 2, ',', '.'),
+            'salario' => number_format( $this->salario, 2, ',', '.'),
             'sueldo' => number_format($this->sueldo, 2, ',', '.'),
             'supa' => $this->empleado_info->supa,
             'extension_cobertura_salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $this->empleado_id)->where('mes', $this->mes)->sum('aporte'), 2),

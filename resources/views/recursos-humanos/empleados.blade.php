@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+    @php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $suma_salario =0;
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -12,8 +18,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -24,7 +30,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 4.3cm;
-            font-size: 12px;
+            font-size: 20px;
         }
 
         /** Definir las reglas del encabezado **/
@@ -40,10 +46,10 @@
             line-height: 1.5cm;
         }
 
-        /** Definir las reglas del pie de pﾃ｡gina **/
+        /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 10px;
+            bottom: 5px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -67,9 +73,36 @@
             text-transform: uppercase;
         }
 
+        table.datos {
+            font-size: 8pt;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.datos th,
+        table.datos td {
+            border: 1px solid black;
+            padding: 8px;
+        }
+
+        .encabezado-datos {
+            text-align: center !important;
+            background-color: #DBDBDB;
+        }
+
+        .encabezado-ingresos {
+            background-color: #FFF2CC;
+
+        }
+
+        .encabezado-egresos {
+            background-color: #BDD7EE;
+        }
+
         .row {
             width: 100%;
         }
+
         .firma {
             table-layout: fixed;
             width: 100%;
@@ -79,10 +112,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-@endphp
-
 <body>
     <header>
         <table
@@ -90,11 +119,11 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                            src="{{ $logo_principal }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">ROL GENERAL</b>
+                    <div class="col-md-7" align="center"><b style="font-size: 75%">Empleados</b>
                     </div>
                 </td>
             </tr>
@@ -119,70 +148,67 @@
         </table>
     </footer>
     <div class="contenido">
-        <p
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12; font-weight:bold; margin-top: -6px;">
-        <div align="center"><strong>{{ $periodo }}
-            </strong></div>
-        </p>
-        <br>
-        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
-            <tr>
-                <td style="text-align: center !important;
-                    background-color: #DBDBDB;">
+        <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="datos">
+            <tr class="encabezado-datos" style="text-align: center ">
+                <td
+                    style="text-align: center !important;
+                                                background-color: #DBDBDB;">
                     ITEM</td>
-                <td style="text-align: center !important;
-                    background-color: #DBDBDB;">
-                    EMPLEADO</td>
-                <td style="  text-align: center !important;
-                    background-color: #DBDBDB;">
+                <td
+                    style="text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    APELLIDOS</td>
+                    <td
+                    style="text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    NOMBRES</td>
+                <td
+                    style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
                     CEDULA</td>
-                <td style="  text-align: center !important;
-                    background-color: #DBDBDB;">
-                    DEPARTAMENTO</td>
-                <td style="background-color:#A9D08E">NETO A RECIBIR
-                </td>
+                <td
+                    style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    AREA</td>
+                <td
+                    style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    CARGO</td>
+                    <td
+                    style="  text-align: center !important;
+                                                background-color: #DBDBDB;">
+                    SALARIO</td>
             </tr>
 
-            @foreach ($roles_pago as $rol_pago)
+            @foreach ($results as $reporte)
+
                 <tr>
-                    <td>{{ $rol_pago['item'] }}</td>
-                    <td>{{ $rol_pago['empleado_info'] }}</td>
-                    <td>{{ $rol_pago['cedula'] }}</td>
-                    <td>{{ $rol_pago['departamento'] }}</td>
-                    <td>{{ $rol_pago['total'] }}</td>
-                </tr>
-            @endforeach
-            <tr style="background-color: #FFE699">
-                <td colspan="4" style="text-align: center">
-                    <strong>TOTALES&nbsp;</strong>
-                </td>
-                <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
-            </tr>
-        </table>
-        <table class="firma" style="width: 100%;">
-            <thead>
-                <th align="center">
-                    __________________________________________<br />
-                    <b>{{ $creador_rol_pago->nombres . '' . $creador_rol_pago->apellidos }}</b>
-                    <br>
-                    <b>ELABORADO</b>
-                </th>
-                <th align="center"></th>
-                <th align="center">
-                    __________________________________________<br />
-                    <b>ING. JEAN PATRICIO PAZMIﾃ前 BARROS</b>
-                    <br>
-                    <b>APROBADO </b>
-                </th>
-            </thead>
+                    <td>{{ $reporte['item']}}</td>
+                    <td>{{ $reporte['apellidos'] }}</td>
+                    <td>{{ $reporte['nombres'] }}</td>
+                    <td>{{ $reporte['identificacion'] }}</td>
+                    <td>{{ $reporte['area'] }}</td>
+                    <td>{{ $reporte['cargo'] }}</td>
+                    <td>{{ $reporte['salario'] }}</td>
 
+                </tr>
+@php
+    $suma_salario += $reporte['salario'] ;
+@endphp
+            @endforeach
+<tr>
+    <td colspan="6">Sumatoria</td>
+    <td>
+        {{ $suma_salario }}
+    </td>
+</tr>
         </table>
     </div>
     <script type="text/php">
         if (isset($pdf)) {
-                $text = "Pﾃ｡g {PAGE_NUM} de {PAGE_COUNT}";
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 750, $text, $font, 12);
+                $pdf->page_text(10,785, $text, $font, 12);
         }
     </script>
 </body>
