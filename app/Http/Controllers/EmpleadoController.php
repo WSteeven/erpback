@@ -413,7 +413,7 @@ class EmpleadoController extends Controller
         ->where('esta_en_rol_pago', '1')
         ->where('realiza_factura', '0')
         ->where('salario', '!=', 0)
-        ->orderBy('departamento_id' ,'asc')
+        ->orderBy('area_id' ,'asc')
         ->orderBy('apellidos','asc')
         ->get();
         $results = Empleado::empaquetarListado($reportes);

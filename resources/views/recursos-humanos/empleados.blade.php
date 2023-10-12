@@ -169,7 +169,7 @@
                 <td
                     style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
-                    DEPARTAMENTO</td>
+                    AREA</td>
                 <td
                     style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
@@ -187,7 +187,7 @@
                     <td>{{ $reporte['apellidos'] }}</td>
                     <td>{{ $reporte['nombres'] }}</td>
                     <td>{{ $reporte['identificacion'] }}</td>
-                    <td>{{ $reporte['departamento'] }}</td>
+                    <td>{{ $reporte['area'] }}</td>
                     <td>{{ $reporte['cargo'] }}</td>
                     <td>{{ $reporte['salario'] }}</td>
 

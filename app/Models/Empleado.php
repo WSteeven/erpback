@@ -383,6 +383,7 @@ class Empleado extends Model implements Auditable
             $row['nombres'] =   $empleado->nombres;
             $row['identificacion'] =  $empleado->identificacion;
             $row['departamento'] =  $empleado->departamento!=null?$empleado->departamento->nombre:'';
+            $row['area'] =  $empleado->area!=null?$empleado->area->nombre:'';
             $row['cargo'] =  $empleado->cargo !=null ?$empleado->cargo->nombre:'';
             $row['salario'] =  $empleado->salario;
             $results[$id] = $row;
