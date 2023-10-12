@@ -363,5 +363,9 @@ class Empleado extends Model implements Auditable
         // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 
 }
