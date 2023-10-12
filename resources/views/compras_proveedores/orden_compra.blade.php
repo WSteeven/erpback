@@ -1,7 +1,8 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($empleado_solicita->firma_url) {
         $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
     }
@@ -19,9 +20,10 @@
 
         body {
             /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -109,7 +111,7 @@
                     <table width="95%" border="0" style="font-family:Arial; font-size:10px;">
                         <tr>
                             <td align="center">
-                                <div align="center"><img src="{{ $logo }}" alt="" width="218"
+                                <div align="center"><img src="{{ $logo_principal }}" alt="" width="218"
                                         height="85" /></div>
                             </td>
                         </tr>
