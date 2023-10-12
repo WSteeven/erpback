@@ -70,6 +70,7 @@ class ArchivoService
                 'tamanio_bytes' => filesize($archivo),
             ]);
             DB::commit();
+            // Log::channel('testing')->info('Log', ['Archivo nuevo creado en Archivo Service', $modelo]);
             return $modelo;
         } catch (Throwable $th) {
             DB::rollBack();

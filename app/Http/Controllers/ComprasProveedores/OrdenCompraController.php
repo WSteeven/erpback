@@ -263,11 +263,11 @@ class OrdenCompraController extends Controller
         try {
             $modelo = $this->archivoService->guardarArchivo($orden, $request->file, RutasStorage::NOVEDADES_ORDENES_COMPRAS->value);
             $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (\Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
             Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
 }
