@@ -71,7 +71,7 @@ class RolPago extends Model implements Auditable
 
     public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('cargo','user');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('cargo', 'user');
     }
 
     public function egreso_rol_pago()
@@ -120,9 +120,8 @@ class RolPago extends Model implements Auditable
             $row['egresos'] = $rol_pago->egreso_rol_pago;
             $row['egresos_cantidad_columna'] = count($rol_pago->egreso_rol_pago);
             $row['ingresos_cantidad_columna'] = count($rol_pago->ingreso_rol_pago);
-
+            $row['rol_firmado'] = $rol_pago->rol_firmado ? json_decode($rol_pago->rol_firmado)->ruta : null;
             $results[$id] = $row;
-
             $id++;
         }
         usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
@@ -149,7 +148,7 @@ class RolPago extends Model implements Auditable
             $row['tipo_documento_empleado'] = 'C';
             $row['referencia'] = strtoupper('PAGO ROL FIN DE MES ' . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
             $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
-            $row['total'] =  number_format($rol_pago->total, 2, ',', '.') ;
+            $row['total'] =  number_format($rol_pago->total, 2, ',', '.');
             $results[$id] = $row;
 
             $id++;

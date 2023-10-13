@@ -210,15 +210,8 @@ class NominaService
         $vista = 'recursos-humanos.rol_pagos';
         $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();
-
-        if($results)
-        {
-            //Enviar cuando ya este  firmado
-
-        }else{
-            Mail::to($user->email)
-            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario));
-        }
+        Mail::to($user->email)
+        ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
 
     }
 }
