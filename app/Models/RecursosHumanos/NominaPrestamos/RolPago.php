@@ -56,6 +56,7 @@ class RolPago extends Model implements Auditable
         'bono_recurente',
         'dias',
         'sueldo',
+        'salario',
         'total_ingreso',
         'total_egreso',
         'total',

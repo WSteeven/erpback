@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -195,6 +197,9 @@ class Empleado extends Model implements Auditable
     public function transacciones()
     {
         return $this->hasMany(TransaccionBodega::class);
+    }
+    public function rolesPago(){
+        return $this->hasMany(RolPago::class,'empleado_id');
     }
 
     /**

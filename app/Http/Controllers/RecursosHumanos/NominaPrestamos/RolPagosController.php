@@ -99,6 +99,7 @@ class RolPagosController extends Controller
         try {
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+            $datos['estado'] ='EJECUTANDO';
             DB::beginTransaction();
             $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {

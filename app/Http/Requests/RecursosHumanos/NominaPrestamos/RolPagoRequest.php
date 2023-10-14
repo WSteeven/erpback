@@ -34,6 +34,7 @@ class RolPagoRequest extends FormRequest
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
+            'salario'=>'required',
             'sueldo' => 'required',
             'anticipo' => 'required',
             'ingresos' => 'nullable',
