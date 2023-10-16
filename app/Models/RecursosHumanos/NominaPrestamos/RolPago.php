@@ -136,23 +136,26 @@ class RolPago extends Model implements Auditable
         $row = [];
 
         foreach ($rol_pagos as $rol_pago) {
-            $row['item'] = $id + 1;
-            $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
-            $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
-            $row['email'] =  $rol_pago->empleado_info->user->email;
-            $row['tipo_pago'] = 'PA';
-            $row['numero_cuenta_empresa'] = '02653010903';
-            $row['moneda'] = 'USD';
-            $row['forma_pago'] = 'CTA';
-            $row['codigo_banco'] = '0036';
-            $row['tipo_cuenta'] = 'AHO';
-            $row['tipo_documento_empleado'] = 'C';
-            $row['referencia'] = strtoupper('PAGO ROL FIN DE MES ' . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
-            $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
-            $row['total'] =  number_format($rol_pago->total, 2, ',', '.');
-            $results[$id] = $row;
+            $cuenta_bancarea_num = intval($rol_pago->empleado_info->num_cuenta_bancaria);
+            if ($cuenta_bancarea_num > 0) {
+                $row['item'] = $id + 1;
+                $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+                $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
+                $row['email'] =  $rol_pago->empleado_info->user->email;
+                $row['tipo_pago'] = 'PA';
+                $row['numero_cuenta_empresa'] = '02653010903';
+                $row['moneda'] = 'USD';
+                $row['forma_pago'] = 'CTA';
+                $row['codigo_banco'] = '0036';
+                $row['tipo_cuenta'] = 'AHO';
+                $row['tipo_documento_empleado'] = 'C';
+                $row['referencia'] = strtoupper('PAGO ROL FIN DE MES ' . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
+                $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
+                $row['total'] =  number_format($rol_pago->total, 2, ',', '.');
+                $results[$id] = $row;
 
-            $id++;
+                $id++;
+            }
         }
         usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
 
