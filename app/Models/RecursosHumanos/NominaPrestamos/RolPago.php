@@ -98,6 +98,7 @@ class RolPago extends Model implements Auditable
             $row['mes'] =  ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F \d\e Y'));
             $row['identificacion_empleado'] =  $rol_pago->empleado_info->identificacion;
             $row['cargo'] = $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '';
+            $row['departamento'] = $rol_pago->empleado_info->departamento != null ? $rol_pago->empleado_info->departamento->nombre : '';
             $row['ciudad'] = $rol_pago->empleado_info->canton != null ? $rol_pago->empleado_info->canton->canton : '';
             $row['dias_laborados'] = $rol_pago->dias;
             $row['sueldo'] = $rol_pago->sueldo;

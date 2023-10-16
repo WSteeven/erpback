@@ -15,16 +15,21 @@
                 <td width='35%'>{{ $cash['tipo_pago'] }}</td>
                 <td width='96%'>{{ $cash['numero_cuenta_empresa'] }}</td>
                 <td width='55%'>{{ $cash['item'] }}</td>
-                <td width='98%'>{{ $cash['identificacion'] }}</td>
+                <td> </td>
+                <td width='100%'>{{ $cash['identificacion'] }}</td>
                 <td width='45%'>{{ $cash['moneda'] }}</td>
                 <td width='100%'>{{ $cash['total'] }}</td>
                 <td width='45%'>{{ $cash['forma_pago'] }}</td>
                 <td width='50%'>{{ $cash['codigo_banco'] }}</td>
                 <td width='50%'>{{ $cash['tipo_cuenta'] }}</td>
                 <td width='98%'>{{ $cash['numero_cuenta_bancareo'] }}</td>
-                <td width='100%'>{{ $cash['identificacion'] }}</td>
                 <td width='35%'>{{ $cash['tipo_documento_empleado'] }}</td>
-                <td width='100%'>{{ $cash['empleado_info'] }}</td>
+                <td width='100%'>{{ $cash['identificacion'] }}</td>
+                <td width='96%'>{{ $cash['empleado_info'] }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td width='100%'>{{ $cash['referencia'] }}</td>
                 <td width='100%'> |{{ $cash['email'] }}</td>
             </tr>
