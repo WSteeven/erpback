@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Models\FondosRotativos;
+namespace App\Models\FondosRotativos\Saldo;
 
-use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,26 +9,23 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class UmbralFondosRotativos extends  Model implements Auditable
+class AcreditacionSemana extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
-    protected $table = 'fr_umbral_fondos_rotativos';
+    protected $table = 'fr_acreditacion_semana';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'valor_minimo',
-        'referencia',
-        'empleado_id',
+        'semana',
+        'acreditar',
     ];
     private static $whiteListFilter = [
-        'referencia',
-        'empleado_id',
-        'valor_minimo',
+        'semana',
+        'acreditar',
     ];
-    public function empleado()
-    {
-        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
-    }
+    protected $casts = [
+        'acreditar' => 'boolean',
+    ];
 }

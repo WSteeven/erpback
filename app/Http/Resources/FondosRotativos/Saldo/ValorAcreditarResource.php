@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Resources\FondosRotativos;
+namespace App\Http\Resources\FondosRotativos\Saldo;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UmbralFondosRotativosResource extends JsonResource
+class ValorAcreditarResource extends JsonResource
 {
-   /**
+    /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -18,9 +18,9 @@ class UmbralFondosRotativosResource extends JsonResource
         $modelo = [
             'id'=>$this->id,
             'empleado'=>$this->empleado->nombres.' '.$this->empleado->apellidos,
-            'empleado_id'=>$this->empleado_id,
-            'valor_minimo'=>$this->valor_minimo,
-            'referencia'=>$this->referencia,
+            'monto_generado'=>$this->monto_generado,
+            'monto_modificado'=>$this->monto_modificado,
+            'acreditacion_semana'=>$this->acreditacion_semanal->semana,
         ];
         return $modelo;
     }

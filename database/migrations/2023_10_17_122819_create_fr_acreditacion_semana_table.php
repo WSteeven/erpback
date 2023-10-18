@@ -13,14 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fr_umbral_fondos_rotativos', function (Blueprint $table) {
+        Schema::create('fr_acreditacion_semana', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('empleado_id');
-            $table->decimal('valor_minimo',8,4);
-            $table->string('referencia');
+            $table->string('semana');
+            $table->boolean('acreditar')->default(0);
             $table->timestamps();
-            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnUpdate();
-
         });
     }
 
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fr_umbral_fondos_rotativos');
+        Schema::dropIfExists('fr_acreditacion_semana');
     }
 };
