@@ -105,7 +105,7 @@ class PedidoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante']]);
             }
             DB::commit();
 
@@ -184,7 +184,7 @@ class PedidoController extends Controller
             //modifica los datos del listado, en caso de requerirse
             $pedido->detalles()->detach();
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
             }
             DB::commit();
 

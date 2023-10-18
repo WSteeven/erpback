@@ -100,6 +100,7 @@ class TransaccionBodegaIngresoController extends Controller
                         // Log::channel('testing')->info('Log', ['listado id', $listado['id']]);
                         // $producto = Producto::where('nombre', $listado['producto'])->first();
                         $detalle = DetalleProducto::find($listado['id']);
+                        TransaccionBodega::activarDetalle($detalle); //Aquí se activa el ítem del detalle 
                         // Log::channel('testing')->info('Log', ['detalle encontrado', $detalle]);
                         $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $request->condicion)->where('sucursal_id', $request->sucursal)->where('cliente_id', $request->cliente)->first();
                         // Log::channel('testing')->info('Log', ['item inventario encontrado', $itemInventario]);

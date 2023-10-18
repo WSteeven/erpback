@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
-use App\Http\Controllers\ComprasProveedores\CalificacionProveedorController;
 use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
 use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
@@ -18,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources([
     'datos-bancarios-proveedores' => DatoBancarioProveedorController::class,
     'calificaciones-proveedores' => CalificacionDepartamentoProveedorController::class,
-    'proveedores-calificables' => CalificacionProveedorController::class,
+    'proveedores-calificables' => CalificacionDepartamentoProveedorController::class,
     'categorias-ofertas' => CategoriaOfertaProveedorController::class,
     'contactos-proveedores' => ContactoProveedorController::class,
     'criterios-calificaciones' => CriterioCalificacionController::class,
