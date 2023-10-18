@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\FondosRotativos;
+namespace App\Http\Requests\FondosRotativos\Saldo;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UmbralFondosRotativosRequest extends FormRequest
+class AcreditacionSemanaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,8 @@ class UmbralFondosRotativosRequest extends FormRequest
     public function rules()
     {
         return [
-            'empleado_id' => 'required|exists:empleados,id',
-            'valor_minimo' => 'required',
-            'referencia' => 'string|required',
+            'semana' =>     'required|string' . $this->parroquia_id,
+            'acreditar' => 'boolean',
         ];
-    }
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'empleado_id' =>$this->empleado,
-        ]);
     }
 }

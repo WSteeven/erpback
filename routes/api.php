@@ -185,16 +185,7 @@ Route::apiResources(
         'traspasos' => TraspasoController::class,
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
-        'fondos-rotativos/detalles-viaticos' => DetalleViaticoController::class,
-        'fondos-rotativos/sub-detalles-viaticos' => SubDetalleViaticoController::class,
-        'fondos-rotativos/gastos' => GastoController::class,
-        'fondos-rotativos/tipo-saldo' => TipoSaldoController::class,
-        'fondos-rotativos/tipo-fondo' => TipoFondoController::class,
-        'fondos-rotativos/saldo-grupo' => SaldoGrupoController::class,
-        'fondos-rotativos/acreditacion' => AcreditacionesController::class,
-        'fondos-rotativos/transferencia' => TransferenciasController::class,
-        'fondos-rotativos/gasto-coordinador' => GastoCoordinadorController::class,
-        'fondos-rotativos/motivo-gasto' => MotivoGastoController::class,
+
 
         'forma_pago' => FormaPagoController::class
     ],
@@ -318,24 +309,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('parroquias', fn (Request $request) => ['results' => ParroquiaResource::collection(Parroquia::filter()->get())]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
-    Route::post('fondos-rotativos/reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
-    Route::post('fondos-rotativos/reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
-    Route::post('fondos-rotativos/reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
-    // Route::post('fondos-rotativos/reporte/movimiento_saldo', [SaldoGrupoController::class, 'reporte_movimiento']);
-    Route::get('fondos-rotativos/ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
-    Route::post('fondos-rotativos/autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
-    Route::post('fondos-rotativos/consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
-    Route::post('fondos-rotativos/consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
-    Route::get('fondos-rotativos/gastocontabilidad', [SaldoGrupoController::class, 'gastocontabilidad']);
-    Route::get('fondos-rotativos/autorizaciones_gastos', [GastoController::class, 'autorizaciones_gastos']);
-    Route::get('fondos-rotativos/autorizaciones_transferencia', [TransferenciasController::class, 'autorizaciones_transferencia']);
-    Route::post('fondos-rotativos/aprobar-gasto', [GastoController::class, 'aprobar_gasto']);
-    Route::post('fondos-rotativos/rechazar-gasto', [GastoController::class, 'rechazar_gasto']);
-    Route::post('fondos-rotativos/anular-gasto', [GastoController::class, 'anular_gasto']);
-    Route::post('fondos-rotativos/aprobar-transferencia', [TransferenciasController::class, 'aprobar_transferencia']);
-    Route::post('fondos-rotativos/rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
-    Route::post('fondos-rotativos/anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
-    Route::post('fondos-rotativos/anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
+
 });
 
 
