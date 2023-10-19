@@ -95,8 +95,8 @@ class TransaccionBodegaIngresoController extends Controller
                     //Guardar los productos seleccionados en el detalle
                     foreach ($request->listadoProductosTransaccion as $listado) {
                         $producto = Producto::where('nombre', $listado['producto'])->first();
-                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion',$listado['descripcion'])->first();
-                        if($listado['serial']!=null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion',$listado['descripcion'])->where('serial',$listado['serial'])->first();
+                        $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        if ($listado['serial'] != null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
                         TransaccionBodega::activarDetalle($detalle); //Aquí se activa el ítem del detalle 
                         $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $request->condicion)->where('sucursal_id', $request->sucursal)->where('cliente_id', $request->cliente)->first();
                         if (!$itemInventario) {
@@ -111,7 +111,6 @@ class TransaccionBodegaIngresoController extends Controller
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
                             $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
-
                         }
                     }
                 } else {
@@ -119,8 +118,8 @@ class TransaccionBodegaIngresoController extends Controller
                         // Log::channel('testing')->info('Log', ['item del listado para ingresar cuando no es ingreso masivo', $listado]);
                         $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
                         $producto = Producto::where('nombre', $listado['producto'])->first();
-                        $transaccion->transferencia_id ? $detalle = DetalleProducto::find($listado['detalle_id']) : $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion',$listado['descripcion'])->first();
-                        if($listado['serial']!=null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion',$listado['descripcion'])->where('serial',$listado['serial'])->first();
+                        $transaccion->transferencia_id ? $detalle = DetalleProducto::find($listado['detalle_id']) : $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
+                        if ($listado['serial'] != null) $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
                         // $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->first();
                         // $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $listado['condiciones'])->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
                         $itemInventario = Inventario::where('detalle_id', $detalle->id)->where('condicion_id', $condicion->id)->where('cliente_id', $transaccion->cliente_id)->where('sucursal_id', $transaccion->sucursal_id)->first();
@@ -309,8 +308,11 @@ class TransaccionBodegaIngresoController extends Controller
         $persona_entrega = Empleado::find($transaccion->solicitante_id);
         $persona_atiende = Empleado::find($transaccion->per_atiende_id);
         try {
-            Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende, 'cliente' => $cliente]]);
+            // Log::channel('testing')->info('Log', ['ingreso a imprimir', ['transaccion' => $resource->resolve(), 'persona_entrega' => $persona_entrega, 'persona_atiende' => $persona_atiende, 'cliente' => $cliente]]);
             $transaccion = $resource->resolve();
+            // Log::channel('testing')->info('Log', ['resource a imprimir', $transaccion]);
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
+            // Log::channel('testing')->info('Log', ['resource a completo', $transaccion]);
             $pdf = Pdf::loadView('ingresos.ingreso', compact(['transaccion', 'persona_entrega', 'persona_atiende', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();

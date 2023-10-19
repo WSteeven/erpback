@@ -396,7 +396,7 @@ class TransaccionBodegaEgresoController extends Controller
         $persona_retira = Empleado::find($transaccion->responsable_id);
         try {
             $transaccion = $resource->resolve();
-
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
             // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
             $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');

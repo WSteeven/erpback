@@ -62,6 +62,7 @@ use App\Http\Controllers\HiloController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
+use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
@@ -171,6 +172,7 @@ Route::apiResources(
         'permisos' => PermisoController::class,
         'pisos' => PisoController::class,
         'detalles' => DetalleProductoController::class,
+        'preingresos' => PreingresoMaterialController::class,
         'proveedores' => ProveedorController::class,
         'rams' => RamController::class,
         'roles' => RolController::class,
