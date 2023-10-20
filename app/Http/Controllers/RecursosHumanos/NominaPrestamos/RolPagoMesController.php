@@ -537,7 +537,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('id', '>', 2)->where('esta_en_rol_pago', '1')->where('realiza_factura', '0')->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
+            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', false)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
