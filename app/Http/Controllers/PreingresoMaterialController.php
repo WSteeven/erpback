@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PreingresoAutorizadoEvent;
+use App\Events\PreingresoCreadoEvent;
 use App\Http\Requests\PreingresoMaterialRequest;
 use App\Http\Resources\PreingresoMaterialResource;
 use App\Models\Pedido;
@@ -29,7 +31,8 @@ class PreingresoMaterialController extends Controller
      */
     public function index()
     {
-        $results = [];
+        $results = PreingresoMaterial::all();
+        $results = PreingresoMaterialResource::collection($results);
 
         return response()->json(compact('results'));
     }
@@ -55,8 +58,11 @@ class PreingresoMaterialController extends Controller
             $preingreso = PreingresoMaterial::create($datos);
 
             //Se crea los detalles y se almacena en detalles productos
-            PreingresoMaterial::almacenarDetalles($preingreso, $request->listadoProductos);
+            PreingresoMaterial::guardarDetalles($preingreso, $request->listadoProductos);
 
+            //Se emite la notificación al autorizador
+            if ($preingreso->tarea_id) event(new PreingresoCreadoEvent($preingreso, $preingreso->coordinador_id));
+            else event(new PreingresoCreadoEvent($preingreso, $preingreso->autorizador_id));
 
             //Respuesta
             $modelo = new PreingresoMaterialResource($preingreso);
@@ -64,7 +70,58 @@ class PreingresoMaterialController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
+        }
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Consultar
+     */
+    public function show(PreingresoMaterial $preingreso)
+    {
+        $modelo = new PreingresoMaterialResource($preingreso);
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Actualizar
+     */
+    public function update(PreingresoMaterialRequest $request, PreingresoMaterial $preingreso){
+        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        $autorizacion_old = $preingreso->autorizacion_id;
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+            //Adaptacion de foreign keys
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
+            $datos['responsable_id'] = $request->responsable_id;
+            $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+            $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
+
+            Log::channel('testing')->info('Log', ['Datos validados y casteados:', $datos]);
+            //Se actualiza el registro de preingreso
+            $preingreso->update($datos);
+            $preingreso->refresh();
+
+            //Se actualizan los detalles
+            PreingresoMaterial::actualizarDetalles($preingreso, $request->listadoProductos);
+
+            //Se emite la notificación al responsable indicando que se aprobo o no su preingreso
+            if($preingreso->autorizacion_id !==$autorizacion_old){
+                event(new PreingresoAutorizadoEvent($preingreso));
+            }
+
+            //Respuesta
+            $modelo = new PreingresoMaterialResource($preingreso->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
 
         return response()->json(compact('mensaje', 'modelo'));

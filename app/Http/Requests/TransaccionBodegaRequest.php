@@ -7,6 +7,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\Producto;
 use App\Models\Tarea;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -85,11 +86,14 @@ class TransaccionBodegaRequest extends FormRequest
                     if (!array_key_exists('cantidad', $listado)) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'Ingresa la cantidad del ítem ' . $listado['descripcion']);
                     else if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser mayor que 0');
                     else {
-                        $esFibra = !!Fibra::find($listado['id']);
-                        $itemInventario = $this->transferencia? !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first():!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
+                        $itemInventario = $this->transferencia ? !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first() : !!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
                         // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {
+                            Log::channel('testing')->info('Log', ['Datos 88 ', $listado, !!Fibra::find($listado['id'])]);
+                            $producto = Producto::where('nombre', $listado['producto'])->first();
+                            $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
+                            $esFibra = !!Fibra::find($detalle->id);
                             if ($listado['serial'] && $listado['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
                             if ($listado['serial'] && $itemInventario && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.descripcion', 'Ya existe el ítem ' . $listado['descripcion'] . ' registrado en una bodega. Revisa el inventario');
                         }
