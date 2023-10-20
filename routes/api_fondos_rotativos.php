@@ -10,6 +10,7 @@ use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionSemanaController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
+use App\Http\Controllers\FondosRotativos\Saldo\ValorAcreditarController;
 use App\Http\Controllers\FondosRotativos\TipoFondoController;
 use App\Http\Controllers\FondosRotativos\UmbralFondosRotativosController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::apiResources(
         'motivo-gasto' => MotivoGastoController::class,
         'umbral' =>UmbralFondosRotativosController::class,
         'acreditacion-semana' => AcreditacionSemanaController::class,
+        'valor-acreditar' => ValorAcreditarController::class,
     ],
     [
         'parameters' => [],
@@ -39,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('reporte/fecha/{tipo}', [GastoController::class, 'generar_reporte']);
     Route::post('reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldo_actual']);
     Route::post('reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
+    Route::get('cortar_saldo', [AcreditacionSemanaController::class, 'cortar_saldo']);
     Route::get('ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);

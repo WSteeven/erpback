@@ -25,6 +25,7 @@ class ValorAcreditar extends Model implements Auditable
         'monto_modificado'
     ];
     private static $whiteListFilter = [
+        'id',
         'empleado_id',
         'acreditacion_semana_id',
         'monto_generado',
@@ -36,6 +37,6 @@ class ValorAcreditar extends Model implements Auditable
     }
     public function acreditacion_semanal()
     {
-        return $this->hasOne(AcreditacionSemana::class, 'id', 'empleado_id');
+        return $this->hasOne(AcreditacionSemana::class, 'id', 'acreditacion_semana_id');
     }
 }
