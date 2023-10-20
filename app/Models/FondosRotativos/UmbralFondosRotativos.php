@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos;
 
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -32,4 +33,5 @@ class UmbralFondosRotativos extends  Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }
+
 }

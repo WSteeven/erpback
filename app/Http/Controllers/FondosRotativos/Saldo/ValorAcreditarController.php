@@ -9,6 +9,7 @@ use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ValorAcreditarController extends Controller
@@ -23,11 +24,13 @@ class ValorAcreditarController extends Controller
     {
         $results = [];
         $results = ValorAcreditar::ignoreRequest(['campos'])->filter()->get();
+        $results = ValorAcreditarResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, ValorAcreditar $descuentos_generales)
+    public function show(Request $request, ValorAcreditar $valor_acreditar)
     {
-        return response()->json(compact('descuentos_generales'));
+        $results = $valor_acreditar;
+        return response()->json(compact('results'));
     }
     public function store(ValorAcreditarRequest $request)
     {
