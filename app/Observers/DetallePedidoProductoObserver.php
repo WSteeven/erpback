@@ -31,7 +31,7 @@ class DetallePedidoProductoObserver
     public function updated(DetallePedidoProducto $detallePedidoProducto)
     {
 
-        Log::channel('testing')->info('Log', ['Updated del observer de DetallePedidoProducto', $detallePedidoProducto]);
+        // Log::channel('testing')->info('Log', ['Updated del observer de DetallePedidoProducto', $detallePedidoProducto]);
 
         DetallePedidoProducto::verificarDespachoItems($detallePedidoProducto);
     }

@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Models\Autorizacion;
+use App\Models\DetalleDevolucionProducto;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
@@ -11,6 +12,7 @@ use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\Bodega\DevolucionService;
 
 class TransaccionBodegaIngresoService
 {
@@ -600,6 +602,19 @@ class TransaccionBodegaIngresoService
         return $results;
     }
 
+    /**
+     * La función "descontarMaterialesAsignados" se utiliza para actualizar el stock de materiales 
+     * de un empleado luego de devolver a bodega ciertos materiales asignados a una transacción.
+     * 
+     * @param listado Una matriz que contiene los detalles del material que se va a deducir, como la
+     * cantidad.
+     * @param transaccion El parámetro "transacción" es un objeto que representa una transacción.
+     * Contiene información como el ID de la tarea, el ID del solicitante y otros detalles relacionados
+     * con la transacción.
+     * @param detalle El parámetro `` es un objeto que representa los detalles de un producto.
+     * Probablemente contenga información como el ID del producto, el nombre, la descripción y otros
+     * detalles relevantes.
+     */
     public function descontarMaterialesAsignados($listado, $transaccion, $detalle)
     {
         if ($transaccion->tarea_id) {
@@ -616,5 +631,14 @@ class TransaccionBodegaIngresoService
             $material->devuelto += $listado['cantidad'];
             $material->save();
         }
+    }
+
+    public static function actualizarDevolucion($transaccion, $detalle, $cantidad)
+    {
+        $itemDevolucion  = DetalleDevolucionProducto::where('devolucion_id', $transaccion->devolucion_id)->where('detalle_id', $detalle->id)->first();
+        $itemDevolucion->devuelto += $cantidad;
+        $itemDevolucion->save();
+        //aquí se verifica si se completaron los items de la devolución y se actualiza con parcial o completado según corresponda.
+        DevolucionService::verificarItemsDevolucion($itemDevolucion);
     }
 }

@@ -159,7 +159,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalleProductoPedido()
     {
         return $this->belongsToMany(Pedido::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
-            ->withPivot('cantidad')->withTimestamps();
+            ->withPivot('cantidad', 'solicitante_id')->withTimestamps();
     }
 
 

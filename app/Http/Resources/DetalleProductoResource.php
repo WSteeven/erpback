@@ -27,7 +27,7 @@ class DetalleProductoResource extends JsonResource
             'producto_id' => $this->producto_id,
             'descripcion' => $this->descripcion,
             'marca' => $this->marca?->nombre,
-            'modelo' => $this->modelo->nombre,
+            'modelo' => $this->modelo?->nombre,
             'serial' => $this->serial,
             'precio_compra' => $this->precio_compra,
             'stock' => $request->stock? $this->detalle_stock($this->id,$request->sucursal_id)?->cantidad:0,

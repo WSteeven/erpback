@@ -30,6 +30,8 @@ use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use App\Models\Comprobante;
 use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProductoTransaccion;
+use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -341,6 +343,37 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     /**
+     * Anular una transacción de egreso y revertir el stock del inventario
+     */
+    public function anular(TransaccionBodega $transaccion)
+    {
+        try {
+            DB::beginTransaction();
+            $estadoAnulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $itemInventario->cantidad += $detalle['cantidad_inicial'];
+                $itemInventario->save();
+                $detalleProducto = DetalleProducto::find($itemInventario->detalle_id);
+                TransaccionBodega::activarDetalle($detalleProducto);
+            }
+            $transaccion->estado_id = $estadoAnulado->id;
+            $transaccion->save();
+            $transaccion->comprobante()->delete();
+            $transaccion->latestNotificacion()->update(['leida' => true]);
+            DB::commit();
+            $mensaje = 'Transacción anulada correctamente';
+            $modelo = new TransaccionBodegaResource($transaccion->refresh());
+            return response()->json(compact('modelo', 'mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de egreso', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+        }
+    }
+
+    /**
      * Consultar datos sin metodo show
      */
     public function showPreview(TransaccionBodega $transaccion)
@@ -363,7 +396,7 @@ class TransaccionBodegaEgresoController extends Controller
         $persona_retira = Empleado::find($transaccion->responsable_id);
         try {
             $transaccion = $resource->resolve();
-
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
             // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
             $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
@@ -452,7 +485,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();
