@@ -26,8 +26,8 @@ class ValorAcreditarRequest extends FormRequest
         return [
             'empleado_id' => 'required|exists:empleados,id',
             'acreditacion_semana_id' => 'required|exists:fr_acreditacion_semana,id',
-            'monto_generado' => 'required|decimal',
-            'monto_modificado' => 'required|decimal',
+            'monto_generado' => 'required',
+            'monto_modificado' => 'required',
         ];
     }
     protected function prepareForValidation()

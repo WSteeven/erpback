@@ -89,13 +89,16 @@ class AcreditacionSemanaController extends Controller
             $modelo = new AcreditacionSemanaResource($acreditacionsemana);
             $mensaje = 'Se ha generado  Acreditacion de la semana exitosamente';
             $saldosPorUsuario = DB::table('saldo_grupo')
-                ->select('saldo_grupo.id_usuario', 'saldo_grupo.saldo_actual')
+                ->select('saldo_grupo.id_usuario', 'saldo_grupo.saldo_actual','fr_umbral_fondos_rotativos.valor_minimo')
                 ->join('fr_umbral_fondos_rotativos', 'saldo_grupo.id_usuario', '=', 'fr_umbral_fondos_rotativos.empleado_id')
                 ->groupBy('saldo_grupo.id_usuario')
                 ->get();
+                Log::channel('testing')->info('Log', ['saldos', $saldosPorUsuario]);
+
             $acreditaciones = [];
             foreach ($saldosPorUsuario as $key => $empleado) {
-                $numeroRedondeado = ceil($empleado->saldo_actual / 10) * 10;
+                $valorRecibir =$empleado->valor_minimo-$empleado->saldo_actual;
+                $numeroRedondeado = ceil($valorRecibir / 10) * 10;
                 $acreditaciones[] = [
                     'empleado_id' => $empleado->id_usuario,
                     'acreditacion_semana_id' => $acreditacionsemana->id,
