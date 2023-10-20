@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('descripcion');
             $table->string('serial')->nullable();
             $table->integer('cantidad');
-            $table->integer('punta_inicial');
-            $table->integer('punta_final');
+            $table->integer('punta_inicial')->nullable();
+            $table->integer('punta_final')->nullable();
             $table->integer('unidad_medida_id');
             $table->string('fotografia')->nullable();
             $table->timestamps();

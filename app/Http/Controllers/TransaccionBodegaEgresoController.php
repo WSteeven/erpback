@@ -39,6 +39,7 @@ use App\Models\SeguimientoMaterialSubtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
+use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaEgresoController extends Controller
@@ -359,6 +360,7 @@ class TransaccionBodegaEgresoController extends Controller
                 TransaccionBodega::activarDetalle($detalleProducto);
             }
             $transaccion->estado_id = $estadoAnulado->id;
+            $transaccion->autorizacion_id = Autorizaciones::CANCELADO;
             $transaccion->save();
             $transaccion->comprobante()->delete();
             $transaccion->latestNotificacion()->update(['leida' => true]);
@@ -380,6 +382,8 @@ class TransaccionBodegaEgresoController extends Controller
     {
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
         $modelo = new TransaccionBodegaResource($transaccion);
+        $modelo = $modelo->resolve();
+        $modelo['listadoProductosTransaccion'] = $detalles;
 
         return response()->json(compact('modelo'), 200);
     }

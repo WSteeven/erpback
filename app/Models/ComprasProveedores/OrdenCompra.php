@@ -238,7 +238,7 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
+        // Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
         if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
         // Log::channel('testing')->info('Log', ['Producto:', $producto]);
         return [
