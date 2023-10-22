@@ -457,8 +457,8 @@ class SaldoGrupoController extends Controller
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
                 ->where(function ($query) {
-                    $query->where('estado', '=', 1)
-                        ->orWhere('estado', '=', 4);
+                    $query->where('id_estado', '=', 1)
+                        ->orWhere('id_estado', '=', 4);
                 })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
