@@ -17,12 +17,12 @@ class ValorAcreditarResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id'=>$this->id,
-           // 'empleado_info'=>$this->empleado->nombres!=null ?$this->empleado->nombres.' '.$this->empleado->apellidos:'',
+            'empleado_info'=>$this->empleado->nombres!=null ?$this->empleado->nombres.' '.$this->empleado->apellidos:'',
             'empleado'=>$this->empleado_id,
-            'monto_generado'=>$this->monto_generado,
-            'monto_modificado'=>$this->monto_modificado,
+            'monto_generado'=>number_format($this->monto_generado, 2),
+            'monto_modificado'=>number_format($this->monto_modificado, 2),
             'acreditacion_semana'=>$this->acreditacion_semana_id,
-          //  'acreditacion_semana_info'=>$this->acreditacion_semanal!=null?$this->acreditacion_semanal->semana:'',
+            'acreditacion_semana_info'=>$this->acreditacion_semanal!=null?$this->acreditacion_semanal->semana:'',
         ];
         return $modelo;
     }

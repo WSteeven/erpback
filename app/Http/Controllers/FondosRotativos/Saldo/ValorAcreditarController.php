@@ -14,7 +14,7 @@ use Src\Shared\Utils;
 
 class ValorAcreditarController extends Controller
 {
-    private $entidad = 'Umbral';
+    private $entidad = 'Valor Acreditar';
     public function __construct()
     {
         $this->middleware('can:puede.ver.valor_acreditar')->only('index', 'show');
@@ -52,12 +52,14 @@ class ValorAcreditarController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
+            $valoracreditar = ValorAcreditar::findOrFail($request->id);
             $valoracreditar->update($datos);
             $modelo = new ValorAcreditarResource($valoracreditar->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()]);
             DB::rollback();
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
