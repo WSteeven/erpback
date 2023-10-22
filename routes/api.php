@@ -60,6 +60,7 @@ use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\SpanController;
 use App\Http\Controllers\HiloController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\ParroquiaController;
 use App\Http\Resources\UserInfoResource;
 use App\Http\Controllers\PisoController;
 use App\Http\Controllers\PreingresoMaterialController;
@@ -187,6 +188,7 @@ Route::apiResources(
         'traspasos' => TraspasoController::class,
         'ubicaciones' => UbicacionController::class,
         'unidades-medidas' => UnidadMedidaController::class,
+        'parroquias' => ParroquiaController::class,
 
 
         'forma_pago' => FormaPagoController::class
@@ -308,7 +310,6 @@ Route::middleware('auth:sanctum')->group(function () {
         //  return 'results' => Canton::ignoreRequest(['campos'])->filter()->get());
         return response()->json(compact('results'));
     });
-    Route::get('parroquias', fn (Request $request) => ['results' => ParroquiaResource::collection(Parroquia::filter()->get())]);
     Route::get('usuarios-autorizadores', [UserController::class, 'autorizationUser']);
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
 

@@ -14,6 +14,9 @@ class DetallePedidoProducto extends Pivot implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    
+    public $incrementing = true;
+
     protected $table = 'detalle_pedido_producto';
     protected $fillable = [
         'detalle_id',

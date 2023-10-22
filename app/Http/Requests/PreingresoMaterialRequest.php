@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\DetalleProducto;
+use App\Models\Fibra;
 use App\Models\Producto;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -50,7 +51,9 @@ class PreingresoMaterialRequest extends FormRequest
                 $detalle = DetalleProducto::where('producto_id', $producto->id)->where(function ($query) use ($item) {
                     $query->where('descripcion', $item['descripcion'])->orWhere('descripcion', 'LIKE', '%' . $item['descripcion']   . '%'); // busca coincidencia exacta o similitud en el texto
                 })->first();
+                $esFibra = !!Fibra::find($detalle->id);
                 // verificamos si el detalle necesita obligatoriamente un numero de serie o no
+                if ($item['serial'] && $item['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $item['descripcion'] . ' debe ser 1');
                 if(!is_null($detalle->serial) && is_null($item['serial'])) $validator->errors()->add('listadoProductos.*.serial', 'N° serial es requerido en el elemento '.$item['descripcion'].' Por favor, verifica y corrige la información');
             }
         });

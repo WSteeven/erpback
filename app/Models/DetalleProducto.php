@@ -72,7 +72,7 @@ class DetalleProducto extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-     /**
+    /**
      * Relacion uno a muchos.
      * Un detalle tiene un codigo a la vez.
      */
@@ -94,7 +94,8 @@ class DetalleProducto extends Model implements Auditable
      * Relacion muchos a muchos.
      * Un detalle puede pertenecer a varios clientes en el inventario.
      */
-    public function clientes(){
+    public function clientes()
+    {
         return $this->belongsToMany(Cliente::class, 'cliente_id', 'detalle_id');
     }
 
@@ -181,7 +182,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalleProductoOrdenCompra()
     {
         return $this->belongsToMany(OrdenCompra::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'detalle_id')
-        ->withPivot(['cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+            ->withPivot(['cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
     }
 
     /**
@@ -247,7 +248,7 @@ class DetalleProducto extends Model implements Auditable
      * _______________________________
      */
 
-     /**
+    /**
      * La función `crearDetalle` crea un nuevo registro `DetalleProducto` en la base de datos y lo
      * asocia con un registro `Computadora` o `Fibra` según el valor del campo `categoría` en la
      * solicitud.
@@ -260,8 +261,10 @@ class DetalleProducto extends Model implements Auditable
      *
      * @return la variable .
      */
-    public static function crearDetalle($request, $datos){
-        try{
+    public static function crearDetalle($request, $datos)
+    {
+        Log::channel('testing')->info('Log', ['Lo que se recibe para crear:', $request, $datos]);
+        try {
             DB::beginTransaction();
 
             $detalle = DetalleProducto::create($datos);
@@ -287,7 +290,7 @@ class DetalleProducto extends Model implements Auditable
                 DB::commit();
             }
             DB::commit();
-        }catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             throw new Exception($e->getMessage());
         }

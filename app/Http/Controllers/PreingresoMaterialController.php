@@ -29,9 +29,38 @@ class PreingresoMaterialController extends Controller
     /**
      * Listar
      */
-    public function index()
+    public function index(Request $request)
     {
-        $results = PreingresoMaterial::all();
+        if ($request->autorizacion_id) {
+            switch ($request->autorizacion_id) {
+                case 1: //PENDIENTE
+                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+                        ->where(function ($query) {
+                            $query->where('responsable_id', auth()->user()->empleado->id)
+                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
+                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
+                        })->get();
+                    break;
+                case 2: //APROBADO
+                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+                        ->where('responsable_id', auth()->user()->empleado->id)
+                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
+                        ->orWhere('coordinador_id', auth()->user()->empleado->id)
+                        ->get();
+                    break;
+                case 3: //CANCELADO
+                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+                        ->where('responsable_id', auth()->user()->empleado->id)
+                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
+                        ->orWhere('coordinador_id', auth()->user()->empleado->id)
+                        ->get();
+                    break;
+                default:
+                    $results = PreingresoMaterial::all();
+            }
+        } else {
+            $results = PreingresoMaterial::all();
+        }
         $results = PreingresoMaterialResource::collection($results);
 
         return response()->json(compact('results'));
@@ -88,7 +117,8 @@ class PreingresoMaterialController extends Controller
     /**
      * Actualizar
      */
-    public function update(PreingresoMaterialRequest $request, PreingresoMaterial $preingreso){
+    public function update(PreingresoMaterialRequest $request, PreingresoMaterial $preingreso)
+    {
         Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         $autorizacion_old = $preingreso->autorizacion_id;
         try {
@@ -111,7 +141,7 @@ class PreingresoMaterialController extends Controller
             PreingresoMaterial::actualizarDetalles($preingreso, $request->listadoProductos);
 
             //Se emite la notificación al responsable indicando que se aprobo o no su preingreso
-            if($preingreso->autorizacion_id !==$autorizacion_old){
+            if ($preingreso->autorizacion_id !== $autorizacion_old) {
                 event(new PreingresoAutorizadoEvent($preingreso));
             }
 

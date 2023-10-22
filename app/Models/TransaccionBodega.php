@@ -386,7 +386,7 @@ class TransaccionBodega extends Model implements Auditable
      */
     public static function actualizarPedido($transaccion)
     {
-        // Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
+        Log::channel('testing')->info('Log', ['Estamos en el metodo de actualizar pedido, la transaccion de egreso es: ', $transaccion]);
         $url_pedido = '/pedidos';
         $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $estadoParcial = EstadoTransaccion::where('nombre', EstadoTransaccion::PARCIAL)->first();

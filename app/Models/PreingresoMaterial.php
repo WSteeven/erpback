@@ -169,8 +169,25 @@ class PreingresoMaterial extends Model implements Auditable
                     if (is_null($detalle->serial)) $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalle->id, $item));
                     else {
                         // como el detalle encontrado tiene serial, el nuevo registro debe agregarse a los detalles
-                        Log::channel('testing')->info('Log', ['Else:', $detalle]);
+                        Log::channel('testing')->info('Log', ['Else:', $detalle, $item]);
                         $datos = $detalle->toArray();
+                        $fibra = Fibra::where('detalle_id', $detalle->id)->first();
+                        if ($fibra) {
+                            $datos['span'] = $fibra->span_id;
+                            $datos['tipo_fibra'] = $fibra->tipo_fibra_id;
+                            $datos['hilos'] = $fibra->hilo_id;
+                            $datos['punta_inicial'] = $item['punta_inicial'];
+                            $datos['punta_final'] = $item['punta_final'];
+                            $datos['custodia'] = abs($item['punta_inicial'] - $item['punta_final']);
+                        }
+                        // los clientes (Nedetel y otros) no entregan computadoras ni telefonos a los tecnicos
+                        // $computadora = ComputadoraTelefono::where('detalle_id', $detalle->id)->first();
+                        // if($computadora){
+                        //     $datos['ram'] = $fibra->span_id;
+                        //     $datos['disco'] = $fibra->tipo_fibra_id;
+                        //     $datos['procesador'] = $fibra->hilo_id;
+                        //     $datos['imei'] = $item['punta_inicial'];
+                        // }
                         $datos['serial'] = $item['serial'];
                         $categoria = new \stdClass();
                         $categoria->categoria = strtoupper($producto->categoria->nombre);
@@ -197,11 +214,11 @@ class PreingresoMaterial extends Model implements Auditable
             if ($preingreso->autorizacion_id == Autorizaciones::APROBADO) {
                 foreach ($listado as $item) {
                     $producto = Producto::where('nombre', $item['producto'])->first();
-                    if(is_null($item['serial'])){
+                    if (is_null($item['serial'])) {
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where(function ($query) use ($item) {
                             $query->where('descripcion', $item['descripcion'])->orWhere('descripcion', 'LIKE', '%' . $item['descripcion']   . '%'); // busca coincidencia exacta o similitud en el texto
                         })->first();
-                    }else{
+                    } else {
                         $detalle = DetalleProducto::where('producto_id', $producto->id)->where('serial', $item['serial'])->where(function ($query) use ($item) {
                             $query->where('descripcion', $item['descripcion'])->orWhere('descripcion', 'LIKE', '%' . $item['descripcion']   . '%'); // busca coincidencia exacta o similitud en el texto
                         })->first();
