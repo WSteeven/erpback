@@ -78,7 +78,7 @@ class ValorAcreditarController extends Controller
         $umbral_usuario = UmbralFondosRotativos::where('empleado_id', $id)->orderBy('id', 'desc')->first();
         $umbral_usuario = $umbral_usuario != null ? $umbral_usuario->valor_minimo : 0;
         $valorRecibir =$umbral_usuario-$saldo_actual;
-        $monto_acreditar= ceil($valorRecibir / 10) * 10;
+        $monto_acreditar= abs(ceil($valorRecibir / 10) * 10);
         return response()->json(compact('monto_acreditar'));
     }
 }
