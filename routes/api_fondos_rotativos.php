@@ -43,6 +43,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
     Route::get('cortar_saldo', [AcreditacionSemanaController::class, 'cortar_saldo']);
     Route::get('ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldo_actual_usuario']);
+    Route::get('monto_acreditar_usuario/{id}', [ValorAcreditarController::class, 'monto_acreditar_usuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporte_autorizaciones']);
     Route::post('consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
     Route::post('consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidado_filtrado']);
@@ -56,4 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
     Route::post('anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
     Route::post('anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
+    Route::get('crear-cash-acreditacion-saldo/{id}',[AcreditacionSemanaController::class, 'crear_cash_acreditacion_saldo']);
+    Route::get('acreditacion-saldo-semana/{id}',[AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
+
 });

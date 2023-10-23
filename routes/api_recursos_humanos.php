@@ -81,7 +81,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
     Route::get('porcentaje_iess', [RubroController::class, 'porcentaje_iess']);
     Route::get('porcentaje_anticipo', [RubroController::class, 'porcentaje_anticipo']);
-
     Route::post('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'archivo_permiso_empleado']);
     Route::post('archivo_licencia_empleado', [LicenciaEmpleadoController::class, 'archivo_licencia_empleado']);
     Route::get('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'index_archivo_permiso_empleado']);
