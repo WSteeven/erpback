@@ -34,6 +34,7 @@ class RolPagoRequest extends FormRequest
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
+            'salario'=>'required',
             'sueldo' => 'required',
             'anticipo' => 'required',
             'ingresos' => 'nullable',
@@ -64,8 +65,9 @@ class RolPagoRequest extends FormRequest
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
-        $dias = $this->dias;
+        $dias =  $this->dias;
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
+        $salario = $nominaService->calcularSalario();
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
@@ -83,13 +85,16 @@ class RolPagoRequest extends FormRequest
         $prestamo_hipotecario =  $rol->es_quincena ? 0 : $prestamoService->prestamosHipotecarios();
         $extension_conyugal =  $rol->es_quincena ? 0 : $nominaService->extensionesCoberturaSalud();
         $prestamo_empresarial = $rol->es_quincena ? 0 : $prestamoService->prestamosEmpresariales();
+        $supa =  $rol->es_quincena ? 0 : $nominaService->calcularSupa();
         $totalEgresos = $totalEgresos = !empty($this->egresos)
             ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
             }, 0) : 0;
-        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos;
+        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos+$supa;
         $total = abs($ingresos) - $egreso;
         $this->merge([
+            'dias' => $dias,
+            'salario' => $salario,
             'sueldo' =>  $sueldo,
             'decimo_tercero' =>  $decimo_tercero,
             'decimo_cuarto' =>  $decimo_cuarto,

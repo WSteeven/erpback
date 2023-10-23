@@ -81,7 +81,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('sueldo_basico', [RubroController::class, 'sueldo_basico']);
     Route::get('porcentaje_iess', [RubroController::class, 'porcentaje_iess']);
     Route::get('porcentaje_anticipo', [RubroController::class, 'porcentaje_anticipo']);
-
     Route::post('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'archivo_permiso_empleado']);
     Route::post('archivo_licencia_empleado', [LicenciaEmpleadoController::class, 'archivo_licencia_empleado']);
     Route::get('archivo_permiso_empleado', [PermisoEmpleadoController::class, 'index_archivo_permiso_empleado']);
@@ -98,10 +97,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('otener_saldo_empleado_mes', [SaldoGrupoController::class, 'otener_saldo_empleado_mes']);
     Route::get('imprimir_rol_pago/{rolPagoId}', [RolPagosController::class, 'imprimir_rol_pago']);
     Route::get('imprimir_rol_pago_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_rol_pago_general']);
+    Route::get('imprimir_reporte_general_empleado', [EmpleadoController::class, 'imprimir_reporte_general_empleado']);
     Route::get('verificar-todos_roles-finalizadas', [RolPagoMesController::class, 'verificarTodasRolesFinalizadas']);
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'FinalizarRolPago']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
+    Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
+    Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescar_rol_pago']);
 
 });

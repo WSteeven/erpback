@@ -39,7 +39,7 @@ class ProveedorRequest extends FormRequest
             "calificacion" => 'nullable|numeric',
             "estado_calificado" => 'required|string',
 
-            "forma_pago" => 'string|sometimes|nullable',
+            "forma_pago" => 'array|sometimes|nullable',
             "referencia" => 'string|sometimes|nullable',
             "plazo_credito" => 'string|sometimes|nullable',
             "anticipos" => 'string|sometimes|nullable',

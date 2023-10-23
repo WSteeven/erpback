@@ -20,16 +20,18 @@ class RolPagoEmail extends Mailable
     private $reportes;
     private $pdf;
     private Empleado $empleado;
+    private $ruta_archivo;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($reportes, $pdf, $empleado)
+    public function __construct($reportes, $pdf, $empleado, $ruta_archivo)
     {
         $this->reportes = $reportes;
         $this->pdf = $pdf;
         $this->empleado = $empleado;
+        $this->ruta_archivo = $ruta_archivo;
     }
 
     /**
@@ -40,7 +42,7 @@ class RolPagoEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            // from: new Address('Roles de JP CONSTRUCRED'),
+            from: new Address('no-reply@jpconstrucred.com', 'JP CONSTRUCRED C.LTDA'),
             subject: 'Rol de Pagos de ' . $this->reportes['roles_pago'][0]['mes'],
         );
     }
@@ -66,10 +68,17 @@ class RolPagoEmail extends Mailable
     public function attachments()
     {
         $filename = 'rol_pago' . time() . '.pdf';
-         $ruta = 'public' . DIRECTORY_SEPARATOR . 'compras' . DIRECTORY_SEPARATOR . 'ordenes_compras' . DIRECTORY_SEPARATOR . $filename;
-         $path =Storage::put($ruta, $this->pdf);
-        return [
-            Attachment::fromData(fn () => $this->pdf, $filename)->withMime('application/pdf')
-        ];
+        if ($this->ruta_archivo != null) {
+            $path = str_replace("storage/", "public/",  $this->ruta_archivo);
+            return [
+                Attachment::fromStorage($path)
+                    ->as('rol_pago_' .$this->reportes['roles_pago'][0]['mes'])
+                    ->withMime('application/pdf'),
+            ];
+        } else {
+            return [
+                Attachment::fromData(fn () => $this->pdf, $filename)->withMime('application/pdf')
+            ];
+        }
     }
 }

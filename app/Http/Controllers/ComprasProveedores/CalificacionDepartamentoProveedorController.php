@@ -43,7 +43,7 @@ class CalificacionDepartamentoProveedorController extends Controller
 
             $modelos = [];
             $detalle = DetalleDepartamentoProveedor::where('departamento_id', auth()->user()->empleado->departamento_id)->where('proveedor_id', $request->proveedor_id)->first();
-            $datos = array_map(function ($detalle){
+            $datos = array_map(function ($detalle) {
                 return [
                     'criterio_calificacion_id' => $detalle['id'],
                     'comentario' => array_key_exists('comentario', $detalle) ? $detalle['comentario'] : null,
@@ -56,7 +56,7 @@ class CalificacionDepartamentoProveedorController extends Controller
             // if ($request->criterios) {
             //     foreach ($request->criterios as $criterio) {
             //         $calificacion = CalificacionDepartamentoProveedor::create([
-                //             'detalle_departamento_id' => $detalle->id,
+            //             'detalle_departamento_id' => $detalle->id,
             //             'comentario' => array_key_exists('comentario', $criterio) ? $criterio['comentario'] : null,
             //             'peso' => $criterio['peso'],
             //             'puntaje' => $criterio['puntaje'],
@@ -108,23 +108,16 @@ class CalificacionDepartamentoProveedorController extends Controller
     public function storeFiles(Request $request, $detalle)
     {
         // Log::channel('testing')->info('Log', ['Recibido del front en storeFiles', $request->all(), $detalle]);
-        $modelo = [];
         try {
             $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
             if ($detalle_dept) {
-                if ($request->allFiles()) {
-                    foreach ($request->allFiles() as $archivo) {
-                        $archivo = $this->archivoService->guardarArchivo($detalle_dept, $archivo, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
-                        array_push($modelo, $archivo);
-                    }
-                }
+                $modelo = $this->archivoService->guardarArchivo($detalle_dept, $request->file, RutasStorage::CALIFICACIONES_PROVEEDORES->value);
+                $mensaje = 'Archivo subido correctamente';
             }
-
-            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (\Throwable $th) {
             $mensaje = $th->getMessage();
             return response()->json(compact('mensaje'));
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
 }

@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -30,8 +31,10 @@ use Src\Shared\Utils;
 class PedidoController extends Controller
 {
     private $entidad = 'Pedido';
+    private $servicio;
     public function __construct()
     {
+        $this->servicio = new PedidoService();
         $this->middleware('can:puede.ver.pedidos')->only('index', 'show');
         $this->middleware('can:puede.crear.pedidos')->only('store');
         $this->middleware('can:puede.editar.pedidos')->only('update');
@@ -62,9 +65,9 @@ class PedidoController extends Controller
 
 
         // Log::channel('testing')->info('Log', ['Resultados:', $estado, $results]);
-        if(!empty($results)){
+        if (!empty($results)) {
             $results = PedidoResource::collection($results);
-        }else{
+        } else {
             $results = [];
         }
         return response()->json(compact('results'));
@@ -102,7 +105,7 @@ class PedidoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante']]);
             }
             DB::commit();
 
@@ -181,7 +184,7 @@ class PedidoController extends Controller
             //modifica los datos del listado, en caso de requerirse
             $pedido->detalles()->detach();
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
             }
             DB::commit();
 
@@ -329,81 +332,38 @@ class PedidoController extends Controller
 
     public function reportes(Request $request)
     {
-        $configuracion = ConfiguracionGeneral::first();
-        $estadisticas = [];
-        $results = new Collection();
-        switch ($request->accion) {
-            case 'excel':
-                $registros = $results;
-                return Excel::download(new PedidoExport(collect($results)), 'reporte_pedidos.xlsx');
-                break;
-            case 'pdf':
-                try {
-                    $vista = 'pedidos.pedido';
-                    $pdf = Pdf::loadView($vista, compact(['reporte', 'configuracion']));
-                    $pdf->setPaper('A4', 'landscape');
-                    $pdf->render();
-                } catch (Exception $ex) {
-                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
-                    throw ValidationException::withMessages([
-                        'Error al generar reporte' => [$ex->getMessage()],
-                    ]);
-                }
-                break;
-            default:
-                switch ($request->autorizacion) {
-                    case 0:
-                        switch ($request->estado) {
-                            case 0:
-                                if ($request->fecha_inicio && $request->fecha_fin) {
-                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                                }
-                                if ($request->fecha_inicio && !$request->fecha_fin) {
-                                    $results = Pedido::whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                                }
-                                break;
-                            default:
-                                if ($request->fecha_inicio && $request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                                }
-                                if ($request->fecha_inicio && !$request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                                }
-                        }
-                        break;
-                    default:
-                        switch ($request->estado) {
-                            case 0:
-                                if ($request->fecha_inicio && $request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                                }
-                                if ($request->fecha_inicio && !$request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                                }
-                                break;
-                            default:
-                                if ($request->fecha_inicio && $request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])->get();
-                                }
-                                if ($request->fecha_inicio && !$request->fecha_fin) {
-                                    $results = Pedido::where('autorizacion_id', $request->autorizacion)->where('estado_id', $request->estado)->whereBetween('created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])->get();
-                                }
-                        }
-                }
-                // calculo de las estadisticas que se mostraran en grafico de pie
-                $count_autorizados = $results->countBy('autorizacion_id');
-                $count_estados = $results->countBy('estado_id');
-                if ($count_autorizados->has('1')) $estadisticas['autorizado_pendiente'] = $count_autorizados['1'];
-                if ($count_autorizados->has('2')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['2'];
-                if ($count_autorizados->has('3')) $estadisticas['autorizado_aprobado'] =  $count_autorizados['3'];
-                if ($count_estados->has('1')) $estadisticas['estado_pendiente'] = $count_autorizados->has('1') ? $count_estados['1'] - $count_autorizados['1'] : $count_estados['1'];
-                if ($count_estados->has('2')) $estadisticas['estado_completo'] =  $count_estados['2'];
-                if ($count_estados->has('3')) $estadisticas['estado_parcial'] =  $count_estados['3'];
-                if ($count_estados->has('4')) $estadisticas['estado_anulado'] =  $count_estados['4'];
+        try {
+            $configuracion = ConfiguracionGeneral::first();
+            $estadisticas = [];
+            $results = $this->servicio->filtrarPedidosReporte($request);
+            $registros = $this->servicio->empaquetarDatos($results);
+            switch ($request->accion) {
+                case 'excel':
+                    return Excel::download(new PedidoExport(collect($registros), $configuracion), 'reporte_pedidos.xlsx');
+                    break;
+                case 'pdf':
+                    try {
+                        $vista = 'pedidos.pedidos';
+                        $reporte = $registros;
+                        $pdf = Pdf::loadView($vista, compact(['reporte', 'configuracion']));
+                        $pdf->setPaper('A4', 'landscape');
+                        $pdf->render();
+                        return $pdf->stream();
+                    } catch (Exception $ex) {
+                        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                        throw ValidationException::withMessages([
+                            'Error al generar reporte' => [$ex->getMessage()],
+                        ]);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception $ex) {
+            throw ValidationException::withMessages([
+                'Error' => [$ex->getMessage() . '. ' . $ex->getLine()],
+            ]);
         }
-        // Log::channel('testing')->info('Log', ['Conteo de autorizados:', $count_autorizados, $count_estados]);
-        // Log::channel('testing')->info('Log', ['Estadisticas:', $estadisticas]);
-
 
         $results = PedidoResource::collection($results);
         return response()->json(compact('results', 'estadisticas'));

@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -62,6 +64,7 @@ class Empleado extends Model implements Auditable
         'talla_pantalon',
         'banco',
         'genero',
+        'esta_en_empleado',
         'esta_en_rol_pago',
         'acumula_fondos_reserva',
         'realiza_factura',
@@ -80,6 +83,7 @@ class Empleado extends Model implements Auditable
         'cargo_id',
         'departamento_id',
         'estado',
+        'esta_en_rol_pago',
         'es_tecnico',
         'tipo_sangre',
         'dirrecion',
@@ -102,7 +106,7 @@ class Empleado extends Model implements Auditable
         'talla_pantalon',
         'banco',
         'genero',
-        'esta_en_rol_pago',
+        'esta_en_empleado',
         'acumula_fondos_reserva',
         'realiza_factura',
     ];
@@ -114,12 +118,13 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
-        'esta_en_rol_pago' => 'boolean',
+        'esta_en_empleado' => 'boolean',
         'realiza_factura' => 'boolean',
         'estado' => 'boolean',
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'esta_en_rol_pago' => 'boolean',
         'tiene_discapacidad' => 'boolean',
         'acumula_fondos_reserva' => 'boolean',
 
@@ -192,6 +197,9 @@ class Empleado extends Model implements Auditable
     public function transacciones()
     {
         return $this->hasMany(TransaccionBodega::class);
+    }
+    public function rolesPago(){
+        return $this->hasMany(RolPago::class,'empleado_id');
     }
 
     /**
@@ -362,6 +370,34 @@ class Empleado extends Model implements Auditable
     {
         // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
+    }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+
+    public static function empaquetarListado($empleados)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($empleados as $empleado) {
+
+            $row['item'] = $id + 1;
+            $row['id'] =  $empleado->id;
+            $row['apellidos'] =  $empleado->apellidos;
+            $row['nombres'] =   $empleado->nombres;
+            $row['identificacion'] =  $empleado->identificacion;
+            $row['departamento'] =  $empleado->departamento!=null?$empleado->departamento->nombre:'';
+            $row['area'] =  $empleado->area!=null?$empleado->area->nombre:'';
+            $row['cargo'] =  $empleado->cargo !=null ?$empleado->cargo->nombre:'';
+            $row['salario'] =  $empleado->salario;
+            $results[$id] = $row;
+            $id++;
+        }
+        return $results;
     }
 
 }
