@@ -32,6 +32,7 @@ class ValorAcreditarController extends Controller
     public function show(Request $request, ValorAcreditar $valor_acreditar)
     {
         $results = $valor_acreditar;
+        $results = new ValorAcreditarResource($results->refresh());
         return response()->json(compact('results'));
     }
     public function store(ValorAcreditarRequest $request)

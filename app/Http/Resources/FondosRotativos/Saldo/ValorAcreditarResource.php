@@ -22,6 +22,7 @@ class ValorAcreditarResource extends JsonResource
             'monto_generado'=>number_format($this->monto_generado, 2),
             'monto_modificado'=>number_format($this->monto_modificado, 2),
             'acreditacion_semana'=>$this->acreditacion_semana_id,
+            'es_acreditado'=>$this->acreditacion_semanal!=null?$this->acreditacion_semanal->acreditar:'',
             'acreditacion_semana_info'=>$this->acreditacion_semanal!=null?$this->acreditacion_semanal->semana:'',
         ];
         return $modelo;
