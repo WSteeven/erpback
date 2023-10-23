@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('grupos', function (Blueprint $table) {
-            $table->unsignedBigInteger('coordinador_id')->nullable();
-            $table->foreign('coordinador_id')->references('id')->on('empleados')->onDelete('set null')->onUpdate('cascade');
+        Schema::create('med_estados_examenes', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->timestamps();
         });
     }
 
@@ -26,8 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('grupos', function (Blueprint $table) {
-            $table->dropColumn('coordinador_id');
-        });
+        Schema::dropIfExists('med_estados_examenes');
     }
 };

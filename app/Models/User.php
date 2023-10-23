@@ -61,7 +61,8 @@ class User extends Authenticatable implements Auditable
     const COORDINADOR_TECNICO = 'COORDINADOR TECNICO';
     const TECNICO = 'TECNICO';
 
-
+    // Modulo medico
+    const ROL_MEDICO = 'MEDICO';
 
     /**
      * The attributes that are mass assignable.
