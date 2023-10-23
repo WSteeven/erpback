@@ -353,7 +353,7 @@
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>ING. LUIS MANUEL PEZANTEZ MORA</b>
+                    <b>{{ $responsable->nombres.' '. $responsable->apellidos }}</b>
                     <br>
                     <b>APROBADO POR</b>
                 </th>

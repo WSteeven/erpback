@@ -5,13 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
 use App\Models\Cliente;
-use App\Models\ComputadoraTelefono;
 use App\Models\DetalleProducto;
-use App\Models\DetallesProducto;
-use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\Inventario;
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -47,7 +43,7 @@ class DetalleProductoController extends Controller
                     $results = DetalleProducto::whereIn('id', $ids_detalles)
                         ->when($request->search, function ($query) use ($request) {
                             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
-                        })->orderBy('descripcion', 'asc')->get();
+                        })->where('activo', true)->orderBy('descripcion', 'asc')->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;
@@ -57,22 +53,17 @@ class DetalleProductoController extends Controller
                     // $ids_detalles = Inventario::where('cliente_id', $request->cliente_id)->limit(990)->get('detalle_id');
                     // Log::channel('testing')->info('Log', ['los detalles CLIENTE TAREA:', $ids_detalles->count()]);
                     // Log::channel('testing')->info('Log', ['los detalles como tal:', DetalleProducto::whereIn('id', $ids_detalles)->get()]);
-                    $results = Cliente::find($request->cliente_id)->detalles->unique();
+                    $results = Cliente::find($request->cliente_id)->detalles->unique()->where('activo', true);
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;
                 default: //todos
-                    $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
                     if ($request->categoria_id && !is_null($request->categoria_id[0])) {
                         $results = DetalleProducto::withWhereHas('producto', function ($query) use ($request) {
                             $query->whereIn('categoria_id', $request->categoria_id);
                         })->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
-                    } else {
-                        $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
-                    }
+                    } else $results = DetalleProducto::where('activo', true)->orderBy('descripcion', 'asc')->groupBy('descripcion')->get();
 
-                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->limit(30)->get();
-                    // $results = DetalleProducto::orderBy('descripcion', 'asc')->groupBy('descripcion')->ignoreRequest(['tipo_busqueda'])->filter()->get();
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
             }
@@ -82,6 +73,7 @@ class DetalleProductoController extends Controller
         } else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
+            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
             Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);
@@ -133,13 +125,13 @@ class DetalleProductoController extends Controller
                 $detalle = DetalleProducto::crearDetalle($request, $datos);
             }
 
+            $modelo = new DetalleProductoResource($detalle);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()], 422);
         }
-        $modelo = new DetalleProductoResource($detalle);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -233,5 +225,17 @@ class DetalleProductoController extends Controller
         $detalle->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Desactivar un detalle especifico
+     */
+    public function desactivar(DetalleProducto $detalle){
+        // Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
+        $detalle->activo = !$detalle->activo;
+        $detalle->save();
+
+        $modelo = new DetalleProductoResource($detalle->refresh());
+        return response()->json(compact('modelo'));
     }
 }

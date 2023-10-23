@@ -123,119 +123,118 @@
                                                 <tr class="encabezado-datos" style="text-align: center ">
                                                     <td rowspan="2"
                                                         style="text-align: center !important;
-                                                background-color: #DBDBDB;">
+                                                                                    background-color: #DBDBDB;">
                                                         ITEM</td>
                                                     <td
                                                         rowspan="2"style="text-align: center !important;
-                                                background-color: #DBDBDB;">
+                                                                                    background-color: #DBDBDB;">
                                                         EMPLEADO</td>
                                                     <td
                                                         rowspan="2"style="  text-align: center !important;
-                                                background-color: #DBDBDB;">
+                                                                                    background-color: #DBDBDB;">
                                                         CEDULA</td>
+                                                    <!--<td
+                                                        rowspan="2"style="  text-align: center !important;
+                                                                                    background-color: #DBDBDB;">
+                                                        CARGO</td> -->
+                                                    <!--<td
+                                                        rowspan="2"style="  text-align: center !important;
+                                                                                    background-color: #DBDBDB;">
+                                                        CIUDAD</td>-->
                                                     <td
                                                         rowspan="2"style="  text-align: center !important;
-                                                background-color: #DBDBDB;">
-                                                        CARGO</td>
-                                                    <td
-                                                        rowspan="2"style="  text-align: center !important;
-                                                background-color: #DBDBDB;">
-                                                        CIUDAD</td>
-                                                    <td
-                                                        rowspan="2"style="  text-align: center !important;
-                                                background-color: #DBDBDB;">
+                                                                                    background-color: #DBDBDB;">
                                                         SUELDO</td>
-                                                    <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
-                                                    </td>
+                                                    <td rowspan="2" style="background-color: #F8CBAD">DIAS </td>
                                                     <th colspan="{{ $numcol_ingreso }}" scope="colgroup"
                                                         class="encabezado-ingresos"
                                                         style="text-align: center !important;
-                                                background-color: #FFF2CC;">
+                                                                                    background-color: #FFF2CC;">
                                                         INGRESOS</th>
-                                                    <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
+                                                    <td rowspan="2" style="background-color: #FFE699">TTII
                                                     </td>
                                                     <th colspan="{{ $numcol_egreso }}" scope="colgroup"
                                                         class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
+                                                                                    background-color: #BDD7EE;">
                                                         EGRESOS</th>
-                                                    <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
+                                                    <td rowspan="2" style="background-color: #CCCCFF">TTEE
                                                     </td>
-                                                    <td rowspan="2" style="background-color:#A9D08E">NETO A RECIBIR
+                                                    <td rowspan="2" style="background-color:#A9D08E">TTROL
                                                     </td>
 
                                                 </tr>
                                                 <tr class="encabezado-datos">
                                                     <td
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color: #FFF2CC;">
+                                                                                    background-color: #FFF2CC;">
                                                         SUELDO GANADO</td>
                                                     <th
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color: #FFF2CC;">
-                                                        DECIMO XII</th>
+                                                                                    background-color: #FFF2CC;">
+                                                        XIIIROL</th>
                                                     <th
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color: #FFF2CC;">
-                                                        DECIMO XIV</th>
+                                                                                    background-color: #FFF2CC;">
+                                                        XIVROL</th>
                                                     <th
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color:#FFF2CC;">
-                                                        FONDOS DE RESERVA</th>
+                                                                                    background-color:#FFF2CC;">
+                                                        FDRAROL</th>
                                                     @if ($tiene_bonificacion)
                                                         <th scope="col"
                                                             class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color: #FFF2CC;">
+                                                                                    background-color: #FFF2CC;">
                                                             BONIFICACION</th>
                                                     @endif
                                                     @if ($tiene_bono_recurente)
                                                         <th scope="col"
                                                             class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color:#FFF2CC;">
+                                                                                    background-color:#FFF2CC;">
                                                             BONO RECURENTE</th>
                                                     @endif
                                                     @foreach ($columnas_ingresos as $ingreso)
                                                         <th
                                                             scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                                background-color:#FFF2CC;">
+                                                                                    background-color:#FFF2CC;">
                                                             {{ strtoupper($ingreso) }}</th>
                                                     @endforeach
                                                     <th
                                                         scope="col"class="encabezado-ingresos"style="text-align: center !important;
-                                               background-color: #BDD7EE;">
+                                                                                   background-color: #BDD7EE;">
                                                         IESS (9.45%)</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
-                                                        PRESTAMO QUIROGRAFARIO</th>
+                                                                                    background-color: #BDD7EE;">
+                                                        PRSQRG</th>
 
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
-                                                        PRESTAMO HIPOTECARIO</th>
+                                                                                    background-color: #BDD7EE;">
+                                                        PRHIPO</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
+                                                                                    background-color: #BDD7EE;">
                                                         PRESTAMO</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
-                                                        EXT CONYUGAL</th>
+                                                                                    background-color: #BDD7EE;">
+                                                        EXTCONYUGE</th>
                                                     <th scope="col"class="encabezado-egresos"
                                                         style="text-align: center !important;
-                                                background-color: #BDD7EE;">
+                                                                                    background-color: #BDD7EE;">
                                                         ANTICIPO</th>
 
                                                     @if ($tiene_supa)
                                                         <th scope="col"class="encabezado-egresos"
                                                             style="text-align: center !important;
-                                                    background-color: #BDD7EE;">
+                                                                                        background-color: #BDD7EE;">
                                                             SUPA</th>
                                                     @endif
                                                     @foreach ($columnas_egresos as $egreso)
                                                         <th scope="col"class="encabezado-egresos"
                                                             style="text-align: center !important;
-                                                    background-color: #BDD7EE;">
+                                                                                        background-color: #BDD7EE;">
                                                             {{ strtoupper($egreso) }}</th>
                                                     @endforeach
                                                 </tr>
@@ -247,8 +246,8 @@
                                                         <td>{{ $rol_pago['item'] }}</td>
                                                         <td>{{ $rol_pago['empleado_info'] }}</td>
                                                         <td>{{ $rol_pago['cedula'] }}</td>
-                                                        <td>{{ $rol_pago['cargo'] }}</td>
-                                                        <td>{{ $rol_pago['ciudad'] }}</td>
+                                                        <!-- <td>{{-- $rol_pago['cargo'] --}}</td>-->
+                                                        <!--<td>$rol_pago['ciuda --}}d'] --}}</td>-->
                                                         <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
                                                         <td>{{ $rol_pago['dias_laborados'] }}</td>
                                                         <td>{{ number_format($rol_pago['sueldo'], 2, ',', '.') }}</td>
@@ -320,14 +319,15 @@
                                                         </td>
                                                         <td>{{ $rol_pago['total'] }}</td>
                                                     </tr>
+
                                                 @endforeach
                                                 <tr style="background-color: #FFE699">
-                                                    <td colspan="5" style="text-align: center">
+                                                    <td colspan="3" style="text-align: center">
                                                         <strong>TOTALES&nbsp;</strong>
                                                     </td>
-                                                    <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
+                                                    <td>{{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
                                                     <td>&nbsp;</td>
-                                                    <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
+                                                    <td>{{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
                                                     <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
                                                     </td>
                                                     <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
@@ -335,7 +335,7 @@
                                                     <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                                                     </td>
                                                     @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                                                        <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                                                        <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                                                     @endforeach
                                                     <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                                                     </td>
@@ -346,11 +346,11 @@
                                                     </td>
                                                     <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
                                                     </td>
+                                                    <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
+                                                    </td>
                                                     @if ($tiene_supa)
                                                         <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                                                     @endif
-                                                    <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
-                                                    </td>
                                                     <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @foreach ($sumatoria_egresos as $sumatoria_egreso)
                                                         <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>

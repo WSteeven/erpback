@@ -3,8 +3,10 @@
 namespace App\Exports;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
@@ -20,9 +22,10 @@ class CashRolPagoExport extends DefaultValueBinder implements FromView, WithCust
 
     function bindValue(Cell $cell, $value)
     {
-        if (is_numeric($value) && $value > 9999) {
+        if ($cell->getColumn() == 'G') {
             $val = str_replace(',', '', $value);
-            $cell->setValueExplicit($val, DataType::TYPE_STRING);
+            $numeroFormateado = str_pad($val, 13, '0', STR_PAD_LEFT);
+            $cell->setValueExplicit($numeroFormateado, DataType::TYPE_STRING);
             return true;
         }
 

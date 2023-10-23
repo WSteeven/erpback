@@ -1,6 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
+    @php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    $numcol_egreso = $cantidad_columna_egresos + 6;
+    $tiene_supa = $sumatoria['supa'] > 0;
+    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+    $carry_ingreso = [];
+    $index_ingreso = 0;
+    $carry_egreso = [];
+    $index_egreso = 0;
+    if ($tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion && $tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+    }
 
+    if ($tiene_supa) {
+        $numcol_egreso = $cantidad_columna_egresos + 7;
+    }
+    $sumColumns = [
+        'salario' => 0,
+        'sueldo' => 0,
+        'decimo_tercero' => 0,
+        'decimo_cuarto' => 0,
+        'fondos_reserva' => 0,
+        'iess' => 0,
+        'anticipo' => 0,
+        'bonificacion' => 0,
+        'bono_recurente' => 0,
+        'total_ingreso' => 0,
+        'prestamo_quirorafario' => 0,
+        'prestamo_hipotecario' => 0,
+        'extension_conyugal' => 0,
+        'prestamo_empresarial' => 0,
+        'supa' => 0,
+        'total_egreso' => 0,
+        'total' => 0,
+    ];
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +57,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark  }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -24,7 +69,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 4.3cm;
-            font-size: 12px;
+            font-size: 20px;
         }
 
         /** Definir las reglas del encabezado **/
@@ -68,7 +113,7 @@
         }
 
         table.datos {
-            font-size: 3pt;
+            font-size: 8pt;
             width: 100%;
             border-collapse: collapse;
         }
@@ -106,50 +151,7 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    $numcol_egreso = $cantidad_columna_egresos + 6;
-    $tiene_supa = $sumatoria['supa'] > 0;
-    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-    $carry_ingreso = [];
-    $index_ingreso = 0;
-    $carry_egreso = [];
-    $index_egreso = 0;
-    if ($tiene_bono_recurente) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion && $tiene_bono_recurente) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 5;
-    }
 
-    if ($tiene_supa) {
-        $numcol_egreso = $cantidad_columna_egresos + 7;
-    }
-    $sumColumns = [
-        'salario' => 0,
-        'sueldo' => 0,
-        'decimo_tercero' => 0,
-        'decimo_cuarto' => 0,
-        'fondos_reserva' => 0,
-        'iess' => 0,
-        'anticipo' => 0,
-        'bonificacion' => 0,
-        'bono_recurente' => 0,
-        'total_ingreso' => 0,
-        'prestamo_quirorafario' => 0,
-        'prestamo_hipotecario' => 0,
-        'extension_conyugal' => 0,
-        'prestamo_empresarial' => 0,
-        'supa' => 0,
-        'total_egreso' => 0,
-        'total' => 0,
-    ];
-@endphp
 
 <body>
     <header>
@@ -158,7 +160,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                            src="{{ $logo_principal}}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -209,33 +211,32 @@
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     CEDULA</td>
-                <td
+                <!--<td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
-                    CARGO</td>
-                <td
+                    CARGO</td> -->
+                <!--<td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
-                    CIUDAD</td>
+                    CIUDAD</td>-->
                 <td
                     rowspan="2"style="  text-align: center !important;
                                                 background-color: #DBDBDB;">
                     SUELDO</td>
-                <td rowspan="2" style="background-color: #F8CBAD">DIAS TRABAJADOS
-                </td>
+                <td rowspan="2" style="background-color: #F8CBAD">DIAS </td>
                 <th colspan="{{ $numcol_ingreso }}" scope="colgroup" class="encabezado-ingresos"
                     style="text-align: center !important;
                                                 background-color: #FFF2CC;">
                     INGRESOS</th>
-                <td rowspan="2" style="background-color: #FFE699">TOTAL INGRESOS
+                <td rowspan="2" style="background-color: #FFE699">TTII
                 </td>
                 <th colspan="{{ $numcol_egreso }}" scope="colgroup" class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
                     EGRESOS</th>
-                <td rowspan="2" style="background-color: #CCCCFF">TOTAL EGRESOS
+                <td rowspan="2" style="background-color: #CCCCFF">TTEE
                 </td>
-                <td rowspan="2" style="background-color:#A9D08E">NETO A RECIBIR
+                <td rowspan="2" style="background-color:#A9D08E">TTROL
                 </td>
 
             </tr>
@@ -247,15 +248,15 @@
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color: #FFF2CC;">
-                    DECIMO XII</th>
+                    XIIIROL</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color: #FFF2CC;">
-                    DECIMO XIV</th>
+                    XIVROL</th>
                 <th
                     scope="col"class="encabezado-ingresos"style="text-align: center !important;
                                                 background-color:#FFF2CC;">
-                    FONDOS DE RESERVA</th>
+                    FDRAROL</th>
                 @if ($tiene_bonificacion)
                     <th scope="col"
                         class="encabezado-ingresos"style="text-align: center !important;
@@ -281,12 +282,12 @@
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    PRESTAMO QUIROGRAFARIO</th>
+                    PRSQRG</th>
 
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    PRESTAMO HIPOTECARIO</th>
+                    PRHIPO</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -294,7 +295,7 @@
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
-                    EXT CONYUGAL</th>
+                    EXTCONYUGE</th>
                 <th scope="col"class="encabezado-egresos"
                     style="text-align: center !important;
                                                 background-color: #BDD7EE;">
@@ -315,14 +316,18 @@
             </tr>
             @foreach ($roles_pago as $rol_pago)
                 @php
-                    $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
+                    $sumColumns['prestamo_quirorafario'] += round($rol_pago['prestamo_quirorafario'],2);
+                    $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
+                    $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
+                    $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
+                    $sumColumns['total']+=round($rol_pago['total'],2);
                 @endphp
                 <tr>
                     <td>{{ $rol_pago['item'] }}</td>
                     <td>{{ $rol_pago['empleado_info'] }}</td>
                     <td>{{ $rol_pago['cedula'] }}</td>
-                    <td>{{ $rol_pago['cargo'] }}</td>
-                    <td>{{ $rol_pago['ciudad'] }}</td>
+                    <!-- <td>{{-- $rol_pago['cargo'] --}}</td>-->
+                    <!--<td>$rol_pago['ciuda --}}d'] --}}</td>-->
                     <td>{{ number_format($rol_pago['salario'], 2, ',', '.') }}</td>
                     <td>{{ $rol_pago['dias_laborados'] }}</td>
                     <td>{{ number_format($rol_pago['sueldo'], 2, ',', '.') }}</td>
@@ -392,24 +397,25 @@
                     @endif
                     <td>{{ number_format($rol_pago['total_egreso'], 2, ',', '.') }}
                     </td>
-                    <td>{{ $rol_pago['total'] }}</td>
+                    <td>{{ number_format($rol_pago['total'], 2, ',', '.') }}</td>
                 </tr>
+
             @endforeach
             <tr style="background-color: #FFE699">
-                <td colspan="5" style="text-align: center">
+                <td colspan="3" style="text-align: center">
                     <strong>TOTALES&nbsp;</strong>
                 </td>
-                <td> {{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
                 <td>&nbsp;</td>
-                <td> {{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
-                <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
+                <td>{{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
+                <td>{{ number_format($sumColumns['decimo_tercero'], 2, ',', '.') }}
                 </td>
-                <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
+                <td>{{ number_format($sumColumns['decimo_cuarto'], 2, ',', '.') }}
                 </td>
                 <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                 </td>
                 @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                    <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                    <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                 @endforeach
                 <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                 </td>
@@ -420,18 +426,18 @@
                 </td>
                 <td>{{ number_format($sumatoria['prestamo_empresarial'], 2, ',', '.') }}
                 </td>
+                <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
+                </td>
                 @if ($tiene_supa)
                     <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                 @endif
-                <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
-                </td>
                 <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @foreach ($sumatoria_egresos as $sumatoria_egreso)
                     <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                 @endforeach
-                <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
+                <td>{{ number_format($sumColumns['total_egreso'], 2, ',', '.') }}
                 </td>
-                <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
+                <td>{{ round($sumColumns['total'],2)}}</td>
             </tr>
         </table>
         <table class="firma" style="width: 100%;">
@@ -457,7 +463,7 @@
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 550, $text, $font, 12);
+                $pdf->page_text(10, 800, $text, $font, 12);
         }
     </script>
 </body>

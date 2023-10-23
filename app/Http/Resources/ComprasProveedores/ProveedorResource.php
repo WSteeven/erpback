@@ -40,7 +40,7 @@ class ProveedorResource extends JsonResource
             'related_departamentos' => $this->departamentos_califican,
             'calificacion' => $this->calificacion ? $this->calificacion : 0,
             'estado_calificado' => $this->estado_calificado ? $this->estado_calificado : Proveedor::SIN_CONFIGURAR,
-            "forma_pago" => $this->forma_pago,
+            "forma_pago" => $this->forma_pago? Utils::convertirStringComasArray($this->forma_pago) : null,
             "referencia" => $this->referencia,
             "plazo_credito" => $this->plazo_credito,
             "anticipos" => $this->anticipos,

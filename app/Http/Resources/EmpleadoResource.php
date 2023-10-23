@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -58,6 +59,7 @@ class EmpleadoResource extends JsonResource
             'banco_info' => $this->banco_info ? $this->banco_info->nombre : null,
             'tiene_discapacidad' => $this->tiene_discapacidad,
             'fecha_ingreso' => $this->fecha_ingreso,
+            'antiguedad' => $this->antiguedad($this->fecha_ingreso),
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
             'fecha_salida' => $this->fecha_salida,
@@ -74,9 +76,9 @@ class EmpleadoResource extends JsonResource
             'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
             'observacion' => $this->observacion,
             'genero' => $this->genero,
-            'esta_en_rol_pago'=> $this-> esta_en_rol_pago,
-            'acumula_fondos_reserva' => $this-> acumula_fondos_reserva,
-            'realiza_factura'=> $this-> realiza_factura,
+            'esta_en_rol_pago' => $this->esta_en_rol_pago,
+            'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
+            'realiza_factura' => $this->realiza_factura,
             'familiares' => $this->familiares_info
         ];
 
@@ -100,5 +102,29 @@ class EmpleadoResource extends JsonResource
             }
         }
         return count($campos) ? $data : $modelo;
+    }
+    public function antiguedad($fecha_ingreso)
+    {
+        // Obtén la fecha actual con Carbon
+        $fechaActual = Carbon::now();
+
+        // Convierte la fecha de ingreso a un objeto Carbon
+        $fechaIngreso = Carbon::parse($fecha_ingreso);
+
+        // Calcula la diferencia en años, meses y días usando Carbon
+        $diff = $fechaActual->diff($fechaIngreso);
+
+        // Obtiene los valores de diferencia en años, meses y días
+        $diffYears = $diff->y;
+        $diffMonths = $diff->m;
+        $diffDays = $diff->d;
+
+        // Verifica si los valores de diferencia son válidos
+        if (!is_int($diffYears) || !is_int($diffMonths) || !is_int($diffDays)) {
+            return null;
+        }
+
+        // Retorna la diferencia en el formato deseado
+        return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
 }

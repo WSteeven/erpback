@@ -86,7 +86,9 @@ class PrestamoEmpresarialController extends Controller
                 'pago_couta' => false,
                 'num_cuota' => $plazo['num_cuota'],
                 'fecha_vencimiento' => $fecha->format('Y-m-d'),
+                'valor_couta' => $plazo['valor_couta'],
                 'valor_a_pagar' => $plazo['valor_couta']
+
             ];
         })->toArray();
         PlazoPrestamoEmpresarial::insert($plazosActualizados);
@@ -112,11 +114,14 @@ class PrestamoEmpresarialController extends Controller
     }
     public function obtener_prestamo_empleado(Request $request)
     {
-        $results = PrestamoEmpresarial::where('solicitante', $request->empleado)
-            ->where('estado', 'ACTIVO')
-            ->whereRaw('DATE_FORMAT(plazos.fecha_vencimiento, "%Y-%m") <= ?', [$request->mes])
-            ->join('plazo_prestamo_empresarial as plazos', 'prestamo_empresarial.id', '=', 'plazos.id_prestamo_empresarial')
-            ->sum('plazos.valor_a_pagar');
+            list($mes, $anio) = explode('-',$request->mes);
+            $results = PlazoPrestamoEmpresarial::
+            join('prestamo_empresarial',  'plazo_prestamo_empresarial.id_prestamo_empresarial', '=','prestamo_empresarial.id')
+            ->where('prestamo_empresarial.solicitante', $request->empleado)
+            ->whereYear('fecha_vencimiento', $anio)
+            ->whereMonth('fecha_vencimiento', $mes)
+            ->where('pago_couta', 0)
+            ->sum('valor_a_pagar');
         return response()->json(compact('results'));
     }
 }

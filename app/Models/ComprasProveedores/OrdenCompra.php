@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
@@ -163,6 +164,22 @@ class OrdenCompra extends Model implements Auditable
     return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
   }
 
+  /**
+   * Relación uno a muchos.
+   * Una orden de compra puede tener muchas novedades.
+   */
+  public function novdadesOrdenCompra()
+  {
+    return $this->hasMany(NovedadOrdenCompra::class);
+  }
+
+  /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     * 
+     */
+    public function archivos(){
+      return $this->morphMany(Archivo::class, 'archivable');
+  }
 
   /**
    * ______________________________________________________________________________________
@@ -221,7 +238,7 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
+        // Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
         if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
         // Log::channel('testing')->info('Log', ['Producto:', $producto]);
         return [

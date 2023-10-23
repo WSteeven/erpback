@@ -22,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 use PhpParser\Node\Stmt\Break_;
 use PhpParser\Node\Stmt\TryCatch;
 use Src\App\ArchivoService;
+use Src\App\Bodega\DevolucionService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -29,9 +30,11 @@ class DevolucionController extends Controller
 {
     private $entidad = 'Devolución';
     private $archivoService;
+    private $servicio;
     public function __construct()
     {
         $this->archivoService = new ArchivoService();
+        $this->servicio = new DevolucionService();
         $this->middleware('can:puede.ver.devoluciones')->only('index', 'show');
         $this->middleware('can:puede.crear.devoluciones')->only('store');
         $this->middleware('can:puede.editar.devoluciones')->only('update');
@@ -49,54 +52,7 @@ class DevolucionController extends Controller
         $campos = explode(',', $request['page']);
         $results = [];
 
-        switch ($request->estado) {
-            case 'PENDIENTE':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'APROBADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado', Devolucion::CREADA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'CANCELADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 3)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 3)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'ANULADA':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('estado', Devolucion::ANULADA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('estado', Devolucion::ANULADA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            default:
-                $results = Devolucion::where('solicitante_id', auth()->user()->empleado->id)->orWhere('per_autoriza_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
-        }
+        $results = $this->servicio->filtrarDevoluciones($request);
 
         $results = DevolucionResource::collection($results);
 
@@ -258,10 +214,11 @@ class DevolucionController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Devolucion $devolucion){
-        try{
+    public function indexFiles(Request $request, Devolucion $devolucion)
+    {
+        try {
             $results = $this->archivoService->listarArchivos($devolucion);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $mensaje = $e->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
@@ -271,11 +228,12 @@ class DevolucionController extends Controller
     /**
      * Guardar archivos
      */
-    public function storeFiles(Request $request, Devolucion $devolucion){
+    public function storeFiles(Request $request, Devolucion $devolucion)
+    {
         try {
-            $modelo  = $this->archivoService->guardarArchivo($devolucion, $request->file, RutasStorage::DEVOLUCIONES->value.$devolucion->id);
+            $modelo  = $this->archivoService->guardarArchivo($devolucion, $request->file, RutasStorage::DEVOLUCIONES->value . $devolucion->id);
             $mensaje = 'Archivo subido correctamente';
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'), 500);
         }

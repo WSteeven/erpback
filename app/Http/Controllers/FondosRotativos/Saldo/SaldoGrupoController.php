@@ -456,7 +456,10 @@ class SaldoGrupoController extends Controller
             $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
-                ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                ->where(function ($query) {
+                    $query->where('id_estado', '=', 1)
+                        ->orWhere('id_estado', '=', 4);
+                })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
@@ -466,12 +469,18 @@ class SaldoGrupoController extends Controller
                 ->sum('total');
 
             $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
-                ->where('estado', 1)
+            ->where(function ($query) {
+                $query->where('estado', '=', 1)
+                    ->orWhere('estado', '=', 4);
+            })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
 
             $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
-                ->where('estado', 1)
+            ->where(function ($query) {
+                $query->where('estado', '=', 1)
+                    ->orWhere('estado', '=', 4);
+            })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
 
@@ -485,7 +494,7 @@ class SaldoGrupoController extends Controller
                         ->orWhere('estado', '=', 4);
                 })
                 ->get();
-
+                Log::channel('testing')->info('Log', ['gastos_reporte', $gastos_reporte]);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
