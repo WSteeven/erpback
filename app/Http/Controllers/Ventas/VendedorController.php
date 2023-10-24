@@ -3,9 +3,68 @@
 namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Ventas\VendedorRequest;
+use App\Http\Resources\Ventas\VendedorResource;
+use App\Models\Ventas\Vendedor;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Src\Shared\Utils;
 
 class VendedorController extends Controller
 {
-    //
+    private $entidad = 'Vendedor';
+    public function __construct()
+    {
+        $this->middleware('can:puede.ver.vendedor')->only('index', 'show');
+        $this->middleware('can:puede.crear.vendedor')->only('store');
+    }
+    public function index(Request $request)
+    {
+        $results = [];
+        $results = Vendedor::ignoreRequest(['campos'])->filter()->get();
+        $results = VendedorResource::collection($results);
+        return response()->json(compact('results'));
+    }
+    public function show(Request $request, Vendedor $umbral)
+    {
+        $results = new VendedorResource($umbral);
+
+        return response()->json(compact('results'));
+    }
+    public function store(VendedorRequest $request)
+    {
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $umbral = Vendedor::create($datos);
+            $modelo = new VendedorResource($umbral);
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+    }
+    public function update(VendedorRequest $request, Vendedor $umbral)
+    {
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $umbral->update($datos);
+            $modelo = new VendedorResource($umbral->refresh());
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+    }
+    public function destroy(Request $request, Vendedor $umbral)
+    {
+        $umbral->delete();
+        return response()->json(compact('umbral'));
+    }
 }

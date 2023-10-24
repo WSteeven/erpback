@@ -14,6 +14,14 @@ class ComisionesResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'plan' => $this->cant_ventas,
+            'plan_info' => $this->valor,
+            'forma_pago' => $this->forma_pago,
+            'comision' => $this->comision
+        ];
+        return $modelo;
     }
 }
