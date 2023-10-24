@@ -73,6 +73,7 @@ class DetalleProductoController extends Controller
         } else if ($page) {
             $results = DetalleProducto::simplePaginate($request['offset']);
         } else if ($search) { //en este caso busca en todos los detalles
+            Log::channel('testing')->info('Log', ['Pasó por el if de search:', $request->all()]);
             $results = DetalleProducto::search($search)->get();
         } else if ($sucursal) {
             Log::channel('testing')->info('Log', ['Pasó por el if de sucursal:', $request->all()]);

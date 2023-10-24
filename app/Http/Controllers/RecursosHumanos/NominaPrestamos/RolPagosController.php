@@ -99,6 +99,7 @@ class RolPagosController extends Controller
         try {
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+            $datos['estado'] ='EJECUTANDO';
             DB::beginTransaction();
             $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {
@@ -210,8 +211,6 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['rol de pago', $datos]);
-
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 
