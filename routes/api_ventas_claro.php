@@ -1,0 +1,31 @@
+<?php
+
+use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\Ventas\BonosController;
+use App\Http\Controllers\Ventas\ComisionesController;
+use App\Http\Controllers\Ventas\ModalidadController;
+use App\Http\Controllers\Ventas\PlanesController;
+use App\Http\Controllers\Ventas\ProductoVentasController;
+use App\Http\Controllers\Ventas\VendedorController;
+use App\Http\Controllers\Ventas\VentasController;
+use Illuminate\Support\Facades\Route;
+
+// Generar GET - POST - PUT - DELETE
+Route::apiResources(
+    [
+        'bonos' => BonosController::class,
+        'comisiones' => ComisionesController::class,
+        'modalidad' => ModalidadController::class,
+        'planes' => PlanesController::class,
+        'producto-ventas' => ProductoVentasController::class,
+        'vendedor' => VendedorController::class,
+        'verntas' => VentasController::class,
+        ],
+    [
+        'parameters' => [],
+    ]
+);
+
+Route::middleware('auth:sanctum')->group(function () {
+
+});

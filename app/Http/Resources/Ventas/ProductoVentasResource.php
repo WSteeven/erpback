@@ -17,7 +17,7 @@ class ProductoVentasResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'bundle_id' => $this->bundle_id,
+            'bundle' => $this->bundle_id,
             'precio' => $this->precio,
             'plan' => $this->plan_id,
             'plan_info'=> $this->plan->nombre

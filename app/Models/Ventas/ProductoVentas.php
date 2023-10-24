@@ -19,7 +19,7 @@ class ProductoVentas extends Model implements Auditable
         '*',
     ];
     public function plan(){
-        return $this->hasOne(ProductoVentas::class,'plan_id');
+        return $this->hasOne(Planes::class,'id','plan_id');
 
     }
 }

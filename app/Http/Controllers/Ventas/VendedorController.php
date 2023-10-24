@@ -9,6 +9,7 @@ use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VendedorController extends Controller
@@ -35,6 +36,7 @@ class VendedorController extends Controller
     public function store(VendedorRequest $request)
     {
         try {
+            Log::channel('testing')->info('Log', ['vendedor']);
             $datos = $request->validated();
             DB::beginTransaction();
             $umbral = Vendedor::create($datos);

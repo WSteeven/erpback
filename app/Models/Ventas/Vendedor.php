@@ -2,6 +2,7 @@
 
 namespace App\Models\Ventas;
 
+use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -13,12 +14,15 @@ class Vendedor extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_producto_ventas';
+    protected $table = 'ventas_vendedor';
     protected $fillable =['codigo_vendedor','empleado_id','modalidad_id'];
     private static $whiteListFilter = [
         '*',
     ];
     public function empleado(){
-        return $this->hasOne(ProductoVentas::class,'empleado_id');
+        return $this->hasOne(Empleado::class,'id','empleado_id');
+    }
+    public function modalidad(){
+        return $this->hasOne(Modalidad::class,'id','modalidad_id');
     }
 }

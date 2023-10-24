@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('forma_pago');
             $table->decimal('comision',8,4);
             $table->timestamps();
-            $table->foreign('plan_id', 'fk_plan_id')->references('id')->on('ventas_planes')->cascadeOnUpdate();
+            $table->foreign('plan_id')->references('id')->on('ventas_planes')->cascadeOnUpdate();
         });
     }
 

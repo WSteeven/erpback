@@ -13,7 +13,7 @@ class ProductoVentasRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,13 +25,14 @@ class ProductoVentasRequest extends FormRequest
     {
         return [
             'bundle_id'=> 'required',
-            'precio'=> 'required|decimal',
+            'precio'=> 'required',
             'plan_id'=> 'required|integer',
         ];
     }
     protected function prepareForValidation()
     {
         $this->merge([
+            'bundle_id' => $this->bundle,
             'plan_id'=> $this->plan
         ]);
     }
