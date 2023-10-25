@@ -9,6 +9,7 @@ use App\Models\Ventas\Ventas;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VentasController extends Controller
@@ -26,12 +27,13 @@ class VentasController extends Controller
         $results = VentasResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Ventas $umbral)
+    public function show(Request $request, $ventas)
     {
-        $results = new VentasResource($umbral);
-
-        return response()->json(compact('results'));
+        $ventas = Ventas::where('id',$ventas)->first();
+        $modelo = new VentasResource($ventas);
+        return response()->json(compact('modelo'));
     }
+
     public function store(VentasRequest $request)
     {
         try {

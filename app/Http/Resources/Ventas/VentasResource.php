@@ -17,17 +17,17 @@ class VentasResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'orden' => $this->orden_id,
+            'orden_id' => $this->orden_id,
             'orden_interna' => $this->orden_interna,
             'vendedor' => $this->vendedor_id,
-            'vendedor_info' => $this->vendedor->codigo_vendedor,
+            'vendedor_info' =>$this->vendedor != null? $this->vendedor->empleado->apellidos.' '.$this->vendedor->empleado->nombres:'',
             'producto' => $this->producto_id,
-            'producto_info' => $this->producto->bundle_id,
+            'producto_info' =>  $this->producto!=null? $this->producto->bundle_id:'',
             'fecha_activ' => $this->fecha_activ,
             'estado_activ' => $this->estado_activ,
             'forma_pago' => $this->forma_pago,
             'comision' => $this->comision_id,
-            'comision_info' => $this->comision->comision,
+            'comision_info' =>  $this->comision!=null?$this->comision->comision:'',
             'chargeback' => $this->chargeback,
             'comision_vendedor' => $this->comision_vendedor
         ];

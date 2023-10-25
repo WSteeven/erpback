@@ -13,18 +13,18 @@ class Ventas  extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_producto_ventas';
+    protected $table = 'ventas_ventas';
     protected $fillable =['orden_id','orden_interna','vendedor_id','producto_id','fecha_activ','estado_activ','forma_pago','comision_id','chargeback','comision_vendedor'];
     private static $whiteListFilter = [
         '*',
     ];
     public function vendedor(){
-        return $this->hasOne(Vendedor::class,'vendedor_id');
+        return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
     }
     public function producto(){
-        return $this->hasOne(ProductoVentas::class,'producto_id');
+        return $this->hasOne(ProductoVentas::class,'id','producto_id');
     }
     public function comision(){
-        return $this->hasOne(Comisiones::class,'comision_id');
+        return $this->hasOne(Comisiones::class,'id','comision_id');
     }
 }

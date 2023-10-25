@@ -26,11 +26,11 @@ class ProductoVentasController extends Controller
         $results = ProductoVentasResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, ProductoVentas $umbral)
+    public function show(Request $request,  $productoVendedor)
     {
-        $results = new ProductoVentasResource($umbral);
-
-        return response()->json(compact('results'));
+        $productoVendedor = ProductoVentas::where('id',$productoVendedor)->first();
+        $model = new ProductoVentasResource($productoVendedor);
+        return response()->json(compact('model'));
     }
     public function store(ProductoVentasRequest $request)
     {

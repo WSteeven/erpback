@@ -19,7 +19,7 @@ Route::apiResources(
         'planes' => PlanesController::class,
         'producto-ventas' => ProductoVentasController::class,
         'vendedor' => VendedorController::class,
-        'verntas' => VentasController::class,
+        'ventas' => VentasController::class,
         ],
     [
         'parameters' => [],
@@ -27,5 +27,5 @@ Route::apiResources(
 );
 
 Route::middleware('auth:sanctum')->group(function () {
-
+    Route::get('obtener-comision/{idProducto}/{forma_pago}', [ComisionesController::class, 'obtener_comision']);
 });

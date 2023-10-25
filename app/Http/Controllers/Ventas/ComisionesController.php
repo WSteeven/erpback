@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\ComisionesRequest;
 use App\Http\Resources\Ventas\ComisionesResource;
 use App\Models\Ventas\Comisiones;
+use App\Models\Ventas\ProductoVentas;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,5 +67,11 @@ class ComisionesController extends Controller
     {
         $umbral->delete();
         return response()->json(compact('umbral'));
+    }
+    public function obtener_comision($idProducto,$forma_pago){
+        $producto = ProductoVentas::where('id', $idProducto)->first();
+        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->first();
+        $comision_value = ($producto->precio*$comision->comision)/100;
+        return response()->json(compact('comision_value'));
     }
 }
