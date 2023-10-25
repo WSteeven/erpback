@@ -76,6 +76,9 @@ class AcreditacionSemanaController extends Controller
     public function acreditacion_saldo_semana($id)
     {   $date = Carbon::now();
         $acreditaciones = [];
+        $acreditacion_semana = AcreditacionSemana::where('id', $id)->first();
+        $acreditacion_semana->acreditar = true;
+        $acreditacion_semana->save();
         $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->with('acreditacion_semanal')->get();
         foreach ($valores_acreditar as $key => $acreditacion) {
             $acreditaciones[] = [
