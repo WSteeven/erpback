@@ -25,7 +25,8 @@ class CargoRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'nombre' => 'required|unique:cargos'
+            'nombre' => 'required|unique:cargos',
+            'estado'=>'boolean'
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){

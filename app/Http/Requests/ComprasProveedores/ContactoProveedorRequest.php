@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\ComprasProveedores;
 
+use App\Models\ComprasProveedores\ContactoProveedor;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ContactoProveedorRequest extends FormRequest
 {
@@ -29,8 +31,22 @@ class ContactoProveedorRequest extends FormRequest
             "celular" => 'nullable|sometimes|string',
             "ext" => 'nullable|sometimes|string',
             "correo" => 'required|string',
-            "tipo_contacto" => 'required|string',
-            "proveedor" => 'required|exists:proveedores,id',
+            "tipo_contacto" => ['required', 'string', Rule::in([ContactoProveedor::COMERCIAL, ContactoProveedor::FINANCIERO, ContactoProveedor::TECNICO])],
+            "empresa" => 'required|exists:empresas,id',
+            "proveedor" => 'nullable|sometimes|exists:proveedores,id',
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'tipo_contacto' => 'tipo de contacto',
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'tipo_contacto.in' => 'El campo :attribute solo acepta uno de los siguientes valores: COMERCIAL, TECNICO, FINANCIERO'
         ];
     }
 }

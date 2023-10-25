@@ -40,6 +40,7 @@ class Tarea extends Model implements Auditable
         'novedad',
         'imagen_informe',
         'finalizado',
+        'metraje_tendido',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',

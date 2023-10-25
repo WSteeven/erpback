@@ -131,6 +131,7 @@ class Transferencia extends Model implements Auditable
             ->where('traspaso_id', $item->pivot->traspaso_id)
             ->where('inventario_id', $item->pivot->inventario_id)->first(); */
             $row['id'] = $item->id;//id de inventario
+            $row['inventario_id'] = $item->id;//id de inventario
             $row['producto'] = $item->detalle->producto->nombre;
             $row['detalle_id'] = $item->detalle->id;
             $row['descripcion'] = $item->detalle->descripcion;

@@ -56,8 +56,8 @@ class SubtareaRequest extends FormRequest
             'grupos_seleccionados' => 'nullable|array',
             'empleados_designados' => 'nullable|array',
             // 'empleados_adicionales' => 'nullable|array',
-            'modo_asignacion_trabajo' => 'required|string'
-            // 'estado' => 'nullable|numeric|integer',
+            'modo_asignacion_trabajo' => 'required|string',
+            'metraje_tendido' => 'nullable|numeric|integer',
         ];
     }
 

@@ -106,7 +106,7 @@ class PedidoRequest extends FormRequest
         //         'per_autoriza' => auth()->user()->empleado->id,
         //     ]);
         // }
-        if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS])) {
+        if (auth()->user()->hasRole([User::ROL_ACTIVOS_FIJOS]) && $this->route()->getActionMethod() =='store') {
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,

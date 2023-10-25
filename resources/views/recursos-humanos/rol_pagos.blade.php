@@ -28,7 +28,9 @@
         }
 
         body {
-            background-image: url('img/logoBN10.png');
+            font-family: sans-serif;
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -154,7 +156,7 @@
                 <th align="center"></th>
                 <th align="center">
                     __________________________________________<br />
-                    <b>ING. LUIS MANUEL PEZANTEZ MORA</b>
+                    <b>{{ $responsable->nombres.' '. $responsable->apellidos }}</b>
                     <br>
                     <b>APROBADO POR</b>
                 </th>

@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\RecursosHumanos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RecursosHumanos\BancoRequest;
+use App\Http\Resources\RecursosHumanos\BancoResource;
 use App\Models\RecursosHumanos\Banco;
-use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class BancoController extends Controller
 {
+    private $entidad = 'Banco';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.banco')->only('index', 'show');
-        $this->middleware('can:puede.crear.banco')->only('store');
-        $this->middleware('can:puede.editar.banco')->only('update');
-        $this->middleware('can:puede.eliminar.banco')->only('update');
+        $this->middleware('can:puede.ver.bancos')->only('index', 'show');
+        $this->middleware('can:puede.crear.bancos')->only('store');
+        $this->middleware('can:puede.editar.bancos')->only('update');
+        $this->middleware('can:puede.eliminar.bancos')->only('update');
     }
 
     public function index()
@@ -23,30 +26,48 @@ class BancoController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function store(Request $request)
+    /**
+     * Guardar
+     */
+    public function store(BancoRequest $request)
     {
-        $tipo_contrato = new Banco();
-        $tipo_contrato->nombre = $request->nombre;
-        $tipo_contrato->save();
-        return $tipo_contrato;
+        $banco = Banco::create($request->validated());
+        $modelo = new BancoResource($banco);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function show(Request $request, Banco $tipo_contrato)
+    /**
+     * Consultar
+     */
+    public function show(Banco $banco)
     {
-        return response()->json(compact('tipo_contrato'));
+        $modelo = new BancoResource($banco);
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Banco $tipo_contrato)
+    /**
+     * Actualizar
+     */
+    public function update(BancoRequest $request, Banco $banco)
     {
-        $tipo_contrato->nombre = $request->nombre;
-        $tipo_contrato->save();
-        return $tipo_contrato;
+        $banco->update($request->validated());
+        $modelo = new BancoResource($banco->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
-    public function destroy(Request $request, Banco $tipo_contrato)
+    /**
+     * Eliminar
+     */
+    public function destroy(Banco $banco)
     {
-        $tipo_contrato->delete();
-        return response()->json(compact('tipo_contrato'));
+        $banco->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+
+        return response()->json(compact('mensaje'));
     }
 }

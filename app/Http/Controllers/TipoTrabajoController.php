@@ -18,7 +18,7 @@ class TipoTrabajoController extends Controller
     public function index(Request $request)
     {
         $cliente = $request['cliente'];
-        $campos = explode(',', request('campos'));
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $results = [];
         // $page = $request['page'];
 
@@ -30,7 +30,7 @@ class TipoTrabajoController extends Controller
             $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {*/
 
-        if($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
+        if ($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
         else $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
 
         return response()->json(compact('results'));

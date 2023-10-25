@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\EstadosTransacciones;
 
 class Pedido extends Model implements Auditable
 {
@@ -55,7 +57,7 @@ class Pedido extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
-            ->withPivot('cantidad', 'despachado')->withTimestamps();
+            ->withPivot('cantidad', 'despachado', 'solicitante_id')->withTimestamps();
     }
 
 
@@ -175,9 +177,11 @@ class Pedido extends Model implements Auditable
     {
         $detalles = Pedido::find($id)->detalles()->get();
         $results = [];
+        $solicitante=null;
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
+            if ($detalle->pivot->solicitante_id) $solicitante = Empleado::find($detalle->pivot->solicitante_id);
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
@@ -185,6 +189,8 @@ class Pedido extends Model implements Auditable
             $row['serial'] = $detalle->serial;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $row['despachado'] = $detalle->pivot->despachado;
+            $row['solicitante'] = $solicitante?->nombres . ' ' . $solicitante?->apellidos;
+            $row['solicitante_id'] = $solicitante?->id;
             $results[$id] = $row;
             $id++;
         }
@@ -199,25 +205,132 @@ class Pedido extends Model implements Auditable
      */
     public static function filtrarPedidosEmpleado($estado)
     {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)
-                ->where(function ($query) {
-                    $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-                        ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->orderBy('id', 'DESC')->get();
-        } elseif ($estado === $estadoTransaccion->nombre) {
-            $results = Pedido::where('estado_id', $estadoTransaccion->id)
-                ->where(function ($query) {
-                    $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-                        ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->orderBy('id', 'DESC')->get();
+        try {
+            $autorizacion = Autorizacion::where('nombre', $estado)->first();
+            switch ($estado) {
+                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=',  EstadosTransacciones::PENDIENTE)->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::PARCIAL)->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::COMPLETA)->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where(function ($query) {
+                        $query->where('solicitante_id',  auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                default:
+                    return $results;
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
         }
-        return $results;
+    }
+    public static function filtrarPedidosBodegueroTelconet($estado)
+    {
+        $results = [];
+        try {
+            $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+            $autorizacion = Autorizacion::where('nombre', $estado)->first();
+            switch ($estado) {
+                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where(function ($query) use ($idsSucursalesTelconet) {
+                        $query->where('solicitante_id', auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id)
+                            ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=',  EstadosTransacciones::PENDIENTE)->where(function ($query) use ($idsSucursalesTelconet) {
+                        $query->where('solicitante_id', auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id)
+                            ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::PARCIAL)->where(function ($query) use ($idsSucursalesTelconet) {
+                        $query->where('solicitante_id', auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id)
+                            ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::COMPLETA)->where(function ($query) use ($idsSucursalesTelconet) {
+                        $query->where('solicitante_id', auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id)
+                            ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where(function ($query) use ($idsSucursalesTelconet) {
+                        $query->where('solicitante_id', auth()->user()->empleado->id)
+                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+                            ->orWhere('responsable_id', auth()->user()->empleado->id)
+                            ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+                    })->orderBy('id', 'DESC')->get();
+                    break;
+                default:
+                    return $results;
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
+        }
+
+        // $idsSucursalesTelconet = Sucursal::where('lugar', 'LIKE', '%telconet%')->get('id');
+        // $autorizacion = Autorizacion::where('nombre', $estado)->first();
+        // $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        // $results = [];
+        // if ($autorizacion) {
+        //     $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->where(function ($query) use($idsSucursalesTelconet) {
+        //         $query->where('solicitante_id', auth()->user()->empleado->id)
+        //             ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+        //             ->orWhere('responsable_id', auth()->user()->empleado->id)
+        //             ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+        //     })->orderBy('id', 'DESC')->get();
+        // } elseif ($estado === $estadoTransaccion->nombre) {
+        //     $results = Pedido::where('estado_id', $estadoTransaccion->id)->where(function ($query) use($idsSucursalesTelconet) {
+        //         $query->where('solicitante_id', auth()->user()->empleado->id)
+        //             ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
+        //             ->orWhere('responsable_id', auth()->user()->empleado->id)
+        //             ->orwhereIn('sucursal_id', $idsSucursalesTelconet);
+        //     })->orderBy('id', 'DESC')->get();
+        //     return $results;
+        // } else {
+        //     $results = Pedido::whereIn('sucursal_id', $idsSucursalesTelconet)->orderBy('id', 'DESC')->get();
+        //     return $results;
+        // }
+
+
+        // return $results;
     }
 
 
@@ -228,18 +341,30 @@ class Pedido extends Model implements Auditable
      */
     public static function filtrarPedidosBodeguero($estado)
     {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-            return $results;
-        } elseif ($estado === $estadoTransaccion->nombre) {
-            $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-            return $results;
-        } else {
-            $results = Pedido::orderBy('id', 'DESC')->get();
-            return $results;
+        try {
+            $autorizacion = Autorizacion::where('nombre', $estado)->first();
+            switch ($estado) {
+                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=',  EstadosTransacciones::PENDIENTE)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::PARCIAL)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::COMPLETA)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                default:
+                    return $results;
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
         }
     }
 
@@ -248,29 +373,30 @@ class Pedido extends Model implements Auditable
      */
     public static function filtrarPedidosActivosFijos($estado)
     {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        if ($estado === EstadoTransaccion::PENDIENTE) {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)
-                    ->where(function ($query) {
-                        $query->where('solicitante_id',  auth()->user()->empleado->id)
-                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })->orderBy('id', 'DESC')->get();
+        try {
+            $autorizacion = Autorizacion::where('nombre', $estado)->first();
+            switch ($estado) {
+                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=',  EstadosTransacciones::PENDIENTE)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::PARCIAL)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::COMPLETA)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                default:
+                    return $results;
             }
-            return $results;
-        } else {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-                return $results;
-            } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-                return $results;
-            } else {
-                $results = Pedido::orderBy('id', 'DESC')->get();
-                return $results;
-            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
         }
     }
 
@@ -279,25 +405,30 @@ class Pedido extends Model implements Auditable
      */
     public static function filtrarPedidosAdministrador($estado)
     {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
-        if ($estado === EstadoTransaccion::PENDIENTE) {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+        try {
+            $autorizacion = Autorizacion::where('nombre', $estado)->first();
+            switch ($estado) {
+                case 'PENDIENTE': //cuando el pedido está PENDIENTE de autorización
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                case  'APROBADO': // cuando el pedido está con autorización APROBADO y pendiente de despacho
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '=',  EstadosTransacciones::PENDIENTE)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'PARCIAL': //cuando el pedido está con autorización aprobado y despacho PARCIAL
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::PARCIAL)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'COMPLETA': //cuando el pedido está con estado de despacho COMPLETA
+                    return  Pedido::where('estado_id', '=',  EstadosTransacciones::COMPLETA)->orderBy('id', 'DESC')->get();
+                    break;
+                case 'CANCELADO': // cuando el pedido está con autorización CANCELADO
+                    return Pedido::where('autorizacion_id', $autorizacion->id)->orderBy('id', 'DESC')->get();
+                    break;
+                default:
+                    return $results;
             }
-            return $results;
-        } else {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-                return $results;
-            } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->orderBy('id', 'DESC')->get();
-                return $results;
-            } else {
-                $results = Pedido::orderBy('id', 'DESC')->get();;
-                return $results;
-            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['Error al filtrar:', $ex]);
         }
     }
 }

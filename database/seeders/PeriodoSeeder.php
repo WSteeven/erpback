@@ -17,7 +17,7 @@ class PeriodoSeeder extends Seeder
     {
         Periodo::insert([
             ['nombre' => '2023-2024','activo'=>true],
-            ['nombre' => '2024-2025','activo' => false]
+            ['nombre' => '2024-2025','activo' => true]
         ]);
     }
 }

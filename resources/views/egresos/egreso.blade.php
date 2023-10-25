@@ -3,13 +3,15 @@
 
 @php
     $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-    if ($cliente->logo_url) {
-        // $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    } else {
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-    }
+    $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'EGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
+    // if ($cliente->logo_url) {
+    //     // $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
+    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    // } else {
+    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    // }
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($persona_entrega->firma_url) {
         $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
     }
@@ -27,9 +29,10 @@
         }
 
         body {
-            background-image: url('img/logoBN10.png');
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -162,7 +165,7 @@
         <table style="width: 100%;">
             <tr>
                 <td class="page">
-                    Página 
+                    Página
                 </td>
                 <script type="text/php">
                     if ( isset($pdf) ) {
@@ -177,9 +180,10 @@
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
                         @if ($cliente->logo_url)
-                            {{ $cliente->razon_social }}
+                            {{-- {{ $cliente->razon_social }} --}}
+                            {{ $configuracion['razon_social'] }}
                         @else
-                            JP CONSTRUCRED C. LTDA.
+                            {{ $configuracion['razon_social'] }}
                         @endif
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">GENERADO POR:
@@ -234,7 +238,7 @@
         <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
             <thead>
                 <th>Producto</th>
-                <th>Descripcion</th>
+                <th>Descripción</th>
                 <th>Categoria</th>
                 <th>Serie</th>
                 <th>Condición</th>
@@ -257,4 +261,5 @@
         </table>
     </main>
 </body>
+
 </html>

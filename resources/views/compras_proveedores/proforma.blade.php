@@ -2,6 +2,9 @@
 @php
     $fecha = new Datetime();
     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    if ($empleado_solicita->firma_url) {
+        $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -37,7 +40,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 10px;
+            bottom: 90px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -135,7 +138,7 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$proforma['codigo']}}
+                                <b>N° </b> {{ $proforma['codigo'] }}
                             </td>
                         </tr>
                         <tr>
@@ -149,148 +152,178 @@
         </table>
     </header>
     <footer>
-        <table style="width: 100%;">
-            <tr>
-                <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA.
-                    </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
-                        usuario:
-                        {{ auth('sanctum')->user()->empleado->nombres }}
-                        {{ auth('sanctum')->user()->empleado->apellidos }} el
-                        {{ $fecha->format('d-m-Y H:i') }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </footer>
-    {{-- Cuerpo --}}
-    <main>
-        <table
-            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-            <tr>
-                <td width="60%" style="min-width: 100%">
-                    <table style="width: 90%" border="1">
-                        <tr>
-                            <td colspan="2" align="center"> CLIENTE</td>
-                        </tr>
-                        <tr>
-                            <td>Razón social</td>
-                            <td>{{ $cliente['razon_social'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>RUC</td>
-                            <td>{{ $cliente['ruc'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Solicitado por</td>
-                            <td>{{ $proforma['solicitante'] }}<br>{{ $empleado_solicita->user->email }}</td>
-                        </tr>
-                    </table>
-                </td>
-                <td width="40%">
-                    <table border="1">
-                        <tr>
-                            <td colspan="2" align="center"> CONDICIONES</td>
-                        </tr>
-                        <tr>
-                            <td>Autorizado por</td>
-                            <td>{{ $proforma['autorizador'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Estado</td>
-                            <td>{{ $proforma['autorizacion'] == 'CANCELADO' ? 'ANULADA - ' . $proforma['estado'] : $proforma['autorizacion'] }}
-                            </td>
-                        </tr>
-                        @if ($proforma['autorizacion'] == 'CANCELADO')
-                            <tr>
-                                <td>Causa anulación</td>
-                                <td>{{ $proforma['causa_anulacion'] }}</td>
-                            </tr>
-                        @endif
-                        <tr>
-                            <td>Forma de pago</td>
-                            <td>{{ $proforma['forma'] }}</td>
-                        </tr>
-                        <tr>
-                            <td>Tiempo de validez</td>
-                            <td>{{ $proforma['tiempo'] }} a partir de la fecha de creación</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        {{-- Tabla de detalles --}}
-        <table
-            style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;"
-            border="1">
-            <thead>
-                <th>Cantidad</th>
-                <th width="40%">Descripción</th>
-                <th>Medida</th>
-                <th>Precio U.</th>
-                <th>Desc.</th>
-                <th>IVA</th>
-                <th>Subtotal</th>
-                <th>Total</th>
+        @if ($proforma['cliente_id'] !== 2)
+            <table class="firma" style="width: 100%; margin-bottom: 10px">
+                <thead>
+                    <th align="center">
+                        @isset($firma_solicitante)
+                            <img src="{{ $firma_solicitante }}" alt="" width="100%" height="40">
+                        @endisset
+                    @empty($firma_solicitante)
+                        ___________________<br />
+                    @endempty
+                    <b>REALIZADO POR</b>
+                </th>
+                <th align="center"></th>
+                <th align="center"></th>
             </thead>
             <tbody>
+                <tr align="center">
+                    <td>{{ $empleado_solicita->nombres }} {{ $empleado_solicita->apellidos }} <br>
+                        {{ $empleado_solicita->identificacion }}
+                    </td>
+                    <td></td>
+                    <td>
 
-                @foreach ($proforma['listadoProductos'] as $index => $item)
-                    <tr class="row" style="width: auto">
-                        {{-- <td>{{$index+1}}</td> --}}
-                        <td align="center">{{ $item['cantidad'] }}</td>
-                        <td align="center">{{ $item['descripcion'] }}</td>
-                        <td align="center">{{ $item['unidad_medida_id'] }}</td>
-                        <td align="center">{{ $item['precio_unitario'] }}</td>
-                        <td align="center">{{ $item['descuento'] }}</td>
-                        <td align="center">{{ $item['iva'] }}</td>
-                        <td align="center">{{ $item['subtotal'] }}</td>
-                        <td align="center">{{ $item['total'] }}</td>
-                    </tr>
-                @endforeach
+                    </td>
+                </tr>
             </tbody>
         </table>
-        <p>{{$valor}}</p>
-        <table
-            style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
-            <tr>
-                <td width="70%">
-                    <table border="1" style="max-width: 100%;width: 90%">
+    @else
+        <p style="margin-bottom: 80px"></p>
+    @endif
+    <table style="width: 100%;">
+        <tr>
+            <td style="line-height: normal;">
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
+                    propiedad de JPCONSTRUCRED C.LTDA.
+                </div>
+                <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    usuario:
+                    {{ auth('sanctum')->user()->empleado->nombres }}
+                    {{ auth('sanctum')->user()->empleado->apellidos }} el
+                    {{ $fecha->format('d-m-Y H:i') }}
+                </div>
+            </td>
+        </tr>
+    </table>
+</footer>
+{{-- Cuerpo --}}
+<main>
+    <table
+        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+        <tr>
+            <td width="60%" style="min-width: 100%">
+                <table style="width: 90%" border="1">
+                    <tr>
+                        <td colspan="2" align="center"> CLIENTE</td>
+                    </tr>
+                    <tr>
+                        <td>Razón social</td>
+                        <td>{{ $cliente['razon_social'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>RUC</td>
+                        <td>{{ $cliente['ruc'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Solicitado por</td>
+                        <td>{{ $proforma['solicitante'] }}<br>{{ $empleado_solicita->user->email }}</td>
+                    </tr>
+                </table>
+            </td>
+            <td width="40%">
+                <table border="1">
+                    <tr>
+                        <td colspan="2" align="center"> CONDICIONES</td>
+                    </tr>
+                    <tr>
+                        <td>Autorizado por</td>
+                        <td>{{ $proforma['autorizador'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Estado</td>
+                        <td>{{ $proforma['autorizacion'] == 'CANCELADO' ? 'ANULADA - ' . $proforma['estado'] : $proforma['autorizacion'] }}
+                        </td>
+                    </tr>
+                    @if ($proforma['autorizacion'] == 'CANCELADO')
                         <tr>
-                            <td align="center"> OBSERVACIONES</td>
+                            <td>Causa anulación</td>
+                            <td>{{ $proforma['causa_anulacion'] }}</td>
                         </tr>
-                        <tr>
-                            <td style="height: 100px" valign="top">{{ $proforma['descripcion'] }}</td>
-                        </tr>
-                    </table>
-                </td>
-                <td width="30%">
-                    <table align="right" border="1" style="max-width: 100%;width:70%">
-                        <tr>
-                            <td align="right">SUBTOTAL</td>
-                            <td align="center">{{ $proforma['sum_subtotal'] }}</td>
-                        </tr>
-                        <tr>
-                            <td align="right">DESCUENTO</td>
-                            <td align="center">{{ $proforma['sum_descuento'] }}</td>
-                        </tr>
-                        <tr>
-                            <td align="right">IVA ({{$proforma['iva']}}%)</td>
-                            <td align="center">{{ $proforma['sum_iva'] }}</td>
-                        </tr>
-                        <tr>
-                            <td align="right">TOTAL</td>
-                            <td align="center">{{ $proforma['sum_total'] }}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+                    @endif
+                    <tr>
+                        <td>Forma de pago</td>
+                        <td>{{ $proforma['forma'] }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tiempo de validez</td>
+                        <td>{{ $proforma['tiempo'] }} a partir de la fecha de creación</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    {{-- Tabla de detalles --}}
+    <table
+        style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;"
+        border="1">
+        <thead>
+            <th>Cantidad</th>
+            <th width="40%">Descripción</th>
+            <th>Medida</th>
+            <th>Precio U.</th>
+            <th>Desc.</th>
+            <th>IVA</th>
+            <th>Subtotal</th>
+            <th>Total</th>
+        </thead>
+        <tbody>
 
-    </main>
-    <script type="text/php">
+            @foreach ($proforma['listadoProductos'] as $index => $item)
+                <tr class="row" style="width: auto">
+                    {{-- <td>{{$index+1}}</td> --}}
+                    <td align="center">{{ $item['cantidad'] }}</td>
+                    <td align="center">{{ $item['descripcion'] }}</td>
+                    <td align="center">{{ $item['unidad_medida_id'] }}</td>
+                    <td align="center">{{ $item['precio_unitario'] }}</td>
+                    <td align="center">{{ $item['descuento'] }}</td>
+                    <td align="center">{{ $item['iva'] }}</td>
+                    <td align="center">{{ $item['subtotal'] }}</td>
+                    <td align="center">{{ $item['total'] }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    <p>{{ $valor }}</p>
+    <table
+        style="color:#000000; table-layout:fixed; width: 98%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+        <tr>
+            <td width="70%">
+                <table border="1" style="max-width: 100%;width: 90%">
+                    <tr>
+                        <td align="center"> OBSERVACIONES</td>
+                    </tr>
+                    <tr>
+                        <td style="height: 100px" valign="top">{{ $proforma['descripcion'] }}</td>
+                    </tr>
+                </table>
+            </td>
+            <td width="30%">
+                <table align="right" border="1" style="max-width: 100%;width:70%">
+                    <tr>
+                        <td align="right">SUBTOTAL</td>
+                        <td align="center">{{ $proforma['sum_subtotal'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">DESCUENTO</td>
+                        <td align="center">{{ $proforma['sum_descuento'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">IVA ({{ $proforma['iva'] }}%)</td>
+                        <td align="center">{{ $proforma['sum_iva'] }}</td>
+                    </tr>
+                    <tr>
+                        <td align="right">TOTAL</td>
+                        <td align="center">{{ $proforma['sum_total'] }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</main>
+<script type="text/php">
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");

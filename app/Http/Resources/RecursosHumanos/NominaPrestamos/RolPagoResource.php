@@ -24,31 +24,40 @@ class RolPagoResource extends JsonResource
             'id' => $this->id,
             'fecha' => $this->cambiar_fecha($this->created_at),
             'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
+            'empleado_info' =>  $this->empleado_info->apellidos. ' ' .$this->empleado_info->nombres,
+            'tipo_contrato' => $this->empleado_info->tipo_contrato_id,
             'cargo' => $this->empleado_info->cargo,
-            'salario' => $this->empleado_info->salario,
+            'salario' => number_format($this->salario, 2),
             'dias' => $this->dias,
             'mes' => $this->mes,
-            'anticipo' => $this->anticipo,
-            'iess' => $this->iess,
-            'sueldo' => $this->sueldo,
+            'anticipo' => number_format($this->anticipo, 2),
+            'iess' =>  number_format($this->iess, 2),
+            'salario' => number_format( $this->salario, 2),
+            'sueldo' => number_format($this->sueldo, 2),
+            'supa' => $this->empleado_info->supa,
+            'extension_cobertura_salud' => number_format(ExtensionCoverturaSalud::where('empleado_id', $this->empleado_id)->where('mes', $this->mes)->sum('aporte'), 2),
+            'prestamo_hipotecario' => number_format($this->prestamo_hipotecario, 2),
+            'prestamo_quirorafario' => number_format($this->prestamo_quirorafario, 2),
             'bonificacion' => $this->bonificacion,
             'bono_recurente' => $this->bono_recurente,
+            'fondos_reserva' => number_format($this->fondos_reserva, 2),
             'concepto_ingreso_info' => $this->ConceptoIngreso($this->ingreso_rol_pago),
             'descuento_general_info' => $this->Descuentos($this->egreso_rol_pago, 'DescuentosGenerales'),
             'descuento_ley_info' => $this->DescuentosLey($this->empleado_info, $this),
-            'multa_info' => $this->Descuentos($this->egreso_rol_pago, 'Multa'),
-            'decimo_tercero' => $this->decimo_tercero,
-            'decimo_cuarto' => $this->decimo_cuarto,
-            'ingresos' => $this->ingreso_rol_pago,
+            'prestamo_empresarial' => number_format($this->prestamo_empresarial,2),
+            'multa_info' => $this->Descuentos($this->egreso_rol_pago, 'Multas'),
+            'decimo_tercero' => number_format($this->decimo_tercero, 2),
+            'decimo_cuarto' => number_format($this->decimo_cuarto, 2),
+            'ingresos' =>  $this->ingreso_rol_pago,
             'egresos' => $this->Egresos($this->egreso_rol_pago),
-            'total_ingreso' => $this->total_ingreso,
-            'total_egreso' => $this->total_egreso,
-            'total' => $this->total,
+            'total_ingreso' => number_format($this->total_ingreso, 2),
+            'total_egreso' =>  number_format($this->total_egreso, 2),
+            'total' => number_format($this->total, 2),
             'estado' => $this->estado,
             'rol_pago_id' => $this->rol_pago_id,
             'es_quincena' => $this->rolPagoMes->es_quincena,
-            'porcentaje_anticipo' => $this-> calcularPorcentajeAnticipo($this->rolPagoMes->es_quincena)
+            'medio_tiempo' => $this->medio_tiempo,
+            'porcentaje_anticipo' => $this->calcularPorcentajeAnticipo($this->rolPagoMes->es_quincena)
         ];
         return $modelo;
     }
@@ -67,8 +76,6 @@ class RolPagoResource extends JsonResource
         if ($es_quincena) {
             $porcentaje = $this->sueldo > 0 ? ($this->sueldo / $this->empleado_info->salario) * 100 : 0;
         }
-        Log::channel('testing')->info('Log', ['poncentaje', $porcentaje]);
-
         return $porcentaje;
     }
     /**

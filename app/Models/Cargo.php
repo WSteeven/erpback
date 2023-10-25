@@ -18,17 +18,20 @@ class Cargo extends Model implements Auditable
 
     protected $table = 'cargos';
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'estado'
     ];
 
     private static $whiteListFilter = [
         'id',
         'nombre',
+        'estado',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'estado'=>'boolean',
     ];
 
     public function toSearchableArray()

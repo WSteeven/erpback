@@ -233,7 +233,7 @@ class Inventario extends Model implements Auditable
             $elementos = $transaccion->items();
             foreach ($elementos as $elemento) {
                 Log::channel('testing')->info('Log', ['Elemento dentro del foreach', $elemento]);
-                // $detalleTransaccion = DetalleProductoTransaccion::where('inventario_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
+                $detalleTransaccion = DetalleProductoTransaccion::where('inventario_id', $elemento['id'])->where('transaccion_id', $transaccion->id)->first();
                 $item = Inventario::where('detalle_id', $elemento['id'])
                     ->where('sucursal_id', $transaccion->sucursal_id)
                     ->where('cliente_id', $transaccion->cliente_id)
@@ -407,13 +407,17 @@ class Inventario extends Model implements Auditable
      */
     public static function verificarExistenciasDetalles($pedido)
     {
+
         //estas categorias no generan preorden de compra
         $categorias = [
+            'EQUIPO PROPIO',
             'EQUIPOS',
-            'UNIFORMES',
+            'UNIFORME',
             'EPP',
             'INFORMATICA',
         ];
+
+
         if (self::verificarClienteSucursalPedido($pedido->sucursal_id)) {
             //obtener todas las sucursales pertenecientes a jpconstrucred o jeanpazmino
             $ids_sucursales = Sucursal::whereIn('cliente_id', [Cliente::JPCONSTRUCRED, Cliente::JEANPATRICIO])->get('id');

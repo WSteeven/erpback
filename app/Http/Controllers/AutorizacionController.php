@@ -6,8 +6,10 @@ use App\Http\Requests\AutorizacionRequest;
 use App\Http\Resources\AutorizacionResource;
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class AutorizacionController extends Controller
@@ -19,7 +21,6 @@ class AutorizacionController extends Controller
         $this->middleware('can:puede.crear.autorizaciones')->only('store');
         $this->middleware('can:puede.editar.autorizaciones')->only('update');
         $this->middleware('can:puede.eliminar.autorizaciones')->only('update');
-
     }
     /**
      * Listar
@@ -29,26 +30,63 @@ class AutorizacionController extends Controller
         $page = $request['page'];
         $campos = explode(',', $request['campos']);
         $results = [];
-    // $user =  Auth::user();
+        $es_validado = false;
+        $es_jefe_inmediato = false;
+        $user =  Auth::user();
+        $es_autorizador = $user->can('puede.autorizar.permiso_nomina');
+        $es_administrador = $user->hasRole([User::ROL_ADMINISTRADOR]);
+        $es_validador = $user->can('puede.ver.campo.validado');
+        $es_modulo_rhh = false;
+        if ($request->es_modulo_rhh) {
+            $es_modulo_rhh = $request->es_modulo_rhh;
+        }
+        if ($es_validador && $es_modulo_rhh) {
+            if (!$es_administrador) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '=', 3)->orwhere('id', '=', 4)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
+        }
+        if ($es_autorizador && $es_modulo_rhh) {
+            if (!$es_administrador) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '!=', 4)->where('id', '!=', 3)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
+        }
 
-        if($request['campos']){
-            $results = Autorizacion::ignoreRequest(['campos'])->filter()->get($campos);
+        if ($request->es_validado) {
+            $es_validado = true;
+        }
+        if ($request->es_jefe_inmediato) {
+            $es_jefe_inmediato = true;
+        }
+
+        if ($request['campos']) {
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->filter()->get($campos);
+            if ($es_jefe_inmediato) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', 2)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
+            if ($es_validado == false) {
+                $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->where('id', '!=', 4)->filter()->get($campos);
+                return response()->json(compact('results'));
+            }
             return response()->json(compact('results'));
-        }else
+        } else
         if ($page) {
             $results = Autorizacion::simplePaginate($request['offset']);
             AutorizacionResource::collection($results);
             $results->appends(['offset' => $request['offset']]);
         } else {
-            $results = Autorizacion::filter()->get();
+
+            $results = Autorizacion::ignoreRequest(['campos', 'es_validado', 'es_jefe_inmediato','es_modulo_rhh'])->filter()->get();
         }
         AutorizacionResource::collection($results);
         return response()->json(compact('results'));
     }
 
-/**
- * Guardar
- */
+    /**
+     * Guardar
+     */
     public function store(AutorizacionRequest $request)
     {
 
@@ -59,9 +97,9 @@ class AutorizacionController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-/**
- * Consultar
- */
+    /**
+     * Consultar
+     */
     public function show(Autorizacion $autorizacion)
     {
         $modelo = new AutorizacionResource($autorizacion);
@@ -78,9 +116,9 @@ class AutorizacionController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-/**
- * Eliminar
- */
+    /**
+     * Eliminar
+     */
     public function destroy(Autorizacion $autorizacion)
     {
         $autorizacion->delete();

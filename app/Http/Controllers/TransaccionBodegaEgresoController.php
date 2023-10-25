@@ -29,14 +29,18 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use App\Models\Comprobante;
+use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProductoTransaccion;
+use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\SeguimientoMaterialSubtarea;
-use App\Models\Subtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaEgresoService;
+use Src\Config\Autorizaciones;
+use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaEgresoController extends Controller
 {
@@ -96,7 +100,7 @@ class TransaccionBodegaEgresoController extends Controller
 
         // Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
 
-        $materialesTarea = collect($results)->map(function ($item, $index) use($materialesUtilizadosHoy) {
+        $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -109,7 +113,7 @@ class TransaccionBodegaEgresoController extends Controller
                 'stock_actual' => intval($item->cantidad_stock),
                 'despachado' => intval($item->despachado),
                 'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
             ];
@@ -168,6 +172,9 @@ class TransaccionBodegaEgresoController extends Controller
         $results = [];
         if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
+        }
+        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -337,12 +344,46 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     /**
+     * Anular una transacción de egreso y revertir el stock del inventario
+     */
+    public function anular(TransaccionBodega $transaccion)
+    {
+        try {
+            DB::beginTransaction();
+            $estadoAnulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $itemInventario->cantidad += $detalle['cantidad_inicial'];
+                $itemInventario->save();
+                $detalleProducto = DetalleProducto::find($itemInventario->detalle_id);
+                TransaccionBodega::activarDetalle($detalleProducto);
+            }
+            $transaccion->estado_id = $estadoAnulado->id;
+            $transaccion->autorizacion_id = Autorizaciones::CANCELADO;
+            $transaccion->save();
+            $transaccion->comprobante()->delete();
+            $transaccion->latestNotificacion()->update(['leida' => true]);
+            DB::commit();
+            $mensaje = 'Transacción anulada correctamente';
+            $modelo = new TransaccionBodegaResource($transaccion->refresh());
+            return response()->json(compact('modelo', 'mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de egreso', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+        }
+    }
+
+    /**
      * Consultar datos sin metodo show
      */
     public function showPreview(TransaccionBodega $transaccion)
     {
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
         $modelo = new TransaccionBodegaResource($transaccion);
+        $modelo = $modelo->resolve();
+        $modelo['listadoProductosTransaccion'] = $detalles;
 
         return response()->json(compact('modelo'), 200);
     }
@@ -352,15 +393,16 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new TransaccionBodegaResource($transaccion);
         $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->per_atiende_id);
         $persona_retira = Empleado::find($transaccion->responsable_id);
         try {
             $transaccion = $resource->resolve();
-
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
-            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente']));
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
+            // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
+            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -378,6 +420,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function reportes(Request $request)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $results = [];
         $registros = [];
         switch ($request->accion) {
@@ -393,7 +436,7 @@ class TransaccionBodegaEgresoController extends Controller
                     $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
                     $reporte = $registros;
                     $peticion = $request->all();
-                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion']));
+                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion', 'configuracion']));
                     $pdf->setPaper('A4', 'landscape');
                     $pdf->render();
                     return $pdf->output();
@@ -446,7 +489,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();

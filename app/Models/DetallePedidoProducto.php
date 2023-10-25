@@ -14,12 +14,16 @@ class DetallePedidoProducto extends Pivot implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
+    
+    public $incrementing = true;
+
     protected $table = 'detalle_pedido_producto';
     protected $fillable = [
         'detalle_id',
         'pedido_id',
         'cantidad',
         'despachado',
+        'solicitante_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -31,6 +35,10 @@ class DetallePedidoProducto extends Pivot implements Auditable
     public function detalleProducto()
     {
         return $this->belongsTo(DetalleProducto::class);
+    }
+
+    public function solicitante(){
+        return $this->belongsTo(Empleado::class, 'solicitante_id','id');
     }
 
     /************************************************************************************************

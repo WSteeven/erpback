@@ -98,8 +98,8 @@ class Utils
     /**
      * Función para validar una dirección de correo.
      * Esta función solo comprueba que la dirección de correo tenga la estructura <identificador@dominio.com/ec/org, etc>.
-     * Para una validación más completa se debe usar expresiones regulares. 
-     * 
+     * Para una validación más completa se debe usar expresiones regulares.
+     *
      */
     public static function validarEmail(String $email)
     { //Aún no está probada
@@ -107,6 +107,24 @@ class Utils
             return true;
         }
         return false;
+    }
+
+    function validarNumeroCuenta($numeroCuenta) {
+        if (strlen($numeroCuenta) != 11) {
+            return false;
+        }
+
+        $codigoBanco = substr($numeroCuenta, 0, 4);
+        $numeroCuenta = substr($numeroCuenta, 4, 6);
+        $digitoControl = intval(substr($numeroCuenta, -1));
+
+        // Validar la lógica del dígito de control (por ejemplo, suma de ciertos dígitos)
+        $sumaDigitos = array_sum(str_split($numeroCuenta));
+        if ($sumaDigitos % 10 == $digitoControl) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public static function quitarEspaciosComasString(string $cadena)
@@ -124,11 +142,11 @@ class Utils
         $sec = $min * 60;
         //dias es la division de n segs entre 86400 segundos que representa un dia
         $dias = floor($sec / 86400);
-        //mod_hora es el sobrante, en horas, de la division de días; 
+        //mod_hora es el sobrante, en horas, de la division de días;
         $mod_hora = $sec % 86400;
         //hora es la division entre el sobrante de horas y 3600 segundos que representa una hora;
         $horas = floor($mod_hora / 3600);
-        //mod_minuto es el sobrante, en minutos, de la division de horas; 
+        //mod_minuto es el sobrante, en minutos, de la division de horas;
         $mod_minuto = $mod_hora % 3600;
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
@@ -160,11 +178,11 @@ class Utils
         // $sec = $min * 60;
         //dias es la division de n segs entre 86400 segundos que representa un dia
         $dias = floor($sec / 86400);
-        //mod_hora es el sobrante, en horas, de la division de días; 
+        //mod_hora es el sobrante, en horas, de la division de días;
         $mod_hora = $sec % 86400;
         //hora es la division entre el sobrante de horas y 3600 segundos que representa una hora;
         $horas = floor($mod_hora / 3600);
-        //mod_minuto es el sobrante, en minutos, de la division de horas; 
+        //mod_minuto es el sobrante, en minutos, de la division de horas;
         $mod_minuto = $mod_hora % 3600;
         //minuto es la division entre el sobrante y 60 segundos que representa un minuto;
         $minutos = floor($mod_minuto / 60);
@@ -193,9 +211,9 @@ class Utils
 
     /**
      * La función "mayusc" en PHP convierte una cadena a mayúsculas.
-     * 
+     *
      * @param string $value El parámetro de valor es una cadena que desea convertir a mayúsculas.
-     * 
+     *
      * @return String el valor de entrada convertido a mayúsculas.
      */
     public static function mayusc($value)
@@ -204,12 +222,12 @@ class Utils
     }
 
     /**
-     * La función "obtenerNumeroEnCadena" toma una cadena como entrada en formato "7 dias", "15 dias", "30 dias", etc. 
+     * La función "obtenerNumeroEnCadena" toma una cadena como entrada en formato "7 dias", "15 dias", "30 dias", etc.
      * y devuelve el primer valor numérico encontrado en la cadena.
-     * 
+     *
      * @param string $cadena El parámetro "cadena" es una cadena que contiene dos palabras o números
      * separados por espacios.
-     * 
+     *
      * @return int un valor entero.
      */
     public static function obtenerNumeroEnCadena(string $cadena)
@@ -223,12 +241,12 @@ class Utils
     /**
      * La función "obtenerDiasRestantes" calcula el número de días que faltan entre una fecha
      * determinada y la fecha actual más un número de días especificado.
-     * 
+     *
      * @param DateTime $fecha El parámetro  es un objeto DateTime que representa la fecha de
      * inicio.
      * @param int diasAsumar El parámetro "diasAsumar" es un número entero que representa el número de
      * días a sumar a la fecha dada.
-     * 
+     *
      * @return int el número de días que quedan entre la fecha actual y la suma de las fechas dadas
      */
     public static function obtenerDiasRestantes(DateTime $fecha, int $diasAsumar)
@@ -239,6 +257,19 @@ class Utils
         return $diferencia;
     }
 
+    public static function convertArrayToString($array, $separator)
+    {
+        // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
+        if (is_array($array) && count($array) > 0) {
+            // Log::channel('testing')->info('Log', ['Array transformado',implode($separator, $array)]);
+            return implode($separator, $array);
+        } else {
+            if (empty($array)) {
+                return null;
+            }
+            return $array;
+        }
+    }
 
 
     /**
@@ -486,7 +517,7 @@ class Utils
     /**
      * Esta función recibe un valor entero, double o decimal y retorna su expresión en texto.
      * @param string $numero El numero entero o decimal del cual se obtendrá su valor en texto
-     * @return string El valor expresado en texto, tal como se muestra en los cheques. 
+     * @return string El valor expresado en texto, tal como se muestra en los cheques.
      */
     public static function  obtenerValorMonetarioTexto($numero)
     {
