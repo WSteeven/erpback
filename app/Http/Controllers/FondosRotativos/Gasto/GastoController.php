@@ -23,7 +23,7 @@ use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use App\Models\User;
-use App\Models\Vehiculo;
+use App\Models\Vehiculos\Vehiculo;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
@@ -99,6 +99,35 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
+            if ($datos['factura'] != null) {
+                $numFacturaObjeto = [
+                    [
+                        "detalle" => 16,
+                        "cantidad" => 22,
+                    ],
+                    [
+                        "detalle" => 10,
+                        "cantidad" => 17,
+                    ],
+                ];
+                $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
+                $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+                $num_fact = str_replace(' ', '',  $datos['factura']);
+                if($request->detalle ==16){
+                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                        throw ValidationException::withMessages([
+                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                        ]);
+                    }
+                }else{
+                    if (strlen($num_fact) < $cantidad) {
+                        throw ValidationException::withMessages([
+                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                        ]);
+                    }
+                }
+
+            }
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];

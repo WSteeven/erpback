@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class Proforma extends Model implements Auditable
@@ -36,6 +37,7 @@ class Proforma extends Model implements Auditable
     'estado_id',
     'causa_anulacion',
     'descripcion',
+    'descuento_general',
     'forma',
     'tiempo',
     'iva',
@@ -168,7 +170,7 @@ class Proforma extends Model implements Auditable
 
   public static function guardarDetalles($proforma, $items)
   {
-    Log::channel('testing')->info('Log', ['Datos recibidos :', $items]);
+    Log::channel('testing')->info('Log', ['Datos recibidos en guardar Detalles de proformas :', $items]);
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) {
@@ -198,14 +200,6 @@ class Proforma extends Model implements Auditable
     }
   }
 
-  public static function filtrarProformasEmpleado($request)
-  {
-    $results = Proforma::where(function ($query) {
-      $query->orWhere('solicitante_id', auth()->user()->empleado->id)
-        ->orWhere('autorizador_id', auth()->user()->empleado->id);
-    })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
-    return $results;
-  }
 
   /**
    * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una

@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Models\FondosRotativos\Saldo;
+
+use App\Models\Empleado;
+use App\Models\FondosRotativos\UmbralFondosRotativos;
+use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+
+class ValorAcreditar extends Model implements Auditable
+{
+    use HasFactory;
+    use AuditableModel;
+    use Filterable;
+    use UppercaseValuesTrait;
+    protected $table = 'fr_valor_acreditar';
+    protected $primaryKey = 'id';
+    protected $fillable = [
+        'empleado_id',
+        'acreditacion_semana_id',
+        'monto_generado',
+        'monto_modificado'
+    ];
+    private static $whiteListFilter = [
+        'id',
+        'empleado_id',
+        'acreditacion_semana_id',
+        'monto_generado',
+        'monto_modificado'
+    ];
+    public function empleado()
+    {
+        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
+    }
+    public function acreditacion_semanal()
+    {
+        return $this->hasOne(AcreditacionSemana::class, 'id', 'acreditacion_semana_id');
+    }
+    public function umbral(){
+        return $this-> hasOne(UmbralFondosRotativos::class, 'empleado_id', 'empleado_id');
+    }
+    public static function empaquetarCash($valores_acreditar)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($valores_acreditar as $valor_acreditar) {
+            $cuenta_bancarea_num = intval($valor_acreditar->empleado->num_cuenta_bancaria);
+            if ($cuenta_bancarea_num > 0) {
+            $referencia = $valor_acreditar->umbral!=null?$valor_acreditar->umbral->referencia:'';
+            $row['item'] = $id + 1;
+            $row['empleado_info'] =  $valor_acreditar->empleado->apellidos . ' ' . $valor_acreditar->empleado->nombres;
+            $row['numero_cuenta_bancareo'] =  $valor_acreditar->empleado->num_cuenta_bancaria;
+            $row['email'] =  $valor_acreditar->empleado->user->email;
+            $row['tipo_pago'] = 'PA';
+            $row['numero_cuenta_empresa'] = '02653010903';
+            $row['moneda'] = 'USD';
+            $row['forma_pago'] = 'CTA';
+            $row['codigo_banco'] = '0036';
+            $row['tipo_cuenta'] = 'AHO';
+            $row['tipo_documento_empleado'] = 'C';
+            $row['referencia'] = strtoupper($referencia );
+            $row['identificacion'] =  $valor_acreditar->empleado->identificacion;
+            $row['total'] =  number_format($valor_acreditar->monto_modificado, 2, ',', '.') ;
+            $results[$id] = $row;
+            $id++;
+            }
+        }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
+        return $results;
+    }
+    private static function  ordenar_por_nombres_apellidos($a, $b)
+    {
+        $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];
+        $nameB = $b['empleado_info'] . ' ' . $b['empleado_info'];
+        return strcmp($nameA, $nameB);
+    }
+}

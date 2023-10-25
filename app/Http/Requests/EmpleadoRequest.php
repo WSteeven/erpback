@@ -61,18 +61,23 @@ class EmpleadoRequest extends FormRequest
             'num_cuenta_bancaria'=>'required',
             'salario'=>'required',
             'fecha_ingreso'=>'required',
+            'fecha_vinculacion'=>'nullable',
+            'fecha_salida'=>'nullable',
             'tipo_contrato_id'=> 'required',
             'tiene_grupo'=>'required',
-            'convencional'=>'required',
             'tiene_discapacidad'=>'required',
-            'observacion'=>'required',
             'nivel_academico'=>'required',
             'supa' =>'nullable',
             'talla_zapato' =>'nullable',
-            'talla_camisa' =>'nullable',
+            'talla_camisa' =>'required',
             'talla_guantes' =>'nullable',
             'talla_pantalon' =>'nullable',
             'banco' =>'required',
+            'genero' =>'required',
+            'esta_en_rol_pago'=>'required',
+            'acumula_fondos_reserva'=>'nullable',
+            'realiza_factura'=>'required',
+            'observacion'=>'nullable',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -108,3 +113,5 @@ class EmpleadoRequest extends FormRequest
         ]);
     }
 }
+
+

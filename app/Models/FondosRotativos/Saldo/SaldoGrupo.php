@@ -46,7 +46,7 @@ class SaldoGrupo extends  Model implements Auditable
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
-            $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
+          //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
             $id += 1;
             $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
@@ -69,14 +69,16 @@ class SaldoGrupo extends  Model implements Auditable
     }
     private static function guardar_arreglo($id,$ingreso,$gasto,$saldo){
         $row = [];
+       // $saldo =0;
         $row['item'] = $id + 1;
-        $row['fecha'] = $saldo['created_at'];
-        $row['fecha_creacion'] = $saldo['created_at'];
+        $row['fecha'] = isset( $saldo['fecha_viat']) ?$saldo['fecha_viat']:$saldo['fecha'];
+        $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
         $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);
         $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
+       // $row['saldo_count'] = $ingreso -$gasto;
         return $row;
     }
     private static function saldoAnterior($id, $fecha, $saldo_anterior)

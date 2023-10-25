@@ -39,6 +39,7 @@ class TicketResource extends JsonResource
             'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
             'responsable_id' => $this->responsable_id,
             'departamento_responsable' => $this->departamentoResponsable?->nombre,
+            'departamento_solicitante' => $this->solicitante->departamento?->nombre,
             'tipo_ticket' => $this->tipoTicket->nombre,
             'categoria_tipo_ticket' => $this->tipoTicket->categoriaTipoTicket->nombre,
             'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),

@@ -25,7 +25,6 @@ return new class extends Migration
             $table->date('fecha_inicio_rango1_vacaciones');
             $table->date('fecha_fin_rango1_vacaciones');
             $table->date('fecha_inicio_rango2_vacaciones');
-            $table->text('solicitud');
             $table->unsignedBigInteger('estado');
             $table->foreign('estado')->references('id')->on('autorizaciones');
             $table->timestamps();

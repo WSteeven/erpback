@@ -3,12 +3,16 @@
 namespace Src\Shared;
 
 use App\Models\Carpeta;
+use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 use Src\Config\RutasStorage;
+
+use function React\Promise\Stream\first;
 
 class GuardarArchivo
 {
@@ -40,12 +44,13 @@ class GuardarArchivo
 
         //return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
     }
-    public static function json(Request $request, RutasStorage $ruta, $carpeta_usuario = false)
+    public static function json(Request $request, RutasStorage $ruta, $carpeta_usuario = false,$empleado =null)
     {
+        $empleado_identificacion = Empleado::where('id',$empleado)->first()->identificacion;
         $archivo = $request->file('file');
         $ruta_modificada = $ruta->value;
         if ($carpeta_usuario) {
-            $ruta_modificada = 'public/' . Auth::user()->empleado->identificacion .'/' .$ruta->value;
+            $ruta_modificada = 'public/' . $empleado_identificacion .'/' .$ruta->value;
         }
         $path = $archivo->store( $ruta_modificada);
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);

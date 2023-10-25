@@ -92,7 +92,7 @@ class RegistroTendidoExport implements FromCollection, WithHeadings, WithStyles,
         $drawing = new Drawing();
         $drawing->setName('Logo');
         $drawing->setDescription('This is my logo');
-        $drawing->setPath(public_path('/img/logoJP.png'));
+        $drawing->setPath(public_path('/img/logo.png'));
         $drawing->setHeight(90);
         $drawing->setCoordinates('B2');
 

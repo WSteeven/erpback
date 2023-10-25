@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\ContactoProveedor;
+use App\Models\ComprasProveedores\ContactoProveedor;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('contactos_proveedores', function (Blueprint $table) {
+        Schema::create('cmp_contactos_proveedores', function (Blueprint $table) {
             $table->id();
             $table->string('nombres')->nullable();
             $table->string('apellidos')->nullable();
@@ -22,10 +22,12 @@ return new class extends Migration
             $table->string('ext')->nullable();
             $table->string('correo')->nullable();
             $table->enum('tipo_contacto', [ContactoProveedor::TECNICO, ContactoProveedor::FINANCIERO, ContactoProveedor::COMERCIAL])->default(null);
-            $table->unsignedBigInteger('proveedor_id');
+            $table->unsignedBigInteger('empresa_id')->nullable();
+            $table->unsignedBigInteger('proveedor_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('proveedor_id')->references('id')->on('proveedores')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('empresa_id')->references('id')->on('empresas')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('proveedor_id')->references('id')->on('proveedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -36,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contactos_proveedores');
+        Schema::dropIfExists('cmp_contactos_proveedores');
     }
 };

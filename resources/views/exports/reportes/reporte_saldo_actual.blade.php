@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+@php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -7,16 +12,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Reporte Saldo Actual</title>
     <style>
-         @page {
+        @page {
             margin: 2px 15px 5px 15px;
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
+
         .contenido {
             position: relative;
             top: 80px;
@@ -25,8 +32,9 @@
             margin-bottom: 4.3cm;
             font-size: 12px;
         }
-          /** Definir las reglas del encabezado **/
-          header {
+
+        /** Definir las reglas del encabezado **/
+        header {
             position: fixed;
             top: 0cm;
             left: 0cm;
@@ -55,6 +63,7 @@
         footer .page:after {
             content: counter(page);
         }
+
         div {
             color: #000000 !important;
         }
@@ -64,22 +73,19 @@
             text-transform: uppercase;
         }
 
-         .row {
+        .row {
             width: 100%;
         }
-
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-@endphp
+
 <body>
     <header>
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
-                    <div class="col-md-3"><img src="{{ 'data:image/png;base64,'. base64_encode(file_get_contents('img/logoJP.png')) }}" width="90"></div>
+                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>REPORTE SALDO ACTUAL</b></div>
@@ -95,8 +101,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es propiedad de  JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -133,39 +138,39 @@
                 $item = 0;
             @endphp
             @foreach ($saldos as $saldo)
-            @php
-                $item++;
-            @endphp
-            <tr>
-                <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;"> {{$item}}</div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;">
-                        {{ $saldo['empleado']->apellidos.' '.$saldo['empleado']->nombres }}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;">
-                    {{$saldo['cargo']}}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;">
-                    {{$saldo['localidad']}}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="left" style="margin-left:20px;">
-                        {{ $saldo['empleado_info']->name}}
-                    </div>
-                </td>
-                <td style="font-size:10px">
-                    <div align="right" style="margin-right:20px;">
-                        {{ number_format($saldo['saldo_actual'], 2, ',', '.') }}
-                    </div>
-                </td>
-            </tr>
+                @php
+                    $item++;
+                @endphp
+                <tr>
+                    <td style="font-size:10px">
+                        <div align="left" style="margin-left:20px;"> {{ $item }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left" style="margin-left:20px;">
+                            {{ $saldo['empleado']->apellidos . ' ' . $saldo['empleado']->nombres }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left" style="margin-left:20px;">
+                            {{ $saldo['cargo'] }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left" style="margin-left:20px;">
+                            {{ $saldo['localidad'] }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left" style="margin-left:20px;">
+                            {{ $saldo['empleado_info']->name }}
+                        </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="right" style="margin-right:20px;">
+                            {{ number_format($saldo['saldo_actual'], 2, ',', '.') }}
+                        </div>
+                    </td>
+                </tr>
             @endforeach
 
         </table>

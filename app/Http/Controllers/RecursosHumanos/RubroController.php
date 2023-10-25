@@ -30,6 +30,10 @@ public function porcentaje_iess(){
     $porcentaje_iess = Rubros::find(1) != null ? Rubros::find(1)->valor_rubro / 100 : 0;
     return response()->json(compact('porcentaje_iess'));
 }
+public function porcentaje_anticipo(){
+    $rubro = Rubros::find(4) != null ? Rubros::find(4) : 0;
+    return response()->json(compact('rubro'));
+}
     public function store(Request $request)
     {
         $tipo_contrato = new Rubros();

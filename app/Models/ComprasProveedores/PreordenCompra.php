@@ -186,6 +186,7 @@ class PreordenCompra extends Model implements Auditable
         $row = [];
         foreach ($detalles as $index => $detalle) {
             $row['id'] = $detalle->id;
+            $row['producto_id'] = $detalle->producto_id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
             $row['categoria'] = $detalle->producto->categoria->nombre;

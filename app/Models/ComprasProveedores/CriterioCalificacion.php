@@ -34,16 +34,21 @@ class CriterioCalificacion extends Model implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
-    
+
      public function departamento()
     {
         return $this->belongsTo(Departamento::class);
     }
 
 
-    
+
     public function oferta()
     {
         return $this->belongsTo(OfertaProveedor::class);
+    }
+
+    public function calificaciones_criterios(){
+        return $this->belongsToMany(DetalleDepartamentoProveedor::class, 'calificacion_departamento_proveedor', 'detalle_departamento_id', 'criterio_calificacion_id')
+        ->withPivot('comentario', 'peso', 'puntaje', 'calificacion')->withTimestamps();
     }
 }

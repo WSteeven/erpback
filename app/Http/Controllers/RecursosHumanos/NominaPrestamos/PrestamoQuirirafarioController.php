@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PrestamoQuirorafarioRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\PrestamoQuirorafarioRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\PrestamoQuirorafarioResource;
 use App\Imports\PrestamoQuirorafarioImport;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;

@@ -38,6 +38,11 @@ class ProveedorRequest extends FormRequest
             'departamentos.*' => 'required',
             "calificacion" => 'nullable|numeric',
             "estado_calificado" => 'required|string',
+
+            "forma_pago" => 'array|sometimes|nullable',
+            "referencia" => 'string|sometimes|nullable',
+            "plazo_credito" => 'string|sometimes|nullable',
+            "anticipos" => 'string|sometimes|nullable',
         ];
     }
 

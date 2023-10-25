@@ -12,6 +12,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class ProformaActualizadaEvent implements ShouldBroadcast
@@ -30,8 +31,7 @@ class ProformaActualizadaEvent implements ShouldBroadcast
     public function __construct($proforma, $informativa)
     {
         $this->proforma = $proforma;
-
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::PROFORMA, $proforma->autorizador_id, $proforma->solicitante_id, $proforma, $informativa );
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::PROFORMA, $proforma->autorizador_id, $proforma->solicitante_id, $proforma, $informativa);
     }
 
     /**
@@ -41,18 +41,20 @@ class ProformaActualizadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('proformas-actualizadas-tracker-'.$this->proforma->solicitante_id);
+        return new Channel('proformas-actualizadas-tracker-' . $this->proforma->solicitante_id);
     }
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'proforma-event';
     }
 
-    public function obtenerMensaje(){
-        if ($this->proforma->autorizacion->nombre == Autorizacion::APROBADO) {
-            return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha aprobado tu proforma N° '.$this->proforma->id;
-        }
-        return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha modificado la proforma que generaste. Proforma N° '.$this->proforma->id;
+    public function obtenerMensaje()
+    {
+        if ($this->proforma->autorizacion->nombre == Autorizacion::APROBADO)
+            return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha aprobado tu proforma N° ' . $this->proforma->id;
+        if ($this->proforma->autorizacion->nombre == Autorizacion::CANCELADO)
+            return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha anulado tu proforma N° ' . $this->proforma->id;
+
+        return $this->proforma->autorizador->nombres . ' ' . $this->proforma->autorizador->apellidos . ' ha modificado la proforma que generaste. Proforma N° ' . $this->proforma->id;
     }
-
-
 }

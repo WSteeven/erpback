@@ -17,18 +17,17 @@ class ProductoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'cantidad'=>$this->cantidadDetalles($this->id),
+            'cantidad' => $this->cantidadDetalles($this->id),
             'nombre' => $this->nombre,
             'categoria' => $this->categoria?->nombre,
-            'unidad_medida' => $this->unidadMedida?->simbolo,
-            'detalles' => DetalleProductoResource::collection($this->detalles),
+            'unidad_medida' => $this->unidadMedida?->nombre,
         ];
 
         if ($controller_method == 'show') {
             // $modelo['categoria'] = $this->categoria->nombre;
             $modelo['categoria'] = $this->categoria_id;
             $modelo['unidad_medida'] = $this->unidad_medida_id;
-
+            $modelo['detalles'] = DetalleProductoResource::collection($this->detalles);
         }
 
         return $modelo;

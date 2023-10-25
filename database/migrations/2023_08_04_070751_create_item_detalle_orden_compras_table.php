@@ -16,7 +16,8 @@ return new class extends Migration
         Schema::create('cmp_item_detalle_orden_compra', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('orden_compra_id');
-            $table->unsignedBigInteger('detalle_id');
+            $table->unsignedBigInteger('producto_id');
+            $table->string('descripcion')->nullable();
             $table->integer('cantidad');
             $table->integer('porcentaje_descuento')->default(0);
             $table->double('descuento');
@@ -29,7 +30,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('orden_compra_id')->references('id')->on('cmp_ordenes_compras')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('detalle_id')->references('id')->on('detalles_productos')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('producto_id')->references('id')->on('productos')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

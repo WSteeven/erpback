@@ -51,7 +51,7 @@ class TransaccionBodegaResource extends JsonResource
             'tarea_codigo' => $this->tarea ? $this->tarea->codigo_tarea : null,
             'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'cliente_id' => $this->cliente_id,
-            'listadoProductosTransaccion' => $detalles,
+            // 'listadoProductosTransaccion' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
 
             //variables auxiliares
@@ -62,7 +62,7 @@ class TransaccionBodegaResource extends JsonResource
             'es_transferencia'=>$this->transferencia_id?true:false,
             'tiene_pedido'=>$this->pedido_id?true:false,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
-            'comprobante'=>$comprobante,
+            // 'comprobante'=>$comprobante,
             'firmada'=> $comprobante?->firmada,
             'estado_comprobante'=>$comprobante?->estado,
 

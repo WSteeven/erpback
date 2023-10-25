@@ -2,7 +2,8 @@
 <html lang="es">
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 @endphp
 
@@ -16,10 +17,11 @@
         }
 
         body {
-            /* background-image: url('img/logoJPBN_10.png'); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url('img/logoBN10.png'); */
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -119,7 +121,7 @@
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 6px; margin-top: 0px;" align="center">Esta información es
-                        propiedad de JP CONSTRUCRED C. LTDA. <br>Prohibida su divulgación
+                        propiedad de {{$configuracion['razon_social']}} <br>Prohibida su divulgación
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
                         {{ auth('sanctum')->user()->empleado->nombres }}

@@ -2,6 +2,10 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\Archivo;
+use App\Models\Departamento;
+use App\Models\Empleado;
+use App\Models\Proveedor;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +42,7 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
     public function departamento(){
         return $this->belongsTo(Departamento::class);
     }
-    
+
     public function proveedor(){
         return $this->belongsTo(Proveedor::class);
     }
@@ -51,6 +55,18 @@ class DetalleDepartamentoProveedor extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'empleado_id', 'id');
     }
 
+    public function calificaciones_criterios(){ 
+        return $this->belongsToMany(CriterioCalificacion::class, 'calificacion_departamento_proveedor', 'detalle_departamento_id', 'criterio_calificacion_id')
+        ->withPivot('comentario', 'peso', 'puntaje', 'calificacion')->withTimestamps();
+    }
+
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos(){
+        return $this->morphMany(Archivo::class, 'archivable');
+    }
 
 
     /**

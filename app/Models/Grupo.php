@@ -19,7 +19,7 @@ class Grupo extends Model implements Auditable
     const R4 = 'R4';
 
     protected $table = 'grupos';
-    protected $fillable = ['nombre', 'region', 'activo'];
+    protected $fillable = ['nombre', 'region', 'activo', 'coordinador_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -29,6 +29,7 @@ class Grupo extends Model implements Auditable
     private static $whiteListFilter = [
         'nombre',
         'activo',
+        'coordinador_id',
     ];
 
     /*public function tareas()
@@ -50,5 +51,10 @@ class Grupo extends Model implements Auditable
     public function controlMaterialesSubtareas()
     {
         return $this->hasMany(ControlMaterialTrabajo::class);
+    }
+
+    public function coordinador()
+    {
+        return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
     }
 }

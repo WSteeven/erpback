@@ -5,13 +5,22 @@ namespace App\Http\Controllers\ComprasProveedores;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ComprasProveedores\DetalleDepartamentoProveedorResource;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\App\ArchivoService;
 use Src\Shared\Utils;
 
 class DetalleDepartamentoProveedorController extends Controller
 {
     private $entidad = 'Calificación';
+    private $archivoService;
+
+    public function __construct()
+    {
+        $this->archivoService = new ArchivoService();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -78,5 +87,24 @@ class DetalleDepartamentoProveedorController extends Controller
     public function destroy(DetalleDepartamentoProveedor $detalleDepartamentoProveedor)
     {
         //
+    }
+
+    /**
+     * Listar todos los archivos de un determinado detalle
+     */
+    public function indexFiles(Request $request, $detalle)
+    {
+        $results = [];
+        // Log::channel('testing')->info('Log', ['Recibido del front en indexFiles en detalleDeptProvControler', $request->all(), $detalle]);
+        try {
+            $detalle_dept = DetalleDepartamentoProveedor::find($detalle);
+            if ($detalle_dept) $results = $this->archivoService->listarArchivos($detalle_dept);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'));
+        }
+        return response()->json(compact('results'));
     }
 }

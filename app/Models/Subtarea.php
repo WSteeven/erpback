@@ -23,7 +23,7 @@ use Src\App\WhereRelationLikeCondition\TrabajoCoordinadorWRLC;
 
 class Subtarea extends Model implements Auditable
 {
-    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait, SubtareasFilter;
+    use HasFactory, AuditableModel, Filterable, UppercaseValuesTrait; //, SubtareasFilter;
 
     const CREADO = 'CREADO';
     const ASIGNADO = 'ASIGNADO';
@@ -62,6 +62,7 @@ class Subtarea extends Model implements Auditable
         'hora_fin_trabajo',
         'tiempo_estimado',
         'empleados_designados',
+        'metraje_tendido',
         'tipo_trabajo_id',
         'tarea_id',
         'grupo_id',
@@ -78,6 +79,8 @@ class Subtarea extends Model implements Auditable
         'tiene_subtrabajos' => 'boolean',
         'empleados_designados' => 'json',
     ];
+
+    static $noFiltrar = ['codigo_tarea'];
 
     /*******************
      * Eloquent Filter
@@ -175,6 +178,11 @@ class Subtarea extends Model implements Auditable
         return $this->hasMany(ArchivoSubtarea::class);
     }
 
+    public function archivosSeguimiento()
+    {
+        return $this->hasMany(ArchivoSeguimiento::class, 'subtarea_id', 'id');
+    }
+
     public function pausasSubtarea()
     {
         return $this->hasMany(PausaSubtarea::class);
@@ -257,6 +265,11 @@ class Subtarea extends Model implements Auditable
     public function seguimientosMaterialesSubtareas()
     {
         return $this->hasMany(SeguimientoMaterialSubtarea::class);
+    }
+
+    public function trabajosRealizados()
+    {
+        return $this->hasMany(TrabajoRealizado::class);
     }
 
     /*********

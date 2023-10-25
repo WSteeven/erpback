@@ -43,7 +43,7 @@ class CalificacionDepartamentoProveedor extends Model implements Auditable
     public function departamento_proveedor()
     {
         return $this->belongsTo(DetalleDepartamentoProveedor::class);
-    }
+    } 
 
     /**
      * Relacion uno a muchos (inversa).

@@ -84,7 +84,7 @@
             Lorem ipsum dolor sit...
         </p>
         @php
-          $logo = "data:image/png;base64,". base64_encode(file_get_contents('img/logoJP.png'))
+          $logo = "data:image/png;base64,". base64_encode(file_get_contents('img/logo.png'))
         @endphp
         <div class="col-md-3"><img src="{{$logo}}" width="90"></div>
         <p>

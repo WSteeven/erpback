@@ -2,7 +2,6 @@
 
 namespace App\Models\ComprasProveedores;
 
-use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -29,12 +28,9 @@ class Prefactura extends Model implements Auditable
         'codigo',
         'solicitante_id',
         'cliente_id',
-        'autorizador_id',
-        'autorizacion_id',
-        'observacion_aut',
         'estado_id',
-        'causa_anulacion',
         'proforma_id',
+        'causa_anulacion',
         'descripcion',
         'forma',
         'tiempo',
@@ -71,24 +67,7 @@ class Prefactura extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
-    /**
-     * Relación uno a muchos (inversa).
-     * Uno o varias prefacturas son autorizados por un empleado mando medio.
-     */
-    public function autorizador()
-    {
-        return $this->belongsTo(Empleado::class, 'autorizador_id', 'id');
-    }
-
-    /**
-     * Relación uno a uno(inversa).
-     * Uno o varios prefacturas solo pueden tener una autorización.
-     */
-    public function autorizacion()
-    {
-        return $this->belongsTo(Autorizacion::class);
-    }
-
+    
     /**
      * Relación uno a uno(inversa).
      * Uno o varios prefacturas solo pueden tener un estado.

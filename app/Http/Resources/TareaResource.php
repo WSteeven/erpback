@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Canton;
+use App\Models\Empleado;
 use App\Models\Provincia;
 use App\Models\Tarea;
 use App\Models\UbicacionTarea;
@@ -26,25 +27,26 @@ class TareaResource extends JsonResource
             'id' => $this->id,
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
-            'fecha_solicitud' => $this->fecha_solicitud,
+            // 'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
-            'observacion' => $this->observacion,
-            'novedad' => $this->novedad,
-            'para_cliente_proyecto' => $this->para_cliente_proyecto,
+            // 'observacion' => $this->observacion,
+            // 'novedad' => $this->novedad,
+            /* 'para_cliente_proyecto' => $this->para_cliente_proyecto,
             'ubicacion_trabajo' => $this->ubicacion_trabajo,
-            'ruta_tarea' => $this->rutaTarea?->ruta,
-            'proyecto' => $this->proyecto?->codigo_proyecto,
+            'ruta_tarea' => $this->rutaTarea?->ruta, */
+            // 'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
-            'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
-            'coordinador' => $this->coordinador?->nombres . ' ' . $this->coordinador?->apellidos,
-            'cliente' => $this->obtenerCliente(),
+            // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
+            'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
+            // 'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
-            'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
+            // 'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
             'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
-            'medio_notificacion' => $this->medio_notificacion,
-            'canton' => $this->obtenerCanton(),
+            // 'medio_notificacion' => $this->medio_notificacion,
+            // 'canton' => $this->obtenerCanton(),
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
+            'metraje_tendido' => $this->metraje_tendido,
         ];
 
         if ($controller_method == 'show') {
@@ -54,6 +56,10 @@ class TareaResource extends JsonResource
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['ruta_tarea'] = $this->ruta_tarea_id;
+            $modelo['para_cliente_proyecto'] = $this->para_cliente_proyecto;
+            $modelo['ubicacion_trabajo'] = $this->ubicacion_trabajo;
+            $modelo['observacion'] = $this->observacion;
+            $modelo['fecha_solicitud'] = $this->fecha_solicitud;
         }
 
         return $modelo;

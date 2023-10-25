@@ -15,10 +15,15 @@ class Parroquia extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = "parroquias";
+    protected $fillable = [
+        'canton_id',
+        'parroquia'
+    ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+    protected $cache = true;
 
     private static $whiteListFilter = ['*'];
 

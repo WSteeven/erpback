@@ -1,7 +1,11 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    if ($empleado_solicita->firma_url) {
+        $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
+    }
 @endphp
 
 <head>
@@ -15,10 +19,11 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -97,6 +102,7 @@
 </head>
 
 <body>
+    {{-- encabezado --}}
     <header>
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
@@ -105,7 +111,7 @@
                     <table width="95%" border="0" style="font-family:Arial; font-size:10px;">
                         <tr>
                             <td align="center">
-                                <div align="center"><img src="{{ $logo }}" alt="" width="218"
+                                <div align="center"><img src="{{ $logo_principal }}" alt="" width="218"
                                         height="85" /></div>
                             </td>
                         </tr>
@@ -135,7 +141,7 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                <b>N° </b> {{$orden['codigo']}}
+                                <b>N° </b> {{ $orden['codigo'] }}
                             </td>
                         </tr>
                         <tr>
@@ -148,6 +154,7 @@
             </tr>
         </table>
     </header>
+    {{-- pie de pagina --}}
     <footer>
         <table style="width: 100%;">
             <tr>
@@ -250,7 +257,7 @@
                     <tr class="row" style="width: auto">
                         {{-- <td>{{$index+1}}</td> --}}
                         <td align="center">{{ $item['cantidad'] }}</td>
-                        <td align="center">{{ $item['descripcion'] }}</td>
+                        <td align="center">{{ $item['producto'] }}: &nbsp; {{ $item['descripcion'] }}</td>
                         <td align="center">{{ $item['unidad_medida'] }}</td>
                         <td align="center">{{ $item['precio_unitario'] }}</td>
                         <td align="center">{{ $item['descuento'] }}</td>
@@ -296,6 +303,33 @@
                     </table>
                 </td>
             </tr>
+        </table>
+        {{-- firma en la orden de compra --}}
+        <table class="firma" style="width: 100%; margin-bottom: 10px; margin-top: 50px">
+            <thead>
+                <th align="center">
+                    @isset($firma_solicitante)
+                        <img src="{{ $firma_solicitante }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($firma_solicitante)
+                        ___________________<br />
+                    @endempty
+                    <b>SOLICITADO POR</b>
+                </th>
+                <th align="center"></th>
+                <th align="center"></th>
+            </thead>
+            <tbody>
+                <tr align="center">
+                    <td>{{ $empleado_solicita->nombres }} {{ $empleado_solicita->apellidos }} <br>
+                        {{ $empleado_solicita->identificacion }}
+                    </td>
+                    <td></td>
+                    <td>
+
+                    </td>
+                </tr>
+            </tbody>
         </table>
 
     </main>
