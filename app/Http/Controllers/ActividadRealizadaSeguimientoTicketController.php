@@ -25,6 +25,7 @@ class ActividadRealizadaSeguimientoTicketController extends Controller
     {
         $datos = $request->validated();
         $datos['ticket_id'] = $datos['ticket'];
+        $datos['responsable_id'] = $datos['responsable'];
 
         if ($datos['fotografia']) $datos['fotografia'] = (new GuardarImagenIndividual($datos['fotografia'], RutasStorage::FOTOGRAFIAS_SEGUIMIENTOS_TICKETS))->execute();
 
