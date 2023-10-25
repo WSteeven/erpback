@@ -248,9 +248,10 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        // Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
-        if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
-        // Log::channel('testing')->info('Log', ['Producto:', $producto]);
+        if ($metodo == 'crear') {
+            if(array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
+            else $producto = Producto::where('nombre', $detalle['producto'])->first();
+        }
         return [
           'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
           'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
