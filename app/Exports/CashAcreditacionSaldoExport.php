@@ -6,13 +6,14 @@ namespace App\Exports;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class CashAcreditacionSaldoExport extends DefaultValueBinder implements FromView, WithCustomValueBinder
+class CashAcreditacionSaldoExport extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize
 {
     protected $reporte;
 
