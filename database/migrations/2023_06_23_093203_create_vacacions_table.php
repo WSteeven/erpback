@@ -22,9 +22,9 @@ return new class extends Migration
             $table->date('derecho_vacaciones');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
-            $table->date('fecha_inicio_rango1_vacaciones');
-            $table->date('fecha_fin_rango1_vacaciones');
-            $table->date('fecha_inicio_rango2_vacaciones');
+            // $table->date('fecha_inicio_rango1_vacaciones');
+            // $table->date('fecha_fin_rango1_vacaciones');
+            // $table->date('fecha_inicio_rango2_vacaciones');
             $table->unsignedBigInteger('estado');
             $table->foreign('estado')->references('id')->on('autorizaciones');
             $table->timestamps();

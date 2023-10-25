@@ -16,7 +16,7 @@ class ActividadRealizadaSeguimientoTicket extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'actividades_realizadas_seguimientos_tickets';
-    protected $fillable = ['fecha_hora', 'actividad_realizada', 'observacion', 'fotografia', 'ticket_id'];
+    protected $fillable = ['fecha_hora', 'actividad_realizada', 'observacion', 'fotografia', 'ticket_id', 'responsable_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -25,4 +25,9 @@ class ActividadRealizadaSeguimientoTicket extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
+
+    public function responsable()
+    {
+        return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
+    }
 }
