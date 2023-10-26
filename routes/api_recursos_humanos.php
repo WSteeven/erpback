@@ -100,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('imprimir_reporte_general_empleado', [EmpleadoController::class, 'imprimir_reporte_general_empleado']);
     Route::get('verificar-todos_roles-finalizadas', [RolPagoMesController::class, 'verificarTodasRolesFinalizadas']);
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'FinalizarRolPago']);
+    Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
     Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
     Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
