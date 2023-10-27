@@ -41,17 +41,17 @@ class OrdenCompraService
             $pdf->render();
             $file = $pdf->output(); //se genera el pdf
 
-            //segun la variable guardar, se guarda en el sistema y se registra en la base de datos el nuevo nombre o se envia al front nomás 
+            //segun la variable guardar, se guarda en el sistema y se registra en la base de datos el nuevo nombre o se envia al front nomás
             if ($guardar) {
                 $filename = 'orden_' . $orden['id'] . '_' . time() . '.pdf'; //se le da un nombre al archivo
                 $ruta = 'public' . DIRECTORY_SEPARATOR . 'compras' . DIRECTORY_SEPARATOR . 'ordenes_compras' . DIRECTORY_SEPARATOR . $filename;
                 //Se guarda el pdf
                 Storage::put($ruta, $file);
-                //Se actualiza la ruta en la orden de compra 
+                //Se actualiza la ruta en la orden de compra
                 $orden_compra->file = $ruta;
                 $orden_compra->save();
                 Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
-                
+
                 if ($descargar) {
                     Log::channel('testing')->info('Log', ['Descargar orden de compra', $ruta]);
                     return Storage::download($ruta, $filename);

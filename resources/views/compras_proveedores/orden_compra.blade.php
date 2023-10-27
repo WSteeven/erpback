@@ -229,10 +229,12 @@
                             <td>Forma de pago</td>
                             <td>{{ $orden['forma'] }}</td>
                         </tr>
-                        <tr>
-                            <td>Tiempo de validez</td>
-                            <td>{{ $orden['tiempo'] }} a partir de la fecha de creación</td>
-                        </tr>
+                        @if ($orden['tiempo'] != null)
+                            <tr>
+                                <td>Tiempo de validez</td>
+                                <td>{{ $orden['tiempo'] }} a partir de la fecha de creación</td>
+                            </tr>
+                        @endif
                     </table>
                 </td>
             </tr>

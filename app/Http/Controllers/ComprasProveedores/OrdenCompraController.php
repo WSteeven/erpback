@@ -10,6 +10,8 @@ use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ConfiguracionGeneral;
+use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
 use Exception;
@@ -224,7 +226,11 @@ class OrdenCompraController extends Controller
         // Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
         try {
             if ($orden->proveedor->empresa->correo) {
-                Mail::to($orden->proveedor->empresa->correo)->send(new EnviarMailOrdenCompraProveedor($orden));
+                 Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
+                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
+                // Log::channel('testing')->info('Log', ['Correo enviado',$correo]);
+
+
                 $mensaje = 'Email enviado correctamente al provedor';
                 $status = 200;
             } else {

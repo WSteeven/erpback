@@ -4,6 +4,7 @@ namespace App\Models\ComprasProveedores;
 
 use App\Models\Archivo;
 use App\Models\Autorizacion;
+use App\Models\CorreoEnviado;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -76,7 +77,7 @@ class OrdenCompra extends Model implements Auditable
    */
 
   /**
-   * Relación muchos a muchos. 
+   * Relación muchos a muchos.
    * Una orden de compra tiene varios productos asociados.
    */
   public function productos()
@@ -87,7 +88,7 @@ class OrdenCompra extends Model implements Auditable
   /**
    * Relación uno a uno.
    * Una orden de compra se realiza unicamente a un proveedor.
-   * 
+   *
    */
   public function proveedor()
   {
@@ -95,7 +96,7 @@ class OrdenCompra extends Model implements Auditable
   }
   /**
    * Relación uno a uno.
-   * 
+   *
    */
   public function pedido()
   {
@@ -157,6 +158,15 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
+   * Relacion polimorfica a una notificacion.
+   * Una orden de compra puede tener una o varias notificaciones.
+   */
+  public function correos()
+  {
+    return $this->morphMany(CorreoEnviado::class, 'notificable');
+  }
+
+  /**
    * Relación para obtener la ultima notificacion de un modelo dado.
    */
   public function latestNotificacion()
@@ -175,7 +185,7 @@ class OrdenCompra extends Model implements Auditable
 
   /**
      * Relacion polimorfica con Archivos uno a muchos.
-     * 
+     *
      */
     public function archivos(){
       return $this->morphMany(Archivo::class, 'archivable');
@@ -216,9 +226,9 @@ class OrdenCompra extends Model implements Auditable
   /**
    * La función "obtenerSumaListado" calcula el subtotal, el total, el descuento y el impuesto (IVA) de
    * una lista de artículos en función del ID de orden de compra dado.
-   * 
+   *
    * @param int $id El parámetro "id" es el ID de la orden de compra.
-   * 
+   *
    * @return una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
   public static function obtenerSumaListado($id)
@@ -238,9 +248,10 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        // Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
-        if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
-        // Log::channel('testing')->info('Log', ['Producto:', $producto]);
+        if ($metodo == 'crear') {
+            if(array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
+            else $producto = Producto::where('nombre', $detalle['producto'])->first();
+        }
         return [
           'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
           'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
@@ -285,7 +296,7 @@ class OrdenCompra extends Model implements Auditable
   /**
    * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una
    * longitud específica.
-   * 
+   *
    * @return string una cadena que consta del año actual menos el mes actual, seguida de un código generado
    * con una longitud de 3 dígitos.
    */

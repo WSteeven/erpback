@@ -3,6 +3,7 @@
 namespace App\Mail\ComprasProveedores;
 
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ConfiguracionGeneral;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -19,6 +20,7 @@ class EnviarMailOrdenCompraProveedor extends Mailable
     use Queueable, SerializesModels;
     public OrdenCompra $orden;
     private OrdenCompraService $servicio;
+    public ConfiguracionGeneral $configuracion;
 
     /**
      * Create a new message instance.
@@ -29,6 +31,7 @@ class EnviarMailOrdenCompraProveedor extends Mailable
     {
         $this->orden = $orden_compra;
         $this->servicio = new OrdenCompraService();
+        $this->configuracion = ConfiguracionGeneral::first();
     }
 
     /**
@@ -64,12 +67,17 @@ class EnviarMailOrdenCompraProveedor extends Mailable
     public function attachments()
     {
         if ($this->orden->file && Storage::exists($this->orden->file)) {
-            //Si existe el pdf se envía nomás al proveedor
-            return [
-                Attachment::fromStorage($this->orden->file)
-                    ->as('orden_compraN' . $this->orden->id)
-                    ->withMime('application/pdf'),
-            ];
+            // //Si existe el pdf se envía nomás al proveedor
+            // return [
+            //     Attachment::fromStorage($this->orden->file)
+            //         ->as('orden_compraN' . $this->orden->id)
+            //         ->withMime('application/pdf'),
+            // ];
+
+            //en caso que no exista se genera uno nuevo y se adjunta
+            $ruta = $this->servicio->generarPdf($this->orden, true, false);
+
+            return Attachment::fromStorage($ruta)->as('orden_compra N' . $this->orden->id)->withMime('application/pdf');
         } else {
             //en caso que no exista se genera uno nuevo y se adjunta
             $ruta = $this->servicio->generarPdf($this->orden, true, false);
