@@ -14,6 +14,11 @@ class TipoChargebackResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+        ];
+        return $modelo;
     }
 }

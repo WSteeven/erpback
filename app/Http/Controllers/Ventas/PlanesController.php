@@ -16,8 +16,8 @@ class PlanesController extends Controller
     private $entidad = 'Planes';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.umbral_fondos_rotativos')->only('index', 'show');
-        $this->middleware('can:puede.crear.umbral_fondos_rotativos')->only('store');
+        $this->middleware('can:puede.ver.planes')->only('index', 'show');
+        $this->middleware('can:puede.crear.planes')->only('store');
     }
     public function index(Request $request)
     {

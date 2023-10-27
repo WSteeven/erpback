@@ -24,7 +24,9 @@ class TipoChargebackRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+
+            'nombre' => 'required',
+
         ];
     }
 }

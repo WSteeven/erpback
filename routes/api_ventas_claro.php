@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ventas\BonosController;
+use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\PlanesController;
 use App\Http\Controllers\Ventas\ProductoVentasController;
+use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentasController;
+use App\Models\Ventas\TipoChargeback;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -20,6 +23,8 @@ Route::apiResources(
         'producto-ventas' => ProductoVentasController::class,
         'vendedor' => VendedorController::class,
         'ventas' => VentasController::class,
+        'tipo-chargeback' => TipoChargebackController::class,
+        'chargebacks' => ChargebacksController::class
         ],
     [
         'parameters' => [],

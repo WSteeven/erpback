@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Ventas;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ChargebacksRequest extends FormRequest
@@ -13,7 +14,7 @@ class ChargebacksRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,21 @@ class ChargebacksRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+
+            'venta_id' => 'required',
+            'fecha' => 'required',
+            'valor' => 'required',
+            'id_tipo_chargeback' => 'required',
+            'porcentaje' => 'nullable',
         ];
+    }
+    protected function prepareForValidation()
+    {
+        $date = Carbon::createFromFormat('d-m-Y', $this->fecha);
+        $this->merge([
+            'venta_id' => $this->venta,
+            'fecha' => $date->format('Y-m-d'),
+            'id_tipo_chargeback' => $this->tipo_chargeback,
+        ]);
     }
 }
