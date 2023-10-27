@@ -10,6 +10,7 @@ use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -25,6 +26,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -324,6 +326,16 @@ class PedidoController extends Controller
         $request->validate(['motivo' => ['required', 'string']]);
         $pedido->causa_anulacion = $request['motivo'];
         $pedido->autorizacion_id = $autorizacion->id;
+        $pedido->save();
+
+        $modelo = new PedidoResource($pedido->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function marcarCompletado(Request $request, Pedido $pedido)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $pedido->observacion_bodega = $request['motivo'];
+        $pedido->estado_id = EstadosTransacciones::COMPLETA;
         $pedido->save();
 
         $modelo = new PedidoResource($pedido->refresh());
