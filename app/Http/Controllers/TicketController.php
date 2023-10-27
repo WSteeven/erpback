@@ -86,6 +86,7 @@ class TicketController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
+    // Reasignar
     public function cambiarResponsable(Request $request, Ticket $ticket)
     {
         $request->validate([
@@ -110,6 +111,7 @@ class TicketController extends Controller
                 'fecha_hora' => Carbon::now(),
                 'observacion' => 'TICKET REASIGNADO',
                 'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'responsable_id' => $idResponsableAnterior,
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
@@ -127,6 +129,14 @@ class TicketController extends Controller
         $ticket->estado = Ticket::EJECUTANDO;
         $ticket->fecha_hora_ejecucion = Carbon::now();
         $ticket->save();
+
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET EJECUTADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha EJECUTADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket ejecutado exitosamente!';
@@ -154,6 +164,7 @@ class TicketController extends Controller
             'fecha_hora' => Carbon::now(),
             'observacion' => 'TICKET PAUSADO',
             'actividad_realizada' => Empleado::extraerNombresApellidos($ticket->responsable) . ' ha pausado el ticket por el motivo: ' . MotivoPausaTicket::find($motivo_pausa_id)->motivo,
+            'responsable_id' => Auth::user()->empleado->id,
         ]);
 
         $modelo = new TicketResource($ticket->refresh());
@@ -175,6 +186,14 @@ class TicketController extends Controller
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET REANUDADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha REANUDADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket reanudado exitosamente!';
 
@@ -188,6 +207,14 @@ class TicketController extends Controller
     public function finalizar(Ticket $ticket)
     {
         $this->servicio->puedeFinalizar($ticket);
+
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET FINALIZADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha FINALIZADO el ticket.',
+            'responsable_id' => Auth::id(),
+        ]);
 
         $ticket->estado = Ticket::FINALIZADO_SOLUCIONADO;
         $ticket->fecha_hora_finalizado = Carbon::now();
