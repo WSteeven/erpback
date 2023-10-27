@@ -84,7 +84,7 @@ class AcreditacionSemanaController extends Controller
             $acreditaciones[] = [
                 'id_tipo_fondo' => 1,
                 'id_tipo_saldo' => 1,
-                'id_saldo' => '46848564',
+                'id_saldo' => '',
                 'id_usuario' => $acreditacion->empleado_id,
                 'fecha' =>  $date->format('Y-m-d'),
                 'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
