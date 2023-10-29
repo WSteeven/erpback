@@ -54,3 +54,4 @@ Route::prefix('tickets')->group(function () {
  * Dashboard
  ***********/
 Route::get('dashboard', [DashboardTicketController::class, 'index']);
+Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

@@ -12,6 +12,7 @@ use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;
 use App\Models\TicketRechazado;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
@@ -189,7 +190,7 @@ class TicketController extends Controller
         ActividadRealizadaSeguimientoTicket::create([
             'ticket_id' => $ticket->id,
             'fecha_hora' => Carbon::now(),
-            'observacion' => 'TICKET REANUDADO',
+            'observacion' => 'TICKET EJECUTADO',
             'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha REANUDADO el ticket.',
             'responsable_id' => Auth::user()->empleado->id,
         ]);
@@ -343,6 +344,26 @@ class TicketController extends Controller
             'responsable' => Empleado::extraerNombresApellidos($item->responsable),
         ]);
 
+        return response()->json(compact('results'));
+    }
+
+    public function auditoria($ticket_id)
+    {
+        $modelo = Ticket::find($ticket_id);
+        $auditoria = $modelo->audits()->get(['user_id', 'new_values', 'created_at']);
+        $auditoria = $auditoria->map(function ($item) {
+            $empleado = User::find($item->user_id)->empleado;
+            return [
+                'responsable' => Empleado::extraerNombresApellidos($empleado),
+                'estado' => $item->new_values['estado'],
+                'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
+                'departamento' => $empleado->departamento?->nombre,
+                'foto' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),
+            ];
+        });
+
+        $results = array_values($auditoria->filter(fn ($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
+        Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 }
