@@ -109,7 +109,8 @@ class Utils
         return false;
     }
 
-    function validarNumeroCuenta($numeroCuenta) {
+    function validarNumeroCuenta($numeroCuenta)
+    {
         if (strlen($numeroCuenta) != 11) {
             return false;
         }
