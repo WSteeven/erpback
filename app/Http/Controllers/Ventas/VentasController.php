@@ -27,10 +27,9 @@ class VentasController extends Controller
         $results = VentasResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, $ventas)
+    public function show(Request $request, Ventas $venta)
     {
-        $ventas = Ventas::where('id',$ventas)->first();
-        $modelo = new VentasResource($ventas);
+        $modelo = new VentasResource($venta);
         return response()->json(compact('modelo'));
     }
 

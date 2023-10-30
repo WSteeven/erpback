@@ -27,16 +27,14 @@ class VendedorController extends Controller
         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Vendedor $umbral)
+    public function show(Request $request, Vendedor $vendedor)
     {
-        $results = new VendedorResource($umbral);
-
-        return response()->json(compact('results'));
+        $modelo = new VendedorResource($vendedor);
+        return response()->json(compact('modelo'));
     }
     public function store(VendedorRequest $request)
     {
         try {
-            Log::channel('testing')->info('Log', ['vendedor']);
             $datos = $request->validated();
             DB::beginTransaction();
             $umbral = Vendedor::create($datos);

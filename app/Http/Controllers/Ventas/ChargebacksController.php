@@ -9,6 +9,7 @@ use App\Models\Ventas\Chargebacks;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ChargebacksController extends Controller
@@ -26,11 +27,10 @@ class ChargebacksController extends Controller
         $results = ChargebacksResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, ChargeBacks $chargebacks)
+    public function show(Request $request, ChargeBacks $chargeback)
     {
-        $results = new ChargeBacksResource($chargebacks);
-
-        return response()->json(compact('results'));
+        $modelo = new ChargeBacksResource($chargeback);
+        return response()->json(compact('modelo'));
     }
     public function store(ChargebacksRequest $request)
     {

@@ -29,8 +29,8 @@ class ProductoVentasController extends Controller
     public function show(Request $request,  $productoVendedor)
     {
         $productoVendedor = ProductoVentas::where('id',$productoVendedor)->first();
-        $model = new ProductoVentasResource($productoVendedor);
-        return response()->json(compact('model'));
+        $modelo = new ProductoVentasResource($productoVendedor);
+        return response()->json(compact('modelo'));
     }
     public function store(ProductoVentasRequest $request)
     {
