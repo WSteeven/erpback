@@ -415,7 +415,7 @@
                 <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                 </td>
                 @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                    <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                    <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                 @endforeach
                 <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                 </td>

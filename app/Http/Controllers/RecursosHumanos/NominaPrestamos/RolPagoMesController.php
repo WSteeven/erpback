@@ -540,7 +540,7 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', false)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
+            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -611,7 +611,7 @@ class RolPagoMesController extends Controller
     private function actualizar_tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
+            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('estadod', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
