@@ -6,9 +6,13 @@ use App\Http\Requests\ActividadRealizadaSeguimientoTicketRequest;
 use App\Http\Resources\ActividadRealizadaSeguimientoTicketResource;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use App\Models\ActividadRealizadaSeguimientoTicket;
+use App\Models\Empleado;
+use App\Models\Ticket;
+use App\Models\User;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ActividadRealizadaSeguimientoTicketController extends Controller
 {

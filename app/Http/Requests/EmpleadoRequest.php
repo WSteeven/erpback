@@ -5,7 +5,9 @@ namespace App\Http\Requests;
 use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class EmpleadoRequest extends FormRequest
@@ -95,6 +97,9 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
+           /* if(Utils::validarNumeroCuenta($this->num_cuenta_bancaria)==false){
+                $validator->errors()->add('num_cuenta_bancaria', 'El número de cuenta no pudo ser validado, verifica que sea un numero de cuenta válido');
+            }*/
             if (!$validador->validarCedula($this->identificacion)) {
                 $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
             }

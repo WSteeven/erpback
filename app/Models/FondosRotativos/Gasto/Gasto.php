@@ -74,6 +74,8 @@ class Gasto extends Model implements Auditable
         'usuario',
         'fecha_inicio',
         'fecha_fin',
+        'ciudad',
+        'id_lugar'
     ];
 
     public function detalle_info()

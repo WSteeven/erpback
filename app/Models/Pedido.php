@@ -23,6 +23,7 @@ class Pedido extends Model implements Auditable
     public $fillable = [
         'justificacion',
         'fecha_limite',
+        'observacion_bodega',
         'observacion_aut',
         'observacion_est',
         'solicitante_id',

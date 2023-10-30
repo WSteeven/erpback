@@ -44,6 +44,7 @@ class TareaResource extends JsonResource
             'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
             // 'medio_notificacion' => $this->medio_notificacion,
             // 'canton' => $this->obtenerCanton(),
+            'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
             'metraje_tendido' => $this->metraje_tendido,

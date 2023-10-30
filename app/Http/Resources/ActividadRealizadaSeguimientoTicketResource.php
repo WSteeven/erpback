@@ -22,7 +22,7 @@ class ActividadRealizadaSeguimientoTicketResource extends JsonResource
             'observacion' => $this->observacion,
             'fotografia' => $this->fotografia ? url($this->fotografia) : null,
             'ticket' => $this->ticket_id,
-            'responsable' => Empleado::extraerNombresApellidos($this->responsable),
+            'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
         ];
     }
 }

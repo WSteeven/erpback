@@ -169,6 +169,11 @@ class EmpleadoController extends Controller
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));
     }
+    public function HabilitaEmpleado(Request $request){
+        $empleado = Empleado::find($request->id);
+        $empleado->estado= $request->estado;
+        $empleado->save();
+    }
     public function existeResponsableGrupo(Request $request)
     {
         $request->validate([

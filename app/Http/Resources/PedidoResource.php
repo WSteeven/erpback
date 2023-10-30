@@ -67,6 +67,7 @@ class PedidoResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['estado'] = $this->estado_id;
+            $modelo['observacion_bodega'] = $this->observacion_bodega;
         }
 
 

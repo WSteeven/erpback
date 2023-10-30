@@ -35,7 +35,7 @@ class ValorAcreditar extends Model implements Auditable
     ];
     public function empleado()
     {
-        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
+        return $this->hasOne(Empleado::class, 'id', 'empleado_id')->with('canton');
     }
     public function acreditacion_semanal()
     {
@@ -53,7 +53,7 @@ class ValorAcreditar extends Model implements Auditable
         foreach ($valores_acreditar as $valor_acreditar) {
             $cuenta_bancarea_num = intval($valor_acreditar->empleado->num_cuenta_bancaria);
             if ($cuenta_bancarea_num > 0) {
-            $referencia = $valor_acreditar->umbral!=null?$valor_acreditar->umbral->referencia:'';
+            $referencia = $valor_acreditar->umbral!=null?$valor_acreditar->umbral->referencia:'FONDOS ROTATIVOS CAJA '.$valor_acreditar->empleado->canton->canton;
             $row['item'] = $id + 1;
             $row['empleado_info'] =  $valor_acreditar->empleado->apellidos . ' ' . $valor_acreditar->empleado->nombres;
             $row['numero_cuenta_bancareo'] =  $valor_acreditar->empleado->num_cuenta_bancaria;
