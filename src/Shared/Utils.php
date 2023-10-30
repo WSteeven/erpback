@@ -109,8 +109,7 @@ class Utils
         return false;
     }
 
-    function validarNumeroCuenta($numeroCuenta)
-    {
+    public static function validarNumeroCuenta($numeroCuenta) {
         if (strlen($numeroCuenta) != 11) {
             return false;
         }
@@ -121,6 +120,8 @@ class Utils
 
         // Validar la lógica del dígito de control (por ejemplo, suma de ciertos dígitos)
         $sumaDigitos = array_sum(str_split($numeroCuenta));
+        Log::channel('testing')->info('Log', ['key', $numeroCuenta,$digitoControl, $sumaDigitos]);
+
         if ($sumaDigitos % 10 == $digitoControl) {
             return true;
         } else {

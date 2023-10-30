@@ -12,8 +12,10 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class CashAcreditacionSaldoExport extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize
+class CashAcreditacionSaldoExport extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize,WithStyles
 {
     protected $reporte;
 
@@ -36,5 +38,12 @@ class CashAcreditacionSaldoExport extends DefaultValueBinder implements FromView
     public function view(): View
     {
         return view('exports.reportes.excel.cash_acreditacion_saldo', $this->reporte);
+    }
+    public function styles(Worksheet $sheet)
+    {
+        $columns = ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'S', 'T'];
+        foreach ($columns as $column) {
+            $sheet->getStyle($column)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        }
     }
 }
