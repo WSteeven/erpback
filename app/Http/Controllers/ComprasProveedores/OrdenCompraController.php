@@ -48,7 +48,7 @@ class OrdenCompraController extends Controller
     {
         // Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
         if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
-            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $results = OrdenCompra::filtrarOrdenesEmpleado($request);
             // Log::channel('testing')->info('Log', ['Esta en el else:']);
@@ -199,18 +199,18 @@ class OrdenCompraController extends Controller
         $orden_compra = $orden;
         try {
 
-            if ($orden_compra->file && Storage::exists($orden_compra->file)) {
-                //En caso de que el archivo exista se sirve el archivo
-                Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
-                return Storage::download($orden_compra->file);
-            } else {
+            // if ($orden_compra->file && Storage::exists($orden_compra->file)) {
+            //     //En caso de que el archivo exista se sirve el archivo
+            //     Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
+            //     return Storage::download($orden_compra->file);
+            // } else {
                 try {
                     return $this->servicio->generarPdf($orden, true, true);
                 } catch (Exception $e) {
                     Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
                     return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
                 }
-            }
+            // }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();

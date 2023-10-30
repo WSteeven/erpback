@@ -33,6 +33,7 @@ class PreingresoMaterial extends Model implements Auditable
         'responsable_id',
         'coordinador_id',
         'autorizacion_id',
+        'observacion_aut',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -158,48 +159,81 @@ class PreingresoMaterial extends Model implements Auditable
     {
         try {
             foreach ($listado as $item) {
-                Log::channel('testing')->info('Log', ['Item a guardar:', $item]);
+                // Log::channel('testing')->info('Log', ['Item a guardar:', $item]);
                 //buscamos el producto padre del detalle
                 $producto = Producto::where('nombre', $item['producto'])->first();
                 //buscamos si el detalle ingresado coincide con uno ya almacenado
-                $detalle = DetalleProducto::where('producto_id', $producto->id)->where(function ($query) use ($item) {
+                $item['serial'] ? $detalle = DetalleProducto::where('producto_id', $producto->id)->where('serial', $item['serial'])->first() : $detalle = DetalleProducto::where('producto_id', $producto->id)->where(function ($query) use ($item) {
                     $query->where('descripcion', $item['descripcion'])->orWhere('descripcion', 'LIKE', '%' . $item['descripcion']   . '%'); // busca coincidencia exacta o similitud en el texto
                 })->first();
                 if ($detalle) {
                     if (is_null($detalle->serial)) $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalle->id, $item));
                     else {
-                        // como el detalle encontrado tiene serial, el nuevo registro debe agregarse a los detalles
-                        Log::channel('testing')->info('Log', ['Else:', $detalle, $item]);
-                        $datos = $detalle->toArray();
-                        $fibra = Fibra::where('detalle_id', $detalle->id)->first();
-                        if ($fibra) {
-                            $datos['span'] = $fibra->span_id;
-                            $datos['tipo_fibra'] = $fibra->tipo_fibra_id;
-                            $datos['hilos'] = $fibra->hilo_id;
-                            $datos['punta_inicial'] = $item['punta_inicial'];
-                            $datos['punta_final'] = $item['punta_final'];
-                            $datos['custodia'] = abs($item['punta_inicial'] - $item['punta_final']);
+                        $sumInventario = Inventario::where('detalle_id', $detalle->id)->get();
+                        if ($sumInventario->sum('cantidad') > 0)
+                            throw new Exception('ERROR: Hay ' . $sumInventario->sum('cantidad') . ' items en inventario con serial ' . $detalle->serial . '. No se puede ingresar en stock del técnico sin quitar del inventario');
+                        if ($sumInventario->sum('cantidad') == 0)
+                            $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalle->id, $item));
+                        else {
+                            // como el detalle encontrado tiene serial, el nuevo registro debe agregarse a los detalles
+                            // Log::channel('testing')->info('Log', ['Else:', $detalle, $item]);
+                            $datos = $detalle->toArray();
+                            $fibra = Fibra::where('detalle_id', $detalle->id)->first();
+                            if ($fibra) {
+                                $datos['span'] = $fibra->span_id;
+                                $datos['tipo_fibra'] = $fibra->tipo_fibra_id;
+                                $datos['hilos'] = $fibra->hilo_id;
+                                $datos['punta_inicial'] = $item['punta_inicial'];
+                                $datos['punta_final'] = $item['punta_final'];
+                                $datos['custodia'] = abs($item['punta_inicial'] - $item['punta_final']);
+                            }
+                            // los clientes (Nedetel y otros) no entregan computadoras ni telefonos a los tecnicos
+                            // $computadora = ComputadoraTelefono::where('detalle_id', $detalle->id)->first();
+                            // if($computadora){
+                            //     $datos['ram'] = $fibra->span_id;
+                            //     $datos['disco'] = $fibra->tipo_fibra_id;
+                            //     $datos['procesador'] = $fibra->hilo_id;
+                            //     $datos['imei'] = $item['punta_inicial'];
+                            // }
+                            $datos['serial'] = $item['serial'];
+                            $categoria = new \stdClass();
+                            $categoria->categoria = strtoupper($producto->categoria->nombre);
+                            $categoria->es_fibra = !!Fibra::where('detalle_id', $detalle->id)->first();
+                            $detalleNew = DetalleProducto::crearDetalle($categoria, $datos);
+                            $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalleNew->id, $item));
+                            // throw new Exception('Se produjo un error');
                         }
-                        // los clientes (Nedetel y otros) no entregan computadoras ni telefonos a los tecnicos
-                        // $computadora = ComputadoraTelefono::where('detalle_id', $detalle->id)->first();
-                        // if($computadora){
-                        //     $datos['ram'] = $fibra->span_id;
-                        //     $datos['disco'] = $fibra->tipo_fibra_id;
-                        //     $datos['procesador'] = $fibra->hilo_id;
-                        //     $datos['imei'] = $item['punta_inicial'];
-                        // }
-                        $datos['serial'] = $item['serial'];
-                        $categoria = new \stdClass();
-                        $categoria->categoria = strtoupper($producto->categoria->nombre);
-                        $categoria->es_fibra = !!Fibra::where('detalle_id', $detalle->id)->first();
-                        $detalleNew = DetalleProducto::crearDetalle($categoria, $datos);
-                        $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalleNew->id, $item));
-                        // throw new Exception('Se produjo un error');
                     }
                     Log::channel('testing')->info('Log', ['Item creado:', $itemPreingreso]);
                 } else {
-                    // no se encontró detalles coincidentes, entonces se creará nuevo detalle 
-                    throw new Exception('Se produjo un error');
+                    // no se encontró detalles coincidentes con numero de serie,buscamos sin numero de serie 
+                    $detalle = DetalleProducto::where('producto_id', $producto->id)->where(function ($query) use ($item) {
+                        $query->where('descripcion', $item['descripcion'])->orWhere('descripcion', 'LIKE', '%' . $item['descripcion']   . '%'); // busca coincidencia exacta o similitud en el texto
+                    })->first();
+                    if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
+                        if($item['serial'] && !is_null($detalle->serial)){
+                        // como el detalle encontrado tiene serial, el nuevo registro debe agregarse a los detalles
+                            $datos = $detalle->toArray();
+                            $fibra = Fibra::where('detalle_id', $detalle->id)->first();
+                            if ($fibra) {
+                                $datos['span'] = $fibra->span_id;
+                                $datos['tipo_fibra'] = $fibra->tipo_fibra_id;
+                                $datos['hilos'] = $fibra->hilo_id;
+                                $datos['punta_inicial'] = $item['punta_inicial'];
+                                $datos['punta_final'] = $item['punta_final'];
+                                $datos['custodia'] = abs($item['punta_inicial'] - $item['punta_final']);
+                            }
+                            
+                            $datos['serial'] = $item['serial'];
+                            $categoria = new \stdClass();
+                            $categoria->categoria = strtoupper($producto->categoria->nombre);
+                            $categoria->es_fibra = !!Fibra::where('detalle_id', $detalle->id)->first();
+                            $detalleNew = DetalleProducto::crearDetalle($categoria, $datos);
+                            $itemPreingreso = ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalleNew->id, $item));
+                            // throw new Exception('Se produjo un error');
+                        }
+                        Log::channel('testing')->info('Log', ['Item creado:', $itemPreingreso]);
+                    }
                 }
             }
         } catch (\Throwable $th) {
