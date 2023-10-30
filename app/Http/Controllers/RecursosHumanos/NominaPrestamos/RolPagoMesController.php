@@ -47,10 +47,14 @@ class RolPagoMesController extends Controller
     public function index(Request $request)
     {
         $results = [];
+        if ($request) {
+            $request['finalizado'] = $request['finalizado'] == 'true' ? '1' : '0';
+        }
         $results = RolPagoMes::ignoreRequest(['campos'])->filter()->get();
         $results = RolPagoMesResource::collection($results);
         return response()->json(compact('results'));
     }
+
 
     /**
      * La función de tienda en PHP se utiliza para crear un nuevo registro para el modelo RolPagoMes,
@@ -241,21 +245,21 @@ class RolPagoMesController extends Controller
         $roles_de_pago = RolPago::where('rol_pago_id', $rolPagoId)->with(['egreso_rol_pago.descuento', 'ingreso_rol_pago.concepto_ingreso_info', 'rolPagoMes', 'egreso_rol_pago'])->get();
         $sumatoria = RolPago::where('rol_pago_id', $rolPagoId)
             ->select(
-                DB::raw('SUM(decimo_tercero) as decimo_tercero'),
-                DB::raw('SUM(decimo_cuarto) as decimo_cuarto'),
-                DB::raw('SUM(fondos_reserva) as fondos_reserva'),
-                DB::raw('SUM(bonificacion) as bonificacion'),
-                DB::raw('SUM(total_ingreso) as total_ingreso'),
-                DB::raw('SUM(comisiones) as comisiones'),
-                DB::raw('SUM(iess) as iess'),
-                DB::raw('SUM(anticipo) as anticipo'),
-                DB::raw('SUM(prestamo_quirorafario) as prestamo_quirorafario'),
-                DB::raw('SUM(prestamo_hipotecario) as prestamo_hipotecario'),
-                DB::raw('SUM(extension_conyugal) as extension_conyugal'),
-                DB::raw('SUM(prestamo_empresarial) as prestamo_empresarial'),
-                DB::raw('SUM(bono_recurente) as bono_recurente'),
-                DB::raw('SUM(total_egreso) as total_egreso'),
-                DB::raw('SUM(total) as total'),
+                DB::raw('SUM(ROUND(decimo_tercero, 2)) as decimo_tercero'),
+                DB::raw('SUM(ROUND(decimo_cuarto, 2))  as decimo_cuarto'),
+                DB::raw('SUM(ROUND(fondos_reserva, 2))  as fondos_reserva'),
+                DB::raw('SUM(ROUND(bonificacion, 2))  as bonificacion'),
+                DB::raw('SUM(ROUND(total_ingreso, 2))  as total_ingreso'),
+                DB::raw('SUM(ROUND(comisiones, 2))  as comisiones'),
+                DB::raw('SUM(ROUND(iess, 2))  as iess'),
+                DB::raw('SUM(ROUND(anticipo, 2))  as anticipo'),
+                DB::raw('SUM(ROUND(prestamo_quirorafario, 2))  as prestamo_quirorafario'),
+                DB::raw('SUM(ROUND(prestamo_hipotecario, 2))  as prestamo_hipotecario'),
+                DB::raw('SUM(ROUND(extension_conyugal, 2))  as extension_conyugal'),
+                DB::raw('SUM(ROUND(prestamo_empresarial, 2))  as prestamo_empresarial'),
+                DB::raw('SUM(ROUND(bono_recurente, 2))  as bono_recurente'),
+                DB::raw('SUM(ROUND(total_egreso, 2))  as total_egreso'),
+                DB::raw('SUM(ROUND(total, 2)) as total'),
             )
             ->first();
         $results = RolPago::empaquetarListado($roles_de_pago);
@@ -380,7 +384,6 @@ class RolPagoMesController extends Controller
 
         // Itera a través de la estructura de datos y calcula la suma por llaves y campo "valor"
         foreach ($data as $key => $value) {
-            Log::channel('testing')->info('Log', ['key', $key]);
             $sumatoria = array_sum(array_map(function ($entry) {
                 return floatval($entry["valor"]);
             }, $value));
