@@ -4,7 +4,9 @@ namespace App\Exports;
 
 use App\Models\Emergencia;
 use App\Models\SeguimientoSubtarea;
+use App\Models\Subtarea;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
 
@@ -12,16 +14,17 @@ class SeguimientoExport implements FromView
 {
     use Exportable;
 
-    protected SeguimientoSubtarea $seguimiento;
+    protected Subtarea $subtarea;
 
-    function __construct(SeguimientoSubtarea $seguimiento)
+    function __construct(Subtarea $subtarea)
     {
-        $this->seguimiento = $seguimiento;
+        $this->subtarea = $subtarea;
     }
 
     public function view(): View
     {
-
-        return view('exports.reportes.excel.seguimiento_subtarea', $this->seguimiento);
+        $subtarea = $this->subtarea;
+        Log::channel('testing')->info('Log', compact('subtarea'));
+        return view('exports.reportes.excel.seguimiento_subtarea', compact('subtarea'));
     }
 }

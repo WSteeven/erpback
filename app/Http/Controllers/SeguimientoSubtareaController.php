@@ -97,14 +97,24 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-    public function exportarSeguimiento(SeguimientoSubtarea $seguimiento)
+    public function exportarSeguimiento(Subtarea $subtarea)
     {
         $tipo = 'excel';
 
-        $export_excel = new SeguimientoExport($seguimiento);
+        $export_excel = new SeguimientoExport($subtarea);
         $vista = 'exports.reportes.excel.seguimiento_subtarea';
         $nombre_reporte = 'Juan Reporte';
-        return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $seguimiento, $nombre_reporte, $vista, $export_excel);
+        return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $subtarea, $nombre_reporte, $vista, $export_excel);
+    }
+
+    public function verSeguimiento(Subtarea $subtarea)
+    {
+        // $tipo = 'excel';
+
+        // $export_excel = new SeguimientoExport($subtarea);
+        $vista = 'exports.reportes.excel.seguimiento_subtarea';
+        Log::channel('testing')->info('Log', compact('subtarea'));
+        return view($vista, compact('subtarea'));
     }
 
     public function obtenerHistorialMaterialTareaUsadoPorFecha(Request $request)

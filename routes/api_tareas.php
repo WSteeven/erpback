@@ -91,7 +91,8 @@ Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verifi
 // Transferir mis tareas activas
 Route::post('transferir-mis-tareas-activas', [TareaController::class, 'transferirMisTareasActivas']);
 
-Route::get('export-seguimiento/{seguimiento}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
+Route::get('export-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'exportarSeguimiento']);
+Route::get('ver-seguimiento/{subtarea}', [SeguimientoSubtareaController::class, 'verSeguimiento']);
 
 // Obtener los trabajos designados: de un grupo o empleado individual
 Route::get('trabajo-asignado', [TrabajoAsignadoController::class, 'index']);
@@ -106,7 +107,7 @@ Route::apiResource('tendidos', TendidoController::class)->except('show');
 Route::get('tendidos/{subtarea}', [TendidoController::class, 'show']);
 
 // Reportes de material
-Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
+// Route::get('reportes-control-materiales', [ReporteControlMaterialController::class, 'index']);
 
 Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaController::class, 'destinoActual']);
 
