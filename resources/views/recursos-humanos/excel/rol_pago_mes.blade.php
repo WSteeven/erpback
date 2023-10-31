@@ -115,7 +115,7 @@
                                 <table width="100%">
 
                                     <tr>
-                                        <td height="55px;">
+                                        <td>
                                             <table width="100%" border="1" align="left" cellpadding="0"
                                                 cellspacing="0" class="datos">
                                                 <colgroup span="{{ $numcol_ingreso }}"></colgroup>
@@ -335,7 +335,7 @@
                                                     <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                                                     </td>
                                                     @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                                                        <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                                                        <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                                                     @endforeach
                                                     <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                                                     </td>

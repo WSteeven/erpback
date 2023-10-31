@@ -9,9 +9,11 @@ use App\Http\Resources\PreingresoMaterialResource;
 use App\Models\Pedido;
 use App\Models\PreingresoMaterial;
 use Exception;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class PreingresoMaterialController extends Controller
@@ -70,7 +72,7 @@ class PreingresoMaterialController extends Controller
      */
     public function store(PreingresoMaterialRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
@@ -99,6 +101,9 @@ class PreingresoMaterialController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage() . '. ' . $e->getLine()],
+            ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
 

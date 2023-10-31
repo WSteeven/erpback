@@ -30,6 +30,7 @@ class PreingresoMaterialResource extends JsonResource
             'responsable_id' => $this->responsable_id,
             'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
             'autorizacion' => $this->autorizacion->nombre,
+            'observacion_aut' => $this->observacion_aut,
         ];
 
         if ($controller_method == 'show') {

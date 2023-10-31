@@ -24,14 +24,7 @@ class NotificarVacacionesJob implements ShouldQueue
      */
     public function __construct()
     {
-        $empleados = Empleado::selectRaw("id,nombres,apellidos,TIMESTAMPDIFF(MONTH,STR_TO_DATE(fecha_ingreso, '%d-%m-%Y'), NOW()) % 12 as diffMonths,
-        DATEDIFF(NOW(), STR_TO_DATE(fecha_ingreso, '%d-%m-%Y')) % 30 as diffDays")
-            ->whereRaw("DATEDIFF(NOW(), STR_TO_DATE(fecha_ingreso, '%d-%m-%Y')) % 30 = 14")
-            ->having('diffMonths', '=', 11)
-            ->get();
-        foreach ($empleados as $empleado) {
-            event(new VacacionNotificacionEvent($empleado));
-        }
+
     }
 
     /**
@@ -41,6 +34,13 @@ class NotificarVacacionesJob implements ShouldQueue
      */
     public function handle()
     {
-        //
+        $empleados = Empleado::selectRaw("id,nombres,apellidos,TIMESTAMPDIFF(MONTH,STR_TO_DATE(fecha_ingreso, '%d-%m-%Y'), NOW()) % 12 as diffMonths,
+        DATEDIFF(NOW(), STR_TO_DATE(fecha_ingreso, '%d-%m-%Y')) % 30 as diffDays")
+            ->whereRaw("DATEDIFF(NOW(), STR_TO_DATE(fecha_ingreso, '%d-%m-%Y')) % 30 = 14")
+            ->having('diffMonths', '=', 0)
+            ->get();
+        foreach ($empleados as $empleado) {
+            event(new VacacionNotificacionEvent($empleado));
+        }
     }
 }
