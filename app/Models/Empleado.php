@@ -109,6 +109,7 @@ class Empleado extends Model implements Auditable
         'esta_en_empleado',
         'acumula_fondos_reserva',
         'realiza_factura',
+        'es_reporte__saldo_actual'
     ];
 
     const ACTIVO = 'ACTIVO';

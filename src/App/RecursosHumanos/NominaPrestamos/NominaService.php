@@ -171,7 +171,7 @@ class NominaService
                 break;
             case 4:
                 if($es_vendedor_medio_tiempo){
-                    return (NominaService::calcularSueldoBasico() / 360) * 15;
+                    return ((NominaService::calcularSueldoBasico()/2) / 360) * $dias;
                 }else{
                     return (NominaService::calcularSueldoBasico() / 360) * $dias;
                 }
