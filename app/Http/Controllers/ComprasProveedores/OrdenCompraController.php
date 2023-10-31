@@ -10,6 +10,7 @@ use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ComprasProveedores\PreordenCompra;
 use App\Models\ConfiguracionGeneral;
 use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
@@ -184,6 +185,11 @@ class OrdenCompraController extends Controller
         $orden->causa_anulacion = $request['motivo'];
         $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
+        if($orden->preorden_id){
+            $preorden = PreordenCompra::find($orden->preorden_id);
+            $preorden->estado = EstadoTransaccion::PENDIENTE;
+            $preorden->save();
+        }
         $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $orden->save();
 
