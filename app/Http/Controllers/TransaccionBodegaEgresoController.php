@@ -358,9 +358,13 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->save();
                 $detalleProducto = DetalleProducto::find($itemInventario->detalle_id);
                 TransaccionBodega::activarDetalle($detalleProducto);
+                if ($transaccion->pedido_id) {
+                    TransaccionBodega::restarDespachoPedido($transaccion->pedido_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                }
             }
             $transaccion->estado_id = $estadoAnulado->id;
             $transaccion->autorizacion_id = Autorizaciones::CANCELADO;
+
             $transaccion->save();
             $transaccion->comprobante()->delete();
             $transaccion->latestNotificacion()->update(['leida' => true]);

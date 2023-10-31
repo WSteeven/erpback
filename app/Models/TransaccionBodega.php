@@ -381,6 +381,13 @@ class TransaccionBodega extends Model implements Auditable
         }
     }
 
+    public static function restarDespachoPedido($pedido_id, $detalle_id, $cantidad)
+    {
+        $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();
+        $detallePedido->despachado -= $cantidad;
+        $detallePedido->save();
+    }
+
     /**
      * Funcion para actualizar el pedido y su listado en cada egreso.
      */
@@ -415,7 +422,7 @@ class TransaccionBodega extends Model implements Auditable
                         'pedido_id' => $pedido->id,
                         'cantidad' => $detalle['cantidad_inicial'],
                         'despachado' =>  $detalle['cantidad_inicial'],
-                        'solicitante_id'=> auth()->user()->empleado->id
+                        'solicitante_id' => auth()->user()->empleado->id
                     ]);
 
                     // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
