@@ -58,7 +58,6 @@ class PedidoService
         $results = [];
         $cont =0;
         foreach($datos as $d){
-            Log::channel('testing')->info('Log', ['Datos antes de empaquetar dentro del foreach', $d]);
             $row['pedido_id'] = $d['id'];
             $row['created_at'] = $d['created_at'];
             $row['justificacion'] = $d['justificacion'];
@@ -67,7 +66,6 @@ class PedidoService
             $row['autorizador'] = $d['autoriza']->nombres . ' ' .$d['autoriza']->apellidos;
             $row['estado'] = $d['estado']->nombre;
             $row['responsable'] = $d['responsable']->nombres . ' ' .$d['responsable']->apellidos;
-            Log::channel('testing')->info('Log', ['Datos del listado de pedido', $d['estado']]);
             foreach($d->listadoProductos($d["id"]) as $p){
                 $row['descripcion'] = $p['descripcion'];
                 $row['serial'] = $p['serial'];
@@ -79,7 +77,6 @@ class PedidoService
             $cont++;
         }
         
-        Log::channel('testing')->info('Log', ['resultados empaquetados', $results]);
         return $results;
     }
 }

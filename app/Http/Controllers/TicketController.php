@@ -355,7 +355,7 @@ class TicketController extends Controller
             $empleado = User::find($item->user_id)->empleado;
             return [
                 'responsable' => Empleado::extraerNombresApellidos($empleado),
-                'estado' => $item->new_values['estado'],
+                'estado' => array_key_exists('estado', $item->new_values) ? $item->new_values['estado'] : null,
                 'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
                 'departamento' => $empleado->departamento?->nombre,
                 'foto' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),

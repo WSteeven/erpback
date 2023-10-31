@@ -83,7 +83,7 @@ class OrdenCompra extends Model implements Auditable
   public function productos()
   {
     return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
-      ->withPivot(['descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+      ->withPivot(['id', 'descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
   /**
    * Relación uno a uno.
@@ -184,11 +184,12 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
-     * Relacion polimorfica con Archivos uno a muchos.
-     *
-     */
-    public function archivos(){
-      return $this->morphMany(Archivo::class, 'archivable');
+   * Relacion polimorfica con Archivos uno a muchos.
+   *
+   */
+  public function archivos()
+  {
+    return $this->morphMany(Archivo::class, 'archivable');
   }
 
   /**
@@ -204,7 +205,7 @@ class OrdenCompra extends Model implements Auditable
     $results = [];
     $row = [];
     foreach ($productos as $index => $producto) {
-      $row['id'] = $producto->id;
+      $row['id'] = $producto->pivot->id;
       $row['producto'] = $producto->nombre;
       $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
       $row['categoria'] = $producto->categoria->nombre;
@@ -221,6 +222,7 @@ class OrdenCompra extends Model implements Auditable
       $results[$index] = $row;
     }
 
+    Log::channel('testing')->info('Log', ['los productos consultados ya casteados', $results]);
     return $results;
   }
   /**
@@ -249,8 +251,8 @@ class OrdenCompra extends Model implements Auditable
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
         if ($metodo == 'crear') {
-            if(array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
-            else $producto = Producto::where('nombre', $detalle['producto'])->first();
+          if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
+          else $producto = Producto::where('nombre', $detalle['producto'])->first();
         }
         return [
           'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
@@ -288,7 +290,7 @@ class OrdenCompra extends Model implements Auditable
     $results = OrdenCompra::where(function ($query) {
       $query->orWhere('solicitante_id', auth()->user()->empleado->id)
         ->orWhere('autorizador_id', auth()->user()->empleado->id);
-    })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+    })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
     // $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
     return $results;
   }

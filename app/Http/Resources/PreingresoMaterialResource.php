@@ -22,7 +22,7 @@ class PreingresoMaterialResource extends JsonResource
             'cuadrilla' => $this->cuadrilla,
             'num_guia' => $this->num_guia,
             'courier' => $this->courier,
-            'fecha' => date('d/m/Y', strtotime($this->fecha)),
+            'fecha' => date('d-m-Y', strtotime($this->fecha)),
             'tarea' => $this->tarea?->titulo,
             'cliente' => $this->cliente?->empresa?->razon_social,
             'autorizador' => $this->autorizador->nombres . ' ' . $this->autorizador->apellidos,
@@ -30,6 +30,7 @@ class PreingresoMaterialResource extends JsonResource
             'responsable_id' => $this->responsable_id,
             'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
             'autorizacion' => $this->autorizacion->nombre,
+            'observacion_aut' => $this->observacion_aut,
         ];
 
         if ($controller_method == 'show') {

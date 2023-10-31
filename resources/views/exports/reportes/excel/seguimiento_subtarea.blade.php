@@ -1,11 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
-
-@php
-$fecha = new Datetime();
-$logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
-$logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png'));
-@endphp
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -39,125 +33,130 @@ $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('im
             font-size: 10px;
             font-style: italic;
         }
-
-        table,
-        td,
-        th {
-            border: 1px solid #000;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
     </style>
 </head>
 
 <body>
-    <table style="color: #000; width: 100%; table-layout: fixed;" border="1" bordercolor="#000">
-        <tbody>
 
-            {{-- Fila 0 --}}
+    <table style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+
+        <thead>
             <tr>
-                <td>&nbsp;</td>
-                <td><img src="{{ public_path('img/logo.png') }}" width="90" /></td>
-                <td>&nbsp;</td>
+                <th rowspan="4"><img src="{{ public_path('img/logo.png') }}" width="90" /></th>
+                <th rowspan="4" colspan="2" class="borde-celda-2">REPORTE DE ASISTENCIA TÉCNICA OPERATIVA <br> NEDETEL/UFINET - OUTSOURCING OM</th>
+                <th rowspan="4" colspan="2" class="borde-celda-2">FOR TEC 003 <br> V.02 11 07 2023</th>
             </tr>
+        </thead>
 
-            {{-- Fila 1 --}}
+        <tr></tr>
+        <tr></tr>
+        <tr></tr>
+        <tr></tr>
+
+        <tbody class="formato">
             <tr>
                 <td>&nbsp;</td>
-                <td align="center"><b>INFORME DE SEGUIMIENTO</b></td>
-                <td>&nbsp;</td>
-            </tr>
-
-            {{-- Fila 2 --}}
-            <tr>
-                <td>&nbsp;</td>
-                <td align="center"><b>Módulo de tareas</b></td>
-                <td>&nbsp;</td>
-            </tr>
-
-            {{-- Fila 3 --}}
-            <tr>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-            </tr>
-
-            {{-- Fila 4 --}}
-            <tr>
-                <td>Cronologia de trabajos realizados</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-            </tr>
-
-            <tr></tr>
-
-            <tr>
                 <td></td>
-                <td>hola</td>
+                <td></td>
+                <td></td>
+                <td></td>
                 <td></td>
             </tr>
 
-            {{-- ############### --}}
-
-            {{-- Fila 5 --}}
             <tr>
-
-                <table>
-
-                    <tr>
-                        <th>Hora</th>
-                        <th width="60">Actividad</th>
-                        <th></th>
-                    </tr>
-
-                    @foreach ($trabajo_realizado as $trabajo)
-                    <tr>
-                        <td>{{ $trabajo['hora'] }}</td>
-                        <td>{{ $trabajo['actividad'] }}</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    @endforeach
-
-                </table>
-
-
-<br>
-
-
-                <table>
-                    <tr>
-                        <th>Detalle de producto</th>
-                        <th>Medida</th>
-                        <th>Cantidad utilizada</th>
-                    </tr>
-
-                    @foreach ($materiales_ocupados as $material)
-                    <tr>
-                        <td>
-                            <div>
-                                {{ $material['detalle_producto'] }}
-                            </div>
-                        </td>
-                        <td>{{ $material['medida'] }}</td>
-                        <td>{{ $material['cantidad_utilizada'] }}</td>
-                    </tr>
-                    @endforeach
-                </table>
-
+                <td></td>
+                <td class="text-bold">TICKET/TAREA ASIGNADA:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">TR2146-1</td>
+                <td></td>
+                <td></td>
             </tr>
 
-            <tr></tr>
-
-            {{-- Fila 4 --}}
             <tr>
-                <td><b>Materiales designados para la tarea</b></td>
+                <td></td>
+                <td class="text-bold">REGIONAL:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">R1</td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td class="text-bold">CONTRATISTA:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">JP CONSTRUCRED</td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td class="text-bold">CUADRILLA ASIGNADA:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">LAGO</td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td class="text-bold">FECHA DE ELABORACIÓN DEL REPORTE:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">martes, 1 de agosto del 2023</td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td class="text-bold">REPORTE ELABORADO POR:</td>
+                <td></td>
+                <td colspan="2" class="borde-celda-1" style="text-align: center;">BENITO BUNNY</td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td>&nbsp;</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td class="text-bold">PERSONAL TÉCNICO OPERATIVO</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td colspan="4">
+                    <table>
+                        <thead>
+                            <th>N°p</th>
+                            <th>Nombres y apellidos</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td></td>
             </tr>
         </tbody>
-    </table>
 
+
+    </table>
 
 
 </body>
