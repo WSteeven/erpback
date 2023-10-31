@@ -26,9 +26,9 @@ class ModalidadController extends Controller
         $results = ModalidadResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Modalidad $umbral)
+    public function show(Request $request, Modalidad $modalidad)
     {
-        $results = new ModalidadResource($umbral);
+        $results = new ModalidadResource($modalidad);
 
         return response()->json(compact('results'));
     }
@@ -37,8 +37,8 @@ class ModalidadController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral = Modalidad::create($datos);
-            $modelo = new ModalidadResource($umbral);
+            $modalidad = Modalidad::create($datos);
+            $modelo = new ModalidadResource($modalidad);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,13 +47,13 @@ class ModalidadController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(ModalidadRequest $request, Modalidad $umbral)
+    public function update(ModalidadRequest $request, Modalidad $modalidad)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral->update($datos);
-            $modelo = new ModalidadResource($umbral->refresh());
+            $modalidad->update($datos);
+            $modelo = new ModalidadResource($modalidad->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -62,9 +62,9 @@ class ModalidadController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Modalidad $umbral)
+    public function destroy(Request $request, Modalidad $modalidad)
     {
-        $umbral->delete();
-        return response()->json(compact('umbral'));
+        $modalidad->delete();
+        return response()->json(compact('modalidad'));
     }
 }

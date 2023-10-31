@@ -5,6 +5,7 @@ use App\Http\Controllers\Ventas\BonosController;
 use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\ModalidadController;
+use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanesController;
 use App\Http\Controllers\Ventas\ProductoVentasController;
 use App\Http\Controllers\Ventas\TipoChargebackController;
@@ -24,7 +25,8 @@ Route::apiResources(
         'vendedor' => VendedorController::class,
         'ventas' => VentasController::class,
         'tipo-chargeback' => TipoChargebackController::class,
-        'chargebacks' => ChargebacksController::class
+        'chargebacks' => ChargebacksController::class,
+        'pago-comision' => PagoComisionController::class
         ],
     [
         'parameters' => [],
