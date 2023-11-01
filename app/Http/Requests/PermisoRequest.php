@@ -24,7 +24,7 @@ class PermisoRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|unique:permissions,name'
+            'name' => in_array($this->method(), ['POST'])? 'required|string|unique:permissions,name':'required|string'
         ];
     }
 
