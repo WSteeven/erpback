@@ -17,7 +17,7 @@ class PagoComisionResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'mes' => $this->mes,
+            'fecha' => $this->fecha,
             'vendedor_id' => $this->vendedor_id,
             'vendedor_info' => $this->vendedor->empleado->nombres.' '.$this->vendedor->empleado->apellidos,
             'chargeback' => $this->chargeback,

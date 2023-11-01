@@ -55,12 +55,10 @@ class PagoComisionController extends Controller
     {
         $vendedor = Vendedor::get();
         $pagos_comision  = [];
+        $limite_venta = 0;
         foreach ($vendedor as $vendedor) {
             $chargeback = Chargebacks::where('fecha', '<=', $fecha)->sum('valor');
-            $comisiones = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor->id)->orderBy('id')->skip(5)->take(999999)->get();
-            $comisiones = array_reduce($comisiones->toArray(), function ($carry, $item) {
-                return $carry + $item["comision_vendedor"];
-            }, 0);
+            $comisiones = $this->calcular_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);
             $pagos_comision[]  = [
                 'fecha' => $fecha,
                 'chargeback' => $chargeback,
@@ -68,12 +66,38 @@ class PagoComisionController extends Controller
                 'valor' =>  $comisiones
             ];
         }
-        Log::channel('testing')->info('Log', [compact('pagos_comision')]);
 
-        // PagoComision::insert($pagos_comision);
+        PagoComision::insert($pagos_comision);
 
     }
-
+    private function calcular_comisiones($modalidad, $vendedor_id, $fecha)
+    {
+        $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
+        $limite_venta = 0;
+        $query_ventas = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        if($pago_comision == 0){
+            switch ($modalidad) {
+                case 1:
+                    $limite_venta = 6;
+                    break;
+                case 2:
+                    $limite_venta = 13;
+                    break;
+                default:
+                    $limite_venta = 0;
+                    break;
+            }
+            $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
+           
+        }else{
+            $comisiones = $query_ventas->get();
+        }
+        $comisiones = array_reduce($comisiones->toArray(), function ($carry, $item) {
+            return $carry + $item["comision_vendedor"];
+        }, 0);
+        return $comisiones;
+       
+    }
     public function update(PagoComisionRequest $request, PagoComision $pago_comision)
     {
         try {
