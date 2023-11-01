@@ -64,7 +64,7 @@ class EmpleadoController extends Controller
             return $this->servicio->obtenerTodosSinEstado();
         }
         if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA]) && request('es_reporte__saldo_actual')) {
-            return Empleado::where('jefe_id', Auth::user()->id)->get($campos);
+            return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
         }
 
        
