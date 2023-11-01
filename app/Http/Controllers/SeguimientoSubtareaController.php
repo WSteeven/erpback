@@ -17,6 +17,7 @@ use Src\App\SeguimientoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\App\TransaccionBodegaEgresoService;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SeguimientoSubtareaController extends Controller
 {
@@ -97,14 +98,12 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
-    public function exportarSeguimiento(Subtarea $subtarea)
+    public function exportarSeguimiento($subtarea_id)
     {
-        $tipo = 'excel';
-
+        $subtarea = Subtarea::find($subtarea_id);
         $export_excel = new SeguimientoExport($subtarea);
-        $vista = 'exports.reportes.excel.seguimiento_subtarea';
         $nombre_reporte = 'Juan Reporte';
-        return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $subtarea, $nombre_reporte, $vista, $export_excel);
+        return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
 
     public function verSeguimiento(Subtarea $subtarea)

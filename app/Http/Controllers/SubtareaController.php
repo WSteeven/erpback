@@ -214,7 +214,7 @@ class SubtareaController extends Controller
             'motivo_pausa_id' => $motivo_pausa_id,
         ]);
 
-        $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        // $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
         event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
