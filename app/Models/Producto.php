@@ -19,11 +19,14 @@ class Producto extends Model implements Auditable
 
     protected $table = "productos";
 
-    protected $fillable = ["nombre", "categoria_id", "unidad_medida_id"];
+    protected $fillable = ["nombre", "categoria_id", "unidad_medida_id", 'tipo'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    const BIEN = 'BIEN';
+    const SERVICIO = 'SERVICIO';
 
     private static $whiteListFilter = [
         '*',
