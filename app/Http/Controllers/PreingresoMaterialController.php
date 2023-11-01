@@ -14,13 +14,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\Bodega\PreingresoMaterialService;
 use Src\Shared\Utils;
 
 class PreingresoMaterialController extends Controller
 {
     private $entidad = 'Preingreso de Material';
+    private $servicio;
     public function __construct()
     {
+        $this->servicio = new PreingresoMaterialService();
         $this->middleware('can:puede.ver.preingresos_materiales')->only('index', 'show');
         $this->middleware('can:puede.crear.preingresos_materiales')->only('store');
         $this->middleware('can:puede.editar.preingresos_materiales')->only('update');
@@ -33,36 +36,7 @@ class PreingresoMaterialController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->autorizacion_id) {
-            switch ($request->autorizacion_id) {
-                case 1: //PENDIENTE
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
-                    break;
-                case 2: //APROBADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where('responsable_id', auth()->user()->empleado->id)
-                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                        ->orWhere('coordinador_id', auth()->user()->empleado->id)
-                        ->get();
-                    break;
-                case 3: //CANCELADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where('responsable_id', auth()->user()->empleado->id)
-                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                        ->orWhere('coordinador_id', auth()->user()->empleado->id)
-                        ->get();
-                    break;
-                default:
-                    $results = PreingresoMaterial::all();
-            }
-        } else {
-            $results = PreingresoMaterial::all();
-        }
+        $results = $this->servicio->filtrarPreingresos($request);
         $results = PreingresoMaterialResource::collection($results);
 
         return response()->json(compact('results'));
@@ -72,7 +46,6 @@ class PreingresoMaterialController extends Controller
      */
     public function store(PreingresoMaterialRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
@@ -84,12 +57,12 @@ class PreingresoMaterialController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            Log::channel('testing')->info('Log', ['Datos validados y casteados:', $datos]);
             //Se crea el registro de preingreso
             $preingreso = PreingresoMaterial::create($datos);
 
             //Se crea los detalles y se almacena en detalles productos
-            PreingresoMaterial::guardarDetalles($preingreso, $request->listadoProductos);
+            $this->servicio->guardarDetalles($preingreso, $request->listadoProductos);
+            // PreingresoMaterial::guardarDetalles($preingreso, $request->listadoProductos);
 
             //Se emite la notificación al autorizador
             if ($preingreso->tarea_id) event(new PreingresoCreadoEvent($preingreso, $preingreso->coordinador_id));
@@ -124,7 +97,6 @@ class PreingresoMaterialController extends Controller
      */
     public function update(PreingresoMaterialRequest $request, PreingresoMaterial $preingreso)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         $autorizacion_old = $preingreso->autorizacion_id;
         try {
             $datos = $request->validated();
@@ -137,13 +109,12 @@ class PreingresoMaterialController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            Log::channel('testing')->info('Log', ['Datos validados y casteados:', $datos]);
             //Se actualiza el registro de preingreso
             $preingreso->update($datos);
             $preingreso->refresh();
 
             //Se actualizan los detalles
-            PreingresoMaterial::actualizarDetalles($preingreso, $request->listadoProductos);
+            $this->servicio->actualizarDetalles($preingreso, $request->listadoProductos);
 
             //Se emite la notificación al responsable indicando que se aprobo o no su preingreso
             if ($preingreso->autorizacion_id !== $autorizacion_old) {
@@ -156,6 +127,9 @@ class PreingresoMaterialController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar el registro' => [$e->getMessage() . '. ' . $e->getLine()],
+            ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro', "excepción" => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
 

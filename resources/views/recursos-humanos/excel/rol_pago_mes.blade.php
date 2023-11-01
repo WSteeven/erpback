@@ -115,9 +115,8 @@
                                 <table width="100%">
 
                                     <tr>
-                                        <td>
-                                            <table width="100%" border="1" align="left" cellpadding="0"
-                                                cellspacing="0" class="datos">
+                                        <td height="55px;">
+                                            <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="datos">
                                                 <colgroup span="{{ $numcol_ingreso }}"></colgroup>
                                                 <colgroup span="{{ $numcol_egreso }}"></colgroup>
                                                 <tr class="encabezado-datos" style="text-align: center ">
@@ -146,15 +145,13 @@
                                                                                     background-color: #DBDBDB;">
                                                         SUELDO</td>
                                                     <td rowspan="2" style="background-color: #F8CBAD">DIAS </td>
-                                                    <th colspan="{{ $numcol_ingreso }}" scope="colgroup"
-                                                        class="encabezado-ingresos"
+                                                    <th colspan="{{ $numcol_ingreso }}" scope="colgroup" class="encabezado-ingresos"
                                                         style="text-align: center !important;
                                                                                     background-color: #FFF2CC;">
                                                         INGRESOS</th>
                                                     <td rowspan="2" style="background-color: #FFE699">TTII
                                                     </td>
-                                                    <th colspan="{{ $numcol_egreso }}" scope="colgroup"
-                                                        class="encabezado-egresos"
+                                                    <th colspan="{{ $numcol_egreso }}" scope="colgroup" class="encabezado-egresos"
                                                         style="text-align: center !important;
                                                                                     background-color: #BDD7EE;">
                                                         EGRESOS</th>
@@ -240,7 +237,12 @@
                                                 </tr>
                                                 @foreach ($roles_pago as $rol_pago)
                                                     @php
-                                                        $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
+                                                        $sumColumns['prestamo_quirorafario'] += round($rol_pago['prestamo_quirorafario'],2);
+                                                        $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
+                                                        $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
+                                                        $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
+                                                        $sumColumns['total_egreso']+=round($rol_pago['total_egreso'],2);
+                                                        $sumColumns['total']+=round($rol_pago['total'],2);
                                                     @endphp
                                                     <tr>
                                                         <td>{{ $rol_pago['item'] }}</td>
@@ -317,7 +319,7 @@
                                                         @endif
                                                         <td>{{ number_format($rol_pago['total_egreso'], 2, ',', '.') }}
                                                         </td>
-                                                        <td>{{ $rol_pago['total'] }}</td>
+                                                        <td>{{ number_format($rol_pago['total'], 2, ',', '.') }}</td>
                                                     </tr>
 
                                                 @endforeach
@@ -328,14 +330,14 @@
                                                     <td>{{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
                                                     <td>&nbsp;</td>
                                                     <td>{{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
-                                                    <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
+                                                    <td>{{ number_format($sumColumns['decimo_tercero'], 2, ',', '.') }}
                                                     </td>
-                                                    <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
+                                                    <td>{{ number_format($sumColumns['decimo_cuarto'], 2, ',', '.') }}
                                                     </td>
                                                     <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                                                     </td>
                                                     @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                                                        <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                                                        <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                                                     @endforeach
                                                     <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                                                     </td>
@@ -348,16 +350,16 @@
                                                     </td>
                                                     <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
                                                     </td>
+                                                    <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @if ($tiene_supa)
                                                         <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                                                     @endif
-                                                    <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                                                     @foreach ($sumatoria_egresos as $sumatoria_egreso)
                                                         <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                                                     @endforeach
-                                                    <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
+                                                    <td>{{ number_format($sumColumns['total_egreso'], 2, ',', '.') }}
                                                     </td>
-                                                    <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
+                                                    <td>{{ round($sumColumns['total'],2)}}</td>
                                                 </tr>
                                             </table>
 

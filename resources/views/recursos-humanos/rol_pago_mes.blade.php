@@ -320,6 +320,7 @@
                     $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
                     $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
                     $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
+                    $sumColumns['total_egreso']+=round($rol_pago['total_egreso'],2);
                     $sumColumns['total']+=round($rol_pago['total'],2);
                 @endphp
                 <tr>
@@ -357,7 +358,7 @@
                             @endforeach
                         @else
                             @for ($i = 0; $i <= $cantidad_columna_ingresos - 1; $i++)
-                                <td>0,00</td>
+                                <td>0</td>
                             @endfor
                         @endif
                     @endif
@@ -391,7 +392,7 @@
                             @endforeach
                         @else
                             @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
-                                <td>0,00</td>
+                                <td>0</td>
                             @endfor
                         @endif
                     @endif
@@ -415,7 +416,7 @@
                 <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                 </td>
                 @foreach ($sumatoria_ingresos as $sumatoria_ingreso)
-                    <td>{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
+                    <td>6-{{ number_format($sumatoria_ingreso, 2, ',', '.') }}</td>
                 @endforeach
                 <td>{{ number_format($sumatoria['total_ingreso'], 2, ',', '.') }}
                 </td>
@@ -428,10 +429,10 @@
                 </td>
                 <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
                 </td>
+                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @if ($tiene_supa)
                     <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                 @endif
-                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @foreach ($sumatoria_egresos as $sumatoria_egreso)
                     <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                 @endforeach

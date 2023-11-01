@@ -17,7 +17,7 @@ class DetalleObserver
      */
     public function created(DetalleProducto $detalleProducto)
     {
-        Log::channel('testing')->info('Log', ['entro al observer', $detalleProducto]);
+        Log::channel('testing')->info('Log', ['entro al observer de created', $detalleProducto]);
         CodigoCliente::create([
             'codigo'=>'JP-'.Utils::generarCodigoConLongitud($detalleProducto->id, 6),
             'detalle_id'=>$detalleProducto->id
