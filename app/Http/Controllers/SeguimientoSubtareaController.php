@@ -162,9 +162,65 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('results'));
     }
 
+    public function obtenerHistorialMaterialStockUsadoPorFecha(Request $request)
+    {
+        $request->validate([
+            'subtarea_id' => 'required|numeric|integer',
+            'empleado_id' => 'required|numeric|integer',
+            'fecha' => 'required|string',
+        ]);
+
+        $fecha_convertida = Carbon::createFromFormat('d-m-Y', $request['fecha'])->format('Y-m-d');
+        $idEmpleado = $request['empleado_id'];
+        $idSubtarea = $request['subtarea_id'];
+        $idTarea = Subtarea::find($idSubtarea)->tarea_id;
+
+        $results = DB::table('seguimientos_materiales_stock as sms')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
+            ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
+            ->join('materiales_empleados as met', function ($join) use ($idEmpleado, $idTarea) {
+                $join->on('dp.id', '=', 'met.detalle_producto_id')
+                    ->where('met.empleado_id', '=', $idEmpleado);
+            })
+            ->whereDate('sms.created_at', $fecha_convertida)
+            ->where('sms.empleado_id', $idEmpleado)
+            ->where('sms.subtarea_id', $idSubtarea)
+            ->groupBy('detalle_producto_id')
+            ->get();
+
+
+        $servicio = new TransaccionBodegaEgresoService();
+        $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+
+        // Log::channel('testing')->info('Log', compact('materialesUsados'));
+
+        $results = $results->map(function ($material, $index) use ($materialesUsados) {
+            if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {
+                $material->total_cantidad_utilizada = $materialesUsados->first(function ($item) use ($material) {
+                    return $item->detalle_producto_id === $material->detalle_producto_id;
+                })->suma_total;
+            }
+            $material->id = $index + 1;
+            return $material;
+        });
+
+        return response()->json(compact('results'));
+    }
+
     public function obtenerFechasHistorialMaterialesUsados(Request $request, Subtarea $subtarea)
     {
         $results = DB::table('seguimientos_materiales_subtareas')
+            ->select(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS fecha"))
+            ->where('subtarea_id', $subtarea->id)
+            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
+            ->get();
+
+        return response()->json(compact('results'));
+    }
+
+    public function obtenerFechasHistorialMaterialesStockUsados(Request $request, Subtarea $subtarea)
+    {
+        $results = DB::table('seguimientos_materiales_stock')
             ->select(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y') AS fecha"))
             ->where('subtarea_id', $subtarea->id)
             ->groupBy(DB::raw("DATE_FORMAT(created_at, '%d-%m-%Y')"))
@@ -179,9 +235,21 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function actualizarCantidadUtilizadaHistorialStock(Request $request)
+    {
+        $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoStockHistorial($request);
+        return response()->json(compact('modelo'));
+    }
+
     public function actualizarCantidadUtilizadaMaterialTarea(Request $request)
     {
         $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request);
+        return response()->json(compact('modelo'));
+    }
+
+    public function actualizarCantidadUtilizadaMaterialStock(Request $request)
+    {
+        $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoStock($request);
         return response()->json(compact('modelo'));
     }
 }

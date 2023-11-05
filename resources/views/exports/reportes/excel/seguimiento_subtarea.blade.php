@@ -60,7 +60,7 @@
             <tr>
                 <th rowspan="4" colspan="2"
                     style="border: 2px solid #000; vertical-align: middle; text-align: center; width: 40px;">
-                    <img src="{{ public_path('img/logo.png') }}" height="40px" style="margin: 0 auto;" />
+                    <img src="img/logo.png" height="40px" style="margin: 0 auto;" />
                 </th>
                 <th rowspan="4" colspan="2"
                     style="border: 2pt solid #000; vertical-align: middle; text-align: center; width: 800px; font-size: 14pt; font-weight: bold;">
