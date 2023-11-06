@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
 use App\Http\Controllers\Ventas\BonosController;
+use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\ModalidadController;
@@ -26,7 +28,9 @@ Route::apiResources(
         'ventas' => VentasController::class,
         'tipo-chargeback' => TipoChargebackController::class,
         'chargebacks' => ChargebacksController::class,
-        'pago-comision' => PagoComisionController::class
+        'pago-comision' => PagoComisionController::class,
+        'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
+        'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         ],
     [
         'parameters' => [],
