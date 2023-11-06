@@ -68,7 +68,7 @@ class TransaccionBodegaEgresoController extends Controller
         $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
-        $results = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
+        $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -87,6 +87,21 @@ class TransaccionBodegaEgresoController extends Controller
             ];
         });
 
+        if ($request['subtarea_id']) {
+            $materialesUsados = $this->servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
+            $results = $materiales->map(function ($material) use ($materialesUsados) {
+                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                        return $item->detalle_producto_id === $material['detalle_producto_id'];
+                    })->suma_total;
+                }
+                return $material;
+            });
+
+            return response()->json(compact('results'));
+        }
+
+        $results = $materiales;
 
         return response()->json(compact('results'));
     }
