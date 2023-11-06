@@ -70,4 +70,8 @@ class Acreditaciones extends Model implements Auditable
         return $results;
 
     }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+    }
 }

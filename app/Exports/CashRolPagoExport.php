@@ -40,9 +40,13 @@ class CashRolPagoExport extends DefaultValueBinder implements FromView, WithCust
     }
     public function styles(Worksheet $sheet)
     {
-        $columns = ['A', 'B', 'C', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'S', 'T'];
-        foreach ($columns as $column) {
-            $sheet->getStyle($column)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $columns_izquierda = ['A','F','H','J','L','N','S','T'];
+        $columns_derecha = ['B','C','E','G','I','K','M'];
+        foreach ($columns_izquierda as $column_izquierda) {
+            $sheet->getStyle($column_izquierda)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        }
+        foreach ($columns_derecha as $column_derecha) {
+            $sheet->getStyle($column_derecha)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
         }
     }
 }

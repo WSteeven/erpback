@@ -35,6 +35,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\SeguimientoMaterialStock;
 use App\Models\SeguimientoMaterialSubtarea;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
@@ -60,10 +61,14 @@ class TransaccionBodegaEgresoController extends Controller
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
     {
-        $empleado_id = $request['empleado_id'];
-        $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
+        $request->validate([
+            'empleado_id' => 'required|numeric|integer',
+        ]);
 
-        $results = collect($results)->map(function ($item, $index) {
+        $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+        $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+
+        $results = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -74,6 +79,9 @@ class TransaccionBodegaEgresoController extends Controller
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
+                'despachado' => intval($item->despachado),
+                'devuelto' => intval($item->devuelto),
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
             ];
@@ -92,13 +100,8 @@ class TransaccionBodegaEgresoController extends Controller
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
 
-        // $empleado_id = Auth::user()->empleado->id;
-        // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-
         $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
-
-        // Log::channel('testing')->info('Log', compact('materialesUtilizadosHoy'));
 
         $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
@@ -118,9 +121,6 @@ class TransaccionBodegaEgresoController extends Controller
                 'serial' => $detalle->serial,
             ];
         });
-
-        // Fusionar
-        // $materialesTarea = $materialesUtilizadosHoy->
 
         if ($request['subtarea_id']) {
             $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
