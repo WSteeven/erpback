@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('cmp_ordenes_compras', function (Blueprint $table) {
-            $table->boolean('realizada')->default(false)->after('fecha');
+            $table->boolean('revisada_compras')->default(false)->after('fecha');
+            $table->text('observacion_compras')->nullable()->after('revisada_compras');
+            $table->boolean('realizada')->default(false)->after('observacion_compras');
+            $table->text('observacion_realizada')->nullable()->after('realizada');
             $table->boolean('pagada')->default(false)->after('realizada');
         });
     }

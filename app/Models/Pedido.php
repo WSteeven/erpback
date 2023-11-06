@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
@@ -178,7 +179,7 @@ class Pedido extends Model implements Auditable
     {
         $detalles = Pedido::find($id)->detalles()->get();
         $results = [];
-        $solicitante=null;
+        $solicitante = null;
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
@@ -197,6 +198,15 @@ class Pedido extends Model implements Auditable
         }
 
         return $results;
+    }
+    public static function estadoOC($id)
+    {
+        $orden = OrdenCompra::where('pedido_id', $id)->orderBy('created_at', 'desc')->first();
+        if ($orden) {
+            // return $orden->estado->nombre;
+            return $orden->estado->nombre . '. ' . ($orden->realizada ? 'REALIZADA' : 'PENDIENTE DE REALIZAR');
+        } else
+            return '';
     }
 
     /**

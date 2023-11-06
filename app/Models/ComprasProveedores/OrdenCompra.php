@@ -66,6 +66,8 @@ class OrdenCompra extends Model implements Auditable
   protected $casts = [
     'created_at' => 'datetime:Y-m-d h:i:s a',
     'updated_at' => 'datetime:Y-m-d h:i:s a',
+    'realizada' => 'boolean',
+    'pagada' => 'boolean',
   ];
 
   private static $whiteListFilter = ['*'];
@@ -222,7 +224,7 @@ class OrdenCompra extends Model implements Auditable
       $results[$index] = $row;
     }
 
-    Log::channel('testing')->info('Log', ['los productos consultados ya casteados', $results]);
+    // Log::channel('testing')->info('Log', ['los productos consultados ya casteados', $results]);
     return $results;
   }
   /**

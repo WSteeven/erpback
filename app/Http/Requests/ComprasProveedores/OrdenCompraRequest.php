@@ -39,7 +39,7 @@ class OrdenCompraRequest extends FormRequest
             'forma' => 'nullable|string',
             'tiempo' => 'nullable|string',
             'fecha' => 'required|string',
-            'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
+            'estado' => 'nullable|numeric|exists:estados_transacciones_bodega,id',
             'categorias' => 'sometimes|nullable',
             'iva' => 'required|numeric',
             'listadoProductos.*.cantidad' => 'required',

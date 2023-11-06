@@ -195,6 +195,22 @@ class OrdenCompraController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function realizada(Request $request, OrdenCompra $orden){
+        Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
+        $orden->realizada =true;
+        $request->validate(['observacion_realizada' => ['string', 'nullable']]);
+        $orden->observacion_realizada =$request->observacion_realizada;
+        $orden->save();
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function pagada(OrdenCompra $orden){
+        $orden->pagada =true;
+        $orden->save();
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+
     /**
      * Imprimir una orden de compra
      */
