@@ -46,7 +46,7 @@ class OrdenCompraController extends Controller
     public function index(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD])) {
             $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $results = OrdenCompra::filtrarOrdenesEmpleado($request);
@@ -183,7 +183,7 @@ class OrdenCompraController extends Controller
         $orden->causa_anulacion = $request['motivo'];
         $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
-        if($orden->preorden_id){
+        if ($orden->preorden_id) {
             $preorden = PreordenCompra::find($orden->preorden_id);
             $preorden->estado = EstadoTransaccion::PENDIENTE;
             $preorden->save();
@@ -208,12 +208,12 @@ class OrdenCompraController extends Controller
             //     Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
             //     return Storage::download($orden_compra->file);
             // } else {
-                try {
-                    return $this->servicio->generarPdf($orden, true, true);
-                } catch (Exception $e) {
-                    Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
-                    return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
-                }
+            try {
+                return $this->servicio->generarPdf($orden, true, true);
+            } catch (Exception $e) {
+                Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+                return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
+            }
             // }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
@@ -230,8 +230,8 @@ class OrdenCompraController extends Controller
         // Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
         try {
             if ($orden->proveedor->empresa->correo) {
-                 Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
-                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
+                Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
+                CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
                 // Log::channel('testing')->info('Log', ['Correo enviado',$correo]);
 
 
