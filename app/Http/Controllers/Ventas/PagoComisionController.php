@@ -66,15 +66,17 @@ class PagoComisionController extends Controller
                 'valor' =>  $comisiones
             ];
         }
-
+        $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);
         PagoComision::insert($pagos_comision);
 
+
     }
-    private function calcular_comisiones($modalidad, $vendedor_id, $fecha)
+    private function pagar_comisiones($modalidad, $vendedor_id, $fecha)
     {
         $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
         $limite_venta = 0;
         $query_ventas = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        $comisiones = null;
         if($pago_comision == 0){
             switch ($modalidad) {
                 case 1:
@@ -88,7 +90,36 @@ class PagoComisionController extends Controller
                     break;
             }
             $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
-           
+
+        }else{
+            $comisiones = $query_ventas->get();
+        }
+        $ids = $comisiones->pluck('id');
+        Ventas::whereIn('id', $ids)->update([
+            'pago' => true,
+        ]);
+
+    }
+    private function calcular_comisiones($modalidad, $vendedor_id, $fecha)
+    {
+        $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
+        $limite_venta = 0;
+        $query_ventas = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        $comisiones = null;
+        if($pago_comision == 0){
+            switch ($modalidad) {
+                case 1:
+                    $limite_venta = 6;
+                    break;
+                case 2:
+                    $limite_venta = 13;
+                    break;
+                default:
+                    $limite_venta = 0;
+                    break;
+            }
+            $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
+
         }else{
             $comisiones = $query_ventas->get();
         }
@@ -96,7 +127,7 @@ class PagoComisionController extends Controller
             return $carry + $item["comision_vendedor"];
         }, 0);
         return $comisiones;
-       
+
     }
     public function update(PagoComisionRequest $request, PagoComision $pago_comision)
     {

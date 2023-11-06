@@ -25,6 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('comision_id');
             $table->decimal('chargeback',8,4);
             $table->decimal('comision_vendedor',8,4);
+            $table->boolean('pago')->default('0');
             $table->timestamps();
             $table->foreign('vendedor_id', 'fk_vendedor_ventas_id')->references('id')->on('ventas_vendedor')->cascadeOnUpdate();
             $table->foreign('producto_id', 'fk_vendedor_ventas_producto_ventas_id')->references('id')->on('ventas_producto_ventas')->cascadeOnUpdate();

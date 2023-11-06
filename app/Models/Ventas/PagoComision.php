@@ -14,12 +14,12 @@ class PagoComision extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_pago_comision';
-    protected $fillable =['fecha','vendedor_id','chargeback','valor'];
+    protected $fillable =['fecha','vendedor_id','chargeback','valor','pago'];
     private static $whiteListFilter = [
         '*',
     ];
     public function vendedor(){
         return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
     }
-  
+    protected $casts = ['pago'=>'boolean'];
 }
