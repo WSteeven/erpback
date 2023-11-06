@@ -47,7 +47,7 @@ Route::apiResources(
         'prestamo_quirorafario' => PrestamoQuirirafarioController::class,
         'extension_covertura_salud' => ExtensionCoverturaSaludController::class,
         'prestamo_empresarial' => PrestamoEmpresarialController::class,
-        'rubro' => RubroController::class,
+        'rubros' => RubroController::class,
         'solicitud_prestamo_empresarial' => SolicitudPrestamoEmpresarialController::class,
         'periodo' => PeriodoController::class,
         'tipo_licencia' => TipoLicenciaController::class,
@@ -62,7 +62,7 @@ Route::apiResources(
         'estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'tipo_contrato' => TipoContratoController::class,
         'rol_pago' => RolPagosController::class,
-    ],
+        ],
     [
         'parameters' => [],
     ]

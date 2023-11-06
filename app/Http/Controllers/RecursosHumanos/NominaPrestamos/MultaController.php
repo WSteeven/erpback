@@ -22,9 +22,10 @@ class MultaController extends Controller
         $results = Multas::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Multas $multa)
+    public function show(Request $request, Multas $multum)
     {
-        return response()->json(compact('multa'));
+        $modelo = $multum;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {
