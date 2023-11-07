@@ -209,6 +209,7 @@ class OrdenCompra extends Model implements Auditable
     foreach ($productos as $index => $producto) {
       $row['id'] = $producto->pivot->id;
       $row['producto'] = $producto->nombre;
+      $row['producto_id'] = $producto->id;
       $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
       $row['categoria'] = $producto->categoria->nombre;
       $row['unidad_medida'] = $producto->unidadMedida->nombre;
@@ -252,12 +253,12 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        if ($metodo == 'crear') {
-          if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
-          else $producto = Producto::where('nombre', $detalle['producto'])->first();
-        }
+        // if ($metodo == 'crear') {
+        if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
+        else $producto = Producto::where('nombre', $detalle['producto'])->first();
+        // }
         return [
-          'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
+          'producto_id' => array_key_exists('producto_id', $detalle) ? $detalle['producto_id'] : $producto->id,
           'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
           'cantidad' => $detalle['cantidad'],
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
@@ -271,8 +272,16 @@ class OrdenCompra extends Model implements Auditable
       }, $items);
       Log::channel('testing')->info('Log', ['Datos:', $datos]);
       $orden->productos()->sync($datos);
+      $orden->auditSync('productos', $datos);
+      /**
+       * Auditar modelos relacionados con laravel-auditing
+       */
+      // https://laravel-auditing.com/guide/audit-custom.html
+      // $article->auditAttach('categories', $category);
+      // $orden->auditSync('productos', $datos);
+      // $orden->auditDetach('productos', $datos);
 
-      Log::channel('testing')->info('Log', ['linea 241 :', $orden->productos()->count(), $orden->preorden_id]);
+      // Log::channel('testing')->info('Log', ['linea 241 :', $orden->productos()->count(), $orden->preorden_id]);
       // aquí se modifica el estado de la preorden de compra
       if ($orden->productos()->count() > 0 && $orden->preorden_id) {
         $preorden = PreordenCompra::find($orden->preorden_id);
