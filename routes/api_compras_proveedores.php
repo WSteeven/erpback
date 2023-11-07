@@ -73,3 +73,8 @@ Route::post('calificaciones-proveedores/files/{detalle}', [CalificacionDepartame
 
 //enviar pdfs
 Route::get('ordenes-compras/toProveedor/{orden}', [OrdenCompraController::class, 'sendMail'])->middleware('auth:sanctum');
+
+//marcar OC como realizada
+Route::post('ordenes-compras/realizada/{orden}', [OrdenCompraController::class, 'realizada'])->middleware('auth:sanctum');
+//marcar OC como pagada
+Route::get('ordenes-compras/pagada/{orden}', [OrdenCompraController::class, 'pagada'])->middleware('auth:sanctum');

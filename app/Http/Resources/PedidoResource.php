@@ -20,6 +20,7 @@ class PedidoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $detalles = Pedido::listadoProductos($this->id);
 
+
         $modelo = [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
@@ -55,6 +56,7 @@ class PedidoResource extends JsonResource
             'retira_tercero' => $this->per_retira_id ? true : false,
             'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2 ? true : false,
             'para_cliente' => $this->cliente ? true : false,
+            'estado_orden_compra'=> $this->estadoOC($this->id)
         ];
 
         if ($controller_method == 'show') {

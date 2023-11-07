@@ -43,6 +43,7 @@ class TransaccionBodega extends Model implements Auditable
         'per_atiende_id',
         'per_retira_id',
         'autorizacion_id',
+        'proveedor',
         'estado_id',
     ];
     protected $casts = [

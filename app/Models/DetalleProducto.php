@@ -319,7 +319,7 @@ class DetalleProducto extends Model implements Auditable
                     $query->where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%'); // busca coincidencia exacta o similitud en el texto
                 })->first();
             } else
-                $result = DetalleProducto::where('producto_id', $producto_id)->where('descripcion', $descripcion)->where('serial', $serial)->first();
+                $result = DetalleProducto::where('producto_id', $producto_id)->where('serial', $serial)->where('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();
         } else { // solo se buscará según la descripcion y/o numero serial
             if (is_null($serial)) $result  = DetalleProducto::where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();
             else  $result  = DetalleProducto::where('serial', $serial)->where('descripcion', $descripcion)->orWhere('descripcion', 'LIKE', '%' . $descripcion   . '%')->first();

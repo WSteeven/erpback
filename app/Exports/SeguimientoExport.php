@@ -14,8 +14,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
+// ---
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use Maatwebsite\Excel\Concerns\WithBackgroundColor;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SeguimientoExport implements FromView
+class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles
 {
     use Exportable;
 
@@ -24,6 +29,22 @@ class SeguimientoExport implements FromView
     function __construct(Subtarea $subtarea)
     {
         $this->subtarea = $subtarea;
+        $this->backgroundColor();
+    }
+
+    public function backgroundColor()
+    {
+        return new Color(Color::COLOR_WHITE);
+    }
+
+    public function styles(Worksheet $sheet)
+    {
+        $cantidad_filas = 100;
+
+        for($columna = 1 ; $columna <= $cantidad_filas ; $columna++) {
+            $sheet->getStyle('F' . $columna)->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
+        }
+
     }
 
     public function view(): View
@@ -78,9 +99,9 @@ class SeguimientoExport implements FromView
             ->where('empleado_id', $empleado_id)
             ->where('subtarea_id', $this->subtarea->id)
             ->groupBy('detalle_producto_id')
-            ->join('detalles_productos', 'seguimientos_materiales_subtareas.detalle_producto_id', '=', 'detalles_productos.id' )
+            ->join('detalles_productos', 'seguimientos_materiales_subtareas.detalle_producto_id', '=', 'detalles_productos.id')
             ->get();
-            // ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
+        // ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
         return $materialTareaUsado;
         // return $materialTareaUsado->map(fn($materialTarea) => [
 

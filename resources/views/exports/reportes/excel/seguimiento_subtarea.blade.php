@@ -54,8 +54,7 @@
 
 <body>
 
-    <table
-        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+    <table style="border: 1px solid #000;">
         <thead>
             <tr>
                 <th rowspan="4" colspan="2"
@@ -72,7 +71,7 @@
             </tr>
         </thead>
 
-        <tbody>
+        <tbody style="border: 2px solid #000; background: #fff;">
             <tr></tr>
             <tr></tr>
             <tr></tr>
@@ -84,7 +83,7 @@
                 <td style="width: 360px;"></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000; width: 200px;">{{
                     $subtarea->codigo_subtarea }}</td>
-                <td style="width: 30px;"></td>
+                <td style="width: 30px; border-right: 8pt solid #000;"></td>
             </tr>
 
             <tr>
@@ -374,7 +373,13 @@
                 <td></td>
             </tr>
 
-            <tr></tr>
+            <tr>
+                <td></td>
+                <td>
+                    hola
+                </td>
+                <td></td>
+            </tr>
 
             <tr>
                 <td></td>
@@ -382,13 +387,15 @@
                     <table>
                         <tr>
                             <th style="text-align: center; font-weight: bold;">{{ 'CANTIDAD' }}</th>
-                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'DESCRIPCIÓN DEL MATERIAL' }}
+                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'DESCRIPCIÓN DEL MATERIAL'
+                                }}
                             </th>
                         </tr>
 
                         @foreach ($materiales_tarea_usados as $material)
                         <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}</td>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                            </td>
                             <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
                         </tr>
                         @endforeach

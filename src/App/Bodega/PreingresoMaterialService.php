@@ -14,6 +14,7 @@ use App\Models\UnidadMedida;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
@@ -148,11 +149,15 @@ class PreingresoMaterialService
             foreach ($listado as $item) {
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
                 $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                if ($detalle) {
 
-                if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
-                else  // se carga el material al stock personal del tecnico responsable
-                    MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                    if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
+                    else  // se carga el material al stock personal del tecnico responsable
+                        MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                } else {
+                    throw new Exception('No se encontró un detalle ');
+                }
             }
         } catch (\Throwable $th) {
             throw $th;
