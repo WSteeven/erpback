@@ -139,7 +139,8 @@ class OrdenCompraController extends Controller
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
+            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             // if()if (count($request->categorias) == 0) {
             //     unset($datos['categorias']);
             // } else {
