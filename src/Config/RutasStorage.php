@@ -40,5 +40,6 @@ enum RutasStorage: string
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
+    case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
 }

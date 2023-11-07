@@ -38,6 +38,7 @@ class TransaccionBodegaRequest extends FormRequest
             'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
+            'proveedor' => 'sometimes|string|nullable|required_with_all:comprobante',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'observacion_est' => 'nullable|string|sometimes',
