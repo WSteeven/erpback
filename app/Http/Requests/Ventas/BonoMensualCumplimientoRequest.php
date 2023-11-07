@@ -25,19 +25,13 @@ class BonoMensualCumplimientoRequest extends FormRequest
     public function rules()
     {
         return [
-            'vendedor_id'=> 'required|integer',
-            'cant_ventas'=> 'required|integer',
             'mes' => 'required',
-            'bono_id' => 'required',
-            'valor' => 'required'
         ];
     }
     protected function prepareForValidation()
     {
         $date = Carbon::createFromFormat('m-Y', $this->mes);
         $this->merge([
-            'vendedor_id' => $this->vendedor,
-            'bono_id' => $this->bono,
             'mes' =>  $date->format('Y-m'),
         ]);
     }

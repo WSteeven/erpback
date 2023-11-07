@@ -9,6 +9,7 @@ use App\Models\Ventas\Chargebacks;
 use App\Models\Ventas\PagoComision;
 use App\Models\Ventas\Vendedor;
 use App\Models\Ventas\Ventas;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,9 @@ class PagoComisionController extends Controller
                 'fecha' => $fecha,
                 'chargeback' => $chargeback,
                 'vendedor_id' => $vendedor->id,
-                'valor' =>  $comisiones
+                'valor' =>  $comisiones,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ];
         }
         $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);

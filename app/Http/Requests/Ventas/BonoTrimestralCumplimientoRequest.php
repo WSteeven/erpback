@@ -24,16 +24,7 @@ class BonoTrimestralCumplimientoRequest extends FormRequest
     public function rules()
     {
         return [
-            'vendedor_id'=> 'required|integer',
-            'cant_ventas'=> 'required|integer',
             'trimestre' => 'required',
-            'valor' => 'required'
         ];
-    }
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'vendedor_id' => $this->vendedor,
-        ]);
     }
 }
