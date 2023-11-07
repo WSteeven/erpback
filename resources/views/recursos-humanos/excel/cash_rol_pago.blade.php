@@ -32,6 +32,8 @@
                 <td></td>
                 <td>{{ $cash['referencia'] }}</td>
                 <td>|{{ $cash['email'] }}</td>
+                <td>{{ $cash['departamento'] }}</td>
+
             </tr>
         @endforeach
 
