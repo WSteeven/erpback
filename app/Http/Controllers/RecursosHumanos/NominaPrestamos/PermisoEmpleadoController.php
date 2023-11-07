@@ -49,7 +49,7 @@ class PermisoEmpleadoController extends Controller
             ]);
         }
 
-        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO);
+        $archivoJSON =  GuardarArchivo::json($request, RutasStorage::DOCUMENTOS_PERMISO_EMPLEADO,true,Auth::user()->empleado->id);
         $permiso_empleado->documento = $archivoJSON;
         $permiso_empleado->save();
         return response()->json(['modelo' => $permiso_empleado, 'mensaje' => 'Subido exitosamente!']);

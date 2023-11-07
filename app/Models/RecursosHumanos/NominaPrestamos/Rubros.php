@@ -23,4 +23,7 @@ class Rubros extends Model implements Auditable
         'valor_rubro',
         'es_porcentaje',
     ];
+    protected $casts = [
+        'es_porcentaje'=> 'boolean'
+    ];
 }

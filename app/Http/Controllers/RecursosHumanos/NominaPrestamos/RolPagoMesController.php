@@ -55,7 +55,6 @@ class RolPagoMesController extends Controller
         return response()->json(compact('results'));
     }
 
-
     /**
      * La función de tienda en PHP se utiliza para crear un nuevo registro para el modelo RolPagoMes,
      * realizar comprobaciones de validación y manejar cualquier excepción que pueda ocurrir.
@@ -301,9 +300,9 @@ class RolPagoMesController extends Controller
         $column_names_egresos = $this->extract_column_names($results, 'egresos', 'descuento', 'abreviatura');
         $column_names_ingresos = $this->extract_column_names($results, 'ingresos', 'concepto_ingreso_info', 'abreviatura');
         $columnas_ingresos =  array_unique($column_names_ingresos['ingresos']);
-        $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info');
+        $colum_ingreso_value = $this->colum_values($results, $columnas_ingresos, 'ingresos', 'concepto_ingreso_info', true);
         $columnas_egresos = array_unique($column_names_egresos['egresos']);
-        $colum_egreso_value = $this->colum_values($results, $columnas_egresos, 'egresos', 'descuento');
+        $colum_egreso_value = $this->colum_values($results, $columnas_egresos, 'egresos', 'descuento', true);
         $maxColumEgresosValue = count($columnas_egresos);
         $maxColumIngresosValue = count($columnas_ingresos);
 
@@ -364,7 +363,7 @@ class RolPagoMesController extends Controller
             'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
-            'sumatoria_egresos' => $this->calculate_column_sum($results, $maxColumEgresosValue, 'egresos_cantidad_columna', 'egresos'),
+            'sumatoria_egresos' =>  $this->sumatoria_llaves($colum_egreso_value),
         ];
     }
     /**
@@ -407,7 +406,7 @@ class RolPagoMesController extends Controller
      *
      * @return una matriz llamada .
      */
-    private function colum_values($data, $column_name, $key1, $key2)
+    private function colum_values($data, $column_name, $key1, $key2, $abreviatura = false)
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
@@ -415,7 +414,7 @@ class RolPagoMesController extends Controller
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
-                $descuentoId =  $item[$key2]->nombre;
+                $descuentoId = $abreviatura ? $item[$key2]->abreviatura : $item[$key2]->nombre;
                 $index = array_search($descuentoId, $column_name);
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
@@ -540,12 +539,11 @@ class RolPagoMesController extends Controller
     private function tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', false)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
+            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago = [];
-            $date = Carbon::now();
             foreach ($empleados_activos as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
@@ -563,9 +561,6 @@ class RolPagoMesController extends Controller
                 $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
-                if (!$rol->es_quincena) {
-                    $this->prestamoService->pagarPrestamoEmpresarial();
-                }
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
                 $supa =  $rol->es_quincena ? 0 : $empleado->supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
@@ -590,8 +585,6 @@ class RolPagoMesController extends Controller
                     'total_egreso' => $egreso,
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
-                    'created_at' => $date,
-                    'updated_at' => $date
                 ];
             }
             RolPago::insert($roles_pago);
@@ -611,13 +604,12 @@ class RolPagoMesController extends Controller
     private function actualizar_tabla_roles(RolPagoMes $rol)
     {
         try {
-            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
+            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago = [];
             foreach ($empleadosSinRolPago as $empleado) {
-                Log::channel('testing')->info('Log', ['empleado', $empleado]);
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
                 $dias = $rol->es_quincena ? 15 : 30;
@@ -634,9 +626,6 @@ class RolPagoMesController extends Controller
                 $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
-                if (!$rol->es_quincena) {
-                    $this->prestamoService->pagarPrestamoEmpresarial();
-                }
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
                 $supa =  $rol->es_quincena ? 0 : $empleado->supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
@@ -691,6 +680,17 @@ class RolPagoMesController extends Controller
         $rol_pago->finalizado = true;
         $rol_pago->save();
         $modelo = new RolPagoMesResource($rol_pago);
+        if (!$rol_pago->es_quincena) {
+            $mes = $rol_pago->mes;
+            // Divide la fecha en mes y año
+            list($month, $year) = explode('-', $mes);
+            // Crea un objeto Carbon para representar la fecha en Laravel
+            $date = \Carbon\Carbon::createFromDate($year, $month, 1);
+            // Formatea la fecha en el formato deseado
+            $mes = $date->format('Y-m');
+            $this->prestamoService->setMes($mes);
+            $this->prestamoService->pagarPrestamoEmpresarial();
+        }
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }

@@ -320,6 +320,7 @@
                     $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
                     $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
                     $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
+                    $sumColumns['total_egreso']+=round($rol_pago['total_egreso'],2);
                     $sumColumns['total']+=round($rol_pago['total'],2);
                 @endphp
                 <tr>
@@ -428,10 +429,10 @@
                 </td>
                 <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
                 </td>
+                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @if ($tiene_supa)
                     <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                 @endif
-                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @foreach ($sumatoria_egresos as $sumatoria_egreso)
                     <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                 @endforeach

@@ -22,9 +22,10 @@ class DescuentosGeneralesController extends Controller
         $results = DescuentosGenerales::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
-    public function show(Request $request, DescuentosGenerales $descuentos_generales)
+    public function show(Request $request, DescuentosGenerales $descuentos_generale)
     {
-        return response()->json(compact('descuentos_generales'));
+        $modelo = $descuentos_generale;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {

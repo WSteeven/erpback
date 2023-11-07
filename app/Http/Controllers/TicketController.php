@@ -150,6 +150,8 @@ class TicketController extends Controller
 
     public function pausar(Request $request, Ticket $ticket)
     {
+        $this->servicio->puedePausar($ticket);
+
         $motivo_pausa_id = $request['motivo_pausa_ticket_id'];
         $ticket->estado = Ticket::PAUSADO;
         $ticket->save();

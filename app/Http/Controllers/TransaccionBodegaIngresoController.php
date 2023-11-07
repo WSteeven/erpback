@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Bodega\IngresoPorCompraEvent;
 use App\Exports\TransaccionBodegaIngresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
@@ -137,9 +138,6 @@ class TransaccionBodegaIngresoController extends Controller
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
                             $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
 
-                            // $devolucion = Devolucion::find($transaccion->devolucion_id);
-                            // $devolucion->estado_bodega = EstadoTransaccion::COMPLETA;
-                            // $devolucion->save();
                         }
                     }
                 }
@@ -154,6 +152,11 @@ class TransaccionBodegaIngresoController extends Controller
                     $transferencia->estado = Transferencia::COMPLETADO;
                     $transferencia->recibida = true;
                     $transferencia->save();
+                }
+
+                if($transaccion->motivo_id==1){
+                    //en caso de que sea ingreso por COMPRA A PROVEEDOR se notifica a contabilidad
+                    event(new IngresoPorCompraEvent($transaccion, User::ROL_CONTABILIDAD));
                 }
 
                 $modelo = new TransaccionBodegaResource($transaccion);

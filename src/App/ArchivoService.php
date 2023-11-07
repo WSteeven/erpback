@@ -91,7 +91,9 @@ class ArchivoService
         try {
             if (!Storage::exists($ruta)) {
                 // Storage::makeDirectory($ruta, 0755, true); //esta linea en el servidor crea con 0700 en lugar de 0755, probaremos con mkdir  
-                mkdir($ruta, 0755, true);
+                // mkdir($ruta, 0755, true); // mkdir tampoco funcionó, se prueba con otro metodo
+                // Storage::disk('local')->mkdir($ruta,0755,true);
+                Storage::disk('local')->makeDirectory($ruta, 0755);
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['Erorr al crear el directorio:', $e->getMessage()]);
