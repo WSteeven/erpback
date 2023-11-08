@@ -6,6 +6,7 @@ use App\Exports\Ventas\ReporteValoresCobrarExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\VentasRequest;
 use App\Http\Resources\Ventas\VentasResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\Ventas;
 use Exception;
 use Illuminate\Http\Request;
@@ -75,11 +76,11 @@ class VentasController extends Controller
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $ventas = Ventas::select(DB::raw('MONTHNAME(fecha_activ) AS Mes'), DB::raw('COUNT(*) as total_ventas'))
+            $ventas = Ventas::select(DB::raw('MONTHNAME(fecha_activ) AS mes'), DB::raw('COUNT(*) as total_ventas'))
                 ->whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin])
                 ->where('pago', true)
-                ->groupBy('Mes')
-                ->orderBy('Mes', 'ASC')
+                ->groupBy('mes')
+                ->orderBy('mes', 'ASC')
                 ->get();
             $reporte = [];
             foreach ($ventas as $key => $venta) {
@@ -90,8 +91,9 @@ class VentasController extends Controller
                 $bonotc = 0;
                 $bono_trimestral = 0;
                 $bono_calidad180 = 0;
-                $reporte[] = [
-                    'mes' => 'Noviembre',
+                $config = ConfiguracionGeneral::first();
+                $reportes[] = [
+                    'mes' =>  $venta->mes,
                     'comision' => $comision,
                     'total_ventas' => $total_ventas,
                     'arpu' => $arpu,
@@ -101,12 +103,9 @@ class VentasController extends Controller
                     'bono_calidad180' => $bono_calidad180
                 ];
             }
-            Log::channel('testing')->info('Log', [compact('reporte')]);
-
-            /*
             $nombre_reporte = 'reporte_valores_cobrar';
-            $export_excel = new ReporteValoresCobrarExport($reporte);
-            return Excel::download($export_excel, $nombre_reporte . '.xlsx');*/
+            $export_excel = new ReporteValoresCobrarExport(compact('reportes','config'));
+            return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', [compact('ex')]);
         }
