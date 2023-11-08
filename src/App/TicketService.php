@@ -33,11 +33,5 @@ class TicketService
                 'pocas_actividades' => ['Ingrese al menos una actividad en el seguimiento!'],
             ]);
         }
-
-        if ($ticket->actividadesRealizadasSeguimientoTicket()->whereNotNull('fotografia')->get()->isEmpty() && $ticket->archivosSeguimientos->count() == 0) {
-            throw ValidationException::withMessages([
-                'falta_fotografia_archivo' => ['Ingrese al menos una actividad con fotografía o un archivo en el seguimiento!'],
-            ]);
-        }
     }
 }
