@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('seguimientos_materiales_stock', function (Blueprint $table) {
+            $table->id();
+
+            $table->integer('stock_actual');
+            $table->integer('cantidad_utilizada');
+            // $table->string('fecha');
+
+            // Foreign key
+            $table->unsignedBigInteger('subtarea_id');
+            $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('detalle_producto_id');
+            $table->foreign('detalle_producto_id')->references('id')->on('detalles_productos')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('seguimientos_materiales_stock');
+    }
+};

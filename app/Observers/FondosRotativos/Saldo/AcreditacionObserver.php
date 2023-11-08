@@ -64,6 +64,7 @@ class AcreditacionObserver
     private function guardar_acreditacion(Acreditaciones $acreditacion){
         $saldo_anterior = SaldoGrupo::where('id_usuario', $acreditacion->id_usuario)->orderBy('id', 'desc')->first();
         $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+        //$saldo_actual = $total_saldo_actual+$acreditacion->monto;
         $saldo = new SaldoGrupo();
         $saldo->fecha = $acreditacion->fecha;
         $saldo->saldo_anterior = $total_saldo_actual;
@@ -74,10 +75,12 @@ class AcreditacionObserver
         $saldo->id_usuario = $acreditacion->id_usuario;
         $saldo->tipo_saldo = "Ingreso";
         $saldo->save();
+        //SaldoGrupo::crearSaldoGrupo($acreditacion->fecha,$total_saldo_actual,$acreditacion->monto,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[1],$acreditacion->id_usuario,"Ingreso",$acreditacion);
     }
     private function guardar_anulacion_acreditacion(Acreditaciones $acreditacion){
         $saldo_anterior = SaldoGrupo::where('id_usuario', $acreditacion->id_usuario)->orderBy('id', 'desc')->first();
         $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+        //$saldo_actual = $total_saldo_actual+$acreditacion->monto;
         $saldo = new SaldoGrupo();
         $saldo->fecha = $acreditacion->fecha;
         $saldo->saldo_anterior = $total_saldo_actual;
@@ -88,6 +91,7 @@ class AcreditacionObserver
         $saldo->id_usuario = $acreditacion->id_usuario;
         $saldo->tipo_saldo = "Anulacion";
         $saldo->save();
+        //SaldoGrupo::crearSaldoGrupo($acreditacion->fecha,$total_saldo_actual,$acreditacion->monto,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($acreditacion->fecha)))[1],$acreditacion->id_usuario,"Anulacion",$acreditacion);
     }
     private function calcular_fechas($fecha)
     {

@@ -59,7 +59,7 @@
 
         main {
             position: relative;
-            top: 140px;
+            top: 145px;
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
@@ -229,10 +229,12 @@
                             <td>Forma de pago</td>
                             <td>{{ $orden['forma'] }}</td>
                         </tr>
-                        <tr>
-                            <td>Tiempo de validez</td>
-                            <td>{{ $orden['tiempo'] }} a partir de la fecha de creación</td>
-                        </tr>
+                        @if ($orden['tiempo'] != null)
+                            <tr>
+                                <td>Tiempo de validez</td>
+                                <td>{{ $orden['tiempo'] }} a partir de la fecha de creación</td>
+                            </tr>
+                        @endif
                     </table>
                 </td>
             </tr>
@@ -256,14 +258,14 @@
                 @foreach ($orden['listadoProductos'] as $index => $item)
                     <tr class="row" style="width: auto">
                         {{-- <td>{{$index+1}}</td> --}}
-                        <td align="center">{{ $item['cantidad'] }}</td>
-                        <td align="center">{{ $item['producto'] }}: &nbsp; {{ $item['descripcion'] }}</td>
-                        <td align="center">{{ $item['unidad_medida'] }}</td>
-                        <td align="center">{{ $item['precio_unitario'] }}</td>
-                        <td align="center">{{ $item['descuento'] }}</td>
-                        <td align="center">{{ $item['iva'] }}</td>
-                        <td align="center">{{ $item['subtotal'] }}</td>
-                        <td align="center">{{ $item['total'] }}</td>
+                        <td align="right">{{ $item['cantidad'] }}</td>
+                        <td align="left">{{ $item['producto'] }}: &nbsp; {{ $item['descripcion'] }}</td>
+                        <td align="left">{{ $item['unidad_medida'] }}</td>
+                        <td align="right">{{ number_format($item['precio_unitario'], 2) }}</td>
+                        <td align="right">{{ number_format($item['descuento'], 2) }}</td>
+                        <td align="right">{{ number_format($item['iva'], 2) }}</td>
+                        <td align="right">{{ number_format($item['subtotal'], 2) }}</td>
+                        <td align="right">{{ number_format($item['total'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -286,19 +288,19 @@
                     <table align="right" border="1" style="max-width: 100%;width:70%">
                         <tr>
                             <td align="right">SUBTOTAL</td>
-                            <td align="center">{{ $orden['sum_subtotal'] }}</td>
+                            <td align="right">{{ $orden['sum_subtotal'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">DESCUENTO</td>
-                            <td align="center">{{ $orden['sum_descuento'] }}</td>
+                            <td align="right">{{ $orden['sum_descuento'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">IVA ({{ $orden['iva'] }}%)</td>
-                            <td align="center">{{ $orden['sum_iva'] }}</td>
+                            <td align="right">{{ $orden['sum_iva'] }}</td>
                         </tr>
                         <tr>
                             <td align="right">TOTAL</td>
-                            <td align="center">{{ $orden['sum_total'] }}</td>
+                            <td align="right">{{ $orden['sum_total'] }}</td>
                         </tr>
                     </table>
                 </td>

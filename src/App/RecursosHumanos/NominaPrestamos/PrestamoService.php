@@ -124,7 +124,6 @@ class PrestamoService
             ->whereMonth('fecha_vencimiento', $mes)
             ->where('pago_couta', 0)
             ->first();
-        Log::channel('testing')->info('Log', ['prestamo pagado', $prestamo]);
         if ($prestamo != null) {
             $prestamo->valor_pagado = $prestamo->valor_a_pagar;
             $prestamo->valor_a_pagar = 0;

@@ -5,6 +5,7 @@ namespace Src\Shared;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Type\Integer;
 
@@ -62,6 +63,25 @@ class Utils
         return '/storage/' . $ruta . '/' . $nombre_archivo;
     }
 
+    /**
+     * La función `eliminarArchivoServidor` se utiliza para eliminar un archivo o imagen del servidor,
+     * con una opción para reemplazar la ruta del archivo si es necesario.
+     * 
+     * @param string $url La URL del archivo de imagen que se eliminará del servidor.
+     * @param bool $reemplazar El parámetro "reemplazar" es un valor booleano que determina si la "url" debe
+     * reemplazarse con una versión modificada antes de eliminar la imagen del servidor. Si se
+     * establece en verdadero, la "url" se modifica reemplazando la palabra "storage" por
+     * "public" antes de eliminar el archivo del servidor
+     * @return void
+     */
+    public static function eliminarArchivoServidor($url, $reemplazar = true)
+    {
+        if ($reemplazar) {
+            $ruta = str_replace('storage', 'public', $url);
+            Storage::delete($ruta);
+        } else Storage::delete($url);
+    }
+
     public static function obtenerRutaRelativaArchivo(string $ruta): string
     {
         $ruta = str_replace('public/', '', $ruta);
@@ -109,7 +129,8 @@ class Utils
         return false;
     }
 
-    function validarNumeroCuenta($numeroCuenta) {
+    public static function validarNumeroCuenta($numeroCuenta)
+    {
         if (strlen($numeroCuenta) != 11) {
             return false;
         }
@@ -120,6 +141,8 @@ class Utils
 
         // Validar la lógica del dígito de control (por ejemplo, suma de ciertos dígitos)
         $sumaDigitos = array_sum(str_split($numeroCuenta));
+        Log::channel('testing')->info('Log', ['key', $numeroCuenta, $digitoControl, $sumaDigitos]);
+
         if ($sumaDigitos % 10 == $digitoControl) {
             return true;
         } else {

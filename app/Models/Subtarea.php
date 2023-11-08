@@ -208,6 +208,11 @@ class Subtarea extends Model implements Auditable
         return $this->belongsTo(MotivoSuspendido::class, 'motivo_cancelado_id', 'id');
     }
 
+    public function causaIntervencion()
+    {
+        return $this->belongsTo(CausaIntervencion::class, 'causa_intervencion_id', 'id');
+    }
+
     public function tecnicosPrincipales($empleados)
     {
         // return EmpleadoResource::collection(Empleado::whereIn('id', $ids)->get());

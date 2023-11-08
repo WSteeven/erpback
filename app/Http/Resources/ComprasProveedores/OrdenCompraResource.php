@@ -34,11 +34,9 @@ class OrdenCompraResource extends JsonResource
             'descripcion' => $this->descripcion,
             'proveedor' => $this->proveedor?->empresa->razon_social,
             'causa_anulacion' => $this->causa_anulacion,
-            'estado' => $this->estado->nombre,
+            'estado' => $this->estado?->nombre,
             'estado_id' => $this->estado_id,
-            'estado' => $this->estado->nombre,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
-            'categorias' => $this->categorias ? array_map('intval', explode(',', $this->categorias)) : null,
             'forma' => $this->forma,
             'tiempo' => $this->tiempo,
             'fecha' => $this->fecha,
@@ -48,6 +46,10 @@ class OrdenCompraResource extends JsonResource
             'sum_descuento' => number_format($descuento, 2),
             'sum_iva' => number_format($iva, 2),
             'sum_total' => number_format($total, 2),
+            'realizada' => $this->realizada,
+            'observacion_realizada' => $this->observacion_realizada,
+            'pagada' => $this->pagada,
+            'completada' => $this->revisada_compras,
 
         ];
 

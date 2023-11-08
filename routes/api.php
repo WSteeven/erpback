@@ -248,6 +248,7 @@ Route::get('transacciones-ingresos/anular/{transaccion}', [TransaccionBodegaIngr
 Route::get('transacciones-egresos/anular/{transaccion}', [TransaccionBodegaEgresoController::class, 'anular'])->middleware('auth:sanctum');
 Route::post('devoluciones/anular/{devolucion}', [DevolucionController::class, 'anular']);
 Route::post('pedidos/anular/{pedido}', [PedidoController::class, 'anular']);
+Route::post('pedidos/marcar-completado/{pedido}', [PedidoController::class, 'marcarCompletado']);
 Route::post('proveedores/anular/{proveedor}', [ProveedorController::class, 'anular']);
 Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionController::class, 'leida']);
 /******************************************************
@@ -332,10 +333,12 @@ Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('a
  */
 Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
+Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 /**
  * Subidas de archivos
  */
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
+Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');

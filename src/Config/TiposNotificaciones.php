@@ -4,6 +4,7 @@ namespace Src\Config;
 
 // Ayuda al frontend a seleccionar el icono de acuerdo al tipo
 enum TiposNotificaciones: string{
+    case INGRESO_MATERIALES = 'INGRESO DE MATERIALES';
     case PREINGRESO = 'PREINGRESO DE MATERIALES';
     case PEDIDO = 'PEDIDO';
     case DEVOLUCION = 'DEVOLUCION';

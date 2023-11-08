@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Empleado;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Break_;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 

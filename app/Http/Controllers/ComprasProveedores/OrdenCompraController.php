@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
+use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Http\Controllers\Controller;
@@ -10,6 +11,8 @@ use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Mail\ComprasProveedores\EnviarMailOrdenCompraProveedor;
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\ComprasProveedores\PreordenCompra;
+use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
 use Exception;
@@ -17,9 +20,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -45,8 +49,8 @@ class OrdenCompraController extends Controller
     public function index(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
-            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD])) {
+            $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $results = OrdenCompra::filtrarOrdenesEmpleado($request);
             // Log::channel('testing')->info('Log', ['Esta en el else:']);
@@ -122,7 +126,7 @@ class OrdenCompraController extends Controller
      * Actualizar
      */
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
-    {
+    { $autorizacion_anterior = $orden->autorizacion_id;
         $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
@@ -138,6 +142,7 @@ class OrdenCompraController extends Controller
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
+            // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             // if()if (count($request->categorias) == 0) {
             //     unset($datos['categorias']);
@@ -157,9 +162,14 @@ class OrdenCompraController extends Controller
             DB::commit();
 
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
-            if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
-                $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
+            $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            if($orden->autorizacion_id != $autorizacion_anterior)
                 event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
+            // }
+            if($orden->autorizacion_id==Autorizaciones::APROBADO){
+                if(!auth()->user()->hasRole(User::ROL_COMPRAS))
+                    event(new NotificarOrdenCompraCompras($orden, User::ROL_COMPRAS));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -182,9 +192,30 @@ class OrdenCompraController extends Controller
         $orden->causa_anulacion = $request['motivo'];
         $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
+        if ($orden->preorden_id) {
+            $preorden = PreordenCompra::find($orden->preorden_id);
+            $preorden->estado = EstadoTransaccion::PENDIENTE;
+            $preorden->save();
+        }
         $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $orden->save();
 
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    public function realizada(Request $request, OrdenCompra $orden){
+        Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
+        $orden->realizada =true;
+        $request->validate(['observacion_realizada' => ['string', 'nullable']]);
+        $orden->observacion_realizada =$request->observacion_realizada;
+        $orden->save();
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function pagada(OrdenCompra $orden){
+        $orden->pagada =true;
+        $orden->save();
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
@@ -197,18 +228,18 @@ class OrdenCompraController extends Controller
         $orden_compra = $orden;
         try {
 
-            if ($orden_compra->file && Storage::exists($orden_compra->file)) {
-                //En caso de que el archivo exista se sirve el archivo
-                Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
-                return Storage::download($orden_compra->file);
-            } else {
-                try {
-                    return $this->servicio->generarPdf($orden, true, true);
-                } catch (Exception $e) {
-                    Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
-                    return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
-                }
+            // if ($orden_compra->file && Storage::exists($orden_compra->file)) {
+            //     //En caso de que el archivo exista se sirve el archivo
+            //     Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
+            //     return Storage::download($orden_compra->file);
+            // } else {
+            try {
+                return $this->servicio->generarPdf($orden, true, true);
+            } catch (Exception $e) {
+                Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+                return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
             }
+            // }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
@@ -224,7 +255,11 @@ class OrdenCompraController extends Controller
         // Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
         try {
             if ($orden->proveedor->empresa->correo) {
-                Mail::to($orden->proveedor->empresa->correo)->send(new EnviarMailOrdenCompraProveedor($orden));
+                Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
+                CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
+                // Log::channel('testing')->info('Log', ['Correo enviado',$correo]);
+
+
                 $mensaje = 'Email enviado correctamente al provedor';
                 $status = 200;
             } else {

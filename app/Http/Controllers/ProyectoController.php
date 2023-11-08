@@ -17,13 +17,15 @@ class ProyectoController extends Controller
     public function listar()
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
+        if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO]))
+            return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->get($campos);
         return Proyecto::ignoreRequest(['campos'])->filter()->get($campos);
     }
 
     public function index()
     {
         $results = $this->listar();
-        if(!request('campos')) $results = ProyectoResource::collection($results);
+        if (!request('campos')) $results = ProyectoResource::collection($results);
         return response()->json(compact('results'));
     }
 

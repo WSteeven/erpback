@@ -53,6 +53,7 @@ class TransaccionBodegaResource extends JsonResource
             'cliente_id' => $this->cliente_id,
             // 'listadoProductosTransaccion' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'proveedor' => $this->proveedor,
 
             //variables auxiliares
             'tiene_obs_autorizacion'=>is_null($this->autorizacion_id)?false:true,
