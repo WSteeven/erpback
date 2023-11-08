@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
+use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -123,7 +126,7 @@ class OrdenCompraController extends Controller
      * Actualizar
      */
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
-    {
+    { $autorizacion_anterior = $orden->autorizacion_id;
         $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
@@ -139,8 +142,8 @@ class OrdenCompraController extends Controller
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
-            Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
+            // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
+            // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             // if()if (count($request->categorias) == 0) {
             //     unset($datos['categorias']);
             // } else {
@@ -159,9 +162,14 @@ class OrdenCompraController extends Controller
             DB::commit();
 
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
-            if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
-                $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
+            $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            if($orden->autorizacion_id != $autorizacion_anterior)
                 event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
+            // }
+            if($orden->autorizacion_id==Autorizaciones::APROBADO){
+                if(!auth()->user()->hasRole(User::ROL_COMPRAS))
+                    event(new NotificarOrdenCompraCompras($orden, User::ROL_COMPRAS));
             }
 
             return response()->json(compact('mensaje', 'modelo'));

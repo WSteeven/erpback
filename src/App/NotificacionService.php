@@ -59,9 +59,11 @@ class NotificacionService
         if (!$campos[0] === '') {
             $results = Notificacion::ignoreRequest(['campos'])
                 ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
+                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         } else {
             $results = Notificacion::where('mensaje', 'LIKE', '%Preorden de compra N°%')
+                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
 

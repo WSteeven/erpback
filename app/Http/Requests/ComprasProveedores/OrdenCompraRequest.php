@@ -54,6 +54,8 @@ class OrdenCompraRequest extends FormRequest
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);
 
+        if($this->completada)$this->merge(['estado' => 2, 'revisada_compras'=>true]);
+
         // Modificar los datos cuando es actualizar
         // if ($this->route()->getActionMethod() == 'update') {
         //     if ($this->autorizacion === 2) {
@@ -65,7 +67,7 @@ class OrdenCompraRequest extends FormRequest
         }
     }
 }
-// "SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails 
-// (`jpconstrucred`.`cmp_item_detalle_orden_compra`, CONSTRAINT `cmp_item_detalle_orden_compra_producto_id_foreign` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON U) (SQL: 
-    // insert into `cmp_item_detalle_orden_compra` (`cantidad`, `created_at`, `descripcion`, `facturable`, `grava_iva`, `iva`, `orden_compra_id`, `porcentaje_descuento`, `precio_unitario`, `producto_id`, `subtotal`, `total`, `updated_at`) 
+// "SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails
+// (`jpconstrucred`.`cmp_item_detalle_orden_compra`, CONSTRAINT `cmp_item_detalle_orden_compra_producto_id_foreign` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE ON U) (SQL:
+    // insert into `cmp_item_detalle_orden_compra` (`cantidad`, `created_at`, `descripcion`, `facturable`, `grava_iva`, `iva`, `orden_compra_id`, `porcentaje_descuento`, `precio_unitario`, `producto_id`, `subtotal`, `total`, `updated_at`)
     // values           (1, 2023-11-06 18:52:57, MONITOR ASUS PROART PA247CV LED 24'' FHD GRIS Y NEGRO, 1, 1, 0.0000, 30, 0, 0.0000, 270, 0.0000, 0.0000, 2023-11-06 18:52:57)), 286"
