@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReporteSubtareaExport;
 use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
@@ -101,7 +102,8 @@ class SeguimientoSubtareaController extends Controller
     public function exportarSeguimiento($subtarea_id)
     {
         $subtarea = Subtarea::find($subtarea_id);
-        $export_excel = new SeguimientoExport($subtarea);
+        // $export_excel = new SeguimientoExport($subtarea);
+        $export_excel = new ReporteSubtareaExport($subtarea);
         $nombre_reporte = 'Juan Reporte';
         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }

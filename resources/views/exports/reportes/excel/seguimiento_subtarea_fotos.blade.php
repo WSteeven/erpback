@@ -10,28 +10,6 @@
             margin: 100px 25px;
         }
 
-        /* .header {
-            position: fixed;
-            top: -55px;
-            left: 0px;
-            right: 0px;
-            height: 80px;
-            text-align: center;
-            line-height: 35px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 50px;
-            color: #333333;
-            text-align: center;
-            line-height: 35px;
-            font-size: 10px;
-            font-style: italic;
-        } */
         table {
             border-collapse: collapse;
         }
