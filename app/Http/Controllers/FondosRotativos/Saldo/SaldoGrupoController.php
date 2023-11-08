@@ -656,7 +656,8 @@ class SaldoGrupoController extends Controller
                 ->first();
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
-            $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + (-$transferencia + $transferencia_recibida) + $acreditaciones - $gastos;
+            $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
+            $total =$saldo_old+  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';

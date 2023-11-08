@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
 use App\Models\Producto;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ProductoController extends Controller
@@ -23,6 +25,7 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
+        try {
         $results = [];
         if($request->boolean('filtrarTipo')){
             if(auth()->user()->hasPermissionTo('puede.ver.productos_servicios')){
@@ -50,6 +53,10 @@ class ProductoController extends Controller
                 ->filter()->get();
             }
         }
+    } catch (Exception $e) {
+        $mensaje = $e->getMessage() . '. ' . $e->getLine();
+        return response()->json(compact('message'));
+    }
 
         $results = ProductoResource::collection($results);
         return response()->json(compact('results'));

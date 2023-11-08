@@ -279,7 +279,7 @@
                                             </td>
                                             <td style="font-size:10px" align="center">
                                                 <div align="right" style="margin-right:20px;">
-                                                    {{ number_format($nuevo_saldo, 2, ',', ' ') }}</div>
+                                                    {{ number_format($total_suma, 2, ',', ' ') }}</div>
                                             </td>
                                         </tr>
                                         <!--Fin Saldo Final-->
