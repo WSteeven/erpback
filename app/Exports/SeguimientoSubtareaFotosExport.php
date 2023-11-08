@@ -22,7 +22,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, WithTitle
+class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, WithStyles, WithTitle
 {
     use Exportable;
 
@@ -50,7 +50,7 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
 
     public function title(): string
     {
-        return 'GENERAL'; // Nombre de la primera hoja
+        return 'EVIDENCIA'; // Nombre de la primera hoja
     }
 
     public function view(): View
