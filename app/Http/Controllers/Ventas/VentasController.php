@@ -87,13 +87,13 @@ class VentasController extends Controller
                 $total_ventas = $venta->total_ventas;
                 $comision =  $total_ventas * 2.5;
                 $arpu = $total_ventas * 0.5;
-                $metas_altas = $total_ventas * 0.5;
+                $metas_altas = $total_ventas>80? $total_ventas * 0.5:0;
                 $bonotc = 0;
                 $bono_trimestral = 0;
                 $bono_calidad180 = 0;
                 $config = ConfiguracionGeneral::first();
                 $reportes[] = [
-                    'mes' =>  $venta->mes,
+                    'mes' =>  Utils::$meses[$venta->mes],
                     'comision' => $comision,
                     'total_ventas' => $total_ventas,
                     'arpu' => $arpu,

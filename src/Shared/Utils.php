@@ -11,6 +11,20 @@ use Ramsey\Uuid\Type\Integer;
 
 class Utils
 {
+    public static $meses = array(
+        "January" => "Enero",
+        "February" => "Febrero",
+        "March" => "Marzo",
+        "April" => "Abril",
+        "May" => "Mayo",
+        "June" => "Junio",
+        "July" => "Julio",
+        "August" => "Agosto",
+        "September" => "Septiembre",
+        "October" => "Octubre",
+        "November" => "Noviembre",
+        "December" => "Diciembre"
+    );
     public static function esBase64(string $imagen): bool
     {
         return str_contains($imagen, ';base64');
@@ -66,7 +80,7 @@ class Utils
     /**
      * La función `eliminarArchivoServidor` se utiliza para eliminar un archivo o imagen del servidor,
      * con una opción para reemplazar la ruta del archivo si es necesario.
-     * 
+     *
      * @param string $url La URL del archivo de imagen que se eliminará del servidor.
      * @param bool $reemplazar El parámetro "reemplazar" es un valor booleano que determina si la "url" debe
      * reemplazarse con una versión modificada antes de eliminar la imagen del servidor. Si se
