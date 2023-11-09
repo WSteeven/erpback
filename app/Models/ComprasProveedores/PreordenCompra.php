@@ -7,6 +7,7 @@ use App\Events\ComprasProveedores\PreordenEvent;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
+use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\User;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 
 class PreordenCompra extends Model implements Auditable
 {
@@ -201,5 +204,59 @@ class PreordenCompra extends Model implements Auditable
         }
 
         return $results;
+    }
+
+    public static function itemsPreordenesPendientes()
+    {
+        try {
+            $results = [];
+            $row = [];
+            $ids_preordenes = PreordenCompra::where('estado', EstadoTransaccion::PENDIENTE)->get('id');
+            $items = ItemDetallePreordenCompra::select('detalle_id', DB::raw('sum(cantidad) as total'))
+                ->whereIn('preorden_id', $ids_preordenes)->groupBy('detalle_id')->orderBy('total', 'desc')
+                ->get();
+            foreach ($items as $index => $item) {
+                $detalle = DetalleProducto::where('id', $item['detalle_id'])->first();
+                $row['id'] = $index;
+                $row['producto'] = $detalle->producto->nombre;
+                $row['producto_id'] = $detalle->producto_id;
+                $row['detalle_id'] = $item['detalle_id'];
+                $row['descripcion'] = $detalle->descripcion;
+                $row['unidad_medida'] = $detalle->producto->unidadMedida?->nombre;
+                $row['cantidad'] = $item['total'];
+                $results[$index] = $row;
+            }
+
+            return $results;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error: ', $th->getMessage(), $th->getLine()]);
+            throw $th;
+        }
+    }
+
+    public static function eliminarItemsConsolidacion($ids_detalle_id)
+    {
+        try {
+            DB::beginTransaction();
+            $ids_preordenes = PreordenCompra::where('estado', EstadoTransaccion::PENDIENTE)->get('id');
+            ItemDetallePreordenCompra::whereIn('preorden_id', $ids_preordenes)->whereIn('detalle_id', $ids_detalle_id)->delete();
+            self::verificarPreordenesPendientes();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public static function verificarPreordenesPendientes()
+    {
+        try {
+            DB::beginTransaction();
+            PreordenCompra::whereDoesntHave('detalles')->update(['estado' => EstadoTransaccion::ANULADA, 'causa_anulacion' => 'sin elementos, anulada por consolidacion de items']);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }
