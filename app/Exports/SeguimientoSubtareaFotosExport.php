@@ -15,14 +15,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 // ---
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, WithStyles, WithTitle
+class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, WithTitle, WithColumnWidths
 {
     use Exportable;
 
@@ -39,91 +41,49 @@ class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, W
         return new Color(Color::COLOR_WHITE);
     }
 
-    public function styles(Worksheet $sheet)
+    public function columnWidths(): array
     {
-        $cantidad_filas = 100;
-
-        for ($columna = 1; $columna <= $cantidad_filas; $columna++) {
-            $sheet->getStyle('F' . $columna)->getBorders()->getRight()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK);
-        }
+        return [
+            'A' => 10,
+            'B' => 10,
+            'C' => 10,
+            'D' => 10,
+            'E' => 10,
+            'F' => 10,
+            'G' => 10,
+            'H' => 10,
+            'I' => 10,
+            'J' => 10,
+            'K' => 10,
+            'L' => 10,
+            'M' => 10,
+            'N' => 10,
+            'O' => 10,
+            'P' => 10,
+            'Q' => 10,
+            'R' => 10,
+            'S' => 10,
+            'T' => 10,
+            'U' => 10,
+            'V' => 10,
+            'W' => 10,
+            'X' => 10,
+            'Y' => 10,
+            'Z' => 10,
+        ];
     }
 
     public function title(): string
     {
-        return 'EVIDENCIA'; // Nombre de la primera hoja
+        return 'EVIDENCIA';
     }
 
     public function view(): View
     {
         $subtarea = $this->subtarea;
-        $fecha_actual = $this->obtenerFechaActual();
-        $reporte_generado_por = Empleado::extraerNombresApellidos(Auth::user()->empleado);
-        $empleados_designados = $this->obtenerEmpleadosDesignados();
-        $fecha_hora_arribo_personal = $this->obtenerFechaHoraArriboPersonal();
-        $fecha_hora_retiro_personal = $this->obtenerFechaHoraRetiroPersonal();
-        $materiales_tarea_usados = $this->obtenerMaterialesTareaUsados();
-        $materiales_stock_usados = $this->obtenerMaterialesStockUsados();
+        $fotos = $subtarea->actividadRealizadaSeguimientoSubtarea->map(fn ($actividad) => $actividad->fotografia);
         // Log::channel('testing')->info('Log', compact('materiales_tarea_usados'));
 
-        return view('exports.reportes.excel.seguimiento_subtarea', compact('subtarea', 'fecha_actual', 'reporte_generado_por', 'empleados_designados', 'fecha_hora_arribo_personal', 'fecha_hora_retiro_personal', 'materiales_tarea_usados', 'materiales_stock_usados'));
-    }
-
-    private function obtenerFechaActual()
-    {
-        $fechaActual = Carbon::now();
-        return $fechaActual->isoFormat('dddd, D [de] MMMM [del] YYYY', 'Do [de] MMMM [del] YYYY');
-    }
-
-    private function obtenerEmpleadosDesignados()
-    {
-        $empleados_designados = [];
-
-        foreach ($this->subtarea->empleados_designados as $empleado_id) {
-            array_push($empleados_designados, Empleado::extraerNombresApellidos(Empleado::find($empleado_id)));
-        }
-
-        return $empleados_designados;
-    }
-
-    private function obtenerFechaHoraArriboPersonal()
-    {
-        $empleado_id = $this->subtarea->empleado_id;
-        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $this->subtarea->id)->where('empleado_id', $empleado_id)->where('motivo', 'IDA')->first();
-        return $movilizacion ? $movilizacion->fecha_hora_llegada : '';
-    }
-
-    private function obtenerFechaHoraRetiroPersonal()
-    {
-        $empleado_id = $this->subtarea->empleado_id;
-        $movilizacion = MovilizacionSubtarea::where('subtarea_id', $this->subtarea->id)->where('empleado_id', $empleado_id)->where('motivo', 'REGRESO')->first();
-        return $movilizacion ? $movilizacion->fecha_hora_salida : '';
-    }
-
-    private function obtenerMaterialesTareaUsados()
-    {
-        $empleado_id = $this->subtarea->empleado_id;
-        $materialTareaUsado = SeguimientoMaterialSubtarea::selectRaw('detalles_productos.descripcion, SUM(cantidad_utilizada) as cantidad_utilizada')
-            ->where('empleado_id', $empleado_id)
-            ->where('subtarea_id', $this->subtarea->id)
-            ->groupBy('detalle_producto_id')
-            ->join('detalles_productos', 'seguimientos_materiales_subtareas.detalle_producto_id', '=', 'detalles_productos.id')
-            ->get();
-        // ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
-        return $materialTareaUsado;
-        // return $materialTareaUsado->map(fn($materialTarea) => [
-
-        // ]);
-    }
-
-    private function obtenerMaterialesStockUsados()
-    {
-        $empleado_id = $this->subtarea->empleado_id;
-        $materialStockUsado = SeguimientoMaterialStock::selectRaw('detalles_productos.descripcion, SUM(cantidad_utilizada) as cantidad_utilizada')
-            ->where('empleado_id', $empleado_id)
-            ->where('subtarea_id', $this->subtarea->id)
-            ->groupBy('detalle_producto_id')
-            ->join('detalles_productos', 'seguimientos_materiales_stock.detalle_producto_id', '=', 'detalles_productos.id')
-            ->get();
-        return $materialStockUsado;
+        return view('exports.reportes.excel.seguimiento_subtarea_fotos', compact('fotos'));
     }
 }

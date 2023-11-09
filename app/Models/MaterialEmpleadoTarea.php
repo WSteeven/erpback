@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
 
-class MaterialEmpleadoTarea extends Model
+class MaterialEmpleadoTarea extends Model implements Auditable
 {
-    use HasFactory, Filterable;
+    use HasFactory, Filterable, AuditableModel;
 
     protected $table = 'materiales_empleados_tareas';
 
