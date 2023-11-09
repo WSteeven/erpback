@@ -9,45 +9,6 @@
         @page {
             margin: 100px 25px;
         }
-
-        /* .header {
-            position: fixed;
-            top: -55px;
-            left: 0px;
-            right: 0px;
-            height: 80px;
-            text-align: center;
-            line-height: 35px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 50px;
-            color: #333333;
-            text-align: center;
-            line-height: 35px;
-            font-size: 10px;
-            font-style: italic;
-        } */
-        table {
-            border-collapse: collapse;
-        }
-
-        .tabla-border-1 td,
-        .tabla-border-1 th {
-            border: 1px solid #000;
-        }
-
-        .borde-celda-1 {
-            border: 1px solid #000;
-        }
-
-        .borde-celda-2 {
-            border: 2px solid #000;
-        }
     </style>
 </head>
 
@@ -365,6 +326,53 @@
             </tr>
 
             <tr></tr>
+
+            <tr>
+                <td></td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #fff2cc;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS REDES
+                    BACK BONE' }}</td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #d0cece;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS FTTH' }}
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Cantidad' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Descripcion' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Detalle' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Cantidad' }}</td>
+                <td></td>
+            </tr>
+
+            @foreach($resumenAccionesRedesBackBone as $fila)
+            <tr>
+                <td></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;"></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;">{{
+                    $fila['descripcion'] }}</td>
+                <td
+                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: pre-wrap; word-wrap: break-word; background: {{ $fila['background'] }};">
+                    {{
+                    $fila['detalle'] }}</td>
+                <td style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};"></td>
+                <td></td>
+            </tr>
+            @endforeach
 
             <tr>
                 <td></td>

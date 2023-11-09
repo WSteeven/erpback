@@ -27,6 +27,177 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
     use Exportable;
 
     protected Subtarea $subtarea;
+    const BORDER = '1px solid #000';
+    private $resumenAccionesRedesBackBone = [
+        [
+            'descripcion' => 'Asistencia cuadrilla (ruta otro contratista)',
+            'detalle' => 'INSTALACION DE CABLE AEREA DE FO. 6H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Tendido/Desmontaje de FO Soterrado',
+            'detalle' => 'INSTALACION DE CABLE AEREA DE FO. 12H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Tendido/Desmontaje/Recorrido de reserva de FO Aerea',
+            'detalle' => 'INSTALACION DE CABLE AEREA DE FO. 24H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Tendido de FO Insufladora',
+            'detalle' => 'INSTALACION DE CABLE AEREA DE FO. 48H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado/Intervención de Mangas Lineal',
+            'detalle' => 'INSTALACION DE CABLE AEREA DE FO. 144H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado/Intervención de Mangas Domo hasta 48h',
+            'detalle' => 'INSTALACION DE CABLE TENSOR DE ACERO PARA CRUCE AMERICANO 1/4',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado/Intervención de Mangas Domo hasta 144h',
+            'detalle' => 'INSTALACION DE MANGA DE EMPALME DE 144 H',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado/Intervención de Mini Manga',
+            'detalle' => 'PRUEBA   UNIDIRECCIONAL DE TRANSMISIÓN FIBRA ÓPTICA (POR HILO. POR FIBRA. EN 2   VENTANAS) + TRAZA REFLECTOMÉTRICA THREAD /',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de Mangas Lineal',
+            'detalle' => 'PRUEBA DE POTENCIA',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de Mangas Domo',
+            'detalle' => 'INSTALACION DE ODF',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de Mini Manga',
+            'detalle' => 'FUSIÓN DE 1 HILO DE FIBRA ÓPTICA',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado de ODF 96H',
+            'detalle' => 'INSTALACION, MONTAJE, SELLADO Y ETIQUETADO DE CAJA CTO 8 Y 16 PUERTOS EXTERNA',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de ODF 96H',
+            'detalle' => 'INSTALACION DE MANGA DE EMPALME DE 48',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado de ODF 48H',
+            'detalle' => 'Suministro e Instalación Bajante en poste EMT 2" (5 mts) con accesorios',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de ODF 48H',
+            'detalle' => 'SUMINISTRO E INSTALACIÓN TUBERÍA PVC 3"',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Armado de ODF 24H',
+            'detalle' => 'ACONDICIONAMIENTO ZONA DURA (ESPESOR MENOR A 30 CM) PVC 3"',
+            'border' => SeguimientoExport::BORDER,
+            'background' => '#ededed',
+        ],
+        [
+            'descripcion' => 'Fusion de ODF 24H',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Armado de ODF 12H',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Fusion de ODF 12H',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Armado de ODF 2H',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Fusion de ODF 2H',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Inst. Kit de bajante (Con materiales)',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Inst. Cruce Americano (Con materiales)',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Poda de arboles (m)',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Movilización (Km)',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Empaquetado básico de FO (m)',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Informe de Inspeccion',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+        [
+            'descripcion' => 'Asistencia a Nodo',
+            'detalle' => '',
+            'border' => 'none',
+            'background' => '#fff',
+        ],
+    ];
 
     function __construct(Subtarea $subtarea)
     {
@@ -63,9 +234,10 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
         $fecha_hora_retiro_personal = $this->obtenerFechaHoraRetiroPersonal();
         $materiales_tarea_usados = $this->obtenerMaterialesTareaUsados();
         $materiales_stock_usados = $this->obtenerMaterialesStockUsados();
+        $resumenAccionesRedesBackBone = $this->resumenAccionesRedesBackBone;
         // Log::channel('testing')->info('Log', compact('materiales_tarea_usados'));
 
-        return view('exports.reportes.excel.seguimiento_subtarea', compact('subtarea', 'fecha_actual', 'reporte_generado_por', 'empleados_designados', 'fecha_hora_arribo_personal', 'fecha_hora_retiro_personal', 'materiales_tarea_usados', 'materiales_stock_usados'));
+        return view('exports.reportes.excel.seguimiento_subtarea', compact('subtarea', 'fecha_actual', 'reporte_generado_por', 'empleados_designados', 'fecha_hora_arribo_personal', 'fecha_hora_retiro_personal', 'materiales_tarea_usados', 'materiales_stock_usados', 'resumenAccionesRedesBackBone'));
     }
 
     private function obtenerFechaActual()
@@ -108,11 +280,7 @@ class SeguimientoExport implements FromView, WithBackgroundColor, WithStyles, Wi
             ->groupBy('detalle_producto_id')
             ->join('detalles_productos', 'seguimientos_materiales_subtareas.detalle_producto_id', '=', 'detalles_productos.id')
             ->get();
-        // ->join('empleados', 'tickets.responsable_id', '=', 'empleados.id')
         return $materialTareaUsado;
-        // return $materialTareaUsado->map(fn($materialTarea) => [
-
-        // ]);
     }
 
     private function obtenerMaterialesStockUsados()
