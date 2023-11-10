@@ -205,7 +205,7 @@ class OrdenCompraController extends Controller
     }
 
     public function realizada(Request $request, OrdenCompra $orden){
-        Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
         $orden->realizada =true;
         $request->validate(['observacion_realizada' => ['string', 'nullable']]);
         $orden->observacion_realizada =$request->observacion_realizada;
@@ -311,7 +311,8 @@ class OrdenCompraController extends Controller
      */
     public function dashboard(Request $request){
         Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
-        $results = [];
+
+        $results = $this->servicio->obtenerOrdenesDeComprasPorEstados($request->all());
 
         return response()->json(compact('results'));
     }

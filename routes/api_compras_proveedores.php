@@ -85,5 +85,5 @@ Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consoli
 /***********
  * Dashboard
  ***********/
-Route::get('dashboard', [OrdenCompraController::class, 'dashboard']);
+Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
 // Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);
