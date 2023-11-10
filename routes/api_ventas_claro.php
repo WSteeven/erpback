@@ -6,6 +6,7 @@ use App\Http\Controllers\Ventas\BonosController;
 use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ComisionesController;
+use App\Http\Controllers\Ventas\DashboardVentasController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanesController;
@@ -41,5 +42,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-comision/{idProducto}/{forma_pago}', [ComisionesController::class, 'obtener_comision']);
     Route::post('cobrojp', [VentasController::class, 'generar_reporteCobroJP']);
     Route::post('reporte-ventas',[VentasController::class, 'reporte_ventas']);
-
+    Route::get('dashboard', [DashboardVentasController::class, 'index']);
 });

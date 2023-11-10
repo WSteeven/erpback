@@ -7,65 +7,61 @@
     <title>Reporte General de Ventas</title>
    </head>
 <body>
-    <table border="0" cellpadding="0" cellspacing="0" id="sheet0" >
-        <tbody>
-          <tr>
-            <td >
-                <div ><img width="90" src="{{ public_path($config['logo_claro']) }}" border="0" />
-                </div>
-            </td>
-            <td class="column3 style194 s style194" colspan="15" rowspan="2">INFORME GENERAL DE VENTAS DEL MES DE SEPTIEMBRE </td>
-          </tr>
-          <tr >
-            <td>JEFE DE VENTAS NACIONAL :</td>
-            <td colspan="12">&nbsp;JUAN SALVADOR TAPIA SILVERS </td>
-          </tr>
-          <tr >
-            <td >SUPERVISOR:</td>
-            <td colspan="12">JUAN PABLO CALLE</td>
-          </tr>
-          <tr>
-            <td>
-            <td >N <span style="color:#000000; font-family:'Calibri'; font-size:11pt">°</span></td>
-            <td> CIUDAD</td>
-            <td> VENDEDOR</td>
-            <td> NOMBRE CLIENTE</td>
-            <td> CODIGO DE ORDEN </td>
-            <td> CEDULA O RUC</td>
-            <td> ESTADO CUENTA</td>
-            <td> VENTA</td>
-            <td> TIPO CUENTA</td>
-            <td> FECHA DE INGRESO</td>
-            <td> FECHA DE ACTIVACION</td>
-            <td> >PLAN DE INTERNET</td>
-            <td>PROMOCION</td>
-            <td>FORMA PAGO</td>
-            <td>ORDEN INTERNA </td>
-            <td>VALOR SIN IVA </td>
-            <td >OBSERVACIONES</td>
-          </tr>
-          <tr >
-            <td >&nbsp;</td>
-            <td >1</td>
-            <td >MACHALA</td>
-            <td >TATIANA ELIZABETH LEON CALVA</td>
-            <td >HEREDIA MORALES ANGEL JESUS</td>
-            <td >20003428732559</td>
-            <td >0705366615</td>
-            <td >ACTIVO</td>
-            <td >1</td>
-            <td >Internet Residencial GPON</td>
-            <td >9/5/2023</td>
-            <td >9/6/2023</td>
-            <td >1 PLAY HIPERCONECTADO </td>
-            <td >DEBITO BANCARIO </td>
-            <td >DEBITO BANCARIO </td>
-            <td >152842</td>
-            <td >&nbsp;$ 17.00 </td>
+<table>
+    <tr>
+        <td rowspan="3" colspan="2">
+            <div >
+                <img align="center" width="90" src="{{ public_path($config['logo_claro']) }}" border="0" />
+            </div>
+        </td>
+        <td colspan="12" style="text-align: center; font-weight: bold; padding-bottom: 25%; padding-top: 25%;">INFORME GENERAL DE VENTAS DEL MES DE SEPTIEMBRE </td>
+    </tr>
+    <tr >
+        <td style="font-weight: bold">JEFE DE VENTAS NACIONAL :</td>
+        <td colspan="12">&nbsp;JUAN SALVADOR TAPIA SILVERS </td>
+      </tr>
+      <tr >
+        <td style="font-weight: bold" >SUPERVISOR:</td>
+        <td colspan="12">JUAN PABLO CALLE</td>
+      </tr>
+      <tr>
+        <td style="font-weight: bold" >N <span style="color:#000000; font-family:'Calibri'; font-size:11pt">°</span></td>
+        <td style="font-weight: bold"> CIUDAD</td>
+        <td style="font-weight: bold"> VENDEDOR</td>
+        <td style="font-weight: bold"> NOMBRE CLIENTE</td>
+        <td style="font-weight: bold"> CODIGO DE ORDEN </td>
+        <td style="font-weight: bold"> CEDULA O RUC</td>
+        <td style="font-weight: bold"> VENTA</td>
+        <td style="font-weight: bold"> FECHA DE INGRESO</td>
+        <td style="font-weight: bold"> FECHA DE ACTIVACION</td>
+        <td style="font-weight: bold"> PLAN DE INTERNET</td>
+        <td style="font-weight: bold">FORMA PAGO</td>
+        <td style="font-weight: bold">ORDEN INTERNA </td>
+        <td style="font-weight: bold">VALOR SIN IVA </td>
+        <td style="font-weight: bold" >OBSERVACIONES</td>
+      </tr>
+
+      @foreach($reportes as $key => $reporte)
+        <tr >
+            <td >{{ $reporte['item'] }}</td>
+            <td >{{ $reporte['ciudad'] }}</td>
+            <td >{{ $reporte['vendedor'] }}</td>
             <td ></td>
+            <td >{{ $reporte['codigo_orden'] }}</td>
+            <td ></td>
+            <td >{{ $reporte['venta'] }}</td>
+            <td >{{ $reporte['fecha_ingreso'] }}</td>
+            <td >{{ $reporte['fecha_activ'] }}</td>
+            <td >{{ $reporte['plan'] }} </td>
+            <td >{{ $reporte['forma_pago'] }} </td>
+            <td >{{ $reporte['orden_interna'] }}</td>
+            <td >&nbsp;$ {{ $reporte['precio'] }} </td>
             <td >&nbsp;</td>
-          </tr>
-        </tbody>
-    </table>
+            <td >&nbsp;</td>
+
+        </tr>
+      @endforeach
+
+</table>
 </body>
 </html>
