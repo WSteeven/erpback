@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Ventas;
 
 use App\Exports\Ventas\ReporteValoresCobrarExport;
+use App\Exports\Ventas\ReporteVentasExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\VentasRequest;
 use App\Http\Resources\Ventas\VentasResource;
@@ -87,7 +88,7 @@ class VentasController extends Controller
                 $total_ventas = $venta->total_ventas;
                 $comision =  $total_ventas * 2.5;
                 $arpu = $total_ventas * 0.5;
-                $metas_altas = $total_ventas>80? $total_ventas * 0.5:0;
+                $metas_altas = $total_ventas > 80 ? $total_ventas * 0.5 : 0;
                 $bonotc = 0;
                 $bono_trimestral = 0;
                 $bono_calidad180 = 0;
@@ -104,7 +105,22 @@ class VentasController extends Controller
                 ];
             }
             $nombre_reporte = 'reporte_valores_cobrar';
-            $export_excel = new ReporteValoresCobrarExport(compact('reportes','config'));
+            $export_excel = new ReporteValoresCobrarExport(compact('reportes', 'config'));
+            return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', [compact('ex')]);
+        }
+    }
+    public function reporte_ventas(Request $request)
+    {
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $ventas = Ventas::whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin])->with('vendedor', 'producto')->get();
+            $reportes = Ventas::empaquetarVentas($ventas);
+            $nombre_reporte = 'reporte_valores_cobrar';
+            $config = ConfiguracionGeneral::first();
+            $export_excel = new ReporteVentasExport(compact('reportes', 'config'));
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', [compact('ex')]);

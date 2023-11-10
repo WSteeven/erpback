@@ -20,7 +20,7 @@ class Vendedor extends Model implements Auditable
         '*',
     ];
     public function empleado(){
-        return $this->hasOne(Empleado::class,'id','empleado_id');
+        return $this->hasOne(Empleado::class,'id','empleado_id')->with('canton');
     }
     public function modalidad(){
         return $this->hasOne(Modalidad::class,'id','modalidad_id');

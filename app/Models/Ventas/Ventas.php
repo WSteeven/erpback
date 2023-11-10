@@ -22,9 +22,34 @@ class Ventas  extends Model implements Auditable
         return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
     }
     public function producto(){
-        return $this->hasOne(ProductoVentas::class,'id','producto_id');
+        return $this->hasOne(ProductoVentas::class,'id','producto_id')->with('plan');
     }
     public function comision(){
         return $this->hasOne(Comisiones::class,'id','comision_id');
+    }
+
+    public static function empaquetarVentas($ventas)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($ventas as $venta) {
+            $row['item'] = $id + 1;
+            $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
+            $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
+            $row['codigo_orden'] =  $venta->orden_id;
+            $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
+            $row['venta'] = 1;
+            $row['fecha_ingreso'] = $venta->created_at;
+            $row['fecha_activ'] =  $venta->fecha_activ;
+            $row['plan'] = $venta->producto->plan->nombre;
+            $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
+            $row['forma_pago'] = $venta->forma_pago;
+            $row['orden_interna'] =$venta->orden_interna;
+            $results[$id] = $row;
+            $id++;
+        }
+        return $results;
     }
 }
