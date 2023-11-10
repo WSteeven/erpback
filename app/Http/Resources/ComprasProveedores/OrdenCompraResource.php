@@ -50,7 +50,7 @@ class OrdenCompraResource extends JsonResource
             'observacion_realizada' => $this->observacion_realizada,
             'pagada' => $this->pagada,
             'completada' => $this->revisada_compras,
-
+            'novedades'=>$this->novedadesOrdenCompra->count(),
         ];
 
         if ($controller_method == 'show') {

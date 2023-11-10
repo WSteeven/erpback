@@ -25,16 +25,19 @@ class Devolucion extends Model implements Auditable
         'autorizacion_id',
         'per_autoriza_id',
         'canton_id',
+        'sucursal_id',
         'stock_personal',
         'causa_anulacion',
         'estado',
         'estado_bodega',
+        'pedido_automatico',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'stock_personal'=>'boolean',
+        'pedido_automatico'=>'boolean',
     ];
 
     const CREADA = 'CREADA';
@@ -66,6 +69,15 @@ class Devolucion extends Model implements Auditable
     public function tarea()
     {
         return $this->belongsTo(Tarea::class);
+    }
+
+    /**
+     * Relacion uno a uno(inversa)
+     * Uno o varios devoluciones se realizan en una sucursal
+     */
+    public function sucursal()
+    {
+        return $this->belongsTo(Sucursal::class);
     }
 
     /**

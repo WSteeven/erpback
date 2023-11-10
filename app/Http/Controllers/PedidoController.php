@@ -62,7 +62,7 @@ class PedidoController extends Controller
             $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
-            $results =$this->servicio->filtrarPedidosEmpleado($estado);
+            $results = $this->servicio->filtrarPedidosEmpleado($estado);
         }
 
 
