@@ -67,7 +67,7 @@ class EmpleadoController extends Controller
             return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
         }
 
-       
+
 
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
@@ -178,8 +178,10 @@ class EmpleadoController extends Controller
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
-        $empleado->estado = $request->estado;
+        $empleado->estado = $request->estado=='true'?1:0;
         $empleado->save();
+        $modelo = $empleado;
+        return response()->json(compact('modelo'));
     }
     public function existeResponsableGrupo(Request $request)
     {
