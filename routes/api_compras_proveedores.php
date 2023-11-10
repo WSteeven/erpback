@@ -81,3 +81,9 @@ Route::get('ordenes-compras/pagada/{orden}', [OrdenCompraController::class, 'pag
 
 //consolidar preordenes de compras
 Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consolidar'])->middleware('auth:sanctum');
+
+/***********
+ * Dashboard
+ ***********/
+Route::get('dashboard', [OrdenCompraController::class, 'dashboard']);
+// Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

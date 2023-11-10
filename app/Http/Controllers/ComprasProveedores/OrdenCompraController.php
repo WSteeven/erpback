@@ -305,4 +305,15 @@ class OrdenCompraController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
     }
+
+    /**
+     * Dashboard de ordenes de compras
+     */
+    public function dashboard(Request $request){
+        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
+        $results = [];
+
+        return response()->json(compact('results'));
+    }
+
 }

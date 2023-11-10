@@ -180,7 +180,7 @@ class OrdenCompra extends Model implements Auditable
    * Relación uno a muchos.
    * Una orden de compra puede tener muchas novedades.
    */
-  public function novdadesOrdenCompra()
+  public function novedadesOrdenCompra()
   {
     return $this->hasMany(NovedadOrdenCompra::class);
   }
