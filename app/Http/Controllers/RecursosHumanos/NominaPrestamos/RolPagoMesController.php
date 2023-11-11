@@ -34,10 +34,12 @@ class RolPagoMesController extends Controller
     private $reporteService;
     private $nominaService;
     private $prestamoService;
+    private $date;
 
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->date = Carbon::now()->format('Y-m-d');
         $this->nominaService = new NominaService();
         $this->prestamoService = new PrestamoService();
         $this->middleware('can:puede.ver.rol_pago_mes')->only('index', 'show');
@@ -584,10 +586,11 @@ class RolPagoMesController extends Controller
                     'supa' => $supa,
                     'total_egreso' => $egreso,
                     'total' => $total,
-                    'rol_pago_id' => $rol->id,
+                    'created_at' => $this->date,
+                    'updated_at' => $this->date
                 ];
             }
-            RolPago::insert($roles_pago);
+            $rol->rolPago()->createMany($roles_pago);
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
@@ -650,9 +653,11 @@ class RolPagoMesController extends Controller
                     'total_egreso' => $egreso,
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
+                    'created_at' => $this->date,
+                    'updated_at' => $this->date
                 ];
-                RolPago::insert($roles_pago);
             }
+            $rol->rolPago()->createMany($roles_pago);
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([

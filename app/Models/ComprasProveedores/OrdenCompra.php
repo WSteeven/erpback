@@ -180,7 +180,7 @@ class OrdenCompra extends Model implements Auditable
    * Relación uno a muchos.
    * Una orden de compra puede tener muchas novedades.
    */
-  public function novdadesOrdenCompra()
+  public function novedadesOrdenCompra()
   {
     return $this->hasMany(NovedadOrdenCompra::class);
   }
@@ -203,7 +203,6 @@ class OrdenCompra extends Model implements Auditable
   public static function listadoProductos(int $id)
   {
     $productos = OrdenCompra::find($id)->productos()->get();
-    // Log::channel('testing')->info('Log', ['los productos consultados', $productos]);
     $results = [];
     $row = [];
     foreach ($productos as $index => $producto) {
@@ -225,7 +224,6 @@ class OrdenCompra extends Model implements Auditable
       $results[$index] = $row;
     }
 
-    // Log::channel('testing')->info('Log', ['los productos consultados ya casteados', $results]);
     return $results;
   }
   /**
@@ -249,7 +247,6 @@ class OrdenCompra extends Model implements Auditable
 
   public static function guardarDetalles($orden, $items, $metodo)
   {
-    // Log::channel('testing')->info('Log', ['Request :', $orden, $items]);
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
@@ -270,7 +267,6 @@ class OrdenCompra extends Model implements Auditable
           'total' => $detalle['total'],
         ];
       }, $items);
-      Log::channel('testing')->info('Log', ['Datos:', $datos]);
       $orden->productos()->sync($datos);
       $orden->auditSync('productos', $datos);
       /**
@@ -281,7 +277,6 @@ class OrdenCompra extends Model implements Auditable
       // $orden->auditSync('productos', $datos);
       // $orden->auditDetach('productos', $datos);
 
-      // Log::channel('testing')->info('Log', ['linea 241 :', $orden->productos()->count(), $orden->preorden_id]);
       // aquí se modifica el estado de la preorden de compra
       if ($orden->productos()->count() > 0 && $orden->preorden_id) {
         $preorden = PreordenCompra::find($orden->preorden_id);

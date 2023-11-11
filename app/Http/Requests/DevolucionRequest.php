@@ -40,6 +40,8 @@ class DevolucionRequest extends FormRequest
             'per_autoriza' => 'required|numeric|exists:empleados,id',
             'listadoProductos.*.cantidad' => 'required',
             'listadoProductos.*.descripcion' => 'required',
+            'sucursal' => 'required|numeric|exists:sucursales,id',
+            'pedido_automatico'=>'boolean',
         ];
 
         return $rules;

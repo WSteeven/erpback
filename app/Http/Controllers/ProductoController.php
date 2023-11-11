@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProductoRequest;
 use App\Http\Resources\ProductoResource;
 use App\Models\Producto;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ProductoController extends Controller
@@ -23,32 +25,28 @@ class ProductoController extends Controller
      */
     public function index(Request $request)
     {
-        $results = [];
-        if($request->boolean('filtrarTipo')){
-            if(auth()->user()->hasPermissionTo('puede.ver.productos_servicios')){
-                if ($request->search) {
-                    $results = Producto::search($request->search)->where('tipo', Producto::SERVICIO)->get();
+        try {
+            $results = [];
+            if ($request->boolean('filtrarTipo')) {
+                if (auth()->user()->can('puede.ver.productos_bienes')) {
+                    if ($request->search) $results = Producto::search($request->search)->get();
+                    else $results = Producto::ignoreRequest(['campos', 'filtrarTipo'])->filter()->get();
                 } else {
-                    $results = Producto::ignoreRequest(['campos', 'filtrarTipo'])->where('tipo', Producto::SERVICIO)->filter()->get();
+                    if ($request->search) $results = Producto::search($request->search)->where('tipo', Producto::SERVICIO)->get();
+                    else $results = Producto::ignoreRequest(['campos', 'filtrarTipo'])->where('tipo', Producto::SERVICIO)->filter()->get();
                 }
-            }
-            if(auth()->user()->hasAllPermissions(['puede.ver.productos_bienes', 'puede.ver.productos_servicios'])){
+            } else {
                 if ($request->search) {
-                    $results = Producto::search($request->search)->get();
+                    $results = Producto::search($request->search)->when($request->categoria_id, function ($query) use ($request) {
+                        return $query->whereIn('categoria_id', $request->categoria_id);
+                    })->get();
                 } else {
                     $results = Producto::ignoreRequest(['campos', 'filtrarTipo'])->filter()->get();
                 }
             }
-        }else{
-            if ($request->search) {
-                $results = Producto::search($request->search)->when($request->categoria_id, function ($query) use ($request) {
-                    return $query->whereIn('categoria_id', $request->categoria_id);
-                })->get();
-            } else {
-                $results = Producto::ignoreRequest(['campos', 'filtrarTipo'])
-                ->when($request->hasfiltrarTipo)
-                ->filter()->get();
-            }
+        } catch (Exception $e) {
+            $mensaje = $e->getMessage() . '. ' . $e->getLine();
+            return response()->json(compact('mensaje'));
         }
 
         $results = ProductoResource::collection($results);

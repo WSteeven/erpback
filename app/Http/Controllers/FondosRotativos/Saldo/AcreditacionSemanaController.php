@@ -94,7 +94,7 @@ class AcreditacionSemanaController extends Controller
                 'updated_at'=> $date
             ];
         }
-        Acreditaciones::insert($acreditaciones);
+        $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
     }
     public function crear_cash_acreditacion_saldo($id)
     {

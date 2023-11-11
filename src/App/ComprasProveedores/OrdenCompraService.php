@@ -12,6 +12,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class OrdenCompraService
@@ -67,4 +69,42 @@ class OrdenCompraService
             throw $e;
         }
     }
+
+    public static function obtenerOrdenesDeComprasPorEstados($request){
+        $results = [];
+        $ordenes = OrdenCompra::all();
+        Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes]);
+
+        $results = self::dividirOrdenesPorEstados($ordenes);
+
+
+
+        return $results;
+    }
+
+    public static function dividirOrdenesPorEstados($ordenes){
+        $results=[];
+        Log::channel('testing')->info('Log', ['dividir ordenes por estados:', $ordenes]);
+        $pendientes = $ordenes->filter(function($orden){
+            return $orden->autorizacion_id == Autorizaciones::PENDIENTE;
+        });
+        $aprobadas = $ordenes->filter(function($orden){
+            return $orden->autorizacion_id == Autorizaciones::APROBADO;
+        });
+        $revisadas=$ordenes->filter(function($orden){
+            return $orden->estado_id == EstadosTransacciones::COMPLETA;
+        });
+        $realizadas=$ordenes->filter(function($orden){
+            return $orden->realizada == true;
+        });
+        $pagadas = $ordenes->filter(function($orden){
+            return $orden->pagada == true;
+        });
+        $anuladas= $ordenes->filter(function($orden){
+            return $orden->autorizacion_id == Autorizaciones::CANCELADO || $orden->estado_id==EstadosTransacciones::ANULADA;
+        });
+
+        return compact('pendientes', 'aprobadas', 'revisadas', 'realizadas', 'pagadas', 'anuladas');
+    }
+
 }
