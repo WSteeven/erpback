@@ -33,7 +33,7 @@ class VentasRequest extends FormRequest
             'orden_interna' => 'required',
             'vendedor_id' => 'required',
             'producto_id' => 'required',
-            'fecha_activ' => 'required',
+            'fecha_activ' => 'nullable',
             'estado_activ' => 'required',
             'forma_pago' => 'required',
             'comision_id' => 'required',
