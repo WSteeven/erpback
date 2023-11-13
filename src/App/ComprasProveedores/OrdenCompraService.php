@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
+use Illuminate\Database\Eloquent\Collection;
 
 class OrdenCompraService
 {
@@ -72,8 +73,10 @@ class OrdenCompraService
 
     public static function obtenerOrdenesDeComprasPorEstados($request){
         $results = [];
-        $ordenes = OrdenCompra::all();
-        Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes]);
+        $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+        $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+        $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
+        Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes, $fecha_inicio, $fecha_fin]);
 
         $results = self::dividirOrdenesPorEstados($ordenes);
 
@@ -91,9 +94,11 @@ class OrdenCompraService
         $aprobadas = $ordenes->filter(function($orden){
             return $orden->autorizacion_id == Autorizaciones::APROBADO;
         });
-        $revisadas=$ordenes->filter(function($orden){
-            return $orden->estado_id == EstadosTransacciones::COMPLETA;
+        Log::channel('testing')->info('Log', ['antes de ordenes revisadas:', $ordenes]);
+        $revisadas= $ordenes->filter(function($orden){
+            return $orden->estado_id == 2;
         });
+        Log::channel('testing')->info('Log', ['despues de ordenes revisadas:', $revisadas]);
         $realizadas=$ordenes->filter(function($orden){
             return $orden->realizada == true;
         });
@@ -103,8 +108,45 @@ class OrdenCompraService
         $anuladas= $ordenes->filter(function($orden){
             return $orden->autorizacion_id == Autorizaciones::CANCELADO || $orden->estado_id==EstadosTransacciones::ANULADA;
         });
+        $todas = $ordenes;
+        $cant_ordenes_creadas = $ordenes->count();
+        $cant_ordenes_pendientes = $pendientes->count();
+        $cant_ordenes_aprobadas = $aprobadas->count();
+        $cant_ordenes_revisadas = $revisadas->count();
+        $cant_ordenes_realizadas = $realizadas->count();
+        $cant_ordenes_pagadas = $pagadas->count();
+        $cant_ordenes_anuladas = $anuladas->count();
 
-        return compact('pendientes', 'aprobadas', 'revisadas', 'realizadas', 'pagadas', 'anuladas');
+        $graficos = [];
+
+        $graficoCreadas =new Collection([
+            'labels'=> $labels,
+            'datasets'=>[
+               ['backgroundColor' =>$colores,
+                    'label'=> $label,
+                    'data' => $valores,
+               ]
+            ],
+        ]);
+        array_push($graficos, $grafico);
+
+        return compact(
+            'graficos',
+            'todas',
+            'pendientes',
+            'aprobadas',
+            'revisadas',
+            'realizadas',
+            'pagadas',
+            'anuladas',
+            'cant_ordenes_creadas',
+            'cant_ordenes_pendientes',
+            'cant_ordenes_aprobadas',
+            'cant_ordenes_revisadas',
+            'cant_ordenes_realizadas',
+            'cant_ordenes_pagadas',
+            'cant_ordenes_anuladas',
+        );
     }
 
 }
