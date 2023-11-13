@@ -20,6 +20,7 @@ class ValorAcreditarResource extends JsonResource
             'id'=>$this->id,
             'empleado_info'=>$this->empleado->nombres!=null ?$this->empleado->nombres.' '.$this->empleado->apellidos:'',
             'empleado'=>$this->empleado_id,
+            'umbral_empleado'=>number_format($this->empleado->umbral->valor_minimo,2),
             'saldo_empleado'=>$this->obtener_saldo($this->empleado_id),
             'monto_generado'=>number_format($this->monto_generado, 2),
             'monto_modificado'=>number_format($this->monto_modificado, 2),
