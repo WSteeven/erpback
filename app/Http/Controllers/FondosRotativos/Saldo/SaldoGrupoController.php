@@ -211,6 +211,10 @@ class SaldoGrupoController extends Controller
                     break;
                 case '5':
                     return $this->reporte_transferencia($request, $tipo);
+                    break;
+                case '6':
+                    return $this->gasto($request, $tipo, true);
+                    break;
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -421,7 +425,7 @@ class SaldoGrupoController extends Controller
      * @param request The request object.
      * @param tipo The type of report you want to generate.
      */
-    private  function gasto($request, $tipo)
+    private  function gasto($request, $tipo, $imagen = false)
     {
         try {
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
@@ -446,9 +450,12 @@ class SaldoGrupoController extends Controller
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
             $reportes =  ['gastos' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
-            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
+            $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             $export_excel = new GastoConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            Log::channel('testing')->info('Log', ['gastos', $results]);
+
+            $tamanio_papel = $imagen ? 'A2' : 'A4';
+            return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -657,7 +664,7 @@ class SaldoGrupoController extends Controller
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-            $total =$saldo_old+  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
+            $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
