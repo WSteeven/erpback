@@ -23,6 +23,7 @@ class VentasResource extends JsonResource
             'vendedor_info' =>$this->vendedor != null? $this->vendedor->empleado->apellidos.' '.$this->vendedor->empleado->nombres:'',
             'producto' => $this->producto_id,
             'producto_info' =>  $this->producto!=null? $this->producto->bundle_id:'',
+            'plan' =>   $this->producto!=null? strtoupper($this->producto->plan->nombre):'',
             'fecha_activ' => $this->fecha_activ,
             'estado_activ' => $this->estado_activ,
             'forma_pago' => $this->forma_pago,
