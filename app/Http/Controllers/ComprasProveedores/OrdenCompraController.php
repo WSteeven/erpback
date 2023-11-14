@@ -312,7 +312,7 @@ class OrdenCompraController extends Controller
     public function dashboard(Request $request){
         Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
 
-        $results = $this->servicio->obtenerOrdenesDeComprasPorEstados($request);
+        $results = $this->servicio->obtenerDashboard($request);
 
         return response()->json(compact('results'));
     }
