@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Ventas\VentasResource;
+use App\Models\Ventas\ProductoVentas;
 use App\Models\Ventas\Ventas;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -31,8 +32,44 @@ class DashboardVentasController extends Controller
         $graficoVentasPorEstado = Ventas::select('estado_activ', DB::raw('COUNT(*) as total_ventas'))
             ->groupBy('estado_activ')
             ->get();
+        $graficoVentasPorPlanes = ProductoVentas::select('ventas_planes.nombre', DB::raw('COUNT(*) AS total_ventas'))
+            ->join('ventas_planes', 'ventas_producto_ventas.plan_id', '=', 'ventas_planes.id')
+            ->groupBy('ventas_planes.nombre')
+            ->get();
+
         $ventasPorPlanes = VentasResource::collection($ventasPorPlanes);
-        $results = compact('cantidad_ventas', 'cantidad_ventas_instaladas', 'cantidad_ventas_por_instalar', 'cantidad_ventas_por_rechazadas', 'ventasPorEstado', 'ventasPorPlanes','graficoVentasPorEstado');
+        // Generar el JSON
+        $ventasPorEstadoBar = [
+            'labels' => $graficoVentasPorEstado->pluck('estado_activ'),
+            'datasets' => [
+                [
+                    'backgroundColor' => [
+                        "#83B11E",
+                        "#D62C18",
+                        "#D4CB13"
+                    ],
+                    'label' => "Cantidad de ventas por estado",
+                    'data' => $graficoVentasPorEstado->pluck('total_ventas'),
+                ],
+            ],
+        ];
+
+        $ventasPorPlanesoBar = [
+            'labels' => $graficoVentasPorPlanes->pluck('nombre'),
+            'datasets' => [
+                [
+                    'backgroundColor' => [
+                        "#D62C18 ",
+                        "#DB6C25",
+                        "#25DB8A"
+                    ],
+                    'label' => "Cantidad de ventas por planes",
+                    'data' => $graficoVentasPorPlanes->pluck('total_ventas'),
+                ],
+            ],
+        ];
+
+        $results = compact('cantidad_ventas', 'cantidad_ventas_instaladas', 'cantidad_ventas_por_instalar', 'cantidad_ventas_por_rechazadas', 'ventasPorEstado', 'ventasPorPlanes', 'ventasPorEstadoBar','ventasPorPlanesoBar');
         return response()->json(compact('results'));
     }
 }
