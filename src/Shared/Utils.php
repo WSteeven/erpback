@@ -294,10 +294,11 @@ class Utils
         }
     }
 
-    public static function colorDefault(){
+    public static function colorDefault()
+    {
         return [
-            '#13d664',
             '#dce83a',
+            '#13d664',
             '#d61324',
             '#4854d4',
             '#a8a0a2',
@@ -305,20 +306,8 @@ class Utils
             '#e6e6e6'
         ];
     }
-    public static function colorAleatorio(){
-        return [
-            "#ff0000",
-            "#00ff00",
-            "#0000ff",
-            "#ffff00",
-            "#ffa500",
-            "#ff00ff",
-            "#ff7f00",
-            "#00ffff",
-            "#ffffff",
-        ];
-    }
-    public static function coloresBlueTeal(){
+    public static function coloresBlueTeal()
+    {
         return [
             "#348888",
             "#22BABB",
@@ -331,18 +320,22 @@ class Utils
             "gray",
         ];
     }
-    public static function coloresAzulPrincipal(){
-        return ["#0000ff",
-        "#add8e6",
-        "#00ffff",
-        "#00bfff",
-        "#40e0d0",
-        "#008080",
-        "#4b0082",
-        "#800080",
-        "#ee82ee",];
+    public static function coloresAzulPrincipal()
+    {
+        return [
+            "#0000ff",
+            "#add8e6",
+            "#00ffff",
+            "#00bfff",
+            "#40e0d0",
+            "#008080",
+            "#4b0082",
+            "#800080",
+            "#ee82ee",
+        ];
     }
-    public static function coloresAmarilloPrincipal(){
+    public static function coloresAmarilloPrincipal()
+    {
         return [
             "#ffff00",
             "#ffeb3b",
@@ -355,7 +348,8 @@ class Utils
             "#f0e68c",
         ];
     }
-    public static function coloresVintagePrincipal(){
+    public static function coloresVintagePrincipal()
+    {
         return [
             "#d8bfd8",
             "#e6e6fa",
@@ -368,7 +362,8 @@ class Utils
             "#696969",
         ];
     }
-    public static function coloresAqua(){
+    public static function coloresAqua()
+    {
         return [
             "#00ffff",
             "#adff2f",
@@ -382,7 +377,8 @@ class Utils
         ];
     }
 
-    public static function coloresTemaPrimaveral(){
+    public static function coloresTemaPrimaveral()
+    {
         return [
             "#fff8dc",
             "#d9f0d3",
@@ -396,7 +392,8 @@ class Utils
         ];
     }
 
-    public static function coloresTemaOtonio(){
+    public static function coloresTemaOtonio()
+    {
         return [
             "#f7d000",
             "#f4a460",
@@ -410,7 +407,8 @@ class Utils
         ];
     }
 
-    public function coloresTemaVerano(){
+    public function coloresTemaVerano()
+    {
         return [
             "#fff5f0",
             "#d3e0e9",
@@ -423,7 +421,8 @@ class Utils
             "#1a4795",
         ];
     }
-    public function coloresTemaMapaCalor(){
+    public function coloresTemaMapaCalor()
+    {
         return [
             "#ff0000",
             "#ff7f00",
@@ -436,17 +435,47 @@ class Utils
             "#7eff00",
         ];
     }
-    public function coloresTemaMapaFrio(){
+    public function coloresTemaMapaFrio()
+    {
         return [
             "#0000ff",
-    "#00a0ff",
-    "#00dfff",
-    "#00ffff",
-    "#87ffff",
-    "#dfffdf",
-    "#ffffff",
-    "#dfffff",
-    "#ffff87",
+            "#00a0ff",
+            "#00dfff",
+            "#00ffff",
+            "#87ffff",
+            "#dfffdf",
+            "#ffffff",
+            "#dfffff",
+            "#ffff87",
+        ];
+    }
+    public static function coloresAleatorios()
+    {
+        return [
+            "#3498db", // Azul
+            "#e74c3c", // Rojo
+            "#2ecc71", // Verde
+            "#f39c12", // Naranja
+            "#9b59b6", // Morado
+            "#1abc9c", // Turquesa
+            "#e67e22", // Zanahoria
+            "#34495e", // Gris Azulado
+            "#d35400", // Calabaza
+            "#27ae60"  // Esmeralda
+        ];
+    }
+    public static function coloresAleatorios2()
+    {
+        return [
+            "#ff0000",
+            "#00ff00",
+            "#0000ff",
+            "#ffff00",
+            "#ffa500",
+            "#ff00ff",
+            "#ff7f00",
+            "#00ffff",
+            "#ffffff",
         ];
     }
 
