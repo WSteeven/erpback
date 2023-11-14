@@ -4,6 +4,7 @@ namespace App\Models\ComprasProveedores;
 
 use App\Models\Archivo;
 use App\Models\Autorizacion;
+use App\Models\CorreoEnviado;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -65,6 +66,8 @@ class OrdenCompra extends Model implements Auditable
   protected $casts = [
     'created_at' => 'datetime:Y-m-d h:i:s a',
     'updated_at' => 'datetime:Y-m-d h:i:s a',
+    'realizada' => 'boolean',
+    'pagada' => 'boolean',
   ];
 
   private static $whiteListFilter = ['*'];
@@ -76,18 +79,18 @@ class OrdenCompra extends Model implements Auditable
    */
 
   /**
-   * Relación muchos a muchos. 
+   * Relación muchos a muchos.
    * Una orden de compra tiene varios productos asociados.
    */
   public function productos()
   {
     return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
-      ->withPivot(['descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+      ->withPivot(['id', 'descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
   /**
    * Relación uno a uno.
    * Una orden de compra se realiza unicamente a un proveedor.
-   * 
+   *
    */
   public function proveedor()
   {
@@ -95,7 +98,7 @@ class OrdenCompra extends Model implements Auditable
   }
   /**
    * Relación uno a uno.
-   * 
+   *
    */
   public function pedido()
   {
@@ -157,6 +160,15 @@ class OrdenCompra extends Model implements Auditable
   }
 
   /**
+   * Relacion polimorfica a una notificacion.
+   * Una orden de compra puede tener una o varias notificaciones.
+   */
+  public function correos()
+  {
+    return $this->morphMany(CorreoEnviado::class, 'notificable');
+  }
+
+  /**
    * Relación para obtener la ultima notificacion de un modelo dado.
    */
   public function latestNotificacion()
@@ -168,17 +180,18 @@ class OrdenCompra extends Model implements Auditable
    * Relación uno a muchos.
    * Una orden de compra puede tener muchas novedades.
    */
-  public function novdadesOrdenCompra()
+  public function novedadesOrdenCompra()
   {
     return $this->hasMany(NovedadOrdenCompra::class);
   }
 
   /**
-     * Relacion polimorfica con Archivos uno a muchos.
-     * 
-     */
-    public function archivos(){
-      return $this->morphMany(Archivo::class, 'archivable');
+   * Relacion polimorfica con Archivos uno a muchos.
+   *
+   */
+  public function archivos()
+  {
+    return $this->morphMany(Archivo::class, 'archivable');
   }
 
   /**
@@ -190,12 +203,12 @@ class OrdenCompra extends Model implements Auditable
   public static function listadoProductos(int $id)
   {
     $productos = OrdenCompra::find($id)->productos()->get();
-    // Log::channel('testing')->info('Log', ['los productos consultados', $productos]);
     $results = [];
     $row = [];
     foreach ($productos as $index => $producto) {
-      $row['id'] = $producto->id;
+      $row['id'] = $producto->pivot->id;
       $row['producto'] = $producto->nombre;
+      $row['producto_id'] = $producto->id;
       $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
       $row['categoria'] = $producto->categoria->nombre;
       $row['unidad_medida'] = $producto->unidadMedida->nombre;
@@ -216,9 +229,9 @@ class OrdenCompra extends Model implements Auditable
   /**
    * La función "obtenerSumaListado" calcula el subtotal, el total, el descuento y el impuesto (IVA) de
    * una lista de artículos en función del ID de orden de compra dado.
-   * 
+   *
    * @param int $id El parámetro "id" es el ID de la orden de compra.
-   * 
+   *
    * @return una matriz con los valores de subtotal, el total, el descuento y IVA.
    */
   public static function obtenerSumaListado($id)
@@ -234,15 +247,15 @@ class OrdenCompra extends Model implements Auditable
 
   public static function guardarDetalles($orden, $items, $metodo)
   {
-    // Log::channel('testing')->info('Log', ['Request :', $orden, $items]);
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        Log::channel('testing')->info('Log', ['Detalle:', $detalle]);
-        if ($metodo == 'crear') $producto = Producto::where('nombre', $detalle['nombre'])->first();
-        // Log::channel('testing')->info('Log', ['Producto:', $producto]);
+        // if ($metodo == 'crear') {
+        if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
+        else $producto = Producto::where('nombre', $detalle['producto'])->first();
+        // }
         return [
-          'producto_id' => $metodo == 'crear' ? $producto->id : $detalle['id'],
+          'producto_id' => array_key_exists('producto_id', $detalle) ? $detalle['producto_id'] : $producto->id,
           'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
           'cantidad' => $detalle['cantidad'],
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
@@ -254,10 +267,16 @@ class OrdenCompra extends Model implements Auditable
           'total' => $detalle['total'],
         ];
       }, $items);
-      Log::channel('testing')->info('Log', ['Datos:', $datos]);
       $orden->productos()->sync($datos);
+      $orden->auditSync('productos', $datos);
+      /**
+       * Auditar modelos relacionados con laravel-auditing
+       */
+      // https://laravel-auditing.com/guide/audit-custom.html
+      // $article->auditAttach('categories', $category);
+      // $orden->auditSync('productos', $datos);
+      // $orden->auditDetach('productos', $datos);
 
-      Log::channel('testing')->info('Log', ['linea 241 :', $orden->productos()->count(), $orden->preorden_id]);
       // aquí se modifica el estado de la preorden de compra
       if ($orden->productos()->count() > 0 && $orden->preorden_id) {
         $preorden = PreordenCompra::find($orden->preorden_id);
@@ -277,7 +296,7 @@ class OrdenCompra extends Model implements Auditable
     $results = OrdenCompra::where(function ($query) {
       $query->orWhere('solicitante_id', auth()->user()->empleado->id)
         ->orWhere('autorizador_id', auth()->user()->empleado->id);
-    })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
+    })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
     // $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
     return $results;
   }
@@ -285,7 +304,7 @@ class OrdenCompra extends Model implements Auditable
   /**
    * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una
    * longitud específica.
-   * 
+   *
    * @return string una cadena que consta del año actual menos el mes actual, seguida de un código generado
    * con una longitud de 3 dígitos.
    */

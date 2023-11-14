@@ -87,6 +87,7 @@ class GastosObserver
     private function revertir_cambios($gasto)
     {
         $ultimo_saldo = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->latest()->first();
+        //$saldo_actual = $ultimo_saldo->saldo_actual + $gasto->total;
         SaldoGrupo::create([
             'fecha' => $gasto->fecha_viat,
             'saldo_anterior' => $ultimo_saldo->saldo_actual,
@@ -97,38 +98,15 @@ class GastosObserver
             'id_usuario' => $gasto->id_usuario,
             'tipo_saldo'=> 'Anulacion'
         ]);
-        /*  $fecha = $gasto->fecha_viat;
-        $ultimo_registro_semana = SaldoGrupo::whereBetween('fecha', [
-            Carbon::parse($fecha)->startOfWeek(),
-            Carbon::parse($fecha)->endOfWeek()
-        ])
-            ->where('id_usuario', $gasto->id_usuario)
-            ->orderBy('fecha', 'desc')
-            ->first();
-        if ($ultimo_registro_semana === null) {
-            // Si no hay registro de saldo para la semana, obtener el último registro de saldo anterior
-            $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('fecha', 'desc')->first();
-            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        } else {
-            $total_saldo_actual = $ultimo_registro_semana->saldo_actual;
-        }
-        $saldo = new SaldoGrupo();
-        $saldo->fecha = $gasto->fecha_viat;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $gasto->total;
-        $saldo->saldo_actual =  $total_saldo_actual + $gasto->total;
-        $saldo->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[0];
-        $saldo->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[1];
-        $saldo->id_usuario = $gasto->id_usuario;
-        $saldo->tipo_saldo = "Anulacion";
-        $saldo->save();
-        */
+        //SaldoGrupo::crearSaldoGrupo($gasto->fecha_viat,$ultimo_saldo->saldo_actual,$gasto->total,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1],$gasto->id_usuario,"Egreso",$gasto);
+
     }
 
     private function guardar_gasto(Gasto $gasto)
     {
         $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('id', 'desc')->first();
         $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+        //$saldo_actual = $total_saldo_actual - $gasto->total;
         $saldo = new SaldoGrupo();
         $saldo->fecha = $gasto->fecha_viat;
         $saldo->saldo_anterior = $total_saldo_actual;
@@ -139,5 +117,7 @@ class GastosObserver
         $saldo->id_usuario = $gasto->id_usuario;
         $saldo->tipo_saldo = "Egreso";
         $saldo->save();
+        //SaldoGrupo::crearSaldoGrupo($gasto->fecha_viat,$total_saldo_actual,$gasto->total,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1],$gasto->id_usuario,"Egreso",$gasto);
+
     }
 }

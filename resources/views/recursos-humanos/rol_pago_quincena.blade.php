@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
+    @php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +16,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -40,7 +44,7 @@
             line-height: 1.5cm;
         }
 
-        /** Definir las reglas del pie de página **/
+        /** Definir las reglas del pie de pﾃ｡gina **/
         footer {
             position: fixed;
             bottom: 10px;
@@ -79,9 +83,7 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-@endphp
+
 
 <body>
     <header>
@@ -90,7 +92,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                            src="{{ $logo_principal }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -105,9 +107,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -138,10 +138,7 @@
                     CEDULA</td>
                 <td style="  text-align: center !important;
                     background-color: #DBDBDB;">
-                    CARGO</td>
-                <td style="  text-align: center !important;
-                    background-color: #DBDBDB;">
-                    CIUDAD</td>
+                    DEPARTAMENTO</td>
                 <td style="background-color:#A9D08E">NETO A RECIBIR
                 </td>
             </tr>
@@ -151,13 +148,12 @@
                     <td>{{ $rol_pago['item'] }}</td>
                     <td>{{ $rol_pago['empleado_info'] }}</td>
                     <td>{{ $rol_pago['cedula'] }}</td>
-                    <td>{{ $rol_pago['cargo'] }}</td>
-                    <td>{{ $rol_pago['ciudad'] }}</td>
-                    <td>{{ $rol_pago['total'] }}</td>
+                    <td>{{ $rol_pago['departamento'] }}</td>
+                    <td>{{ number_format($rol_pago['total'], 2, ',', ' ') }}</td>
                 </tr>
             @endforeach
             <tr style="background-color: #FFE699">
-                <td colspan="5" style="text-align: center">
+                <td colspan="4" style="text-align: center">
                     <strong>TOTALES&nbsp;</strong>
                 </td>
                 <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
@@ -167,7 +163,7 @@
             <thead>
                 <th align="center">
                     __________________________________________<br />
-                    <b>{{ $creador_rol_pago->nombres . '' . $creador_rol_pago->apellidos }}</b>
+                    <b>{{ $creador_rol_pago->nombres . ' ' . $creador_rol_pago->apellidos }}</b>
                     <br>
                     <b>ELABORADO</b>
                 </th>
@@ -186,7 +182,7 @@
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 550, $text, $font, 12);
+                $pdf->page_text(10, 785, $text, $font, 12);
         }
     </script>
 </body>

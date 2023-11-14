@@ -13,12 +13,14 @@ use App\Models\User;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\EmpleadoService;
 use Src\Shared\Utils;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 
@@ -26,10 +28,14 @@ class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
     private EmpleadoService $servicio;
+    private $reporteService;
+
 
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
+        $this->reporteService = new ReportePdfExcelService();
+
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
         $this->middleware('can:puede.editar.empleados')->only('update');
@@ -57,9 +63,14 @@ class EmpleadoController extends Controller
         if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
+        if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA]) && request('es_reporte__saldo_actual')) {
+            return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
+        }
+
+
 
         // Procesar respuesta
-        if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos);// EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
+        if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($search) return $this->servicio->search($search);
 
@@ -139,8 +150,8 @@ class EmpleadoController extends Controller
                 'talla_pantalon' => $datos['talla_pantalon'],
                 'banco' => $datos['banco'],
                 'genero' => $datos['genero'],
-                'esta_en_rol_pago'=> $datos['esta_en_rol_pago'],
-                'acumula_fondos_reserva'=> $datos['acumula_fondos_reserva'],
+                'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
+                'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
             ]);
 
@@ -163,6 +174,14 @@ class EmpleadoController extends Controller
     {
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));
+    }
+    public function HabilitaEmpleado(Request $request)
+    {
+        $empleado = Empleado::find($request->id);
+        $empleado->estado = $request->estado=='true'?1:0;
+        $empleado->save();
+        $modelo = $empleado;
+        return response()->json(compact('modelo'));
     }
     public function existeResponsableGrupo(Request $request)
     {
@@ -381,7 +400,8 @@ class EmpleadoController extends Controller
 
         return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
-    public function empleadosRoles(Request $request){
+    public function empleadosRoles(Request $request)
+    {
         $results = [];
         $roles = [];
         if (!is_null($request->roles)) {
@@ -392,7 +412,8 @@ class EmpleadoController extends Controller
         }
         return response()->json(compact('results'));
     }
-    public function empleadoPermisos (Request $request) {
+    public function empleadoPermisos(Request $request)
+    {
         $permisos = [];
         $results = [];
         if (!is_null($request->permisos)) {
@@ -401,5 +422,20 @@ class EmpleadoController extends Controller
             $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
         }
         return response()->json(compact('results'));
+    }
+    public function imprimir_reporte_general_empleado()
+    {
+        $reportes = Empleado::where('estado', 1)
+            ->where('id', '>', 2)
+            ->where('esta_en_rol_pago', '1')
+            ->where('realiza_factura', '0')
+            ->where('salario', '!=', 0)
+            ->orderBy('area_id', 'asc')
+            ->orderBy('apellidos', 'asc')
+            ->get();
+        $results = Empleado::empaquetarListado($reportes);
+        $nombre_reporte = 'lista_empleados';
+        $vista = 'recursos-humanos.empleados';
+        return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
     }
 }

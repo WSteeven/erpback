@@ -36,29 +36,30 @@ public function porcentaje_anticipo(){
 }
     public function store(Request $request)
     {
-        $tipo_contrato = new Rubros();
-        $tipo_contrato->nombre = $request->nombre;
-        $tipo_contrato->save();
-        return $tipo_contrato;
+        $rubro = new Rubros();
+        $rubro->nombre = $request->nombre;
+        $rubro->save();
+        return $rubro;
     }
 
-    public function show(Request $request, Rubros $tipo_contrato)
+    public function show(Request $request, Rubros $rubro)
     {
-        return response()->json(compact('tipo_contrato'));
+        $modelo = $rubro;
+        return response()->json(compact('modelo'));
     }
 
 
-    public function update(Request $request, Rubros $tipo_contrato)
+    public function update(Request $request, Rubros $rubro)
     {
-        $tipo_contrato->nombre = $request->nombre;
-        $tipo_contrato->save();
-        return $tipo_contrato;
+        $rubro->nombre = $request->nombre;
+        $rubro->save();
+        return $rubro;
     }
 
-    public function destroy(Request $request, Rubros $tipo_contrato)
+    public function destroy(Request $request, Rubros $rubro)
     {
-        $tipo_contrato->delete();
-        return response()->json(compact('tipo_contrato'));
+        $rubro->delete();
+        return response()->json(compact('rubro'));
     }
 
 }

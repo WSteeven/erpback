@@ -10,6 +10,7 @@ use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -25,6 +26,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -50,17 +52,17 @@ class PedidoController extends Controller
         $results = [];
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
-            $results = Pedido::filtrarPedidosAdministrador($estado);
+            $results = $this->servicio->filtrarPedidosAdministrador($estado);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
-            $results = Pedido::filtrarPedidosBodeguero($estado);
+            $results = $this->servicio->filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
-            $results = Pedido::filtrarPedidosActivosFijos($estado);
+            $results = $this->servicio->filtrarPedidosActivosFijos($estado);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
-            $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
+            $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
-            $results = Pedido::filtrarPedidosEmpleado($estado);
+            $results = $this->servicio->filtrarPedidosEmpleado($estado);
         }
 
 
@@ -105,7 +107,7 @@ class PedidoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante']]);
             }
             DB::commit();
 
@@ -184,7 +186,7 @@ class PedidoController extends Controller
             //modifica los datos del listado, en caso de requerirse
             $pedido->detalles()->detach();
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
             }
             DB::commit();
 
@@ -324,6 +326,16 @@ class PedidoController extends Controller
         $request->validate(['motivo' => ['required', 'string']]);
         $pedido->causa_anulacion = $request['motivo'];
         $pedido->autorizacion_id = $autorizacion->id;
+        $pedido->save();
+
+        $modelo = new PedidoResource($pedido->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function marcarCompletado(Request $request, Pedido $pedido)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $pedido->observacion_bodega = $request['motivo'];
+        $pedido->estado_id = EstadosTransacciones::COMPLETA;
         $pedido->save();
 
         $modelo = new PedidoResource($pedido->refresh());

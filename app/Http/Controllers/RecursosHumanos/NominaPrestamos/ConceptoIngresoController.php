@@ -24,7 +24,8 @@ class ConceptoIngresoController extends Controller
     }
     public function show(Request $request, ConceptoIngreso $concepto_ingreso)
     {
-        return response()->json(compact('concepto_ingreso'));
+        $modelo = $concepto_ingreso;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {

@@ -12,6 +12,7 @@ use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;
 use App\Models\TicketRechazado;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
@@ -86,6 +87,7 @@ class TicketController extends Controller
         return response()->json(compact('modelo', 'mensaje'));
     }
 
+    // Reasignar
     public function cambiarResponsable(Request $request, Ticket $ticket)
     {
         $request->validate([
@@ -110,6 +112,7 @@ class TicketController extends Controller
                 'fecha_hora' => Carbon::now(),
                 'observacion' => 'TICKET REASIGNADO',
                 'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'responsable_id' => $idResponsableAnterior,
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
@@ -128,6 +131,14 @@ class TicketController extends Controller
         $ticket->fecha_hora_ejecucion = Carbon::now();
         $ticket->save();
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET EJECUTADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha EJECUTADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket ejecutado exitosamente!';
 
@@ -139,6 +150,8 @@ class TicketController extends Controller
 
     public function pausar(Request $request, Ticket $ticket)
     {
+        $this->servicio->puedePausar($ticket);
+
         $motivo_pausa_id = $request['motivo_pausa_ticket_id'];
         $ticket->estado = Ticket::PAUSADO;
         $ticket->save();
@@ -154,6 +167,7 @@ class TicketController extends Controller
             'fecha_hora' => Carbon::now(),
             'observacion' => 'TICKET PAUSADO',
             'actividad_realizada' => Empleado::extraerNombresApellidos($ticket->responsable) . ' ha pausado el ticket por el motivo: ' . MotivoPausaTicket::find($motivo_pausa_id)->motivo,
+            'responsable_id' => Auth::user()->empleado->id,
         ]);
 
         $modelo = new TicketResource($ticket->refresh());
@@ -175,6 +189,14 @@ class TicketController extends Controller
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET EJECUTADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha REANUDADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket reanudado exitosamente!';
 
@@ -188,6 +210,14 @@ class TicketController extends Controller
     public function finalizar(Ticket $ticket)
     {
         $this->servicio->puedeFinalizar($ticket);
+
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET FINALIZADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha FINALIZADO el ticket.',
+            'responsable_id' => Auth::id(),
+        ]);
 
         $ticket->estado = Ticket::FINALIZADO_SOLUCIONADO;
         $ticket->fecha_hora_finalizado = Carbon::now();
@@ -316,6 +346,26 @@ class TicketController extends Controller
             'responsable' => Empleado::extraerNombresApellidos($item->responsable),
         ]);
 
+        return response()->json(compact('results'));
+    }
+
+    public function auditoria($ticket_id)
+    {
+        $modelo = Ticket::find($ticket_id);
+        $auditoria = $modelo->audits()->get(['user_id', 'new_values', 'created_at']);
+        $auditoria = $auditoria->map(function ($item) {
+            $empleado = User::find($item->user_id)->empleado;
+            return [
+                'responsable' => Empleado::extraerNombresApellidos($empleado),
+                'estado' => array_key_exists('estado', $item->new_values) ? $item->new_values['estado'] : null,
+                'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
+                'departamento' => $empleado->departamento?->nombre,
+                'foto' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),
+            ];
+        });
+
+        $results = array_values($auditoria->filter(fn ($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
+        Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 }

@@ -43,6 +43,7 @@ class TransaccionBodega extends Model implements Auditable
         'per_atiende_id',
         'per_retira_id',
         'autorizacion_id',
+        'proveedor',
         'estado_id',
     ];
     protected $casts = [
@@ -381,6 +382,13 @@ class TransaccionBodega extends Model implements Auditable
         }
     }
 
+    public static function restarDespachoPedido($pedido_id, $detalle_id, $cantidad)
+    {
+        $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido_id)->where('detalle_id', $detalle_id)->first();
+        $detallePedido->despachado -= $cantidad;
+        $detallePedido->save();
+    }
+
     /**
      * Funcion para actualizar el pedido y su listado en cada egreso.
      */
@@ -394,7 +402,7 @@ class TransaccionBodega extends Model implements Auditable
         try {
             $pedido = Pedido::find($transaccion->pedido_id);
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
-            Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
+            // Log::channel('testing')->info('Log', ['Detalles despachados en el egreso son: ', $detalles]);
             foreach ($detalles as $detalle) { //filtra los detalles que se despacharon en el egreso
                 $itemInventario = Inventario::find($detalle['inventario_id']);
                 Log::channel('testing')->info('Log', ['El item del inventario despacchado es: ', $itemInventario]);
@@ -405,16 +413,23 @@ class TransaccionBodega extends Model implements Auditable
                     $detallePedido->save(); // Despues de guardar se llama al observer DetallePedidoProductoObserver
                 } else {
                     Log::channel('testing')->info('Log', ['Entro al else, supongo que no hay detalle: ', $detallePedido]);
-                    $d = DetalleProducto::find($itemInventario->detalle_id); //detalle producto completo para obtener el producto_id y encontrar los otros detalles relacionados a dicho producto_id
-                    Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
-                    $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
-                    Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
+                    // $d = DetalleProducto::find($itemInventario->detalle_id); //detalle producto completo para obtener el producto_id y encontrar los otros detalles relacionados a dicho producto_id
+                    // Log::channel('testing')->info('Log', ['DetalleProducto: ', $d]);
+                    // $ids_detalles = DetalleProducto::where('producto_id', $d->producto_id)->get('id'); //ids relacionados que pertenecen al mismo producto_id
+                    // Log::channel('testing')->info('Log', ['Todos los DetalleProductos hermanos del detalle despachado: ', DetalleProducto::where('producto_id', $d->producto_id)->get()]);
 
+                    $detallePedido = DetallePedidoProducto::create([
+                        'detalle_id' => $itemInventario->detalle_id,
+                        'pedido_id' => $pedido->id,
+                        'cantidad' => $detalle['cantidad_inicial'],
+                        'despachado' =>  $detalle['cantidad_inicial'],
+                        'solicitante_id' => auth()->user()->empleado->id
+                    ]);
 
-                    $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
-                    Log::channel('testing')->info('Log', ['El detallePedido que se va a satisfacer', $detallePedido]);
-                    $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
-                    $detallePedido->save();
+                    // $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->whereIn('detalle_id', $ids_detalles)->first();
+                    Log::channel('testing')->info('Log', ['El detallePedido que se a creado es', $detallePedido]);
+                    // $detallePedido->despachado = $detallePedido->despachado + $detalle['cantidad_inicial'];
+                    // $detallePedido->save();
                 }
             }
 
@@ -473,9 +488,9 @@ class TransaccionBodega extends Model implements Auditable
      *
      * @param id The id of the model you want to update.
      */
-    public function activarDetalle($id)
+    public static function activarDetalle(DetalleProducto $detalle)
     {
-        $detalle = DetalleProducto::find($id);
+        // $detalle = DetalleProducto::find($id);
         if (!$detalle->activo) {
             $detalle->activo = true;
             $detalle->save();

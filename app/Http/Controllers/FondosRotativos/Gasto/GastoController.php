@@ -345,7 +345,7 @@ class GastoController extends Controller
     public function generar_reporte(Request $request, $tipo)
     {
         try {
-            $datos_usuario_logueado = $request->usuario == null ? Empleado::where('usuario_id', auth()->user()->id)->first() : Empleado::where('id', $request->usuario)->first();
+            $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
@@ -376,15 +376,15 @@ class GastoController extends Controller
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $transferencia_enviada = Transferencias::where('usuario_envia_id', $request->usuario)
+            $transferencia_enviada = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
+            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
+            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->with('usuario_recibe', 'usuario_envia')
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])

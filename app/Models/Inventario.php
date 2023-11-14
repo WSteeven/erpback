@@ -176,15 +176,18 @@ class Inventario extends Model implements Auditable
     }
 
     /**
-     * Función para formar la estructura de datos de un registro de movimiento
-     * @param $inventario_id Id del ítem del inventario
-     * @param $detalle_producto_transaccion_id Id del DetalleProductoTransaccion
-     * @param $cantidad Cantidad que se esta registrando
-     * @param $precio_unitario Precio unitario del ítem
-     * @param $saldo La cantidad de existencias ahora del item en inventario
-     * @param $inventario_id Id del ítem del inventario
+     * La función "contarExistenciasDetalleSerial" cuenta la cantidad total de artículos del inventario
+     * para un determinado "detalle_id".
+     * 
+     * @param detalle_id El parámetro "detalle_id" es el ID del detalle del que se quieren contar las
+     * existencias.
+     * 
+     * @return la suma del campo 'cantidad' de la colección 'existencias'.
      */
-
+    public static function contarExistenciasDetalleSerial($detalle_id){
+        $existencias = Inventario::where('detalle_id', $detalle_id)->get();
+        return $existencias->sum('cantidad');
+    }
 
 
 

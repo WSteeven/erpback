@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
+use Src\App\RecursosHumanos\NominaPrestamos\PrestamoService;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 use Src\Shared\Utils;
@@ -39,11 +40,14 @@ class RolPagosController extends Controller
     private $entidad = 'Rol_de_pagos';
     private $reporteService;
     private $nominaService;
+    private $prestamoService;
+
 
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
         $this->nominaService = new NominaService();
+        $this->prestamoService = new PrestamoService();
         $this->middleware('can:puede.ver.rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.rol_pago')->only('store');
     }
@@ -77,6 +81,17 @@ class RolPagosController extends Controller
         $rolpago->rol_firmado = $archivoJSON;
         $rolpago->estado = RolPago::FINALIZADO;
         $rolpago->save();
+
+        $mes = $rolpago->mes;
+        // Divide la fecha en mes y año
+        list($month, $year) = explode('-', $mes);
+        // Crea un objeto Carbon para representar la fecha en Laravel
+        $date = \Carbon\Carbon::createFromDate($year, $month, 1);
+        // Formatea la fecha en el formato deseado
+        $mes = $date->format('Y-m');
+        $this->prestamoService->setMes($mes);
+        $this->prestamoService->pagarPrestamoEmpresarial();
+
         return response()->json(['modelo' => $rolpago, 'mensaje' => 'Subido exitosamente!']);
     }
     public function index_archivo_rol_pago_empleado(Request $request)
@@ -99,6 +114,7 @@ class RolPagosController extends Controller
         try {
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
+            $datos['estado'] = 'EJECUTANDO';
             DB::beginTransaction();
             $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {
@@ -210,8 +226,6 @@ class RolPagosController extends Controller
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
         $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['rol de pago', $datos]);
-
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 

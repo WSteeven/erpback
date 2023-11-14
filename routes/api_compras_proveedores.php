@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\ComprasProveedores\CalificacionDepartamentoProveedorController;
-// use App\Http\Controllers\ComprasProveedores\CalificacionProveedorController;
 use App\Http\Controllers\ComprasProveedores\CategoriaOfertaProveedorController;
 use App\Http\Controllers\ComprasProveedores\ContactoProveedorController;
 use App\Http\Controllers\ComprasProveedores\CriterioCalificacionController;
@@ -18,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources([
     'datos-bancarios-proveedores' => DatoBancarioProveedorController::class,
     'calificaciones-proveedores' => CalificacionDepartamentoProveedorController::class,
-    // 'proveedores-calificables' => CalificacionProveedorController::class,
+    'proveedores-calificables' => CalificacionDepartamentoProveedorController::class,
     'categorias-ofertas' => CategoriaOfertaProveedorController::class,
     'contactos-proveedores' => ContactoProveedorController::class,
     'criterios-calificaciones' => CriterioCalificacionController::class,
@@ -74,3 +73,17 @@ Route::post('calificaciones-proveedores/files/{detalle}', [CalificacionDepartame
 
 //enviar pdfs
 Route::get('ordenes-compras/toProveedor/{orden}', [OrdenCompraController::class, 'sendMail'])->middleware('auth:sanctum');
+
+//marcar OC como realizada
+Route::post('ordenes-compras/realizada/{orden}', [OrdenCompraController::class, 'realizada'])->middleware('auth:sanctum');
+//marcar OC como pagada
+Route::get('ordenes-compras/pagada/{orden}', [OrdenCompraController::class, 'pagada'])->middleware('auth:sanctum');
+
+//consolidar preordenes de compras
+Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consolidar'])->middleware('auth:sanctum');
+
+/***********
+ * Dashboard
+ ***********/
+Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
+// Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

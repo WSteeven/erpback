@@ -59,12 +59,22 @@ class NotificacionService
         if (!$campos[0] === '') {
             $results = Notificacion::ignoreRequest(['campos'])
                 ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
+                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         } else {
             $results = Notificacion::where('mensaje', 'LIKE', '%Preorden de compra N°%')
+                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
                 ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         }
 
+        return $results;
+    }
+
+    public function obtenerNotificacionesRolContabilidad($campos)
+    {
+        $results = Notificacion::ignoreRequest(['campos'])
+            ->where('mensaje', 'LIKE', '%ha realizado un ingreso de materiales con motivo COMPRA A PROVEEDOR en la sucursal%')
+            ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         return $results;
     }
 
@@ -87,15 +97,17 @@ class NotificacionService
             case User::ROL_BODEGA:
                 $results = $this->obtenerNotificacionesRolBodega($campos);
                 break;
-                case User::ROL_BODEGA_TELCONET:
-                    $results = $this->obtenerNotificacionesRolBodegaTelconet($campos);
-                    break;
+            case User::ROL_BODEGA_TELCONET:
+                $results = $this->obtenerNotificacionesRolBodegaTelconet($campos);
+                break;
             case User::ROL_COMPRAS:
                 $results = $this->obtenerNotificacionesRolCompras($campos);
                 break;
+            case User::ROL_CONTABILIDAD:
+                $results = $this->obtenerNotificacionesRolContabilidad($campos);
+                break;
             default:
-                if (!$campos[0] === '') $results = Notificacion::ignoreRequest(['campos'])->filter()->where('per_destinatario_id', auth()->user()->empleado->id)->orderBy('id', 'desc')->limit(100)->get($campos);
-                else $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get();
+                $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get($campos);
         }
 
         return $results;

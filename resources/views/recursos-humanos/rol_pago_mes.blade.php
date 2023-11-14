@@ -1,6 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
+    @php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    $numcol_egreso = $cantidad_columna_egresos + 6;
+    $tiene_supa = $sumatoria['supa'] > 0;
+    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
+    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
+    $carry_ingreso = [];
+    $index_ingreso = 0;
+    $carry_egreso = [];
+    $index_egreso = 0;
+    if ($tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 4;
+    }
+    if ($tiene_bonificacion && $tiene_bono_recurente) {
+        $numcol_ingreso = $cantidad_columna_ingresos + 5;
+    }
 
+    if ($tiene_supa) {
+        $numcol_egreso = $cantidad_columna_egresos + 7;
+    }
+    $sumColumns = [
+        'salario' => 0,
+        'sueldo' => 0,
+        'decimo_tercero' => 0,
+        'decimo_cuarto' => 0,
+        'fondos_reserva' => 0,
+        'iess' => 0,
+        'anticipo' => 0,
+        'bonificacion' => 0,
+        'bono_recurente' => 0,
+        'total_ingreso' => 0,
+        'prestamo_quirorafario' => 0,
+        'prestamo_hipotecario' => 0,
+        'extension_conyugal' => 0,
+        'prestamo_empresarial' => 0,
+        'supa' => 0,
+        'total_egreso' => 0,
+        'total' => 0,
+    ];
+@endphp
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +57,8 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark  }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -106,50 +151,7 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    $numcol_egreso = $cantidad_columna_egresos + 6;
-    $tiene_supa = $sumatoria['supa'] > 0;
-    $tiene_bonificacion = $sumatoria['bonificacion'] > 0;
-    $tiene_bono_recurente = $sumatoria['bono_recurente'] > 0;
-    $carry_ingreso = [];
-    $index_ingreso = 0;
-    $carry_egreso = [];
-    $index_egreso = 0;
-    if ($tiene_bono_recurente) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 4;
-    }
-    if ($tiene_bonificacion && $tiene_bono_recurente) {
-        $numcol_ingreso = $cantidad_columna_ingresos + 5;
-    }
 
-    if ($tiene_supa) {
-        $numcol_egreso = $cantidad_columna_egresos + 7;
-    }
-    $sumColumns = [
-        'salario' => 0,
-        'sueldo' => 0,
-        'decimo_tercero' => 0,
-        'decimo_cuarto' => 0,
-        'fondos_reserva' => 0,
-        'iess' => 0,
-        'anticipo' => 0,
-        'bonificacion' => 0,
-        'bono_recurente' => 0,
-        'total_ingreso' => 0,
-        'prestamo_quirorafario' => 0,
-        'prestamo_hipotecario' => 0,
-        'extension_conyugal' => 0,
-        'prestamo_empresarial' => 0,
-        'supa' => 0,
-        'total_egreso' => 0,
-        'total' => 0,
-    ];
-@endphp
 
 <body>
     <header>
@@ -158,7 +160,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png')) }}"
+                            src="{{ $logo_principal}}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -314,7 +316,12 @@
             </tr>
             @foreach ($roles_pago as $rol_pago)
                 @php
-                    $sumColumns['prestamo_quirorafario'] += $rol_pago['prestamo_quirorafario'];
+                    $sumColumns['prestamo_quirorafario'] += round($rol_pago['prestamo_quirorafario'],2);
+                    $sumColumns['decimo_tercero']+=round($rol_pago['decimo_tercero'],2);
+                    $sumColumns['decimo_cuarto']+=round($rol_pago['decimo_cuarto'],2);
+                    $sumColumns['total_ingreso']+=round($rol_pago['total_ingreso'],2);
+                    $sumColumns['total_egreso']+=round($rol_pago['total_egreso'],2);
+                    $sumColumns['total']+=round($rol_pago['total'],2);
                 @endphp
                 <tr>
                     <td>{{ $rol_pago['item'] }}</td>
@@ -391,7 +398,7 @@
                     @endif
                     <td>{{ number_format($rol_pago['total_egreso'], 2, ',', '.') }}
                     </td>
-                    <td>{{ $rol_pago['total'] }}</td>
+                    <td>{{ number_format($rol_pago['total'], 2, ',', '.') }}</td>
                 </tr>
 
             @endforeach
@@ -402,9 +409,9 @@
                 <td>{{ number_format($sumatoria['salario'], 2, ',', '.') }}</td>
                 <td>&nbsp;</td>
                 <td>{{ number_format($sumatoria['sueldo'], 2, ',', '.') }}</td>
-                <td>{{ number_format($sumatoria['decimo_tercero'], 2, ',', '.') }}
+                <td>{{ number_format($sumColumns['decimo_tercero'], 2, ',', '.') }}
                 </td>
-                <td>{{ number_format($sumatoria['decimo_cuarto'], 2, ',', '.') }}
+                <td>{{ number_format($sumColumns['decimo_cuarto'], 2, ',', '.') }}
                 </td>
                 <td>{{ number_format($sumatoria['fondos_reserva'], 2, ',', '.') }}
                 </td>
@@ -422,16 +429,16 @@
                 </td>
                 <td>{{ number_format($sumatoria['extension_conyugal'], 2, ',', '.') }}
                 </td>
+                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @if ($tiene_supa)
                     <td>{{ number_format($sumatoria['supa'], 2, ',', '.') }}</td>
                 @endif
-                <td>{{ number_format($sumatoria['anticipo'], 2, ',', '.') }}</td>
                 @foreach ($sumatoria_egresos as $sumatoria_egreso)
                     <td>{{ number_format($sumatoria_egreso, 2, ',', '.') }}</td>
                 @endforeach
-                <td>{{ number_format($sumatoria['total_egreso'], 2, ',', '.') }}
+                <td>{{ number_format($sumColumns['total_egreso'], 2, ',', '.') }}
                 </td>
-                <td>{{ number_format($sumatoria['total'], 2, ',', '.') }}</td>
+                <td>{{ round($sumColumns['total'],2)}}</td>
             </tr>
         </table>
         <table class="firma" style="width: 100%;">

@@ -534,6 +534,7 @@ class UserSeeder extends Seeder
             [17, 'App\\Models\\User', 119],
             [8, 'App\\Models\\User', 120],
             [17, 'App\\Models\\User', 120],
+            [8, 'App\\Models\\User', 121],
         ];
 
         foreach ($datos as $fila) {

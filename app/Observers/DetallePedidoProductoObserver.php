@@ -20,6 +20,7 @@ class DetallePedidoProductoObserver
     public function created(DetallePedidoProducto $detallePedidoProducto)
     {
         Log::channel('testing')->info('Log', ['Created del observer de DetallePedidoProducto', $detallePedidoProducto]);
+        DetallePedidoProducto::verificarDespachoItems($detallePedidoProducto);
     }
 
     /**
@@ -31,7 +32,7 @@ class DetallePedidoProductoObserver
     public function updated(DetallePedidoProducto $detallePedidoProducto)
     {
 
-        Log::channel('testing')->info('Log', ['Updated del observer de DetallePedidoProducto', $detallePedidoProducto]);
+        // Log::channel('testing')->info('Log', ['Updated del observer de DetallePedidoProducto', $detallePedidoProducto]);
 
         DetallePedidoProducto::verificarDespachoItems($detallePedidoProducto);
     }
@@ -72,5 +73,5 @@ class DetallePedidoProductoObserver
         //
     }
 
-    
+
 }

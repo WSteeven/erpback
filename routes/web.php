@@ -5,7 +5,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
+use App\Mail\Notificar;
 use App\Models\PrestamoTemporal;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -38,3 +40,9 @@ Route::get('pedidos/imprimir/{pedido}', [PedidoController::class, 'imprimir'])->
 
 Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\pdf-excel\resumen_tendido.php
 Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));
+
+Route::get('/notificar', function(){
+    $response = Mail::to('wilsonsteeven@outlook.com')->cc(['wilson972906@gmail.com', 'wcordova@jpconstrucred.com', 'full.stack.developer1997@gmail.com'])->send(new Notificar());
+    
+    dump($response);
+});

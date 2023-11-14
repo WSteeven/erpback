@@ -45,4 +45,6 @@ enum RutasStorage: string
      * MODULO DE VEHICULOS
      */
     case VEHICULOS = 'public/vehiculos/';
+    case PREINGRESOS  = 'public/preingresos/archivos';
+    case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
 }
