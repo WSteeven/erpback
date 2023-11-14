@@ -191,11 +191,17 @@
                     </td>
                    <td style="font-size:10px">
                         <div class="col-md-3">
-                            <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante']))  }}" height="450">
+                            <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
+                                <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante']))  }}" width="250">
+                            </a>
                         </div>
                     </td>
                      <td style="font-size:10px">
-                        <div class="col-md-3"><img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2']))  }}" height="450"/></div>
+                        <div class="col-md-3">
+                            <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">
+                                <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2']))  }}" width="250"/>
+                            </a>
+                        </div>
                     </td>
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['observacion'] }}</div>
@@ -230,7 +236,7 @@
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 750, $text, $font, 12);
+                $pdf->page_text(10, 1130, $text, $font, 12);
         }
     </script>
 </body>
