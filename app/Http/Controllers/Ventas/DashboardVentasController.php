@@ -7,13 +7,16 @@ use App\Http\Resources\Ventas\VentasResource;
 use App\Models\Ventas\ProductoVentas;
 use App\Models\Ventas\Ventas;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardVentasController extends Controller
 {
     public function index()
     {
+        try {
         // Obtencion de parametros
         $idVendedor = request('vendedor_id');
         $fechaInicio = request('fecha_inicio');
@@ -21,22 +24,26 @@ class DashboardVentasController extends Controller
         // Conversion de fechas
         $fecha_inicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
         $fecha_fin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
-        $query_ventas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->with('vendedor', 'producto');
-        $cantidad_ventas = $query_ventas->where('vendedor_id', $idVendedor)->get()->count();
+        $queryVentas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->with('vendedor', 'producto');
+        $cantidad_ventas = $queryVentas->where('vendedor_id', $idVendedor)->get()->count();
         $cantidad_ventas_instaladas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'APROBADO')->get()->count();
         $cantidad_ventas_por_instalar =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'PENDIENTE')->get()->count();
         $cantidad_ventas_por_rechazadas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'RECHAZADA')->get()->count();
-        $ventasPorEstado = $query_ventas->get();
-        $ventasPorPlanes = $query_ventas->where('estado_activ', 'APROBADO')->get();
+        $ventasPorEstado = $queryVentas->get();
+        $ventasPorPlanes = $queryVentas->where('estado_activ', 'APROBADO')->get();
         $ventasPorEstado = VentasResource::collection($ventasPorEstado);
         $graficoVentasPorEstado = Ventas::select('estado_activ', DB::raw('COUNT(*) as total_ventas'))
             ->groupBy('estado_activ')
             ->get();
-        $graficoVentasPorPlanes = ProductoVentas::select('ventas_planes.nombre', DB::raw('COUNT(*) AS total_ventas'))
-            ->join('ventas_planes', 'ventas_producto_ventas.plan_id', '=', 'ventas_planes.id')
-            ->groupBy('ventas_planes.nombre')
-            ->get();
+        $graficoVentasPorPlanes = [];
+        foreach ($ventasPorPlanes as $venta){
+            $planId = optional($venta->producto->plan)->nombre;
+            if (!isset($graficoVentasPorPlanes[$planId])) {
+                $graficoVentasPorPlanes[$planId] = 0;
+            }
+            $graficoVentasPorPlanes[$planId]++;
 
+        }
         $ventasPorPlanes = VentasResource::collection($ventasPorPlanes);
         // Generar el JSON
         $ventasPorEstadoBar = [
@@ -55,7 +62,7 @@ class DashboardVentasController extends Controller
         ];
 
         $ventasPorPlanesoBar = [
-            'labels' => $graficoVentasPorPlanes->pluck('nombre'),
+            'labels' => array_keys($graficoVentasPorPlanes),
             'datasets' => [
                 [
                     'backgroundColor' => [
@@ -64,12 +71,17 @@ class DashboardVentasController extends Controller
                         "#25DB8A"
                     ],
                     'label' => "Cantidad de ventas por planes",
-                    'data' => $graficoVentasPorPlanes->pluck('total_ventas'),
+                    'data' =>array_values($graficoVentasPorPlanes),
                 ],
             ],
         ];
 
         $results = compact('cantidad_ventas', 'cantidad_ventas_instaladas', 'cantidad_ventas_por_instalar', 'cantidad_ventas_por_rechazadas', 'ventasPorEstado', 'ventasPorPlanes', 'ventasPorEstadoBar','ventasPorPlanesoBar');
         return response()->json(compact('results'));
+
+    } catch (Exception $e) {
+        Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+    }
+
     }
 }
