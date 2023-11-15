@@ -25,7 +25,7 @@ class MultaConductorController extends Controller
 
     public function index()
     {
-        $results = MultaConductor::filter();
+        $results = MultaConductor::filter()->get();
         $results = MultaConductorResource::collection($results);
         return response()->json(compact('results'));
     }

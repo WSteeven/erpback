@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('veh_multas_conductores', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('empleado_id');
+            $table->unsignedBigInteger('empleado_id')->nullable();
             $table->timestamp('fecha_infraccion');
             $table->timestamp('fecha_pago')->nullable();
             $table->timestamp('comentario')->nullable();

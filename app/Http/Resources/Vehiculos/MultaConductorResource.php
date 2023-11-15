@@ -14,6 +14,24 @@ class MultaConductorResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'empleado' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
+            'empleado_id' => $this->empleado_id,
+            'fecha_infraccion' => $this->fecha_infraccion,
+            'placa' => $this->placa,
+            'puntos' => $this->puntos,
+            'total' => $this->total,
+            'estado' => $this->estado,
+            'fecha_pago' => $this->fecha_pago,
+            'comentario'  => $this->comentario
+        ];
+
+        if ($controller_method == 'show') {
+            $modelo['empleado'] = $this->empleado_id;
+        }
+
+        return $modelo;
     }
 }

@@ -13,7 +13,7 @@ class MultaConductorRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,14 @@ class MultaConductorRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'empleado_id',
+        'fecha_infraccion',
+        'placa',
+        'puntos',
+        'total',
+        'estado',
+        'fecha_pago',
+        'comentario',
         ];
     }
 }
