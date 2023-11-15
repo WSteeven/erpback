@@ -328,16 +328,19 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="30%">
+                    <div align="center"><strong>DESCRIPCION DETALLE</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
                     <div align="center"><strong>COMPROBANTE 1</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
                     <div align="center"><strong>COMPROBANTE 2</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="43%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="33%">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="43%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
@@ -363,7 +366,7 @@
                         </div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left">{{ $gasto['lugar'] }}
+                        <div align="left">{{ strtoupper($gasto['lugar']) }}
                         </div>
                     </td>
                     <td style="font-size:10px">
@@ -374,6 +377,9 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['factura'] }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
                     </td>
                     <td style="font-size:10px">
                         <div class="col-md-3">
@@ -392,10 +398,10 @@
                         </div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left">{{ $gasto['observacion'] }}</div>
+                        <div align="left">{{ strtoupper($gasto['observacion']) }}</div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                        <div align="left">{{ strtoupper($gasto['detalle_estado']) }}</div>
                     </td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
