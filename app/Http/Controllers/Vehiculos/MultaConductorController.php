@@ -8,6 +8,7 @@ use App\Http\Resources\Vehiculos\MultaConductorResource;
 use App\Models\Vehiculos\MultaConductor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -81,18 +82,20 @@ class MultaConductorController extends Controller
 
     public function pagar(Request $request, MultaConductor $multa)
     {
+        Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $request->validate([
-            'estado' => ['required', 'boolean'],
             'fecha_pago' => ['required', 'string'],
             'comentario' => ['nullable', 'string'],
         ]);
-
-        $multa->estado = $request['estado'];
-        $multa->fecha_pago = $request['fecha_pago'];
-        $multa->comentario = $request['comentario'];
-        $multa->save();
+        if (!$multa->estado) {
+            $multa->estado = true;
+            $multa->fecha_pago = date('Y-m-d', strtotime($request['fecha_pago']));
+            $multa->comentario = $request['comentario'];
+            $multa->save();
+        }
 
         $modelo = new MultaConductorResource($multa->refresh());
-        return response()->json(compact('modelo'));
+        $mensaje = 'Multa actualizada correctamente';
+        return response()->json(compact('modelo', 'mensaje'));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models\Vehiculos;
 
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,17 +31,15 @@ class Conductor extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        // 'inicio_vigencia'=>'datetime:Y-m-d',
-        // 'fin_vigencia'=>'datetime:',
     ];
 
     private static $whiteListFilter = ['*'];
 
-     //obtener la llave primaria
-     public function getKeyName()
-     {
-         return 'empleado_id';
-     }
+    //obtener la llave primaria
+    public function getKeyName()
+    {
+        return 'empleado_id';
+    }
 
     /**
      * ______________________________________________________________________________________
@@ -55,5 +54,13 @@ class Conductor extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class);
     }
-    
+
+    /**
+     * Relación uno a muchos.
+     * Un Conductor tiene una o varias multas
+     */
+    public function multas()
+    {
+        return $this->hasMany(MultaConductor::class,  'empleado_id');
+    }
 }

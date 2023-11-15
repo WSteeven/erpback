@@ -30,7 +30,7 @@ class ConductorController extends Controller
      */
     public function index()
     {
-        $results = Conductor::all();
+        $results = Conductor::filter()->get();
         $results = ConductorResource::collection($results);
         return response()->json(compact('results'));
     }
