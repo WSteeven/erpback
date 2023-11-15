@@ -3,6 +3,7 @@
 use App\Http\Controllers\Vehiculos\BitacoraVehicularController;
 use App\Http\Controllers\Vehiculos\CombustibleController;
 use App\Http\Controllers\Vehiculos\ConductorController;
+use App\Http\Controllers\Vehiculos\MultaConductorController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -12,6 +13,7 @@ Route::apiResources(
     [
         'combustibles' => CombustibleController::class,
         'conductores' =>ConductorController::class,
+        'multas' => MultaConductorController::class,
         'vehiculos' => VehiculoController::class,
         'bitacoras-vehiculos' => BitacoraVehicularController::class,
     ],

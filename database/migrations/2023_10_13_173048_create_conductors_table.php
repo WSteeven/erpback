@@ -13,9 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('conductors', function (Blueprint $table) {
-            $table->id();
+        Schema::create('veh_conductores', function (Blueprint $table) {
+            $table->unsignedBigInteger('empleado_id');
+            $table->string('tipo_licencia');
+            $table->date('inicio_vigencia');
+            $table->date('fin_vigencia');
+            $table->double('puntos');
             $table->timestamps();
+
+            $table->primary('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -26,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('conductors');
+        Schema::dropIfExists('veh_conductores');
     }
 };

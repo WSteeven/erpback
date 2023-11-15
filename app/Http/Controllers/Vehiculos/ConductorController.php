@@ -9,6 +9,7 @@ use App\Models\Vehiculos\Conductor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ConductorController extends Controller
@@ -16,7 +17,10 @@ class ConductorController extends Controller
     private $entidad = 'Conductor';
     public function __construct()
     {
-        //
+        $this->middleware('can:puede.ver.conductores')->only('index', 'show');
+        $this->middleware('can:puede.crear.conductores')->only('store');
+        $this->middleware('can:puede.editar.conductores')->only('update');
+        $this->middleware('can:puede.eliminar.conductores')->only('destroy');
     }
 
     /**
@@ -26,8 +30,7 @@ class ConductorController extends Controller
      */
     public function index()
     {
-        // $results = Conductor::all();
-        $results = [];
+        $results = Conductor::all();
         $results = ConductorResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -49,8 +52,12 @@ class ConductorController extends Controller
             $modelo = new ConductorResource($conductor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             $mensaje = '(' . $e->getLine() . ') Hubo un error al registrar un conductor: ' . $e->getMessage();
+            throw ValidationException::withMessages([
+                '500' => [$mensaje],
+            ]);
             return response()->json(compact('mensaje'), 500);
         }
     }
@@ -63,7 +70,8 @@ class ConductorController extends Controller
      */
     public function show(Conductor $conductor)
     {
-        //
+        $modelo = new ConductorResource($conductor);
+        return response()->json(compact('modelo'));
     }
 
     /**
@@ -73,9 +81,25 @@ class ConductorController extends Controller
      * @param  \App\Models\Conductor  $conductor
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Conductor $conductor)
+    public function update(ConductorRequest $request, Conductor $conductor)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $datos = $request->validated();
+            $datos['empleado_id'] = $request->safe()->only('empleado')['empleado'];
+
+            $conductor->update($datos);
+            $modelo = new ConductorResource($conductor);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            $mensaje = '(' . $e->getLine() . ') Hubo un error al actualizar el conductor: ' . $e->getMessage();
+            throw ValidationException::withMessages([
+                '500' => [$mensaje],
+            ]);
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 
     /**

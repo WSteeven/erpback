@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Vehiculos;
 
+use App\Http\Resources\EmpleadoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConductorResource extends JsonResource
@@ -16,7 +17,7 @@ class ConductorResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id' => $this->id,
+            'id' => $this->empleado_id,
             'empleado' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
             'identificacion' => $this->empleado->identificacion,
             'tipo_licencia' => $this->tipo_licencia,
@@ -24,6 +25,7 @@ class ConductorResource extends JsonResource
             'fin_vigencia' => $this->fin_vigencia,
             'puntos' => $this->puntos,
             'plaza' => $this->plaza,
+            'info_empleado'  => new EmpleadoResource($this->empleado)
         ];
 
         if ($controller_method == 'show') {
