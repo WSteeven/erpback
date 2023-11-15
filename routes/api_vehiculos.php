@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources(
     [
         'combustibles' => CombustibleController::class,
-        'conductores' =>ConductorController::class,
+        'conductores' => ConductorController::class,
         'multas' => MultaConductorController::class,
         'vehiculos' => VehiculoController::class,
         'bitacoras-vehiculos' => BitacoraVehicularController::class,
@@ -26,13 +26,11 @@ Route::apiResources(
     ]
 );
 
-Route::get('empleados-choferes', fn () => ['results' => UserResource::collection(User::role(User::CHOFER)->with('empleado')->get())])->middleware('auth:sanctum'); //usuarios con rol de chofer
-
+// pagar multas
+Route::post('multas/marcar-pagada/{multa}', [MultaConductorController::class, 'pagar'])->middleware('auth:sanctum');
 
 // listar archivos
 Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles'])->middleware('auth:sanctum');
 
 // guardar archivos
 Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
-
-

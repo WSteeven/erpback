@@ -25,7 +25,7 @@ class MultaConductorController extends Controller
 
     public function index()
     {
-        $results = MultaConductor::filter()->get();
+        $results = MultaConductor::filter()->orderBy('id', 'desc')->get();
         $results = MultaConductorResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -77,5 +77,22 @@ class MultaConductorController extends Controller
             ]);
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    public function pagar(Request $request, MultaConductor $multa)
+    {
+        $request->validate([
+            'estado' => ['required', 'boolean'],
+            'fecha_pago' => ['required', 'string'],
+            'comentario' => ['nullable', 'string'],
+        ]);
+
+        $multa->estado = $request['estado'];
+        $multa->fecha_pago = $request['fecha_pago'];
+        $multa->comentario = $request['comentario'];
+        $multa->save();
+
+        $modelo = new MultaConductorResource($multa->refresh());
+        return response()->json(compact('modelo'));
     }
 }

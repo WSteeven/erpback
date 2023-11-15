@@ -23,15 +23,25 @@ class MultaConductorRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'empleado_id',
-        'fecha_infraccion',
-        'placa',
-        'puntos',
-        'total',
-        'estado',
-        'fecha_pago',
-        'comentario',
+        $rules =  [
+            'empleado' => 'required|exists:veh_conductores,empleado_id',
+            'fecha_infraccion' => 'required|string',
+            'placa' => 'nullable|sometimes',
+            'puntos' => 'string|sometimes',
+            'total' => 'numeric|required',
+            'estado' => 'sometimes|boolean',
+            'fecha_pago' => 'string|sometimes|nullable',
+            'comentario' => 'string|sometimes|nullable',
         ];
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $rules['empleado'] = ['required'];
+        }
+        return $rules;
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge(['fecha_infraccion' => date('Y-m-d', strtotime($this->fecha_infraccion))]);
+        $this->merge(['fecha_pago' => date('Y-m-d', strtotime($this->fecha_pago))]);
     }
 }

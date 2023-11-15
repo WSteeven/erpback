@@ -17,14 +17,14 @@ class MultaConductorResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'empleado' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
+            'empleado' => $this->conductor->empleado->nombres . ' ' . $this->conductor->empleado->apellidos,
             'empleado_id' => $this->empleado_id,
-            'fecha_infraccion' => $this->fecha_infraccion,
+            'fecha_infraccion' => date('d-m-Y', strtotime($this->fecha_infraccion)),
             'placa' => $this->placa,
             'puntos' => $this->puntos,
             'total' => $this->total,
             'estado' => $this->estado,
-            'fecha_pago' => $this->fecha_pago,
+            'fecha_pago' => date('d-m-Y', strtotime($this->fecha_pago)),
             'comentario'  => $this->comentario
         ];
 

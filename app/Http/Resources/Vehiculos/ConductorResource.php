@@ -19,10 +19,12 @@ class ConductorResource extends JsonResource
         $modelo = [
             'id' => $this->empleado_id,
             'empleado' => $this->empleado->nombres . ' ' . $this->empleado->apellidos,
+            'nombres' => $this->empleado->nombres,
+            'apellidos' => $this->empleado->apellidos,
             'identificacion' => $this->empleado->identificacion,
             'tipo_licencia' => $this->tipo_licencia,
-            'inicio_vigencia' => $this->inicio_vigencia,
-            'fin_vigencia' => $this->fin_vigencia,
+            'inicio_vigencia' =>date('d-m-Y', strtotime( $this->inicio_vigencia)),
+            'fin_vigencia' =>date('d-m-Y', strtotime( $this->fin_vigencia)),
             'puntos' => $this->puntos,
             'plaza' => $this->plaza,
             'info_empleado'  => new EmpleadoResource($this->empleado)

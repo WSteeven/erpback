@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('empleado_id')->nullable();
             $table->timestamp('fecha_infraccion');
             $table->timestamp('fecha_pago')->nullable();
-            $table->timestamp('comentario')->nullable();
+            $table->string('comentario')->nullable();
             $table->string('placa')->nullable();
             $table->double('puntos', 6, 2)->nullable();
             $table->double('total', 6, 2);
