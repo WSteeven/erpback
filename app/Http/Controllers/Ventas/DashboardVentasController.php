@@ -44,8 +44,14 @@ class DashboardVentasController extends Controller
             $graficoVentasPorPlanes[$planId]++;
 
         }
+        $ventas_mes = Ventas::select(DB::raw('MONTHNAME(created_at) AS mes'), DB::raw('COUNT(*) as total_ventas'))
+        ->where('created_at','<=',Carbon::now())
+        ->where('estado_activ', 'APROBADO')
+        ->groupBy('mes')
+        ->orderBy('mes', 'ASC')
+        ->get();
         $ventasPorPlanes = VentasResource::collection($ventasPorPlanes);
-        // Generar el JSON
+        // Generar data para graficos estadisticos
         $ventasPorEstadoBar = [
             'labels' => $graficoVentasPorEstado->pluck('estado_activ'),
             'datasets' => [
@@ -75,8 +81,20 @@ class DashboardVentasController extends Controller
                 ],
             ],
         ];
+        $ventasTiemposLine = [
+            'labels' => $ventas_mes->pluck('mes'),
+            'datasets' => [
+                [
+                    'label' => "Cantidad de ventas por mes",
+                    'backgroundColor' => [
+                        "#D62C18 ",
+                    ],
+                    'data' =>$ventas_mes->pluck('total_ventas'),
+                ],
+            ],
+        ];
 
-        $results = compact('cantidad_ventas', 'cantidad_ventas_instaladas', 'cantidad_ventas_por_instalar', 'cantidad_ventas_por_rechazadas', 'ventasPorEstado', 'ventasPorPlanes', 'ventasPorEstadoBar','ventasPorPlanesoBar');
+        $results = compact('cantidad_ventas', 'cantidad_ventas_instaladas', 'cantidad_ventas_por_instalar', 'cantidad_ventas_por_rechazadas', 'ventasPorEstado', 'ventasPorPlanes', 'ventasPorEstadoBar','ventasPorPlanesoBar','ventasTiemposLine');
         return response()->json(compact('results'));
 
     } catch (Exception $e) {
