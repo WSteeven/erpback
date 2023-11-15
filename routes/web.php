@@ -42,7 +42,7 @@ Route::view('resumen-tendido', 'pdf-excel.resumen_tendido'); //resources\views\p
 Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport, 'users.xlsx'));
 
 Route::get('/notificar', function(){
-    $response = Mail::to('full.stack.developer1997@gmail.com')->cc(['wilson972906@gmail.com', 'wcordova@jpconstrucred.com'])->send(new Notificar());
+    $response = Mail::to('wilsonsteeven@outlook.com')->cc(['wilson972906@gmail.com', 'wcordova@jpconstrucred.com', 'full.stack.developer1997@gmail.com'])->send(new Notificar());
     
     dump($response);
 });

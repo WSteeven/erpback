@@ -636,8 +636,17 @@ class TransaccionBodegaIngresoService
     public static function actualizarDevolucion($transaccion, $detalle, $cantidad)
     {
         $itemDevolucion  = DetalleDevolucionProducto::where('devolucion_id', $transaccion->devolucion_id)->where('detalle_id', $detalle->id)->first();
-        $itemDevolucion->devuelto += $cantidad;
-        $itemDevolucion->save();
+        if($itemDevolucion){    
+            $itemDevolucion->devuelto += $cantidad;
+            $itemDevolucion->save();
+        }else{
+            $itemDevolucion = DetalleDevolucionProducto::create([
+                'devolucion_id'=>$transaccion->devolucion_id,
+                'detalle_id'=>$detalle->id,
+                'cantidad'=>$cantidad,
+                'devuelto'=>$cantidad,
+            ]);
+        }
         //aquí se verifica si se completaron los items de la devolución y se actualiza con parcial o completado según corresponda.
         DevolucionService::verificarItemsDevolucion($itemDevolucion);
     }
