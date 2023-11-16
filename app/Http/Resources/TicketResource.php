@@ -9,6 +9,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TicketResource extends JsonResource
 {
@@ -53,10 +54,12 @@ class TicketResource extends JsonResource
             'calificado_solicitante' => $this->verificarSiCalificado('SOLICITANTE', $this->solicitante_id),
             'calificado_responsable' => $this->verificarSiCalificado('RESPONSABLE', $this->responsable_id),
             'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
-            'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivo(),
+            'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivoTotal(),
+            'tiempo_hasta_finalizar_horas' => $this->calcularTiempoEfectivoTotalHoras(),
+            // 'tiempo_hasta_finalizar_segundos' => $this->calcularTiempoEfectivoTotalSegundos(),
+            'tiempo_hasta_finalizar_departamento' => $this->calcularTiempoEfectivoDepartamento(),
             'tiempo_ocupado_pausas' => $this->calcularTiempoPausado(),
         ];
-
 
         if ($controller_method == 'show') {
             $modelo['solicitante'] = $this->solicitante_id;
@@ -79,9 +82,57 @@ class TicketResource extends JsonResource
         return $this->calificacionesTickets()->where('calificador_id', $idEmpleado)->where('solicitante_o_responsable', $solicitante_o_responsable)->exists();
     }
 
-    private function calcularTiempoEfectivo()
+    private function calcularTiempoEfectivoTotal()
     {
-        return in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]) ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_finalizado)->diffInSeconds(Carbon::parse($this->fecha_hora_ejecucion)))->cascade()->forHumans() : null;
+        if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
+            $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])))->cascade()->forHumans() : null;
+        } else {
+            return null;
+        }
+    }
+
+    private function calcularTiempoEfectivoTotalHoras()
+    {
+        if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
+            $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInHours(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
+        } else {
+            return null;
+        }
+    }
+
+    private function calcularTiempoEfectivoTotalSegundos()
+    {
+        if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
+            $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            // return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion']))) : null;
+            return $finalizacion ? Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])) : null;
+        } else {
+            return null;
+        }
+    }
+
+    private function calcularTiempoEfectivoDepartamento()
+    {
+        // return in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]) ? CarbonInterval::seconds(Carbon::parse($this->fecha_hora_finalizado)->diffInSeconds(Carbon::parse($this->fecha_hora_ejecucion)))->cascade()->forHumans() : null;
+        if (in_array($this->estado, [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION])) {
+            $tiempos = $this->audits()->get(['auditable_id', 'user_id', 'new_values', 'created_at']);
+            // Log::channel('testing')->info('Log', compact('tiempos'));
+            $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
+            $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
+            // Log::channel('testing')->info('Log', compact('primerEjecucion'));
+            // Log::channel('testing')->info('Log', compact('finalizacion'));
+            return $finalizacion ? CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])))->cascade()->forHumans() : null;
+        } else {
+            return null;
+        }
     }
 
     private function calcularTiempoPausado()
