@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Ventas;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class VentasResource extends JsonResource
@@ -25,6 +26,7 @@ class VentasResource extends JsonResource
             'producto_info' =>  $this->producto!=null? $this->producto->bundle_id:'',
             'plan' =>   $this->producto!=null? strtoupper($this->producto->plan->nombre):'',
             'fecha_activ' => $this->fecha_activ,
+            'mes' => strtoupper(Carbon::parse($this->created_at)->translatedFormat('F-Y')),
             'estado_activ' => $this->estado_activ,
             'forma_pago' => $this->forma_pago,
             'comision' => $this->comision_id,

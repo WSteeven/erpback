@@ -114,13 +114,17 @@ class VentasController extends Controller
     public function reporte_ventas(Request $request)
     {
         try {
-            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
-            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $ventas = Ventas::whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin])->with('vendedor', 'producto')->get();
+            list($mes, $anio) = explode('-', $request->mes);
+            // Convertir el mes a su nombre
+            $meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+            $nombreMes = $meses[$mes - 1];
+            // Concatenar los componentes de la fecha
+            $fechaConvertida = "$nombreMes DEL $anio";
+            $ventas = Ventas::whereMonth('created_at', $mes)->whereYear('created_at', $anio)->with('vendedor', 'producto')->get();
             $reportes = Ventas::empaquetarVentas($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
-            $export_excel = new ReporteVentasExport(compact('reportes', 'config'));
+            $export_excel = new ReporteVentasExport(compact('reportes', 'config','fechaConvertida'));
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', [compact('ex')]);

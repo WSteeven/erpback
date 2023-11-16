@@ -14,7 +14,7 @@
                 <img align="center" width="90" src="{{ public_path($config['logo_claro']) }}" border="0" />
             </div>
         </td>
-        <td colspan="12" style="text-align: center; font-weight: bold; padding-bottom: 25%; padding-top: 25%;">INFORME GENERAL DE VENTAS DEL MES DE SEPTIEMBRE </td>
+        <td colspan="12" style="text-align: center; font-weight: bold; padding-bottom: 25%; padding-top: 25%;">INFORME GENERAL DE VENTAS DEL MES DE {{ $fechaConvertida }} </td>
     </tr>
     <tr >
         <td style="font-weight: bold">JEFE DE VENTAS NACIONAL :</td>
