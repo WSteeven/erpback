@@ -9,6 +9,7 @@ use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionSemanaResource;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\AcreditacionSemana;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use Maatwebsite\Excel\Facades\Excel;
@@ -94,7 +95,7 @@ class AcreditacionSemanaController extends Controller
                 'updated_at'=> $date
             ];
         }
-        Acreditaciones::insert($acreditaciones);
+        $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
     }
     public function crear_cash_acreditacion_saldo($id)
     {
@@ -129,17 +130,14 @@ class AcreditacionSemanaController extends Controller
             $acreditacionsemana->save();
             $modelo = new AcreditacionSemanaResource($acreditacionsemana);
             $mensaje = 'Se ha generado  Acreditacion de la semana exitosamente';
-            $saldosPorUsuario = DB::table('saldo_grupo')
-                ->select('saldo_grupo.id_usuario', 'saldo_grupo.saldo_actual', 'fr_umbral_fondos_rotativos.valor_minimo')
-                ->join('fr_umbral_fondos_rotativos', 'saldo_grupo.id_usuario', '=', 'fr_umbral_fondos_rotativos.empleado_id')
-                ->groupBy('saldo_grupo.id_usuario')
-                ->get();
+            $umbrales = UmbralFondosRotativos::get();
             $acreditaciones = [];
-            foreach ($saldosPorUsuario as $key => $empleado) {
-                $valorRecibir = $empleado->valor_minimo - $empleado->saldo_actual;
-                $numeroRedondeado = ceil($valorRecibir / 10) * 10;
+            foreach ($umbrales as $key => $umbral) {
+                $saldo_actual = $this->obtener_saldo_actual($umbral->empleado_id);
+                $valorRecibir = $umbral->valor_minimo - $saldo_actual;
+                $numeroRedondeado = $valorRecibir>0 ?(ceil($valorRecibir / 10) * 10):0;
                 $acreditaciones[] = [
-                    'empleado_id' => $empleado->id_usuario,
+                    'empleado_id' => $umbral->empleado_id,
                     'acreditacion_semana_id' => $acreditacionsemana->id,
                     'monto_generado' => $numeroRedondeado,
                     'monto_modificado' => $numeroRedondeado,
@@ -155,5 +153,10 @@ class AcreditacionSemanaController extends Controller
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
+    }
+    public function obtener_saldo_actual($empleado_id){
+        $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
+        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
+        return $saldo_actual;
     }
 }

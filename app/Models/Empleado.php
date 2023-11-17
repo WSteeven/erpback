@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
@@ -376,7 +377,10 @@ class Empleado extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
-
+    public function umbral()
+    {
+        return $this->hasOne(UmbralFondosRotativos::class, 'empleado_id', 'id');
+    }
 
     public static function empaquetarListado($empleados)
     {

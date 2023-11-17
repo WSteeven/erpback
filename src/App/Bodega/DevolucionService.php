@@ -3,10 +3,13 @@
 namespace Src\App\Bodega;
 
 use App\Http\Resources\PedidoResource;
+use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
 use App\Models\Pedido;
 use App\Models\User;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Config\Autorizaciones;
@@ -84,9 +87,10 @@ class DevolucionService
         return $results;
     }
 
-    public static function verificarItemsDevolucion($detalleDevolucionProducto){
+    public static function verificarItemsDevolucion($detalleDevolucionProducto)
+    {
         $resultados = DB::select('select count(*) as cantidad from detalle_devolucion_producto dpp where dpp.devolucion_id=' . $detalleDevolucionProducto->devolucion_id . ' and dpp.cantidad!=dpp.devuelto');
-        $devolucion =Devolucion::find($detalleDevolucionProducto->devolucion_id);
+        $devolucion = Devolucion::find($detalleDevolucionProducto->devolucion_id);
 
         if ($resultados[0]->cantidad > 0) {
             // Log::channel('testing')->info('Log', ['todavia no esta completada']);
@@ -94,6 +98,41 @@ class DevolucionService
         } else {
             // Log::channel('testing')->info('Log', ['la devolucion esta completada!!']);
             $devolucion->update(['estado_bodega' => EstadoTransaccion::COMPLETA]);
+        }
+    }
+
+    public static function crearPedidoAutomatico($devolucion)
+    {
+        try {
+            DB::beginTransaction();
+            $carbon = new Carbon();
+            $fecha_limite = $carbon->now()->addDays(2);
+            $pedido = Pedido::create([
+                'justificacion' => $devolucion->justificacion,
+                'fecha_limite' => date('Y-m-d', strtotime($fecha_limite)),
+                'solicitante_id' => $devolucion->solicitante_id,
+                'responsable_id' => $devolucion->solicitante_id,
+                'autorizacion_id' => $devolucion->autorizacion_id,
+                'per_autoriza_id' => $devolucion->per_autoriza_id,
+                'tarea_id' => $devolucion->tarea_id ? $devolucion->tarea_id : null,
+                'sucursal_id' => $devolucion->sucursal_id,
+                'estado_id' => EstadosTransacciones::PENDIENTE
+            ]);
+            $itemsDevolucion = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->get();
+            foreach ($itemsDevolucion as $item) {
+                $pedido->detalles()->attach(
+                    $item['detalle_id'],
+                    [
+                        'cantidad' => $item['cantidad'],
+                        'solicitante_id' => $devolucion->solicitante_id
+                    ]
+                );
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR', $th->getMessage(), $th->getLine()]);
+            throw $th;
         }
     }
 }

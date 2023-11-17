@@ -308,6 +308,190 @@ class Utils
         }
     }
 
+    public static function colorDefault()
+    {
+        return [
+            '#dce83a',
+            '#13d664',
+            '#d61324',
+            '#4854d4',
+            '#a8a0a2',
+            '#7d6351',
+            '#e6e6e6'
+        ];
+    }
+    public static function coloresBlueTeal()
+    {
+        return [
+            "#348888",
+            "#22BABB",
+            "#9EF8EE",
+            "#FA7F08",
+            "#F24405",
+            "orange",
+            "cyan",
+            "magenta",
+            "gray",
+        ];
+    }
+    public static function coloresAzulPrincipal()
+    {
+        return [
+            "#0000ff",
+            "#add8e6",
+            "#00ffff",
+            "#00bfff",
+            "#40e0d0",
+            "#008080",
+            "#4b0082",
+            "#800080",
+            "#ee82ee",
+        ];
+    }
+    public static function coloresAmarilloPrincipal()
+    {
+        return [
+            "#ffff00",
+            "#ffeb3b",
+            "#ffffe0",
+            "#ffdab9",
+            "#bdb76b",
+            "#8b8b00",
+            "#cd9b33",
+            "#e59b33",
+            "#f0e68c",
+        ];
+    }
+    public static function coloresVintagePrincipal()
+    {
+        return [
+            "#d8bfd8",
+            "#e6e6fa",
+            "#f0e68c",
+            "#96a8a2",
+            "#8b8b00",
+            "#bdb76b",
+            "#f5f5dc",
+            "#999999",
+            "#696969",
+        ];
+    }
+    public static function coloresAqua()
+    {
+        return [
+            "#00ffff",
+            "#adff2f",
+            "#a0d6ff",
+            "#40e0d0",
+            "#008080",
+            "#8080ff",
+            "#96c8ff",
+            "#b0e0e6",
+            "#ffffff",
+        ];
+    }
+
+    public static function coloresTemaPrimaveral()
+    {
+        return [
+            "#fff8dc",
+            "#d9f0d3",
+            "#d0e0e0",
+            "#b2dfdb",
+            "#aed581",
+            "#8ae234",
+            "#66cdaa",
+            "#41b6c4",
+            "#29a7d7",
+        ];
+    }
+
+    public static function coloresTemaOtonio()
+    {
+        return [
+            "#f7d000",
+            "#f4a460",
+            "#d78b00",
+            "#c57100",
+            "#8b4513",
+            "#a0522d",
+            "#7f3a1f",
+            "#6c341e",
+            "#4b2b1c",
+        ];
+    }
+
+    public function coloresTemaVerano()
+    {
+        return [
+            "#fff5f0",
+            "#d3e0e9",
+            "#a0c4de",
+            "#76a5cf",
+            "#4f86bc",
+            "#3b6eac",
+            "#2d59a5",
+            "#234f9d",
+            "#1a4795",
+        ];
+    }
+    public function coloresTemaMapaCalor()
+    {
+        return [
+            "#ff0000",
+            "#ff7f00",
+            "#ffb74d",
+            "#ffec8b",
+            "#ffff00",
+            "#bfff00",
+            "#9eff00",
+            "#8eff00",
+            "#7eff00",
+        ];
+    }
+    public function coloresTemaMapaFrio()
+    {
+        return [
+            "#0000ff",
+            "#00a0ff",
+            "#00dfff",
+            "#00ffff",
+            "#87ffff",
+            "#dfffdf",
+            "#ffffff",
+            "#dfffff",
+            "#ffff87",
+        ];
+    }
+    public static function coloresAleatorios()
+    {
+        return [
+            "#3498db", // Azul
+            "#e74c3c", // Rojo
+            "#2ecc71", // Verde
+            "#f39c12", // Naranja
+            "#9b59b6", // Morado
+            "#1abc9c", // Turquesa
+            "#e67e22", // Zanahoria
+            "#34495e", // Gris Azulado
+            "#d35400", // Calabaza
+            "#27ae60"  // Esmeralda
+        ];
+    }
+    public static function coloresAleatorios2()
+    {
+        return [
+            "#ff0000",
+            "#00ff00",
+            "#0000ff",
+            "#ffff00",
+            "#ffa500",
+            "#ff00ff",
+            "#ff7f00",
+            "#00ffff",
+            "#ffffff",
+        ];
+    }
 
     /**
      * ______________________________________________________________________________________

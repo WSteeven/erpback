@@ -6,12 +6,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orden de compra generada</title>
+    <title>Mensaje de Prueba</title>
 </head>
 <body>
-    <h2>JPCONSTRUCTRED C. Ltda.</h2>
+    <h3>Este es un mensaje de prueba</h3>
     <img src="{{ $logo_principal }}" alt="logo" width="100" height="100"/>
-    <h2> Estimado Proveedor, {{ $orden->solicitante->nombres }}  {{ $orden->solicitante->apellidos }} ha generado una orden de compra para usted. </h2>
-    <p>Por favor vea el archivo adjunto y sirvase a proveernos lo indicado en esta orden de compra</p>
 </body>
 </html>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\ComprasProveedores;
 
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class OrdenCompraRequest extends FormRequest
@@ -48,6 +49,7 @@ class OrdenCompraRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+        if(auth()->user()->hasRole(User::ROL_COMPRAS)) $this->merge(['estado'=>1]);
         $this->merge(['fecha' => date('Y-m-d', strtotime($this->fecha))]);
         if ($this->autorizacion === 2 && $this->preorden) $this->merge(['estado' => 2]);
 
