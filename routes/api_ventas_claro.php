@@ -42,5 +42,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-comision/{idProducto}/{forma_pago}', [ComisionesController::class, 'obtener_comision']);
     Route::post('cobrojp', [VentasController::class, 'generar_reporteCobroJP']);
     Route::post('reporte-ventas',[VentasController::class, 'reporte_ventas']);
+    Route::post('pago',[VentasController::class, 'reporte_pagos']);
     Route::get('dashboard', [DashboardVentasController::class, 'index']);
 });

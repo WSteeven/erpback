@@ -19,7 +19,6 @@ class PlanesSeeder extends Seeder
             ['nombre'=> '1Play'],
             ['nombre'=> '2Play'],
             ['nombre'=> '3Play'],
-            ['nombre'=> 'ADULTO MAYOR']
         ]);
     }
 }
