@@ -124,7 +124,23 @@ class VentasController extends Controller
             $reportes = Ventas::empaquetarVentas($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
-            $export_excel = new ReporteVentasExport(compact('reportes', 'config','fechaConvertida'));
+            $export_excel = new ReporteVentasExport(compact('reportes', 'config', 'fechaConvertida'));
+            return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', [compact('ex')]);
+        }
+    }
+    public function reporte_pagos(Request $request)
+    {
+        try {
+            $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
+            $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+
+            $ventas = Ventas::whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin])->where('vendedor_id',$request->vendedor)->with('vendedor', 'producto')->get();
+            $reportes = Ventas::empaquetarVentas($ventas);
+            $nombre_reporte = 'reporte_pagos';
+            $config = ConfiguracionGeneral::first();
+            $export_excel = new ReporteVentasExport(compact('reportes', 'config', 'fechaConvertida'));
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', [compact('ex')]);
