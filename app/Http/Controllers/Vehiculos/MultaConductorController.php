@@ -82,7 +82,6 @@ class MultaConductorController extends Controller
 
     public function pagar(Request $request, MultaConductor $multa)
     {
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $request->validate([
             'fecha_pago' => ['required', 'string'],
             'comentario' => ['nullable', 'string'],
