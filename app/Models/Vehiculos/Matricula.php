@@ -2,10 +2,13 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -22,6 +25,8 @@ class Matricula extends Model implements Auditable
         'proxima_matricula',
         'matriculador',
         'matriculado',
+        'observacion',
+        'monto',
     ];
 
     protected $casts = [
@@ -44,5 +49,44 @@ class Matricula extends Model implements Auditable
     public function vehiculo()
     {
         return $this->belongsTo(Vehiculo::class);
+    }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una matricula puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    public static function crearMatricula($vehiculo_id, $fecha_matricula, $proxima_matricula)
+    {
+        try {
+            DB::beginTransaction();
+            $matricula = Matricula::create([
+                'vehiculo_id' => $vehiculo_id,
+                'fecha_matricula' => $fecha_matricula,
+                'proxima_matricula' => $proxima_matricula,
+            ]);
+            DB::commit();
+            return $matricula;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw new Exception($th->getMessage() . '. [LINE CODE ERROR]: ' . $th->getLine(), $th->getCode());
+        }
     }
 }

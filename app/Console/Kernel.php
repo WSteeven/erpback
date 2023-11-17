@@ -6,6 +6,8 @@ use App\Jobs\AnularProformaJob;
 use App\Jobs\MyJobExample;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\RechazarGastoJob;
+use App\Jobs\Vehiculos\CrearMatriculasAnualesVehiculosJob;
+use App\Jobs\Vehiculos\NotificarMatriculacionVehicularJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,6 +26,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new AnularProformaJob)->dailyAt('08:00'); // Execute job every day at 08:00
         $schedule->job(new RechazarGastoJob)->monthly();
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
+        $schedule->job((new CrearMatriculasAnualesVehiculosJob))->yearlyOn(1, 5);
+        $schedule->job((new NotificarMatriculacionVehicularJob))->weekdays()->at('08:00'); // Execute job every weekday(monday-friday) at 08:00
         // $schedule->job(new MyJobExample)->dailyAt('08:00'); // Execute job every
 
         // $colocar el job que envia el comprobante a recursos humanos y sso cuando ya finalice
@@ -38,7 +42,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

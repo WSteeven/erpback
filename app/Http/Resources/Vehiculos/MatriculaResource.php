@@ -23,6 +23,8 @@ class MatriculaResource extends JsonResource
             'matriculador' => $this->matriculador,
             'matriculado' => $this->matriculado,
             'estado' => $this->matriculado,
+            'observacion' => $this->observacion,
+            'monto' => $this->monto,
         ];
 
         if ($controller_method == 'show') {

@@ -87,6 +87,15 @@ class Vehiculo extends Model implements Auditable
     }
 
     /**
+     * Relación uno a muchos.
+     * Un vehículo tiene una o varias matriculas a lo largo del tiempo.
+     */
+    public function matriculas()
+    {
+        return $this->hasMany(Matricula::class);
+    }
+
+    /**
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */

@@ -35,12 +35,14 @@ class NotificacionController extends Controller
         $results = [];
         if (auth()->user()->hasRole(User::ROL_BODEGA)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_BODEGA, $campos);
-        }else if(auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)){
+        } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_BODEGA_TELCONET, $campos);
         } else if (auth()->user()->hasRole(User::ROL_COMPRAS)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_COMPRAS, $campos);
         } else if (auth()->user()->hasRole(User::ROL_CONTABILIDAD)) {
             $results = $this->servicio->obtenerNotificacionesRol(User::ROL_CONTABILIDAD, $campos);
+        } else if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR_VEHICULOS)) {
+            $results = $this->servicio->obtenerNotificacionesRol(User::ROL_ADMINISTRADOR_VEHICULOS, $campos);
         } else {
             $results = $this->servicio->obtenerNotificacionesRol('', $campos);
         }

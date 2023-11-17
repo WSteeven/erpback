@@ -37,7 +37,7 @@ class MatriculaController extends Controller
             $datos = $request->validated();
             $datos['vehiculo_id'] = $request->safe()->only('vehiculo')['vehiculo'];
 
-            $matricula= Matricula::create($datos);
+            $matricula = Matricula::create($datos);
             $modelo = new MatriculaResource($matricula);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -80,7 +80,6 @@ class MatriculaController extends Controller
 
     public function pagar(Request $request, Matricula $matricula)
     {
-        Log::channel('testing')->info('Log', ['Request', $request->all()]);
         $request->validate([
             'matriculador' => ['required', 'string'],
             'observacion' => ['nullable', 'string'],
@@ -88,17 +87,14 @@ class MatriculaController extends Controller
         ]);
         if (!$matricula->matriculado) {
             $matricula->matriculado = true;
-            $matricula->matriculador= $request['matriculador'];
-            $matricula->observacion= $request['observacion'];
-            $matricula->monto= $request['monto'];
+            $matricula->matriculador = $request['matriculador'];
+            $matricula->observacion = $request['observacion'];
+            $matricula->monto = $request['monto'];
             $matricula->save();
         }
-
+        $matricula->latestNotificacion()->update(['leida' => true]);
         $modelo = new MatriculaResource($matricula->refresh());
         $mensaje = 'Matricula pagada correctamente';
         return response()->json(compact('modelo', 'mensaje'));
     }
-
-
-
 }

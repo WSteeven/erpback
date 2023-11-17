@@ -77,6 +77,15 @@ class NotificacionService
             ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         return $results;
     }
+    
+    public function obtenerNotificacionesRolVehiculos($campos)
+    {
+        $results = Notificacion::ignoreRequest(['campos'])
+            ->where('mensaje', 'LIKE', '%debe cumplir con la matriculación vehicular anual durante este mes%')
+            ->orWhere('mensaje', 'LIKE', '%no ha sido matriculado aún y está rezagado según el calendario de matriculación establecido%')
+            ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
+        return $results;
+    }
 
     /**
      * La función "obtenerNotificacionesRol" recupera notificaciones en función del rol del usuario y
@@ -105,6 +114,9 @@ class NotificacionService
                 break;
             case User::ROL_CONTABILIDAD:
                 $results = $this->obtenerNotificacionesRolContabilidad($campos);
+                break;
+            case User::ROL_ADMINISTRADOR_VEHICULOS:
+                $results = $this->obtenerNotificacionesRolVehiculos($campos);
                 break;
             default:
                 $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get($campos);

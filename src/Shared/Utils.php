@@ -480,6 +480,62 @@ class Utils
     }
 
     /**
+     * La función "obtenerMesMatricula" devuelve el mes correspondiente (como un número) según el
+     * dígito dado.
+     * 
+     * @param digito El parámetro "digito" representa el último dígito de la placa de un vehículo.
+     * 
+     * @return int el mes correspondiente a un dígito determinado.
+     */
+    public static function obtenerMesMatricula($digito)
+    {
+        switch ($digito) {
+            case '1':
+                return 2; //febrero
+            case '2':
+                return 3; //marzo
+            case '3':
+                return 4; //abril
+            case '4':
+                return 5; //mayo
+            case '5':
+                return 6; //junio
+            case '6':
+                return 7; //julio
+            case '7':
+                return 8; //agosto
+            case '8':
+                return 9; //septiembre
+            case '9':
+                return 10; //octubre
+            case '0':
+                return 11; //noviembre
+                // case '11': return null //diciembre, se retorna null por los rezagados
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * La función "obtenerUltimoDigito" en PHP devuelve el último dígito encontrado en una cadena
+     * de texto.
+     * 
+     * @param texto El parámetro "texto" es una cadena que representa el texto de entrada del que
+     * queremos extraer el último dígito.
+     * 
+     * @return el último dígito encontrado en el texto dado. Si no se encuentra ningún dígito, devuelve
+     * nulo.
+     */
+    public static function obtenerUltimoDigito($texto)
+    {
+        preg_match('/\d(?!.*\d)/', $texto, $matches);
+        if (!empty($matches)) {
+            return $matches[0]; // Devuelve el último dígito encontrado
+        } else {
+            return null;
+        }
+    }
+    /**
      * ______________________________________________________________________________________
      * FUNCIONES (tomadas del codigo de Yefraina)
      * ______________________________________________________________________________________
