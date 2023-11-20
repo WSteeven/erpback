@@ -65,7 +65,9 @@ class TransaccionBodegaEgresoController extends Controller
             'empleado_id' => 'required|numeric|integer',
         ]);
 
-        $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+        if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+        else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
@@ -84,7 +86,15 @@ class TransaccionBodegaEgresoController extends Controller
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
+                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
+        });
+
+        // Quitar las herramientas
+        $materiales = $materiales->reject(function ($material) {
+            $detalle = DetalleProducto::find($material['detalle_producto_id']);
+            $producto = Producto::find($detalle->producto_id);
+            return $producto->categoria_id == Producto::CATEGORIA_HERRAMIENTA;
         });
 
         if ($request['subtarea_id']) {
@@ -98,11 +108,17 @@ class TransaccionBodegaEgresoController extends Controller
                 return $material;
             });
 
+            $results = $results->sortByDesc(function ($elemento) {
+                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
+                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
+            })->toArray();
+
+            $results = array_values($results);
             return response()->json(compact('results'));
         }
 
-        $results = $materiales;
-
+        $results = $materiales->toArray();
+        $results = array_values($results);
         return response()->json(compact('results'));
     }
 
@@ -115,7 +131,8 @@ class TransaccionBodegaEgresoController extends Controller
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
 
-        $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+        if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+        else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
@@ -134,7 +151,15 @@ class TransaccionBodegaEgresoController extends Controller
                 'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
+                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
+        });
+
+        // Quitar las herramientas
+        $materialesTarea = $materialesTarea->reject(function ($material) {
+            $detalle = DetalleProducto::find($material['detalle_producto_id']);
+            $producto = Producto::find($detalle->producto_id);
+            return $producto->categoria_id == Producto::CATEGORIA_HERRAMIENTA;
         });
 
         if ($request['subtarea_id']) {
@@ -147,6 +172,13 @@ class TransaccionBodegaEgresoController extends Controller
                 }
                 return $material;
             });
+
+            $results = $results->sortByDesc(function ($elemento) {
+                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
+                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
+            })->toArray();
+
+            $results = array_values($results);
 
             return response()->json(compact('results'));
         }

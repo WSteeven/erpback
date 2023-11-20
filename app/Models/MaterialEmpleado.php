@@ -22,9 +22,15 @@ class MaterialEmpleado extends Model implements Auditable
         'devuelto',
         'empleado_id',
         'detalle_producto_id',
+        'cliente_id',
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 
     public function scopeResponsable($query)
     {
