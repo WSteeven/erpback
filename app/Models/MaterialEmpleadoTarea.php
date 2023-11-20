@@ -22,6 +22,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
         'devuelto',
         'tarea_id',
         'empleado_id',
+        'cliente_id',
         'detalle_producto_id',
     ];
 

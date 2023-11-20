@@ -338,9 +338,10 @@ class TransaccionBodega extends Model implements Auditable
                     if ($material) {
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->despachado += $detalle['cantidad_inicial'];
+                        $material->cliente_id = $transaccion->cliente_id;
                         $material->save();
                     } else {
-                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+                        // $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
 
                         MaterialEmpleadoTarea::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
@@ -348,7 +349,8 @@ class TransaccionBodega extends Model implements Auditable
                             'tarea_id' => $transaccion->tarea_id,
                             'empleado_id' => $transaccion->responsable_id,
                             'detalle_producto_id' => $itemInventario->detalle_id,
-                            'es_fibra' => $esFibra, // Pendiente de obtener
+                            'cliente_id' => $transaccion->cliente_id,
+                            // 'es_fibra' => $esFibra, // Pendiente de obtener
                         ]);
                     }
                 } else {
@@ -358,21 +360,29 @@ class TransaccionBodega extends Model implements Auditable
                         ->first();
 
                     // Log::channel('testing')->info('Log', compact('itemInventario'));
-                    // Log::channel('testing')->info('Log', compact('transaccion'));
+                    Log::channel('testing')->info('Log', compact('transaccion'));
 
                     if ($material) {
+                        // $mensaje = 'ya existe';
+                        // Log::channel('testing')->info('Log', compact('mensaje'));
                         $material->cantidad_stock += $detalle['cantidad_inicial'];
                         $material->despachado += $detalle['cantidad_inicial'];
+                        $material->cliente_id = $transaccion->cliente_id;
                         $material->save();
+
+                        // Log::channel('testing')->info('Log', compact('material'));
                     } else {
-                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+                        // $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
+                        // $mensaje = 'se crea';
+                        // Log::channel('testing')->info('Log', compact('mensaje'));
 
                         MaterialEmpleado::create([
                             'cantidad_stock' => $detalle['cantidad_inicial'],
                             'despachado' => $detalle['cantidad_inicial'],
                             'empleado_id' => $transaccion->responsable_id,
                             'detalle_producto_id' => $itemInventario->detalle_id,
-                            'es_fibra' => $esFibra,
+                            'cliente_id' => $transaccion->cliente_id,
+                            // 'es_fibra' => $esFibra,
                         ]);
                     }
                 }

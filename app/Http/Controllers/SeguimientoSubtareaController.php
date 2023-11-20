@@ -6,6 +6,7 @@ use App\Exports\ReporteSubtareaExport;
 use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
+use App\Models\Empleado;
 use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
@@ -132,13 +133,17 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
                     ->where('met.empleado_id', '=', $idEmpleado)
                     ->where('met.tarea_id', '=', $idTarea);
             })
+            ->leftJoin('clientes', 'met.cliente_id', '=', 'clientes.id')
+            ->LeftJoin('empresas', 'clientes.id', '=', 'empresas.id')
+            ->leftJoin('productos', 'dp.producto_id', '=', 'productos.id')
+            ->leftJoin('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
             ->whereDate('sms.created_at', $fecha_convertida)
             ->where('sms.empleado_id', $idEmpleado)
             ->where('sms.subtarea_id', $idSubtarea)
@@ -178,12 +183,16 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_stock as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
                     ->where('met.empleado_id', '=', $idEmpleado);
             })
+            ->leftJoin('clientes', 'met.cliente_id', '=', 'clientes.id')
+            ->LeftJoin('empresas', 'clientes.id', '=', 'empresas.id')
+            ->leftJoin('productos', 'dp.producto_id', '=', 'productos.id')
+            ->leftJoin('unidades_medidas', 'productos.unidad_medida_id', 'unidades_medidas.id')
             ->whereDate('sms.created_at', $fecha_convertida)
             ->where('sms.empleado_id', $idEmpleado)
             ->where('sms.subtarea_id', $idSubtarea)
@@ -192,9 +201,8 @@ class SeguimientoSubtareaController extends Controller
 
 
         $servicio = new TransaccionBodegaEgresoService();
-        $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
 
-        // Log::channel('testing')->info('Log', compact('materialesUsados'));
 
         $results = $results->map(function ($material, $index) use ($materialesUsados) {
             if ($materialesUsados->contains('detalle_producto_id', $material->detalle_producto_id)) {
@@ -203,9 +211,12 @@ class SeguimientoSubtareaController extends Controller
                 })->suma_total;
             }
             $material->id = $index + 1;
+            Log::channel('testing')->info('Log', compact('material'));
             return $material;
         });
 
+        Log::channel('testing')->info('Log', compact('materialesUsados'));
+        Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 
@@ -253,5 +264,41 @@ class SeguimientoSubtareaController extends Controller
     {
         $modelo = $this->seguimientoService->actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoStock($request);
         return response()->json(compact('modelo'));
+    }
+
+    public function obtenerClientesMaterialesEmpleado(Request $request, Empleado $empleado)
+    {
+        $results = DB::table('materiales_empleados')
+            ->select('materiales_empleados.cliente_id', 'empresas.razon_social')
+            ->where('empleado_id', $empleado->id)
+            ->join('clientes', 'cliente_id', '=', 'clientes.id')
+            ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
+            ->groupBy('cliente_id')
+            ->get();
+
+        $results->push([
+            'cliente_id' => null,
+            'razon_social' => 'SIN CLIENTE',
+        ]);
+
+        return response()->json(compact('results'));
+    }
+
+    public function obtenerClientesMaterialesTarea(Request $request, Empleado $empleado)
+    {
+        $results = DB::table('materiales_empleados_tareas')
+            ->select('materiales_empleados_tareas.cliente_id', 'empresas.razon_social')
+            ->where('empleado_id', $empleado->id)
+            ->join('clientes', 'cliente_id', '=', 'clientes.id')
+            ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
+            ->groupBy('cliente_id')
+            ->get();
+
+        $results->push([
+            'cliente_id' => null,
+            'razon_social' => 'SIN CLIENTE',
+        ]);
+
+        return response()->json(compact('results'));
     }
 }
