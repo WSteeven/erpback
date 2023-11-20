@@ -466,7 +466,6 @@ class GastoController extends Controller
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);
-            Log::channel('testing')->info('Log', ['reporte', $reporte_empaquetado]);
             $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
             $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');
@@ -488,8 +487,10 @@ class GastoController extends Controller
             $export_excel = new AutorizacionesExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-        }
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);        }
     }
     /**
      * It updates the status of the expense to 1, which means it is approved.
@@ -500,10 +501,11 @@ class GastoController extends Controller
      */
     public function aprobar_gasto(Request $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
             if ($gasto->estado == 1) {
+                Log::channel('testing')->info('Log', ['error', 'El gasto ya fue aprobado']);
                 throw ValidationException::withMessages([
                     '404' => ['El gasto ya fue aprobado'],
                 ]);
@@ -521,12 +523,13 @@ class GastoController extends Controller
                 $notificacion->leida = 1;
                 $notificacion->save();
             }
+            DB::commit();
             event(new FondoRotativoEvent($gasto));
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                'Error al aprobar gasto' => [$e->getMessage()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
@@ -540,12 +543,13 @@ class GastoController extends Controller
      */
     public function rechazar_gasto(Request $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
             $gasto->estado = 2;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
+            DB::commit();
             event(new FondoRotativoEvent($gasto));
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
@@ -558,8 +562,8 @@ class GastoController extends Controller
     }
     public function anular_gasto(Request $request)
     {
-        DB::beginTransaction();
         try {
+            DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
             if ($gasto->estado == 4) {
                 throw ValidationException::withMessages([
@@ -569,6 +573,7 @@ class GastoController extends Controller
             $gasto->estado = 4;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
+            DB::commit();
             event(new FondoRotativoEvent($gasto));
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
