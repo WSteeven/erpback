@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\PagoComisionRequest;
 use App\Http\Resources\Ventas\PagoComisionResource;
 use App\Models\Ventas\Chargebacks;
+use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\PagoComision;
 use App\Models\Ventas\Vendedor;
 use App\Models\Ventas\Ventas;
@@ -58,11 +59,15 @@ class PagoComisionController extends Controller
         $pagos_comision  = [];
         $limite_venta = 0;
         foreach ($vendedor as $vendedor) {
-            $chargeback = Chargebacks::where('fecha', '<=', $fecha)->sum('valor');
+            $chargeback = Chargebacks::select( DB::raw('SUM(valor) AS total_chargeback'))
+            ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
+            ->where('ventas_ventas.vendedor_id', $vendedor->id)
+            ->where('ventas_chargebacks.fecha', '<=', $fecha)
+            ->get();
             $comisiones = $this->calcular_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);
             $pagos_comision[]  = [
                 'fecha' => $fecha,
-                'chargeback' => $chargeback,
+                'chargeback' => $chargeback? $chargeback[0]['total_chargeback']:0,
                 'vendedor_id' => $vendedor->id,
                 'valor' =>  $comisiones,
                 'created_at' => Carbon::now(),
@@ -78,20 +83,11 @@ class PagoComisionController extends Controller
     {
         $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
         $limite_venta = 0;
-        $query_ventas = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        $query_ventas = Ventas::where('created_at', '<=', $fecha)->where('vendedor_id', $vendedor_id);
         $comisiones = null;
         if($pago_comision == 0){
-            switch ($modalidad) {
-                case 1:
-                    $limite_venta = 6;
-                    break;
-                case 2:
-                    $limite_venta = 13;
-                    break;
-                default:
-                    $limite_venta = 0;
-                    break;
-            }
+            $modalidad = Modalidad::where('id',$modalidad)->first();
+            $limite_venta =  $modalidad!=null? $modalidad->umbral_minimo:0;
             $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
 
         }else{
@@ -107,20 +103,11 @@ class PagoComisionController extends Controller
     {
         $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
         $limite_venta = 0;
-        $query_ventas = Ventas::where('fecha_activ', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        $query_ventas = Ventas::where('created_at', '<=', $fecha)->where('vendedor_id', $vendedor_id);
         $comisiones = null;
         if($pago_comision == 0){
-            switch ($modalidad) {
-                case 1:
-                    $limite_venta = 6;
-                    break;
-                case 2:
-                    $limite_venta = 13;
-                    break;
-                default:
-                    $limite_venta = 0;
-                    break;
-            }
+            $modalidad = Modalidad::where('id',$modalidad)->first();
+            $limite_venta =  $modalidad!=null? $modalidad->umbral_minimo:0;
             $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
 
         }else{

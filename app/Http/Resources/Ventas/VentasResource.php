@@ -24,6 +24,7 @@ class VentasResource extends JsonResource
             'vendedor_info' =>$this->vendedor != null? $this->vendedor->empleado->apellidos.' '.$this->vendedor->empleado->nombres:'',
             'producto' => $this->producto_id,
             'producto_info' =>  $this->producto!=null? $this->producto->bundle_id:'',
+            'producto_precio' =>  $this->producto!=null? $this->producto->precio:'',
             'plan' =>   $this->producto!=null? strtoupper($this->producto->plan->nombre):'',
             'fecha_activ' => $this->fecha_activ,
             'mes' => strtoupper(Carbon::parse($this->created_at)->translatedFormat('F-Y')),
