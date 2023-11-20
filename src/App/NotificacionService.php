@@ -11,7 +11,17 @@ class NotificacionService
     public function __construct()
     {
     }
+    public function obtenerNotificacionesRolCoordinadorBodega($campos)
+    {
 
+        $results = $this->obtenerNotificacionesRolBodega($campos);
+        $results2 = Notificacion::ignoreRequest(['campos'])
+            ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
+            ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
+            ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
+
+        return $results->push(...$results2);
+    }
     /**
      * La función "obtenerNotificacionesRolBodega" recupera notificaciones en función del rol BODEGA
      * y campos especificados.
@@ -56,16 +66,8 @@ class NotificacionService
     }
     public function obtenerNotificacionesRolCompras($campos)
     {
-        if (!$campos[0] === '') {
-            $results = Notificacion::ignoreRequest(['campos'])
-                ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
-                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
-                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
-        } else {
-            $results = Notificacion::where('mensaje', 'LIKE', '%Preorden de compra N°%')
-                ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
-                ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-        }
+        $results = Notificacion::ignoreRequest(['campos'])
+            ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
 
         return $results;
     }
@@ -94,6 +96,9 @@ class NotificacionService
     {
         $results = [];
         switch ($rol) {
+            case User::ROL_COORDINADOR_BODEGA:
+                $results = $this->obtenerNotificacionesRolCoordinadorBodega($campos);
+                break;
             case User::ROL_BODEGA:
                 $results = $this->obtenerNotificacionesRolBodega($campos);
                 break;
