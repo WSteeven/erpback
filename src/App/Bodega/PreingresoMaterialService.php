@@ -67,7 +67,7 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item)) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
 
         $datos = [
@@ -248,6 +248,15 @@ class PreingresoMaterialService
                     $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
+                } else {
+                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    if ($detalle) {
+                        $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
+                        Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);
+                        if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
+                        else self::guardarDetalles($preingreso, [$item]);
+                    }
+                    // throw new Exception('No se encontró un detalle coincidente');
                 }
             }
         }
