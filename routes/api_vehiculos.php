@@ -42,3 +42,7 @@ Route::get('vehiculos/files/{vehiculo}', [VehiculoController::class, 'indexFiles
 
 // guardar archivos
 Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+
+//anular
+Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactivar'])->middleware('auth:sanctum');

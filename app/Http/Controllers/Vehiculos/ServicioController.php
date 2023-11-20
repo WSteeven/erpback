@@ -79,10 +79,8 @@ class ServicioController extends Controller
 
     public function desactivar(Request $request, Servicio $servicio)
     {
-        if (!$servicio->estado) {
-            $servicio->estado = true;
-            $servicio->save();
-        }
+        $servicio->estado = !$servicio->estado;
+        $servicio->save();
 
         $modelo = new ServicioResource($servicio->refresh());
         $mensaje = 'Servicio actualizado correctamente';

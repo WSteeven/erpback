@@ -13,12 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('veh_servicios', function (Blueprint $table) {
+        Schema::create('veh_plan_mantenimiento', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            $table->string('tipo');
-            $table->integer('intervalo')->nullable();
-            $table->boolean('estado')->default(true);
             $table->timestamps();
         });
     }
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('veh_servicios');
+        Schema::dropIfExists('veh_plan_mantenimiento');
     }
 };
