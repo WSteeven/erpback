@@ -4,6 +4,7 @@ namespace App\Events\ComprasProveedores;
 
 use App\Models\Autorizacion;
 use App\Models\ComprasProveedores\OrdenCompra;
+use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -41,17 +42,20 @@ class OrdenCompraActualizadaEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('ordenes-actualizadas-tracker-'.$this->orden->solicitante_id);
+        return new Channel('ordenes-actualizadas-tracker-' . $this->orden->solicitante_id);
     }
-    public function broadcastAs(){
+    public function broadcastAs()
+    {
         return 'orden-event';
     }
 
     public function obtenerMensaje()
     {
         if ($this->orden->autorizacion->nombre == Autorizacion::APROBADO) {
-            return $this->orden->autorizador->nombres . ' ' . $this->orden->autorizador->apellidos . ' ha aprobado tu orden de compra N° '.$this->orden->id;
+            return $this->orden->autorizador->nombres . ' ' . $this->orden->autorizador->apellidos . ' ha aprobado tu orden de compra N° ' . $this->orden->id;
         }
-        return $this->orden->autorizador->nombres . ' ' . $this->orden->autorizador->apellidos . ' ha modificado la orden de compra que generaste. Orden N° '.$this->orden->id;
+        if ($this->orden->estado->nombre == EstadoTransaccion::ANULADA)
+            return $this->orden->autorizador->nombres . ' ' . $this->orden->autorizador->apellidos . ' ha anulado la orden de compra que generaste. Orden N° ' . $this->orden->id . ' . Para ver la causa de anulación por favor ubícate en Ordenes de Compras -> Listado -> Canceladas';
+        return $this->orden->autorizador->nombres . ' ' . $this->orden->autorizador->apellidos . ' ha modificado la orden de compra que generaste. Orden N° ' . $this->orden->id;
     }
 }
