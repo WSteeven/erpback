@@ -18,7 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('vendedor_id');
             $table->integer('cant_ventas');
             $table->string('mes',7);
-            $table->unsignedBigInteger('bono_id');
+            $table->unsignedBigInteger('bono_id')->nullable();
             $table->decimal('valor',8,4);
             $table->timestamps();
             $table->foreign('vendedor_id')->references('id')->on('ventas_vendedor')->cascadeOnDelete()->cascadeOnUpdate();
