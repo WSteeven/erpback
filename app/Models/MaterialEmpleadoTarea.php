@@ -38,7 +38,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
         return $this->hasOne(Tarea::class, 'id', 'tarea_id');
     }
 
-    public static function cargarMaterialEmpleadoTarea(DetalleProducto $detalle, $empleado_id, $tarea_id, $cantidad)
+    public static function cargarMaterialEmpleadoTarea(DetalleProducto $detalle, $empleado_id, $tarea_id, $cantidad, int $cliente_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle->id)
@@ -48,16 +48,16 @@ class MaterialEmpleadoTarea extends Model implements Auditable
             if ($material) {
                 $material->cantidad_stock += $cantidad;
                 $material->despachado += $cantidad;
+                $material->cliente_id = $cliente_id;
                 $material->save();
             } else {
-                $esFibra = !!Fibra::where('detalle_id', $detalle->id)->first();
                 MaterialEmpleadoTarea::create([
                     'cantidad_stock' => $cantidad,
                     'despachado' => $cantidad,
                     'tarea_id' => $tarea_id,
                     'empleado_id' => $empleado_id,
                     'detalle_producto_id' => $detalle->id,
-                    'es_fibra' => $esFibra, // Pendiente de obtener
+                    'cliente_id' => $cliente_id,
                 ]);
             }
         } catch (\Throwable $th) {

@@ -164,7 +164,7 @@ class PreordenCompra extends Model implements Auditable
 
             DB::commit();
             $msg = self::generarMensajePreordenAutomatica($preorden);
-            event(new PreordenCreadaEvent($msg, User::ROL_COMPRAS, $url, $preorden, true));
+            event(new PreordenCreadaEvent($msg, User::ROL_BODEGA, $url, $preorden, true));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al generar la preorden de compra', $e->getMessage(), $e->getLine()]);
