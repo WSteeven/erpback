@@ -7,9 +7,11 @@ use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Mail\Notificar;
 use App\Models\PrestamoTemporal;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\RecursosHumanos\NominaPrestamos\NominaService;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +45,16 @@ Route::get('resumen-tendido', fn() => Excel::download(new RegistroTendidoExport,
 
 Route::get('/notificar', function(){
     $response = Mail::to('wilsonsteeven@outlook.com')->cc(['wilson972906@gmail.com', 'wcordova@jpconstrucred.com', 'full.stack.developer1997@gmail.com'])->send(new Notificar());
-    
+
     dump($response);
+});
+
+
+Route::get('/calcular-dias', function(){
+    $nominaService = new NominaService();
+    $mes = Carbon::createFromFormat('m-Y', '11-2023')->format('Y-m');
+    $nominaService->setMes($mes);
+    $nominaService->setEmpleado(257);//257,286
+    $dias = $nominaService->calcularDias(30, 30, $mes);
+   dump($dias);
 });
