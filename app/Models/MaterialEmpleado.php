@@ -38,22 +38,22 @@ class MaterialEmpleado extends Model implements Auditable
     }
 
 
-    public static function cargarMaterialEmpleado(DetalleProducto $detalle, $empleado_id, $cantidad)
+    public static function cargarMaterialEmpleado(DetalleProducto $detalle, $empleado_id, $cantidad, int $cliente_id)
     {
         try {
             $material = MaterialEmpleado::where('detalle_producto_id', $detalle->id)->where('empleado_id', $empleado_id)->first();
             if ($material) {
                 $material->cantidad_stock += $cantidad;
                 $material->despachado += $cantidad;
+                $material->cliente_id = $cliente_id;
                 $material->save();
             } else { // se crea el material
-                $esFibra = !!Fibra::where('detalle_id', $detalle->id)->first();
                 MaterialEmpleado::create([
                     'cantidad_stock' => $cantidad,
                     'despachado' => $cantidad,
                     'empleado_id' => $empleado_id,
                     'detalle_producto_id' => $detalle->id,
-                    'es_fibra' => $esFibra,
+                    'cliente_id' => $cliente_id,
                 ]);
             }
         } catch (\Throwable $th) {
