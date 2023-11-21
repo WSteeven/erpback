@@ -4,7 +4,9 @@ namespace Src\App;
 
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
+use App\Models\Subtarea;
 use App\Models\Tarea;
+use Illuminate\Support\Facades\Log;
 
 class TareaService
 {
@@ -43,5 +45,12 @@ class TareaService
                 'cliente_id' => $cliente_id,
             ]);
         }
+    }
+
+    public function obtenerTareasAsignadasEmpleado(int $empleado_id)
+    {
+        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
+        // Log::channel('testing')->info('Log', compact('subtareasEmpleado'));
+        return Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->get();
     }
 }
