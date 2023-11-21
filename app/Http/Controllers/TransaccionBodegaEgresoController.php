@@ -75,7 +75,7 @@ class TransaccionBodegaEgresoController extends Controller
             $producto = Producto::find($detalle->producto_id);
 
             return [
-                'id' => $index + 1,
+                'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
@@ -140,7 +140,7 @@ class TransaccionBodegaEgresoController extends Controller
             $producto = Producto::find($detalle->producto_id);
 
             return [
-                'id' => $index + 1,
+                'id' => $item->detalle_producto_id,
                 'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,

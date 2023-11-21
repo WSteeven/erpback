@@ -239,6 +239,7 @@ class SeguimientoService
         $producto = Producto::find($detalle->producto_id);
 
         $modelo = [
+            'id' => $material->detalle_producto_id,
             'producto' => Producto::find($detalle->producto_id)->nombre,
             'detalle_producto' => $detalle->descripcion,
             'detalle_producto_id' => $material->detalle_producto_id,
