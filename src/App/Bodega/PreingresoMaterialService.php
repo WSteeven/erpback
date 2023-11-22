@@ -141,7 +141,7 @@ class PreingresoMaterialService
      * `PreingresoMaterial`, que representa una preentrada de materiales. Contiene información como el
      * empleado responsable, el ID de la tarea y otros detalles.
      * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán.
-     * @return void
+     * @return void 
      */
     public static function cargarMaterialesEmpleado(PreingresoMaterial $preingreso, $listado)
     {
