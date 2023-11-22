@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 
-class TestNomina extends TestCase
+class NominaTest extends TestCase
 {
     /**
      * A basic test example.

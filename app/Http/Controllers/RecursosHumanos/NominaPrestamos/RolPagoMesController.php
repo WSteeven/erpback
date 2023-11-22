@@ -680,7 +680,7 @@ class RolPagoMesController extends Controller
                 ->where('esta_en_rol_pago', true)
                 ->where('salario', '!=', 0)
                 ->whereHas('rolesPago', function ($query) use ($rol) {
-                    $query->where('rol_id', $rol->id);
+                    $query->where('rol_pago_id', $rol->id);
                 })->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
@@ -731,7 +731,8 @@ class RolPagoMesController extends Controller
                     'updated_at' => $this->date
                 ];
             }
-            RolPago::upset($roles_pago,['rol_pago_id','empleado_id'],[]);
+      RolPago::update($roles_pago, ['rol_pago_id' => $rol->id]);
+           // RolPago::upset($roles_pago,['rol_pago_id','empleado_id'],[]);
 
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
@@ -743,8 +744,8 @@ class RolPagoMesController extends Controller
     public function refrescar_rol_pago($rolPagoId)
     {
         $rol_pago = RolPagoMes::find($rolPagoId);
-        $this->agregar_nuevos_empleados($rol_pago);
-      //  $this->actualizar_tabla_roles($rol_pago);
+      //  $this->agregar_nuevos_empleados($rol_pago);
+       $this->actualizar_tabla_roles($rol_pago);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));
     }

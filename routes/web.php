@@ -52,7 +52,7 @@ Route::get('/notificar', function(){
 
 Route::get('/calcular-dias', function(){
     $nominaService = new NominaService();
-    $mes = Carbon::createFromFormat('m-Y', '11-2023')->format('Y-m');
+    $mes = Carbon::createFromFormat('m-Y', '10-2023')->format('Y-m');
     $nominaService->setMes($mes);
     $nominaService->setEmpleado(257);//257,286
     $dias = $nominaService->calcularDias(30, 30, $mes);
