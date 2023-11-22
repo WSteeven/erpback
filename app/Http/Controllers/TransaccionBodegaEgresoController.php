@@ -67,7 +67,6 @@ class TransaccionBodegaEgresoController extends Controller
 
         if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
         else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
-
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {

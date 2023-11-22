@@ -330,47 +330,10 @@ class TransaccionBodega extends Model implements Auditable
 
                 // Si es material para tarea
                 if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('tarea_id', $transaccion->tarea_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->cliente_id = $transaccion->cliente_id;
-                        $material->save();
-                    } else {
-                        MaterialEmpleadoTarea::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'tarea_id' => $transaccion->tarea_id,
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'cliente_id' => $transaccion->cliente_id,
-                        ]);
-                    }
+                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
                 } else {
                     // Stock personal
-                    $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->cliente_id = $transaccion->cliente_id;
-                        $material->save();
-                    } else {
-                        MaterialEmpleado::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'cliente_id' => $transaccion->cliente_id,
-                            // 'es_fibra' => $esFibra,
-                        ]);
-                    }
+                    MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
                 }
             }
         } catch (Exception $e) {
