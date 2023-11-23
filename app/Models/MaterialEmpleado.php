@@ -82,8 +82,15 @@ class MaterialEmpleado extends Model implements Auditable
                 $material->cantidad_stock -= $cantidad;
                 $material->devuelto += $cantidad;
                 $material->save();
-            } else { // se crea el material
-                throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
+            } else {
+                $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+                    ->where('empleado_id', $empleado_id)->where('cliente_id', null)->first();
+                if ($material) {
+                    $material->cantidad_stock -= $cantidad;
+                    $material->devuelto += $cantidad;
+                    $material->save();
+                } else
+                    throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
             }
         } catch (\Throwable $th) {
             throw $th->getMessage() . '. ' . $th->getLine();

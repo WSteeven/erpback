@@ -29,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Config\ClientesCorporativos;
@@ -137,7 +138,6 @@ class TransaccionBodegaIngresoController extends Controller
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
                             $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
-
                         }
                     }
                 }
@@ -154,7 +154,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $transferencia->save();
                 }
 
-                if($transaccion->motivo_id==1){
+                if ($transaccion->motivo_id == 1) {
                     //en caso de que sea ingreso por COMPRA A PROVEEDOR se notifica a contabilidad
                     event(new IngresoPorCompraEvent($transaccion, User::ROL_CONTABILIDAD));
                 }
@@ -164,6 +164,7 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
             }
 
