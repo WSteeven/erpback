@@ -128,7 +128,8 @@ class NominaService
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
             if ($fechaCarbon->day < $cantidad_dias && $fechaCarbon->day>1 ) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
-                $diasRestantes = $fechaActual->day - $fechaCarbon->day;
+                $diasRestantes = ($fechaActual->day - $fechaCarbon->day)+1;
+
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
                 $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
@@ -151,7 +152,7 @@ class NominaService
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
         }
-        return $sueldo;
+        return number_format($sueldo,2);
     }
     public function calcularSalario()
     {
@@ -167,7 +168,7 @@ class NominaService
     {
         switch ($tipo) {
             case 3:
-                return ($this->empleado->salario / 360) * $dias;
+                return number_format((($this->empleado->salario / 360) * $dias),2);
                 break;
             case 4:
                 if($es_vendedor_medio_tiempo){
@@ -195,10 +196,12 @@ class NominaService
         // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
         $fechaIngreso = Carbon::parse($this->empleado->fecha_vinculacion);
         // Obtén la fecha actual
-        $hoy = Carbon::now();
+        $hoy = Carbon::parse($this->mes.'-'.Carbon::now()->endOfMonth()->format('d'));
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
-        if ($diasTrabajados >= 366 && $this->empleado->acumula_fondos_reserva == 0) {
+        Log::channel('testing')->info('Log', [compact('hoy','fechaIngreso', 'diasTrabajados')]);
+
+        if ($diasTrabajados >= 395 && $this->empleado->acumula_fondos_reserva == 0) {
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
         }
         return floatval(number_format($fondosDeReserva, 2));
