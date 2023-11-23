@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\ComprasProveedores;
 
 use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
+use App\Events\ComprasProveedores\NotificarOrdenCompraRealizada;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Http\Controllers\Controller;
@@ -214,6 +217,8 @@ class OrdenCompraController extends Controller
         $request->validate(['observacion_realizada' => ['string', 'nullable']]);
         $orden->observacion_realizada = $request->observacion_realizada;
         $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraRealizada($orden, User::ROL_CONTABILIDAD));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
@@ -221,6 +226,9 @@ class OrdenCompraController extends Controller
     {
         $orden->pagada = true;
         $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraPagadaCompras($orden, User::ROL_COMPRAS));
+        event(new NotificarOrdenCompraPagadaUsuario($orden));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
