@@ -745,7 +745,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

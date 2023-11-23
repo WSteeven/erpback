@@ -123,15 +123,12 @@ class NominaService
         $fecha_completa = $dias."-" .$mes;
         $fechaActual = Carbon::createFromFormat('d-m-Y', $fecha_completa);
         $diasRestantes = 0;
-        Log::channel('testing')->info('Log', [compact('fechaIngresada','fechaActual')]);
-        Log::channel('testing')->info('Log', ['mes actual',$fechaCarbon->isCurrentMonth()]);
-
         // Verifica si la fecha ingresada pertenece al mes actual
         if ($fechaCarbon->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
             if ($fechaCarbon->day < $cantidad_dias && $fechaCarbon->day>1 ) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
-                $diasRestantes = $fechaActual->day - $fechaCarbon->day;
+                $diasRestantes = ($fechaActual->day - $fechaCarbon->day)+1;
 
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
