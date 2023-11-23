@@ -38,7 +38,9 @@ use App\Models\Producto;
 use App\Models\SeguimientoMaterialStock;
 use App\Models\SeguimientoMaterialSubtarea;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\MaterialesService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
@@ -67,7 +69,6 @@ class TransaccionBodegaEgresoController extends Controller
 
         if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
         else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
-
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
@@ -186,6 +187,38 @@ class TransaccionBodegaEgresoController extends Controller
         $results = $materialesTarea;
 
         return response()->json(compact('results'));
+    }
+    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
+    {
+        $results = [];
+        try {
+            if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
+            $request->validate([
+                'cliente_id' => 'nullable|sometimes|numeric|integer',
+                'empleado_id' => 'required|numeric|integer',
+            ]);
+            $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $resultado2 = MaterialEmpleadoTarea::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $results = $resultado1->concat($resultado2);
+
+            $results = $results->map(function ($item) {
+                return [
+                    'id' => $item->detalle_producto_id,
+                    'producto' => $item->detalle->producto->nombre,
+                    'descripcion' => $item->detalle->descripcion,
+                    'serial' => $item->detalle->serial,
+                    'categoria' => $item->detalle->producto->categoria->nombre,
+                    'modelo' => $item->detalle->modelo->nombre,
+                    'cantidad' => $item->cantidad_stock,
+                    'cliente' => $item->cliente?->empresa?->razon_social,
+                ];
+            });
+
+            return response()->json(compact('results'));
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            return response()->json(compact('mensaje'));
+        }
     }
 
     public function materialesDespachadosSinBobinaRespaldo($id)
