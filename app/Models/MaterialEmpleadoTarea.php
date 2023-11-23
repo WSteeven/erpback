@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -59,6 +60,25 @@ class MaterialEmpleadoTarea extends Model implements Auditable
                     'detalle_producto_id' => $detalle_id,
                     'cliente_id' => $cliente_id,
                 ]);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+    public static function descargarMaterialEmpleadoTarea(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id)
+    {
+        try {
+            $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
+                ->where('tarea_id', $tarea_id)
+                ->where('cliente_id', $cliente_id)
+                ->where('empleado_id', $empleado_id)->first();
+
+            if ($material) {
+                $material->cantidad_stock -= $cantidad;
+                $material->devuelto += $cantidad;
+                $material->save();
+            } else {
+                throw new Exception('No se encontró material' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado en la tarea seleccionada');
             }
         } catch (\Throwable $th) {
             throw $th;

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -31,6 +32,10 @@ class MaterialEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(Cliente::class);
     }
+    public function detalle()
+    {
+        return $this->belongsTo(DetalleProducto::class,  'detalle_producto_id', 'id');
+    }
 
     public function scopeResponsable($query)
     {
@@ -54,6 +59,31 @@ class MaterialEmpleado extends Model implements Auditable
                     'detalle_producto_id' => $detalle_id,
                     'cliente_id' => $cliente_id,
                 ]);
+            }
+        } catch (\Throwable $th) {
+            throw $th->getMessage() . '. ' . $th->getLine();
+        }
+    }
+    /**
+     * La función "descargarMaterialEmpleado" se utiliza para actualizar el stock y cantidad de
+     * devolución de un material asignado a un empleado.
+     * 
+     * @param int detalle_id El ID del detalle_producto al que está asociado el material.
+     * @param int empleado_id El ID del empleado al que se le asigna el material.
+     * @param int cantidad La cantidad de material que es necesario descargar o descontar del stock.
+     * @param int cliente_id El ID del cliente para quien se descarga el material.
+     */
+    public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
+    {
+        try {
+            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
+                ->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();
+            if ($material) {
+                $material->cantidad_stock -= $cantidad;
+                $material->devuelto += $cantidad;
+                $material->save();
+            } else { // se crea el material
+                throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
             }
         } catch (\Throwable $th) {
             throw $th->getMessage() . '. ' . $th->getLine();
