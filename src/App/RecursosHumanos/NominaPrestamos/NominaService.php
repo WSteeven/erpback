@@ -13,6 +13,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -41,11 +42,17 @@ class NominaService
         $this->id_empleado = $id_empleado;
         $this->empleado = Empleado::where('id', $this->id_empleado)->first();
     }
-    public function setRolPago(RolPagoMes $rol_pago_mes){
-        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
-        $this->rolPago= $rolPago;
+    public function getEmpleado()
+    {
+        return $this->empleado;
     }
-    public function getRolPago(){
+    public function setRolPago(RolPagoMes $rol_pago_mes)
+    {
+        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
+        $this->rolPago = $rolPago;
+    }
+    public function getRolPago()
+    {
         return $this->rolPago;
     }
     public function permisoEmpleado($recupero = 0, $todos = false, $pluck = false)
@@ -121,27 +128,24 @@ class NominaService
     {
         return NominaService::obtenerValorRubro(5) / 100;
     }
-    public  function calcularDias($cantidad_dias, $dias = 30)
+    public  function calcularDias(int $cantidad_dias)
     {
-        // Fecha ingresada en formato dd-mm-yyyy
-        $fechaIngresada = $this->empleado->fecha_ingreso;
-        // Convierte la fecha ingresada a un objeto Carbon utilizando el formato 'd-m-Y'
-        $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
-        $dato_mes = explode("-", $this->mes);
-        $mes = $dato_mes[1] . '-' . $dato_mes[0];
-        // Obtiene la fecha actual
-        $fecha_completa = $dias . "-" . $mes;
-        $fechaActual = Carbon::createFromFormat('d-m-Y', $fecha_completa);
+        // Convierte la fecha de ingreso de un empleado a un objeto Carbon utilizando el formato 'd-m-Y'
+        $fechaIngresada =Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_ingreso);
+        // Log::channel('testing')->info('Log', ['mes',$fechaIngresada]);
         $diasRestantes = 0;
         // Verifica si la fecha ingresada pertenece al mes actual
-        if ($fechaCarbon->isCurrentMonth()) {
+        if ($fechaIngresada->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
-            if ($fechaCarbon->day < $cantidad_dias && $fechaCarbon->day > 1) {
+            // 18 de mes, fecha actual <15
+            if ($fechaIngresada->day < $cantidad_dias && $fechaIngresada->day > 1) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
-                $diasRestantes = ($fechaActual->day - $fechaCarbon->day) + 1;
+                // Log::channel('testing')->info('Log', ['calculo de dias restantes',  $cantidad_dias, ($cantidad_dias - $fechaIngresada->day), $fechaIngresada->day]);
+                $diasRestantes = $cantidad_dias - $fechaIngresada->day + 1;
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
                 $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
+                throw new Exception('No se puede calcular días sobre una fecha de ingreso posterior a la fecha actual');
             }
         } else {
             // La fecha ingresada no pertenece al mes actual
@@ -169,7 +173,7 @@ class NominaService
     }
     public function obtener_total_descuentos_multas()
     {
-        $egreso = EgresoRolPago::where('id_rol_pago',$this->rolPago->id)->sum('monto');
+        $egreso = EgresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
         return $egreso;
     }
     public function obtener_total_ingresos()
@@ -177,13 +181,13 @@ class NominaService
         $ingreso = IngresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
         return $ingreso;
     }
-    public function calcularDiasRol($cantidad_dias, $dias)
+    public function calcularDiasRol($cantidad_dias)
     {
         $fechaIngresada = $this->empleado->fecha_ingreso;
         $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
         $dias = 0;
         if ($fechaCarbon->isCurrentMonth()) {
-            $dias = $this->calcularDias($cantidad_dias, $dias);
+            $dias = $this->calcularDias($cantidad_dias);
         } else {
             $dias = $this->rolPago->dias;
         }
