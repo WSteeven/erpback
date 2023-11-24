@@ -65,10 +65,18 @@ class TransaccionBodegaEgresoController extends Controller
     {
         $request->validate([
             'empleado_id' => 'required|numeric|integer',
+            'seguimiento' => 'nullable|boolean',
         ]);
 
-        if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
-        else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+        if ($request->exists('seguimiento')) {
+            // Cuando se hace el seguimiento de la subtarea solo se deben descontar los materiales
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
+        } else {
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+        }
+
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
@@ -89,13 +97,6 @@ class TransaccionBodegaEgresoController extends Controller
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
-        });
-
-        // Quitar las herramientas
-        $materiales = $materiales->reject(function ($material) {
-            $detalle = DetalleProducto::find($material['detalle_producto_id']);
-            $producto = Producto::find($detalle->producto_id);
-            return $producto->categoria_id == Producto::CATEGORIA_HERRAMIENTA;
         });
 
         if ($request['subtarea_id']) {
@@ -132,8 +133,13 @@ class TransaccionBodegaEgresoController extends Controller
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
 
-        if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
-        else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+        if ($request->exists('seguimiento')) {
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->get();
+        } else {
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+        }
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
         $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
@@ -154,13 +160,6 @@ class TransaccionBodegaEgresoController extends Controller
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
-        });
-
-        // Quitar las herramientas
-        $materialesTarea = $materialesTarea->reject(function ($material) {
-            $detalle = DetalleProducto::find($material['detalle_producto_id']);
-            $producto = Producto::find($detalle->producto_id);
-            return $producto->categoria_id == Producto::CATEGORIA_HERRAMIENTA;
         });
 
         if ($request['subtarea_id']) {
@@ -188,6 +187,7 @@ class TransaccionBodegaEgresoController extends Controller
 
         return response()->json(compact('results'));
     }
+
     public function obtenerMaterialesEmpleadoConsolidado(Request $request)
     {
         $results = [];

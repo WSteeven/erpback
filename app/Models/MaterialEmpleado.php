@@ -42,6 +42,10 @@ class MaterialEmpleado extends Model implements Auditable
         return $query->where('empleado_id', Auth::user()->empleado->id);
     }
 
+    public function scopeMateriales($query)
+    {
+        return $query->join('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where('productos.categoria_id', Producto::MATERIAL);
+    }
 
     public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
     {
@@ -67,7 +71,7 @@ class MaterialEmpleado extends Model implements Auditable
     /**
      * La función "descargarMaterialEmpleado" se utiliza para actualizar el stock y cantidad de
      * devolución de un material asignado a un empleado.
-     * 
+     *
      * @param int detalle_id El ID del detalle_producto al que está asociado el material.
      * @param int empleado_id El ID del empleado al que se le asigna el material.
      * @param int cantidad La cantidad de material que es necesario descargar o descontar del stock.
