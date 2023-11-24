@@ -34,6 +34,11 @@ class MaterialEmpleadoTarea extends Model implements Auditable
         return $query->where('empleado_id', Auth::user()->empleado->id);
     }
 
+    public function scopeMateriales($query)
+    {
+        return $query->join('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where('productos.categoria_id', Producto::MATERIAL);
+    }
+
     public function tarea()
     {
         return $this->hasOne(Tarea::class, 'id', 'tarea_id');

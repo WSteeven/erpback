@@ -76,6 +76,7 @@ class NotificacionService
     {
         $results = Notificacion::ignoreRequest(['campos'])
             ->where('mensaje', 'LIKE', '%ha realizado un ingreso de materiales con motivo COMPRA A PROVEEDOR en la sucursal%')
+            ->orWhere('mensaje', 'LIKE', '%ha marcado como realizada la Orden de Compra%')
             ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
         return $results;
     }
@@ -105,11 +106,12 @@ class NotificacionService
             case User::ROL_BODEGA_TELCONET:
                 $results = $this->obtenerNotificacionesRolBodegaTelconet($campos);
                 break;
+            case User::ROL_CONTABILIDAD:
+                
+                $results = $this->obtenerNotificacionesRolContabilidad($campos);
+                break;
             case User::ROL_COMPRAS:
                 $results = $this->obtenerNotificacionesRolCompras($campos);
-                break;
-            case User::ROL_CONTABILIDAD:
-                $results = $this->obtenerNotificacionesRolContabilidad($campos);
                 break;
             default:
                 $results = Notificacion::ignoreRequest(['campos'])->where('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->get($campos);
