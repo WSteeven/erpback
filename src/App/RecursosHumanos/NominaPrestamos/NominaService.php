@@ -24,6 +24,7 @@ class NominaService
     private $id_empleado;
     private Empleado $empleado;
     private $reporteService;
+    private $rolPago;
 
     public function __construct($mes = null)
     {
@@ -39,6 +40,13 @@ class NominaService
     {
         $this->id_empleado = $id_empleado;
         $this->empleado = Empleado::where('id', $this->id_empleado)->first();
+    }
+    public function setRolPago(RolPagoMes $rol_pago_mes){
+        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
+        $this->rolPago= $rolPago;
+    }
+    public function getRolPago(){
+        return $this->rolPago;
     }
     public function permisoEmpleado($recupero = 0, $todos = false, $pluck = false)
     {
@@ -159,28 +167,25 @@ class NominaService
     {
         return $this->empleado->salario;
     }
-    public function obtener_total_descuentos_multas(RolPagoMes $rol_pago_mes)
+    public function obtener_total_descuentos_multas()
     {
-        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
-        $egreso = EgresoRolPago::where('id_rol_pago', $rolPago->id)->sum('monto');
+        $egreso = EgresoRolPago::where('id_rol_pago',$this->rolPago->id)->sum('monto');
         return $egreso;
     }
-    public function obtener_total_ingresos(RolPagoMes $rol_pago_mes)
+    public function obtener_total_ingresos()
     {
-        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
-        $ingreso = IngresoRolPago::where('id_rol_pago', $rolPago->id)->sum('monto');
+        $ingreso = IngresoRolPago::where('id_rol_pago', $this->rolPago->id)->sum('monto');
         return $ingreso;
     }
-    public function calcularDiasRol($cantidad_dias, $dias, RolPagoMes $rol_pago_mes)
+    public function calcularDiasRol($cantidad_dias, $dias)
     {
-        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
         $fechaIngresada = $this->empleado->fecha_ingreso;
         $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
         $dias = 0;
         if ($fechaCarbon->isCurrentMonth()) {
             $dias = $this->calcularDias($cantidad_dias, $dias);
         } else {
-            $dias = $rolPago->dias;
+            $dias = $this->rolPago->dias;
         }
         return $dias;
     }
