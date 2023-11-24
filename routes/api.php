@@ -19,6 +19,7 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -99,6 +100,7 @@ use Spatie\Permission\Models\Permission;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
+Route::get('auditorias', [AuditoriaController::class, 'index']);
 Route::get('permisos_roles_usuario', [PermisoController::class, 'listarPermisosRoles']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
