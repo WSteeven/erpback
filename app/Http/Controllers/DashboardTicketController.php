@@ -52,7 +52,7 @@ class DashboardTicketController extends Controller
         $ticketsPorDepartamentoEstadoFinalizadoSinSolucion = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SIN_SOLUCION));
         $ticketsPorDepartamentoEstadoCalificado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::CALIFICADO));
 
-        $ticketsPorDepartamentoEstadoFinalizadoSolucionado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO));
+        // $ticketsPorDepartamentoEstadoFinalizadoSolucionado = TicketResource::collection($this->service->obtenerCantidadTicketsPorDepartamentoEstado(Ticket::FINALIZADO_SOLUCIONADO));
 
         $tiempoPromedio = $ticketsPorDepartamentoEstadoFinalizadoSolucionado->map(fn ($tiempo) => $this->calcularTiempoEfectivoTotalSegundos($tiempo))->avg();
         $tiempoPromedio = CarbonInterval::seconds($tiempoPromedio)->cascade()->forHumans();
