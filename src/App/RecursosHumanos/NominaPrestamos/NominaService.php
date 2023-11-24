@@ -5,7 +5,9 @@ namespace Src\App\RecursosHumanos\NominaPrestamos;
 use App\Mail\RolPagoEmail;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
+use App\Models\RecursosHumanos\NominaPrestamos\IngresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
@@ -118,18 +120,17 @@ class NominaService
         // Convierte la fecha ingresada a un objeto Carbon utilizando el formato 'd-m-Y'
         $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
         $dato_mes = explode("-", $this->mes);
-        $mes = $dato_mes[1].'-'.$dato_mes[0];
+        $mes = $dato_mes[1] . '-' . $dato_mes[0];
         // Obtiene la fecha actual
-        $fecha_completa = $dias."-" .$mes;
+        $fecha_completa = $dias . "-" . $mes;
         $fechaActual = Carbon::createFromFormat('d-m-Y', $fecha_completa);
         $diasRestantes = 0;
         // Verifica si la fecha ingresada pertenece al mes actual
         if ($fechaCarbon->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
-            if ($fechaCarbon->day < $cantidad_dias && $fechaCarbon->day>1 ) {
+            if ($fechaCarbon->day < $cantidad_dias && $fechaCarbon->day > 1) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
-                $diasRestantes = ($fechaActual->day - $fechaCarbon->day)+1;
-
+                $diasRestantes = ($fechaActual->day - $fechaCarbon->day) + 1;
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
                 $diasRestantes = $cantidad_dias; // No quedan días hasta el 15 del mes actual
@@ -152,11 +153,36 @@ class NominaService
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
         }
-        return number_format($sueldo,2);
+        return number_format($sueldo, 2);
     }
     public function calcularSalario()
     {
         return $this->empleado->salario;
+    }
+    public function obtener_total_descuentos_multas(RolPagoMes $rol_pago_mes)
+    {
+        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
+        $egreso = EgresoRolPago::where('id_rol_pago', $rolPago->id)->sum('monto');
+        return $egreso;
+    }
+    public function obtener_total_ingresos(RolPagoMes $rol_pago_mes)
+    {
+        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
+        $ingreso = IngresoRolPago::where('id_rol_pago', $rolPago->id)->sum('monto');
+        return $ingreso;
+    }
+    public function calcularDiasRol($cantidad_dias, $dias, RolPagoMes $rol_pago_mes)
+    {
+        $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
+        $fechaIngresada = $this->empleado->fecha_ingreso;
+        $fechaCarbon = Carbon::createFromFormat('d-m-Y', $fechaIngresada);
+        $dias = 0;
+        if ($fechaCarbon->isCurrentMonth()) {
+            $dias = $this->calcularDias($cantidad_dias, $dias);
+        } else {
+            $dias = $rolPago->dias;
+        }
+        return $dias;
     }
     public function calcularAporteIESS($dias = 30)
     {
@@ -164,16 +190,16 @@ class NominaService
         $iess = ($sueldo) * NominaService::calcularPorcentajeIESS();
         return floatval(number_format($iess, 2));
     }
-    public function calcularDecimo($tipo, $dias,$es_vendedor_medio_tiempo = false)
+    public function calcularDecimo($tipo, $dias, $es_vendedor_medio_tiempo = false)
     {
         switch ($tipo) {
             case 3:
-                return number_format((($this->empleado->salario / 360) * $dias),2);
+                return number_format((($this->empleado->salario / 360) * $dias), 2);
                 break;
             case 4:
-                if($es_vendedor_medio_tiempo){
-                    return ((NominaService::calcularSueldoBasico()/2) / 360) * $dias;
-                }else{
+                if ($es_vendedor_medio_tiempo) {
+                    return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
+                } else {
                     return (NominaService::calcularSueldoBasico() / 360) * $dias;
                 }
                 break;
@@ -196,11 +222,9 @@ class NominaService
         // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
         $fechaIngreso = Carbon::parse($this->empleado->fecha_vinculacion);
         // Obtén la fecha actual
-        $hoy = Carbon::parse($this->mes.'-'.Carbon::now()->endOfMonth()->format('d'));
+        $hoy = Carbon::parse($this->mes . '-' . Carbon::now()->endOfMonth()->format('d'));
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
-        Log::channel('testing')->info('Log', [compact('hoy','fechaIngreso', 'diasTrabajados')]);
-
         if ($diasTrabajados >= 395 && $this->empleado->acumula_fondos_reserva == 0) {
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
         }
@@ -218,7 +242,6 @@ class NominaService
         $pdfContent = $this->reporteService->enviar_pdf('A5', 'landscape', $reportes, $vista);
         $user = User::where('id', $destinatario->usuario_id)->first();
         Mail::to($user->email)
-        ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
-
+            ->send(new RolPagoEmail($reportes, $pdfContent, $destinatario, $results[0]['rol_firmado']));
     }
 }
