@@ -14,6 +14,7 @@ use App\Models\UnidadMedida;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\Autorizaciones;
 use Src\Config\RutasStorage;
@@ -66,7 +67,7 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item)) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
 
         $datos = [
@@ -98,10 +99,10 @@ class PreingresoMaterialService
                     else {
                         $sumInventario = Inventario::contarExistenciasDetalleSerial($detalle->id);
                         if ($sumInventario > 0) throw new Exception('ERROR: Hay ' . $sumInventario . ' items en inventario con serial ' . $detalle->serial . '. No se puede ingresar en stock del técnico sin antes quitar del inventario');
-                        if ($sumInventario->sum('cantidad') == 0) ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalle->id, $item));
+                        if ($sumInventario == 0) ItemDetallePreingresoMaterial::create(self::empaquetarDatos($preingreso->id, $detalle->id, $item));
                     }
                 } else {
-                    // no se encontró detalles coincidentes con numero de serie, buscamos sin numero de serie 
+                    // no se encontró detalles coincidentes con numero de serie, buscamos sin numero de serie
                     $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
 
                     if ($detalle) { //se encontró detalle, pero se sabe que no tiene el mismo número de serie, entonces se debe crear uno nuevo
@@ -135,12 +136,12 @@ class PreingresoMaterialService
     /**
      * La función "cargarMaterialesEmpleado" se utiliza para cargar materiales para un empleado, ya sea
      * a su stock personal o al stock de una tarea específica de la que es responsable.
-     * 
+     *
      * @param PreingresoMaterial $preingreso El parámetro `preingreso` es una instancia de la clase
      * `PreingresoMaterial`, que representa una preentrada de materiales. Contiene información como el
      * empleado responsable, el ID de la tarea y otros detalles.
-     * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán. 
-     * @return void
+     * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán.
+     * @return void 
      */
     public static function cargarMaterialesEmpleado(PreingresoMaterial $preingreso, $listado)
     {
@@ -148,11 +149,15 @@ class PreingresoMaterialService
             foreach ($listado as $item) {
                 $producto = Producto::obtenerProductoPorNombre($item['producto']);
                 $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion'], $item['serial']);
+                if ($detalle) {
 
-                if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
-                else  // se carga el material al stock personal del tecnico responsable
-                    MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                    if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id);
+                    else  // se carga el material al stock personal del tecnico responsable
+                        MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
+                } else {
+                    throw new Exception('No se encontró un detalle ');
+                }
             }
         } catch (\Throwable $th) {
             throw $th;
@@ -160,12 +165,12 @@ class PreingresoMaterialService
     }
     /**
      * La función comprueba si un elemento con una ID determinada existe en una lista determinada.
-     * 
+     *
      * @param int $id El parámetro "id" es el ID del elemento que se va a verificar si existe en la lista
      * dada.
      * @param mixed $listado Una matriz que contiene elementos con las claves 'producto', 'descripcion' y
      * 'serial'.
-     * 
+     *
      * @return boolean Devuelve verdadero si el  dado se encuentra en la matriz;
      * de lo contrario, devuelve falso.
      */
@@ -182,7 +187,7 @@ class PreingresoMaterialService
     /**
      * La función "eliminarItemsPreingreso" toma una colección de elementos y una lista, verifica si
      * cada elemento de la lista existe en la colección y elimina los elementos que no existen.
-     * 
+     *
      * @param Collection $itemsPreingreso Una colección de elementos que se procesarán para su
      * eliminación.
      * @param mixed $listado El parámetro es una variable que representa una lista o matriz de
@@ -243,6 +248,15 @@ class PreingresoMaterialService
                     $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
+                } else {
+                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    if ($detalle) {
+                        $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
+                        Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);
+                        if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
+                        else self::guardarDetalles($preingreso, [$item]);
+                    }
+                    // throw new Exception('No se encontró un detalle coincidente');
                 }
             }
         }

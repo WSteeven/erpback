@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -139,6 +140,10 @@ class Gasto extends Model implements Auditable
     public function beneficiario_info(){
         return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado_info');
     }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+    }
 
     public static function empaquetar($gastos)
     {
@@ -167,6 +172,8 @@ class Gasto extends Model implements Auditable
                 $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
                 $row['detalle_estado'] = $gasto->detalle_estado;
+                $row['comprobante'] = $gasto->comprobante;
+                $row['comprobante2'] = $gasto->comprobante2;
                 $row['total']= $gasto->total;
                 $results[$id] = $row;
                 $id++;

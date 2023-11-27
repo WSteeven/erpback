@@ -25,4 +25,13 @@ class TicketService
             ]);
         }
     }
+
+    public function puedePausar(Ticket $ticket)
+    {
+        if ($ticket->actividadesRealizadasSeguimientoTicket->count() < 2) {
+            throw ValidationException::withMessages([
+                'pocas_actividades' => ['Ingrese al menos una actividad en el seguimiento!'],
+            ]);
+        }
+    }
 }

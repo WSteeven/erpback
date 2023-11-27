@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\EstadoTransaccion;
+use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
+use App\Models\Sucursal;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +42,8 @@ class DevolucionRequest extends FormRequest
             'per_autoriza' => 'required|numeric|exists:empleados,id',
             'listadoProductos.*.cantidad' => 'required',
             'listadoProductos.*.descripcion' => 'required',
+            'sucursal' => 'required|numeric|exists:sucursales,id',
+            'pedido_automatico' => 'boolean',
         ];
 
         return $rules;
@@ -71,6 +75,18 @@ class DevolucionRequest extends FormRequest
                         }
                     }
                 }
+            } else {
+                foreach ($this->listadoProductos as $listado) {
+                    $sucursal = Sucursal::find($this->sucursal);
+                    $material = MaterialEmpleado::where('empleado_id', $this->solicitante)
+                        ->where('cliente_id', $sucursal->cliente_id)
+                        ->where('detalle_producto_id', $listado['id'])->first();
+                    if ($material) {
+                        if ($listado['cantidad'] > $material->cantidad_stock) {
+                            $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock '.$material->cantidad_stock);
+                        }
+                    }
+                }
             }
         });
     }
@@ -89,7 +105,7 @@ class DevolucionRequest extends FormRequest
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRATIVO]) && $this->tarea && $this->route()->getActionMethod()!='update') {
+        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP, User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRATIVO]) && $this->tarea && $this->route()->getActionMethod() != 'update') {
             $this->merge([
                 'autorizacion' => 2,
                 'per_autoriza' => auth()->user()->empleado->id,

@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\ComprasProveedores;
 
+use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
+use App\Events\ComprasProveedores\NotificarOrdenCompraRealizada;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Http\Controllers\Controller;
@@ -21,6 +25,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -46,7 +52,7 @@ class OrdenCompraController extends Controller
     public function index(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Es empleado:', $request->all()]);
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) {
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_CONTABILIDAD])) {
             $results = OrdenCompra::ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->orderBy('id', 'desc')->get();
         } else {
             $results = OrdenCompra::filtrarOrdenesEmpleado($request);
@@ -124,6 +130,7 @@ class OrdenCompraController extends Controller
      */
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
     {
+        $autorizacion_anterior = $orden->autorizacion_id;
         $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
@@ -139,6 +146,7 @@ class OrdenCompraController extends Controller
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
+            // Log::channel('testing')->info('Log', ['Datos sin validar:', $request->all()]);
             // Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
             // if()if (count($request->categorias) == 0) {
             //     unset($datos['categorias']);
@@ -158,9 +166,14 @@ class OrdenCompraController extends Controller
             DB::commit();
 
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
-            if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
-                $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
+            $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
+            if ($orden->autorizacion_id != $autorizacion_anterior)
                 event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
+            // }
+            if ($orden->autorizacion_id == Autorizaciones::APROBADO) {
+                if (!auth()->user()->hasRole(User::ROL_COMPRAS))
+                    event(new NotificarOrdenCompraCompras($orden, User::ROL_COMPRAS));
             }
 
             return response()->json(compact('mensaje', 'modelo'));
@@ -183,7 +196,7 @@ class OrdenCompraController extends Controller
         $orden->causa_anulacion = $request['motivo'];
         $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
-        if($orden->preorden_id){
+        if ($orden->preorden_id) {
             $preorden = PreordenCompra::find($orden->preorden_id);
             $preorden->estado = EstadoTransaccion::PENDIENTE;
             $preorden->save();
@@ -191,6 +204,31 @@ class OrdenCompraController extends Controller
         $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $orden->save();
 
+        event(new OrdenCompraActualizadaEvent($orden, true));
+
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    public function realizada(Request $request, OrdenCompra $orden)
+    {
+        // Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
+        $orden->realizada = true;
+        $request->validate(['observacion_realizada' => ['string', 'nullable']]);
+        $orden->observacion_realizada = $request->observacion_realizada;
+        $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraRealizada($orden, User::ROL_CONTABILIDAD));
+        $modelo = new OrdenCompraResource($orden->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function pagada(OrdenCompra $orden)
+    {
+        $orden->pagada = true;
+        $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraPagadaCompras($orden, User::ROL_COMPRAS));
+        event(new NotificarOrdenCompraPagadaUsuario($orden));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
@@ -208,12 +246,12 @@ class OrdenCompraController extends Controller
             //     Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
             //     return Storage::download($orden_compra->file);
             // } else {
-                try {
-                    return $this->servicio->generarPdf($orden, true, true);
-                } catch (Exception $e) {
-                    Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
-                    return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
-                }
+            try {
+                return $this->servicio->generarPdf($orden, true, true);
+            } catch (Exception $e) {
+                Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+                return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
+            }
             // }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
@@ -230,8 +268,8 @@ class OrdenCompraController extends Controller
         // Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
         try {
             if ($orden->proveedor->empresa->correo) {
-                 Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
-                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
+                Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
+                CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
                 // Log::channel('testing')->info('Log', ['Correo enviado',$correo]);
 
 
@@ -279,5 +317,17 @@ class OrdenCompraController extends Controller
             Log::channel('testing')->info('Log', ['Error en el storeFiles de NovedadOrdenCompraController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
+    }
+
+    /**
+     * Dashboard de ordenes de compras
+     */
+    public function dashboard(Request $request)
+    {
+        Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
+
+        $results = $this->servicio->obtenerDashboard($request);
+
+        return response()->json(compact('results'));
     }
 }

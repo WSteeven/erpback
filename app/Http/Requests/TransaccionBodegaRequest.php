@@ -38,6 +38,7 @@ class TransaccionBodegaRequest extends FormRequest
             'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
+            'proveedor' => 'sometimes|string|nullable|required_with_all:comprobante',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'observacion_est' => 'nullable|string|sometimes',
@@ -86,7 +87,7 @@ class TransaccionBodegaRequest extends FormRequest
                     if (!array_key_exists('cantidad', $listado)) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'Ingresa la cantidad del ítem ' . $listado['descripcion']);
                     else if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser mayor que 0');
                     else {
-                        $itemInventario = $this->transferencia ? !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first() : !!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
+                        $itemInventario = !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first();
                         // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {

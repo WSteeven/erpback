@@ -14,15 +14,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\ArchivoService;
 use Src\App\Bodega\PreingresoMaterialService;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 class PreingresoMaterialController extends Controller
 {
     private $entidad = 'Preingreso de Material';
+    private $archivoService;
     private $servicio;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->servicio = new PreingresoMaterialService();
         $this->middleware('can:puede.ver.preingresos_materiales')->only('index', 'show');
         $this->middleware('can:puede.crear.preingresos_materiales')->only('store');
@@ -134,5 +138,32 @@ class PreingresoMaterialController extends Controller
         }
 
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, PreingresoMaterial $preingreso)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($preingreso);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, PreingresoMaterial $preingreso)
+    {
+        try {
+            $modelo  = $this->archivoService->guardarArchivo($preingreso, $request->file, RutasStorage::PREINGRESOS->value . '_' . $preingreso->id);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return response()->json(compact('mensaje', 'modelo'), 200);
     }
 }

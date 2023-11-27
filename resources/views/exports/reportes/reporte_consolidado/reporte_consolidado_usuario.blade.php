@@ -279,7 +279,7 @@
                                             </td>
                                             <td style="font-size:10px" align="center">
                                                 <div align="right" style="margin-right:20px;">
-                                                    {{ number_format($nuevo_saldo, 2, ',', ' ') }}</div>
+                                                    {{ number_format($total_suma, 2, ',', ' ') }}</div>
                                             </td>
                                         </tr>
                                         <!--Fin Saldo Final-->
@@ -389,7 +389,7 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ number_format($dato->valor_u_unitario, 2, ',', '.') }}</div>
+                                {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">{{ number_format($dato->total, 2, ',', '.') }}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\Bodega\IngresoPorCompraEvent;
 use App\Exports\TransaccionBodegaIngresoExport;
 use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
@@ -28,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Config\ClientesCorporativos;
@@ -136,10 +138,6 @@ class TransaccionBodegaIngresoController extends Controller
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
                             $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
-
-                            // $devolucion = Devolucion::find($transaccion->devolucion_id);
-                            // $devolucion->estado_bodega = EstadoTransaccion::COMPLETA;
-                            // $devolucion->save();
                         }
                     }
                 }
@@ -156,11 +154,17 @@ class TransaccionBodegaIngresoController extends Controller
                     $transferencia->save();
                 }
 
+                if ($transaccion->motivo_id == 1) {
+                    //en caso de que sea ingreso por COMPRA A PROVEEDOR se notifica a contabilidad
+                    event(new IngresoPorCompraEvent($transaccion, User::ROL_CONTABILIDAD));
+                }
+
                 $modelo = new TransaccionBodegaResource($transaccion);
                 $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
             }
 

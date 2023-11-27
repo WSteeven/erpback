@@ -26,7 +26,7 @@ class PreordenCompraResource extends JsonResource
             'autorizador_id' => $this->autorizador_id,
             'autorizacion' => $this->autorizacion->nombre,
             'autorizacion_id' => $this->autorizacion_id,
-            'justificacion' => $this->pedido?->justificacion,
+            'justificacion' => $this->pedido? $this->pedido->justificacion:'Generada automaticamente por una consolidación de ítems y cantidades',
             'listadoProductos' => $detalles,
             'estado' => $this->estado,
             'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),

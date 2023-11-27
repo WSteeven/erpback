@@ -20,6 +20,7 @@ class DetalleProductoResource extends JsonResource
         // Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
         $modelo =  [
             'id' => $this->id,
+            'detalle_id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
             'codigo'=>$this->codigo?$this->codigo->codigo:'',
             'producto' => $this->producto->nombre,

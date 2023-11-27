@@ -28,6 +28,7 @@ class RolPago extends Model implements Auditable
         'dias',
         'salario',
         'sueldo',
+        'supa',
         'anticipo',
         'bonificacion',
         'bono_recurente',
@@ -141,6 +142,7 @@ class RolPago extends Model implements Auditable
             $referencia = $rol_pago->rolPagoMes->es_quincena?'PAGO ROL PRIMERA QUINCENA MES ':'PAGO ROL FIN DE MES ';
             $row['item'] = $id + 1;
             $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+            $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;
             $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
             $row['email'] =  $rol_pago->empleado_info->user->email;
             $row['tipo_pago'] = 'PA';

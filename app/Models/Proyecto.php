@@ -3,14 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Support\Facades\Auth;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Proyecto extends Model
+class Proyecto extends Model implements Auditable
 {
-    use HasFactory, Filterable, UppercaseValuesTrait;
+    use HasFactory, Filterable, UppercaseValuesTrait, AuditableModel;
     protected $table = "proyectos";
 
     protected $fillable = [

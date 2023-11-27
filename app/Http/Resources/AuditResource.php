@@ -19,13 +19,14 @@ class AuditResource extends JsonResource
             'user_id'=>$this->user_id,
             'user_name'=>$this->user->name,
             'event'=>$this->event,
+            'auditable_type'=>$this->auditable_type,
             'auditable_id'=>$this->auditable_id,
             'url'=>$this->url,
             'ip_address'=>$this->ip_address,
             'user_agent'=>$this->user_agent,
             'old_values'=>$this->old_values,
             'new_values'=>$this->new_values,
-            'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'created_at' => date('Y-m-d h:i:s a', strtotime($this->created_at)),
             'updated_at' => date('Y-m-d h:i:s a', strtotime($this->updated_at)),
         ];
     }

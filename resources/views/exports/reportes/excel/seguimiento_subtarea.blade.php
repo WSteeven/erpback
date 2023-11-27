@@ -5,62 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Reporte</title>
     <style>
         @page {
             margin: 100px 25px;
-        }
-
-        /* .header {
-            position: fixed;
-            top: -55px;
-            left: 0px;
-            right: 0px;
-            height: 80px;
-            text-align: center;
-            line-height: 35px;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: -50px;
-            left: 0px;
-            right: 0px;
-            height: 50px;
-            color: #333333;
-            text-align: center;
-            line-height: 35px;
-            font-size: 10px;
-            font-style: italic;
-        } */
-        table {
-            border-collapse: collapse;
-        }
-
-        .tabla-border-1 td,
-        .tabla-border-1 th {
-            border: 1px solid #000;
-        }
-
-        .borde-celda-1 {
-            border: 1px solid #000;
-        }
-
-        .borde-celda-2 {
-            border: 2px solid #000;
         }
     </style>
 </head>
 
 <body>
 
-    <table
-        style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+    <table style="border: 1px solid #000;">
         <thead>
             <tr>
                 <th rowspan="4" colspan="2"
                     style="border: 2px solid #000; vertical-align: middle; text-align: center; width: 40px;">
-                    <img src="{{ public_path('img/logo.png') }}" height="40px" style="margin: 0 auto;" />
+                    <img src="img/logo.png" height="40px" style="margin: 0 auto;" />
                 </th>
                 <th rowspan="4" colspan="2"
                     style="border: 2pt solid #000; vertical-align: middle; text-align: center; width: 800px; font-size: 14pt; font-weight: bold;">
@@ -72,7 +31,7 @@
             </tr>
         </thead>
 
-        <tbody>
+        <tbody style="border: 2px solid #000; background: #fff;">
             <tr></tr>
             <tr></tr>
             <tr></tr>
@@ -84,7 +43,7 @@
                 <td style="width: 360px;"></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000; width: 200px;">{{
                     $subtarea->codigo_subtarea }}</td>
-                <td style="width: 30px;"></td>
+                <td style="width: 30px; border-right: 8pt solid #000;"></td>
             </tr>
 
             <tr>
@@ -370,6 +329,53 @@
 
             <tr>
                 <td></td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #fff2cc;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS REDES
+                    BACK BONE' }}</td>
+                <td colspan="2"
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; background: #d0cece;">{{
+                    'RESUMEN
+                    ACCIONES REALIZADAS FTTH' }}
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td></td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Cantidad' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center;">
+                    {{ 'Descripcion' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Detalle' }}</td>
+                <td
+                    style="border: 1px solid #000; font-weight: bold; text-align: center; font-weight: bold; text-align: center; background: #ededed;">
+                    {{ 'Cantidad' }}</td>
+                <td></td>
+            </tr>
+
+            @foreach($resumenAccionesRedesBackBone as $fila)
+            <tr>
+                <td></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;"></td>
+                <td style="border: 2px solid #000; font-size: 10pt; text-align: center; white-space: normal;">{{
+                    $fila['descripcion'] }}</td>
+                <td
+                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: pre-wrap; word-wrap: break-word; background: {{ $fila['background'] }};">
+                    {{
+                    $fila['detalle'] }}</td>
+                <td style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};"></td>
+                <td></td>
+            </tr>
+            @endforeach
+
+            <tr>
+                <td></td>
                 <td colspan="4" style="font-weight: bold;">{{ 'MATERIALES UTILIZADOS:' }}</td>
                 <td></td>
             </tr>
@@ -382,13 +388,23 @@
                     <table>
                         <tr>
                             <th style="text-align: center; font-weight: bold;">{{ 'CANTIDAD' }}</th>
-                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'DESCRIPCIÓN DEL MATERIAL' }}
+                            <th colspan="3" style="text-align: center; font-weight: bold;">{{ 'DESCRIPCIÓN DEL MATERIAL'
+                                }}
                             </th>
                         </tr>
 
                         @foreach ($materiales_tarea_usados as $material)
                         <tr>
-                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}</td>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                            </td>
+                            <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
+                        </tr>
+                        @endforeach
+
+                        @foreach ($materiales_stock_usados as $material)
+                        <tr>
+                            <td style="border: 1px solid #000; text-align: center;">{{ $material->cantidad_utilizada }}
+                            </td>
                             <td colspan="3" style="border: 1px solid #000;">{{ $material->descripcion }}</td>
                         </tr>
                         @endforeach
