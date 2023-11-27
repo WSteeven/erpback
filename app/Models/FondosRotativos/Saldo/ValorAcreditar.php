@@ -24,7 +24,9 @@ class ValorAcreditar extends Model implements Auditable
         'empleado_id',
         'acreditacion_semana_id',
         'monto_generado',
-        'monto_modificado'
+        'monto_modificado',
+        'motivo',
+        'estado',
     ];
     private static $whiteListFilter = [
         'id',
@@ -32,6 +34,9 @@ class ValorAcreditar extends Model implements Auditable
         'acreditacion_semana_id',
         'monto_generado',
         'monto_modificado'
+    ];
+    protected $casts = [
+        'estado' => 'boolean',
     ];
     public function empleado()
     {
