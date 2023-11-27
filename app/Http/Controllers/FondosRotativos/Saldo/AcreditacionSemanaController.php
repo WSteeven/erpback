@@ -137,7 +137,7 @@ class AcreditacionSemanaController extends Controller
             $tipo_pagina =  'A4' ;
             return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, compact('reportes','suma'), $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$e->getMessage()],
             ]);
