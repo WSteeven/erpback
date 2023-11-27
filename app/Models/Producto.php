@@ -28,6 +28,8 @@ class Producto extends Model implements Auditable
     const BIEN = 'BIEN';
     const SERVICIO = 'SERVICIO';
 
+    const MATERIAL = 7;
+
     private static $whiteListFilter = [
         '*',
     ];
@@ -48,9 +50,9 @@ class Producto extends Model implements Auditable
 
     /**
      * La función "obtenerProductoPorNombre" recupera un producto por su nombre de la base de datos.
-     * 
+     *
      * @param nombre El parámetro "nombre" es una cadena que representa el nombre del producto a buscar.
-     * 
+     *
      * @return una única instancia del modelo "Producto" que coincide con el nombre dado.
      */
     public static function obtenerProductoPorNombre($nombre)

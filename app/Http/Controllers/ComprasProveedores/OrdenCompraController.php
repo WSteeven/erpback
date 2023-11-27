@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\ComprasProveedores;
 
 use App\Events\ComprasProveedores\NotificarOrdenCompraCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaCompras;
+use App\Events\ComprasProveedores\NotificarOrdenCompraPagadaUsuario;
+use App\Events\ComprasProveedores\NotificarOrdenCompraRealizada;
 use App\Events\ComprasProveedores\OrdenCompraActualizadaEvent;
 use App\Events\ComprasProveedores\OrdenCompraCreadaEvent;
 use App\Http\Controllers\Controller;
@@ -126,7 +129,8 @@ class OrdenCompraController extends Controller
      * Actualizar
      */
     public function update(OrdenCompraRequest $request, OrdenCompra $orden)
-    { $autorizacion_anterior = $orden->autorizacion_id;
+    {
+        $autorizacion_anterior = $orden->autorizacion_id;
         $autorizacion_aprobada = Autorizacion::where('nombre', Autorizacion::APROBADO)->first();
         $estado_completo = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         try {
@@ -164,11 +168,11 @@ class OrdenCompraController extends Controller
             // aqui se debe lanzar la notificacion en caso de que la orden de compra sea autorizacion pendiente
             // if ($orden->estado_id === $estado_completo->id && $orden->autorizacion_id === $autorizacion_aprobada->id) {
             $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
-            if($orden->autorizacion_id != $autorizacion_anterior)
+            if ($orden->autorizacion_id != $autorizacion_anterior)
                 event(new OrdenCompraActualizadaEvent($orden, true)); // crea el evento de la orden de compra actualizada al solicitante
             // }
-            if($orden->autorizacion_id==Autorizaciones::APROBADO){
-                if(!auth()->user()->hasRole(User::ROL_COMPRAS))
+            if ($orden->autorizacion_id == Autorizaciones::APROBADO) {
+                if (!auth()->user()->hasRole(User::ROL_COMPRAS))
                     event(new NotificarOrdenCompraCompras($orden, User::ROL_COMPRAS));
             }
 
@@ -200,22 +204,31 @@ class OrdenCompraController extends Controller
         $orden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $orden->save();
 
+        event(new OrdenCompraActualizadaEvent($orden, true));
+
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
 
-    public function realizada(Request $request, OrdenCompra $orden){
+    public function realizada(Request $request, OrdenCompra $orden)
+    {
         // Log::channel('testing')->info('Log', ['Datos para marcar como realizada la orden de compra:', $request->all()]);
-        $orden->realizada =true;
+        $orden->realizada = true;
         $request->validate(['observacion_realizada' => ['string', 'nullable']]);
-        $orden->observacion_realizada =$request->observacion_realizada;
+        $orden->observacion_realizada = $request->observacion_realizada;
         $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraRealizada($orden, User::ROL_CONTABILIDAD));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
-    public function pagada(OrdenCompra $orden){
-        $orden->pagada =true;
+    public function pagada(OrdenCompra $orden)
+    {
+        $orden->pagada = true;
         $orden->save();
+        $orden->latestNotificacion()->update(['leida' => true]); 
+        event(new NotificarOrdenCompraPagadaCompras($orden, User::ROL_COMPRAS));
+        event(new NotificarOrdenCompraPagadaUsuario($orden));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
     }
@@ -309,12 +322,12 @@ class OrdenCompraController extends Controller
     /**
      * Dashboard de ordenes de compras
      */
-    public function dashboard(Request $request){
+    public function dashboard(Request $request)
+    {
         Log::channel('testing')->info('Log', ['Entro en dashboard', $request->all()]);
 
-        $results = $this->servicio->obtenerOrdenesDeComprasPorEstados($request->all());
+        $results = $this->servicio->obtenerDashboard($request);
 
         return response()->json(compact('results'));
     }
-
 }

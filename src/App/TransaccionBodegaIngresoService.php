@@ -618,26 +618,26 @@ class TransaccionBodegaIngresoService
     public function descontarMaterialesAsignados($listado, $transaccion, $detalle)
     {
         if ($transaccion->tarea_id) {
-            $materialTarea = MaterialEmpleadoTarea::where('empleado_id', $transaccion->solicitante_id)
-                ->where('tarea_id', $transaccion->tarea_id)
-                ->where('detalle_producto_id', $detalle->id)->first();
-            $materialTarea->cantidad_stock -= $listado['cantidad'];
-            $materialTarea->devuelto += $listado['cantidad'];
-            $materialTarea->save();
+            MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $transaccion->cliente_id);
         } else { // Devolucion de stock personal
-            $material = MaterialEmpleado::where('empleado_id', $transaccion->solicitante_id)
-                ->where('detalle_producto_id', $detalle->id)->first();
-            $material->cantidad_stock -= $listado['cantidad'];
-            $material->devuelto += $listado['cantidad'];
-            $material->save();
+            MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $transaccion->cliente_id);
         }
     }
 
     public static function actualizarDevolucion($transaccion, $detalle, $cantidad)
     {
         $itemDevolucion  = DetalleDevolucionProducto::where('devolucion_id', $transaccion->devolucion_id)->where('detalle_id', $detalle->id)->first();
-        $itemDevolucion->devuelto += $cantidad;
-        $itemDevolucion->save();
+        if ($itemDevolucion) {
+            $itemDevolucion->devuelto += $cantidad;
+            $itemDevolucion->save();
+        } else {
+            $itemDevolucion = DetalleDevolucionProducto::create([
+                'devolucion_id' => $transaccion->devolucion_id,
+                'detalle_id' => $detalle->id,
+                'cantidad' => $cantidad,
+                'devuelto' => $cantidad,
+            ]);
+        }
         //aquí se verifica si se completaron los items de la devolución y se actualiza con parcial o completado según corresponda.
         DevolucionService::verificarItemsDevolucion($itemDevolucion);
     }

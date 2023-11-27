@@ -67,7 +67,7 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item)) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
 
         $datos = [
@@ -141,7 +141,7 @@ class PreingresoMaterialService
      * `PreingresoMaterial`, que representa una preentrada de materiales. Contiene información como el
      * empleado responsable, el ID de la tarea y otros detalles.
      * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán.
-     * @return void
+     * @return void 
      */
     public static function cargarMaterialesEmpleado(PreingresoMaterial $preingreso, $listado)
     {
@@ -152,9 +152,9 @@ class PreingresoMaterialService
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id);
                     else  // se carga el material al stock personal del tecnico responsable
-                        MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                        MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {
                     throw new Exception('No se encontró un detalle ');
                 }
@@ -248,6 +248,15 @@ class PreingresoMaterialService
                     $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
+                } else {
+                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    if ($detalle) {
+                        $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
+                        Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);
+                        if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
+                        else self::guardarDetalles($preingreso, [$item]);
+                    }
+                    // throw new Exception('No se encontró un detalle coincidente');
                 }
             }
         }

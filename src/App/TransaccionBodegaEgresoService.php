@@ -829,7 +829,7 @@ class TransaccionBodegaEgresoService
     {
         $subtarea = Subtarea::find($idSubtarea);
         $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
-        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
+        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->addDay()->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
 
         return DB::table('seguimientos_materiales_subtareas as sms')
             ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))
@@ -848,7 +848,7 @@ class TransaccionBodegaEgresoService
     {
         $subtarea = Subtarea::find($idSubtarea);
         $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
-        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
+        $fecha_fin = $subtarea->fecha_hora_finalizacion ? Carbon::parse($subtarea->fecha_hora_finalizacion)->addDay()->format('Y-m-d') : Carbon::now()->addDay()->toDateString();
 
         return DB::table('seguimientos_materiales_stock as sms')
             ->select('dp.descripcion as producto', 'dp.id as detalle_producto_id', DB::raw('SUM(sms.cantidad_utilizada) AS suma_total'))

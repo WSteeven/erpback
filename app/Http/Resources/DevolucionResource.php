@@ -41,6 +41,8 @@ class DevolucionResource extends JsonResource
 
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
+            'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
+            'cliente_id' => $this->sucursal?->cliente_id,
             'sucursal' => $this->sucursal?->lugar,
             'sucursal_id' => $this->sucursal_id,
             'pedido_automatico' => $this->pedido_automatico,

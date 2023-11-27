@@ -172,6 +172,8 @@ class Gasto extends Model implements Auditable
                 $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
                 $row['detalle_estado'] = $gasto->detalle_estado;
+                $row['comprobante'] = $gasto->comprobante;
+                $row['comprobante2'] = $gasto->comprobante2;
                 $row['total']= $gasto->total;
                 $results[$id] = $row;
                 $id++;
