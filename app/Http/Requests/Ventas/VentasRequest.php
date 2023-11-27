@@ -46,6 +46,7 @@ class VentasRequest extends FormRequest
     {
         $producto = ProductoVentas::where('id', $this->producto)->first();
         $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->first();
+        Log::channel('testing')->info('Log', ['error', compact('comision','producto'),'Forma de pago',$this->forma_pago]);
         $chargeback = $this->chargeback!==null ? $this->chargeback:0;
         $comision_value = $this->estado_activ=='APROBADO' ? ($producto->precio*$comision->comision)/100:0;
         if($this->fecha_activ!=null){

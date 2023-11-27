@@ -10,6 +10,7 @@ use App\Models\Ventas\ProductoVentas;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ComisionesController extends Controller
@@ -71,6 +72,7 @@ class ComisionesController extends Controller
     public function obtener_comision($idProducto,$forma_pago){
         $producto = ProductoVentas::where('id', $idProducto)->first();
         $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->first();
+        Log::channel('testing')->info('Log', ['comision', compact('comision','producto','forma_pago')]);
         $comision_value = ($producto->precio*$comision->comision)/100;
         return response()->json(compact('comision_value'));
     }
