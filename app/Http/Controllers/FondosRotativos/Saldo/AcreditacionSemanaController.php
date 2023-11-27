@@ -75,7 +75,8 @@ class AcreditacionSemanaController extends Controller
         return response()->json(compact('acreditacionsemana'));
     }
     public function acreditacion_saldo_semana($id)
-    {   $date = Carbon::now();
+    {
+        $date = Carbon::now();
         $acreditaciones = [];
         $acreditacion_semana = AcreditacionSemana::where('id', $id)->first();
         $acreditacion_semana->acreditar = true;
@@ -90,9 +91,9 @@ class AcreditacionSemanaController extends Controller
                 'fecha' =>  $date->format('Y-m-d'),
                 'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
                 'monto' => $acreditacion->monto_modificado,
-                'id_estado'=>1,
-                'created_at'=> $date,
-                'updated_at'=> $date
+                'id_estado' => 1,
+                'created_at' => $date,
+                'updated_at' => $date
             ];
         }
         $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
@@ -103,14 +104,14 @@ class AcreditacionSemanaController extends Controller
         $roles_pagos = ValorAcreditar::with(['acreditacion_semanal', 'umbral'])
             ->where('acreditacion_semana_id', $id)
             ->get();
-            $results = ValorAcreditar::empaquetarCash($roles_pagos);
-            $results = collect($results)->map(function ($elemento, $index) {
-                $elemento['item'] = $index + 1;
-                return $elemento;
-            })->all();
-            $reporte = ['reporte' => $results];
-         $export_excel = new CashAcreditacionSaldoExport($reporte);
-         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+        $results = ValorAcreditar::empaquetarCash($roles_pagos);
+        $results = collect($results)->map(function ($elemento, $index) {
+            $elemento['item'] = $index + 1;
+            return $elemento;
+        })->all();
+        $reporte = ['reporte' => $results];
+        $export_excel = new CashAcreditacionSaldoExport($reporte);
+        return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
     public function cortar_saldo()
     {
@@ -135,7 +136,12 @@ class AcreditacionSemanaController extends Controller
             foreach ($umbrales as $key => $umbral) {
                 $saldo_actual = $this->obtener_saldo_actual($umbral->empleado_id);
                 $valorRecibir = $umbral->valor_minimo - $saldo_actual;
-                $numeroRedondeado = $valorRecibir>0 ?(ceil($valorRecibir / 10) * 10):0;
+                $numeroRedondeado = $valorRecibir;
+                if ($saldo_actual == 0) {
+                    $numeroRedondeado = $valorRecibir;
+                } else {
+                    $numeroRedondeado = $valorRecibir > 0 ? (ceil($valorRecibir / 10) * 10) : 0;
+                }
                 $acreditaciones[] = [
                     'empleado_id' => $umbral->empleado_id,
                     'acreditacion_semana_id' => $acreditacionsemana->id,
@@ -143,7 +149,7 @@ class AcreditacionSemanaController extends Controller
                     'monto_modificado' => $numeroRedondeado,
                 ];
             }
-            ValorAcreditar::insert($acreditaciones);
+            $acreditacionsemana->valor_acreditar()->createMany($acreditaciones);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -154,7 +160,8 @@ class AcreditacionSemanaController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function obtener_saldo_actual($empleado_id){
+    public function obtener_saldo_actual($empleado_id)
+    {
         $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
         $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
