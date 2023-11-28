@@ -8,6 +8,7 @@ use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\CalificacionTicket;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;
@@ -41,18 +42,14 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
-        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-        $datos['solicitante_id'] = Auth::user()->empleado->id;
-        $datos['tipo_ticket_id'] = $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
-        $datos['departamento_responsable_id'] = $request->safe()->only(['departamento_responsable'])['departamento_responsable'];
-        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $responsable_id = $request['responsable'];
+        $departamento_responsable_id = $request['departamento_responsable'];
 
-        // Calcular estados
-        $datos['estado'] = Ticket::ASIGNADO;
+        $departamentos = Departamento::select('responsable_id', 'id')->whereIn('id', $departamento_responsable_id)->get();
 
-        $ticket = Ticket::create($datos);
+        foreach($departamentos as $departamento) {
+            $ticket = $this->servicio->crearTicket($request, $departamento->responsable_id, $departamento->id);
+        }
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
