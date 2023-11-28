@@ -25,7 +25,7 @@ class ValorAcreditarController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = ValorAcreditar::ignoreRequest(['campos'])->filter()->get();
+        $results = ValorAcreditar:: where('estado',1)->ignoreRequest(['campos'])->filter()->get();
         $results = ValorAcreditarResource::collection($results);
         return response()->json(compact('results'));
     }

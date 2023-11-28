@@ -154,7 +154,8 @@ class RolPago extends Model implements Auditable
             $row['tipo_documento_empleado'] = 'C';
             $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
             $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
-            $row['total'] =  number_format($rol_pago->total, 2, ',', '.') ;
+            $row['total'] =  str_replace(",", "", number_format($rol_pago->total, 2));
+
             $results[$id] = $row;
 
             $id++;
