@@ -38,6 +38,10 @@ class DashboardTareaController extends Controller
         $cantidadSubtareasRealizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::REALIZADO);
         $cantidadSubtareasFinalizadas = $this->dashboardTareaService->contarCantidadSubtareasPorEstado($subtareasFechaInicioFin, Subtarea::FINALIZADO);
 
+        // Linea tiempo
+        $lineaTiempoSubtareasFinalizadasCoordinador = $this->dashboardTareaService->obtenerSubtareasFinalizadas($coordinador);
+        $lineaTiempoSubtareasRealizadasCoordinador = $this->dashboardTareaService->obtenerSubtareasRealizadas($coordinador);
+
         /********
          Listados
          *********/
@@ -74,6 +78,9 @@ class DashboardTareaController extends Controller
             'subtareasEmpleado',
             'subtareasGrupo',
             'cantidadesPorEstadosSubtareas',
+            // Linea tiempo
+            'lineaTiempoSubtareasFinalizadasCoordinador',
+            'lineaTiempoSubtareasRealizadasCoordinador',
         );
 
         return response()->json(compact('results'));

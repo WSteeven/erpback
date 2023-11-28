@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('fr_valor_acreditar', function (Blueprint $table) {
             $table->text('motivo')->nullable();
-            $table->boolean('estado')->default(0);
+            $table->boolean('estado')->default(1);
         });
     }
 
