@@ -120,22 +120,24 @@ class AcreditacionSemanaController extends Controller
         $export_excel = new CashAcreditacionSaldoExport($reporte);
         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
-    public function reporte_acreditacion_semanal(Request $request,$acreditacion_semana_id){
+    public function reporte_acreditacion_semanal(Request $request,$id){
         try {
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'acreditaciones';
             // Fetch data with relationships
             $valores_acreditar = ValorAcreditar::with(['acreditacion_semanal', 'umbral'])
-            ->where('acreditacion_semana_id', $acreditacion_semana_id)
+            ->where('acreditacion_semana_id', $id)
             ->where('estado',1)
             ->get();
-            $reportes =$valores_acreditar;
-            $suma= 0;
+            $suma= str_replace(".", "", number_format($valores_acreditar->sum('monto_modificado'), 2, ',', '.'));
+            $titulo= AcreditacionSemana::select('semana')->where('id',$id)->first()->semana;
             $vista = 'exports.reportes.acreditacion_semanal' ;
+            $reportes = ValorAcreditar::empaquetar($valores_acreditar);
+            $reportes =compact('reportes','titulo','suma');
             $export_excel = new AcreditacionSemanalExport($reportes);
             $orientacion = 'portail';
             $tipo_pagina =  'A4' ;
-            return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, compact('reportes','suma'), $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -218,7 +220,7 @@ class AcreditacionSemanaController extends Controller
                 'monto_modificado' => $valoracreditar->monto_modificado,
             ));
         }
-        $mensaje = "Rol de pago Actualizado Exitosamente";
+        $mensaje = "Acreditaciones Actualizadas Exitosamente";
         return response()->json(compact('mensaje'));
     }
     function umbral_usuario($empleado_id)
