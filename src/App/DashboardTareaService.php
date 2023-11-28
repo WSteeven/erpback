@@ -29,10 +29,12 @@ class DashboardTareaService
     {
         $tareas_id = $coordinador->tareasCoordinador()->where('finalizado', 1)->fechaInicioFin()->pluck('id');
 
-        $subtareas = Subtarea::select('id', 'codigo_subtarea', 'fecha_hora_ejecucion', 'fecha_hora_realizado')->whereIn('tarea_id', $tareas_id)->get();
+        $subtareas = Subtarea::select('id', 'codigo_subtarea', 'fecha_hora_ejecucion', 'fecha_hora_realizado', 'tarea_id', 'empleado_id')->whereIn('tarea_id', $tareas_id)->get();
 
         $subtareas = $subtareas->map(fn ($item) => [
             'id' => $item->id,
+            'tarea_id' => $item->tarea_id,
+            'empleado_id' => $item->empleado_id,
             'codigo_subtarea' => $item->codigo_subtarea,
             'tiempo' => Carbon::parse($item->fecha_hora_realizado)->diffInHours(Carbon::parse($item->fecha_hora_ejecucion)),
         ]);
@@ -44,10 +46,12 @@ class DashboardTareaService
     {
         $tareas_id = $coordinador->tareasCoordinador()->where('finalizado', 1)->fechaInicioFin()->pluck('id');
 
-        $subtareas = Subtarea::select('id', 'codigo_subtarea', 'fecha_hora_ejecucion', 'fecha_hora_realizado')->whereIn('tarea_id', $tareas_id)->get();
+        $subtareas = Subtarea::select('id', 'codigo_subtarea', 'fecha_hora_ejecucion', 'fecha_hora_realizado', 'tarea_id', 'empleado_id')->whereIn('tarea_id', $tareas_id)->get();
 
         $subtareas = $subtareas->map(fn ($item) => [
             'id' => $item->id,
+            'tarea_id' => $item->tarea_id,
+            'empleado_id' => $item->empleado_id,
             'codigo_subtarea' => $item->codigo_subtarea,
             'tiempo' => Carbon::parse($item->fecha_hora_finalizacion)->diffInHours(Carbon::parse($item->fecha_hora_realizado)),
         ]);
