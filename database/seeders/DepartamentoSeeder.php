@@ -16,18 +16,18 @@ class DepartamentoSeeder extends Seeder
     public function run()
     {
         Departamento::insert([
-            ['nombre' => 'TÉCNICO'],
-            ['nombre' => 'LEGAL'],
-            ['nombre' => 'BODEGA'],
-            ['nombre' => 'SEGURIDAD LABORAL'],
-            ['nombre' => 'RECURSOS HUMANOS'],
-            ['nombre' => 'INFORMÁTICO'],
-            ['nombre' => 'CONTABILIDAD'],
-            ['nombre' => 'GERENCIA GENERAL'],
-            ['nombre' => 'ACTIVOS FIJOS'],
-            ['nombre' => 'MEDICO'],
-            ['nombre' => 'PROCESOS'],
-            ['nombre' => 'SSO'],
+            ['nombre' => 'TÉCNICO', 'responsable_id' => 3],
+            ['nombre' => 'LEGAL', 'responsable_id' => null],
+            ['nombre' => 'BODEGA', 'responsable_id' => 8],
+            ['nombre' => 'SEGURIDAD LABORAL', 'responsable_id' => null],
+            ['nombre' => 'RECURSOS HUMANOS', 'responsable_id' => 5],
+            ['nombre' => 'INFORMATICA', 'responsable_id' => 25],
+            ['nombre' => 'CONTABILIDAD', 'responsable_id' => 10],
+            ['nombre' => 'GERENCIA GENERAL', 'responsable_id' => 2],
+            ['nombre' => 'ACTIVOS FIJOS', 'responsable_id' => 12],
+            ['nombre' => 'MEDICO', 'responsable_id' => 116],
+            ['nombre' => 'PROCESOS', 'responsable_id' => null],
+            ['nombre' => 'SSO', 'responsable_id' => 14],
         ]);
     }
 }

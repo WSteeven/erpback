@@ -20,6 +20,7 @@ class CategoriaTipoTicketResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'departamento' => $this->departamento->nombre,
+            'departamento_id' => $this->departamento_id,
         ];
 
         if ($controller_method == 'show') {

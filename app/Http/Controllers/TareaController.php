@@ -22,17 +22,18 @@ use Src\Shared\Utils;
 use stdClass;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\TareaService;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 
 class TareaController extends Controller
 {
     private $entidad = 'Tarea';
-    // private SubtareaService $subtareaService;
+    private TareaService $tareaService;
 
     public function __construct()
     {
-        // $this->subtareaService = new SubtareaService();
+        $this->tareaService = new TareaService();
     }
 
     public function listar()
@@ -42,11 +43,15 @@ class TareaController extends Controller
         $esCoordinadorBackup = User::find(Auth::id())->hasRole(User::ROL_COORDINADOR_BACKUP);
 
         // mejorar codigo
+        // Lista las tareas disponibles junto con las que hayan finalizado.
+        // Las tareas finalizadas estan disponibles un dia luego de finalizarse
         if (request('formulario')) {
             return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
                 $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
             })->latest()->get();
         }
+
+        if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
         if (request('campos')) {
             if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
@@ -65,7 +70,7 @@ class TareaController extends Controller
     public function index()
     {
         $results = $this->listar();
-        $results = TareaResource::collection($results);
+        if (!request('campos')) $results = TareaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -120,24 +125,34 @@ class TareaController extends Controller
      */
     public function update(Request $request, Tarea $tarea)
     {
-        if ($request->isMethod('patch')) {
-            if ($request['imagen_informe']) {
-                $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
-                $request['imagen_informe'] = $guardar_imagen->execute();
-                // Log::channel('testing')->info('Log', compact('request'));
+        DB::beginTransaction();
+
+        try {
+            if ($request->isMethod('patch')) {
+                if ($request['imagen_informe']) {
+                    $guardar_imagen = new GuardarImagenIndividual($request['imagen_informe'], RutasStorage::TAREAS);
+                    $request['imagen_informe'] = $guardar_imagen->execute();
+                }
+
+                $actualizado = $tarea->update($request->except(['id']));
+
+                if ($actualizado) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
             }
-            $tarea->update($request->except(['id']));
+
+            // Respuesta
+            $modelo = new TareaResource($tarea->refresh());
+            $mensaje = 'Tarea finalizada exitosamente';
+
+            $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
+
+            foreach ($destinatarios as $destinatario) {
+                event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
         }
 
-        // Respuesta
-        $modelo = new TareaResource($tarea->refresh());
-        $mensaje = 'Tarea finalizada exitosamente';
-
-        $destinatarios = DB::table('subtareas')->where('tarea_id', $tarea->id)->pluck('empleado_id');
-
-        foreach ($destinatarios as $destinatario) {
-            event(new TareaEvent($tarea, Auth::user()->empleado->id, $destinatario));
-        }
         return response()->json(compact('modelo', 'mensaje'));
     }
 

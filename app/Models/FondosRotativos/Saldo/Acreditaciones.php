@@ -33,7 +33,7 @@ class Acreditaciones extends Model implements Auditable
     ];
     public function usuario()
     {
-        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user');
+        return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user','canton');
     }
     public function estado(){
         return $this->hasOne(EstadoAcreditaciones::class, 'id', 'id_estado');
@@ -69,5 +69,9 @@ class Acreditaciones extends Model implements Auditable
         }
         return $results;
 
+    }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
     }
 }

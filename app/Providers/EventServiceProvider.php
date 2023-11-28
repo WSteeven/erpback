@@ -11,6 +11,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Inventario;
 use App\Models\MovimientoProducto;
 use App\Models\Percha;
+use App\Models\Proveedor;
 use App\Observers\DetalleObserver;
 use App\Observers\DetallePedidoProductoObserver;
 use App\Observers\DetalleProductoTransaccionObserver;
@@ -20,6 +21,7 @@ use App\Observers\FondosRotativos\Saldo\TransferenciaObserver;
 use App\Observers\InventarioObserver;
 use App\Observers\MovimientoProductoObserver;
 use App\Observers\PerchaObserver;
+use App\Observers\ProveedorObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -66,6 +68,11 @@ class EventServiceProvider extends ServiceProvider
         Gasto::observe(GastosObserver::class);
         Acreditaciones::observe(AcreditacionObserver::class);
         Transferencias::observe(TransferenciaObserver::class);
+        
+        /**
+         * Compras y Proveedores
+         */
+        Proveedor::observe(ProveedorObserver::class);
     }
 
     /**

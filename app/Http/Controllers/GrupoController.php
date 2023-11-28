@@ -17,9 +17,9 @@ class GrupoController extends Controller
         $campos = explode(',', request('campos'));
 
         if (request('campos')) {
-            return Grupo::ignoreRequest(['campos'])->filter()->get($campos);
+            return Grupo::ignoreRequest(['campos'])->filter()->latest()->get($campos);
         } else {
-            return GrupoResource::collection(Grupo::filter()->get());
+            return GrupoResource::collection(Grupo::filter()->latest()->get());
         }
     }
 
@@ -39,7 +39,10 @@ class GrupoController extends Controller
     public function store(GrupoRequest $request)
     {
         //Respuesta
-        $modelo = Grupo::create($request->validated());
+        $datos = $request->validated();
+        $datos['coordinador_id'] = $datos['coordinador'];
+
+        $modelo = Grupo::create($datos);
         $modelo = new GrupoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -63,7 +66,10 @@ class GrupoController extends Controller
     public function update(GrupoRequest $request, Grupo  $grupo)
     {
         // Respuesta
-        $grupo->update($request->validated());
+        $datos = $request->validated();
+        $datos['coordinador_id'] = $datos['coordinador'];
+
+        $grupo->update($datos);
         $modelo = new GrupoResource($grupo->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 

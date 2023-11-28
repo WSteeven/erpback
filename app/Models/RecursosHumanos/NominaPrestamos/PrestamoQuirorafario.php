@@ -28,4 +28,7 @@ class PrestamoQuirorafario extends Model implements Auditable
         'nut',
         'valor',
     ];
+    public function empleado_info(){
+        return $this->hasOne(Empleado::class,'id', 'empleado_id');
+    }
 }

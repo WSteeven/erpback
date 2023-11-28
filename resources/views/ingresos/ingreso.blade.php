@@ -4,12 +4,14 @@
 @php
     ini_set('max_execution_time', 300); //poner el tiempo maximo de ejecucion en 5 minutes
     $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
-    if ($cliente->logo_url) {
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
-    } else {
-        $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    }
+    $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'TRANSACCION: ' . $transaccion['id'] . PHP_EOL . 'INGRESO: ' . $transaccion['motivo'] . PHP_EOL . 'TAREA: ' . $transaccion['tarea_codigo'] . PHP_EOL . 'SOLICITADO POR: ' . $transaccion['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $transaccion['per_autoriza'] . PHP_EOL . 'INGRESADO POR: ' . $transaccion['per_atiende'] . PHP_EOL . 'BODEGA DE CLIENTE: ' . $transaccion['cliente'] . PHP_EOL . 'SUCURSAL: ' . $transaccion['sucursal'];
+    // if ($cliente->logo_url) {
+    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($cliente->logo_url, 1)));
+    // } else {
+    //     $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    // }
+    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($persona_entrega->firma_url) {
         $entrega_firma = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($persona_entrega->firma_url, 1)));
     }
@@ -27,9 +29,10 @@
         }
 
         body {
-            /* background-image: url('img/logoJPBN_10.png'); */
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -163,9 +166,10 @@
                 <td style="line-height: normal;">
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
                         @if ($cliente->logo_url)
-                            {{ $cliente->razon_social }}
+                            {{-- {{ $cliente->razon_social }} --}}
+                            {{ $configuracion['razon_social'] }}
                         @else
-                            JP CONSTRUCRED C. LTDA.
+                            {{ $configuracion['razon_social'] }}
                         @endif
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por:
@@ -220,8 +224,9 @@
         <table border="1" style="border-collapse: collapse; margin-bottom:4px; width: 100%;" align="center">
             <thead>
                 <th>Producto</th>
-                <th>Descripcion</th>
+                <th>Descripción</th>
                 <th>Categoria</th>
+                <th>Serie</th>
                 <th>Condición</th>
                 <th>Cantidad</th>
             </thead>
@@ -232,6 +237,7 @@
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['serial'] }}</td>
                         <td>{{ $listado['condiciones'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                     </tr>

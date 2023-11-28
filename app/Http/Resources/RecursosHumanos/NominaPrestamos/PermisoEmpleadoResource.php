@@ -19,18 +19,34 @@ class PermisoEmpleadoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'motivo' => $this->motivo_id,
-            'motivo_info' => $this->motivo_info->nombre,
-            'fecha_inicio' =>  $this->cambiar_fecha($this->fecha_inicio),
-            'fecha_fin' =>  $this->cambiar_fecha($this->fecha_fin),
-            'justificacion' => $this->justificacion?url($this->justificacion):null ,
+            'tipo_permiso' => $this->tipo_permiso_id,
+            'tipo_permiso_info' =>$this->tipo_permiso_info!=null?$this->tipo_permiso_info->nombre:'',
+            'fecha_hora_inicio' =>  $this->cambiar_fecha_hora($this->fecha_hora_inicio),
+            'fecha_hora_fin' =>  $this->cambiar_fecha_hora($this->fecha_hora_fin),
+            'justificacion' => $this->justificacion,
             'estado' => $this->estado_permiso_id,
             'estado_permiso_info' => $this->estado_permiso_info->nombre,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
+            'departamento' => $this->empleado_info->departamento->nombre,
+            'id_jefe_inmediato' => $this->empleado_info->jefe->id,
+            'jefe_inmediato' =>  $this->empleado_info->jefe->nombres.''. $this->empleado_info->jefe->apellidos,
+            'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'fecha_hora_reagendamiento' =>$this->fecha_hora_reagendamiento? Carbon::parse($this->fecha_hora_reagendamiento)->format('d-m-Y H:i:s'):null,
+            'nombre' =>$this->documento!= null?json_decode($this->documento)->nombre:'',
+            'ruta' =>$this->documento?url(json_decode($this->documento)->ruta):null,
+            'tamanio_bytes' =>$this->documento!= null?json_decode($this->documento)->tamanio_bytes:0,
+            'cargo_vacaciones' =>$this->cargo_vacaciones,
+            'suguiere_fecha' =>$this->fecha_hora_reagendamiento?true:false,
+            'aceptar_sugerencia' =>$this->aceptar_sugerencia,
+            'observacion' =>$this->observacion
         ];
         return $modelo;
     }
+    private function cambiar_fecha_hora($fecha){
+        $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y H:i');
+            return $fecha_formateada;
+        }
    private function cambiar_fecha($fecha){
     $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
         return $fecha_formateada;

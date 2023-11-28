@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('empresas', function (Blueprint $table) {
             $table->id();
             $table->string('identificacion')->unique();
-            $table->enum('tipo_contribuyente', [Empresa::NATURAL, Empresa::PRIVADA, Empresa::PUBLICA])->required();
+            $table->enum('tipo_contribuyente', [Empresa::NATURAL, Empresa::SOCIEDAD, Empresa::PUBLICA])->required();
             $table->string('razon_social')->required();
             $table->string('nombre_comercial')->nullable();
             $table->string('telefono')->nullable();

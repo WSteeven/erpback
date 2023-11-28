@@ -30,9 +30,11 @@ class TicketRequest extends FormRequest
             'fecha_hora_limite' => 'nullable|string',
             'observaciones_solicitante' => 'nullable|string',
             'calificacion_solicitante' => 'nullable|string',
-            'responsable' => 'required|numeric|integer',
-            'departamento_responsable' => 'required|numeric|integer',
+            // 'responsable' => 'required|numeric|integer',
+            'departamento_responsable' => 'required|array',
             'tipo_ticket' => 'required|numeric|integer',
+            'ticket_interno' => 'boolean',
+            'ticket_para_mi' => 'boolean',
         ];
     }
 }

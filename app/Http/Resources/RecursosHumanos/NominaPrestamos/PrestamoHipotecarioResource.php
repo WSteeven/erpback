@@ -3,6 +3,7 @@
 namespace App\Http\Resources\RecursosHumanos\NominaPrestamos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class PrestamoHipotecarioResource extends JsonResource
 {
@@ -20,7 +21,7 @@ class PrestamoHipotecarioResource extends JsonResource
             'nut' => $this->nut,
             'valor' =>  $this->valor,
             'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado_info->nombres.' '.$this->empleado_info->apellidos,
+            'empleado_info' => $this->empleado_info?$this->empleado_info->nombres.' '.$this->empleado_info->apellidos:'',
         ];
         return $modelo;
     }

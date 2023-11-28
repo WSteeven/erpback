@@ -18,8 +18,9 @@ class TipoTrabajoController extends Controller
     public function index(Request $request)
     {
         $cliente = $request['cliente'];
-        // $page = $request['page'];
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
         $results = [];
+        // $page = $request['page'];
 
         /*if ($page) {
             $results = TipoTrabajo::simplePaginate($request['offset']);
@@ -28,8 +29,9 @@ class TipoTrabajoController extends Controller
         /*if ($cliente) {
             $results = TipoTrabajoResource::collection(TipoTrabajo::where('cliente_id', $cliente)->get());
         } else {*/
-        $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
-        //}
+
+        if ($campos) $results = TipoTrabajo::ignoreRequest(['campos'])->filter()->get($campos);
+        else $results = TipoTrabajoResource::collection(TipoTrabajo::filter()->get());
 
         return response()->json(compact('results'));
     }

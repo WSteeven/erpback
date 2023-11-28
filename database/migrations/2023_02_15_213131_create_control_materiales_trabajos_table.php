@@ -13,16 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('control_materiales_trabajos', function (Blueprint $table) {
+        Schema::create('seguimientos_materiales_subtareas', function (Blueprint $table) {
             $table->id();
 
             $table->integer('stock_actual');
             $table->integer('cantidad_utilizada');
-            $table->string('fecha');
+            // $table->string('fecha');
 
             // Foreign key
-            $table->unsignedBigInteger('tarea_id');
-            $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
+            // $table->unsignedBigInteger('tarea_id');
+            // $table->foreign('tarea_id')->references('id')->on('tareas')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('subtarea_id');
             $table->foreign('subtarea_id')->references('id')->on('subtareas')->onDelete('cascade')->onUpdate('cascade');
@@ -47,6 +47,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('control_materiales_trabajos');
+        Schema::dropIfExists('seguimientos_materiales_subtareas');
     }
 };
