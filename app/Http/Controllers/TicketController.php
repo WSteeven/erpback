@@ -42,11 +42,10 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $datos = $request->validated();
         $responsable_id = $request['responsable'];
         $departamento_responsable_id = $request['departamento_responsable'];
 
-        $departamentos = Departamento::select('responsable_id', 'id')->whereIn($request['departamentos_responsables'])->get();
+        $departamentos = Departamento::select('responsable_id', 'id')->whereIn('id', $departamento_responsable_id)->get();
 
         foreach($departamentos as $departamento) {
             $ticket = $this->servicio->crearTicket($request, $departamento->responsable_id, $departamento->id);

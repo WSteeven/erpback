@@ -11,6 +11,7 @@ class TicketService
 {
     public function crearTicket($request, int $responsable_id, int $departamento_responsable_id)
     {
+        $datos = $request->validated();
         $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
         // $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
         $datos['responsable_id'] = $responsable_id;
