@@ -761,7 +761,7 @@ class RolPagoMesController extends Controller
     {
         $rol_pago = RolPagoMes::find($rolPagoId);
         $this->agregar_nuevos_empleados($rol_pago);
-       // $this->actualizar_tabla_roles($rol_pago);
+        $this->actualizar_tabla_roles($rol_pago);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));
     }

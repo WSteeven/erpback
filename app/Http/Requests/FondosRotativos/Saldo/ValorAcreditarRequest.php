@@ -28,6 +28,8 @@ class ValorAcreditarRequest extends FormRequest
             'acreditacion_semana_id' => 'required|exists:fr_acreditacion_semana,id',
             'monto_generado' => 'required',
             'monto_modificado' => 'required',
+            'motivo' => 'nullable',
+            'estado' => 'required',
         ];
     }
     protected function prepareForValidation()
