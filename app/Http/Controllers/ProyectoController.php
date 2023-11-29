@@ -18,8 +18,8 @@ class ProyectoController extends Controller
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO]))
-            return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->get($campos);
-        return Proyecto::ignoreRequest(['campos'])->filter()->get($campos);
+            return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->orderBy('id', 'desc')->get($campos);
+        return Proyecto::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get($campos);
     }
 
     public function index()

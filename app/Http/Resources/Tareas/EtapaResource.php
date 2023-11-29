@@ -20,6 +20,7 @@ class EtapaResource extends JsonResource
             'nombre'=>$this->nombre,
             'activo'=>$this->activo,
             'responsable'=>$this->responsable->nombres.' '.$this->responsable->apellidos,
+            'codigo_proyecto'=>$this->proyecto->codigo_proyecto,
             'proyecto'=>$this->proyecto->nombre
         ];
 

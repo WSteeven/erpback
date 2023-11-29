@@ -18,12 +18,13 @@ class Etapa extends Model implements Auditable
     use UppercaseValuesTrait;
     use Filterable;
 
-    protected $table = 'vehiculos';
+    protected $table = 'tar_etapas';
     protected $fillable = [
         'nombre',
         'activo',
         'responsable_id',
         'proyecto_id',
+        'motivo',
     ];
 
     protected $casts = [
