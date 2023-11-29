@@ -81,6 +81,30 @@ class ValorAcreditar extends Model implements Auditable
 
         return $results;
     }
+
+    public static function empaquetar($valores_acreditar)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($valores_acreditar as $valor_acreditar) {
+            $cuenta_bancarea_num = intval($valor_acreditar->empleado->num_cuenta_bancaria);
+            if ($cuenta_bancarea_num > 0) {
+            $referencia = $valor_acreditar->umbral!=null?$valor_acreditar->umbral->referencia:'FONDOS ROTATIVOS CAJA '.$valor_acreditar->empleado->canton->canton;
+            $row['item'] = $id + 1;
+            $row['empleado_info'] =  $valor_acreditar->empleado->apellidos . ' ' . $valor_acreditar->empleado->nombres;
+            $row['monto_modificado'] = str_replace(".", "", number_format($valor_acreditar->monto_modificado, 2, ',', '.'));
+            $row['monto_generado'] = str_replace(".", "", number_format($valor_acreditar->monto_generado, 2, ',', '.'));
+            $row['motivo'] = $valor_acreditar->motivo;
+            $results[$id] = $row;
+            $id++;
+        }
+        }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
+        return $results;
+    }
     private static function  ordenar_por_nombres_apellidos($a, $b)
     {
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];

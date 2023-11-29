@@ -65,7 +65,7 @@ class MaterialEmpleado extends Model implements Auditable
                 ]);
             }
         } catch (\Throwable $th) {
-            throw $th->getMessage() . '. ' . $th->getLine();
+            throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }
     }
     /**
@@ -97,7 +97,7 @@ class MaterialEmpleado extends Model implements Auditable
                     throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
             }
         } catch (\Throwable $th) {
-            throw $th->getMessage() . '. ' . $th->getLine();
+            throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }
     }
 }

@@ -142,7 +142,7 @@ class PreordenCompraController extends Controller
         try {
             $results = PreordenCompra::itemsPreordenesPendientes();
         } catch (Exception $e) {
-            return response()->json(compact('results'));
+            return response()->json(compact('e'));
         }
         return response()->json(compact('results'));
     }

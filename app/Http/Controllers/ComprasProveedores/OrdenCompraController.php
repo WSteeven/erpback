@@ -190,11 +190,11 @@ class OrdenCompraController extends Controller
     public function anular(Request $request, OrdenCompra $orden)
     {
         // Log::channel('testing')->info('Log', ['Datos para anuylar:', $request->all()]);
-        $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
+        // $autorizacion = Autorizacion::where('nombre', Autorizacion::CANCELADO)->first();
         $estado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
         $request->validate(['motivo' => ['required', 'string']]);
         $orden->causa_anulacion = $request['motivo'];
-        $orden->autorizacion_id = $autorizacion->id;
+        // $orden->autorizacion_id = $autorizacion->id;
         $orden->estado_id = $estado->id;
         if ($orden->preorden_id) {
             $preorden = PreordenCompra::find($orden->preorden_id);
@@ -217,7 +217,7 @@ class OrdenCompraController extends Controller
         $request->validate(['observacion_realizada' => ['string', 'nullable']]);
         $orden->observacion_realizada = $request->observacion_realizada;
         $orden->save();
-        $orden->latestNotificacion()->update(['leida' => true]); 
+        $orden->latestNotificacion()->update(['leida' => true]);
         event(new NotificarOrdenCompraRealizada($orden, User::ROL_CONTABILIDAD));
         $modelo = new OrdenCompraResource($orden->refresh());
         return response()->json(compact('modelo'));
@@ -226,7 +226,7 @@ class OrdenCompraController extends Controller
     {
         $orden->pagada = true;
         $orden->save();
-        $orden->latestNotificacion()->update(['leida' => true]); 
+        $orden->latestNotificacion()->update(['leida' => true]);
         event(new NotificarOrdenCompraPagadaCompras($orden, User::ROL_COMPRAS));
         event(new NotificarOrdenCompraPagadaUsuario($orden));
         $modelo = new OrdenCompraResource($orden->refresh());

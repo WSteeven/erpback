@@ -25,6 +25,7 @@ class ProveedorResource extends JsonResource
             'empresa' => $this->empresa_id,
             'ruc' => $this->empresa->identificacion,
             'razon_social' => $this->empresa->razon_social,
+            'nombre_comercial' => $this->empresa->nombre_comercial,
             'sitio_web' => $this->empresa->sitio_web,
             'sucursal' => $this->sucursal,
             'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,

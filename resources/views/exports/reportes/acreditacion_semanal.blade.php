@@ -3,6 +3,7 @@
     $fecha = new Datetime();
     $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
     $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $item=0;
 @endphp
 
 <head>
@@ -108,7 +109,7 @@
                     <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b>REPORTE  {{ $reporte->acreditacion_semanal->semana }}</b>
+                    <div class="col-md-7" align="center"><b>REPORTE {{ $titulo }}</b>
                     </div>
 
                 </td>
@@ -137,14 +138,19 @@
 
         <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
             <tr>
-
+                <td width="8%" bgcolor="#a9d08e">
+                    <div align="center"><strong>ITEM</strong></div>
+                </td>
+                <td width="50%" bgcolor="#a9d08e">
+                    <div align="center"><strong>EMPLEADO</strong></div>
+                </td>
                 <td width="15%" bgcolor="#a9d08e">
                     <div align="center"><strong>MONTO GENERADO</strong></div>
                 </td>
                 <td width="17%" bgcolor="#a9d08e">
-                    <div align="center"><strong>MONTO MODIFICADO</strong></div>
+                    <div align="center"><strong>MONTO ASIGNADO</strong></div>
                 </td>
-                <td width="20%" bgcolor="#a9d08e">
+                <td width="25%" bgcolor="#a9d08e">
                     <div align="center"><strong>MOTIVO</strong></div>
                 </td>
 
@@ -157,19 +163,35 @@
                 </tr>
             @else
                 @foreach ($reportes as $dato)
+                @php
+                    $item ++;
+                @endphp
                     <tr>
                         <td style="font-size:10px">
-                            <div align="center">{{ $dato->monto_generado }}</div>
+                            <div align="center">{{ $item }}</div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ $dato->monto_modificado }}</div>
+                            <div>{{ $dato['empleado_info'] }}</div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="center">{{ $dato->motivo }}</div>
+                            <div align="right">{{ $dato['monto_generado'] }}</div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="right">{{ $dato['monto_modificado'] }}</div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div>{{ $dato['motivo'] }}</div>
                         </td>
 
                     </tr>
                 @endforeach
+                <tr>
+                    <td colspan="3" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
+                    <td style="font-size:10px">
+                        <div align="right"> {{ $suma }}</div>
+                    </td>
+                    <td></td>
+                </tr>
             @endif
 
         </table>
