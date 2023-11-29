@@ -24,6 +24,7 @@ class Etapa extends Model implements Auditable
         'activo',
         'responsable_id',
         'proyecto_id',
+        'motivo',
     ];
 
     protected $casts = [

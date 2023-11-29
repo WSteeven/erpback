@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('responsable_id')->nullable();
             $table->unsignedBigInteger('proyecto_id')->nullable();
             $table->boolean('activo')->default(true);
+            $table->text('motivo')->nullable();
             $table->timestamps();
 
             $table->foreign('responsable_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();

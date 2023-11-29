@@ -47,13 +47,40 @@ class EtapaController extends Controller
         $modelo = new EtapaResource($etapa);
         return response()->json(compact('modelo'));
     }
+    /**
+     * Actualizar
+     */
+    public function update(EtapaRequest $request, Etapa $etapa)
+    {
+        // Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
 
-    public function desactivar(Etapa $etapa){
+        // Respuesta
+        $etapa->update($datos);
+        $modelo = new EtapaResource($etapa);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    /**
+     * Eliminar
+     */
+    public function destroy(Etapa $etapa){
+        $etapa->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Desactivar
+     */
+     public function desactivar(Etapa $etapa){
         $etapa->activo  = !$etapa->activo;
         $etapa->save();
 
         $modelo = new EtapaResource($etapa->refresh());
         return response()->json(compact('modelo'));
     }
-
 }
