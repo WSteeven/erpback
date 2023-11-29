@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\PreordenCompra;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -63,15 +65,36 @@ class ControlStock extends Model implements Auditable
     /**
      * Método que calcula el estado para asignar
      */
-    public static function calcularEstado($cantidad, $minimo, $reorden){
+    public static function calcularEstado(ControlStock $entidad, $cantidad, $minimo, $reorden){
         if ($cantidad <= $minimo) {
+            //lanzar preorden de compra con las cantidades faltantes
+            $item['detalle_id']= $entidad->detalle_id;
+            $item['cantidad']= $reorden-$cantidad;
+            $items[0]= $item;
+            PreordenCompra::generarPreordenControlStock($items);
             return ControlStock::MINIMO;
         }
         if ($cantidad > $minimo && $cantidad <= $reorden) {
+            $item['detalle_id']= $entidad->detalle_id;
+            $item['cantidad']= $reorden-$cantidad;
+            $items[0]= $item;
+            PreordenCompra::generarPreordenControlStock($items);
             return ControlStock::REORDEN;
         }
         if ($cantidad > $reorden) {
             return ControlStock::SUFICIENTE;
+        }
+    }
+
+    public static function actualizarEstado($detalle_id, $sucursal_id, $cliente_id){
+        $control_stock = ControlStock::where('detalle_id', $detalle_id)
+            ->where('sucursal_id', $sucursal_id)
+            ->where('cliente_id', $cliente_id)->first();
+
+        if ($control_stock) {
+            $control_stock->update([
+                'estado' => self::calcularEstado($control_stock, ControlStock::controlExistencias($detalle_id, $sucursal_id, $cliente_id), $control_stock->minimo, $control_stock->reorden)
+            ]);
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GrupoResource extends JsonResource
@@ -14,10 +15,20 @@ class GrupoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo = [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'region' => $this->region,
             'activo' => $this->activo,
+            'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['coordinador'] = $this->coordinador_id;
+        }
+
+        return $modelo;
     }
 }

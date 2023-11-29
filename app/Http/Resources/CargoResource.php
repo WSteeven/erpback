@@ -17,6 +17,7 @@ class CargoResource extends JsonResource
         return [
             'id'=>$this->id,
             'nombre'=>$this->nombre,
+            'estado'=>$this->estado,
         ];
     }
 }

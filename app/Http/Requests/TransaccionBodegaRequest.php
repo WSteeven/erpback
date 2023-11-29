@@ -7,6 +7,7 @@ use App\Models\EstadoTransaccion;
 use App\Models\Fibra;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\Producto;
 use App\Models\Tarea;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,6 +38,7 @@ class TransaccionBodegaRequest extends FormRequest
             'observacion_aut' => 'nullable|string|sometimes',
             'justificacion' => 'required|string',
             'comprobante' => 'sometimes|string|nullable',
+            'proveedor' => 'sometimes|string|nullable|required_with_all:comprobante',
             'fecha_limite' => 'nullable|string',
             'estado' => 'required|exists:estados_transacciones_bodega,id',
             'observacion_est' => 'nullable|string|sometimes',
@@ -85,18 +87,21 @@ class TransaccionBodegaRequest extends FormRequest
                     if (!array_key_exists('cantidad', $listado)) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'Ingresa la cantidad del ítem ' . $listado['descripcion']);
                     else if ($listado['cantidad'] <= 0) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser mayor que 0');
                     else {
-                        $esFibra = !!Fibra::find($listado['id']);
-                        $itemInventario = !!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first();
-                        Log::channel('testing')->info('Log', ['Datos recibidos', $itemInventario]);
+                        $itemInventario = !!Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first();
+                        // $this->transferencia? Log::channel('testing')->info('Log', ['Elemento en transferencia: ', Inventario::where('detalle_id', $listado['detalle_id'])->where('cantidad', '>', 0)->first()]): Log::channel('testing')->info('Log', ['Elemento en normal: ', Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first(),!!Inventario::where('detalle_id', $listado['id'])->where('cantidad', '>', 0)->first()]);
                         //valida que se ingrese cantidad 1 cuando el elemento tiene un serial(identificador de elemento unico)
                         if (array_key_exists('serial', $listado)) {
+                            Log::channel('testing')->info('Log', ['Datos 88 ', $listado, !!Fibra::find($listado['id'])]);
+                            $producto = Producto::where('nombre', $listado['producto'])->first();
+                            $detalle = DetalleProducto::where('producto_id', $producto->id)->where('descripcion', $listado['descripcion'])->where('serial', $listado['serial'])->first();
+                            $esFibra = !!Fibra::find($detalle->id);
                             if ($listado['serial'] && $listado['cantidad'] > 1 && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.cantidad', 'La cantidad para el ítem ' . $listado['descripcion'] . ' debe ser 1');
                             if ($listado['serial'] && $itemInventario && !$esFibra) $validator->errors()->add('listadoProductosTransaccion.*.descripcion', 'Ya existe el ítem ' . $listado['descripcion'] . ' registrado en una bodega. Revisa el inventario');
                         }
                         //valida si no hay ingreso masivo que se envie el estado util de todos los productos ingresados
                         if (!$this->ingreso_masivo) {
                             if (array_key_exists('condiciones', $listado)) {
-                                Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
+                                // Log::channel('testing')->info('Log', ['Datos recibidos', $listado, $listado['condiciones']]);
                             } else {
                                 $validator->errors()->add('listadoProductosTransaccion.*.condiciones', 'Debe ingresar el estado del item ' . $listado['descripcion']);
                             }
@@ -105,11 +110,11 @@ class TransaccionBodegaRequest extends FormRequest
                 }
             } else {
                 /**
-                 * CORREGIR LOS EGRESOS, VERIFICAR QUE FUNCIONE BIEN 
-                 * 
-                 * 
-                 * 
-                 * 
+                 * CORREGIR LOS EGRESOS, VERIFICAR QUE FUNCIONE BIEN
+                 *
+                 *
+                 *
+                 *
                  */
                 foreach ($this->listadoProductosTransaccion as $listado) {
                     // Log::channel('testing')->info('Log', ['Datos recibidos en foreach del TRANSACCIONBODEGAREQUEST', $listado]);
@@ -240,7 +245,7 @@ class TransaccionBodegaRequest extends FormRequest
                 'per_autoriza' => auth()->user()->empleado->jefe_id,
             ]);
         }
-        if (auth()->user()->hasRole([User::ROL_BODEGA])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_BODEGA_TELCONET])) {
             $this->merge([
                 'autorizacion' => 2
             ]);

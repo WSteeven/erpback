@@ -26,6 +26,8 @@ class SubDetalleViaticoResource extends JsonResource
             'estatus' => $this->estatus->descripcion,
             'transcriptor'=>  $this->transcriptor,
             'fecha_trans'=>$this->fecha_trans,
+            'tiene_factura'=>$this->tiene_factura
+
         ];
         return $modelo;
     }

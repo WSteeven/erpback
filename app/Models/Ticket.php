@@ -46,12 +46,16 @@ class Ticket extends Model implements Auditable
         'fecha_hora_cancelado',
         'fecha_hora_calificado',
         'motivo_ticket_no_solucionado',
+        'ticket_interno',
+        'ticket_para_mi',
         'solicitante_id',
         'responsable_id',
         'departamento_responsable_id',
         'tipo_ticket_id',
         'motivo_cancelado_ticket_id',
     ];
+
+    protected $casts = ['ticket_interno' => 'boolean', 'ticket_para_mi' => 'boolean'];
 
     private static $whiteListFilter = ['*'];
 
@@ -78,11 +82,13 @@ class Ticket extends Model implements Auditable
         return $this->belongsTo(TipoTicket::class, 'tipo_ticket_id', 'id');
     }
 
+    // Archivos al crear un ticket
     public function archivos()
     {
         return $this->hasMany(ArchivoTicket::class);
     }
 
+    // Archivos al registrar el seguimiento del ticket
     public function archivosSeguimientos()
     {
         return $this->hasMany(ArchivoSeguimientoTicket::class);
@@ -106,5 +112,15 @@ class Ticket extends Model implements Auditable
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function actividadesRealizadasSeguimientoTicket()
+    {
+        return $this->hasMany(ActividadRealizadaSeguimientoTicket::class);
+    }
+
+    public function motivoCanceladoTicket()
+    {
+        return $this->belongsTo(MotivoCanceladoTicket::class);
     }
 }

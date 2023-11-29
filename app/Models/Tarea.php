@@ -40,6 +40,7 @@ class Tarea extends Model implements Auditable
         'novedad',
         'imagen_informe',
         'finalizado',
+        'metraje_tendido',
         'proyecto_id',
         'coordinador_id',
         'fiscalizador_id',
@@ -170,5 +171,17 @@ class Tarea extends Model implements Auditable
         // $activeUsers = DB::table('tareas')->select('id')->where('finali', 1);
 
         return $query->where('updated_at', '>=', Carbon::now()->subHour(24));
+    }
+
+    public function scopeFechaInicioFin($query) {
+        // Obtencion de parametros
+        $fechaInicio = request('fecha_inicio');
+        $fechaFin = request('fecha_fin');
+
+        // Conversion de fechas
+        $fechaInicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
+        $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
+
+        return $query->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin);
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 // Dependencias
 
 use App\Events\TransaccionEgresoEvent;
-use Illuminate\Support\Facades\Auth;
+use App\Exports\TransaccionBodegaEgresoExport;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -19,9 +19,7 @@ use App\Models\DetalleProducto;
 use App\Models\TipoTransaccion;
 use App\Models\Inventario;
 use App\Models\Empleado;
-use App\Models\Fibra;
 use App\Models\Motivo;
-use App\Models\Trabajo;
 use App\Models\TransaccionBodega;
 use App\Models\User;
 
@@ -31,10 +29,21 @@ use App\Http\Requests\TransaccionBodegaRequest;
 use App\Http\Resources\ClienteResource;
 use App\Models\Cliente;
 use App\Models\Comprobante;
+use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleProductoTransaccion;
+use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\SeguimientoMaterialStock;
+use App\Models\SeguimientoMaterialSubtarea;
+use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\MaterialesService;
 use Src\App\TransaccionBodegaEgresoService;
+use Src\Config\Autorizaciones;
+use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaEgresoController extends Controller
 {
@@ -50,49 +59,68 @@ class TransaccionBodegaEgresoController extends Controller
         $this->middleware('can:puede.eliminar.transacciones_egresos')->only('destroy');
     }
 
-    // Tarea: Obtener materiales designados a un empleado, para tarea
-    /* public function obtenerMaterialesEmpleadoTareas(Request $request)
-    {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-            'empleado_id' => 'required|numeric|integer',
-        ]);
-
-        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
-        $empleado_id = $request['empleado_id'];
-
-        $results = MaterialEmpleadoTarea::where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get(); // where('es_fibra', false)
-
-        $results = collect($results)->map(fn ($items) => [
-            'detalle_producto_id' => intval($items->detalle_producto_id),
-            'stock_actual' => intval($items->cantidad_stock),
-            'detalle_producto' => DetalleProducto::find($items->detalle_producto_id)->descripcion,
-            'medida' => 'm',
-        ]);
-
-        return response()->json(compact('results'));
-    } */
 
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
     {
-        $empleado_id = $request['empleado_id'];
-        $results = MaterialEmpleado::filter()->where('empleado_id', $empleado_id)->get();
+        $request->validate([
+            'empleado_id' => 'required|numeric|integer',
+            'seguimiento' => 'nullable|boolean',
+        ]);
 
-        $results = collect($results)->map(function ($item, $index) {
+        if ($request->exists('seguimiento')) {
+            // Cuando se hace el seguimiento de la subtarea solo se deben descontar los materiales
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
+        } else {
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+        }
+
+        $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+
+        $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
-                'item' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'id' => $item->detalle_producto_id,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'despachado' => intval($item->despachado),
+                'devuelto' => intval($item->devuelto),
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
+                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
         });
 
+        if ($request['subtarea_id']) {
+            $materialesUsados = $this->servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
+            $results = $materiales->map(function ($material) use ($materialesUsados) {
+                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                        return $item->detalle_producto_id === $material['detalle_producto_id'];
+                    })->suma_total;
+                }
+                return $material;
+            });
 
+            $results = $results->sortByDesc(function ($elemento) {
+                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
+                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
+            })->toArray();
+
+            $results = array_values($results);
+            return response()->json(compact('results'));
+        }
+
+        $results = $materiales->toArray();
+        $results = array_values($results);
         return response()->json(compact('results'));
     }
 
@@ -102,51 +130,96 @@ class TransaccionBodegaEgresoController extends Controller
         $request->validate([
             'tarea_id' => 'required|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
+            'subtarea_id' => 'nullable|numeric|integer',
         ]);
-        // $empleado_id = Auth::user()->empleado->id;
-        // $results = MaterialEmpleadoTarea::filter()->where('empleado_id', $empleado_id)->get();
-        $results = MaterialEmpleadoTarea::filter()->get();
 
-        $results = collect($results)->map(function ($item, $index) {
+        if ($request->exists('seguimiento')) {
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->get();
+        } else {
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+        }
+        $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+
+        $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
+            $producto = Producto::find($detalle->producto_id);
+
             return [
-                'item' => $index + 1,
-                'producto' => Producto::find($detalle->producto_id)->nombre,
+                'id' => $item->detalle_producto_id,
+                'producto' => $producto->nombre,
                 'detalle_producto' => $detalle->descripcion,
                 'detalle_producto_id' => $item->detalle_producto_id,
                 'categoria' => $detalle->producto->categoria->nombre,
                 'stock_actual' => intval($item->cantidad_stock),
-                'medida' => 'm',
+                'despachado' => intval($item->despachado),
+                'devuelto' => intval($item->devuelto),
+                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
+                'medida' => $producto->unidadMedida?->simbolo,
+                'serial' => $detalle->serial,
+                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
             ];
         });
+
+        if ($request['subtarea_id']) {
+            $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
+            $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
+                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
+                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
+                        return $item->detalle_producto_id === $material['detalle_producto_id'];
+                    })->suma_total;
+                }
+                return $material;
+            });
+
+            $results = $results->sortByDesc(function ($elemento) {
+                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
+                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
+            })->toArray();
+
+            $results = array_values($results);
+
+            return response()->json(compact('results'));
+        }
+
+        $results = $materialesTarea;
 
         return response()->json(compact('results'));
     }
 
-
-    // creo que se va
-    // Tarea: Obtener bobinas designadas a un empleado, para tarea.
-    /* public function obtenerBobinas(Request $request)
+    public function obtenerMaterialesEmpleadoConsolidado(Request $request)
     {
-        $request->validate([
-            'subtarea_id' => 'required|numeric|integer',
-        ]);
+        $results = [];
+        try {
+            if (!$request->exists('cliente_id')) $request->merge(['cliente_id' => null]);
+            $request->validate([
+                'cliente_id' => 'nullable|sometimes|numeric|integer',
+                'empleado_id' => 'required|numeric|integer',
+            ]);
+            $resultado1 = MaterialEmpleado::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $resultado2 = MaterialEmpleadoTarea::where('empleado_id', $request->empleado_id)->where('cliente_id', '=', $request->cliente_id)->where('cantidad_stock', '>', 0)->get();
+            $results = $resultado1->concat($resultado2);
 
-        $tarea_id = Trabajo::find($request['subtarea_id'])->tarea_id;
-        $empleado_id = Auth::user()->empleado->id;
+            $results = $results->map(function ($item) {
+                return [
+                    'id' => $item->detalle_producto_id,
+                    'producto' => $item->detalle->producto->nombre,
+                    'descripcion' => $item->detalle->descripcion,
+                    'serial' => $item->detalle->serial,
+                    'categoria' => $item->detalle->producto->categoria->nombre,
+                    'modelo' => $item->detalle->modelo->nombre,
+                    'cantidad' => $item->cantidad_stock,
+                    'cliente' => $item->cliente?->empresa?->razon_social,
+                ];
+            });
 
-        $results = MaterialEmpleadoTarea::select('detalle_producto_id')->where('es_fibra', true)->where('tarea_id', $tarea_id)->where('empleado_id', $empleado_id)->get();
-
-        $results = $results->map(fn ($item) => [
-            'id' => $item->detalle_producto_id,
-            'descripcion' => DetalleProducto::find($item->detalle_producto_id)->descripcion,
-            'cantidad_hilos' => Fibra::where('detalle_id', $item->detalle_producto_id)->first()->hilo->nombre,
-        ]);
-
-        return response()->json(compact('results'));
-    } */
-
-    // #################################################################
+            return response()->json(compact('results'));
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            return response()->json(compact('mensaje'));
+        }
+    }
 
     public function materialesDespachadosSinBobinaRespaldo($id)
     {
@@ -177,8 +250,11 @@ class TransaccionBodegaEgresoController extends Controller
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) { //si es bodeguero
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
             $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
+        }
+        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
         }
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
@@ -213,11 +289,9 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
 
-            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
 
             //Creacion de la transaccion
             $transaccion = TransaccionBodega::create($datos); //aqui se ejecuta el observer!!
-            // Log::channel('testing')->info('Log', ['Se créo la transaccion', $transaccion]);
 
             //Guardar los productos seleccionados
             foreach ($request->listadoProductosTransaccion as $listado) {
@@ -230,7 +304,6 @@ class TransaccionBodegaEgresoController extends Controller
                 $itemInventario->cantidad -= $listado['cantidad'];
                 $itemInventario->save();
             }
-            // Log::channel('testing')->info('Log', ['Se pasó el foreach de guardar detalles', $transaccion]);
 
             //Si hay pedido, actualizamos su estado.
             if ($transaccion->pedido_id) {
@@ -238,7 +311,6 @@ class TransaccionBodegaEgresoController extends Controller
                 $pedido->latestNotificacion()->update(['leida' => true]);
                 TransaccionBodega::actualizarPedido($transaccion);
             }
-            // Log::channel('testing')->info('Log', ['Se pasó la parte de actualizar pedidos', $transaccion]);
 
             DB::commit(); //Se registra la transaccion y sus detalles exitosamente
 
@@ -267,7 +339,6 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function show(TransaccionBodega $transaccion)
     {
-        // Log::channel('testing')->info('Log', ['Transaccion en el show de ingreso', $transaccion]);
         $modelo = new TransaccionBodegaResource($transaccion);
         return response()->json(compact('modelo'));
     }
@@ -294,7 +365,6 @@ class TransaccionBodegaEgresoController extends Controller
 
         //Aquí el coordinador o jefe inmediato autoriza la transaccion de sus subordinados y modifica los datos del listado
         if ($transaccion->per_autoriza_id === auth()->user()->empleado->id) {
-            Log::channel('testing')->info('Log', ['La persona que autoriza es igual al empleado actual?', true]);
             try {
                 DB::beginTransaction();
                 if ($request->obs_autorizacion) {
@@ -317,7 +387,7 @@ class TransaccionBodegaEgresoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } else {
             if (auth()->user()->hasRole(User::ROL_BODEGA)) {
-                Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
+                // Log::channel('testing')->info('Log', ['El bodeguero realiza la actualizacion?', true, $request->all(), 'datos: ', $datos]);
                 try {
                     DB::beginTransaction();
                     if ($request->obs_estado) {
@@ -354,12 +424,50 @@ class TransaccionBodegaEgresoController extends Controller
     }
 
     /**
+     * Anular una transacción de egreso y revertir el stock del inventario
+     */
+    public function anular(TransaccionBodega $transaccion)
+    {
+        try {
+            DB::beginTransaction();
+            $estadoAnulado = EstadoTransaccion::where('nombre', EstadoTransaccion::ANULADA)->first();
+            $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+            foreach ($detalles as $detalle) {
+                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $itemInventario->cantidad += $detalle['cantidad_inicial'];
+                $itemInventario->save();
+                $detalleProducto = DetalleProducto::find($itemInventario->detalle_id);
+                TransaccionBodega::activarDetalle($detalleProducto);
+                if ($transaccion->pedido_id) {
+                    TransaccionBodega::restarDespachoPedido($transaccion->pedido_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                }
+            }
+            $transaccion->estado_id = $estadoAnulado->id;
+            $transaccion->autorizacion_id = Autorizaciones::CANCELADO;
+
+            $transaccion->save();
+            $transaccion->comprobante()->delete();
+            $transaccion->latestNotificacion()->update(['leida' => true]);
+            DB::commit();
+            $mensaje = 'Transacción anulada correctamente';
+            $modelo = new TransaccionBodegaResource($transaccion->refresh());
+            return response()->json(compact('modelo', 'mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de egreso', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+        }
+    }
+
+    /**
      * Consultar datos sin metodo show
      */
     public function showPreview(TransaccionBodega $transaccion)
     {
         $detalles = TransaccionBodega::listadoProductos($transaccion->id);
         $modelo = new TransaccionBodegaResource($transaccion);
+        $modelo = $modelo->resolve();
+        $modelo['listadoProductosTransaccion'] = $detalles;
 
         return response()->json(compact('modelo'), 200);
     }
@@ -369,16 +477,16 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function imprimir(TransaccionBodega $transaccion)
     {
-        Log::channel('testing')->info('Log', ['Transacción a imprimir', $transaccion]);
+        $configuracion = ConfiguracionGeneral::first();
         $resource = new TransaccionBodegaResource($transaccion);
         $cliente = new ClienteResource(Cliente::find($transaccion->cliente_id));
         $persona_entrega = Empleado::find($transaccion->per_atiende_id);
         $persona_retira = Empleado::find($transaccion->responsable_id);
         try {
             $transaccion = $resource->resolve();
-
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
-            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente']));
+            $transaccion['listadoProductosTransaccion'] = TransaccionBodega::listadoProductos($transaccion['id']);;
+            // Log::channel('testing')->info('Log', ['Elementos a imprimir', ['transaccion' => $resource->resolve(), 'per_retira' => $persona_retira->toArray(), 'per_entrega' => $persona_entrega->toArray(), 'cliente' => $cliente]]);
+            $pdf = Pdf::loadView('egresos.egreso', compact(['transaccion', 'persona_entrega', 'persona_retira', 'cliente', 'configuracion']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -390,6 +498,46 @@ class TransaccionBodegaEgresoController extends Controller
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
         }
     }
+
+    /**
+     * Reportes
+     */
+    public function reportes(Request $request)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $results = [];
+        $registros = [];
+        switch ($request->accion) {
+            case 'excel':
+                $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+
+                return Excel::download(new TransaccionBodegaEgresoExport(collect($registros)), 'reporte.xlsx');
+                break;
+            case 'pdf':
+                try {
+                    $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                    $registros = TransaccionBodega::obtenerDatosReporteEgresos($results);
+                    $reporte = $registros;
+                    $peticion = $request->all();
+                    $pdf = Pdf::loadView('bodega.reportes.egresos_bodega', compact(['reporte', 'peticion', 'configuracion']));
+                    $pdf->setPaper('A4', 'landscape');
+                    $pdf->render();
+                    return $pdf->output();
+                } catch (Exception $ex) {
+                    Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                }
+                break;
+            default:
+                $results = $this->servicio->filtrarEgresoPorTipoFiltro($request);
+                break;
+        }
+
+        $results = TransaccionBodegaResource::collection($results);
+        return response()->json(compact('results'));
+    }
+
+
 
     public function obtenerTransaccionPorTarea(int $tarea_id)
     {
@@ -414,12 +562,10 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function filtrarComprobante(Request $request)
     {
-        // Log::channel('testing')->info('Log', ['[Metodo filtrar de transacciones egresos']);
         $datos = TransaccionBodega::with('comprobante')->where('responsable_id', auth()->user()->empleado->id)
             ->whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();
-        Log::channel('testing')->info('Log', ['egresos son:', $datos]);
 
         $results = TransaccionBodegaResource::collection($datos);
         return response()->json(compact('results'));
@@ -427,7 +573,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();

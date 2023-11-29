@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
-    {{-- Aquí codigo PHP --}}
+{{-- Aquí codigo PHP --}}
 @php
     $fecha = new Datetime();
-    $mensaje_qr = 'JP CONSTRUCRED C. LTDA.' . PHP_EOL . 'PEDIDO: ' . $id . PHP_EOL . 'SOLICITADO POR: ' . $solicitante . PHP_EOL . 'AUTORIZADO POR: ' . $per_autoriza . PHP_EOL . 'RESPONSABLE: ' . $responsable . PHP_EOL . 'SUCURSAL: ' . $sucursal . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $estado . PHP_EOL . 'ULTIMA MODIFICACION: ' . $updated_at;
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png'));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png'));
+    $mensaje_qr = $configuracion['razon_social'] . PHP_EOL . 'PEDIDO: ' . $pedido['id'] . PHP_EOL . 'SOLICITADO POR: ' . $pedido['solicitante'] . PHP_EOL . 'AUTORIZADO POR: ' . $pedido['per_autoriza'] . PHP_EOL . 'RESPONSABLE: ' . $pedido['responsable'] . PHP_EOL . 'SUCURSAL: ' . $pedido['sucursal'] . PHP_EOL . 'ESTADO DEL DESPACHO: ' . $pedido['estado'] . PHP_EOL . 'ULTIMA MODIFICACION: ' . $pedido['updated_at'];
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
 @endphp
 
 <head>
     <meta charset="utf-8">
-    <title>Pedido N° {{ $id }}</title>
+    <title>Pedido N° {{ $pedido['id'] }}</title>
     <style>
         @page {
             margin: 0cm 15px;
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -38,7 +39,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 90px;
+            bottom: 93px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -99,7 +100,8 @@
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE PEDIDO</b></div>
                 </td>
                 <td>
-                    <div class="col-md-2" align="right">Sistema de bodega</div>
+                    {{-- <div class="col-md-2" align="right">Sistema de bodega {{$configuracion['ruc']}}</div> --}}
+                    <div class="col-md-2" align="right">Sistema de bodega </div>
                 </td>
             </tr>
         </table>
@@ -134,8 +136,8 @@
             <tr>
                 <td class="page">Página </td>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">JP Construcred C. Ltda.
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">
+                        {{ $configuracion['razon_social'] }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -155,28 +157,31 @@
     <main>
         <table style="width: 100%; border: #000000; border-collapse: collapse;" border="0">
             <tr class="row">
-                <td>Transacción N°: <b>{{ $id }}</b></td>
-                <td>Fecha: <b>{{ $created_at }}</b></td>
-                <td>Solicitante: <b>{{ $solicitante }}</b></td>
+                <td>Transacción N°: <b>{{ $pedido['id'] }}</b></td>
+                <td>Fecha: <b>{{ $pedido['created_at'] }}</b></td>
+                <td>Solicitante: <b>{{ $pedido['solicitante'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Justificación: <b>{{ $justificacion }}</b></td>
+                <td>Justificación: <b>{{ $pedido['justificacion'] }}</b></td>
                 <td></td>
-                <td>Sucursal: <b>{{ $sucursal }}</b></td>
+                <td>Sucursal: <b>{{ $pedido['sucursal'] }}</b></td>
             </tr>
             <tr class="row">
-                <td>Autorizado por: <b>{{ $per_autoriza }}</b></td>
+                <td>Autorizado por: <b>{{ $pedido['per_autoriza'] }}</b></td>
                 <td></td>
-                <td>Estado: <b>{{ $estado }}</b></td>
+                <td>Estado: <b>{{ $pedido['estado'] }}</b></td>
             </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
-                @if ($tarea)
+                @if ($pedido['tarea'])
                     <tr>
-                        <td>Tarea: <b>{{ $tarea }}</b></td>
+                        <td>Tarea: <b>{{ $pedido['tarea'] }}</b></td>
                     </tr>
                 @endif
+                <tr>
+                    <td>Responsable: <b>{{ $pedido['responsable'] }}</b></td>
+                </tr>
             </thead>
         </table>
         <!-- aqui va el listado de productos -->
@@ -185,15 +190,17 @@
                 <th>Producto</th>
                 <th>Descripcion</th>
                 <th>Categoria</th>
+                <th>Serie</th>
                 <th>Cantidad</th>
                 <th>Despachado</th>
             </thead>
             <tbody style="font-size: 14px;">
-                @foreach ($listadoProductos as $listado)
+                @foreach ($pedido['listadoProductos'] as $listado)
                     <tr>
                         <td>{{ $listado['producto'] }}</td>
                         <td>{{ $listado['descripcion'] }}</td>
                         <td>{{ $listado['categoria'] }}</td>
+                        <td>{{ $listado['serial'] }}</td>
                         <td align="center">{{ $listado['cantidad'] }}</td>
                         <td align="center">{{ $listado['despachado'] }}</td>
                     </tr>

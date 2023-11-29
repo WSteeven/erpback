@@ -50,4 +50,26 @@ class EgresoRolPago extends Model implements Auditable
         ]);
         return $egreso;
     }
+   /**
+    * La función "editarEgresoRol" actualiza los campos "id_role_pago" y "monto" de la tabla
+    * "rol_pago" en la base de datos.
+    *
+    * @param rol_pago El parámetro "rol_pago" es el ID del pago del rol que deseas editar. Se utiliza
+    * para identificar el pago del rol específico en la base de datos.
+    * @param monto El parámetro "monto" representa el monto actualizado para la entidad
+    * "egreso_rol_pago".
+    * @param entidad El parámetro "entidad" es una instancia de un modelo u objeto que representa una
+    * entidad en su aplicación. Se utiliza para acceder a la relación entre la entidad y la tabla
+    * "egreso_rol_pago".
+    *
+    * @return el objeto "egreso" actualizado.
+    */
+    public static function editarEgresoRol($rol_pago, $monto, $entidad)
+    {
+        $egreso = $entidad->egreso_rol_pago()->update([
+            'id_rol_pago' => $rol_pago,
+            'monto' => $monto,
+        ]);
+        return $egreso;
+    }
 }

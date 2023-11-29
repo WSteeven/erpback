@@ -2,7 +2,9 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,34 +17,61 @@ class PermisoEmpleado extends Model implements Auditable
     use AuditableModel;
     use Filterable;
     protected $table = 'permiso_empleados';
-    const APROBADO = 1;
-    const RECHAZADO = 2;
-    const PENDIENTE = 3;
-    const CANCELADO = 4;
+    const PENDIENTE = 1;
+    const APROBADO = 2;
+    const CANCELADO = 3;
     protected $fillable = [
-        'motivo_id','fecha_inicio','fecha_fin','justificacion','estado_permiso_id', 'empleado_id'
+        'tipo_permiso_id',
+        'fecha_hora_inicio',
+        'fecha_hora_fin',
+        'fecha_recuperacion',
+        'hora_recuperacion',
+        'fecha_hora_reagendamiento',
+        'justificacion',
+        'observacion',
+        'estado_permiso_id',
+        'empleado_id',
+        'cargo_vacaciones',
+        'aceptar_sugerencia'
     ];
 
     private static $whiteListFilter = [
         'id',
         'empleado',
-        'motivo',
+        'tipo_permiso',
         'estado_permiso',
+        'estado_permiso_id',
         'justificacion',
-        'fecha_inicio',
-        'fecha_fin',
+        'fecha_hora_inicio',
+        'fecha_hora_fin',
+        'fecha_recuperacion',
+        'hora_recuperacion',
+        'fecha_hora_reagendamiento',
+        'justificacion',
+        'observacion',
+        'documento',
+        'cargo_vacaciones',
+        'aceptar_sugerencia'
+
     ];
-    public function motivo_info()
+    protected $casts = [
+        'cargo_vacaciones' => 'boolean',
+        'aceptar_sugerencia' => 'boolean',
+    ];
+    public function tipo_permiso_info()
     {
-        return $this->belongsTo(MotivoPermisoEmpleado::class, 'motivo_id','id');
+        return $this->belongsTo(MotivoPermisoEmpleado::class, 'tipo_permiso_id', 'id');
     }
     public function estado_permiso_info()
     {
-        return $this->belongsTo(EstadoPermisoEmpleado::class, 'estado_permiso_id','id');
+        return $this->belongsTo(Autorizacion::class, 'estado_permiso_id', 'id');
     }
     public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id','id');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('departamento','jefe');
     }
-
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
 }

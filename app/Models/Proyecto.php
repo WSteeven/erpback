@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Support\Facades\Auth;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableModel;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Proyecto extends Model
+class Proyecto extends Model implements Auditable
 {
-    use HasFactory, Filterable, UppercaseValuesTrait;
+    use HasFactory, Filterable, UppercaseValuesTrait, AuditableModel;
     protected $table = "proyectos";
 
     protected $fillable = [
@@ -47,6 +50,14 @@ class Proyecto extends Model
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+     /**
+     * Relación uno a muchos.
+     * Un proyecto tiene varias etapas
+     */
+    public function etapas()
+    {
+        return $this->hasMany(Etapa::class);
     }
 
     /*********

@@ -2,7 +2,9 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class EmpleadoResource extends JsonResource
 {
@@ -14,6 +16,7 @@ class EmpleadoResource extends JsonResource
      */
     public function toArray($request)
     {
+        $campos = $request->query('campos') ? explode(',', $request->query('campos')) : [];
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
@@ -24,7 +27,7 @@ class EmpleadoResource extends JsonResource
             'fecha_nacimiento' => $this->fecha_nacimiento,
             'email' => $this->user ? $this->user->email : '',
             // 'password'=>bcrypt($this->user->password),
-            'usuario' => $this->user->name,
+            'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
@@ -32,21 +35,50 @@ class EmpleadoResource extends JsonResource
             'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
-            'roles' => implode(', ', $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()),
-            // 'roles' => $this->user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray(),
-            'permisos'=>$this->user->getAllPermissions(),
+            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
+            'permisos' => $this->user?->getAllPermissions(),
             'cargo' => $this->cargo?->nombre,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'foto_url' => $this->foto_url ? url($this->foto_url) : null,
-            // 'es_responsable_grupo' => $this->es_responsable_grupo,
-            // 'es_lider' => $this->esTecnicoLider(),
-            'convencional' => $this->convencional? $this->convencional:null,
-            'telefono_empresa' => $this->telefono_empresa?$this->telefono_empresa:null,
-            'extension' => $this->extension?$this->extension:null,
-            'coordenadas' => $this->coordenadas?$this->coordenadas:null,
+            'convencional' => $this->convencional ? $this->convencional : null,
+            'telefono_empresa' => $this->telefono_empresa ? $this->telefono_empresa : null,
+            'extension' => $this->extension ? $this->extension : null,
+            'coordenadas' => $this->coordenadas ? $this->coordenadas : null,
             'casa_propia' => $this->casa_propia,
             'vive_con_discapacitados' => $this->vive_con_discapacitados,
             'responsable_discapacitados' => $this->responsable_discapacitados,
+            //nuevos campos
+            'correo_personal' => $this->correo_personal,
+            'tipo_sangre' => $this->tipo_sangre,
+            'direccion' => $this->direccion,
+            'supa' => $this->supa,
+            'salario' => $this->salario,
+            'num_cuenta' => $this->num_cuenta_bancaria,
+            'banco' => $this->banco,
+            'banco_info' => $this->banco_info ? $this->banco_info->nombre : null,
+            'tiene_discapacidad' => $this->tiene_discapacidad,
+            'fecha_ingreso' => $this->fecha_ingreso,
+            'antiguedad' => $this->antiguedad($this->fecha_ingreso),
+            'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
+            'fecha_vinculacion' => $this->fecha_vinculacion,
+            'fecha_salida' => $this->fecha_salida,
+            'talla_zapato' => $this->talla_zapato,
+            'talla_camisa' => $this->talla_camisa,
+            'talla_guantes' => $this->talla_guantes,
+            'talla_pantalon' => $this->talla_pantalon,
+            'nivel_academico' => $this->nivel_academico,
+            'estado_civil' => $this->estado_civil_id,
+            'estado_civil_info' => $this->estadoCivil  ? $this->estadoCivil->nombre : null,
+            'area' =>  $this->area_id,
+            'area_info' =>  $this->area ? $this->area->nombre : null,
+            'tipo_contrato' => $this->tipo_contrato_id,
+            'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
+            'observacion' => $this->observacion,
+            'genero' => $this->genero,
+            'esta_en_rol_pago' => $this->esta_en_rol_pago,
+            'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
+            'realiza_factura' => $this->realiza_factura,
+            'familiares' => $this->familiares_info
         ];
 
         if ($controller_method == 'show') {
@@ -59,6 +91,38 @@ class EmpleadoResource extends JsonResource
             $modelo['departamento'] = $this->departamento_id;
         }
 
-        return $modelo;
+        // Filtra los campos personalizados y añádelos a la respuesta si existen
+        $data = [];
+        foreach ($campos as $campo) {
+            if (isset($modelo[$campo])) {
+                // $modelo[$campo] = $this->{$campo};
+                $data[$campo] = $this->{$campo};
+            }
+        }
+        return count($campos) ? $data : $modelo;
+    }
+    public function antiguedad($fecha_ingreso)
+    {
+        // Obtén la fecha actual con Carbon
+        $fechaActual = Carbon::now();
+
+        // Convierte la fecha de ingreso a un objeto Carbon
+        $fechaIngreso = Carbon::parse($fecha_ingreso);
+
+        // Calcula la diferencia en años, meses y días usando Carbon
+        $diff = $fechaActual->diff($fechaIngreso);
+
+        // Obtiene los valores de diferencia en años, meses y días
+        $diffYears = $diff->y;
+        $diffMonths = $diff->m;
+        $diffDays = $diff->d;
+
+        // Verifica si los valores de diferencia son válidos
+        if (!is_int($diffYears) || !is_int($diffMonths) || !is_int($diffDays)) {
+            return null;
+        }
+
+        // Retorna la diferencia en el formato deseado
+        return $diffYears . ' Años ' . $diffMonths . ' Meses ' . $diffDays . ' Días';
     }
 }

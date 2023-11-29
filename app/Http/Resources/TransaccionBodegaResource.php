@@ -37,7 +37,7 @@ class TransaccionBodegaResource extends JsonResource
             'pedido' => $this->pedido_id,
             'responsable'=>$this->responsable?$this->responsable->nombres . ' ' . $this->responsable->apellidos : null,
             'responsable_id'=>$this->responsable_id,
-            'transferencia' => $this->transferencia?->justificacion,
+            'transferencia' => $this->transferencia_id,
             'solicitante_id' => $this->solicitante_id,
             'tipo' => $this->motivo?->tipo?->nombre,
             'motivo' => $this->motivo?->nombre,
@@ -51,8 +51,9 @@ class TransaccionBodegaResource extends JsonResource
             'tarea_codigo' => $this->tarea ? $this->tarea->codigo_tarea : null,
             'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'cliente_id' => $this->cliente_id,
-            'listadoProductosTransaccion' => $detalles,
+            // 'listadoProductosTransaccion' => $detalles,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'proveedor' => $this->proveedor,
 
             //variables auxiliares
             'tiene_obs_autorizacion'=>is_null($this->autorizacion_id)?false:true,
@@ -62,10 +63,10 @@ class TransaccionBodegaResource extends JsonResource
             'es_transferencia'=>$this->transferencia_id?true:false,
             'tiene_pedido'=>$this->pedido_id?true:false,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
-            'comprobante'=>$comprobante,
+            // 'comprobante'=>$comprobante,
             'firmada'=> $comprobante?->firmada,
             'estado_comprobante'=>$comprobante?->estado,
-            
+
         ];
 
         if ($controller_method == 'show') {

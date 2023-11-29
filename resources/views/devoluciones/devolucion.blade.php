@@ -10,7 +10,7 @@
         }
 
         body {
-            background-image: url('img/logoJPBN_10.png');
+            background-image: url('img/logoBN10.png');
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -89,7 +89,7 @@
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px;">
             <tr class="row" style="width:auto">
                 <td style="width: 10%">
-                    <div class="col-md-3"><img src="img/logoJP.png" width="90"></div>
+                    <div class="col-md-3"><img src="img/logo.png" width="90"></div>
                 </td>
                 <td style="width: 68%">
                     <div class="col-md-7" align="center"><b>COMPROBANTE DE DEVOLUCION</b></div>

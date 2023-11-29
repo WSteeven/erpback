@@ -5,12 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PermisoRequest;
 use App\Http\Resources\PermisoResource;
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Permiso\Permiso;
-use DragonCode\Support\Facades\Http\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Switch_;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Src\Shared\Utils;
@@ -28,6 +24,7 @@ class PermisoController extends Controller
         $results = PermisoResource::collection(Permission::all());
         return response()->json(compact('results'));
     }
+
     public function listarPermisosRoles(Request $request)
     {
         // Log::channel('testing')->info('Log', ['Request recibida', $request->all()]);

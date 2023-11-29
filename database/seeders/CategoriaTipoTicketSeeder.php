@@ -17,28 +17,52 @@ class CategoriaTipoTicketSeeder extends Seeder
     {
         CategoriaTipoTicket::insert([
             [
-                'nombre' => 'Soporte técnico',
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 1,
+            ],
+            [
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 2,
+            ],
+            [
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 3,
+            ],
+            [
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 4,
+            ],
+            [
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 5,
+            ],
+            [
+                'nombre' => 'Categoria 1',
                 'departamento_id' => 6,
             ],
             [
-                'nombre' => 'Configuración y personalización',
-                'departamento_id' => 6,
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 7,
             ],
             [
-                'nombre' => 'Gestión de accesos y autorizaciones',
-                'departamento_id' => 6,
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 8,
             ],
             [
-                'nombre' => 'Capacitación y orientación',
-                'departamento_id' => 6,
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 9,
             ],
             [
-                'nombre' => 'Mantenimiento y actualizaciones',
-                'departamento_id' => 6,
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 10,
             ],
             [
-                'nombre' => 'Seguridad informática',
-                'departamento_id' => 6,
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 11,
+            ],
+            [
+                'nombre' => 'Categoria 1',
+                'departamento_id' => 12,
             ],
         ]);
     }

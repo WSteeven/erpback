@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CargoRequest;
+use App\Http\Requests\RecursosHumanos\CargoRequest;
 use App\Http\Resources\CargoResource;
 use App\Models\Cargo;
 use Illuminate\Http\Request;

@@ -11,13 +11,13 @@ use Src\Shared\Utils;
 class UnidadMedidaController extends Controller
 {
     private $entidad = 'Unidad de medida';
-    public function __construct()
-    {
-        $this->middleware('can:puede.ver.unidades_medidas')->only('index', 'show');
-        $this->middleware('can:puede.crear.unidades_medidas')->only('store');
-        $this->middleware('can:puede.editar.unidades_medidas')->only('update');
-        $this->middleware('can:puede.eliminar.unidades_medidas')->only('update');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('can:puede.ver.unidades_medidas')->only('index', 'show');
+    //     $this->middleware('can:puede.crear.unidades_medidas')->only('store');
+    //     $this->middleware('can:puede.editar.unidades_medidas')->only('update');
+    //     $this->middleware('can:puede.eliminar.unidades_medidas')->only('update');
+    // }
 
     /**
      * Listar
