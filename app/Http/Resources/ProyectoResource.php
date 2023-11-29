@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Tareas\EtapaResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProyectoResource extends JsonResource
@@ -35,6 +36,7 @@ class ProyectoResource extends JsonResource
             $modelo['cliente'] = $this->cliente_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['canton'] = $this->canton_id;
+            $modelo['etapas'] = EtapaResource::collection($this->etapas);
         }
 
         return $modelo;

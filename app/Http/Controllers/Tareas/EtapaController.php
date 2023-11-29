@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Tareas;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tareas\EtapaRequest;
 use App\Http\Resources\Tareas\EtapaResource;
 use App\Models\Tareas\Etapa;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class EtapaController extends Controller
 {
@@ -18,6 +20,23 @@ class EtapaController extends Controller
         $results  = Etapa::filter()->get();
         $results = EtapaResource::collection($results);
         return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar
+     */
+    public function store(EtapaRequest $request)
+    {
+        // Adaptacion de foreign keys
+        $datos = $request->validated();
+        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
+
+        // Respuesta
+        $modelo = Etapa::create($datos);
+        $modelo = new EtapaResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
