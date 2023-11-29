@@ -701,7 +701,8 @@ class RolPagoMesController extends Controller
                 $prestamo_hipotecario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol_mes->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $supa =  $rol_mes->es_quincena ? 0 : $this->nominaService->getEmpleado()->supa;
+                $valor_supa = $this->nominaService->getEmpleado()->supa !=null ? $this->nominaService->getEmpleado()->supa:0;
+                $supa =  $rol_mes->es_quincena ? 0 :$valor_supa ;
                 $egreso = $rol_mes->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $this->nominaService->obtener_total_descuentos_multas() + $supa);
                 $total = abs($ingresos) - $egreso;
                 $rol_pago_mes_empleado =  RolPago::where('rol_pago_id', $rol_mes->id)->where('empleado_id', $rol_pago->empleado_id)->first();
