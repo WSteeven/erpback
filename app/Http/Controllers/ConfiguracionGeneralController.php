@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Illuminate\Support\Facades\Url;
 
 class ConfiguracionGeneralController extends Controller
 {
@@ -60,15 +61,16 @@ class ConfiguracionGeneralController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    private function guardarImagen($imagen, $nombre_predeterminado) {
+    private function guardarImagen($imagen, $nombre_predeterminado)
+    {
         $timestamp = time();
         if ($imagen) {
-            if ( Utils::esBase64($imagen)) {
+            if (Utils::esBase64($imagen)) {
                 $nombre = $timestamp . '_' . $nombre_predeterminado;
                 return (new GuardarImagenIndividual($imagen, RutasStorage::CONFIGURACION_GENERAL, $nombre))->execute();
             } else {
-                $baseUrl = config('app.url');
-                return str_replace($baseUrl, '', $imagen);
+                $componentesUrl = parse_url($imagen);
+                return $componentesUrl['path'];
             }
         }
     }
