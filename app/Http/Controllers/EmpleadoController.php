@@ -110,13 +110,14 @@ class EmpleadoController extends Controller
 
         try {
             DB::beginTransaction();
+            $username = $this->generarNombreUsuario($datos['usuario'], $datos['nombres'], $datos['apellidos']);
             $user = User::create([
-                'name' => $datos['usuario'],
+               // 'name' => $username,
+               'name' => $datos['usuario'],
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -178,7 +179,7 @@ class EmpleadoController extends Controller
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
-        $empleado->estado = $request->estado=='true'?1:0;
+        $empleado->estado = $request->estado == 'true' ? 1 : 0;
         $empleado->save();
         $modelo = $empleado;
         return response()->json(compact('modelo'));
@@ -218,6 +219,7 @@ class EmpleadoController extends Controller
         // Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
         $datos = $request->validated();
+        $username = $this->generarNombreUsuario($datos['usuario'], $datos['nombres'], $datos['apellidos']);
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
@@ -437,5 +439,35 @@ class EmpleadoController extends Controller
         $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+    }
+    function generarNombreUsuario($nombreUsuario, $apellidos, $nombres)
+    {
+
+        // Comprobamos si el nombre de usuario ya existe
+        $query = User::where('name', $nombreUsuario)
+            ->get();
+        $username = $nombreUsuario;
+
+        if ($query->count() > 0) {
+            // Separamos el nombre y el apellido en dos cadenas
+            $nombre = explode(" ", $nombres);
+            $apellido = explode(" ", $apellidos);
+            $username = '';
+            // Agregamos la segunda letra del nombre
+            $username .= substr($nombre[0], 1, 1);
+
+            // Volvemos a comprobar si el nombre de usuario ya existe
+            $query = User::where('username', $username)
+                ->get();
+
+            if ($query->count() > 0) {
+                // Agregamos un número aleatorio
+                $username .= rand(0, 99);
+            }
+        }
+
+
+        // Devolvemos el nombre de usuario generado
+        return $username;
     }
 }
