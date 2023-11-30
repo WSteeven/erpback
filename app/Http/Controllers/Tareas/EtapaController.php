@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Tareas;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tareas\EtapaRequest;
 use App\Http\Resources\Tareas\EtapaResource;
+use App\Models\Sucursal;
 use App\Models\Tareas\Etapa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Src\Shared\Utils;
 
 class EtapaController extends Controller
@@ -27,17 +29,24 @@ class EtapaController extends Controller
      * Guardar
      */
     public function store(EtapaRequest $request)
-    {
-        // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
-        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
+    {   try {
+        DB::beginTransaction();
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
 
-        // Respuesta
-        $modelo = Etapa::create($datos);
-        $modelo = new EtapaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
+            // Respuesta
+            $modelo = Etapa::create($datos);
+            if($modelo) Sucursal::crearSucursalProyectoEtapa($modelo);
+            $modelo = new EtapaResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 
     /**
@@ -53,6 +62,7 @@ class EtapaController extends Controller
      */
     public function update(EtapaRequest $request, Etapa $etapa)
     {
+        $nombre_anterior = $etapa->nombre;
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
@@ -61,6 +71,7 @@ class EtapaController extends Controller
         // Respuesta
         $etapa->update($datos);
         $modelo = new EtapaResource($etapa);
+        // if($modelo) Sucursal::ModificarSucursalProyectoEtapa($etapa, $nombre_anterior);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -78,9 +89,10 @@ class EtapaController extends Controller
     /**
      * Desactivar
      */
-    public function desactivar(Etapa $etapa)
-    {
+     public function desactivar(Request $request, Etapa $etapa){
+        $request->validate(['motivo'=>['string']]);
         $etapa->activo  = !$etapa->activo;
+        $etapa->motivo = $request->motivo;
         $etapa->save();
 
         $modelo = new EtapaResource($etapa->refresh());

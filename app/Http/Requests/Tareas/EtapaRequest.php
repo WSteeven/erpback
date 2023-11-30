@@ -25,6 +25,7 @@ class EtapaRequest extends FormRequest
     public function rules()
     {
         return [
+            'activo'=>'boolean',
             'nombre'=>'string|required',
             'responsable'=>'required|exists:empleados,id',
             'proyecto'=>'required|exists:proyectos,id',
