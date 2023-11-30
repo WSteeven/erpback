@@ -18,17 +18,20 @@ use App\Models\ComprasProveedores\PreordenCompra;
 use App\Models\CorreoEnviado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
+
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\App\ComprasProveedores\OrdenCompraService;
 use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class OrdenCompraController extends Controller
 {
@@ -240,21 +243,10 @@ class OrdenCompraController extends Controller
     {
         $orden_compra = $orden;
         try {
-
-            // if ($orden_compra->file && Storage::exists($orden_compra->file)) {
-            //     //En caso de que el archivo exista se sirve el archivo
-            //     Log::channel('testing')->info('Log', ['SI SE ENCONTRÓ EL ARCHIVO, YA NO SE IMPRIMIRÁ', $orden_compra->file]);
-            //     return Storage::download($orden_compra->file);
-            // } else {
-            try {
-                return $this->servicio->generarPdf($orden, true, true);
-            } catch (Exception $e) {
-                Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
-                return response()->json('Ha ocurrido un error al intentar imprimir la orden de compra' . $e->getMessage() . ' ' . $e->getLine(), 422);
-            }
-            // }
+           return $this->servicio->generarPdf($orden, true, true);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'));
         }
@@ -267,12 +259,14 @@ class OrdenCompraController extends Controller
     {
         // Log::channel('testing')->info('Log', ['Enviar mail, orden de compra recibida', $orden]);
         try {
-            if ($orden->proveedor->empresa->correo) {
+            if ($orden->proveedor->correo) {
+                Mail::to($orden->proveedor->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
+                CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
+                $mensaje = 'Email enviado correctamente al provedor';
+                $status = 200;
+            } elseif($orden->proveedor->empresa->correo){
                 Mail::to($orden->proveedor->empresa->correo)->cc(['contabilidad_compras@jpconstrucred.com', auth()->user()])->send(new EnviarMailOrdenCompraProveedor($orden));
                 CorreoEnviado::crearCorreoEnviado($orden->solicitante->user->email, $orden->proveedor->empresa->correo, 'Orden de Compra JP CONSTRUCRED C. LTDA.', $orden);
-                // Log::channel('testing')->info('Log', ['Correo enviado',$correo]);
-
-
                 $mensaje = 'Email enviado correctamente al provedor';
                 $status = 200;
             } else {

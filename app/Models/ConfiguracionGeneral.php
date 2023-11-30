@@ -33,5 +33,6 @@ class ConfiguracionGeneral extends Model implements Auditable
         'sitio_web',
         'direccion_secundaria1',
         'direccion_secundaria2',
+        'nombre_empresa',
     ];
 }

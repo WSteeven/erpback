@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('saldo_grupo', function (Blueprint $table) {
-            $table->unsignedBigInteger('saldo_grupo_id')->nullable();
-            $table->string('saldo_grupo_type')->nullable();
+        Schema::table('configuraciones_generales', function (Blueprint $table) {
+            $table->string('nombre_empresa')->after('id');
         });
     }
 
@@ -26,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('saldo_grupo', function (Blueprint $table) {
-            //
+        Schema::table('configuraciones_generales', function (Blueprint $table) {
+            $table->dropColumn('nombre_empresa');
         });
     }
 };

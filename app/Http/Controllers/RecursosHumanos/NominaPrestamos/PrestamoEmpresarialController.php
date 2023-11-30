@@ -22,7 +22,7 @@ class PrestamoEmpresarialController extends Controller
         $this->middleware('can:puede.ver.prestamo_empresarial')->only('index', 'show');
         $this->middleware('can:puede.crear.prestamo_empresarial')->only('store');
         $this->middleware('can:puede.editar.prestamo_empresarial')->only('update');
-        $this->middleware('can:puede.eliminar.prestamo_empresarial')->only('update');
+        $this->middleware('can:puede.eliminar.prestamo_empresarial')->only('destroy');
     }
 
     public function index(Request $request)
