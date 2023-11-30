@@ -138,9 +138,8 @@ class NominaService
         if ($fechaIngresada->isCurrentMonth()) {
             // Verifica si la fecha ingresada es anterior al día 15 del mes actual
             // 18 de mes, fecha actual <15
-            if ($fechaIngresada->day < $cantidad_dias && $fechaIngresada->day > 1) {
+            if ($fechaIngresada->day < $cantidad_dias) {
                 // Resta la fecha ingresada de la fecha del 15 del mes actual
-                // Log::channel('testing')->info('Log', ['calculo de dias restantes',  $cantidad_dias, ($cantidad_dias - $fechaIngresada->day), $fechaIngresada->day]);
                 $diasRestantes = $cantidad_dias - $fechaIngresada->day + 1;
             } else {
                 // La fecha ingresada ya es igual o posterior al 15 del mes actual
@@ -241,7 +240,6 @@ class NominaService
     }
     public function enviar_rol_pago($rolPagoId, $destinatario)
     {
-        $nombre_reporte = 'rol_pagos';
         $roles_pagos = RolPago::where('id', $rolPagoId)->get();
         $results = RolPago::empaquetarListado($roles_pagos);
         $recursosHumanos = Departamento::where('id', 7)->first()->responsable_id;

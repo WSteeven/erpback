@@ -111,12 +111,12 @@ class TicketResource extends JsonResource
             $primerEjecucion = $tiemposFiltrados->first(fn ($tiempo) => $tiempo->new_values['estado'] === Ticket::EJECUTANDO);
             $finalizacion = $tiemposFiltrados->first(fn ($tiempo) => in_array($tiempo->new_values['estado'], [Ticket::FINALIZADO_SOLUCIONADO, Ticket::FINALIZADO_SIN_SOLUCION]));
 
-            $mensaje = 'Fuera del if';
-            Log::channel('testing')->info('Log', compact('mensaje'));
+            // $mensaje = 'Fuera del if';
+            // Log::channel('testing')->info('Log', compact('mensaje'));
 
             $segundosPausas = $this->obtenerSumaPausasSegundos();
 
-            $tiempoOcupado = CarbonInterval::seconds(Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion'])));
+            $tiempoOcupado = CarbonInterval::seconds(Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->diffInSeconds(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion'])));
             $total = $tiempoOcupado->subSeconds($segundosPausas);
             return $finalizacion ? $total->cascade()->forHumans() : null;
             // Calcular el tiempo total ocupado
@@ -166,7 +166,7 @@ class TicketResource extends JsonResource
             $primerEjecucion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? $tiempo->new_values['estado'] === Ticket::EJECUTANDO : false);
             $finalizacion = $tiempos->first(fn ($tiempo) => isset($tiempo->new_values['estado']) ? ($tiempo->new_values['estado'] === Ticket::FINALIZADO_SOLUCIONADO || $tiempo->new_values['estado'] === Ticket::FINALIZADO_SIN_SOLUCION) : false);
             $segundosPausas = $this->obtenerSumaPausasSegundos()->total('seconds');
-            $tiempoOcupado = Carbon::parse($finalizacion->new_values['fecha_hora_finalizado'])->subSeconds($segundosPausas)->diffInHours(Carbon::parse($primerEjecucion->new_values['fecha_hora_ejecucion']));
+            $tiempoOcupado = Carbon::parse($finalizacion?->new_values['fecha_hora_finalizado'])->subSeconds($segundosPausas)->diffInHours(Carbon::parse($primerEjecucion?->new_values['fecha_hora_ejecucion']));
             // $total = $tiempoOcupado->subSeconds($segundosPausas);
             return $finalizacion ? $tiempoOcupado : null;
         } else {

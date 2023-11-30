@@ -30,7 +30,7 @@ class TicketRequest extends FormRequest
             'fecha_hora_limite' => 'nullable|string',
             'observaciones_solicitante' => 'nullable|string',
             'calificacion_solicitante' => 'nullable|string',
-            // 'responsable' => 'required|numeric|integer',
+            'responsable' => 'required|array',
             'departamento_responsable' => 'required|array',
             'tipo_ticket' => 'required|numeric|integer',
             'ticket_interno' => 'boolean',
