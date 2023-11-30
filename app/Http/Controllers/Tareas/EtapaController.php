@@ -16,8 +16,9 @@ class EtapaController extends Controller
     /**
      * Listar
      */
-    public function index(Request $request){
-        $results  = Etapa::filter()->get();
+    public function index(Request $request)
+    {
+        $results  = Etapa::ignoreRequest(['campos'])->filter()->get();
         $results = EtapaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -67,7 +68,8 @@ class EtapaController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(Etapa $etapa){
+    public function destroy(Etapa $etapa)
+    {
         $etapa->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
@@ -76,7 +78,8 @@ class EtapaController extends Controller
     /**
      * Desactivar
      */
-     public function desactivar(Etapa $etapa){
+    public function desactivar(Etapa $etapa)
+    {
         $etapa->activo  = !$etapa->activo;
         $etapa->save();
 

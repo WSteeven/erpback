@@ -89,6 +89,7 @@ class TareaController extends Controller
             $datos['ruta_tarea_id'] = $request->safe()->only(['ruta_tarea'])['ruta_tarea'];
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+            $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
 
             // Establecer coordinador

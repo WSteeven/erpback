@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\Tareas;
 
+use App\Http\Resources\BaseResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class EtapaResource extends JsonResource
+class EtapaResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
@@ -12,19 +13,18 @@ class EtapaResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public function toArray($request)
+    protected function construirModelo($request)
     {
-        $controller_method = $request->route()->getActionMethod();
         $modelo =  [
-            'id'=>$this->id,
-            'nombre'=>$this->nombre,
-            'activo'=>$this->activo,
-            'responsable'=>$this->responsable->nombres.' '.$this->responsable->apellidos,
-            'codigo_proyecto'=>$this->proyecto->codigo_proyecto,
-            'proyecto'=>$this->proyecto->nombre
+            'id' => $this->id,
+            'nombre' => $this->nombre,
+            'activo' => $this->activo,
+            'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
+            'codigo_proyecto' => $this->proyecto->codigo_proyecto,
+            'proyecto' => $this->proyecto->nombre
         ];
 
-        if($controller_method=='show'){
+        if ($this->controllerMethodIsShow()) {
             $modelo['responsable'] = $this->responsable_id;
             $modelo['proyecto'] = $this->proyecto_id;
         }

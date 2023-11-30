@@ -35,6 +35,7 @@ class TareaRequest extends FormRequest
             'coordinador' => 'nullable|numeric|integer',
             'fiscalizador' => 'nullable|numeric|integer',
             'proyecto' => 'nullable|numeric|integer',
+            'etapa' => 'nullable|numeric|integer',
             'cliente_final' => 'nullable|numeric|integer',
             'medio_notificacion' => 'required|string',
             'tiene_subtareas' => 'required|boolean',
