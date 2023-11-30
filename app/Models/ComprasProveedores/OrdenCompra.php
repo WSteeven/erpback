@@ -68,6 +68,8 @@ class OrdenCompra extends Model implements Auditable
     'updated_at' => 'datetime:Y-m-d h:i:s a',
     'realizada' => 'boolean',
     'pagada' => 'boolean',
+    'revisada_compras' => 'boolean',
+    'completada' => 'boolean',
   ];
 
   private static $whiteListFilter = ['*'];

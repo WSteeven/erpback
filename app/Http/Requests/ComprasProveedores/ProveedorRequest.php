@@ -31,6 +31,7 @@ class ProveedorRequest extends FormRequest
             'direccion' => 'required|string',
             'celular' => 'nullable|string',
             'telefono' => 'nullable|string',
+            'correo' => 'nullable|email',
             'estado' => 'boolean',
             //listados de relaciones muchos a muchos
             'tipos_ofrece.*' => 'required',

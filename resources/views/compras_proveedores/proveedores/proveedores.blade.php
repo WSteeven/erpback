@@ -14,6 +14,8 @@
     <style>
         @page {
             margin: 0cm 15px;
+            margin-top: 2%;
+		    margin-bottom: 2%;
         }
 
         header {
@@ -155,7 +157,8 @@
 
     <!-- aqui va el contenido del document<br><br>o -->
     <main>
-        <table border="1" style="border-collapse:collapse; margin-bottom: 4px; width: 100%" align="center">
+        <br>
+        <table border="1" style="border-collapse:collapse; margin-bottom: 2%; padding-bottom: 6%;width: 100%" align="center">
             <thead>
                 <td class="encabezado-tabla-rol"><strong>RUC</strong> </td>
                 <td class="encabezado-tabla-rol"><strong>RAZON SOCIAL</strong></td>

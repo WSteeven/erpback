@@ -163,6 +163,10 @@ class ProveedorService
             $row['razon_social']  = $proveedor->empresa->razon_social;
             $row['sucursal']  = $proveedor->sucursal;
             $row['departamento']  = $detalle->nombre;
+            $row['ciudad']  = $proveedor->parroquia?->canton->canton;
+            $row['direccion']  = $proveedor->direccion;
+            $row['categorias'] = implode(', ',  $proveedor->categorias_ofertadas->map(fn ($item) => $item->nombre)->toArray());
+            $row['calificacion_total'] = $proveedor->calificacion;
             $detalle_departamentos = DetalleDepartamentoProveedor::find($detalle->pivot->id);
             $row['empleado'] = $detalle_departamentos->empleado?->nombres . ' ' . $detalle_departamentos->empleado?->apellidos;
             $row['calificacion'] = $detalle_departamentos->calificacion;
