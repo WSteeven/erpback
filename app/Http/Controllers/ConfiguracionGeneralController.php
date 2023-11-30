@@ -55,10 +55,11 @@ class ConfiguracionGeneralController extends Controller
             $configuracion = ConfiguracionGeneral::create($datos);
         }
 
-        $modelo = new ConfiguracionGeneralResource($configuracion->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        /* $modelo = new ConfiguracionGeneralResource($configuracion->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');*/
+        $mensaje = 'Actualizado exitosamente!';
 
-        return response()->json(compact('mensaje', 'modelo'));
+        return response()->json(compact('mensaje'));
     }
 
     private function guardarImagen($imagen, $nombre_predeterminado)
