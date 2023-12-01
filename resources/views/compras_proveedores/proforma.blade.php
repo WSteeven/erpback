@@ -1,7 +1,8 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo = 'data:image/png;base64,' . base64_encode(file_get_contents('img/logo.png'));
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     if ($empleado_solicita->firma_url) {
         $firma_solicitante = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($empleado_solicita->firma_url, 1)));
     }
@@ -19,9 +20,10 @@
 
         body {
             /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }});
+            background-image: url({{ $logo_watermark }});
             background-repeat: no-repeat;
             background-position: center;
+            background-size: contain;
         }
 
         /** Definir las reglas del encabezado **/
@@ -108,32 +110,32 @@
                     <table width="95%" border="0" style="font-family:Arial; font-size:10px;">
                         <tr>
                             <td align="center">
-                                <div align="center"><img src="{{ $logo }}" alt="" width="218"
+                                <div align="center"><img src="{{ $logo_principal }}" alt="" width="218"
                                         height="85" /></div>
                             </td>
                         </tr>
                         <tr>
                             <td align="center">
-                                Urdesa Central, Bálsamos 323 e/ segunda y cuarta peatonal.
+                                {{ $configuracion['direccion_principal'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">Guayaquil - Guayas - Ecuador</td>
+                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
                         </tr>
                         <tr>
-                            <td align="center">Tlf. 0999999999
+                            <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">info@jpconstrucred.com - www.jpconstrucred.com</td>
+                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} - {{ strtolower($configuracion['sitio_web'] )}}</td>
                         </tr>
                     </table>
                 </td>
                 <td style="width: 50%">
-                    <table>
+                    <table style="margin-left:auto; margin-right:auto; text-align:center;">
                         <tr>
                             <td align="right">
-                                <b style="font-size: 30px; margin-left: 30px">PROFORMA</b>
+                                <b style="font-size: 24px; margin-left: 30px">PROFORMA</b>
                             </td>
                         </tr>
                         <tr>

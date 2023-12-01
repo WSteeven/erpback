@@ -12,6 +12,7 @@ use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\ComprasProveedores\Prefactura;
 use App\Models\ComprasProveedores\Proforma;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
@@ -174,6 +175,7 @@ class PrefacturaController extends Controller
      */
     public function imprimir(Prefactura $prefactura)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $cliente = new ClienteResource(Cliente::find($prefactura->cliente_id));
         $empleado_solicita = Empleado::find($prefactura->solicitante_id);
         $prefactura = new PrefacturaResource($prefactura);
@@ -182,7 +184,7 @@ class PrefacturaController extends Controller
             $cliente = $cliente->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($prefactura['sum_total']);
             Log::channel('testing')->info('Log', ['Elementos a imprimir', ['prefactura' => $prefactura, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.prefactura', compact(['prefactura', 'cliente', 'empleado_solicita', 'valor']));
+            $pdf = Pdf::loadView('compras_proveedores.prefactura', compact(['prefactura', 'cliente', 'empleado_solicita', 'valor', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();
