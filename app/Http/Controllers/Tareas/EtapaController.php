@@ -9,6 +9,7 @@ use App\Models\Sucursal;
 use App\Models\Tareas\Etapa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class EtapaController extends Controller
@@ -71,7 +72,7 @@ class EtapaController extends Controller
         // Respuesta
         $etapa->update($datos);
         $modelo = new EtapaResource($etapa);
-        // if($modelo) Sucursal::ModificarSucursalProyectoEtapa($etapa, $nombre_anterior);
+        if($modelo) Sucursal::ModificarSucursalProyectoEtapa($etapa, $nombre_anterior);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -79,12 +80,12 @@ class EtapaController extends Controller
     /**
      * Eliminar
      */
-    public function destroy(Etapa $etapa)
-    {
-        $etapa->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
-        return response()->json(compact('mensaje'));
-    }
+    // public function destroy(Etapa $etapa)
+    // {
+    //     $etapa->delete();
+    //     $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+    //     return response()->json(compact('mensaje'));
+    // }
 
     /**
      * Desactivar

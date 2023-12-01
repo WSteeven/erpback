@@ -6,8 +6,10 @@ use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;
 use App\Mail\Notificar;
+use App\Models\Empleado;
 use App\Models\PrestamoTemporal;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
@@ -49,6 +51,12 @@ Route::get('/notificar', function(){
     dump($response);
 });
 
+// Route::get('verificar', function(){
+//     $empleado = Empleado::find(24);
+
+//     Log::channel('testing')->info('Log', ['Empleado', $empleado]);
+//     Log::channel('testing')->info('Log', ['Recibe fondos', $empleado->acumula_fondos_reserva==0]);
+// });
 
 Route::get('/calcular-dias/{id}', function($id){
     $nominaService = new NominaService();
