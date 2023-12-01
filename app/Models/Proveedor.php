@@ -35,6 +35,7 @@ class Proveedor extends Model implements Auditable
         "referencia",
         "plazo_credito",
         "anticipos",
+        "correo",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

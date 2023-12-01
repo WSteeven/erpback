@@ -41,7 +41,6 @@
 </head>
 
 <body>
-   
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <tr>
@@ -61,11 +60,52 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" style="font-size:12px">
-                            <div align="center"><strong>CALIFICACION DE PROVEEDOR
-                                    {{ $reporte[0]['ruc'] }} - {{ $reporte[0]['sucursal'] }}
+                            <div align="center"><strong>CALIFICACION DE PROVEEDOR - {{ $reporte[0]['ruc'] }} -
+                                    {{ $reporte[0]['sucursal'] }}
                                 </strong>
                             </div>
                         </td>
+                    </tr>
+                </table>
+            </div>
+        </tr>
+        {{-- Datos del proveedor --}}
+        <tr>
+            <div class="header">
+                <table
+                    style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;page-break-inside: avoid;">
+                    <tr>
+                        <td align="center" style="background-color: #DBDBDB;" colspan="2"><strong>INFORMACIÓN DEL
+                                PROVEEDOR</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>RUC:</strong> </td>
+                        <td>{{ $reporte[0]['ruc'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RAZON SOCIAL:</strong> </td>
+                        <td>{{ $reporte[0]['razon_social'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SUCURSAL:</strong> </td>
+                        <td>{{ $reporte[0]['sucursal'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CIUDAD:</strong> </td>
+                        <td>{{ $reporte[0]['ciudad'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DIRECCION:</strong> </td>
+                        <td>{{ $reporte[0]['direccion'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CATEGORIAS:</strong> </td>
+                        <td>{{ $reporte[0]['categorias'] }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CALIFICACION TOTAL:</strong> </td>
+                        <td>{{ $reporte[0]['calificacion_total'] }}</td>
                     </tr>
                 </table>
             </div>
@@ -88,7 +128,9 @@
                 <td>{{ $rpt['fecha_calificacion'] }}</td>
             </tr>
             @empty(!$rpt['calificaciones_bienes'])
-            <tr><td></td></tr>
+                <tr>
+                    <td></td>
+                </tr>
                 <tr>
                     <td><strong>CALIFICACIONES DE BIENES</strong></td>
                 </tr>
@@ -108,6 +150,14 @@
                         <td>{{ $cal['calificacion'] }}</td>
                     </tr>
                 @endforeach
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td style="background-color: #DBDBDB;"><strong>CALIFICACION:</strong> </td>
+                    <td style="background-color: #DBDBDB;"><strong>{{ $rpt['calificacion'] }}</strong></td>
+                </tr>
+                <tr></tr>
                 <tr></tr>
             @endempty
             @empty(!$rpt['calificaciones_servicios'])

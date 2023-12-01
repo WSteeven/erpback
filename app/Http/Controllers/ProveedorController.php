@@ -130,7 +130,7 @@ class ProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
             return response()->json(compact('mensaje'), 500);
             //throw $th;
         }
