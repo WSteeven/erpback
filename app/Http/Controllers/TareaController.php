@@ -92,7 +92,7 @@ class TareaController extends Controller
             $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
 
-            // Establecer coordinador
+            // Establecer coordinador tarea para cliente final o mantenimiento
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
             if ($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             else $datos['coordinador_id'] = Auth::user()->empleado->id;

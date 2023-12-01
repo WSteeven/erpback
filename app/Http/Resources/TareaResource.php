@@ -61,6 +61,7 @@ class TareaResource extends JsonResource
             $modelo['ubicacion_trabajo'] = $this->ubicacion_trabajo;
             $modelo['observacion'] = $this->observacion;
             $modelo['fecha_solicitud'] = $this->fecha_solicitud;
+            $modelo['etapa'] = $this->etapa_id;
         }
 
         return $modelo;
