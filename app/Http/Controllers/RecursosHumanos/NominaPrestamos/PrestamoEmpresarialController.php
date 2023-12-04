@@ -37,10 +37,8 @@ class PrestamoEmpresarialController extends Controller
             $results = PrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            /*
-            $results = PrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
-            $results = PrestamoEmpresarial::collection($results);*/
-            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+
+            $results = PrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->get();
             $results = PrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         }
