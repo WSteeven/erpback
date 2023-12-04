@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class SolicitudAtsController extends Controller
 {
-    public function index() {
+    public function store(Request $request) {
         SolicitudAts::where('subtarea_id');
     }
 }
