@@ -448,7 +448,7 @@ class EmpleadoController extends Controller
      */
     function generarNombreUsuario($request)
     {
-        $nombreUsuario = $request['nombreUsuario'];
+        $nombreUsuario = $request['usuario'];
         $nombres = str_replace('ñ', 'n', $request['nombres']);
         $apellidos = str_replace('ñ', 'n', $request['apellidos']);
         // Comprobamos si el nombre de usuario ya existe
@@ -465,7 +465,7 @@ class EmpleadoController extends Controller
             while (User::where('name',  $username)->count() > 0) {
                 if ($contador <= strlen($nombre[0])) {
                     $inicio_username .= $nombre[0][$contador];
-                    $username = $inicio_username . $apellido[0];
+                    $username = $inicio_username . $nombre[1][0]. $apellido[0];
                     $contador++;
                 }
             }

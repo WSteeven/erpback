@@ -51,7 +51,7 @@ class OrdenCompraRequest extends FormRequest
     {
         if(auth()->user()->hasRole(User::ROL_COMPRAS)) $this->merge(['estado'=>1]);
         $this->merge(['fecha' => date('Y-m-d', strtotime($this->fecha))]);
-        if ($this->autorizacion === 2 && $this->preorden) $this->merge(['estado' => 2]);
+        if ($this->autorizacion === 2 && $this->preorden) $this->merge(['estado' => 1]);
 
         if ($this->autorizacion === null) $this->merge(['autorizacion' => 1, 'estado' => 1]);
         if ($this->autorizacion === 1) $this->merge(['estado' => 1]);

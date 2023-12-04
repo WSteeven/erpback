@@ -42,10 +42,20 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $responsables_id = $request['responsable']; // array
+        // $responsables_id = $request['responsable']; // array
+        $destinatarios = $request['destinatarios']; // array
 
-        foreach ($responsables_id as $id) {
-            $ticket = $this->servicio->crearTicket($request, $id, Empleado::find($id)->departamento_id);
+        if ($request['ticket_interno']) {
+            $responsables = $request['responsable'];
+            $destinatario = $request['destinatarios'][0];
+
+            foreach ($responsables as $id) {
+                $ticket = $this->servicio->crearTicketInterno($request, $destinatario, $id);
+            }
+        } else {
+            foreach ($destinatarios as $destinatario) {
+                $ticket = $this->servicio->crearTicket($request, $destinatario);
+            }
         }
 
         $modelo = new TicketResource($ticket->refresh());
