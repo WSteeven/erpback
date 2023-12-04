@@ -64,7 +64,9 @@ Route::apiResources(
         'rol_pago' => RolPagosController::class,
         ],
     [
-        'parameters' => [],
+        'parameters' => ['descuentos_generales'=>'descuento_general',
+    'descuentos_ley' => 'descuento_ley',],
+
     ]
 );
 
