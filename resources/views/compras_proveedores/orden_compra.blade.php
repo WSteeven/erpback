@@ -117,26 +117,26 @@
                         </tr>
                         <tr>
                             <td align="center">
-                                Urdesa Central, Bálsamos 323 e/ segunda y cuarta peatonal.
+                                {{ $configuracion['direccion_principal'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">Guayaquil - Guayas - Ecuador</td>
+                            <td align="center">{{ strtoupper('Guayaquil - Guayas - Ecuador')}}</td>
                         </tr>
                         <tr>
-                            <td align="center">Tlf. 0999999999
+                            <td align="center">TELF. {{ $configuracion['telefono'] }}
                             </td>
                         </tr>
                         <tr>
-                            <td align="center">info@jpconstrucred.com - www.jpconstrucred.com</td>
+                            <td align="center">{{ strtolower($configuracion['correo_principal']) }} - {{ strtolower($configuracion['sitio_web'] )}}</td>
                         </tr>
                     </table>
                 </td>
-                <td style="width: 50%">
-                    <table>
+                <td style="width: 50%;">
+                    <table style="margin-left:auto; margin-right:auto; text-align:center;">
                         <tr>
-                            <td align="right">
-                                <b style="font-size: 30px; margin-left: 30px">ORDEN DE COMPRA</b>
+                            <td>
+                                <b style="font-size: 24px; margin-left: 30px">ORDEN DE COMPRA</b>
                             </td>
                         </tr>
                         <tr>

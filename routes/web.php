@@ -71,27 +71,25 @@ Route::get('/calcular-fondos/{id}', function ($id) {
 
 Route::get('/obtener_username', function (Request $request) {
     $nombreUsuario = $request->nombreUsuario;
-    $nombres = $request->nombres;
-    $apellidos = $request->apellidos;
+    $nombres = str_replace('ñ','n',$request->nombres);
+    $apellidos = str_replace('ñ','n',$request->apellidos);
     // Comprobamos si el nombre de usuario ya existe
     $query = User::where('name', $nombreUsuario)->get();
     $username = $nombreUsuario;
-
+    $inicio_username ='';
     if ($query->count() > 0) {
         // Separamos el nombre y el apellido en dos cadenas
         $nombre = explode(" ", $nombres);
         $apellido = explode(" ", $apellidos);
-        $username = '';
-        // Agregamos la segunda letra del nombre
-        $username .= substr($nombre[0], 1, 1);
-
-        // Volvemos a comprobar si el nombre de usuario ya existe
-        $query = User::where('username', $username)
-            ->get();
-
-        if ($query->count() > 0) {
-            // Agregamos un número aleatorio
-            $username .= rand(0, 99);
+        $inicio_username = $nombre[1][0];
+        $username = $nombre[0][0].$inicio_username . $apellido[0];
+        $contador = 1;
+        while (User::where('name',  $username)->count() > 0) {
+            if( $contador <= strlen($nombre[0])){
+                $inicio_username .= $nombre[0][$contador];
+                $username = $inicio_username . $apellido[0];
+                $contador++;
+            }
         }
     }
     // Devolvemos el nombre de usuario generado
