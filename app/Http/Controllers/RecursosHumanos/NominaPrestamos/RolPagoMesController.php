@@ -626,7 +626,7 @@ class RolPagoMesController extends Controller
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
                 $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
                 $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
+                $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS($dias);
                 $anticipo =  $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
                 $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
@@ -682,7 +682,6 @@ class RolPagoMesController extends Controller
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
             $roles_pago =  RolPago::where('rol_pago_id', $rol_mes->id)->get();
-            Log::channel('testing')->info('Log', ['ROL', $roles_pago]);
             foreach ($roles_pago as $key => $rol_pago) {
                 $this->nominaService->setEmpleado($rol_pago->empleado_id);
                 $this->prestamoService->setEmpleado($rol_pago->empleado_id);
@@ -695,7 +694,7 @@ class RolPagoMesController extends Controller
                 $decimo_cuarto =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
                 $fondos_reserva =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
                 $ingresos = $rol_mes->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $this->nominaService->obtener_total_ingresos();
-                $iess =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
+                $iess =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularAporteIESS($dias);
                 $anticipo =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
                 $prestamo_quirorafario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
@@ -728,31 +727,6 @@ class RolPagoMesController extends Controller
                     'rol_pago_id' => $rol_mes->id,
                 ));
             }
-
-
-
-            /*RolPago::upsert($roles_pago->toArray(),['empleado_id'] ,[
-                'id',
-                'empleado_id',
-                'dias',
-                'mes',
-                'salario',
-                'sueldo',
-                'decimo_tercero',
-                'decimo_cuarto',
-                'fondos_reserva',
-                'total_ingreso',
-                'iess',
-                'anticipo',
-                'prestamo_quirorafario',
-                'prestamo_hipotecario',
-                'extension_conyugal',
-                'prestamo_empresarial',
-                'supa',
-                'total_egreso',
-                'total',
-                'rol_pago_id',
-            ]);*/
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
