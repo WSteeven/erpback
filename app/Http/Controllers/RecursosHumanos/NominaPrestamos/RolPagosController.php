@@ -155,12 +155,11 @@ class RolPagosController extends Controller
     private function GuardarEgresos($egreso, $rolPago)
     {
         try {
+            Log::channel('testing')->info('Log', ['egreso',$egreso]);
             DB::beginTransaction();
-
             $id_descuento = $egreso['id_descuento'];
             $tipo = null;
             $entidad = null;
-
             switch ($egreso['tipo']) {
                 case 'DESCUENTO_GENERAL':
                     $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
@@ -171,23 +170,14 @@ class RolPagosController extends Controller
                     $entidad = Multas::find($id_descuento);
                     break;
             }
-
             if (!$entidad) {
                 throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
             }
-
-            $id_rol_pago = $rolPago->id;
-            $existe_egreso = EgresoRolPago::where('id_rol_pago', $id_rol_pago)
-                ->where('descuento_id', $id_descuento)
-                ->where('descuento_type', $tipo)
-                ->count();
-
-            if ($existe_egreso == 0) {
-                EgresoRolPago::crearEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
+            if (isset($egreso['id'])) {
+                EgresoRolPago::crearEgresoRol($rolPago, $egreso['monto'], $entidad);
             } else {
-                EgresoRolPago::editarEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
+                EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
             }
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

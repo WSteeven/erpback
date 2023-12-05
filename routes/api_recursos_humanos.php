@@ -14,6 +14,7 @@ use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EgresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
@@ -62,6 +63,7 @@ Route::apiResources(
         'estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'tipo_contrato' => TipoContratoController::class,
         'rol_pago' => RolPagosController::class,
+        'egreso_rol_pago' => EgresoRolPagoController::class,
         ],
     [
         'parameters' => ['descuentos_generales'=>'descuento_general',

@@ -78,7 +78,7 @@ class RolPago extends Model implements Auditable
 
     public function egreso_rol_pago()
     {
-        return $this->hasMany(EgresoRolPago::class, 'id_rol_pago', 'id')->with('descuento');
+        return $this->hasMany(EgresoRolPago::class, 'id_rol_pago', 'id')->with('descuento','empleado');
     }
     public function ingreso_rol_pago()
     {

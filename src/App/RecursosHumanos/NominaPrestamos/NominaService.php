@@ -234,9 +234,12 @@ class NominaService
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
         if ($diasTrabajados >= 365 && $this->empleado->acumula_fondos_reserva == 0) {
-            $fechaVinculacion =Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year();
-            $diasRestantes = $dias - $fechaVinculacion->day + 1;
-            $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+            $fechaVinculacion =Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year(2024);
+            $diasRestantes = 30 - $fechaVinculacion->day + 1;
+            $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+            if(  $diasRestantes >=1 ){
+                $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+            }
         }
         return floatval(number_format($fondosDeReserva, 2));
     }

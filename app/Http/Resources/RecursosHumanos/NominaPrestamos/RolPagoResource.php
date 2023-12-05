@@ -8,7 +8,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
-
+use App\Http\Resources\RecursosHumanos\NominaPrestamos\EgresoResource;
 class RolPagoResource extends JsonResource
 {
     /**
@@ -64,6 +64,10 @@ class RolPagoResource extends JsonResource
             'porcentaje_quincena' => $porcentaje_quincena,
             'es_vendedor_medio_tiempo' => $porcentaje_quincena < 50
         ];
+
+        if($controller_method=='show'){
+            $modelo['egresos'] = EgresoResource::collection($this->egreso_rol_pago);
+        }
         return $modelo;
     }
     /**
