@@ -121,10 +121,11 @@
                                             </tr>
                                         @endforeach
                                         <tr>
-                                            <td colspan="4" style="font-size:10px"> <div align="center"><strong>SUMA</strong></div></td>
+                                            <td colspan="3" style="font-size:10px"> <div align="center"><strong>SUMA</strong></div></td>
                                             <td style="font-size:14px">
                                                 {{ $suma }}
                                             </td>
+                                            <td></td>
                                         </tr>
                                     @endif
 
