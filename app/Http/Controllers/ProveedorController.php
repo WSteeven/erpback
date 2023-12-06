@@ -322,4 +322,13 @@ class ProveedorController extends Controller
         }
         return response()->json(compact('results'));
     }
+
+
+
+    public function actualizarCalificacion(Proveedor $proveedor){
+        Proveedor::guardarCalificacion($proveedor->id);
+        $modelo = new ProveedorResource($proveedor->refresh());
+        $mensaje = 'Calificación de proveedor actualizada con éxito';
+        return response()->json(compact('mensaje', 'modelo'));
+    }
 }

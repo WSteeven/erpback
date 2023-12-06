@@ -271,6 +271,7 @@ Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']
  ******************************************************/
 Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
 Route::get('proveedores/imprimir-calificacion/{proveedor}', [ProveedorController::class, 'reporteCalificacion']);
+Route::get('proveedores/actualizar-calificacion/{proveedor}', [ProveedorController::class, 'actualizarCalificacion']);
 
 
 //gestionar egresos

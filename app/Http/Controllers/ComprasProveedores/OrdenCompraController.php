@@ -97,7 +97,7 @@ class OrdenCompraController extends Controller
             $orden = OrdenCompra::create($datos);
             // Guardar los detalles de la orden de compra
             OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
-            Log::channel('testing')->info('Log', ['Paso guardar ordenes de compras y detalles:']);
+
 
             //Respuesta
             $modelo = new OrdenCompraResource($orden);
