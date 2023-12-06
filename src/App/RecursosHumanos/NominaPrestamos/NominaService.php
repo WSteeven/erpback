@@ -198,8 +198,9 @@ class NominaService
         $iess = ($sueldo) * NominaService::calcularPorcentajeIESS();
         return floatval(number_format($iess, 2));
     }
-    public function calcularDecimo($tipo, $dias, $es_vendedor_medio_tiempo = false)
+    public function calcularDecimo($tipo, $dias)
     {
+        $es_vendedor_medio_tiempo = $this->empleado->es_vendedor_medio_tiempo;
         switch ($tipo) {
             case 3:
                 return number_format((($this->empleado->salario / 360) * $dias), 2);

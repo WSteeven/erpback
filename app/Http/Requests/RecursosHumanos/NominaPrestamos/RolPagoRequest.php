@@ -69,7 +69,7 @@ class RolPagoRequest extends FormRequest
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $salario = $nominaService->calcularSalario();
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
-        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias,$this->es_vendedor_medio_tiempo);
+        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;

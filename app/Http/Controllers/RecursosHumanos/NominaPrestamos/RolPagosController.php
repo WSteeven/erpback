@@ -155,7 +155,6 @@ class RolPagosController extends Controller
     private function GuardarEgresos($egreso, $rolPago)
     {
         try {
-            Log::channel('testing')->info('Log', ['egreso',$egreso]);
             DB::beginTransaction();
             $id_descuento = $egreso['id_descuento'];
             $tipo = null;
@@ -173,9 +172,7 @@ class RolPagosController extends Controller
             if (!$entidad) {
                 throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
             }
-            if (isset($egreso['id'])) {
-                EgresoRolPago::crearEgresoRol($rolPago, $egreso['monto'], $entidad);
-            } else {
+            if (isset($egreso['id'])){
                 EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
             }
             DB::commit();

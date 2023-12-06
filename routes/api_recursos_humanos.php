@@ -19,6 +19,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoCo
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\IngresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
@@ -64,6 +65,7 @@ Route::apiResources(
         'tipo_contrato' => TipoContratoController::class,
         'rol_pago' => RolPagosController::class,
         'egreso_rol_pago' => EgresoRolPagoController::class,
+        'ingreso_rol_pago' => IngresoRolPagoController::class,
         ],
     [
         'parameters' => ['descuentos_generales'=>'descuento_general',

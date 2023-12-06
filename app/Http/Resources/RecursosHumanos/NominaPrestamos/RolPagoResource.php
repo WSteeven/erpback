@@ -67,6 +67,7 @@ class RolPagoResource extends JsonResource
 
         if($controller_method=='show'){
             $modelo['egresos'] = EgresoResource::collection($this->egreso_rol_pago);
+            $modelo['ingresos'] = IngresoRolPagoResource::collection($this->ingreso_rol_pago);
         }
         return $modelo;
     }
