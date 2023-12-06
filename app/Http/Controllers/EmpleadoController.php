@@ -465,11 +465,17 @@ class EmpleadoController extends Controller
             while (User::where('name',  $username)->count() > 0) {
                 if ($contador <= strlen($nombre[0])) {
                     $inicio_username .= $nombre[0][$contador];
-                    $username = $inicio_username . $nombre[1][0]. $apellido[0];
+                    $username = $inicio_username . $nombre[1][0] . $apellido[0];
                     $contador++;
                 }
             }
         }
         return $username;
+    }
+    function obtenerNombreUsuario(Request $request)
+    {
+        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $username = $this->generarNombreUsuario($datos);
+        return response()->json(compact('username'));
     }
 }
