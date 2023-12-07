@@ -64,7 +64,9 @@ Route::apiResources(
         'rol_pago' => RolPagosController::class,
         ],
     [
-        'parameters' => [],
+        'parameters' => ['descuentos_generales'=>'descuento_general',
+    'descuentos_ley' => 'descuento_ley',],
+
     ]
 );
 
@@ -106,5 +108,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
     Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescar_rol_pago']);
-
+    Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
 });

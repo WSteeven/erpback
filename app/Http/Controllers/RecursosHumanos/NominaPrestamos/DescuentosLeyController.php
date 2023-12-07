@@ -5,9 +5,12 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Models\RecursosHumanos\NominaPrestamos\DescuentosLey;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class DescuentosLeyController extends Controller
 {
+    private $entidad = 'Descuento de Ley';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.descuento_ley')->only('index', 'show');
@@ -22,26 +25,30 @@ class DescuentosLeyController extends Controller
         $results = DescuentosLey::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
-    public function show(Request $request, DescuentosLey $descuentos_ley)
+    public function show(DescuentosLey $descuento_ley)
     {
-        return response()->json(compact('descuentos_ley'));
+        $modelo = $descuento_ley;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {
-        $descuentos_ley = new DescuentosLey();
-        $descuentos_ley->nombre = $request->nombre;
-        $descuentos_ley->save();
-        return $descuentos_ley;
-    }
-    public function update(Request $request, DescuentosLey $descuentos_ley)
+       $descuento_ley = new DescuentosLey();
+       $descuento_ley->nombre = $request->nombre;
+       $descuento_ley->save();
+       $modelo = $descuento_ley;
+       $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+       return response()->json(compact('mensaje', 'modelo'));    }
+    public function update(Request $request, DescuentosLey $descuento_ley)
     {
-        $descuentos_ley->nombre = $request->nombre;
-        $descuentos_ley->save();
-        return $descuentos_ley;
+       $descuento_ley->update($request->validate(['nombre'=> ['required', 'string']]));
+       $modelo = $descuento_ley;
+       $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+       return response()->json(compact('mensaje', 'modelo'));
     }
-    public function destroy(Request $request, DescuentosLey $descuentos_ley)
+    public function destroy(DescuentosLey $descuento_ley)
     {
-        $descuentos_ley->delete();
-        return response()->json(compact('descuentos_ley'));
+       $descuento_ley->delete();
+       $modelo = $descuento_ley;
+        return response()->json(compact('modelo'));
     }
 }

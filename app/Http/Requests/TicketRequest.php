@@ -30,11 +30,31 @@ class TicketRequest extends FormRequest
             'fecha_hora_limite' => 'nullable|string',
             'observaciones_solicitante' => 'nullable|string',
             'calificacion_solicitante' => 'nullable|string',
-            'responsable' => 'required|array',
+            'destinatarios' => 'required|array',
+            'destinatarios.*.departamento_id' => 'required|numeric|integer',
+            'destinatarios.*.categoria_id' => 'required|numeric|integer',
+            'destinatarios.*.tipo_ticket_id' => 'required|numeric|integer',
+            /*[
+                'required',
+                'numeric',
+                Rule::unique('categorias_tickets', 'id')->ignore($this->route('id')) // Ajusta según tus necesidades
+            ], */
+            /* 'responsable' => 'required|array',
             'departamento_responsable' => 'required|array',
-            'tipo_ticket' => 'required|numeric|integer',
+            'tipo_ticket' => 'required|numeric|integer', */
             'ticket_interno' => 'boolean',
             'ticket_para_mi' => 'boolean',
         ];
+    }
+
+    public function all($keys = null)
+    {
+        $data = parent::all($keys);
+
+        // Convertir ciertos valores a booleanos
+        $data['ticket_interno'] = filter_var($data['ticket_interno'], FILTER_VALIDATE_BOOLEAN);
+        $data['ticket_para_mi'] = filter_var($data['ticket_para_mi'], FILTER_VALIDATE_BOOLEAN);
+
+        return $data;
     }
 }
