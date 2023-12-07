@@ -22,8 +22,39 @@ class ArchivoTicketController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ticket_id' => 'required|numeric|integer',
+            'tickets_id' => 'nullable|string',
         ]);
+
+        $tickets_id = explode(',', $request['tickets_id']);
+        foreach ($tickets_id as $id) {
+            $ticket = Ticket::find($id);
+
+            if (!$ticket) {
+                throw ValidationException::withMessages([
+                    'ticket' => ['El ticket no existe'],
+                ]);
+            }
+
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+
+            $guardarArchivo = new GuardarArchivo($ticket, $request, RutasStorage::TICKETS);
+            $guardarArchivo->execute();
+        }
+
+        return response()->json(['mensaje' => 'Subido exitosamente!']);
+    }
+
+    public function storeOld(Request $request)
+    {
+        $request->validate([
+            'ticket_id' => 'required|numeric|integer',
+            'tickets_id' => 'nullable|array',
+        ]);
+
 
         $ticket = Ticket::find($request['ticket_id']);
 
