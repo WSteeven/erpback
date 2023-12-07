@@ -30,6 +30,7 @@ class OrdenCompraService
     {
         try {
             $configuracion = ConfiguracionGeneral::first();
+            if(!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
             $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);

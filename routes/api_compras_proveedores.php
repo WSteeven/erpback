@@ -11,6 +11,7 @@ use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
+use App\Http\Controllers\ProveedorController;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,10 @@ Route::get('ordenes-compras/imprimir/{orden}', [OrdenCompraController::class, 'i
 Route::get('proformas/imprimir/{proforma}', [ProformaController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'imprimir'])->middleware('auth:sanctum');
 
+//reportes excel
+Route::get('reporte-proveedores', [ProveedorController::class, 'reporteTodos'])->middleware('auth:sanctum');
+
+
 //listar archivos
 Route::get('ordenes-compras/files/{orden}', [OrdenCompraController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('calificaciones-proveedores/files/{detalle}', [CalificacionDepartamentoProveedorController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -79,7 +84,7 @@ Route::post('ordenes-compras/realizada/{orden}', [OrdenCompraController::class, 
 //marcar OC como pagada
 Route::get('ordenes-compras/pagada/{orden}', [OrdenCompraController::class, 'pagada'])->middleware('auth:sanctum');
 
-//consolidar preordenes de compras
+//conlidar preordenes de compras
 Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consolidar'])->middleware('auth:sanctum');
 
 /***********

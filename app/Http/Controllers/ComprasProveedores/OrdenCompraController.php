@@ -246,7 +246,10 @@ class OrdenCompraController extends Controller
            return $this->servicio->generarPdf($orden, true, true);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el try-catch global del metodo imprimir de OrdenCompraController', $e->getMessage(), $e->getLine()]);
-            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+            throw ValidationException::withMessages(
+                ['error' => $e->getMessage(),
+                'Por si acaso'=>'Error duplicado',
+            ]);
             $mensaje = $e->getMessage() . '. ' . $e->getLine();
             return response()->json(compact('mensaje'));
         }
