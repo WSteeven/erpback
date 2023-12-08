@@ -12,6 +12,7 @@ use App\Http\Resources\ComprasProveedores\ProformaResource;
 use App\Models\Autorizacion;
 use App\Models\Cliente;
 use App\Models\ComprasProveedores\Proforma;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\User;
@@ -137,7 +138,7 @@ class ProformaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
 
-            
+
             /* En caso que se cancela/anula una proforma, se actualiza su estado a anulado. */
             if ($proforma->autorizacion_id == Autorizaciones::CANCELADO) {
                 // Log::channel('testing')->info('Log', ['entro en el if:', $proforma->autorizacion_id]);
@@ -200,6 +201,7 @@ class ProformaController extends Controller
      */
     public function imprimir(Proforma $proforma)
     {
+        $configuracion = ConfiguracionGeneral::first();
         $cliente = new ClienteResource(Cliente::find($proforma->cliente_id));
         $empleado_solicita = Empleado::find($proforma->solicitante_id);
         $proforma = new ProformaResource($proforma);
@@ -208,7 +210,7 @@ class ProformaController extends Controller
             $cliente = $cliente->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($proforma['sum_total']);
             Log::channel('testing')->info('Log', ['Elementos a imprimir', ['proforma' => $proforma, 'cliente' => $cliente, 'empleado_solicita' => $empleado_solicita]]);
-            $pdf = Pdf::loadView('compras_proveedores.proforma', compact(['proforma', 'cliente', 'empleado_solicita', 'valor']));
+            $pdf = Pdf::loadView('compras_proveedores.proforma', compact(['proforma', 'cliente', 'empleado_solicita', 'valor', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
             $pdf->render();

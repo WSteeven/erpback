@@ -59,6 +59,11 @@ class TicketResource extends JsonResource
             // 'tiempo_hasta_finalizar_segundos' => $this->calcularTiempoEfectivoTotalSegundos(),
             'tiempo_hasta_finalizar_departamento' => $this->calcularTiempoEfectivoDepartamento(),
             'tiempo_ocupado_pausas' => $this->calcularTiempoPausado(),
+            'destinatarios' => [[
+                'departamento_id' => $this->departamento_responsable_id,
+                'categoria_id' => $this->tipoTicket->categoria_tipo_ticket_id,
+                'tipo_ticket_id' => $this->tipo_ticket_id,
+            ]],
         ];
 
         if ($controller_method == 'show') {

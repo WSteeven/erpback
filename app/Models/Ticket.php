@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\SolicitudAts;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,8 @@ class Ticket extends Model implements Auditable
     const MEDIA = 'MEDIA';
     const BAJA = 'BAJA';
     const EMERGENCIA = 'EMERGENCIA';
+
+    const TIPO_TICKET_ATS = 166;
 
     protected $table = 'tickets';
     protected $fillable = [
@@ -122,5 +125,10 @@ class Ticket extends Model implements Auditable
     public function motivoCanceladoTicket()
     {
         return $this->belongsTo(MotivoCanceladoTicket::class);
+    }
+
+    public function solicitud_ats()
+    {
+        return $this->hasMany(SolicitudAts::class);
     }
 }

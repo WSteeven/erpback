@@ -11,6 +11,7 @@ use App\Models\CalificacionTicket;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
+use App\Models\Tareas\SolicitudAts;
 use App\Models\Ticket;
 use App\Models\TicketRechazado;
 use App\Models\User;
@@ -42,10 +43,35 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $responsables_id = $request['responsable']; // array
+        // $responsables_id = $request['responsable']; // array
+        $destinatarios = $request['destinatarios']; // array
 
-        foreach ($responsables_id as $id) {
-            $ticket = $this->servicio->crearTicket($request, $id, Empleado::find($id)->departamento_id);
+        if (isset($request['ticket_interno']) && $request['ticket_interno']) {
+            $responsables = $request['responsable'];
+            $destinatario = $request['destinatarios'][0];
+
+            foreach ($responsables as $id) {
+                $ticket = $this->servicio->crearTicketInterno($request, $destinatario, $id);
+            }
+        } else {
+            if ($request['es_solicitud_ats']) {
+
+                $destinatario = [
+                    'tipo_ticket_id' => Ticket::TIPO_TICKET_ATS,
+                    'departamento_id' => Departamento::DEPARTAMENTO_SSO,
+                ];
+
+                $ticket = $this->servicio->crearTicket($request, $destinatario);
+
+                SolicitudAts::create([
+                    'ticket_id' => $ticket->id,
+                    'subtarea_id' => $request['subtarea_id'],
+                ]);
+            } else {
+                foreach ($destinatarios as $destinatario) {
+                    $ticket = $this->servicio->crearTicket($request, $destinatario);
+                }
+            }
         }
 
         $modelo = new TicketResource($ticket->refresh());

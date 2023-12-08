@@ -32,7 +32,10 @@ class Proyecto extends Model implements Auditable
         'finalizado' => 'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = [
+        '*',
+        'etapas.responsable_id',
+    ];
 
     // Relacion uno a muchos (inversa)
     public function cliente()
