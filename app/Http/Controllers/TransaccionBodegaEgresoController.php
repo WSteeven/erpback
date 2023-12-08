@@ -204,11 +204,11 @@ class TransaccionBodegaEgresoController extends Controller
             $results = $results->map(function ($item) {
                 return [
                     'id' => $item->detalle_producto_id,
-                    'producto' => $item->detalle->producto->nombre,
-                    'descripcion' => $item->detalle->descripcion,
-                    'serial' => $item->detalle->serial,
-                    'categoria' => $item->detalle->producto->categoria->nombre,
-                    'modelo' => $item->detalle->modelo->nombre,
+                    'producto' => $item->detalle?->producto->nombre,
+                    'descripcion' => $item->detalle?->descripcion,
+                    'serial' => $item->detalle?->serial,
+                    'categoria' => $item->detalle?->producto->categoria->nombre,
+                    'modelo' => $item->detalle?->modelo->nombre,
                     'cantidad' => $item->cantidad_stock,
                     'cliente' => $item->cliente?->empresa?->razon_social,
                 ];
