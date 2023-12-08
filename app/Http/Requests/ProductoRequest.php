@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Producto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -27,13 +28,14 @@ class ProductoRequest extends FormRequest
         $rules = [
             'nombre' => 'required|string|unique:productos',
             'categoria' => 'required|exists:categorias,id',
-            'unidad_medida' => 'required|exists:unidades_medidas,id'
+            'unidad_medida' => 'required|exists:unidades_medidas,id',
+            'tipo' => ['required', Rule::in([Producto::BIEN, Producto::SERVICIO])]
         ];
 
-        if(in_array($this->method(), ['PUT', 'PATCH'])){
-            $producto = $this->route()->parameter('producto');            
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $producto = $this->route()->parameter('producto');
 
-            $rules['nombre']=['required','string', Rule::unique('productos')->ignore($producto)];
+            $rules['nombre'] = ['required', 'string', Rule::unique('productos')->ignore($producto)];
         }
 
         return $rules;

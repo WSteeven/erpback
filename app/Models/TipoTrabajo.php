@@ -16,11 +16,16 @@ class TipoTrabajo extends Model implements Auditable
     protected $table = "tipos_trabajos";
     protected $fillable = [
         'descripcion',
+        'activo',
         'cliente_id',
     ];
 
     private static $whiteListFilter = [
         '*',
+    ];
+
+    protected $casts = [
+        'activo' => 'boolean',
     ];
 
     // Relacion uno a muchos (inversa)

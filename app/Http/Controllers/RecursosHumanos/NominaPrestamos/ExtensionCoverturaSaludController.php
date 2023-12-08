@@ -3,20 +3,24 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ExtensionCoverturaSaludRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludResource;
+use App\Imports\ExtensionCoverturaSaludImport;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud ;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\Shared\Utils;
 
 class ExtensionCoverturaSaludController extends Controller
 {
     private $entidad = 'Extension Covertura de Salud';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.covertura_salud')->only('index', 'show');
-        $this->middleware('can:puede.crear.covertura_salud')->only('store');
+        $this->middleware('can:puede.ver.extension_conyugal')->only('index', 'show');
+        $this->middleware('can:puede.crear.extension_conyugal')->only('store');
     }
 
     public function index(Request $request)
@@ -35,9 +39,16 @@ class ExtensionCoverturaSaludController extends Controller
     public function store(ExtensionCoverturaSaludRequest $request)
     {
         try {
-            $datos = $request->validated();
-
-            return;
+            $request->validated();
+            $existe_prestamo = ExtensionCoverturaSalud::where('mes', $request->mes)->count();
+            if ($existe_prestamo >0) {
+                throw ValidationException::withMessages([
+                    'mes' => ['Mes duplicado, ya registro listado de extension conyugal: '.$request->mes],
+                ]);
+            }
+            $modelo = new ExtensionCoverturaSalud();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR en el insert de rol de pago', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
@@ -63,5 +74,26 @@ class ExtensionCoverturaSaludController extends Controller
         $extensionCoverturaSalud = ExtensionCoverturaSalud::find($extensionCoverturaSaludId);
         $extensionCoverturaSalud->delete();
         return $extensionCoverturaSalud;
+    }
+    public function archivo_extension_conyugal(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'file' => 'required|mimes:xls,xlsx'
+            ]);
+            if (!$request->hasFile('file')) {
+                throw ValidationException::withMessages([
+                    'file' => ['Debe seleccionar al menos un archivo.'],
+                ]);
+            }
+            Excel::import(new ExtensionCoverturaSaludImport($request->mes), $request->file);
+            return response()->json(['mensaje' => 'Subido exitosamente!']);
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'file' => [$e->getMessage(), $e->getLine()],
+            ]);
+            Log::channel('testing')->info('Log', ['ERROR en el insert de permiso de prestamo hipotecario', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
 }

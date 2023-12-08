@@ -28,6 +28,7 @@ class SaldoGrupo extends  Model implements Auditable
         'saldo_anterior',
         'saldo_depositado',
         'saldo_actual',
+        'tipo_saldo',
         'fecha_inicio',
         'fecha_fin',
         'id_usuario',
@@ -45,36 +46,20 @@ class SaldoGrupo extends  Model implements Auditable
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
-            $results[$id] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
+            //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
             $id += 1;
             $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
                 if (isset($saldo['detalle_info']['descripcion'])) {
-                    if ($saldo['estado'] == 4) {
-                        $fecha_anterior = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : $saldo['created_at'];
-                    }
-                    $fecha_actual = Carbon::parse($fecha_anterior);
-                    $fecha_gasto = Carbon::parse($saldo['fecha_viat']);
-                    if ($fecha_gasto->isSameWeek($fecha_actual) == false) {
-                        // La fecha del gasto está dentro de la semana actual
-                        if ($saldo['estado'] == 4) {
-                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
-                            $results[$id] = $row;
-                            $id++;
-                        } else {
-                            $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                            $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                            $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
-                            $results[$id] = $row;
-                            $id++;
-                        }
-                    }
+                    $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                    $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                    $row = SaldoGrupo::guardar_arreglo($id, $ingreso, $gasto, $saldo);
+                    $results[$id] = $row;
+                    $id++;
                 } else {
                     $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                     $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                    $row = SaldoGrupo::guardar_arreglo($id,$ingreso,$gasto,$saldo);
+                    $row = SaldoGrupo::guardar_arreglo($id, $ingreso, $gasto, $saldo);
                     $results[$id] = $row;
                     $id++;
                 }
@@ -82,14 +67,19 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return $results;
     }
-    private static function guardar_arreglo($id,$ingreso,$gasto,$saldo){
+    private static function guardar_arreglo($id, $ingreso, $gasto, $saldo)
+    {
         $row = [];
+        // $saldo =0;
         $row['item'] = $id + 1;
-        $row['fecha'] = $saldo['created_at'];
-        $row['fecha_creacion'] = $saldo['created_at'];
+        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : $saldo['fecha'];
+        $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
+        $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);
+        $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
+        // $row['saldo_count'] = $ingreso -$gasto;
         return $row;
     }
     private static function saldoAnterior($id, $fecha, $saldo_anterior)
@@ -99,21 +89,32 @@ class SaldoGrupo extends  Model implements Auditable
         $row['fecha'] = $fecha;
         $row['fecha_creacion'] = $saldo_anterior == null ? $fecha : $saldo_anterior->created_at;
         $row['descripcion'] = 'Saldo Anterior';
+        $row['observacion'] = '';
+        $row['num_comprobante'] = '';
         $row['ingreso'] = 0;
         $row['gasto'] = 0;
         $row['saldo'] = $saldo_anterior == null ? 0 : $saldo_anterior->saldo_actual;
         return $row;
     }
+
+    /**
+     * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
+     * función de los parámetros dados.
+     *
+     * @param saldo Una matriz que contiene información sobre un saldo o crédito.
+     * @param empleado El parámetro "empleado" representa el ID de un empleado.
+     *
+     * @return el valor de la clave 'monto' de la matriz  si se establece la clave
+     * 'descripcion_acreditacion'. En caso contrario, comprueba si el array 'detalle_info' tiene clave
+     * 'descripcion' y si la clave 'estado' es igual a 4. Si se cumplen ambas condiciones, devuelve el
+     * valor de la clave 'total' del registro
+     */
     private static function ingreso($saldo, $empleado)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return $saldo['monto'];
         }
-        if (isset($saldo['saldo_depositado'])) {
-            if ($saldo['tipo_saldo'] == 'Encuadre') {
-                return $saldo['saldo_depositado'];
-            }
-        }
+
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 4) {
                 return $saldo['total'];
@@ -126,10 +127,11 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return 0;
     }
+    // verifica si es un egreso
     private static function gasto($saldo, $empleado)
     {
         if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
                 return  $saldo['total'];
             }
         }
@@ -143,28 +145,42 @@ class SaldoGrupo extends  Model implements Auditable
     private static function descripcion_saldo($saldo)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
-            return 'Acreditacion: ' . $saldo['descripcion_acreditacion'];
+            return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
         }
         if (isset($saldo['motivo'])) {
             $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-            return 'Transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
-        }
-        if (isset($saldo['tipo_saldo'])) {
-            if ($saldo['tipo_saldo'] == 'Encuadre') {
-                return $saldo['tipo_saldo'];
-            }
+            return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
         }
         if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
+                if ($saldo['estado'] == 4) {
+                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                    return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
                 $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
                 return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
-
-            if ($saldo['estado'] == 4) {
-                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
-                return 'Anulacion de gasto: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
-            }
+        }
+        return '';
+    }
+    private static function observacion_saldo($saldo)
+    {
+        if (isset($saldo['observacion'])) {
+            return $saldo['observacion'];
+        }
+        return '';
+    }
+    private static function num_comprobante($saldo)
+    {
+        if (isset($saldo['cuenta'])) {
+            return $saldo['cuenta'];
+        }
+        if (isset($saldo['factura'])) {
+            return $saldo['factura'];
+        }
+        if (isset($saldo['id_saldo'])) {
+            return $saldo['id_saldo'];
         }
         return '';
     }
@@ -200,7 +216,7 @@ class SaldoGrupo extends  Model implements Auditable
                             $row['cargo'] = $saldo->usuario->cargo != null ? $saldo->usuario->cargo->nombre : '';
                             $row['empleado'] = $saldo->usuario;
                             $row['localidad'] = $saldo->usuario->canton != null ? $saldo->usuario->canton->canton : '';
-                         //   $row['descripcion_saldo'] = $saldo->descripcion_saldo;
+                            //   $row['descripcion_saldo'] = $saldo->descripcion_saldo;
                             $row['saldo_anterior'] = $saldo->saldo_anterior;
                             $row['saldo_depositado'] = $saldo->saldo_depositado;
                             $row['saldo_actual'] = $saldo->saldo_actual;
@@ -239,5 +255,25 @@ class SaldoGrupo extends  Model implements Auditable
         $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
+    }
+    //Relación polimorfica
+    public function saldo_grupo()
+    {
+        return $this->morphTo();
+    }
+
+    public static function crearSaldoGrupo($fecha, $saldo_anterior,$saldo_depositado,$saldo_actual,$fecha_inicio,$fecha_fin,$id_usuario,$tipo_saldo, $entidad)
+    {
+        $saldo_grupo = $entidad->saldo_grupo()->create([
+            'fecha' => $fecha,
+            'saldo_anterior' => $saldo_anterior,
+            'saldo_depositado' => $saldo_depositado,
+            'saldo_actual' => $saldo_actual,
+            'tipo_saldo' => $tipo_saldo,
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'id_usuario'=>$id_usuario
+        ]);
+        return $saldo_grupo;
     }
 }

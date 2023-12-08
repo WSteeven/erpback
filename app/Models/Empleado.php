@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -40,6 +44,31 @@ class Empleado extends Model implements Auditable
         'casa_propia',
         'vive_con_discapacitados',
         'responsable_discapacitados',
+        'tipo_sangre',
+        'direccion',
+        'estado_civil_id',
+        'correo_personal',
+        'area_id',
+        'num_cuenta_bancaria',
+        'salario',
+        'fecha_ingreso',
+        'fecha_vinculacion',
+        'fecha_salida',
+        'tipo_contrato_id',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco',
+        'genero',
+        'esta_en_empleado',
+        'esta_en_rol_pago',
+        'acumula_fondos_reserva',
+        'realiza_factura',
     ];
 
     private static $whiteListFilter = [
@@ -55,7 +84,33 @@ class Empleado extends Model implements Auditable
         'cargo_id',
         'departamento_id',
         'estado',
+        'esta_en_rol_pago',
         'es_tecnico',
+        'tipo_sangre',
+        'dirrecion',
+        'estado_civil',
+        'correo_personal',
+        'area_id',
+        'num_cuenta',
+        'salario',
+        'fecha_ingreso',
+        'fecha_vinculacion',
+        'fecha_salida',
+        'tipo_contrato',
+        'tiene_discapacidad',
+        'observacion',
+        'nivel_academico',
+        'supa',
+        'talla_zapato',
+        'talla_camisa',
+        'talla_guantes',
+        'talla_pantalon',
+        'banco',
+        'genero',
+        'esta_en_empleado',
+        'acumula_fondos_reserva',
+        'realiza_factura',
+        'es_reporte__saldo_actual'
     ];
 
     const ACTIVO = 'ACTIVO';
@@ -65,10 +120,16 @@ class Empleado extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'es_responsable_grupo' => 'boolean',
+        'esta_en_empleado' => 'boolean',
+        'realiza_factura' => 'boolean',
         'estado' => 'boolean',
         'casa_propia' => 'boolean',
         'vive_con_discapacitados' => 'boolean',
         'responsable_discapacitados' => 'boolean',
+        'esta_en_rol_pago' => 'boolean',
+        'tiene_discapacidad' => 'boolean',
+        'acumula_fondos_reserva' => 'boolean',
+
     ];
 
     public function toSearchableArray()
@@ -139,6 +200,9 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(TransaccionBodega::class);
     }
+    public function rolesPago(){
+        return $this->hasMany(RolPago::class,'empleado_id');
+    }
 
     /**
      * Relacion uno a muchos.
@@ -207,7 +271,8 @@ class Empleado extends Model implements Auditable
         return $this->belongsToMany(Vehiculo::class, 'bitacora_vehiculos', 'chofer_id', 'vehiculo_id')
             ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
-    public function ultimaBitacora(){
+    public function ultimaBitacora()
+    {
         return $this->hasOne(BitacoraVehicular::class, 'chofer_id', 'id')->latestOfMany();
     }
 
@@ -228,6 +293,11 @@ class Empleado extends Model implements Auditable
     public function tickets()
     {
         return $this->hasMany(Ticket::class, 'responsable_id', 'id');
+    }
+
+    public function ticketsSolicitados()
+    {
+        return $this->hasMany(Ticket::class, 'solicitante_id', 'id');
     }
 
     /**
@@ -252,25 +322,29 @@ class Empleado extends Model implements Auditable
      */
     public function estadoCivil()
     {
-        return $this->belongsTo(EstadoCivil::class);
+        return $this->hasOne(EstadoCivil::class,'id','estado_civil_id');
     }
-        /**
+    public function familiares_info()
+    {
+        return $this->hasMany(Familiares::class,'empleado_id','id');
+    }
+    /**
      * Relación uno a uno.
      * Un empleado tiene uncuente aen un banco.
      */
-    public function banco()
+    public function banco_info()
     {
-        return $this->belongsTo(Banco::class);
+        return $this->hasOne(Banco::class,'id','banco');
     }
-         /**
+    /**
      * Relación uno a uno.
      * Un empleado tiene solo tipo de contrato
      */
     public function tipoContrato()
     {
-        return $this->belongsTo(TipoContrato::class);
+        return $this->belongsTo(TipoContrato::class,'tipo_contrato_id','id');
     }
-         /**
+    /**
      * Relación uno a uno.
      * Un empleado tiene solo tipo de sangre
      */
@@ -299,4 +373,36 @@ class Empleado extends Model implements Auditable
         // if (!$empleado) return null;
         return $empleado->nombres . ' ' . $empleado->apellidos;
     }
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+    public function umbral()
+    {
+        return $this->hasOne(UmbralFondosRotativos::class, 'empleado_id', 'id');
+    }
+
+    public static function empaquetarListado($empleados)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($empleados as $empleado) {
+
+            $row['item'] = $id + 1;
+            $row['id'] =  $empleado->id;
+            $row['apellidos'] =  $empleado->apellidos;
+            $row['nombres'] =   $empleado->nombres;
+            $row['identificacion'] =  $empleado->identificacion;
+            $row['departamento'] =  $empleado->departamento!=null?$empleado->departamento->nombre:'';
+            $row['area'] =  $empleado->area!=null?$empleado->area->nombre:'';
+            $row['cargo'] =  $empleado->cargo !=null ?$empleado->cargo->nombre:'';
+            $row['salario'] =  $empleado->salario;
+            $results[$id] = $row;
+            $id++;
+        }
+        return $results;
+    }
+
 }

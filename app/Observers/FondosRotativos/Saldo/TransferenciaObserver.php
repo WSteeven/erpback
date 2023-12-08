@@ -126,6 +126,8 @@ class TransferenciaObserver
         $saldo_envia->id_usuario = $transferencia->usuario_envia_id;
         $saldo_envia->tipo_saldo = "Egreso";
         $saldo_envia->save();
+       // $saldo_actual = $total_saldo_actual_usuario_envia - $transferencia->monto;
+       // SaldoGrupo::crearSaldoGrupo($transferencia->created_at,$total_saldo_actual_usuario_envia,$transferencia->monto,$saldo_actual,$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0],$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1],$transferencia->usuario_envia_id,"Egreso",$transferencia);
         //Actualizacion de saldo Usuario que recibe
         if ($transferencia->usuario_recibe_id != null && $transferencia->usuario_recibe_id != 10) {
             $saldo_recibe = new SaldoGrupo();
@@ -138,6 +140,9 @@ class TransferenciaObserver
             $saldo_recibe->id_usuario = $transferencia->usuario_recibe_id;
             $saldo_recibe->tipo_saldo = "Ingreso";
             $saldo_recibe->save();
+           // $saldo_actual = $total_saldo_actual_usuario_recibe + $transferencia->monto;
+           // SaldoGrupo::crearSaldoGrupo($transferencia->created_at,$total_saldo_actual_usuario_recibe,$transferencia->monto,$saldo_actual,$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[0],$this->calcular_fechas(date('Y-m-d', strtotime($transferencia->created_at)))[1],$transferencia->usuario_envia_id,"Egreso",$transferencia);
+
         }
     }
 }

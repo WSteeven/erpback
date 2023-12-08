@@ -32,9 +32,10 @@ class ClienteController extends Controller
     {
         $search = $request['search'];
         $campos = explode(',', $request['campos']);
+
         $results = [];
         if ($request['campos']) {
-            $results = Cliente::ignoreRequest(['campos'])->filter()->get($campos);
+            $results = Cliente::ignoreRequest(['campos'])->filter()->get();
             // return response()->json(compact('results'));
         } else if ($search) {
             $empresa = Empresa::select('id')->where('razon_social', 'LIKE', '%' . $search . '%')->first();
@@ -42,8 +43,8 @@ class ClienteController extends Controller
 
             if ($empresa) $results = ClienteResource::collection(Cliente::where('empresa_id', $empresa->id)->get());
         } else {
-            $results = Cliente::all();
-            Log::channel('testing')->info('Log', ['entro en el else grande', $results]);
+            $results = Cliente::filter()->get();
+            // Log::channel('testing')->info('Log', ['entro en el else grande', $results, $request->all()]);
         }
 
         $results = ClienteResource::collection($results);

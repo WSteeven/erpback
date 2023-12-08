@@ -3,6 +3,7 @@
 namespace Src\App;
 
 use App\Http\Resources\EmpleadoResource;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
@@ -13,14 +14,24 @@ class EmpleadoService
     {
     }
 
-    public function obtenerEmpleadosPorRol(string $rol)
+    public function getUsersWithRoles($roles, $campos)
+    {
+        $idUsers = User::whereHas('roles', function ($query) use ($roles) {
+            $query->whereIn('name', $roles);
+        })->pluck('id');
+
+        return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
+
+        // return $users;
+    }
+    /* BORRAR public function obtenerEmpleadosPorRol(string $rol)
     {
         $users_ids = User::select('id')->role($rol)->get()->map(fn ($id) => $id->id)->toArray();
         $empleados = Empleado::ignoreRequest(['rol'])->filter()->where('estado', true)->get();
         $results = $empleados->filter(fn ($empleado) => in_array($empleado->usuario_id, $users_ids))->flatten();
         EmpleadoResource::collection($results);
         return $results;
-    }
+    } */
 
     public function obtenerPaginacion($offset)
     {
@@ -38,22 +49,37 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '<>', 1)->where('estado', true)->get();
+        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 
     public function obtenerTodosCiertasColumnas($campos)
     {
         // Log::channel('testing')->info('Log', ['Campos #2: ', $campos]);
-        $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
-        // $results = Empleado::ignoreRequest(['campos'])->filter()->where('id', '<>', 1)->get($campos);
-        // return EmpleadoResource::collection($results);
+        $indice = array_search('responsable_departamento', $campos);
+        if ($indice) unset($campos[$indice]);
+
+        $results = Empleado::ignoreRequest(['campos','es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get($campos);
+        $ids = $this->obtenerIdsResponsablesDepartamentos();
+
+        if ($indice) {
+            $results = $results->map(function ($empleado) use ($ids) {
+                $empleado['responsable_departamento'] = in_array($empleado->id, $ids);
+                return $empleado;
+            });
+        }
+
         return $results;
+    }
+
+    private function obtenerIdsResponsablesDepartamentos()
+    {
+        return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos'])->filter()->where('id', '<>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos','es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 

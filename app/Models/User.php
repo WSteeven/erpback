@@ -22,10 +22,14 @@ class User extends Authenticatable implements Auditable
     use AuditableModel;
     use UppercaseValuesTrait;
 
+    const BODEGA_TELCONET = 'BODEGA_TELCONET';
+
     const ROL_ACTIVOS_FIJOS = 'ACTIVOS FIJOS';
     const ROL_ADMINISTRADOR = 'ADMINISTRADOR';
     const ROL_ADMINISTRATIVO = 'ADMINISTRATIVO';
+    const ROL_COORDINADOR_BODEGA = 'COORDINADOR DE BODEGA';
     const ROL_BODEGA = 'BODEGA';
+    const ROL_BODEGA_TELCONET = 'BODEGA TELCONET';
     const ROL_COMPRAS = 'COMPRAS';
     const ROL_CONTABILIDAD = 'CONTABILIDAD';
     const ROL_COORDINADOR = 'COORDINADOR';
@@ -43,7 +47,9 @@ class User extends Authenticatable implements Auditable
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR VEHICULOS';
-    const ROL_ADMINISTRADOR_TICKETS = 'ADMINISTRADOR TICKETS';
+    const ROL_ADMINISTRADOR_TICKETS_1 = 'ADMINISTRADOR TICKETS 1';
+    const ROL_ADMINISTRADOR_TICKETS_2 = 'ADMINISTRADOR TICKETS 2';
+    const ROL_ADMINISTRADOR_SISTEMA = 'ADMINISTRADOR SISTEMA';
     // Cargos
     const TECNICO_CABLISTA = 'TÉCNICO CABLISTA';
     const TECNICO_SECRETARIO = 'TÉCNICO SECRETARIO';
@@ -103,7 +109,7 @@ class User extends Authenticatable implements Auditable
     // Relacion uno a uno
     public function empleado()
     {
-        return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo','grupo','canton');
+        return $this->hasOne(Empleado::class, 'usuario_id')->with('cargo', 'grupo', 'canton');
     }
 
     // Permite a vue acceder a los roles y permisos

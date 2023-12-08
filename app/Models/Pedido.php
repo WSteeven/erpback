@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\EstadosTransacciones;
 
 class Pedido extends Model implements Auditable
 {
@@ -20,6 +24,7 @@ class Pedido extends Model implements Auditable
     public $fillable = [
         'justificacion',
         'fecha_limite',
+        'observacion_bodega',
         'observacion_aut',
         'observacion_est',
         'solicitante_id',
@@ -54,7 +59,7 @@ class Pedido extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_pedido_producto', 'pedido_id', 'detalle_id')
-            ->withPivot('cantidad', 'despachado')->withTimestamps();
+            ->withPivot('cantidad', 'despachado', 'solicitante_id')->withTimestamps();
     }
 
 
@@ -93,7 +98,7 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'responsable_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos son retirados por una persona
@@ -111,7 +116,7 @@ class Pedido extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'per_autoriza_id', 'id');
     }
-    
+
     /**
      * Relacion uno a muchos (inversa).
      * Uno o varios pedidos son autorizados por una persona
@@ -152,11 +157,13 @@ class Pedido extends Model implements Auditable
      * Relación polimorfica a una notificación.
      * Un pedido puede tener una o varias notificaciones.
      */
-    public function notificaciones(){
+    public function notificaciones()
+    {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
-    public function latestNotificacion(){
+    public function latestNotificacion()
+    {
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 
@@ -172,9 +179,11 @@ class Pedido extends Model implements Auditable
     {
         $detalles = Pedido::find($id)->detalles()->get();
         $results = [];
+        $solicitante = null;
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
+            if ($detalle->pivot->solicitante_id) $solicitante = Empleado::find($detalle->pivot->solicitante_id);
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
@@ -182,119 +191,21 @@ class Pedido extends Model implements Auditable
             $row['serial'] = $detalle->serial;
             $row['cantidad'] = $detalle->pivot->cantidad;
             $row['despachado'] = $detalle->pivot->despachado;
+            $row['solicitante'] = $solicitante?->nombres . ' ' . $solicitante?->apellidos;
+            $row['solicitante_id'] = $solicitante?->id;
             $results[$id] = $row;
             $id++;
         }
 
         return $results;
     }
-
-    /**
-     * Filtrar todos los pedidos de un empleado o coordinador de acuerdo al estado de una autorizacion.
-     * @param string $estado
-     * @return array $results Resultados filtrados
-     */
-    public static function filtrarPedidosEmpleado($estado)
+    public static function estadoOC($id)
     {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $results = [];
-        if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)
-                ->where(function ($query) {
-                    $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-                        ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->get();
-        } elseif ($estado === $estadoTransaccion->nombre) {
-            $results = Pedido::where('estado_id', $estadoTransaccion->id)
-                ->where(function ($query) {
-                    $query->where('solicitante_id',  auth()->user()->empleado->id)
-                        ->orWhere('per_autoriza_id', auth()->user()->empleado->id)
-                        ->orWhere('responsable_id', auth()->user()->empleado->id);
-                })->get();
-        }
-        return $results;
-    }
-
-
-    /**
-     * Filtrar todos los pedidos para el bodeguero, de acuerdo al estado de una autorizacion.
-     * @param string $estado
-     * @return array $results Resultados filtrados
-     */
-    public static function filtrarPedidosBodeguero($estado)
-    {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $results = [];
-        if ($autorizacion) {
-            $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
-            return $results;
-        } elseif ($estado === $estadoTransaccion->nombre) {
-            $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
-            return $results;
-        } else {
-            $results = Pedido::all();
-            return $results;
-        }
-    }
-
-    /**
-     * Filtrar todos los pedidos para el de activos fijos de acuerdo al estado de una autorizacion
-     */
-    public static function filtrarPedidosActivosFijos($estado)
-    {
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $results = [];
-        if ($estado === EstadoTransaccion::PENDIENTE) {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)
-                    ->where(function ($query) {
-                        $query->where('solicitante_id',  auth()->user()->empleado->id)
-                            ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                    })->get();
-            }
-            return $results;
-        } else {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
-                return $results;
-            } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
-                return $results;
-            } else {
-                $results = Pedido::all();
-                return $results;
-            }
-        }
-    }
-
-    /**
-     * Filtrar pedidos Administrador
-     */
-    public static function filtrarPedidosAdministrador($estado){
-        $autorizacion = Autorizacion::where('nombre', $estado)->first();
-        $estadoTransaccion = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
-        $results = [];
-        if ($estado === EstadoTransaccion::PENDIENTE) {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->get();
-            }
-            return $results;
-        } else {
-            if ($autorizacion) {
-                $results = Pedido::where('autorizacion_id', $autorizacion->id)->where('estado_id', '!=', $estadoTransaccion->id)->get();
-                return $results;
-            } elseif ($estado === $estadoTransaccion->nombre) {
-                $results = Pedido::where('estado_id', $estadoTransaccion->id)->get();
-                return $results;
-            } else {
-                $results = Pedido::all();
-                return $results;
-            }
-        }
-    }
-
+        $orden = OrdenCompra::where('pedido_id', $id)->orderBy('created_at', 'desc')->first();
+        if ($orden) {
+            // return $orden->estado->nombre;
+            return $orden->estado->nombre . '. ' . ($orden->realizada ? 'REALIZADA' : 'PENDIENTE DE REALIZAR');
+        } else
+            return '';
+    }    
 }

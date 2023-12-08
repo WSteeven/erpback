@@ -1,4 +1,9 @@
 <html>
+@php
+    $fecha = new Datetime();
+    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+@endphp
 
 <head>
     <meta charset="UTF-8">
@@ -11,8 +16,9 @@
         }
 
         body {
-            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }}); */
-            background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJPBN_10.png')) }});
+            /* background-image: url({{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoBN10.png')) }}); */
+            background-image: url({{ $logo_watermark }});
+            background-size: 50% auto;
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -72,11 +78,6 @@
         }
     </style>
 </head>
-@php
-    $fecha = new Datetime();
-    $ciclo = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5];
-@endphp
-
 <body>
     <header>
         <table
@@ -84,7 +85,7 @@
             <tr class="row" style="width:auto">
                 <td style="width: 10%;">
                     <div class="col-md-3"><img
-                            src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents('img/logoJP.png')) }}"
+                            src="{{$logo_principal }}"
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
@@ -100,9 +101,7 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
-                        propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
-                    </div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -124,31 +123,40 @@
         @endif
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                    <div align="center"><strong>#</strong></div>
+                </td>
+
                 <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>Nombres y Apellidos</strong></div>
+                    <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
-                    <div align="center"><strong>Usuario</strong></div>
+                    <div align="center"><strong>LUGAR</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
-                    <div align="center"><strong>Fecha</strong></div>
+                    <div align="center"><strong>FECHA</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
-                    <div align="center"><strong>Descripci&oacute;n</strong></div>
+                    <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
-                    <div align="center"><strong>Monto</strong></div>
+                    <div align="center"><strong>MONTO</strong></div>
                 </td>
             </tr>
             @foreach ($acreditaciones as $acreditacion)
                 <tr>
+                    <td style="font-size:10px" width="6%">
+                        <div align="left">
+                            {{ $acreditacion['item'] }}
+                        </div>
+                    </td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $acreditacion['empleado']->nombres . ' ' . $acreditacion['empleado']->apellidos }}
                         </div>
                     </td>
                     <td style="font-size:10px" width="15%">
-                        <div align="left">{{ $acreditacion['usuario']->name }}
+                        <div align="left">{{ $acreditacion['empleado']->canton->canton }}
                         </div>
                     </td>
                     <td style="font-size:10px" width="17%">
@@ -165,8 +173,23 @@
                     </td>
                 </tr>
             @endforeach
+            <tr>
+                <td>Total</td>
+                <td style="font-size:10px" width="10%" colspan="6">
+                    <div align="right">
+                        {{ number_format($total, 2, ',', '.') }}</div>
+                </td>
+            </tr>
+
         </table>
     </main>
+    <script type="text/php">
+        if (isset($pdf)) {
+                $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
+                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                $pdf->page_text(10, 785, $text, $font, 12);
+        }
+    </script>
 </body>
 
 </html>

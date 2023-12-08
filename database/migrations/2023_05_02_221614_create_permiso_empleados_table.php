@@ -15,16 +15,23 @@ return new class extends Migration
     {
         Schema::create('permiso_empleados', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('motivo_id');
-            $table->foreign('motivo_id')->references('id')->on('motivo_permiso_empleados');
-            $table->date('fecha_inicio');
-            $table->date('fecha_fin');
-            $table->string('justificacion');
-            $table->unsignedBigInteger('estado_permiso_id');
-            $table->foreign('estado_permiso_id')->references('id')->on('estado_permiso_empleados');
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados');
-            $table->string('observacion')->nullable();
+            $table->unsignedBigInteger('tipo_permiso_id');
+            $table->foreign('tipo_permiso_id')->references('id')->on('motivo_permiso_empleados');
+            $table->dateTime('fecha_hora_inicio');
+            $table->dateTime('fecha_hora_fin');
+            $table->dateTime('fecha_hora_reagendamiento')->nullable();
+            $table->date('fecha_recuperacion')->nullable();
+            $table->time('hora_recuperacion')->nullable();
+            $table->text('justificacion');
+            $table->text('observacion');
+            $table->unsignedBigInteger('estado_permiso_id');
+            $table->foreign('estado_permiso_id')->references('id')->on('autorizaciones');
+            $table->text('documento');
+            $table->boolean('cargo_vacaciones');
+            $table->boolean('recupero');
+            $table->boolean('aceptar_sugerencia');
             $table->timestamps();
         });
     }

@@ -19,17 +19,17 @@ use Carbon\Carbon;
 class SubtareaController extends Controller
 {
     private $entidad = 'Subtarea';
-    private SubtareaService $servicio;
+    private SubtareaService $subtareaService;
 
     public function __construct()
     {
-        $this->servicio = new SubtareaService();
+        $this->subtareaService = new SubtareaService();
     }
 
     public function list()
     {
-
-        return $this->servicio->obtenerTodos();
+        //$campos = request('campos') ? explode(',', request('campos')) : '*';
+        return $this->subtareaService->obtenerTodos();
     }
 
     public function index()
@@ -174,13 +174,14 @@ class SubtareaController extends Controller
     public function realizar(Request $request, Subtarea $subtarea)
     {
         // Validar si se puede realizar
-        $this->servicio->puedeRealizar($subtarea);
+        $this->subtareaService->puedeRealizar($subtarea);
 
         $subtarea->estado = Subtarea::REALIZADO;
         $subtarea->fecha_hora_realizado = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
         event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
@@ -193,7 +194,7 @@ class SubtareaController extends Controller
         $subtarea->fecha_hora_ejecucion = Carbon::now();
         $subtarea->save();
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
 
@@ -213,7 +214,7 @@ class SubtareaController extends Controller
             'motivo_pausa_id' => $motivo_pausa_id,
         ]);
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        // $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
         event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
@@ -229,7 +230,7 @@ class SubtareaController extends Controller
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         $modelo = new SubtareaResource($subtarea->refresh());
         event(new SubtareaEvent($subtarea, User::ROL_COORDINADOR));
@@ -246,7 +247,7 @@ class SubtareaController extends Controller
             $motivo_suspendido_id => ['empleado_id' => Auth::user()->empleado->id]
         ]);
 
-        $this->servicio->marcarTiempoLlegadaMovilizacion($subtarea, $request);
+        $this->subtareaService->marcarTiempoLlegadaMovilizacion($subtarea, $request);
 
         // event(new SubtareaEvent('Subtarea suspendida!', $subtarea, 1));
 
@@ -280,10 +281,11 @@ class SubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function finalizar(Subtarea $subtarea)
+    public function finalizar(Request $request, Subtarea $subtarea)
     {
         $subtarea->estado = Subtarea::FINALIZADO;
         $subtarea->fecha_hora_finalizacion = Carbon::now();
+        $subtarea->causa_intervencion_id = $request['causa_intervencion_id'];
         $subtarea->save();
 
         $modelo = new SubtareaResource($subtarea->refresh());
@@ -317,6 +319,6 @@ class SubtareaController extends Controller
     }
 
     /* public function puedeRealizar(Subtarea $subtarea) {
-        return $this->servicio->puedeRealizar($subtarea);
+        return $this->subtareaService->puedeRealizar($subtarea);
     } */
 }

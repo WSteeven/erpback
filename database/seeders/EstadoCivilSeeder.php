@@ -15,10 +15,10 @@ class EstadoCivilSeeder extends Seeder
      */
     public function run()
     {
-       EstadoCivil::insert(['nombre'=> 'Soltero'],
+       EstadoCivil::insert([['nombre'=> 'Soltero'],
        ['nombre'=> 'Casado'],
        ['nombre'=> 'Divorciado'],
        ['nombre'=> 'Viudo'],
-       ['nombre'=> 'Union Libre']);
+       ['nombre'=> 'Union Libre']]);
     }
 }

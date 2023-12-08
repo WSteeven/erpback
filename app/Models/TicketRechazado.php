@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use App\Traits\UppercaseValuesTrait;
 
 class TicketRechazado extends Model implements Auditable
 {
-    use HasFactory, AuditableModel;
+    use HasFactory, AuditableModel, UppercaseValuesTrait;
     public $timestamps = false;
     protected $table = "tickets_rechazados";
 

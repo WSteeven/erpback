@@ -20,11 +20,15 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
+use App\Exports\TranferenciaSaldoExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
+use App\Models\Canton;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
@@ -34,14 +38,17 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\FondosRotativos\SaldoService;
 
 class SaldoGrupoController extends Controller
 {
     private $entidad = 'saldo_grupo';
     private $reporteService;
+    private $saldoService;
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
+        $this->saldoService = new SaldoService();
         $this->middleware('can:puede.ver.saldo')->only('index', 'show');
         $this->middleware('can:puede.crear.saldo')->only('store');
         $this->middleware('can:puede.editar.saldo')->only('update');
@@ -188,7 +195,6 @@ class SaldoGrupoController extends Controller
      */
     public function consolidado(Request $request, $tipo)
     {
-        Log::channel('testing')->info('Log', ['Recibido del front', $request->all()]);
         try {
             switch ($request->tipo_saldo) {
                 case '1':
@@ -202,6 +208,12 @@ class SaldoGrupoController extends Controller
                     break;
                 case '4':
                     return $this->reporte_estado_cuenta($request, $tipo);
+                    break;
+                case '5':
+                    return $this->reporte_transferencia($request, $tipo);
+                    break;
+                case '6':
+                    return $this->gasto($request, $tipo, true);
                     break;
             }
         } catch (Exception $e) {
@@ -252,55 +264,46 @@ class SaldoGrupoController extends Controller
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
             $request['aut_especial'] = $request['autorizador'];
+            $request['ciudad'] = $request['ciudad'];
+
             if ($request->tipo_filtro == 8) {
                 $request['ruc'] = '9999999999999';
             }
+
+            $gastosQuery = Gasto::ignoreRequest([
+                'tipo_saldo',
+                'tipo_filtro',
+                'sub_detalle',
+                'usuario', 'tarea',
+                'autorizador',
+                'fecha_inicio',
+                'fecha_fin',
+                'estado',
+                'proyecto',
+                'ciudad',
+            ])
+                ->filter($request->all())
+                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                ->where('estado', Gasto::APROBADO)
+                ->with(
+                    'empleado_info',
+                    'detalle_estado',
+                    'sub_detalle_info',
+                    'proyecto_info'
+                );
+
+            if ($request->tipo_filtro == 9) {
+                $gastosQuery->whereHas('empleado_info', function ($query) use ($request) {
+                    $query->where('canton_id', $request['ciudad']);
+                });
+            }
+
             if ($request->subdetalle != null) {
-                $gastos = Gasto::ignoreRequest([
-                    'tipo_saldo',
-                    'tipo_filtro',
-                    'sub_detalle',
-                    'subdetalle',
-                    'usuario', 'tarea',
-                    'autorizador',
-                    'fecha_inicio',
-                    'fecha_fin',
-                    'estado',
-                    'proyecto',
-                ])
-                    ->filter($request->all())
-                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                    ->where('estado', Gasto::APROBADO)
-                    ->whereHas('sub_detalle_info', function ($query) use ($request) {
-                        $query->where('subdetalle_gastos.id', $request->subdetalle);
-                    })->with(
-                        'empleado_info',
-                        'detalle_info',
-                        'detalle_estado',
-                        'sub_detalle_info',
-                        'proyecto_info'
-                    )->get();
+                $gastos = $gastosQuery->whereHas('sub_detalle_info', function ($q) use ($request) {
+                    $q->where('subdetalle_gasto_id', $request['subdetalle']);
+                })->get();
             } else {
-                $gastos = Gasto::ignoreRequest([
-                    'tipo_saldo',
-                    'tipo_filtro',
-                    'sub_detalle',
-                    'usuario', 'tarea',
-                    'autorizador',
-                    'fecha_inicio',
-                    'fecha_fin',
-                    'estado',
-                    'proyecto',
-                ])
-                    ->filter($request->all())
-                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                    ->where('estado', Gasto::APROBADO)
-                    ->with(
-                        'empleado_info',
-                        'detalle_estado',
-                        'sub_detalle_info',
-                        'proyecto_info'
-                    )->get();
+                $gastos = $gastosQuery->get();
             }
 
 
@@ -345,6 +348,11 @@ class SaldoGrupoController extends Controller
                     $titulo .= 'DE GASTOS POR RUC ';
                     $subtitulo = 'RUC: ' . $ruc->ruc;
                     break;
+                case '9':
+                    $ciudad = Canton::where('id', $request['ciudad'])->first();
+                    $titulo .= 'DE GASTOS POR CIUDAD ';
+                    $subtitulo = 'Ciudad: ' . $ciudad->canton;
+                    break;
             }
             $titulo .= 'DEL ' . $fecha_inicio . ' AL ' . $fecha_fin . '';
             $tipo_filtro = $request->tipo_filtro;
@@ -356,6 +364,7 @@ class SaldoGrupoController extends Controller
                 'titulo' => $titulo,
                 'subtitulo' => $subtitulo,
                 'tipo_filtro' => $tipo_filtro,
+                'subdetalle' => $request->subdetalle,
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
@@ -385,6 +394,8 @@ class SaldoGrupoController extends Controller
                     ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
+                // Calcular la suma de los montos.
+                $sumaMontos = $acreditaciones->sum('monto');
             } else {
                 $acreditaciones = Acreditaciones::with('usuario')
                     ->where('id_estado', EstadoAcreditaciones::REALIZADO)
@@ -393,10 +404,11 @@ class SaldoGrupoController extends Controller
                     ->get();
                 $usuario = Empleado::where('id', $request->usuario)
                     ->first();
+                $sumaMontos = $acreditaciones->sum('monto');
             }
             $nombre_reporte = 'reporte_saldoActual';
             $results = Acreditaciones::empaquetar($acreditaciones);
-            $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
+            $reportes =  ['acreditaciones' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario, 'total' => $sumaMontos];
             $vista = 'exports.reportes.reporte_consolidado.reporte_acreditaciones_usuario';
             $export_excel = new AcreditacionesExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
@@ -413,13 +425,22 @@ class SaldoGrupoController extends Controller
      * @param request The request object.
      * @param tipo The type of report you want to generate.
      */
-    private  function gasto($request, $tipo)
+    private  function gasto($request, $tipo, $imagen = false)
     {
         try {
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
+            $ultimo_saldo = 0;
+            $acreditaciones = 0;
+            $gastos_totales = 0;
+            $transferencia = 0;
+            $transferencia_recibida = 0;
+            $total = 0;
+            $usuario_canton ='';
+            $fecha_anterior = '';
+            $saldo_anterior = 0;
             if ($request->usuario == null) {
                 $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
                     ->where('estado', Gasto::APROBADO)
@@ -427,27 +448,77 @@ class SaldoGrupoController extends Controller
                     ->get();
                 $usuario = '';
             } else {
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
+                $fecha = Carbon::parse($fecha_inicio);
+                $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
+                $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
+                    ->where('fecha', '<=', $fecha_anterior)
+                    ->orderBy('created_at', 'desc')->limit(1)->first();
+                if ($saldo_anterior != null) {
+                    $fecha =  Carbon::parse($saldo_anterior->fecha);
+                    $fecha_anterior =  $fecha->format('Y-m-d');
+                }
+                $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->orderBy('id', 'desc')
+                    ->first();
+                $acreditaciones = Acreditaciones::with('usuario')
+                    ->where('id_usuario', $request->usuario)
+                    ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->sum('monto');
+
+                $gastos_totales = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
+                    ->where('estado', 1)
+                    ->where('id_usuario', $request->usuario)
+                    ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
+                    ->sum('total');
+                $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->sum('monto');
+                $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->sum('monto');
+                $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
+                $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
+                $gastos = Gasto::with('empleado_info', 'detalle_estado','detalle_info', 'sub_detalle_info', 'aut_especial_user')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $empleado = Empleado::where('id', $request->usuario)->first();
                 $usuario = $empleado->nombres . '' . ' ' . $empleado->apellidos;
+                $usuario_canton =  $empleado->canton->canton;
+
             }
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
-            $reportes =  ['gastos' => $results, 'fecha_inicio' => $fecha_inicio, 'fecha_fin' => $fecha_fin, 'usuario' => $usuario];
-            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
+            $reportes =  [
+                'gastos' => $results,
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
+                'fecha_anterior' => $fecha_anterior,
+                'usuario' => $usuario,
+                'usuario_canton' => $usuario_canton,
+                'saldo_anterior' =>  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'ultimo_saldo' => $ultimo_saldo,
+                'total_suma' => $total,
+                'acreditaciones' => $acreditaciones,
+                'gastos_totales' => $gastos_totales,
+                'transferencia' => $transferencia,
+                'transferencia_recibida' => $transferencia_recibida
+            ];
+            $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen' : 'exports.reportes.reporte_consolidado.reporte_gastos_usuario';
             $export_excel = new GastoConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            $tamanio_papel = $imagen ? 'A2' : 'A4';
+            return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
     private function reporte_estado_cuenta(Request $request, $tipo)
     {
-
         try {
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
@@ -455,15 +526,20 @@ class SaldoGrupoController extends Controller
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-
             $saldo_anterior = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->where('fecha', '<=', $fecha_anterior)
-                ->latest()->first();
-            $fecha = Carbon::parse($saldo_anterior->fecha);
+                ->orderBy('created_at', 'desc')->limit(1)->first();
+            if ($saldo_anterior != null) {
+                $fecha =  Carbon::parse($saldo_anterior->fecha);
+                $fecha_anterior =  $fecha->format('Y-m-d');
+            }
             $fecha_anterior =  $fecha->format('Y-m-d');
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $request->usuario)
-                ->where('id_estado', EstadoAcreditaciones::REALIZADO)
+                ->where(function ($query) {
+                    $query->where('id_estado', '=', 1)
+                        ->orWhere('id_estado', '=', 4);
+                })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
             $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
@@ -473,27 +549,32 @@ class SaldoGrupoController extends Controller
                 ->sum('total');
 
             $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
-                ->where('estado', 1)
+                ->where(function ($query) {
+                    $query->where('estado', '=', 1)
+                        ->orWhere('estado', '=', 4);
+                })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
 
             $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
-                ->where('estado', 1)
+                ->where(function ($query) {
+                    $query->where('estado', '=', 1)
+                        ->orWhere('estado', '=', 4);
+                })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
 
             //Gastos
-            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')
+                ->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', '=', 1)
-                ->where('id_usuario', '=',  $request->usuario)
+                ->where('id_usuario', '=', $request->usuario)
+                ->where(function ($query) {
+                    $query->where('estado', '=', 1)
+                        ->orWhere('estado', '=', 4);
+                })
                 ->get();
-            //Gastos Anulados
-            $gastos_anulados_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', '=', 4)
-                ->where('id_usuario', '=',  $request->usuario)
-                ->get();
+            Log::channel('testing')->info('Log', ['gastos_reporte', $gastos_reporte]);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -516,15 +597,31 @@ class SaldoGrupoController extends Controller
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             //Unir todos los reportes
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $gastos_anulados_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
+            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
                 ->first();
+            $estado_cuenta_anterior = $request->fecha_inicio != '01-06-2023' ? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario) : $saldo_anterior->saldo_actual;
+            $salt_ant =  $estado_cuenta_anterior != 0 ? $estado_cuenta_anterior : $saldo_anterior->saldo_actual;
+            $nuevo_elemento = [
+                'item' => 1,
+                'fecha' => $fecha_anterior,
+                'fecha_creacion' =>  $saldo_anterior == null ? $fecha : $saldo_anterior->created_at,
+                'num_comprobante' => '',
+                'descripcion' => 'SALDO ANTERIOR',
+                'observacion' => '',
+                'ingreso' => 0,
+                'gasto' => 0,
+                'saldo' => $salt_ant
+            ];
+            $reportes_unidos =  collect($reportes_unidos)
+                ->prepend($nuevo_elemento)
+                ->toArray();
             $sub_total = 0;
-            $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
+            $nuevo_saldo = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
@@ -534,7 +631,7 @@ class SaldoGrupoController extends Controller
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0,
+                'saldo_anterior' => $saldo_anterior != null ? $salt_ant : 0,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -551,12 +648,21 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+
+
+
     /**
-     * It's a function that receives two parameters, one of them is a request object and the other is a
-     * string
+     * La función "reporte_consolidado" genera un informe consolidado basado en la solicitud y el tipo
+     * dado.
      *
-     * @param request The request object.
-     * @param tipo The type of report you want to generate.
+     * @param request El parámetro `` es un objeto que contiene los datos enviados en la
+     * solicitud HTTP. Se utiliza para recuperar los valores de las propiedades `fecha_inicio` y
+     * `fecha_fin`.
+     * @param tipo El parámetro "tipo" se utiliza para determinar el tipo de informe a generar.
+     * Probablemente sea un valor de cadena que especifica el formato del informe, como "pdf" o "excel".
+     *
+     * @return the result of the method call `->reporteService->imprimir_reporte(, 'A4',
+     * 'portail', , , , )`.
      */
     private  function reporte_consolidado($request, $tipo)
     {
@@ -614,7 +720,8 @@ class SaldoGrupoController extends Controller
                 ->first();
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
-            $total = $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0 + (-$transferencia + $transferencia_recibida) + $acreditaciones - $gastos;
+            $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
+            $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
@@ -638,6 +745,77 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+    private  function reporte_transferencia($request, $tipo)
+    {
+        try {
+            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $fecha_inicio = $date_inicio->format('Y-m-d');
+            $fecha_fin = $date_fin->format('Y-m-d');
+            $fecha = Carbon::parse($fecha_inicio);
+            $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
+            $transferencias = Transferencias::where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->get();
+            Log::channel('testing')->info('Log', ['transferencia', $transferencias]);
+
+            $transferencia_total = Transferencias::where('estado', 1)
+                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                ->sum('monto');
+
+
+            $empleado = null;
+            $usuario = null;
+            $nombre_reporte = 'reporte_transferencia_saldo';
+            $transferencias_enviadas = null;
+            $transferencias_recibidas = null;
+            $transferencia_enviada = 0;
+            $transferencia_recibida = 0;
+            if ($request->usuario != null) {
+                $empleado = Empleado::where('id', $request->usuario)->first();
+                $usuario = User::where('id', $empleado->usuario_id)->first();
+                $transferencia_enviada = Transferencias::where('usuario_envia_id', $request->usuario)
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->sum('monto');
+                $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
+                    ->with('usuario_recibe', 'usuario_envia')
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+
+                $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
+                    ->with('usuario_recibe', 'usuario_envia')
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->get();
+                $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
+                    ->where('estado', 1)
+                    ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+                    ->sum('monto');
+            }
+
+            $reportes =  [
+                'fecha_anterior' => $fecha_anterior,
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
+                'empleado' => $empleado,
+                'usuario' => $usuario,
+                'transferencias' => $transferencias,
+                'transferencia_enviada' => $transferencia_enviada,
+                'transferencia_total' => $transferencia_total,
+                'transferencias_enviadas' => $transferencias_enviadas,
+                'transferencias_recibidas' => $transferencias_recibidas,
+                'transferencia_recibida' => $transferencia_recibida,
+
+            ];
+            $vista = 'exports.reportes.reporte_consolidado.reporte_transferencia_saldo';
+            $export_excel = new TranferenciaSaldoExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -660,5 +838,23 @@ class SaldoGrupoController extends Controller
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
+    }
+    public function otener_saldo_empleado_mes(Request $request)
+    {
+        // Obtener el primer día del mes
+        $primerDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->startOfMonth();
+        Log::channel('testing')->info('Log', ['mes inicio',  $primerDiaMes->format('Y-m-d')]);
+
+        // Obtener el último día del mes
+        $ultimoDiaMes = Carbon::createFromFormat('m-Y', $request->mes)->endOfMonth();
+
+        Log::channel('testing')->info('Log', ['mes fin',  $ultimoDiaMes->format('Y-m-d')]);
+
+        $saldoUsuarioEnMes = SaldoGrupo::where('id_usuario',  $request->empleado)
+            ->where('fecha', '>=', $primerDiaMes->format('Y-m-d'))
+            ->where('fecha', '<=', $ultimoDiaMes->format('Y-m-d'))
+            ->orderBy('id', 'desc')
+            ->first();
+        return response()->json(compact('saldoUsuarioEnMes'));
     }
 }

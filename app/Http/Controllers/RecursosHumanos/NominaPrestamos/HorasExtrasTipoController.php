@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\HorasExtrasSubTipoRequest;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoResource;
 use App\Models\RecursosHumanos\NominaPrestamos\HorasExtraTipo;
 use Exception;
@@ -15,8 +15,8 @@ class HorasExtrasTipoController extends Controller
     private $entidad = 'Horas Extras SubTipo';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.horas_extras_subtipo')->only('index', 'show');
-        $this->middleware('can:puede.crear.horas_extras_subtipo')->only('store');
+        $this->middleware('can:puede.ver.horas_extras_tipo')->only('index', 'show');
+        $this->middleware('can:puede.crear.horas_extras_tipo')->only('store');
     }
 
     public function index(Request $request)

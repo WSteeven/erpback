@@ -6,6 +6,7 @@ use App\Http\Requests\ComprobanteRequest;
 use App\Http\Resources\ComprobanteResource;
 use App\Models\Comprobante;
 use App\Models\TransaccionBodega;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Src\Config\MotivosTransaccionesBodega;
@@ -59,14 +60,17 @@ class ComprobanteController extends Controller
         // Log::channel('testing')->info('Log', ['[Update] El comprobante a modificar es:', $request->all(), $comprobante]);
         $comprobante = Comprobante::where('transaccion_id', $comprobante)->first();
         // Log::channel('testing')->info('Log', ['[Despues de update] El comprobante a modificar es:', $comprobante]);
-        $datos = $request->validated();
-        $comprobante->update($datos);
+        if (!$comprobante->firmada) {
+            $datos = $request->validated();
+            $comprobante->update($datos);
+            $comprobante->refresh();
 
-        if ($comprobante->firmada) {
-            $transaccion = TransaccionBodega::find($comprobante->transaccion_id);
-            $transaccion->latestNotificacion()->update(['leida' => true]);
-            if (!TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales)) TransaccionBodega::asignarMateriales($transaccion);
-        }
+            if ($comprobante->firmada) {
+                $transaccion = TransaccionBodega::find($comprobante->transaccion_id);
+                $transaccion->latestNotificacion()->update(['leida' => true]);
+                if (!TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales)) TransaccionBodega::asignarMateriales($transaccion);
+            }
+        } else throw new Exception('Transacción ya fue firmada');
 
         $modelo = new ComprobanteResource($comprobante);
         $mensaje = 'Comprobante actualizado correctamente';

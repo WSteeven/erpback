@@ -24,8 +24,10 @@ class GrupoRequest extends FormRequest
     public function rules()
     {
         return [
-            'nombre' => 'required|string|unique:grupos',
+            'nombre' => 'required|string',
+            'region' => 'nullable|string',
             'activo' => 'required|boolean',
+            'coordinador' => 'required|numeric|integer',
         ];
     }
 }
