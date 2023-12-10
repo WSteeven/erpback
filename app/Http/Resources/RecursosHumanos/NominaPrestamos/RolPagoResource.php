@@ -62,7 +62,7 @@ class RolPagoResource extends JsonResource
             'medio_tiempo' => $this->medio_tiempo,
             'porcentaje_anticipo' => $this->calcularPorcentajeAnticipo($this->rolPagoMes->es_quincena),
             'porcentaje_quincena' => $porcentaje_quincena,
-            'es_vendedor_medio_tiempo' => $porcentaje_quincena < 50
+            'es_vendedor_medio_tiempo' => $this->es_vendedor_medio_tiempo,
         ];
 
         if($controller_method=='show'){

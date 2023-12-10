@@ -116,7 +116,7 @@ class RolPagosController extends Controller
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
             $datos['estado'] = 'EJECUTANDO';
             DB::beginTransaction();
-            $rolPago = RolPago::create($datos);
+           $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {
                 $this->GuardarIngresos($ingreso, $rolPago);
             }
@@ -216,7 +216,7 @@ class RolPagosController extends Controller
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 
-        $this->guardarIngresosYEgresos($request, $rolPago);
+       $this->guardarIngresosYEgresos($request, $rolPago);
 
         $modelo = new RolPagoResource($rolPago->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

@@ -69,7 +69,7 @@ class RolPagoMesController extends Controller
      */
     public function store(RolPagoMesRequest $request)
     {
-        try {
+       try {
             $datos = $request->validated();
             $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
             if ($request->es_quincena == false && count($existe_mes) == 0) {
@@ -84,7 +84,7 @@ class RolPagoMesController extends Controller
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
+       } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
@@ -593,8 +593,8 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-        } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+       } catch (Exception $ex) {
+        Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
             ]);

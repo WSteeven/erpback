@@ -51,6 +51,9 @@ class NominaService
         $rolPago = RolPago::where('empleado_id', $this->empleado->id)->where('rol_pago_id', $rol_pago_mes->id)->first();
         $this->rolPago = $rolPago;
     }
+    public function setVendedorMedioTiempo($es_vendedor_medio_tiempo){
+        $this->rolPago->es_vendedor_medio_tiempo = $es_vendedor_medio_tiempo;
+    }
     public function getRolPago()
     {
         return $this->rolPago;
@@ -131,7 +134,7 @@ class NominaService
     public  function calcularDias(int $cantidad_dias)
     {
         // Convierte la fecha de ingreso de un empleado a un objeto Carbon utilizando el formato 'd-m-Y'
-        $fechaIngresada =Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_ingreso);
+        $fechaIngresada = Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_ingreso);
         $diasRestantes = 0;
         // Verifica si la fecha ingresada pertenece al mes actual
         if ($fechaIngresada->isCurrentMonth()) {
@@ -200,7 +203,10 @@ class NominaService
     }
     public function calcularDecimo($tipo, $dias)
     {
-        $es_vendedor_medio_tiempo = $this->empleado->es_vendedor_medio_tiempo;
+        $es_vendedor_medio_tiempo = false;
+        if (isset($this->rolPago->es_vendedor_medio_tiempo)) {
+            $es_vendedor_medio_tiempo = $this->rolPago->es_vendedor_medio_tiempo;
+        }
         switch ($tipo) {
             case 3:
                 return number_format((($this->empleado->salario / 360) * $dias), 2);
@@ -235,10 +241,10 @@ class NominaService
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
         if ($diasTrabajados >= 365 && $this->empleado->acumula_fondos_reserva == 0) {
-            $fechaVinculacion =Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year(2024);
+            $fechaVinculacion = Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year(2024);
             $diasRestantes = 30 - $fechaVinculacion->day + 1;
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-            if(  $diasRestantes >=1 ){
+            if ($diasRestantes >= 1) {
                 $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
             }
         }
