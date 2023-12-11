@@ -21,7 +21,7 @@ class EgresoRolPagoController extends Controller
         $this->middleware('can:puede.ver.egreso_rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.egreso_rol_pago')->only('store');
         $this->middleware('can:puede.editar.egreso_rol_pago')->only('update');
-        $this->middleware('can:puede.eliminar.egreso_rol_pago')->only('update');
+        $this->middleware('can:puede.eliminar.egreso_rol_pago')->only('destroy');
     }
     /**
      * Guardar

@@ -414,25 +414,39 @@ class RolPagoMesController extends Controller
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
         $size_array = count($column_name) - 1;
+        $size_array_aux = count($column_name);
+
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
                 $descuentoId = $abreviatura ? $item[$key2]->abreviatura : $item[$key2]->nombre;
                 $index = array_search($descuentoId, $column_name);
+                $posicion = 1;
+                $posicion_aux = 0;
+                foreach ($column_name as $name) {
+                    if ($name == $descuentoId) {
+                        $posicion = $posicion_aux;
+                    }
+                    $posicion_aux++;
+                }
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }
-                if ($index > $size_array) {
-                    for ($i = 0; $i < $index - 1; $i++) {
+                if ($index < $size_array) {
+                    for ($i = 0; $i < $posicion; $i++) {
                         $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
+
                 } else {
-                    for ($i = 0; $i < $index; $i++) {
+                    for ($i = 0; $i < $posicion - 1; $i++) {
                         $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
                 }
+
+
                 $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
-                for ($i = 0; $i < $size_array - $index; $i++) {
+                $zero_left = $size_array_aux-count($groupedData);
+                for ($i = 0; $i < $zero_left; $i++) {
                     $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                 }
             }

@@ -17,7 +17,7 @@ class IngresoRolPagoController extends Controller
         $this->middleware('can:puede.ver.ingreso_rol_pago')->only('index', 'show');
         $this->middleware('can:puede.crear.ingreso_rol_pago')->only('store');
         $this->middleware('can:puede.editar.ingreso_rol_pago')->only('update');
-        $this->middleware('can:puede.eliminar.ingreso_rol_pago')->only('update');
+        $this->middleware('can:puede.eliminar.ingreso_rol_pago')->only('destroy');
     }
     /**
      * Guardar
