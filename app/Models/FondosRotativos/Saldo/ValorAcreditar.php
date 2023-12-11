@@ -93,6 +93,7 @@ class ValorAcreditar extends Model implements Auditable
             $row['empleado_info'] =  $valor_acreditar->empleado->apellidos . ' ' . $valor_acreditar->empleado->nombres;
             $row['monto_modificado'] = str_replace(".", "", number_format($valor_acreditar->monto_modificado, 2, ',', '.'));
             $row['monto_generado'] = str_replace(".", "", number_format($valor_acreditar->monto_generado, 2, ',', '.'));
+            $row['saldo_actual'] =ValorAcreditar::obtener_saldo($valor_acreditar->empleado_id);
             $row['motivo'] = $valor_acreditar->motivo;
             $results[$id] = $row;
             $id++;
@@ -106,5 +107,10 @@ class ValorAcreditar extends Model implements Auditable
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];
         $nameB = $b['empleado_info'] . ' ' . $b['empleado_info'];
         return strcmp($nameA, $nameB);
+    }
+    public static  function obtener_saldo($empleado_id){
+        $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
+        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
+        return $saldo_actual;
     }
 }
