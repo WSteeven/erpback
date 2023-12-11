@@ -42,29 +42,25 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        // $responsables_id = $request['responsable']; // array
         $destinatarios = $request['destinatarios']; // array
 
         if ($request['ticket_interno']) {
-            $responsables = $request['responsable'];
-            $destinatario = $request['destinatarios'][0];
-
-            foreach ($responsables as $id) {
-                $ticket = $this->servicio->crearTicketInterno($request, $destinatario, $id);
-            }
+            $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
         } else {
-            foreach ($destinatarios as $destinatario) {
-                $ticket = $this->servicio->crearTicket($request, $destinatario);
-            }
+            $tickets_creados = $this->servicio->crearMultiplesDepartamentos($destinatarios, $request);
         }
 
-        $modelo = new TicketResource($ticket->refresh());
+        // $modelo = new TicketResource($ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        return response()->json(compact('mensaje', 'modelo'));
+        $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
+        $modelo = end($tickets_creados);
+
+        return response()->json(compact('mensaje', 'modelo', 'ids_tickets_creados'));
     }
 
     public function show(Ticket $ticket)

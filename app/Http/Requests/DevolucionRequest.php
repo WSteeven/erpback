@@ -80,6 +80,7 @@ class DevolucionRequest extends FormRequest
                     $sucursal = Sucursal::find($this->sucursal);
                     $material = MaterialEmpleado::where('empleado_id', $this->solicitante)
                         ->where('cliente_id', $sucursal->cliente_id)
+                        ->orWhere('cliente_id', null)
                         ->where('detalle_producto_id', $listado['id'])->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
