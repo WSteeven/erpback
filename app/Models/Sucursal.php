@@ -8,6 +8,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -164,7 +165,7 @@ class Sucursal extends Model implements Auditable
     public static function modificarSucursalProyectoEtapa(Etapa $etapa, $nombre){
         try {
             DB::beginTransaction();
-            $sucursal  =Sucursal::where('lugar', 'like', $nombre)->first();
+            $sucursal  =Sucursal::where('lugar', 'like', '%'.$etapa->proyecto->canton->canton .' - '.$nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social.'%')->first();
             if($sucursal){
                 $sucursal->update([
                     'lugar' => $etapa->proyecto->canton->canton .' - '.$etapa->nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social,
