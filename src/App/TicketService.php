@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Events\TicketEvent;
 use App\Models\Departamento;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +11,40 @@ use Illuminate\Validation\ValidationException;
 
 class TicketService
 {
+    public function notificarTicketsAsignados($tickets)
+    {
+        foreach($tickets as $ticket) {
+            event(new TicketEvent($ticket, $ticket->solicitante_id, $ticket->responsable_id));
+        }
+    }
+
+    public function crearMultiplesResponsablesMismoDepartamento($request)
+    {
+        $responsables = $request['responsable'];
+        $destinatario = $request['destinatarios'][0];
+
+        $tickets_creados = [];
+
+        foreach ($responsables as $id) {
+            $ticket = $this->crearTicketInterno($request, $destinatario, $id);
+            array_push($tickets_creados, $ticket);
+        }
+
+        return $tickets_creados;
+    }
+
+    public function crearMultiplesDepartamentos($destinatarios, $request): array
+    {
+        $tickets_creados = [];
+
+        foreach ($destinatarios as $destinatario) {
+            $ticket = $this->crearTicket($request, $destinatario);
+            array_push($tickets_creados, $ticket);
+        }
+
+        return $tickets_creados;
+    }
+
     public function crearTicket($request, $destinatario)
     {
         $datos = $request->validated();
