@@ -43,44 +43,25 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        // $responsables_id = $request['responsable']; // array
         $destinatarios = $request['destinatarios']; // array
 
-        if (isset($request['ticket_interno']) && $request['ticket_interno']) {
-            $responsables = $request['responsable'];
-            $destinatario = $request['destinatarios'][0];
-
-            foreach ($responsables as $id) {
-                $ticket = $this->servicio->crearTicketInterno($request, $destinatario, $id);
-            }
+        if ($request['ticket_interno']) {
+            $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
         } else {
-            if ($request['es_solicitud_ats']) {
-
-                $destinatario = [
-                    'tipo_ticket_id' => Ticket::TIPO_TICKET_ATS,
-                    'departamento_id' => Departamento::DEPARTAMENTO_SSO,
-                ];
-
-                $ticket = $this->servicio->crearTicket($request, $destinatario);
-
-                SolicitudAts::create([
-                    'ticket_id' => $ticket->id,
-                    'subtarea_id' => $request['subtarea_id'],
-                ]);
-            } else {
-                foreach ($destinatarios as $destinatario) {
-                    $ticket = $this->servicio->crearTicket($request, $destinatario);
-                }
-            }
+            $tickets_creados = $this->servicio->crearMultiplesDepartamentos($destinatarios, $request);
         }
 
-        $modelo = new TicketResource($ticket->refresh());
+        // $modelo = new TicketResource($ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        return response()->json(compact('mensaje', 'modelo'));
+        $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
+        $modelo = end($tickets_creados);
+
+        return response()->json(compact('mensaje', 'modelo', 'ids_tickets_creados'));
     }
 
     public function show(Ticket $ticket)

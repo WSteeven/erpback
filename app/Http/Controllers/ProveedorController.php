@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
+use App\Exports\ComprasProveedores\TodosProveedoresExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
@@ -262,10 +263,11 @@ class ProveedorController extends Controller
             $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
             $contactos = $this->proveedorService->empaquetarDatosContactos($results, 'razon_social');
             $datosBancarios = $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
+            $proveedoresCompletos = $this->proveedorService->empaquetarDatosProveedoresCompletos($results, 'razon_social');
             switch ($request->accion) {
                 case 'excel':
                     $reporte = $registros;
-                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion), 'reporte_proveedores.xlsx');
+                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion, collect($proveedoresCompletos)), 'reporte_proveedores.xlsx');
                     break;
                 case 'pdf':
                     try {
@@ -289,6 +291,17 @@ class ProveedorController extends Controller
         }
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
+    }
+    public function reporteTodos(){
+        try {
+            $proveedoresCompletos = $this->proveedorService->empaquetarDatosProveedoresCompletos(Proveedor::all(), 'razon_social');
+           return Excel::download(new TodosProveedoresExport($proveedoresCompletos), 'datos_proveedores.xlsx');
+        } catch (Exception $ex) {
+            
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getMessage()],
+            ]);
+        }
     }
 
     public function reporteCalificacion(Proveedor $proveedor)
@@ -321,5 +334,14 @@ class ProveedorController extends Controller
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('results'));
+    }
+
+
+
+    public function actualizarCalificacion(Proveedor $proveedor){
+        Proveedor::guardarCalificacion($proveedor->id);
+        $modelo = new ProveedorResource($proveedor->refresh());
+        $mensaje = 'Calificación de proveedor actualizada con éxito';
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

@@ -23,6 +23,7 @@ use stdClass;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\TareaService;
+use Src\Config\ClientesCorporativos;
 use Src\Config\RutasStorage;
 use Src\Shared\GuardarArchivo;
 
@@ -91,10 +92,11 @@ class TareaController extends Controller
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
             $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
+            $para_cliente_proyecto = $request['para_cliente_proyecto'];
 
             // Establecer coordinador tarea para cliente final o mantenimiento
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
-            if ($esCoordinadorBackup) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+            if ($esCoordinadorBackup && $para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             else $datos['coordinador_id'] = Auth::user()->empleado->id;
 
             // Log::channel('testing')->info('Log', ['Datos de Tarea antes de guardar', $datos]);
@@ -137,7 +139,8 @@ class TareaController extends Controller
 
                 $actualizado = $tarea->update($request->except(['id']));
 
-                if ($actualizado) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
+                if ($actualizado && $tarea->cliente_id != ClientesCorporativos::TELCONET) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
+                // if ($actualizado) $this->tareaService->transferirMaterialTareaAStockEmpleados($tarea->refresh());
             }
 
             // Respuesta

@@ -26,13 +26,24 @@ class BaseResource extends JsonResource
         return [];
     }
 
-    protected function cargarRelaciones($campos, &$modelo)
+    protected function cargarRelacionesOld($campos, &$modelo)
     {
         $relaciones = $this->getRelations();
 
         foreach ($relaciones as $relacion => $valor) {
             if (in_array($relacion, $campos)) {
                 $modelo[$relacion] = $this->$relacion;
+            }
+        }
+    }
+
+    protected function cargarRelaciones($campos, &$modelo)
+    {
+        $relaciones = $this->getRelations();
+
+        foreach ($relaciones as $relacion => $valor) {
+            if (in_array($relacion, $campos)) {
+                $modelo[$relacion] = $this->obtenerInformacionCampo($relacion);
             }
         }
     }
@@ -48,5 +59,33 @@ class BaseResource extends JsonResource
     public function controllerMethodIsShow()
     {
         return $this->request->route()->getActionMethod() == 'show';
+    }
+
+    protected function obtenerInformacionCampoOld($campo)
+    {
+        $metodo = 'obtenerInformacion' . ucfirst($campo);
+
+        if (method_exists($this, $metodo)) {
+            return $this->$metodo();
+        }
+
+        return $this->$campo;
+    }
+
+    protected function obtenerInformacionCampo($campo)
+    {
+        // Verifica si es una relación y si existe un método específico
+        $metodo = 'obtenerInformacion' . ucfirst($campo);
+        if (method_exists($this, $metodo)) {
+            return $this->$metodo();
+        }
+
+        // Si es una relación y no hay un método específico, intenta acceder a propiedades específicas de la relación
+        if (isset($this->$campo)) {
+            return $this->$campo->toArray();
+        }
+
+        // Si no es una relación, devuelve el valor del campo si está definido o null
+        return $this->$campo ?? null;
     }
 }
