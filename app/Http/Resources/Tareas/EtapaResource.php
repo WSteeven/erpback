@@ -19,7 +19,7 @@ class EtapaResource extends BaseResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'activo' => $this->activo,
-            'responsable' => $this->responsable->nombres . ' ' . $this->responsable->apellidos,
+            'responsable' => $this->obtenerInformacionResponsable(), //$this->responsable->nombres . ' ' . $this->responsable->apellidos,
             'codigo_proyecto' => $this->proyecto->codigo_proyecto,
             'proyecto' => $this->proyecto->nombre
         ];
@@ -30,5 +30,10 @@ class EtapaResource extends BaseResource
         }
 
         return $modelo;
+    }
+
+    protected function obtenerInformacionResponsable()
+    {
+        return $this->responsable->nombres . ' ' . $this->responsable->apellidos;
     }
 }
