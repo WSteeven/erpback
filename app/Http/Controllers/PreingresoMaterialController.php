@@ -59,6 +59,8 @@ class PreingresoMaterialController extends Controller
             $datos['responsable_id'] = $request->responsable_id;
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             //Se crea el registro de preingreso
@@ -111,6 +113,8 @@ class PreingresoMaterialController extends Controller
             $datos['responsable_id'] = $request->responsable_id;
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             //Se actualiza el registro de preingreso
