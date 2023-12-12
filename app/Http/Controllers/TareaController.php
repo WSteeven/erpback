@@ -277,4 +277,22 @@ class TareaController extends Controller
         // Log::channel('testing')->info('Log', compact('tareas'));
         return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
     }
+
+        public function obtenerTareasEmpleado(Request $request){
+            $campos = $request->campos?explode(',', request('campos')):'*';
+            $tareas_ids_subtareas = Subtarea::where('empleado_id', $request->empleado_id)->get('tarea_id');
+            $results = [];
+            if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_COORDINADOR_BACKUP])) {
+                Log::channel('testing')->info('Log', ['entro en rol hefe tecnico y coordinador backup']);
+                $results = Tarea::ignoreRequest(['empleado_id', 'campos'])->filter()->get($campos);
+            }else if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_SUPERVISOR_TECNICO])) {
+                Log::channel('testing')->info('Log', ['entro en rol coordinador, empleado_id:', auth()->user()->empleado->id]);
+                $results = Tarea::where('coordinador_id', auth()->user()->empleado->id)->ignoreRequest(['empleado_id', 'campos', 'para_cliente_proyecto'])->filter()->get($campos);
+            }else{
+                Log::channel('testing')->info('Log', ['entro en rol else']);
+                $results = Tarea::whereIn('id', $tareas_ids_subtareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->get($campos);
+            }
+            $results = TareaResource::collection($results);
+            return response()->json(compact('results'));
+        }
 }
