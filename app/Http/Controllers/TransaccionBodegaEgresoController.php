@@ -70,8 +70,8 @@ class TransaccionBodegaEgresoController extends Controller
 
         if ($request->exists('seguimiento')) {
             // Cuando se hace el seguimiento de la subtarea solo se deben descontar los materiales
-            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->tieneStock()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->tieneStock()->get();
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
         } else {
             // Mi bodega
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
@@ -136,8 +136,8 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         if ($request->exists('seguimiento')) {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->tieneStock()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->tieneStock()->get();
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
         } else {
             if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
             else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
