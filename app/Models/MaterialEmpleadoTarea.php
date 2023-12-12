@@ -25,6 +25,8 @@ class MaterialEmpleadoTarea extends Model implements Auditable
         'empleado_id',
         'cliente_id',
         'detalle_producto_id',
+        'proyecto_id',
+        'etapa_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -56,10 +58,10 @@ class MaterialEmpleadoTarea extends Model implements Auditable
                 ->where('tarea_id', $tarea_id)
                 ->where('cliente_id', $cliente_id)
                 ->where('empleado_id', $empleado_id)
-                ->when('proyecto_id', function () use ($proyecto_id){
+                ->when('proyecto_id', function ($query) use ($proyecto_id){
                     $query->where('proyecto_id', $proyecto_id);
                 })
-                ->when('etapa_id', function () use ($etapa_id){
+                ->when('etapa_id', function ($query) use ($etapa_id){
                     $query->where('etapa_id', $etapa_id);
                 })
                 ->first();

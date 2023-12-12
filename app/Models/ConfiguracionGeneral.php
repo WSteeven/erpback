@@ -11,7 +11,7 @@ use App\Traits\UppercaseValuesTrait;
 class ConfiguracionGeneral extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
-
+    
 
     protected $table = 'configuraciones_generales';
     protected $fillable = [
