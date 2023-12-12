@@ -69,7 +69,7 @@ class RolPagoMesController extends Controller
      */
     public function store(RolPagoMesRequest $request)
     {
-       try {
+        try {
             $datos = $request->validated();
             $existe_mes = RolPagoMes::where('mes', $request->mes)->where('es_quincena', '1')->get();
             if ($request->es_quincena == false && count($existe_mes) == 0) {
@@ -84,7 +84,7 @@ class RolPagoMesController extends Controller
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
-       } catch (Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
@@ -413,41 +413,19 @@ class RolPagoMesController extends Controller
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
-        $size_array = count($column_name) - 1;
-        $size_array_aux = count($column_name);
-
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
                 $descuentoId = $abreviatura ? $item[$key2]->abreviatura : $item[$key2]->nombre;
-                $index = array_search($descuentoId, $column_name);
-                $posicion = 1;
-                $posicion_aux = 0;
-                foreach ($column_name as $name) {
-                    if ($name == $descuentoId) {
-                        $posicion = $posicion_aux;
-                    }
-                    $posicion_aux++;
-                }
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }
-                if ($index < $size_array) {
-                    for ($i = 0; $i < $posicion; $i++) {
+                foreach ($column_name as $name) {
+                    if ($name == $descuentoId) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
+                    } else {
                         $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
-
-                } else {
-                    for ($i = 0; $i < $posicion - 1; $i++) {
-                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
-                    }
-                }
-
-
-                $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
-                $zero_left = $size_array_aux-count($groupedData);
-                for ($i = 0; $i < $zero_left; $i++) {
-                    $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                 }
             }
         }
@@ -579,7 +557,7 @@ class RolPagoMesController extends Controller
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $valor_supa = $empleado->supa !=null ? $empleado->supa:0;
+                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
                 $supa =  $rol->es_quincena ? 0 : $valor_supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
                 $total = abs($ingresos) - $egreso;
@@ -607,8 +585,8 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-       } catch (Exception $ex) {
-        Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
             ]);
@@ -646,7 +624,7 @@ class RolPagoMesController extends Controller
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $valor_supa = $empleado->supa !=null ? $empleado->supa:0;
+                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
                 $supa =  $rol->es_quincena ? 0 : $valor_supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
                 $total = abs($ingresos) - $egreso;
@@ -714,8 +692,8 @@ class RolPagoMesController extends Controller
                 $prestamo_hipotecario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol_mes->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $valor_supa = $this->nominaService->getEmpleado()->supa !=null ? $this->nominaService->getEmpleado()->supa:0;
-                $supa =  $rol_mes->es_quincena ? 0 :$valor_supa ;
+                $valor_supa = $this->nominaService->getEmpleado()->supa != null ? $this->nominaService->getEmpleado()->supa : 0;
+                $supa =  $rol_mes->es_quincena ? 0 : $valor_supa;
                 $egreso = $rol_mes->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $this->nominaService->obtener_total_descuentos_multas() + $supa);
                 $total = abs($ingresos) - $egreso;
                 $rol_pago_mes_empleado =  RolPago::where('rol_pago_id', $rol_mes->id)->where('empleado_id', $rol_pago->empleado_id)->first();
