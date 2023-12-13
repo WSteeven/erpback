@@ -3,25 +3,19 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Exports\CashRolPagoExport;
-use App\Exports\RolPagoExport;
 use App\Exports\RolPagoGeneralExport;
 use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
-use App\Mail\RolPagoEmail;
 use App\Models\Empleado;
-use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
-use App\Models\User;
-use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -421,10 +415,13 @@ class RolPagoMesController extends Controller
                     $groupedData[$descuentoId] = [];
                 }
                 foreach ($column_name as $name) {
-                    if ($name == $descuentoId) {
-                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
-                    } else {
+                    if($name != $descuentoId){
+                        Log::channel('testing')->info('Log', [$item['id_rol_pago'],':','nombre', $name,' ',0]);
                         $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    }
+                    if ($name == $descuentoId) {
+                        Log::channel('testing')->info('Log', [$item['id_rol_pago'],':','nombre', $name,' ',$item['monto']]);
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
                     }
                 }
             }

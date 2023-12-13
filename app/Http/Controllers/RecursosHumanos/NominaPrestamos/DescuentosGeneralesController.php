@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RecursosHumanos\NominaPrestamos\DescuentosGeneralesRequest;
 use App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
@@ -30,19 +31,18 @@ class DescuentosGeneralesController extends Controller
         $modelo = $descuento_general;
         return response()->json(compact('modelo'));
     }
-    public function store(Request $request)
+    public function store(DescuentosGeneralesRequest $request)
     {
-        $descuento_general = new DescuentosGenerales();
-        $descuento_general->nombre = $request->nombre;
-        $descuento_general->save();
+        $datos = $request->validated();
+        $descuento_general = DescuentosGenerales::create($datos);
         $modelo = $descuento_general;
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function update(Request $request, DescuentosGenerales $descuento_general)
+    public function update(DescuentosGeneralesRequest $request, DescuentosGenerales $descuento_general)
     {
-
-        $descuento_general->update($request->validate(['nombre'=> ['required', 'string']]));
+        $datos = $request->validated();
+        $descuento_general->update($datos);
         $modelo = $descuento_general;
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));

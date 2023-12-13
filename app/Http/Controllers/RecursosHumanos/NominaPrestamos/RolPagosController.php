@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoRequest;
@@ -18,13 +17,11 @@ use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;

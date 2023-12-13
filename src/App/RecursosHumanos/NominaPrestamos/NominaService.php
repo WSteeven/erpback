@@ -237,15 +237,22 @@ class NominaService
         // Obtén la fecha de ingreso del empleado y conviértela a un objeto Carbon
         $fechaIngreso = Carbon::parse($this->empleado->fecha_vinculacion);
         // Obtén la fecha actual
-        $hoy = Carbon::parse($this->mes . '-' . Carbon::now()->endOfMonth()->format('d'));
+        $mes = new Carbon($this->mes);
+        $hoy = $mes->endOfMonth();
         // Calcula la diferencia en días entre las dos fechas
         $diasTrabajados = $hoy->diffInDays($fechaIngreso);
         if ($diasTrabajados >= 365 && $this->empleado->acumula_fondos_reserva == 0) {
-            $fechaVinculacion = Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year(2024);
-            $diasRestantes = 30 - $fechaVinculacion->day + 1;
             $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
-            if ($diasRestantes >= 1) {
-                $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+            $mesesTrabajados = $hoy->diffInMonths($fechaIngreso);
+            if($mesesTrabajados == 12){
+                $fechaVinculacion = Carbon::createFromFormat('d-m-Y', $this->empleado->fecha_vinculacion)->year($hoy->year);
+                $diasRestantes = 30 - $fechaVinculacion->day + 1;
+                if ($diasRestantes >= 1) {
+                    $fondosDeReserva = $this->calcularSueldo($diasRestantes) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+                }
+                if($dias < $diasRestantes){
+                    $fondosDeReserva = $this->calcularSueldo($dias) * NominaService::calcularPorcentajeFondoReserva(); // 8.33% del sueldo
+                }
             }
         }
         return floatval(number_format($fondosDeReserva, 2));
