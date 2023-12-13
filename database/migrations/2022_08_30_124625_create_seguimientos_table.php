@@ -32,10 +32,10 @@ return new class extends Migration
             // $table->string('estacion_referencia_afectacion');
             // $table->string('distancia_afectacion')->nullable();
             // $table->json('trabajo_realizado');
-            $table->json('observaciones')->nullable();
-            $table->json('materiales_tarea_ocupados')->nullable();
-            $table->json('materiales_stock_ocupados')->nullable();
-            $table->json('materiales_devolucion')->nullable();
+            $table->text('observaciones')->nullable();
+            $table->text('materiales_tarea_ocupados')->nullable();
+            $table->text('materiales_stock_ocupados')->nullable();
+            $table->text('materiales_devolucion')->nullable();
 
             // Foreign keys
             // $table->unsignedBigInteger('subtarea_id');

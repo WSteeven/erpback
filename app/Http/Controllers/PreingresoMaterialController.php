@@ -8,6 +8,9 @@ use App\Http\Requests\PreingresoMaterialRequest;
 use App\Http\Resources\PreingresoMaterialResource;
 use App\Models\Pedido;
 use App\Models\PreingresoMaterial;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
@@ -142,6 +145,34 @@ class PreingresoMaterialController extends Controller
         }
 
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(PreingresoMaterial $preingreso){
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new PreingresoMaterialResource($preingreso);
+        $persona_responsable = Empleado::find($preingreso->responsable_id);
+        $persona_autoriza = Empleado::find($preingreso->autorizador_id);
+        try {
+            $preingreso = $resource->resolve();
+            $preingreso['listadoProductos'] = PreingresoMaterial::listadoProductos($preingreso['id']);
+            Log::channel('testing')->info('Log', ['Preingreso a imprimir es: ', $preingreso]);
+            $pdf = Pdf::loadView('bodega.preingresos.preingreso', compact(['preingreso', 'configuracion', 'persona_responsable', 'persona_autoriza']));
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+            $file = $pdf->output(); //SE GENERA EL PDF
+
+            // return $pdf->stream();
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 
     /**
