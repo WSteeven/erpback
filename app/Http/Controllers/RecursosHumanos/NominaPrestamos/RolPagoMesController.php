@@ -360,7 +360,7 @@ class RolPagoMesController extends Controller
             'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
-            'sumatoria_egresos' =>  $this->sumatoria_llaves($colum_egreso_value),
+            'sumatoria_egresos' => $this->sumatoria_llaves($colum_egreso_value),
         ];
     }
     /**
@@ -416,18 +416,45 @@ class RolPagoMesController extends Controller
                 }
                 foreach ($column_name as $name) {
                     if($name != $descuentoId){
-                        Log::channel('testing')->info('Log', [$item['id_rol_pago'],':','nombre', $name,' ',0]);
-                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                        $groupedData[$name][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
                     if ($name == $descuentoId) {
-                        Log::channel('testing')->info('Log', [$item['id_rol_pago'],':','nombre', $name,' ',$item['monto']]);
                         $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
                     }
                 }
             }
         }
-        return $groupedData;
+        return $this->eliminar_duplicados($groupedData, 'id');
     }
+    public function eliminar_duplicados(array $datos, $llave_buscar): array
+    {
+        $array_sin_duplicados =[];
+        foreach ($datos as $clave => $objeto) {
+            $array_sin_duplicados[$clave] = [];
+            $serial_ant = null;
+           if($this->verificar_valor_cero_primera_posicion($objeto)){
+            rsort($objeto);
+           }
+            foreach ($objeto as $objeto_actual) {
+                $serial_act = $clave . '' . $objeto_actual['id'];
+                if ($objeto_actual['id'] !== 0 && $serial_act !== $serial_ant) {
+                    $array_sin_duplicados[$clave][] = $objeto_actual;
+                }
+                $serial_ant = $clave . '' . $objeto_actual['id'];
+            }
+        }
+
+        return $array_sin_duplicados;
+    }
+    function verificar_valor_cero_primera_posicion($array)
+    {
+        if ($array[0]['valor'] == 0) {
+            return true;
+        }
+        return false;
+    }
+
+
 
     /**
      * La función extrae nombres de columnas de una matriz multidimensional basada en claves especificadas
