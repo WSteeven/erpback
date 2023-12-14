@@ -37,6 +37,7 @@ class TareaResource extends JsonResource
             // 'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
+            'coordinador_id' => $this->coordinador_id,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
             // 'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
