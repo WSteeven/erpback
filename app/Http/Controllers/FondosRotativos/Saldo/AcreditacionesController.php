@@ -80,7 +80,7 @@ class AcreditacionesController extends Controller
     public function anular_acreditacion(Request $request)
     {
         $acreditacion = Acreditaciones::where('id',$request->id)->first();
-        $acreditacion->descripcion_acreditacion = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
+        $acreditacion->motivo = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
         $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
         $acreditacion->save();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

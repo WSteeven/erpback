@@ -87,9 +87,21 @@ class AcreditacionSemanaController extends Controller
         $acreditacion_semana = AcreditacionSemana::where('id', $id)->first();
         $acreditacion_semana->acreditar = true;
         $acreditacion_semana->save();
-        $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->where('estado',1)->with('acreditacion_semanal')->get();
+        $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->where('estado',1)->where('empleado_id','!=',0)->with('acreditacion_semanal')->get();
         foreach ($valores_acreditar as $key => $acreditacion) {
-            $acreditaciones[] = [
+                Acreditaciones::create(array(
+                    'id_tipo_fondo' => 1,
+                    'id_tipo_saldo' => 1,
+                    'id_saldo' => '',
+                    'id_usuario' => $acreditacion->empleado_id,
+                    'fecha' =>  $date->format('Y-m-d'),
+                    'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
+                    'monto' => $acreditacion->monto_modificado,
+                    'id_estado' => 1,
+                    'created_at' => $date,
+                    'updated_at' => $date
+                ));
+          /*  $acreditaciones[] = [
                 'id_tipo_fondo' => 1,
                 'id_tipo_saldo' => 1,
                 'id_saldo' => '',
@@ -100,9 +112,11 @@ class AcreditacionSemanaController extends Controller
                 'id_estado' => 1,
                 'created_at' => $date,
                 'updated_at' => $date
-            ];
+            ];*/
+
         }
-        $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
+      //  $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
+
     }
     public function crear_cash_acreditacion_saldo($id)
     {
@@ -163,7 +177,7 @@ class AcreditacionSemanaController extends Controller
             $acreditacionsemana->save();
             $modelo = new AcreditacionSemanaResource($acreditacionsemana);
             $mensaje = 'Se ha generado  Acreditacion de la semana exitosamente';
-            $umbrales = UmbralFondosRotativos::get();
+            $umbrales = UmbralFondosRotativos::where('empleado_id','!=',0)->get();
             $acreditaciones = [];
             foreach ($umbrales as $key => $umbral) {
                 $saldo_actual = $this->obtener_saldo_actual($umbral->empleado_id);

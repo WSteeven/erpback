@@ -145,7 +145,7 @@
                     <div align="center"><strong>EMPLEADO</strong></div>
                 </td>
                 <td width="15%" bgcolor="#a9d08e">
-                    <div align="center"><strong>MONTO GENERADO</strong></div>
+                    <div align="center"><strong>SALDO ACTUAL</strong></div>
                 </td>
                 <td width="17%" bgcolor="#a9d08e">
                     <div align="center"><strong>MONTO ASIGNADO</strong></div>
@@ -174,7 +174,7 @@
                             <div>{{ $dato['empleado_info'] }}</div>
                         </td>
                         <td style="font-size:10px">
-                            <div align="right">{{ $dato['monto_generado'] }}</div>
+                            <div align="right">{{ $dato['saldo_actual'] }}</div>
                         </td>
                         <td style="font-size:10px">
                             <div align="right">{{ $dato['monto_modificado'] }}</div>
