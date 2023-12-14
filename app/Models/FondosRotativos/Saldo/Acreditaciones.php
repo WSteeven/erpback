@@ -30,6 +30,7 @@ class Acreditaciones extends Model implements Auditable
     ];
     private static $whiteListFilter = [
         'fecha',
+        'id_estado',
     ];
     public function usuario()
     {
