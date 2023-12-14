@@ -21,7 +21,7 @@
     <title>Preingreso N° {{ $preingreso['id'] }}</title>
     <style>
         @page {
-            margin: 0cm 15px;
+            margin: 2px 15px 5px 15px;
         }
 
         body {
@@ -47,7 +47,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 93px;
+            bottom: 90px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -68,7 +68,7 @@
             left: 0cm;
             right: 0cm;
             margin-bottom: 7cm;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         div {
@@ -84,6 +84,7 @@
             table-layout: fixed;
             width: 100%;
             line-height: normal;
+            font-size: 10px;
             /* position: inherit; */
             /* top: 140px; */
         }
@@ -139,12 +140,12 @@
                 </th>
             </thead>
             <tbody>
-                <tr>
-                    <td style="padding-left: 60px;">
+                <tr align="center">
+                    <td>
                         {{ $persona_responsable->nombres }} {{ $persona_responsable->apellidos }} <br>
                         {{ $persona_responsable->identificacion }} </td>
                     <td></td>
-                    <td style="padding-left: 60px;">
+                    <td>
                         {{ $persona_autoriza->nombres }} {{ $persona_autoriza->apellidos }} <br>
                         {{ $persona_autoriza->identificacion }}
                     </td>
@@ -193,6 +194,11 @@
                 <td></td>
                 <td>Estado: <b>{{ $preingreso['autorizacion'] }}</b></td>
             </tr>
+            <tr class="row">
+                <td>Coordinador Responsable: <b>{{ $preingreso['coordinador'] }}</b></td>
+                <td></td>
+                <td>Cliente: <b>{{ $preingreso['cliente'] }}</b></td>
+            </tr>
         </table>
         <table>
             <thead style="margin-bottom:4px;">
@@ -201,9 +207,6 @@
                         <td>Tarea: <b>{{ $preingreso['tarea'] }}</b></td>
                     </tr>
                 @endif
-                <tr>
-                    <td>Coordinador Responsable: <b>{{ $preingreso['coordinador'] }}</b></td>
-                </tr>
             </thead>
         </table>
         <!-- aqui va el listado de productos -->

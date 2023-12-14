@@ -10,6 +10,7 @@ class ClienteResource extends BaseResource
     {
         $modelo = [
             'id' => $this->id,
+            // 'empresa_id' => $this->empresa?->razon_social, //es una copia de razon_social ya que en el front se debe depurar el nombre de variable para no tener errores
             'empresa' => $this->empresa_id,
             'ruc' => $this->empresa?->identificacion,
             'razon_social' => $this->empresa?->razon_social,
