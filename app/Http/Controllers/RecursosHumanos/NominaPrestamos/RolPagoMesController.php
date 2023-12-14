@@ -168,7 +168,7 @@ class RolPagoMesController extends Controller
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             $orientacion = $es_quincena ? 'portail' : 'landscape';
-            $tipo_pagina = $es_quincena ? 'A4' : 'A3';
+            $tipo_pagina = $es_quincena ? 'A4' : 'A2';
             return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -702,8 +702,7 @@ class RolPagoMesController extends Controller
                 $this->nominaService->setEmpleado($rol_pago->empleado_id);
                 $this->prestamoService->setEmpleado($rol_pago->empleado_id);
                 $this->nominaService->setRolPago($rol_mes);
-                $diasTranscurridos = $rol_mes->es_quincena ? 15 : 30;
-                $dias = $this->nominaService->calcularDiasRol($diasTranscurridos);
+                $dias = $rol_pago->dias;
                 $salario = $this->nominaService->calcularSalario();
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
                 $decimo_tercero =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);

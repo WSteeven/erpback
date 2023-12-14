@@ -113,7 +113,7 @@
         }
 
         table.datos {
-            font-size: 8pt;
+            font-size: 11pt;
             width: 100%;
             border-collapse: collapse;
         }
@@ -164,7 +164,7 @@
                             width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b style="font-size: 75%">ROL GENERAL</b>
+                    <div class="col-md-7" align="center"><b style="font-size: 14pt">ROL GENERAL</b>
                     </div>
                 </td>
             </tr>
@@ -175,10 +175,10 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Esta informacion es
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">Esta informacion es
                         propiedad de JPCONSTRUCRED C.LTDA. - Prohibida su divulgacion
                     </div>
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px; font-size:14pt;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
                         {{ auth('sanctum')->user()->empleado->apellidos }} el
@@ -199,9 +199,9 @@
             <colgroup span="{{ $numcol_ingreso }}"></colgroup>
             <colgroup span="{{ $numcol_egreso }}"></colgroup>
             <tr class="encabezado-datos" style="text-align: center ">
-                <td rowspan="2"
+                <td rowspan="2" width="5px"
                     style="text-align: center !important;
-                                                background-color: #DBDBDB;">
+                                                background-color: #DBDBDB; ">
                     ITEM</td>
                 <td
                     rowspan="2"style="text-align: center !important;
@@ -390,9 +390,9 @@
                                     @endif
                                 @endforeach
                             @endforeach
-                        @else
+                            @else
                             @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
-                                <td>0</td>
+                                <td>0,00</td>
                             @endfor
                         @endif
                     @endif
@@ -441,6 +441,13 @@
                 <td>{{ round($sumColumns['total'],2)}}</td>
             </tr>
         </table>
+
+
+
+
+
+
+
         <table class="firma" style="width: 100%;">
             <thead>
                 <th align="center">
@@ -464,7 +471,7 @@
         if (isset($pdf)) {
                 $text = "Pág {PAGE_NUM} de {PAGE_COUNT}";
                 $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $pdf->page_text(10, 800, $text, $font, 12);
+                $pdf->page_text(10, 1125, $text, $font, 14);
         }
     </script>
 </body>
