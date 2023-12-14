@@ -36,7 +36,7 @@ class PreingresoMaterialService
                             $query->where('responsable_id', auth()->user()->empleado->id)
                                 ->orWhere('autorizador_id', auth()->user()->empleado->id)
                                 ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
+                        })->orderBy('id', 'desc')->get();
                     break;
                 case 2: //APROBADO
                     $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
@@ -44,7 +44,7 @@ class PreingresoMaterialService
                             $query->where('responsable_id', auth()->user()->empleado->id)
                                 ->orWhere('autorizador_id', auth()->user()->empleado->id)
                                 ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
+                        })->orderBy('id', 'desc')->get();
                     break;
                 case 3: //CANCELADO
                     $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
@@ -52,7 +52,7 @@ class PreingresoMaterialService
                             $query->where('responsable_id', auth()->user()->empleado->id)
                                 ->orWhere('autorizador_id', auth()->user()->empleado->id)
                                 ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
+                        })->orderBy('id', 'desc')->get();
                     break;
                 default:
                     $results = PreingresoMaterial::all();
@@ -141,7 +141,7 @@ class PreingresoMaterialService
      * `PreingresoMaterial`, que representa una preentrada de materiales. Contiene información como el
      * empleado responsable, el ID de la tarea y otros detalles.
      * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán.
-     * @return void 
+     * @return void
      */
     public static function cargarMaterialesEmpleado(PreingresoMaterial $preingreso, $listado)
     {
@@ -152,7 +152,7 @@ class PreingresoMaterialService
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id,$preingreso->proyecto_id, $preingreso->etapa_id);
                     else  // se carga el material al stock personal del tecnico responsable
                         MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {

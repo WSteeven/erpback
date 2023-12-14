@@ -44,7 +44,7 @@ return new class extends Migration
             $table->integer('cantidad_reserva')->nullable();
             $table->string('tension')->nullable();
             $table->text('observaciones')->nullable();
-            $table->json('materiales_ocupados');
+            $table->text('materiales_ocupados');
 
             $table->string('imagen_elemento');
             $table->string('imagen_cruce_americano')->nullable();

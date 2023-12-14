@@ -241,6 +241,7 @@ Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, '
 Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('preingresos/imprimir/{preingreso}', [PreingresoMaterialController::class, 'imprimir'])->middleware('auth:sanctum');
 
 /*********************************************************
  * ANULACIONES
