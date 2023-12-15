@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
-use Algolia\AlgoliaSearch\Http\Psr7\Request as Psr7Request;
 use App\Exports\RolPagoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoRequest;
@@ -18,13 +17,11 @@ use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoHipotecario;
 use App\Models\RecursosHumanos\NominaPrestamos\PrestamoQuirorafario;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use App\Models\RecursosHumanos\NominaPrestamos\Rubros;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -116,7 +113,7 @@ class RolPagosController extends Controller
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
             $datos['estado'] = 'EJECUTANDO';
             DB::beginTransaction();
-            $rolPago = RolPago::create($datos);
+           $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {
                 $this->GuardarIngresos($ingreso, $rolPago);
             }
@@ -156,11 +153,9 @@ class RolPagosController extends Controller
     {
         try {
             DB::beginTransaction();
-
             $id_descuento = $egreso['id_descuento'];
             $tipo = null;
             $entidad = null;
-
             switch ($egreso['tipo']) {
                 case 'DESCUENTO_GENERAL':
                     $tipo = 'App\Models\RecursosHumanos\NominaPrestamos\DescuentosGenerales';
@@ -171,23 +166,12 @@ class RolPagosController extends Controller
                     $entidad = Multas::find($id_descuento);
                     break;
             }
-
             if (!$entidad) {
                 throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
             }
-
-            $id_rol_pago = $rolPago->id;
-            $existe_egreso = EgresoRolPago::where('id_rol_pago', $id_rol_pago)
-                ->where('descuento_id', $id_descuento)
-                ->where('descuento_type', $tipo)
-                ->count();
-
-            if ($existe_egreso == 0) {
-                EgresoRolPago::crearEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
-            } else {
-                EgresoRolPago::editarEgresoRol($id_rol_pago, $egreso['monto'], $entidad);
+            if (isset($egreso['id'])){
+                EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
             }
-
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -229,7 +213,7 @@ class RolPagosController extends Controller
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
 
-        $this->guardarIngresosYEgresos($request, $rolPago);
+       $this->guardarIngresosYEgresos($request, $rolPago);
 
         $modelo = new RolPagoResource($rolPago->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

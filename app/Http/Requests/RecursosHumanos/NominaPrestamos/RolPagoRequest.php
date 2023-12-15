@@ -3,6 +3,7 @@
 namespace App\Http\Requests\RecursosHumanos\NominaPrestamos;
 
 use App\Models\Empleado;
+use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -47,6 +48,7 @@ class RolPagoRequest extends FormRequest
             'prestamo_hipotecario' => 'required',
             'prestamo_empresarial' => 'required',
             'medio_tiempo' => 'nullable',
+            'es_vendedor_medio_tiempo' => 'nullable',
             'egresos' => 'nullable',
             'iess' =>  'required',
             'extension_conyugal' => 'required',
@@ -65,11 +67,13 @@ class RolPagoRequest extends FormRequest
         $nominaService->setEmpleado($this->empleado);
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
+        $nominaService->setRolPago($rol);
+        $nominaService->setVendedorMedioTiempo ($this->es_vendedor_medio_tiempo);
         $dias =  $this->dias;
         $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
         $salario = $nominaService->calcularSalario();
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
-        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias,$this->es_vendedor_medio_tiempo);
+        $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
         $fondos_reserva = $rol->es_quincena ? 0 : $nominaService->calcularFondosReserva($this->dias);
         $bono_recurente =  $rol->es_quincena ? 0 : $this->bono_recurente;
         $bonificacion =  $rol->es_quincena ? 0 : $this->bonificacion;
