@@ -209,7 +209,7 @@ class NominaService
         }
         switch ($tipo) {
             case 3:
-                return number_format((($this->empleado->salario / 360) * $dias), 2);
+                return number_format((($this->calcularSueldo($dias) / 360) * $dias), 2);
                 break;
             case 4:
                 if ($es_vendedor_medio_tiempo) {
