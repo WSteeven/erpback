@@ -50,7 +50,6 @@ class TareaService
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
         $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
-        // Log::channel('testing')->info('Log', compact('subtareasEmpleado'));
-        return Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->get();
+        return Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->ignoreRequest(['activas_empleado', 'empleado_id', 'campos'])->filter()->get();
     }
 }

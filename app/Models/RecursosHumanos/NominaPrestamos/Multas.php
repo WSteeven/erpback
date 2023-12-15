@@ -15,12 +15,16 @@ class Multas extends Model implements Auditable
     use Filterable;
     protected $table = 'multas';
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'abreviatura'
+
     ];
 
     private static $whiteListFilter = [
         'id',
         'nombre',
+        'abreviatura'
+
     ];
     public function egreso_rol_pago()
     {

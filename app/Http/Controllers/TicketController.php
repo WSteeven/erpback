@@ -47,6 +47,19 @@ class TicketController extends Controller
 
         if ($request['ticket_interno']) {
             $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
+        }
+        if ($request['para_sso']) {
+            $ticket = $this->servicio->crearTicket($request, [
+                'tipo_ticket_id' => Ticket::TIPO_TICKET_ATS,
+                'departamento_id' => Ticket::SSO,
+            ]);
+
+            $tickets_creados = [$ticket];
+
+            SolicitudAts::create([
+                'ticket_id' => $ticket->id,
+                'subtarea_id' => $request['subtarea_id'],
+            ]);
         } else {
             $tickets_creados = $this->servicio->crearMultiplesDepartamentos($destinatarios, $request);
         }
@@ -58,8 +71,9 @@ class TicketController extends Controller
         $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        $ids_tickets_creados = array_map(fn($ticket) => $ticket->id, $tickets_creados);
+        $ids_tickets_creados = array_map(fn ($ticket) => $ticket->id, $tickets_creados);
         $modelo = end($tickets_creados);
+        $modelo = new TicketResource($modelo->refresh());
 
         return response()->json(compact('mensaje', 'modelo', 'ids_tickets_creados'));
     }

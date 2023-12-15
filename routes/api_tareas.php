@@ -25,6 +25,7 @@ use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\Tareas\EtapaController;
+use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -49,6 +50,7 @@ Route::apiResources(
         'seguimientos' => SeguimientoSubtareaController::class,
         'archivos-seguimientos' => ArchivoSeguimientoController::class,
         'actividades-realizadas-seguimientos-subtareas' => ActividadRealizadaSeguimientoSubtareaController::class,
+        'transferencias-materiales-empleados' => TransferenciaMaterialEmpleadoController::class,
     ],
     [
         'parameters' => [
@@ -63,6 +65,7 @@ Route::apiResources(
             'rutas-tareas' => 'ruta_tarea',
             'archivos-seguimientos' => 'archivo_seguimiento',
             'actividades-realizadas-seguimientos-subtareas' => 'actividad_realizada',
+            'transferencias-materiales-empleados' => 'transferencia_material_empleado'
         ],
     ]
 );

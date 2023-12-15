@@ -23,6 +23,7 @@ class ProyectoResource extends BaseResource
             'costo' => $this->costo,
             'demora' => '0 días',
             'finalizado' => $this->finalizado,
+            'etapas' => EtapaResource::collection($this->etapas),
         ];
 
         // Lógica específica del método 'show'
@@ -31,6 +32,7 @@ class ProyectoResource extends BaseResource
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['canton'] = $this->canton_id;
             $modelo['etapas'] = EtapaResource::collection($this->etapas);
+            $modelo['fiscalizador'] = $this->fiscalizador_id;
         }
 
         return $modelo;

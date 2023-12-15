@@ -311,9 +311,9 @@
                                                                         @endif
                                                                     @endforeach
                                                                 @endforeach
-                                                            @else
+                                                                @else
                                                                 @for ($i = 0; $i < $cantidad_columna_egresos; $i++)
-                                                                    <td>0</td>
+                                                                    <td>0,00</td>
                                                                 @endfor
                                                             @endif
                                                         @endif

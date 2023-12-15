@@ -71,7 +71,8 @@ class TareaController extends Controller
     public function index()
     {
         $results = $this->listar();
-        if (!request('campos')) $results = TareaResource::collection($results);
+        // if (!request('campos')) $results = TareaResource::collection($results);
+        $results = TareaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -109,6 +110,7 @@ class TareaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (\Exception $e) {
+            Log::channel('testing')->info('Log', ['Error al guardar', $e]);
             DB::rollBack();
         }
     }

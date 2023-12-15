@@ -14,10 +14,12 @@ use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EgresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\FamiliaresControler;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasSubTipoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\HorasExtrasTipoController;
+use App\Http\Controllers\RecursosHumanos\NominaPrestamos\IngresoRolPagoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\LicenciaEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PeriodoController;
@@ -62,6 +64,8 @@ Route::apiResources(
         'estado_permiso_empleado' => EstadoPermisoEmpleadoController::class,
         'tipo_contrato' => TipoContratoController::class,
         'rol_pago' => RolPagosController::class,
+        'egreso_rol_pago' => EgresoRolPagoController::class,
+        'ingreso_rol_pago' => IngresoRolPagoController::class,
         ],
     [
         'parameters' => ['descuentos_generales'=>'descuento_general',
@@ -109,4 +113,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
     Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescar_rol_pago']);
     Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
+    Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
 });

@@ -135,15 +135,20 @@ class TransaccionBodegaEgresoController extends Controller
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
 
-        if ($request->exists('seguimiento')) {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
+        // Si es para el seguimiento se listan sólo los productos con categoria materiales con stock mayor e igual a cero
+        if ($request->exists('subtarea_id')) {
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->get();
         } else {
+            // Caso contrario se listan todos los productos con stock mayor a cero
             if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
             else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
         }
+
+        // Obtener los materiales utilizados en el dia actual
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
+        // Se mapean los campos y se coloca en 'cantidad utilizada' la cantidad usada en el dia actual
         $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
@@ -164,6 +169,7 @@ class TransaccionBodegaEgresoController extends Controller
             ];
         });
 
+        // Si es en el seguimiento entonces se hace el calculo de la suma de todo el material ocupado hasta el dia actual
         if ($request['subtarea_id']) {
             $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
             $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
