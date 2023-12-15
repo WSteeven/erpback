@@ -18,14 +18,15 @@ class ProyectoController extends Controller
     {
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO]))
-            return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->orderBy('id', 'desc')->get($campos);
-        return Proyecto::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get($campos);
+            return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->orderBy('id', 'desc')->get();
+        return Proyecto::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
     }
 
     public function index()
     {
         $results = $this->listar();
-        if (!request('campos')) $results = ProyectoResource::collection($results);
+        // if (!request('campos')) $results = ProyectoResource::collection($results);
+        $results = ProyectoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -40,6 +41,7 @@ class ProyectoController extends Controller
         // $esCoordinador = Auth::user()->hasRole(User::ROL_COORDINADOR);
         $esJefeTecnico = Auth::user()->hasRole(User::ROL_JEFE_TECNICO);
         $datos['coordinador_id'] = $esJefeTecnico ? $request->safe()->only(['coordinador'])['coordinador'] :  Auth::user()->empleado->id;
+        $datos['fiscalizador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
 
         // Respuesta
         $modelo = Proyecto::create($datos);
@@ -62,6 +64,7 @@ class ProyectoController extends Controller
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
+        $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
 
         // Respuesta

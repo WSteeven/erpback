@@ -32,6 +32,7 @@ class Ticket extends Model implements Auditable
     const EMERGENCIA = 'EMERGENCIA';
 
     const TIPO_TICKET_ATS = 166;
+    const SSO = 5;
 
     protected $table = 'tickets';
     protected $fillable = [

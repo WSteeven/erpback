@@ -88,6 +88,8 @@ class SubtareaResource extends JsonResource
             'tiempo_estimado' => $this->cargar('tiempo_estimado', $campos) ? $this->tiempo_estimado : null,
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
+            'etapa_id' => $tarea->etapa_id,
+            'proyecto_id' => $tarea->proyecto_id,
         ];
 
         if ($controller_method == 'show') {
@@ -230,7 +232,7 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
-        $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        $existeTrabajoEjecutado = !!$this->empleado?->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
         return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado;
     }
 

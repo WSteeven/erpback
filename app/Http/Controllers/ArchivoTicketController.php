@@ -23,29 +23,43 @@ class ArchivoTicketController extends Controller
     {
         $request->validate([
             'tickets_id' => 'nullable|string',
+            'ticket_id' => 'nullable|numeric|integer',
         ]);
 
-        $tickets_id = explode(',', $request['tickets_id']);
-        foreach ($tickets_id as $id) {
-            $ticket = Ticket::find($id);
+        if (isset($request['tickets_id'])) {
 
-            if (!$ticket) {
-                throw ValidationException::withMessages([
-                    'ticket' => ['El ticket no existe'],
-                ]);
+            $tickets_id = explode(',', $request['tickets_id']);
+            foreach ($tickets_id as $id) {
+                $ticket = Ticket::find($id);
+
+                $this->validar($ticket, $request);
+
+                $guardarArchivo = new GuardarArchivo($ticket, $request, RutasStorage::TICKETS);
+                $guardarArchivo->execute();
             }
-
-            if (!$request->hasFile('file')) {
-                throw ValidationException::withMessages([
-                    'file' => ['Debe seleccionar al menos un archivo.'],
-                ]);
-            }
-
+        } else {
+            $ticket = Ticket::find($request['ticket_id']);
+            $this->validar($ticket, $request);
             $guardarArchivo = new GuardarArchivo($ticket, $request, RutasStorage::TICKETS);
             $guardarArchivo->execute();
         }
 
         return response()->json(['mensaje' => 'Subido exitosamente!']);
+    }
+
+    private function validar($ticket, $request)
+    {
+        if (!$ticket) {
+            throw ValidationException::withMessages([
+                'ticket' => ['El ticket no existe'],
+            ]);
+        }
+
+        if (!$request->hasFile('file')) {
+            throw ValidationException::withMessages([
+                'file' => ['Debe seleccionar al menos un archivo.'],
+            ]);
+        }
     }
 
     public function storeOld(Request $request)
