@@ -3,7 +3,6 @@
 use App\Http\Controllers\ActividadRealizadaSeguimientoSubtareaController;
 use App\Http\Controllers\ArchivoSeguimientoController;
 use App\Http\Controllers\TransaccionBodegaEgresoController;
-use App\Http\Controllers\ReporteControlMaterialController;
 use App\Http\Controllers\ControlAsistenciaController;
 use App\Http\Controllers\RegistroTendidoController;
 use App\Http\Controllers\TrabajoAsignadoController;

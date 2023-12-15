@@ -6,6 +6,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -58,7 +59,7 @@ class Devolucion extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
-            ->withPivot('cantidad')->withTimestamps();
+            ->withPivot('cantidad','condicion_id', 'observacion')->withTimestamps();
     }
 
 
@@ -153,12 +154,15 @@ class Devolucion extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
+            $condicion= $detalle->pivot->condicion_id? Condicion::find($detalle->pivot->condicion_id):null;
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
             $row['serial'] = $detalle->serial;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
+            $row['condiciones'] = $condicion?->nombre;
+            $row['observacion'] = $detalle->pivot->observacion;
             $results[$id] = $row;
             $id++;
         }

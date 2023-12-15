@@ -29,6 +29,8 @@ class TareaResource extends JsonResource
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
             'titulo' => $this->titulo,
             'proyecto_id' => $this->proyecto_id,
+            // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
+            'coordinador_id' => $this->coordinador_id,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
             'cliente_id' => $this->cliente_id,
             'cantidad_subtareas' => $this->subtareas->count(),

@@ -80,6 +80,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
+use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Pais;
 use App\Models\Parroquia;
@@ -274,6 +275,8 @@ Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
 Route::get('proveedores/imprimir-calificacion/{proveedor}', [ProveedorController::class, 'reporteCalificacion']);
 Route::get('proveedores/actualizar-calificacion/{proveedor}', [ProveedorController::class, 'actualizarCalificacion']);
 
+
+Route::get('detalles-materiales', [DetalleProductoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
 
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
