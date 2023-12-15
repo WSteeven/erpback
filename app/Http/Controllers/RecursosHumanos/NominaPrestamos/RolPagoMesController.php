@@ -415,7 +415,7 @@ class RolPagoMesController extends Controller
                     $groupedData[$descuentoId] = [];
                 }
                 foreach ($column_name as $name) {
-                    if($name != $descuentoId){
+                    if ($name != $descuentoId) {
                         $groupedData[$name][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
                     if ($name == $descuentoId) {
@@ -428,13 +428,13 @@ class RolPagoMesController extends Controller
     }
     public function eliminar_duplicados(array $datos, $llave_buscar): array
     {
-        $array_sin_duplicados =[];
+        $array_sin_duplicados = [];
         foreach ($datos as $clave => $objeto) {
             $array_sin_duplicados[$clave] = [];
             $serial_ant = null;
-           if($this->verificar_valor_cero_primera_posicion($objeto)){
-            rsort($objeto);
-           }
+            if ($this->verificar_valor_cero_primera_posicion($objeto)) {
+                rsort($objeto);
+            }
             foreach ($objeto as $objeto_actual) {
                 $serial_act = $clave . '' . $objeto_actual['id'];
                 if ($objeto_actual['id'] !== 0 && $serial_act !== $serial_ant) {
@@ -705,6 +705,12 @@ class RolPagoMesController extends Controller
                 $dias = $rol_pago->dias;
                 $salario = $this->nominaService->calcularSalario();
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                if ($rol_mes->es_quincena) {
+                    $quincena = $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                    if ($quincena !== $rol_pago->sueldo) {
+                        $sueldo =  $rol_pago->sueldo;
+                    }
+                }
                 $decimo_tercero =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
                 $fondos_reserva =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
