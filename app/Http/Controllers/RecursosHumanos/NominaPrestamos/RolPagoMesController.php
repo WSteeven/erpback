@@ -624,8 +624,21 @@ class RolPagoMesController extends Controller
      */
     private function agregar_nuevos_empleados(RolPagoMes $rol)
     {
+
         try {
-            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
+            $mes_rol =Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $final_mes = new Carbon($mes_rol);
+            $ultimo_dia_mes = $final_mes->endOfMonth();
+            $sql ="CONVERT(DATE, 'fecha_vinculacionh', 103) <".$ultimo_dia_mes;
+
+            $empleadosSinRolPago = Empleado::where('id', '>', 2)
+            ->where('estado', true)
+            ->where('esta_en_rol_pago', true)
+            ->where('fecha_vinculacionh','<',$ultimo_dia_mes)
+            ->whereRaw($sql)
+            ->where('salario', '!=', 0)
+            ->whereDoesntHave('rolesPago')
+            ->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
