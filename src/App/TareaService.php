@@ -27,9 +27,9 @@ class TareaService
         $material->save();
     }
 
-    private function sumarAgregarMaterialEmpleado(int $detalle_producto_id, int $empleado_id, int $cantidad_sumar, int $cliente_id)
+    private function sumarAgregarMaterialEmpleado(int $detalle_producto_id, int $empleado_id, int $cantidad_sumar, $cliente_id)
     {
-        $material = MaterialEmpleado::where('detalle_producto_id', $detalle_producto_id)->where('empleado_id', $empleado_id)->first();
+        $material = MaterialEmpleado::where('detalle_producto_id', $detalle_producto_id)->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();
 
         if ($material) {
             $material->cantidad_stock += $cantidad_sumar;

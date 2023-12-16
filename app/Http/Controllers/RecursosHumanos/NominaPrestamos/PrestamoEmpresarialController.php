@@ -32,15 +32,13 @@ class PrestamoEmpresarialController extends Controller
 
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS')) {
+        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS') ||  $usuario_ac->hasRole('CONTABILIDAD')) {
             $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
             $results = PrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
-            /*
-            $results = PrestamoEmpresarial::where('solicitante', $usuario->id)->ignoreRequest(['campos'])->filter()->get();
-            $results = PrestamoEmpresarial::collection($results);*/
-            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+
+            $results = PrestamoEmpresarial::where('solicitante', $usuario->empleado->id)->ignoreRequest(['campos'])->filter()->get();
             $results = PrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         }
@@ -74,8 +72,22 @@ class PrestamoEmpresarialController extends Controller
     }
     public function destroy(Request $request, PrestamoEmpresarial $prestamoEmpresarial)
     {
+        $deleted = PlazoPrestamoEmpresarial::where('id_prestamo_empresarial', $prestamoEmpresarial->id)->delete();
         $prestamoEmpresarial->delete();
-        return response()->json(compact('prestamoEmpresarial'));
+        $modelo = $prestamoEmpresarial;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje', 'modelo'));
+    }
+    public function deshabilitarPrestamo(Request $request)
+    {
+        $prestamoEmpresarial = PrestamoEmpresarial::where('id',$request->id)->first();
+        $prestamoEmpresarial->motivo= $request->motivo;
+        $prestamoEmpresarial->estado= 'INACTIVO';
+        $prestamoEmpresarial->save();
+        $prestamoEmpresarial->plazo_prestamo_empresarial_info()->update(['estado' => false]);
+        $modelo = $prestamoEmpresarial;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje', 'modelo'));
     }
     public function crear_plazos(PrestamoEmpresarial $prestamoEmpresarial, $plazos)
     {
@@ -122,6 +134,7 @@ class PrestamoEmpresarialController extends Controller
             ->whereMonth('fecha_vencimiento', $mes)
             ->where('pago_couta', 0)
             ->sum('valor_a_pagar');
+
         return response()->json(compact('results'));
     }
 }

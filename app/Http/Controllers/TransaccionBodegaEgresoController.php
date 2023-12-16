@@ -73,13 +73,14 @@ class TransaccionBodegaEgresoController extends Controller
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
             else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
         } else {
-            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->get();
+            // Mi bodega
+            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
+            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
         }
 
         $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
-        $materiales = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
+        $materiales = collect($results)->map(function ($item) use ($materialesUtilizadosHoy) {
             $detalle = DetalleProducto::find($item->detalle_producto_id);
             $producto = Producto::find($detalle->producto_id);
 
@@ -99,6 +100,7 @@ class TransaccionBodegaEgresoController extends Controller
             ];
         });
 
+        // En el seguimiento - se ordena por cantidad utilizada en el dia
         if ($request['subtarea_id']) {
             $materialesUsados = $this->servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
             $results = $materiales->map(function ($material) use ($materialesUsados) {
@@ -134,11 +136,11 @@ class TransaccionBodegaEgresoController extends Controller
         ]);
 
         if ($request->exists('seguimiento')) {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->get();
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
         } else {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->get();
+            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
+            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
         }
         $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
@@ -204,11 +206,11 @@ class TransaccionBodegaEgresoController extends Controller
             $results = $results->map(function ($item) {
                 return [
                     'id' => $item->detalle_producto_id,
-                    'producto' => $item->detalle->producto->nombre,
-                    'descripcion' => $item->detalle->descripcion,
-                    'serial' => $item->detalle->serial,
-                    'categoria' => $item->detalle->producto->categoria->nombre,
-                    'modelo' => $item->detalle->modelo->nombre,
+                    'producto' => $item->detalle?->producto->nombre,
+                    'descripcion' => $item->detalle?->descripcion,
+                    'serial' => $item->detalle?->serial,
+                    'categoria' => $item->detalle?->producto->categoria->nombre,
+                    'modelo' => $item->detalle?->modelo->nombre,
                     'cantidad' => $item->cantidad_stock,
                     'cliente' => $item->cliente?->empresa?->razon_social,
                 ];

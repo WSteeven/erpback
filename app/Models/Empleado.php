@@ -381,6 +381,9 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasOne(UmbralFondosRotativos::class, 'empleado_id', 'id');
     }
+    public function egresoRolPago(){
+        return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
+    }
 
     public static function empaquetarListado($empleados)
     {
