@@ -14,36 +14,35 @@
 
 <body>
 
-    <table style="border: 1px solid #000;">
+    <table style="border: 1px solid #000; background: #fff;">
         <thead>
             <tr>
-                <th rowspan="4" colspan="2"
-                    style="border: 2px solid #000; vertical-align: middle; text-align: center; width: 40px;">
-                    <img src="img/logo.png" height="40px" style="margin: 0 auto;" />
+                <th></th>
+                <th rowspan="3" colspan="1" style="vertical-align: middle; text-align: center; width: 200px;">
+                    <img src="img/logo_nedetel.png" height="70px" style="margin: 0 auto;" />
                 </th>
-                <th rowspan="4" colspan="2"
-                    style="border: 2pt solid #000; vertical-align: middle; text-align: center; width: 800px; font-size: 14pt; font-weight: bold;">
+                <th rowspan="3" colspan="2"
+                    style="vertical-align: middle; text-align: center; font-size: 14pt; font-weight: bold; color: #2f5597;">
                     {{'REPORTE DE ASISTENCIA TÉCNICA OPERATIVA'}} <br>
-                    {{'NEDETEL/UFINET - OUTSOURCING O&M'}}</th>
-                <th rowspan="4" colspan="2"
-                    style="border: 2px solid #000; vertical-align: middle; text-align: center; width: 100px;">FOR TEC
-                    003 <br> V.02 11 07 2023</th>
+                    {{'NEDETEL/UFINET - OUTSOURCING'}}</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
 
         <tbody style="border: 2px solid #000; background: #fff;">
             <tr></tr>
             <tr></tr>
-            <tr></tr>
-            <tr></tr>
+            {{-- <tr></tr> --}}
+            {{-- <tr></tr> --}}
 
             <tr>
-                <td style="width: 30px;"></td>
+                <td style="width: 80px;"></td>
                 <td style="font-weight: bold;">TICKET/TAREA ASIGNADA:</td>
-                <td style="width: 360px;"></td>
+                <td style="width: 200px;"></td>
                 <td colspan="2" style="text-align: center; border: 1px solid #000; width: 200px;">{{
                     $subtarea->codigo_subtarea }}</td>
-                <td style="width: 30px; border-right: 8pt solid #000;"></td>
+                <td style="width: 80px; border-right: 8pt solid #000;"></td>
             </tr>
 
             <tr>
@@ -327,7 +326,7 @@
 
             <tr></tr>
 
-            <tr>
+            {{-- <tr>
                 <td></td>
                 <td colspan="2"
                     style="border: 1px solid #000; font-weight: bold; text-align: center; background: #fff2cc;">{{
@@ -369,10 +368,12 @@
                     style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: pre-wrap; word-wrap: break-word; background: {{ $fila['background'] }};">
                     {{
                     $fila['detalle'] }}</td>
-                <td style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};"></td>
+                <td
+                    style="border: {{ $fila['border'] }}; font-size: 10pt; text-align: center; white-space: normal; background: {{ $fila['background'] }};">
+                </td>
                 <td></td>
             </tr>
-            @endforeach
+            @endforeach --}}
 
             <tr>
                 <td></td>

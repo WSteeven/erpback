@@ -35,4 +35,6 @@ class TransferenciaMaterialEmpleado extends Model implements Auditable
         'estado_bodega',
         'pedido_automatico',
     ];
+
+    private static $whiteListFilter = ['*'];
 }
