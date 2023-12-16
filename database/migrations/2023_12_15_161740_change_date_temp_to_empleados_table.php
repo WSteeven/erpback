@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::table('empleados', function (Blueprint $table) {
 
-            $table->dropColumn('fecha_ingreso');
+            /*$table->dropColumn('fecha_ingreso');
             $table->renameColumn('fecha_ingreso2', 'fecha_ingreso');
             $table->dropColumn('fecha_vinculacion');
             $table->renameColumn('fecha_vinculacion2', 'fecha_vinculacion');
             $table->dropColumn('fecha_salida');
-            $table->renameColumn('fecha_salida2', 'fecha_salida');
+            $table->renameColumn('fecha_salida2', 'fecha_salida');*/
         });
     }
 
