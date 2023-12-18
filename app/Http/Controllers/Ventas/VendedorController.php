@@ -37,8 +37,8 @@ class VendedorController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral = Vendedor::create($datos);
-            $modelo = new VendedorResource($umbral);
+            $vendedor = Vendedor::create($datos);
+            $modelo = new VendedorResource($vendedor);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,13 +47,13 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(VendedorRequest $request, Vendedor $umbral)
+    public function update(VendedorRequest $request, Vendedor $vendedor)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral->update($datos);
-            $modelo = new VendedorResource($umbral->refresh());
+            $vendedor->update($datos);
+            $modelo = new VendedorResource($vendedor->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -62,9 +62,9 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Vendedor $umbral)
+    public function destroy(Request $request, Vendedor $vendedor)
     {
-        $umbral->delete();
-        return response()->json(compact('umbral'));
+        $vendedor->delete();
+        return response()->json(compact('vendedor'));
     }
 }

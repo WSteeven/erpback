@@ -15,7 +15,7 @@ class Vendedor extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_vendedor';
-    protected $fillable =['codigo_vendedor','empleado_id','modalidad_id'];
+    protected $fillable =['codigo_vendedor','empleado_id','modalidad_id','tipo_vendedor'];
     private static $whiteListFilter = [
         '*',
     ];

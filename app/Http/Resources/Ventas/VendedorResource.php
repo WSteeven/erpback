@@ -23,7 +23,8 @@ class VendedorResource extends JsonResource
             'empleado_info'=>$this->empleado !=null?$this->empleado->nombres.''.$this->empleado->apellidos:'',
             'modalidad' => $this->modalidad_id,
             'modalidad_id' => $this->modalidad_id,
-            'modalidad_info'=> $this->modalidad!=null?$this->modalidad->nombre:''
+            'modalidad_info'=> $this->modalidad!=null?$this->modalidad->nombre:'',
+            'tipo_vendedor'=> $this->tipo_vendedor
         ];
         return $modelo;
     }
