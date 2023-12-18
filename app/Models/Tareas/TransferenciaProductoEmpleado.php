@@ -64,8 +64,8 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
-    public function detalles()
+    public function detallesTransferenciaProductoEmpleado()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'detalle_transferencias_productos_empleados', 'transferencia_producto_empleado_id', 'detalle_producto_id')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'tar_transf_produc_emplea', 'transferencia_producto_empleado_id', 'detalle_producto_id')->withTimestamps();
     }
 }

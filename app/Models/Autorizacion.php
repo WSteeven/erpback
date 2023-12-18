@@ -25,10 +25,13 @@ class Autorizacion extends Model implements Auditable
     const APROBADO = 'APROBADO';
     const CANCELADO = 'CANCELADO';
 
+    const PENDIENTE_ID = 1;
+    const APROBADO_ID = 2;
+
     private static $whiteListFilter = [
         '*',
     ];
-    
+
     /**
      * ______________________________________________________________________________________
      * RELACIONES CON OTRAS TABLAS
@@ -37,7 +40,7 @@ class Autorizacion extends Model implements Auditable
 
     /**
      * Relacion muchos a muchos
-     * Obtener las transacciones que pertenecen a la autorizacion 
+     * Obtener las transacciones que pertenecen a la autorizacion
      */
     /* public function transacciones()
     {
@@ -46,7 +49,7 @@ class Autorizacion extends Model implements Auditable
             ->withTimestamps()
             ->orderByPivot('created_at', 'desc');
     } */
-    
+
     /**
      * Relación uno a muchos.
      * Una autorizacion esta en varias transacciones.
