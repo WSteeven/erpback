@@ -19,7 +19,9 @@ class BonosSeeder extends Seeder
             ['cant_ventas' => 6,'valor'=>20],
             ['cant_ventas' => 12,'valor'=>50],
             ['cant_ventas' => 16,'valor'=>75],
-
+            ['cant_ventas' => 6,'valor'=>20],
+            ['cant_ventas' => 12,'valor'=>50],
+            ['cant_ventas' => 16,'valor'=>75],
         ]);
     }
 }

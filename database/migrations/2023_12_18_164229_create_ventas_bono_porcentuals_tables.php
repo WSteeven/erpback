@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('ventas_comisiones', function (Blueprint $table) {
-            $table->string('tipo_vendedor')->after('comision')->nullable();
+        Schema::create('ventas_bono_porcentuales_tables', function (Blueprint $table) {
+            $table->id();
+            $table->integer('porcentaje');
+            $table->integer('valor');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('ventas_comisiones', function (Blueprint $table) {
-            $table->dropColumn('tipo_vendedor');
-        });
+        Schema::dropIfExists('ventas_bono_porcentuales_tables');
     }
 };
