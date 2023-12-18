@@ -38,6 +38,9 @@ class TareaResource extends JsonResource
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
             'metraje_tendido' => $this->metraje_tendido,
+            'etapa_id' => $this->etapa_id,
+            'etapa' => $this->etapa?->nombre,
+            'proyecto' => $this->proyecto?->nombre,
         ];
 
         if ($controller_method == 'show') {

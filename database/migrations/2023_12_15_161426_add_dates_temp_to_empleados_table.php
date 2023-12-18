@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('prestamo_empresarial', function (Blueprint $table) {
-            $table->text('motivo')->after('estado')->nullable();
-          //  $table->enum('estado', ['ACTIVO', 'FINALIZADO', 'INACTIVO'])->change();
+        Schema::table('empleados', function (Blueprint $table) {
+            $table->date('fecha_ingreso2')->after('fecha_ingreso')->nullable();
+            $table->date('fecha_vinculacion2')->after('fecha_vinculacion')->nullable();
+            $table->date('fecha_salida2')->after('fecha_salida')->nullable();
         });
     }
 
@@ -26,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('prestamo_empresarial', function (Blueprint $table) {
+        Schema::table('empleados', function (Blueprint $table) {
             //
         });
     }
