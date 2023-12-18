@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 
-class ReporteSubtareaExport implements WithMultipleSheets //, WithBackgroundColor
+class ReporteSubtareaExport implements WithMultipleSheets, WithBackgroundColor
 {
     use Exportable;
 
