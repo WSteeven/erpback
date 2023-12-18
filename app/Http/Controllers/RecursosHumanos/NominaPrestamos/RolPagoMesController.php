@@ -624,18 +624,14 @@ class RolPagoMesController extends Controller
      */
     private function agregar_nuevos_empleados(RolPagoMes $rol)
     {
-
-        try {
+       try {
             $mes_rol =Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $final_mes = new Carbon($mes_rol);
             $ultimo_dia_mes = $final_mes->endOfMonth();
-            $sql ="CONVERT(DATE, 'fecha_vinculacionh', 103) <".$ultimo_dia_mes;
-
             $empleadosSinRolPago = Empleado::where('id', '>', 2)
             ->where('estado', true)
             ->where('esta_en_rol_pago', true)
-            ->where('fecha_vinculacionh','<',$ultimo_dia_mes)
-            ->whereRaw($sql)
+            ->where('fecha_vinculacion','<',$ultimo_dia_mes)
             ->where('salario', '!=', 0)
             ->whereDoesntHave('rolesPago')
             ->get();
@@ -690,7 +686,7 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-        } catch (Exception $ex) {
+       } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
@@ -764,7 +760,7 @@ class RolPagoMesController extends Controller
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
-                'Error al generar rol pago por empleado' => [$ex->getMessage()],
+                'Error al refrescar rol pago por empleado' => [$ex->getMessage()],
             ]);
         }
     }

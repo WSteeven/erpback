@@ -428,6 +428,29 @@ class TransaccionBodega extends Model implements Auditable
         return $motivoSeleccionado->id === $id;
     }
 
+    /**
+     * La función "verificarMotivosEgreso" verifica si un determinado ID está presente en un conjunto
+     * de motivos de salida que no generan recibo.
+     *
+     * @param int $id El parámetro "id" es el ID del motivo de egreso que necesita ser verificado.
+     *
+     * @return bool un valor booleano que indica si el ID proporcionado está presente en el conjunto de
+     * motivos de alta que no generan un comprobante.
+     */
+    public static function verificarMotivosEgreso(int $id){
+        $motivosDeEgresoQueNoGeneranComprobante = [
+            ['id'=>15, 'nombre'=>'VENTA'],
+            ['id'=>18, 'nombre'=>'DESTRUCCION'],
+            ['id'=>23, 'nombre'=>'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
+            ['id'=>24, 'nombre'=>'EGRESO POR LIQUIDACION DE MATERIALES'],
+            ['id'=>25, 'nombre'=>'AJUSTE DE EGRESO POR REGULARIZACION'],
+            ['id'=>28, 'nombre'=>'ROBO'],
+        ];
+        $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
+
+        return in_array($id, $ids_motivos);
+    }
+
 
     /**
      * If the product has a serial number and is active, then set it to inactive
