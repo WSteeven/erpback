@@ -28,6 +28,7 @@ class VendedorRequest extends FormRequest
             'empleado_id'=> 'required|integer',
             'modalidad_id'=> 'required|integer',
             'tipo_vendedor'=> 'required',
+            'jefe_inmediato' => 'required|integer',
         ];
     }
     protected function prepareForValidation()

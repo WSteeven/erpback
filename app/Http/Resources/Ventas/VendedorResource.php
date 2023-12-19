@@ -24,7 +24,10 @@ class VendedorResource extends JsonResource
             'modalidad' => $this->modalidad_id,
             'modalidad_id' => $this->modalidad_id,
             'modalidad_info'=> $this->modalidad!=null?$this->modalidad->nombre:'',
-            'tipo_vendedor'=> $this->tipo_vendedor
+            'tipo_vendedor'=> $this->tipo_vendedor,
+            'jefe_inmediato_info'=>$this->jefe_inmediato_info !==null?$this->jefe_inmediato_info->nombres.''.$this->jefe_inmediato_info->apellidos:'',
+            'jefe_inmediato' => $this->jefe_inmediato
+
         ];
         return $modelo;
     }

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('ventas_producto_ventas', function (Blueprint $table) {
             $table->id();
             $table->string('bundle_id');
-            $table->string('precio');
+            $table->decimal('precio',8,4);
             $table->unsignedBigInteger('plan_id');
             $table->timestamps();
             $table->foreign('plan_id', 'fk_plan_id')->references('id')->on('ventas_planes')->cascadeOnUpdate();

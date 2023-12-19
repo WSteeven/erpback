@@ -23,8 +23,8 @@ class VendedorController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = Vendedor::ignoreRequest(['campos'])->filter()->get();
-        $results = VendedorResource::collection($results);
+        $results = Vendedor::ignoreRequest(['campos'])->filter()->with('jefe_inmediato_info')->get();
+         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
     }
     public function show(Request $request, Vendedor $vendedor)

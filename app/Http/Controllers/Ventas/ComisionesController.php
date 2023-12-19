@@ -7,6 +7,7 @@ use App\Http\Requests\Ventas\ComisionesRequest;
 use App\Http\Resources\Ventas\ComisionesResource;
 use App\Models\Ventas\Comisiones;
 use App\Models\Ventas\ProductoVentas;
+use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +29,9 @@ class ComisionesController extends Controller
         $results = ComisionesResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Comisiones $umbral)
+    public function show(Request $request, Comisiones $comision)
     {
-        $results = new ComisionesResource($umbral);
+        $results = new ComisionesResource($comision);
 
         return response()->json(compact('results'));
     }
@@ -39,8 +40,8 @@ class ComisionesController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral = Comisiones::create($datos);
-            $modelo = new ComisionesResource($umbral);
+            $comision = Comisiones::create($datos);
+            $modelo = new ComisionesResource($comision);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -49,13 +50,13 @@ class ComisionesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(ComisionesRequest $request, Comisiones $umbral)
+    public function update(ComisionesRequest $request, Comisiones $comision)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral->update($datos);
-            $modelo = new ComisionesResource($umbral->refresh());
+            $comision->update($datos);
+            $modelo = new ComisionesResource($comision->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -64,16 +65,18 @@ class ComisionesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Comisiones $umbral)
+    public function destroy(Request $request, Comisiones $comision)
     {
-        $umbral->delete();
-        return response()->json(compact('umbral'));
+        $comision->delete();
+        return response()->json(compact('comision'));
     }
-    public function obtener_comision($idProducto,$forma_pago){
+    public function obtener_comision($idProducto,$forma_pago,$vendedor){
+        $vendedor = Vendedor::where('id',$vendedor)->first();
+        $tipo_vendedor = $vendedor->tipo_vendedor;
         $producto = ProductoVentas::where('id', $idProducto)->first();
-        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->first();
-        Log::channel('testing')->info('Log', ['comision', compact('comision','producto','forma_pago')]);
-        $comision_value = ($producto->precio*$comision->comision)/100;
+        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->where('tipo_vendedor',$tipo_vendedor)->first();
+        $comision_valor = floatval($comision != null ? $comision->comision:0);
+        $comision_value = $tipo_vendedor== 'VENDEDOR'?  ($producto->precio*$comision_valor)/100:$comision_valor ;
         return response()->json(compact('comision_value'));
     }
 }

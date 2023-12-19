@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_bono_porcentuales', function (Blueprint $table) {
-            $table->id();
-            $table->integer('porcentaje');
-            $table->decimal('comision',10,2);
-            $table->string('tipo_vendedor');
-            $table->timestamps();
+        Schema::table('ventas_vendedor', function (Blueprint $table) {
+            $table->unsignedBigInteger('jefe_inmediato')->after('tipo_vendedor')->nullable();
+            $table->foreign('jefe_inmediato')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -29,6 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_bono_porcentuales_tables');
+        Schema::table('ventas_vendedor', function (Blueprint $table) {
+
+
+        });
     }
 };

@@ -25,7 +25,8 @@ class PagoComisionRequest extends FormRequest
     public function rules()
     {
         return [
-            'fecha'=> 'required',
+            'fecha_inicio'=> 'required',
+            'fecha_fin'=> 'required',
             'vendedor_id'=> 'nullable|integer',
             'chargeback' => 'nullable',
             'valor' => 'nullable'
@@ -33,10 +34,10 @@ class PagoComisionRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $date = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
             'vendedor_id' => $this->vendedor,
-            'fecha' =>  $date->format('Y-m-d'),
+            'fecha_inicio' =>   Carbon::createFromFormat('d-m-Y', $this->fecha_inicio)->format('Y-m-d'),
+            'fecha_fin' =>   Carbon::createFromFormat('d-m-Y', $this->fecha_fin)->format('Y-m-d'),
 
         ]);
     }

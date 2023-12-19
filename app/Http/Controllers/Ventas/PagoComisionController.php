@@ -43,7 +43,7 @@ class PagoComisionController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $this->tabla_comisiones($datos['fecha']);
+            $this->tabla_comisiones($datos['fecha_inicio'],$datos['fecha_fin']);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new PagoComision();
@@ -53,7 +53,7 @@ class PagoComisionController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    private function tabla_comisiones($fecha)
+    private function tabla_comisiones($fecha_inicio,$fecha_fin)
     {
         $vendedor = Vendedor::get();
         $pagos_comision  = [];
@@ -62,11 +62,12 @@ class PagoComisionController extends Controller
             $chargeback = Chargebacks::select( DB::raw('SUM(valor) AS total_chargeback'))
             ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
             ->where('ventas_ventas.vendedor_id', $vendedor->id)
-            ->where('ventas_chargebacks.fecha', '<=', $fecha)
+            ->whereBetween('ventas_chargebacks.fecha',[$fecha_inicio,$fecha_fin])
             ->get();
-            $comisiones = $this->calcular_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);
+            $comisiones = $this->calcular_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
             $pagos_comision[]  = [
-                'fecha' => $fecha,
+                'fecha_inicio' => $fecha_inicio,
+                'fecha_fin' => $fecha_fin,
                 'chargeback' => $chargeback? $chargeback[0]['total_chargeback']:0,
                 'vendedor_id' => $vendedor->id,
                 'valor' =>  $comisiones,
@@ -74,16 +75,16 @@ class PagoComisionController extends Controller
                 'updated_at' => Carbon::now(),
             ];
         }
-        $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha);
+        $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
         PagoComision::insert($pagos_comision);
 
 
     }
-    private function pagar_comisiones($modalidad, $vendedor_id, $fecha)
+    private function pagar_comisiones($modalidad, $vendedor_id, $fecha_inicio, $fecha_fin)
     {
         $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
         $limite_venta = 0;
-        $query_ventas = Ventas::where('created_at', '<=', $fecha)->where('vendedor_id', $vendedor_id);
+        $query_ventas = Ventas::whereBetween('created_at',[$fecha_inicio, $fecha_fin])->where('vendedor_id', $vendedor_id);
         $comisiones = null;
         if($pago_comision == 0){
             $modalidad = Modalidad::where('id',$modalidad)->first();
@@ -99,19 +100,16 @@ class PagoComisionController extends Controller
         ]);
 
     }
-    private function calcular_comisiones($modalidad, $vendedor_id, $fecha)
+    private function calcular_comisiones($modalidad, $vendedor_id, $fecha_inicio,$fecha_fin)
     {
-        $pago_comision= PagoComision::where('vendedor_id',$vendedor_id)->get()->count();
-        $limite_venta = 0;
-        $query_ventas = Ventas::where('created_at', '<=', $fecha)->where('vendedor_id', $vendedor_id);
         $comisiones = null;
-        if($pago_comision == 0){
+        $pago_comision= $this->calcular_ventas_comision($vendedor_id,$fecha_inicio,$fecha_fin);
+        if($pago_comision['pago_comision'] == 0){
             $modalidad = Modalidad::where('id',$modalidad)->first();
             $limite_venta =  $modalidad!=null? $modalidad->umbral_minimo:0;
-            $comisiones = $query_ventas->orderBy('id')->skip($limite_venta)->take(999999)->get();
-
+            $comisiones = $pago_comision['query_ventas']->orderBy('id')->skip($limite_venta)->take(999999)->get();
         }else{
-            $comisiones = $query_ventas->get();
+            $comisiones = $pago_comision['query_ventas']->get();
         }
         $comisiones = array_reduce($comisiones->toArray(), function ($carry, $item) {
             return $carry + $item["comision_vendedor"];
@@ -119,6 +117,25 @@ class PagoComisionController extends Controller
         return $comisiones;
 
     }
+public function calcular_ventas_comision($vendedor_id, $fecha_inicio, $fecha_fin){
+    $query_ventas = Ventas::whereBetween('created_at',[ $fecha_inicio, $fecha_fin]);
+    $query_comisiones = PagoComision::where('vendedor_id',$vendedor_id);
+    $vendedor = Vendedor::where('id',$vendedor_id)->first();
+    if ($vendedor->tipo_vendedor == 'VENDEDOR'){
+        $pago_comision= $query_comisiones->get()->count();
+        $limite_venta = 0;
+        $query_ventas ->where('vendedor_id', $vendedor_id);
+    }else{
+        $pago_comision =  $query_comisiones->whereIn('vendedor',function($query)use($vendedor){
+            $query->where('jefe_inmediato',$vendedor);
+        } )->get()->count();
+        $query_ventas = $query_ventas->whereIn('vendedor',function($query)use($vendedor){
+            $query->where('jefe_inmediato',$vendedor);
+        } );
+    }
+    return compact('pago_comision','query_ventas');
+}
+
     public function update(PagoComisionRequest $request, PagoComision $pago_comision)
     {
         try {
