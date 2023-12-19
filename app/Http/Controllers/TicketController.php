@@ -6,6 +6,7 @@ use App\Events\ActualizarNotificacionesEvent;
 use App\Events\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
+use App\Mail\Tickets\EnviarMailTicket;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\CalificacionTicket;
 use App\Models\Departamento;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\TicketService;
 use Src\Shared\Utils;
+use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
 {
@@ -95,6 +97,8 @@ class TicketController extends Controller
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket cancelado exitosamente!';
+
+        Mail::to($ticket->responsable->user->email)->send(new EnviarMailTicket($ticket));
 
         event(new TicketEvent($ticket->refresh(), $modelo->solicitante_id, $modelo->responsable_id));
         event(new ActualizarNotificacionesEvent());
@@ -239,7 +243,9 @@ class TicketController extends Controller
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());
-        $mensaje = 'Ticket finalizado exitosamente!';
+        $mensaje = 'Ticket finalizado exitosamente!' ;
+
+        // Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket->refresh()));
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
         event(new ActualizarNotificacionesEvent());
@@ -278,10 +284,9 @@ class TicketController extends Controller
         $idResponsableAnterior = $ticket->responsable_id;
 
         $ticket->estado = Ticket::RECHAZADO;
-        $ticket->responsable_id = NULL;
-        $ticket->departamento_responsable_id = NULL;
+        // $ticket->responsable_id = NULL;
+        // $ticket->departamento_responsable_id = NULL;
         $ticket->save();
-
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -295,6 +300,8 @@ class TicketController extends Controller
 
         event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
         event(new ActualizarNotificacionesEvent());
+
+        Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket));
 
         return response()->json(compact('modelo', 'mensaje'));
     }
