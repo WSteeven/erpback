@@ -415,7 +415,7 @@ class RolPagoMesController extends Controller
                     $groupedData[$descuentoId] = [];
                 }
                 foreach ($column_name as $name) {
-                    if($name != $descuentoId){
+                    if ($name != $descuentoId) {
                         $groupedData[$name][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
                     if ($name == $descuentoId) {
@@ -428,13 +428,13 @@ class RolPagoMesController extends Controller
     }
     public function eliminar_duplicados(array $datos, $llave_buscar): array
     {
-        $array_sin_duplicados =[];
+        $array_sin_duplicados = [];
         foreach ($datos as $clave => $objeto) {
             $array_sin_duplicados[$clave] = [];
             $serial_ant = null;
-           if($this->verificar_valor_cero_primera_posicion($objeto)){
-            rsort($objeto);
-           }
+            if ($this->verificar_valor_cero_primera_posicion($objeto)) {
+                rsort($objeto);
+            }
             foreach ($objeto as $objeto_actual) {
                 $serial_act = $clave . '' . $objeto_actual['id'];
                 if ($objeto_actual['id'] !== 0 && $serial_act !== $serial_ant) {
@@ -624,8 +624,17 @@ class RolPagoMesController extends Controller
      */
     private function agregar_nuevos_empleados(RolPagoMes $rol)
     {
-        try {
-            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
+       try {
+            $mes_rol =Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $final_mes = new Carbon($mes_rol);
+            $ultimo_dia_mes = $final_mes->endOfMonth();
+            $empleadosSinRolPago = Empleado::where('id', '>', 2)
+            ->where('estado', true)
+            ->where('esta_en_rol_pago', true)
+            ->where('fecha_vinculacion','<',$ultimo_dia_mes)
+            ->where('salario', '!=', 0)
+            ->whereDoesntHave('rolesPago')
+            ->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -677,7 +686,7 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-        } catch (Exception $ex) {
+       } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],
@@ -705,6 +714,12 @@ class RolPagoMesController extends Controller
                 $dias = $rol_pago->dias;
                 $salario = $this->nominaService->calcularSalario();
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                if ($rol_mes->es_quincena) {
+                    $quincena = $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                    if ($quincena !== $rol_pago->sueldo) {
+                        $sueldo =  $rol_pago->sueldo;
+                    }
+                }
                 $decimo_tercero =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
                 $fondos_reserva =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
@@ -745,7 +760,7 @@ class RolPagoMesController extends Controller
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
-                'Error al generar rol pago por empleado' => [$ex->getMessage()],
+                'Error al refrescar rol pago por empleado' => [$ex->getMessage()],
             ]);
         }
     }
