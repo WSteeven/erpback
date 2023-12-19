@@ -18,15 +18,14 @@ class TransferenciaProductoEmpleadoController extends Controller
 {
     private $entidad = 'Transferencia';
 
-    public function index() {
+    public function index()
+    {
         $results = TransferenciaProductoEmpleado::get();
         return response()->json(compact('results'));
     }
 
     public function store(TransferenciaProductoEmpleadoRequest $request)
     {
-        // Log::channel('testing')->info('Log', ['recibido en el store de devoluciones', $request->all()]);
-        // $url = '/devoluciones';
         try {
             DB::beginTransaction();
             // Adaptacion de foreign keys
@@ -41,13 +40,13 @@ class TransferenciaProductoEmpleadoController extends Controller
 
             // Respuesta
             $transferencia = TransferenciaProductoEmpleado::create($datos);
-            // Log::channel('testing')->info('Log', ['devolucion creada', $devolucion]);
+
+            foreach ($request->listadoProductos as $listado) {
+                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            }
+
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
-            /*foreach ($request->listadoProductos as $listado) {
-                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
-            }*/
 
             DB::commit();
             // $msg = 'Devolución N°' . $devolucion->id . ' ' . $devolucion->solicitante->nombres . ' ' . $devolucion->solicitante->apellidos . ' ha realizado una devolución en la sucursal ' . $devolucion->sucursal->lugar . ' . La autorización está ' . $devolucion->autorizacion->nombre;

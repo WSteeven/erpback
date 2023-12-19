@@ -326,11 +326,14 @@ class TransaccionBodegaEgresoController extends Controller
 
             //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
             if (!$transaccion->transferencia_id) {
-                //creamos el comprobante
-                $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
-                //lanzar el evento de la notificación
-                $msg = 'Se ha generado un despacho de materiales a tu nombre, con transacción N°' . $transaccion->id . ', solicitado por ' . $modelo->solicitante->nombres . ' ' . $modelo->solicitante->apellidos . '. Por favor verifica y firma el movimiento';
-                event(new TransaccionEgresoEvent($msg, $url, $transaccion, false));
+                $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
+                if(!$noGeneraComprobante){
+                    //creamos el comprobante
+                    $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
+                    //lanzar el evento de la notificación
+                    $msg = 'Se ha generado un despacho de materiales a tu nombre, con transacción N°' . $transaccion->id . ', solicitado por ' . $modelo->solicitante->nombres . ' ' . $modelo->solicitante->apellidos . '. Por favor verifica y firma el movimiento';
+                    event(new TransaccionEgresoEvent($msg, $url, $transaccion, false));
+                }
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         } catch (Exception $e) {
