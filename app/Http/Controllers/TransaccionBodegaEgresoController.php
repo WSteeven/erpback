@@ -130,7 +130,7 @@ class TransaccionBodegaEgresoController extends Controller
     public function obtenerMaterialesEmpleadoTarea(Request $request)
     {
         $request->validate([
-            'tarea_id' => 'required|numeric|integer',
+            'tarea_id' => 'nullable|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
         ]);
