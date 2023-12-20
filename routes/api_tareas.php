@@ -128,7 +128,9 @@ Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::clas
 // Obtener los materiales del empleado tanto de tarea como stock personal
 Route::get('materiales-empleado-consolidado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoConsolidado']);
 
-Route::get('tareas-empleado', [TareaController::class,'obtenerTareasEmpleado']);
+// Route::get('proyectos-empleado', [ProyectoController::class,'obtenerProyectosEmpleado']);
+// Route::get('etapas-empleado', [EtapaController::class,'obtenerEtapasEmpleado']);
+// Route::get('tareas-empleado', [TareaController::class,'obtenerTareasEmpleado']);
 
 // Historial de materiales
 Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);

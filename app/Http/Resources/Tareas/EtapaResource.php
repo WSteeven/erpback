@@ -29,6 +29,7 @@ class EtapaResource extends BaseResource
         if ($this->controllerMethodIsShow()) {
             $modelo['supervisor_responsable'] = $this->responsable_id;
             $modelo['proyecto'] = $this->proyecto_id;
+            $modelo['responsable'] = $this->responsable_id;
         }
 
         return $modelo;

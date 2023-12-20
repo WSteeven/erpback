@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProyectoRequest;
 use App\Http\Resources\ProyectoResource;
 use App\Models\Proyecto;
+use App\Models\Subtarea;
+use App\Models\Tarea;
+use App\Models\Tareas\Etapa;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +19,10 @@ class ProyectoController extends Controller
 
     public function listar()
     {
-        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        /* Este código se utiliza para manejar un caso específico en el que es necesario
+        recuperar los proyectos asociados con un empleado específico. */
+        if(request('empleado_id')) return $this->obtenerProyectosEmpleado(request());
+
         if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO]))
             return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->orderBy('id', 'desc')->get();
         return Proyecto::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
@@ -80,5 +86,28 @@ class ProyectoController extends Controller
         $proyecto->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * La función obtiene proyectos asociados con un empleado específico y los devuelve como una
+     * respuesta JSON.
+     *
+     * @param Request request El parámetro  es una instancia de la clase Request, que se
+     * utiliza para recuperar datos de la solicitud HTTP. En este caso, se utiliza para recuperar el
+     * valor del parámetro 'empleado_id' de la solicitud.
+     *
+     * @return una respuesta JSON que contiene los resultados de la consulta. Los resultados se
+     * obtienen filtrando y ordenando una colección de proyectos según el ID del empleado proporcionado
+     * en la solicitud. Luego, los resultados se transforman en una colección de objetos
+     * ProyectoResource antes de ser devueltos.
+     */
+    public function obtenerProyectosEmpleado(Request $request){
+        $tareas_ids_subtareas = Subtarea::where('empleado_id', $request->empleado_id)->get('tarea_id');
+        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->get('etapa_id');
+        $ids_proyectos = Etapa::whereIn('id', $ids_etapas)->get('proyecto_id');
+        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get();
+
+
+        return $proyectos;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
+use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\UserResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
@@ -404,7 +405,7 @@ class EmpleadoController extends Controller
         $roles = [];
         if (!is_null($request->roles)) {
             $roles = explode(',', $request->roles);
-            $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
+            $results = EmpleadoRolePermisoResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
                 $query->where('estado', true);
             })->get());
         }
@@ -417,7 +418,7 @@ class EmpleadoController extends Controller
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
         }
         return response()->json(compact('results'));
     }
