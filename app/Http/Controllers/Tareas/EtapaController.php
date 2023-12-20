@@ -39,8 +39,8 @@ class EtapaController extends Controller
     public function obtenerEtapasAsignadasEmpleado(int $empleado_id)
     {
         $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
-        $etapas_ids = Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->ignoreRequest(['activas_empleado', 'empleado_id', 'campos'])->pluck('etapa_id');
-        return Etapa::whereIn('id', $etapas_ids)->get();
+        $etapas_ids = Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->pluck('etapa_id');
+        return Etapa::whereIn('id', $etapas_ids)->ignoreRequest(['etapas_empleado', 'empleado_id', 'campos'])->filter()->get();
     }
 
     /**
