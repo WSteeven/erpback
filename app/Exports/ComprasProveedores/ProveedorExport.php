@@ -23,13 +23,15 @@ class ProveedorExport implements WithMultipleSheets
     protected $contactos;
     protected $datosBancarios;
     protected $configuracion;
+    protected $proveedoresCompletos;
 
-    public function __construct($proveedores, $contactos, $datosBancarios, $configuracion)
+    public function __construct($proveedores, $contactos, $datosBancarios, $configuracion, $proveedoresCompletos)
     {
         $this->configuracion = $configuracion;
         $this->proveedores = $proveedores;
         $this->contactos = $contactos;
         $this->datosBancarios = $datosBancarios;
+        $this->proveedoresCompletos = $proveedoresCompletos;
     }
 
     public function sheets(): array
@@ -38,6 +40,7 @@ class ProveedorExport implements WithMultipleSheets
         $sheets[1] = new ProveedoresExport($this->proveedores, $this->configuracion);
         $sheets[2] = new ContactosExport($this->contactos, $this->configuracion);
         $sheets[3] = new DatosBancariosExport($this->datosBancarios, $this->configuracion);
+        $sheets[4] = new ProveedoresCompletosExport($this->proveedoresCompletos, $this->configuracion);
 
         return $sheets;
     }
@@ -165,5 +168,39 @@ class DatosBancariosExport extends DefaultValueBinder implements WithCustomValue
     public function title(): string
     {
         return 'Datos Bancarios'; // Nombre de la segunda hoja
+    }
+}
+
+class ProveedoresCompletosExport extends DefaultValueBinder implements  WithCustomValueBinder, FromView, ShouldAutoSize, WithColumnWidths{
+    protected $datos;
+    protected $configuracion;
+
+    public function __construct($datos, $configuracion)
+    {
+        $this->datos = $datos;
+        $this->configuracion = $configuracion;
+    }
+    public function bindValue(Cell $cell, $value)
+    {
+        if (is_numeric($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
+        // else return default behavior
+        return parent::bindValue($cell, $value);
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 30,
+            'B' => 30,
+        ];
+    }
+    public function view(): View
+    {
+        return view('compras_proveedores.proveedores.excel.datos_completos', ['reporte' => $this->datos, 'configuracion' => $this->configuracion,]);
     }
 }

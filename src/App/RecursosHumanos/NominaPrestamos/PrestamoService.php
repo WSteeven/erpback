@@ -113,6 +113,7 @@ class PrestamoService
             ->whereYear('fecha_vencimiento', $anio)
             ->whereMonth('fecha_vencimiento', $mes)
             ->where('pago_couta', 0)
+           -> where('plazo_prestamo_empresarial.estado', true)
             ->sum('valor_a_pagar');
             return $prestamo != null ? $prestamo : 0;
         }

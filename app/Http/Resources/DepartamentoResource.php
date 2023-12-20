@@ -22,6 +22,7 @@ class DepartamentoResource extends JsonResource
             'nombre' => $this->nombre,
             'activo' => $this->activo,
             'responsable' => $this->responsable ? Empleado::extraerNombresApellidos($this->responsable) : null,
+            'responsable_id' => $this->responsable_id,
         ];
 
         if ($controller_method == 'show') {

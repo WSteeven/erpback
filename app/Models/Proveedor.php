@@ -35,6 +35,7 @@ class Proveedor extends Model implements Auditable
         "referencia",
         "plazo_credito",
         "anticipos",
+        "correo",
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -115,6 +116,13 @@ class Proveedor extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+    /**
+     * La función `guardarCalificacion` actualiza la calificación y el estado de un proveedor en
+     * función de las calificaciones otorgadas por los diferentes departamentos.
+     *
+     * @param proveedor_id El parámetro `proveedor_id` es el ID del proveedor para el que desea
+     * guardar la calificación.
+     */
     public static function guardarCalificacion($proveedor_id)
     {
         $proveedor = Proveedor::find($proveedor_id);
@@ -154,44 +162,44 @@ class Proveedor extends Model implements Auditable
         $proveedor->refresh();
     }
 
-    public static function obtenerCalificacion($proveedor_id)
-    {
-        $proveedor = Proveedor::find($proveedor_id);
-        if ($proveedor->departamentos_califican->count() == 2) {
-            $calificaciones = [];
-            foreach ($proveedor->departamentos_califican as $index => $departamento) {
-                if ($departamento->pivot->calificacion != null) {
-                    $row['departamento_id'] = $departamento->id;
-                    $row['calificacion'] = $departamento->pivot->calificacion;
-                    $calificaciones[$index] = $row;
-                }
-            }
-            $suma = self::calcularPesos($calificaciones);
-            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
-                return [$suma, 'CALIFICADO'];
-            } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
-            else return [$suma, 'PARCIAL'];
-            Log::channel('testing')->info('Log', ['Calificaciones', $calificaciones, 'Suma de notas: ', $suma]);
-        }
-        if ($proveedor->departamentos_califican->count() == 3) {
-            // Log::channel('testing')->info('Log', ['Proveedor tiene 3 departamentos']);
-            $calificaciones = [];
-            foreach ($proveedor->departamentos_califican as $index => $departamento) {
-                if ($departamento->pivot->calificacion != null) {
-                    $row['departamento_id'] = $departamento->id;
-                    $row['calificacion'] = $departamento->pivot->calificacion;
-                    $calificaciones[$index] = $row;
-                }
-            }
-            $suma = self::calcularPesos($calificaciones);
-            if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
-                return [$suma, 'CALIFICADO'];
-            } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
-            else return [$suma, 'PARCIAL'];
-        }
-        // Log::channel('testing')->info('Log', ['Proveedor tiene ' . $proveedor->departamentos_califican->count() . ' departamentos']);
-        return [0, 'SIN CONFIGURAR'];
-    }
+    // public static function obtenerCalificacion($proveedor_id)
+    // {
+    //     $proveedor = Proveedor::find($proveedor_id);
+    //     if ($proveedor->departamentos_califican->count() == 2) {
+    //         $calificaciones = [];
+    //         foreach ($proveedor->departamentos_califican as $index => $departamento) {
+    //             if ($departamento->pivot->calificacion != null) {
+    //                 $row['departamento_id'] = $departamento->id;
+    //                 $row['calificacion'] = $departamento->pivot->calificacion;
+    //                 $calificaciones[$index] = $row;
+    //             }
+    //         }
+    //         $suma = self::calcularPesos($calificaciones);
+    //         if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
+    //             return [$suma, 'CALIFICADO'];
+    //         } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+    //         else return [$suma, 'PARCIAL'];
+    //         Log::channel('testing')->info('Log', ['Calificaciones', $calificaciones, 'Suma de notas: ', $suma]);
+    //     }
+    //     if ($proveedor->departamentos_califican->count() == 3) {
+    //         // Log::channel('testing')->info('Log', ['Proveedor tiene 3 departamentos']);
+    //         $calificaciones = [];
+    //         foreach ($proveedor->departamentos_califican as $index => $departamento) {
+    //             if ($departamento->pivot->calificacion != null) {
+    //                 $row['departamento_id'] = $departamento->id;
+    //                 $row['calificacion'] = $departamento->pivot->calificacion;
+    //                 $calificaciones[$index] = $row;
+    //             }
+    //         }
+    //         $suma = self::calcularPesos($calificaciones);
+    //         if (count($calificaciones) == $proveedor->departamentos_califican->count()) {
+    //             return [$suma, 'CALIFICADO'];
+    //         } elseif (empty($calificaciones)) return [$suma, 'SIN CALIFICAR'];
+    //         else return [$suma, 'PARCIAL'];
+    //     }
+    //     // Log::channel('testing')->info('Log', ['Proveedor tiene ' . $proveedor->departamentos_califican->count() . ' departamentos']);
+    //     return [0, 'SIN CONFIGURAR'];
+    // }
 
     /**
      * La función "calcularPesos" calcula los pesos en base al número de departamentos y sus
@@ -212,10 +220,10 @@ class Proveedor extends Model implements Auditable
      */
     private static function calcularPesos($data)
     {
-        $user_compras = User::with('empleado')->whereHas("roles", function ($q) {
+        $user_compras = User::where('email', 'yloja@jpconstrucred.com')->with('empleado')->whereHas("roles", function ($q) {
             $q->where("name", User::ROL_COMPRAS);
         })->first();
-        Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
+        // Log::channel('testing')->info('Log', ['Conteo de Calificaciones', count($data), ' departamento de compras: ', $user_compras->empleado->departamento_id]);
         $suma = 0;
         switch (count($data)) {
             case 0:

@@ -2,6 +2,7 @@
 
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
+use App\Models\Empleado;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ class EgresoRolPago extends Model implements Auditable
     protected $fillable = [
         'descuento_id',
         'id_rol_pago',
+        'empleado_id',
         'monto'
     ];
 
@@ -24,12 +26,17 @@ class EgresoRolPago extends Model implements Auditable
         'id',
         'descuento',
         'rol_pago',
+        'empleado_id',
+        'empleado',
         'monto'
     ];
     //Relación polimorfica
     public function descuento()
     {
         return $this->morphTo();
+    }
+    public function empleado(){
+        return $this->hasOne(Empleado::class,'id','empleado_id');
     }
     /**
      * This PHP function creates an expense for a payment role and returns a egreso.
@@ -45,7 +52,8 @@ class EgresoRolPago extends Model implements Auditable
     public static function crearEgresoRol($rol_pago, $monto, $entidad)
     {
         $egreso = $entidad->egreso_rol_pago()->create([
-            'id_rol_pago' => $rol_pago,
+            'id_rol_pago' => $rol_pago->id,
+            'empleado_id' => $rol_pago->empleado_id,
             'monto' => $monto,
         ]);
         return $egreso;
@@ -64,10 +72,12 @@ class EgresoRolPago extends Model implements Auditable
     *
     * @return el objeto "egreso" actualizado.
     */
-    public static function editarEgresoRol($rol_pago, $monto, $entidad)
+    public static function editarEgresoRol($rol_pago, $monto,$egreso_id, $entidad )
     {
-        $egreso = $entidad->egreso_rol_pago()->update([
-            'id_rol_pago' => $rol_pago,
+        $egreso = $entidad->egreso_rol_pago()->where('id', $egreso_id)->first();
+        $egreso->update([
+            'id_rol_pago' => $rol_pago->id,
+            'empleado_id' => $rol_pago->empleado_id,
             'monto' => $monto,
         ]);
         return $egreso;

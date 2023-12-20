@@ -17,17 +17,8 @@ class InventarioObserver
     public function created(Inventario $inventario)
     {
         // Log::channel('testing')->info('Log', ['created InventarioObserver', $inventario]);
-        
-        $control_stock = ControlStock::where('detalle_id', $inventario->detalle_id)
-            ->where('sucursal_id', $inventario->sucursal_id)
-            ->where('cliente_id', $inventario->cliente_id)->first();
+        ControlStock::actualizarEstado($inventario->detalle_id,$inventario->sucursal_id, $inventario->cliente_id); //se actualiza el estado de control de stock
 
-        // Log::channel('testing')->info('Log', ['control de stock en created InventarioObserver', $control_stock]);
-        if ($control_stock) {
-            $control_stock->update([
-                'estado' => ControlStock::calcularEstado(ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id), $control_stock->minimo, $control_stock->reorden)
-            ]);
-        }
     }
 
     /**
@@ -39,16 +30,8 @@ class InventarioObserver
     public function updated(Inventario $inventario)
     {
         // Log::channel('testing')->info('Log', ['updated InventarioObserver', $inventario]);
+        ControlStock::actualizarEstado($inventario->detalle_id,$inventario->sucursal_id, $inventario->cliente_id); //se actualiza el estado de control de stock
 
-        $control_stock = ControlStock::where('detalle_id', $inventario->detalle_id)
-            ->where('sucursal_id', $inventario->sucursal_id)
-            ->where('cliente_id', $inventario->cliente_id)->first();
-        // Log::channel('testing')->info('Log', ['control de stock en InventarioObserver', $control_stock]);
-        if ($control_stock) {
-            $control_stock->update([
-                'estado' => ControlStock::calcularEstado(ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id), $control_stock->minimo, $control_stock->reorden)
-            ]);
-        }
     }
 
     /**
@@ -59,16 +42,8 @@ class InventarioObserver
      */
     public function deleted(Inventario $inventario)
     {
-        $control_stock = ControlStock::where('detalle_id', $inventario->detalle_id)
-            ->where('sucursal_id', $inventario->sucursal_id)
-            ->where('cliente_id', $inventario->cliente_id)->first();
-
-        // Log::channel('testing')->info('Log', ['control de stock en created InventarioObserver', $control_stock]);
-        if ($control_stock) {
-            $control_stock->update([
-                'estado' => ControlStock::calcularEstado(ControlStock::controlExistencias($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id), $control_stock->minimo, $control_stock->reorden)
-            ]);
-        }
+        ControlStock::actualizarEstado($inventario->detalle_id, $inventario->sucursal_id, $inventario->cliente_id);
+        
     }
 
     /**

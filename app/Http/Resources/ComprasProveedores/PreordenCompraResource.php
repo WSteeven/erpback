@@ -35,6 +35,8 @@ class PreordenCompraResource extends JsonResource
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['causa_anulacion'] = $this->causa_anulacion;
         }
 
         return $modelo;

@@ -141,7 +141,7 @@ class PreingresoMaterialService
      * `PreingresoMaterial`, que representa una preentrada de materiales. Contiene información como el
      * empleado responsable, el ID de la tarea y otros detalles.
      * @param mixed $listado Una matriz que contiene los detalles de los materiales que se cargarán.
-     * @return void
+     * @return void 
      */
     public static function cargarMaterialesEmpleado(PreingresoMaterial $preingreso, $listado)
     {
@@ -152,9 +152,9 @@ class PreingresoMaterialService
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id);
                     else  // se carga el material al stock personal del tecnico responsable
-                        MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                        MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {
                     throw new Exception('No se encontró un detalle ');
                 }

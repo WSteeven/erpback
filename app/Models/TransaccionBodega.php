@@ -330,61 +330,10 @@ class TransaccionBodega extends Model implements Auditable
 
                 // Si es material para tarea
                 if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('tarea_id', $transaccion->tarea_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->cliente_id = $transaccion->cliente_id;
-                        $material->save();
-                    } else {
-                        // $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
-
-                        MaterialEmpleadoTarea::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'tarea_id' => $transaccion->tarea_id,
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'cliente_id' => $transaccion->cliente_id,
-                            // 'es_fibra' => $esFibra, // Pendiente de obtener
-                        ]);
-                    }
+                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
                 } else {
                     // Stock personal
-                    $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    // Log::channel('testing')->info('Log', compact('itemInventario'));
-                    Log::channel('testing')->info('Log', compact('transaccion'));
-
-                    if ($material) {
-                        // $mensaje = 'ya existe';
-                        // Log::channel('testing')->info('Log', compact('mensaje'));
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->cliente_id = $transaccion->cliente_id;
-                        $material->save();
-
-                        // Log::channel('testing')->info('Log', compact('material'));
-                    } else {
-                        // $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
-                        // $mensaje = 'se crea';
-                        // Log::channel('testing')->info('Log', compact('mensaje'));
-
-                        MaterialEmpleado::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'cliente_id' => $transaccion->cliente_id,
-                            // 'es_fibra' => $esFibra,
-                        ]);
-                    }
+                    MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
                 }
             }
         } catch (Exception $e) {
@@ -477,6 +426,29 @@ class TransaccionBodega extends Model implements Auditable
     {
         $motivoSeleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
         return $motivoSeleccionado->id === $id;
+    }
+
+    /**
+     * La función "verificarMotivosEgreso" verifica si un determinado ID está presente en un conjunto
+     * de motivos de salida que no generan recibo.
+     *
+     * @param int $id El parámetro "id" es el ID del motivo de egreso que necesita ser verificado.
+     *
+     * @return bool un valor booleano que indica si el ID proporcionado está presente en el conjunto de
+     * motivos de alta que no generan un comprobante.
+     */
+    public static function verificarMotivosEgreso(int $id){
+        $motivosDeEgresoQueNoGeneranComprobante = [
+            ['id'=>15, 'nombre'=>'VENTA'],
+            ['id'=>18, 'nombre'=>'DESTRUCCION'],
+            ['id'=>23, 'nombre'=>'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
+            ['id'=>24, 'nombre'=>'EGRESO POR LIQUIDACION DE MATERIALES'],
+            ['id'=>25, 'nombre'=>'AJUSTE DE EGRESO POR REGULARIZACION'],
+            ['id'=>28, 'nombre'=>'ROBO'],
+        ];
+        $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
+
+        return in_array($id, $ids_motivos);
     }
 
 

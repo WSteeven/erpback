@@ -55,31 +55,31 @@ class EmpleadoRequest extends FormRequest
             'casa_propia' => 'nullable|boolean',
             'vive_con_discapacitados' => 'nullable|boolean',
             'responsable_discapacitados' => 'nullable|boolean',
-            'tipo_sangre'=>'required',
-            'direccion'=>'required',
-            'estado_civil_id'=>'required',
-            'correo_personal'=>'required',
-            'area_id'=>'required',
-            'num_cuenta_bancaria'=>'required',
-            'salario'=>'required',
-            'fecha_ingreso'=>'required',
-            'fecha_vinculacion'=>'nullable',
-            'fecha_salida'=>'nullable',
-            'tipo_contrato_id'=> 'required',
-            'tiene_grupo'=>'required',
-            'tiene_discapacidad'=>'required',
-            'nivel_academico'=>'required',
-            'supa' =>'nullable',
-            'talla_zapato' =>'nullable',
-            'talla_camisa' =>'required',
-            'talla_guantes' =>'nullable',
-            'talla_pantalon' =>'nullable',
-            'banco' =>'required',
-            'genero' =>'required',
-            'esta_en_rol_pago'=>'required',
-            'acumula_fondos_reserva'=>'nullable',
-            'realiza_factura'=>'required',
-            'observacion'=>'nullable',
+            'tipo_sangre' => 'required',
+            'direccion' => 'required',
+            'estado_civil_id' => 'required',
+            'correo_personal' => 'required',
+            'area_id' => 'required',
+            'num_cuenta_bancaria' => 'required',
+            'salario' => 'required',
+            'fecha_ingreso' => 'required|date|date_format:Y-m-d',
+            'fecha_vinculacion' => 'nullable|date|date_format:Y-m-d',
+            'fecha_salida' => 'nullable|date|date_format:Y-m-d',
+            'tipo_contrato_id' => 'required',
+            'tiene_grupo' => 'required',
+            'tiene_discapacidad' => 'required',
+            'nivel_academico' => 'required',
+            'supa' => 'nullable',
+            'talla_zapato' => 'nullable',
+            'talla_camisa' => 'required',
+            'talla_guantes' => 'nullable',
+            'talla_pantalon' => 'nullable',
+            'banco' => 'required',
+            'genero' => 'required',
+            'esta_en_rol_pago' => 'required',
+            'acumula_fondos_reserva' => 'nullable',
+            'realiza_factura' => 'required',
+            'observacion' => 'nullable',
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
@@ -97,7 +97,7 @@ class EmpleadoRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $validador = new ValidarIdentificacion();
-           /* if(Utils::validarNumeroCuenta($this->num_cuenta_bancaria)==false){
+            /* if(Utils::validarNumeroCuenta($this->num_cuenta_bancaria)==false){
                 $validator->errors()->add('num_cuenta_bancaria', 'El número de cuenta no pudo ser validado, verifica que sea un numero de cuenta válido');
             }*/
             if (!$validador->validarCedula($this->identificacion)) {
@@ -108,9 +108,22 @@ class EmpleadoRequest extends FormRequest
         });
     }
     public function prepareForValidation()
+
     {
+        if ($this->fecha_vinculacion != null) {
+            $this->merge([
+                'fecha_vinculacion' => date('Y-m-d', strtotime($this->fecha_vinculacion))
+            ]);
+        }
+
+        if ($this->fecha_salida != null) {
+            $this->merge([
+                'fecha_salida' => date('Y-m-d', strtotime($this->fecha_salida))
+            ]);
+        }
         $this->merge([
             'fecha_nacimiento' => date('Y-m-d', strtotime($this->fecha_nacimiento)),
+            'fecha_ingreso' => date('Y-m-d', strtotime($this->fecha_ingreso)),
             'estado_civil_id' => $this->estado_civil,
             'area_id' => $this->area,
             'tipo_contrato_id' => $this->tipo_contrato,
@@ -118,5 +131,3 @@ class EmpleadoRequest extends FormRequest
         ]);
     }
 }
-
-

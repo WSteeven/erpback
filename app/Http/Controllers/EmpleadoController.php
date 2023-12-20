@@ -105,18 +105,16 @@ class EmpleadoController extends Controller
         if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
-
-        // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
-
         try {
             DB::beginTransaction();
+            $username = $this->generarNombreUsuario($datos);
+            $email = $username . '@' . explode("@", $datos['email'])[1];
             $user = User::create([
-                'name' => $datos['usuario'],
+                'name' => $username,
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -178,7 +176,7 @@ class EmpleadoController extends Controller
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
-        $empleado->estado = $request->estado=='true'?1:0;
+        $empleado->estado = $request->estado == 'true' ? 1 : 0;
         $empleado->save();
         $modelo = $empleado;
         return response()->json(compact('modelo'));
@@ -437,5 +435,47 @@ class EmpleadoController extends Controller
         $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+    }
+    /**
+     * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe
+     * en la base de datos.
+     *
+     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
+     * para recuperar datos de la solicitud HTTP. Contiene información como los campos de entrada
+     * enviados en un formulario o los parámetros pasados en la URL.
+     *
+     * @return el nombre de usuario generado.
+     */
+    function generarNombreUsuario($request)
+    {
+        $nombreUsuario = $request['usuario'];
+        $nombres = str_replace('ñ', 'n', $request['nombres']);
+        $apellidos = str_replace('ñ', 'n', $request['apellidos']);
+        // Comprobamos si el nombre de usuario ya existe
+        $query = User::where('name', $nombreUsuario)->get();
+        $username = $nombreUsuario;
+        $inicio_username = '';
+        if ($query->count() > 0) {
+            // Separamos el nombre y el apellido en dos cadenas
+            $nombre = explode(" ", $nombres);
+            $apellido = explode(" ", $apellidos);
+            $inicio_username = $nombre[1][0];
+            $username = $nombre[0][0] . $inicio_username . $apellido[0];
+            $contador = 1;
+            while (User::where('name',  $username)->count() > 0) {
+                if ($contador <= strlen($nombre[0])) {
+                    $inicio_username .= $nombre[0][$contador];
+                    $username = $inicio_username . $nombre[1][0] . $apellido[0];
+                    $contador++;
+                }
+            }
+        }
+        return $username;
+    }
+    function obtenerNombreUsuario(Request $request)
+    {
+        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $username = $this->generarNombreUsuario($datos);
+        return response()->json(compact('username'));
     }
 }

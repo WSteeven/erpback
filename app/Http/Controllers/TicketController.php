@@ -6,8 +6,10 @@ use App\Events\ActualizarNotificacionesEvent;
 use App\Events\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
+use App\Mail\Tickets\EnviarMailTicket;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\CalificacionTicket;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
 use App\Models\Ticket;
@@ -20,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\TicketService;
 use Src\Shared\Utils;
+use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
 {
@@ -41,26 +44,25 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
-        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-        $datos['solicitante_id'] = Auth::user()->empleado->id;
-        $datos['tipo_ticket_id'] = $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
-        $datos['departamento_responsable_id'] = $request->safe()->only(['departamento_responsable'])['departamento_responsable'];
-        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $destinatarios = $request['destinatarios']; // array
 
-        // Calcular estados
-        $datos['estado'] = Ticket::ASIGNADO;
+        if ($request['ticket_interno']) {
+            $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
+        } else {
+            $tickets_creados = $this->servicio->crearMultiplesDepartamentos($destinatarios, $request);
+        }
 
-        $ticket = Ticket::create($datos);
-
-        $modelo = new TicketResource($ticket->refresh());
+        // $modelo = new TicketResource($ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        return response()->json(compact('mensaje', 'modelo'));
+        $ids_tickets_creados = array_map(fn ($ticket) => $ticket->id, $tickets_creados);
+        $modelo = end($tickets_creados);
+
+        return response()->json(compact('mensaje', 'modelo', 'ids_tickets_creados'));
     }
 
     public function show(Ticket $ticket)
@@ -80,6 +82,8 @@ class TicketController extends Controller
 
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket cancelado exitosamente!';
+
+        Mail::to($ticket->responsable->user->email)->send(new EnviarMailTicket($ticket));
 
         event(new TicketEvent($ticket->refresh(), $modelo->solicitante_id, $modelo->responsable_id));
         event(new ActualizarNotificacionesEvent());
@@ -224,7 +228,9 @@ class TicketController extends Controller
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());
-        $mensaje = 'Ticket finalizado exitosamente!';
+        $mensaje = 'Ticket finalizado exitosamente!' ;
+
+        // Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket->refresh()));
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
         event(new ActualizarNotificacionesEvent());
@@ -263,10 +269,9 @@ class TicketController extends Controller
         $idResponsableAnterior = $ticket->responsable_id;
 
         $ticket->estado = Ticket::RECHAZADO;
-        $ticket->responsable_id = NULL;
-        $ticket->departamento_responsable_id = NULL;
+        // $ticket->responsable_id = NULL;
+        // $ticket->departamento_responsable_id = NULL;
         $ticket->save();
-
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -280,6 +285,8 @@ class TicketController extends Controller
 
         event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
         event(new ActualizarNotificacionesEvent());
+
+        Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket));
 
         return response()->json(compact('modelo', 'mensaje'));
     }

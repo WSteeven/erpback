@@ -116,9 +116,10 @@ Route::get('movilizacion-subtarea-destino-actual', [MovilizacionSubtareaControll
  *************/
 // Obtener los materiales del stock personal
 Route::get('materiales-empleado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleado']);
-
 // Obtener los materiales para tareas asignados a un empleado
 Route::get('materiales-empleado-tarea', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoTarea']);
+// Obtener los materiales del empleado tanto de tarea como stock personal
+Route::get('materiales-empleado-consolidado', [TransaccionBodegaEgresoController::class, 'obtenerMaterialesEmpleadoConsolidado']);
 
 // Historial de materiales
 Route::get('obtener-fechas-historial-materiales-usados/{subtarea}', [SeguimientoSubtareaController::class, 'obtenerFechasHistorialMaterialesUsados']);

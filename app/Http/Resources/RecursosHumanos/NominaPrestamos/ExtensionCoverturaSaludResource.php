@@ -16,7 +16,7 @@ class ExtensionCoverturaSaludResource extends JsonResource
     {
         $modelo = [
             'id' => $this->id,
-            'mes' =>$this->identificacion,
+            'mes' =>$this->mes,
             'dependiente_' =>$this->dependiente,
             'dependiente_info' => $this->dependiente_info != null ? $this->dependiente_info->nombres . ' ' . $this->dependiente_info->apellidos : '',
             'empleado' =>$this->empleado_id,

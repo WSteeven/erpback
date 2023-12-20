@@ -517,7 +517,7 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private function reporte_estado_cuenta(Request $request, $tipo)
+ private function reporte_estado_cuenta(Request $request, $tipo)
     {
         try {
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
@@ -615,13 +615,15 @@ class SaldoGrupoController extends Controller
                 'observacion' => '',
                 'ingreso' => 0,
                 'gasto' => 0,
-                'saldo' => $salt_ant
+                'saldo_anterior'=>$salt_ant,
+                'saldo' => $saldo_anterior !=null ? $saldo_anterior->saldo_actual:0,
             ];
             $reportes_unidos =  collect($reportes_unidos)
                 ->prepend($nuevo_elemento)
                 ->toArray();
             $sub_total = 0;
-            $nuevo_saldo = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
+            $nuevo_saldo = $saldo_anterior != null ?  $saldo_anterior->saldo_actual:0;
+            $nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
@@ -631,7 +633,7 @@ class SaldoGrupoController extends Controller
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null ? $salt_ant : 0,
+                'saldo_anterior' => $saldo_anterior != null ?  $saldo_anterior->saldo_actual:0,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -745,7 +747,7 @@ class SaldoGrupoController extends Controller
             ];
             $vista = 'exports.reportes.reporte_consolidado.reporte_consolidado_usuario';
             $export_excel = new ConsolidadoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }

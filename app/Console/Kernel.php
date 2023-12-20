@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
 use App\Jobs\MyJobExample;
+use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
 use App\Jobs\RechazarGastoJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -24,6 +25,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new AnularProformaJob)->dailyAt('08:00'); // Execute job every day at 08:00
         $schedule->job(new RechazarGastoJob)->monthly();
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
+        $schedule->job(new NotificarPermisoJob)->dailyAt('09:00');
+
         // $schedule->job(new MyJobExample)->dailyAt('08:00'); // Execute job every
 
         // $colocar el job que envia el comprobante a recursos humanos y sso cuando ya finalice

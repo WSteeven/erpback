@@ -29,7 +29,7 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];

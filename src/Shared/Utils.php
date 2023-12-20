@@ -742,7 +742,6 @@ class Utils
      */
     public static function  obtenerValorMonetarioTexto($numero)
     {
-        Log::channel('testing')->info('Log', ['Balor recibido', $numero]);
         $num = str_replace(",", "", $numero);
         $num = number_format($num, 2, '.', '');
         $cents = substr($num, strlen($num) - 2, strlen($num) - 1);

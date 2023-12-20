@@ -30,6 +30,7 @@ class OrdenCompraService
     {
         try {
             $configuracion = ConfiguracionGeneral::first();
+            if(!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
             $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);
@@ -38,8 +39,6 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
             $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
@@ -55,13 +54,11 @@ class OrdenCompraService
                 //Se actualiza la ruta en la orden de compra
                 $orden_compra->file = $ruta;
                 $orden_compra->save();
-                Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
+                // Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
 
                 if ($descargar) {
-                    Log::channel('testing')->info('Log', ['Descargar orden de compra', $ruta]);
                     return Storage::download($ruta, $filename);
                 } else {
-                    Log::channel('testing')->info('Log', ['NO Descargar orden de compra', $ruta]);
                     return $ruta;
                 }
             } else {
@@ -79,7 +76,7 @@ class OrdenCompraService
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
         $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
-        Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes, $fecha_inicio, $fecha_fin]);
+        // Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes, $fecha_inicio, $fecha_fin]);
 
         switch ($request->tipo) {
             case 'ESTADO':
@@ -182,7 +179,7 @@ class OrdenCompraService
         );
     }
     /** KPIS
-     * pie de proveedores a los que se les ha comprado, con sus respectivas ordenes de compra, 
+     * pie de proveedores a los que se les ha comprado, con sus respectivas ordenes de compra,
      * al darle clic que muestre los estados de las ordenes de compra de dichos proveedores
      */
     public static function dividirOrdenesPorProveedores($ordenes)
