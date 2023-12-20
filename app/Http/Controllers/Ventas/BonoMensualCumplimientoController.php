@@ -7,6 +7,7 @@ use App\Http\Requests\Ventas\BonoMensualCumplimientoRequest;
 use App\Http\Resources\Ventas\BonoMensualCumplimientoResource;
 use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\Bonos;
+use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\Vendedor;
 use App\Models\Ventas\Ventas;
 use Carbon\Carbon;
@@ -77,28 +78,44 @@ class BonoMensualCumplimientoController extends Controller
         $bonos_mensuales_cumplimiento  = [];
         foreach ($vendedores as $key => $vendedor) {
             $suma_ventas = $this->calcular_cantidad_ventas($mes, $vendedor->id);
-            $bono =  Bonos::where('cant_ventas', '>=', $suma_ventas)->where('cant_ventas', '<=', $suma_ventas)->orderBy('cant_ventas', 'asc')->first();
-            $valor = $bono != null ? $bono->valor : 0;
-            $bonos_mensuales_cumplimiento[]  = [
-                'vendedor_id' => $vendedor->id,
-                'cant_ventas' => $suma_ventas,
-                'mes' =>  $mes,
-                'bono_id' => $bono !=null  ?$bono->id:null,
-                'valor' => $valor,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ];
+            $modalidad = Modalidad::where('id', $vendedor->modalidad_id)->first();
+            if ($vendedor->tipo_vendedor == 'Vendedor') {
+                $bono =  Bonos::where('cant_ventas', '>=', $suma_ventas)->where('cant_ventas', '<=', $suma_ventas)->orderBy('cant_ventas', 'asc')->first();
+                $valor = $bono != null ? $bono->valor : 0;
+                $bonos_mensuales_cumplimiento[]  = [
+                    'vendedor_id' => $vendedor->id,
+                    'cant_ventas' => $suma_ventas,
+                    'mes' =>  $mes,
+                    'bono_id' => $bono != null  ? $bono->id : null,
+                    'valor' => $valor,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+            }
         }
         BonoMensualCumplimiento::insert($bonos_mensuales_cumplimiento);
     }
     public function  calcular_cantidad_ventas($mes, $vendedor_id)
     {
+        $vendedor = Vendedor::where('id', $vendedor_id)->first();
         $fecha = $mes; // Tu fecha en formato "2023-02"
         $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
         $year = $parts[0]; // Año
         $month = $parts[1]; // Mes
-        $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
-            ->whereMonth('fecha_activ',$month)->where('vendedor_id', $vendedor_id)->get()->count();
+        if ($vendedor->tipo_vendedor == 'VENDEDOR') {
+            $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
+                ->whereMonth('fecha_activ', $month)
+                ->where('vendedor_id', $vendedor_id)
+                ->get()
+                ->count();
+        } else {
+            $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
+                ->whereMonth('fecha_activ', $month)
+                ->whereIn('vendedor', function ($query) use ($vendedor) {
+                    $query->where('jefe_inmediato', $vendedor);
+                })->get()
+                ->count();
+        }
         return $cantidad_ventas;
     }
 }
