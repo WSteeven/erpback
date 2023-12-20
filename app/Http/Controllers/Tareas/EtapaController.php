@@ -25,7 +25,8 @@ class EtapaController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request['activas_empleado']) $results = $this->obtenerEtapasAsignadasEmpleado($request['empleado_id']);
+        /* Si etapas_empleado está presente obtiene todas las etapas del `empleado_id` dado. */
+        if ($request['etapas_empleado']) $results = $this->obtenerEtapasAsignadasEmpleado($request['empleado_id']);
         else {
             $mostrar_todas_etapas = Auth::user()->hasRole(User::ROL_JEFE_TECNICO) || Auth::user()->hasRole(User::ROL_SUPERVISOR_TECNICO) || Auth::user()->hasRole(User::ROL_ADMINISTRADOR);
             $campos = $mostrar_todas_etapas ? ['campos', 'responsable_id'] : ['campos'];
@@ -38,8 +39,8 @@ class EtapaController extends Controller
     public function obtenerEtapasAsignadasEmpleado(int $empleado_id)
     {
         $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
-        $etapas_ids = Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->ignoreRequest(['activas_empleado', 'empleado_id', 'campos'])->pluck('etapa_id');
-        return Etapa::whereIn('id', $etapas_ids)->get();
+        $etapas_ids = Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->pluck('etapa_id');
+        return Etapa::whereIn('id', $etapas_ids)->ignoreRequest(['etapas_empleado', 'empleado_id', 'campos'])->filter()->get();
     }
 
     /**
@@ -116,5 +117,15 @@ class EtapaController extends Controller
 
         $modelo = new EtapaResource($etapa->refresh());
         return response()->json(compact('modelo'));
+    }
+
+    public function obtenerEtapasEmpleado(Request $request){
+        $campos = $request->campos?explode(',', request('campos')):'*';
+        $tareas_ids_subtareas = Subtarea::where('empleado_id', $request->empleado_id)->get('tarea_id');
+        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->get('etapa_id');
+        $etapas= Etapa::whereIn('id', $ids_etapas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get($campos);
+
+        $results = EtapaResource::collection($etapas);
+        return response()->json(compact('results'));
     }
 }
