@@ -42,7 +42,7 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
             'autorizacion' => 'required|numeric|integer|exists:autorizaciones,id',
             'autorizador' => 'required|numeric|exists:empleados,id',
             'listado_productos.*.cantidad' => 'required',
-            'listado_productos.*.descripcion' => 'required',
+            // 'listado_productos.*.descripcion' => 'required',
         ];
 
         return $rules;

@@ -54,6 +54,8 @@ class TicketResource extends JsonResource
             'calificado_solicitante' => $this->verificarSiCalificado('SOLICITANTE', $this->solicitante_id),
             'calificado_responsable' => $this->verificarSiCalificado('RESPONSABLE', $this->responsable_id),
             'motivo_cancelado_ticket' => $this->motivoCanceladoTicket?->motivo,
+            // 'motivo_rechazado_ticket' => !empty($this->ticketsRechazados) ? end($this->ticketsRechazados->toArray()) : null,
+            'motivo_rechazado_ticket' => $this->ticketsRechazados->isNotEmpty() ? $this->ticketsRechazados->last()->motivo : null,
             'tiempo_hasta_finalizar' => $this->calcularTiempoEfectivoTotal(),
             'tiempo_hasta_finalizar_horas' => $this->calcularTiempoEfectivoTotalHoras(),
             // 'tiempo_hasta_finalizar_segundos' => $this->calcularTiempoEfectivoTotalSegundos(),
