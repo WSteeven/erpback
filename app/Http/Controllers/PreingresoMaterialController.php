@@ -59,7 +59,8 @@ class PreingresoMaterialController extends Controller
             //Adaptacion de foreign keys
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['responsable_id'] = $request->responsable_id;
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
@@ -72,17 +73,16 @@ class PreingresoMaterialController extends Controller
             //Se crea los detalles y se almacena en detalles productos
             $this->servicio->guardarDetalles($preingreso, $request->listadoProductos);
             // PreingresoMaterial::guardarDetalles($preingreso, $request->listadoProductos);
-
             //Se emite la notificación al autorizador
             if ($preingreso->tarea_id) event(new PreingresoCreadoEvent($preingreso, $preingreso->coordinador_id));
             else event(new PreingresoCreadoEvent($preingreso, $preingreso->autorizador_id));
-
             //Respuesta
             $modelo = new PreingresoMaterialResource($preingreso);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Erorr: ', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage() . '. ' . $e->getLine()],
             ]);
@@ -113,7 +113,8 @@ class PreingresoMaterialController extends Controller
             //Adaptacion de foreign keys
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['responsable_id'] = $request->responsable_id;
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];

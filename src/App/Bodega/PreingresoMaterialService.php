@@ -266,6 +266,7 @@ class PreingresoMaterialService
         try {
             // Ingresa aquí cuando se aprueba el preingreso
             if ($preingreso->autorizacion_id == Autorizaciones::APROBADO) {
+                self::modificarItems($preingreso, $listado);
                 self::cargarMaterialesEmpleado($preingreso, $listado);
             }
 
