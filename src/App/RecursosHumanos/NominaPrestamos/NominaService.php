@@ -53,7 +53,9 @@ class NominaService
     }
     public function setVendedorMedioTiempo($es_vendedor_medio_tiempo)
     {
-        $this->rolPago->es_vendedor_medio_tiempo = $es_vendedor_medio_tiempo;
+        if($this->rolPago !== null){
+            $this->rolPago->es_vendedor_medio_tiempo = $es_vendedor_medio_tiempo;
+        }
     }
     public function getRolPago()
     {
@@ -192,8 +194,9 @@ class NominaService
                 break;
             default:
                 if ($this->rolPago->es_vendedor_medio_tiempo) {
-                    $porcentaje = $this->rolPago->porcentaje_quincena ? $this->rolPago->porcentaje_quincena : 0;
-                    $total_sueldo = $es_quincena ? $this->calcularAnticipo() * $porcentaje / 100 : $sueldo_diario;
+
+                    $porcentaje = $this->rolPago->porcentaje_quincena ? $this->rolPago->porcentaje_quincena/100 : 0;
+                    $total_sueldo = $es_quincena ? ($this->empleado->salario *0.5)* $porcentaje  : $sueldo_diario;
                 } else {
                     $total_sueldo = $es_quincena ? $sueldo_diario * $this->calcularPorcentajeAnticipo() / 100 : $sueldo_diario;
                 }
