@@ -170,7 +170,7 @@ class NominaService
             $sueldo = $salario_diario * $dias_trabajados;
         }
         if ($this->rolPago != null) {
-            return $this->calculoSueldoRolPago($es_quincena, $dias);
+            $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
         }
         return number_format($sueldo, 2);
     }

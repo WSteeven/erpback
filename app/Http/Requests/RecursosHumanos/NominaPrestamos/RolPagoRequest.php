@@ -55,8 +55,7 @@ class RolPagoRequest extends FormRequest
             'fondos_reserva' => 'nullable',
             'total_egreso' => 'required',
             'total' => 'required',
-
-
+            'porcentaje_quincena'=> 'nullable',
         ];
     }
     protected function prepareForValidation()
@@ -100,7 +99,11 @@ class RolPagoRequest extends FormRequest
             $this->merge([
                 'es_vendedor_medio_tiempo' => $this->es_vendedor_medio_tiempo,
             ]);
+            $this->merge([
+                'porcentaje_quincena' => $this->porcentaje_quincena,
+            ]);
         }
+
         $this->merge([
             'dias' => $dias,
             'salario' => $salario,
