@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Ventas;
 
+use App\Models\Ventas\PagoComision;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,12 +26,21 @@ class PagoComisionRequest extends FormRequest
     public function rules()
     {
         return [
-            'fecha_inicio'=> 'required',
-            'fecha_fin'=> 'required',
-            'vendedor_id'=> 'nullable|integer',
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'vendedor_id' => 'nullable|integer',
             'chargeback' => 'nullable',
             'valor' => 'nullable'
         ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $pagoComision = PagoComision::where('fecha_inicio', $this->fecha_inicio)->where('fecha_fin', $this->fecha_fin)->get()->count();
+            if ($pagoComision > 0) {
+                $validator->errors()->add('fecha', 'Ya se ha realizado Pago de comisiones en rango de fechas indicadas');
+            }
+        });
     }
     protected function prepareForValidation()
     {

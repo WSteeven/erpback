@@ -45,6 +45,7 @@ class PagoComisionController extends Controller
     {
         try {
             $datos = $request->validated();
+
             $this->tabla_comisiones($datos['fecha_inicio'], $datos['fecha_fin']);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new PagoComision();
@@ -128,8 +129,9 @@ class PagoComisionController extends Controller
                     $forma_pago = $item['forma_pago'];
                     $tipo_vendedor= $vendedor->tipo_vendedor;
                     $comision_pagar = Comisiones::where('forma_pago', $forma_pago)->where('plan_id',$plan )->where('tipo_vendedor', $tipo_vendedor)->first();
-                    Log::channel('testing')->info('Log', ["ventas supervisor", compact('comision_pagar', 'plan','forma_pago','tipo_vendedor')]);
-                    return $carry + $comision_pagar != null ? $comision_pagar->comision : 0;
+                    $comision_pagar =  $comision_pagar != null ? $comision_pagar->comision:0;
+                    Log::channel('testing')->info('Log', ["calcular_comision",$comision_pagar]);
+                    return $carry + $comision_pagar;
                 }, 0);
             }
             //  $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
