@@ -48,7 +48,7 @@ class RolPago extends Model implements Auditable
         'medio_tiempo',
         'es_vendedor_medio_tiempo',
         'fondos_reserva',
-
+        'porcentaje_quincena'
     ];
     private static $whiteListFilter = [
         'id',
@@ -67,9 +67,8 @@ class RolPago extends Model implements Auditable
         'rol_firmado',
         'fondos_reserva',
         'medio_tiempo',
-        'es_vendedor_medio_tiempo'
-
-
+        'es_vendedor_medio_tiempo',
+        'porcentaje_quincena'
     ];
     protected $casts = ['medio_tiempo' => 'boolean', 'es_vendedor_medio_tiempo' => 'boolean'];
 
