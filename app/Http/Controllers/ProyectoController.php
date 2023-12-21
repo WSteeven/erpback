@@ -102,17 +102,13 @@ class ProyectoController extends Controller
      * ProyectoResource antes de ser devueltos.
      */
     public function obtenerProyectosEmpleado(int $empleado_id){
-        if(auth()->user()->hasRole([User::JEFE_TECNICO, User::ROL_ADMINISTRADOR])){
-            return Proyecto::where('finalizado',0)->get();
-        }else{
-            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->get('tarea_id');
-            $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
-            $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
-            $ids_proyectos = Etapa::where(function($query) use($ids_etapas, $empleado_id){
-                $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
-            })->where('activo', true)->get('proyecto_id');
-            $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get();
-            return $proyectos;
-        }
+        $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->get('tarea_id');
+        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
+        $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
+        $ids_proyectos = Etapa::where(function($query) use($ids_etapas, $empleado_id){
+            $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
+        })->where('activo', true)->get('proyecto_id');
+        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get();
+        return $proyectos;
     }
 }
