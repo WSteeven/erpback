@@ -35,7 +35,7 @@ class RolPagoRequest extends FormRequest
             'empleado' => 'required',
             'mes' => 'required',
             'dias' => 'required',
-            'salario'=>'required',
+            'salario' => 'required',
             'sueldo' => 'required',
             'anticipo' => 'required',
             'ingresos' => 'nullable',
@@ -68,9 +68,9 @@ class RolPagoRequest extends FormRequest
         $prestamoService->setEmpleado($this->empleado);
         $rol = RolPagoMes::where('id', $this->rol_pago_id)->first();
         $nominaService->setRolPago($rol);
-        $nominaService->setVendedorMedioTiempo ($this->es_vendedor_medio_tiempo);
+        $nominaService->setVendedorMedioTiempo($this->es_vendedor_medio_tiempo);
         $dias =  $this->dias;
-        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena,$this->sueldo);
+        $sueldo = $nominaService->calcularSueldo($dias, $rol->es_quincena, $this->sueldo);
         $salario = $nominaService->calcularSalario();
         $decimo_tercero = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(3, $this->dias);
         $decimo_cuarto = $rol->es_quincena ? 0 : $nominaService->calcularDecimo(4, $this->dias);
@@ -94,8 +94,13 @@ class RolPagoRequest extends FormRequest
             ? array_reduce($this->egresos, function ($acumulado, $egreso) {
                 return $acumulado + (float) $egreso['monto'];
             }, 0) : 0;
-        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos+$supa;
+        $egreso = $rol->es_quincena ? 0 : $iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $totalEgresos + $supa;
         $total = abs($ingresos) - $egreso;
+        if ($this->es_vendedor_medio_tiempo ==! null) {
+            $this->merge([
+                'es_vendedor_medio_tiempo' => $this->es_vendedor_medio_tiempo,
+            ]);
+        }
         $this->merge([
             'dias' => $dias,
             'salario' => $salario,
