@@ -66,14 +66,13 @@ class PagoComisionController extends Controller
                     ->whereBetween('ventas_chargebacks.fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $comisiones = $this->calcular_comisiones($vendedor->empleado_id, $fecha_inicio, $fecha_fin);
-                $pagoComison = PagoComision::create([
+                PagoComision::create([
                     'fecha_inicio' => $fecha_inicio,
                     'fecha_fin' => $fecha_fin,
                     'chargeback' => $chargeback ? $chargeback[0]['total_chargeback'] : 0,
                     'vendedor_id' => $vendedor->id,
                     'valor' =>  $comisiones,
                 ]);
-                Log::channel('testing')->info('Log', ["Pago comison", $pagoComison]);
             }
             DB::commit();
             //  $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
@@ -125,13 +124,15 @@ class PagoComisionController extends Controller
                 $ventas = $pago_comision['ventas']->orderBy('ventas_ventas.id')->get();
                 $comisiones = array_reduce($ventas->toArray(), function ($carry, $item) use ($vendedor) {
                     $plan = ProductoVentas::select('plan_id')->where('id', $item['producto_id'])->first();
+                    $plan = $plan != null ? $plan->plan_id : 0;
                     $forma_pago = $item['forma_pago'];
-                    $comision_pagar = Comisiones::where('forma_pago', $forma_pago)->where('plan_id', $plan != null ? $plan->plan_id : 0)->where('tipo_vendedor', $vendedor->tipo_vendedor)->first();
+                    $tipo_vendedor= $vendedor->tipo_vendedor;
+                    $comision_pagar = Comisiones::where('forma_pago', $forma_pago)->where('plan_id',$plan )->where('tipo_vendedor', $tipo_vendedor)->first();
+                    Log::channel('testing')->info('Log', ["ventas supervisor", compact('comision_pagar', 'plan','forma_pago','tipo_vendedor')]);
                     return $carry + $comision_pagar != null ? $comision_pagar->comision : 0;
                 }, 0);
             }
             //  $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
-            // PagoComision::insert($pagos_comision);
             DB::commit();
             return $comisiones;
         } catch (Exception $e) {
