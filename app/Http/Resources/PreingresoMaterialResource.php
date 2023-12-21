@@ -44,7 +44,7 @@ class PreingresoMaterialResource extends JsonResource
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
-            $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['solicitante'] = $this->solicitante_id?$this->solicitante_id:$this->responsable_id;
             $modelo['responsable'] = $this->responsable_id;
             $modelo['proyecto'] = $this->proyecto_id;
             $modelo['etapa'] = $this->etapa_id;

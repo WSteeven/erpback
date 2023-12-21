@@ -11,6 +11,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\UnidadMedida;
+use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -29,34 +30,36 @@ class PreingresoMaterialService
     public static function filtrarPreingresos(Request $request)
     {
         if ($request->autorizacion_id) {
-            switch ($request->autorizacion_id) {
-                case 1: //PENDIENTE
+            // switch ($request->autorizacion_id) {
+            //     case 1: //PENDIENTE
+                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
                     $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
                         ->where(function ($query) {
                             $query->where('responsable_id', auth()->user()->empleado->id)
                                 ->orWhere('autorizador_id', auth()->user()->empleado->id)
                                 ->orWhere('coordinador_id', auth()->user()->empleado->id);
                         })->orderBy('id', 'desc')->get();
-                    break;
-                case 2: //APROBADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->orderBy('id', 'desc')->get();
-                    break;
-                case 3: //CANCELADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->orderBy('id', 'desc')->get();
-                    break;
-                default:
-                    $results = PreingresoMaterial::all();
-            }
+            //         break;
+            //     case 2: //APROBADO
+            //         if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
+            //         $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+            //             ->where(function ($query) {
+            //                 $query->where('responsable_id', auth()->user()->empleado->id)
+            //                     ->orWhere('autorizador_id', auth()->user()->empleado->id)
+            //                     ->orWhere('coordinador_id', auth()->user()->empleado->id);
+            //             })->orderBy('id', 'desc')->get();
+            //         break;
+            //     case 3: //CANCELADO
+            //         $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+            //             ->where(function ($query) {
+            //                 $query->where('responsable_id', auth()->user()->empleado->id)
+            //                     ->orWhere('autorizador_id', auth()->user()->empleado->id)
+            //                     ->orWhere('coordinador_id', auth()->user()->empleado->id);
+            //             })->orderBy('id', 'desc')->get();
+            //         break;
+            //     default:
+            //         $results = PreingresoMaterial::all();
+            // }
         } else {
             $results = PreingresoMaterial::all();
         }
