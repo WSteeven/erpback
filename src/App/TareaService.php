@@ -50,6 +50,11 @@ class TareaService
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
         $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
-        return Tarea::whereIn('id', $tareas_ids)->where('finalizado', 0)->ignoreRequest(['activas_empleado', 'empleado_id', 'campos'])->filter()->get();
+        $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos'];
+
+        /* if (request('sin_etapa')) {
+            Tarea::whereIn('id', $tareas_ids)->estaActiva()->sinEtapa()->ignoreRequest([...$ignoreRequest, 'etapa_id'])->filter()->get();
+        } */
+        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->ignoreRequest($ignoreRequest)->filter()->get();
     }
 }

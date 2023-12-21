@@ -146,7 +146,7 @@ Route::post('actualizar-cantidad-utilizada-stock', [SeguimientoSubtareaControlle
 
 // Clientes dueños de materiales
 Route::get('obtener-clientes-materiales-empleado/{empleado}', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesEmpleado']);
-Route::get('obtener-clientes-materiales-tarea/{empleado}', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesTarea']);
+Route::get('obtener-clientes-materiales-tarea', [SeguimientoSubtareaController::class, 'obtenerClientesMaterialesTarea']);
 
 /***********
  * Reportes

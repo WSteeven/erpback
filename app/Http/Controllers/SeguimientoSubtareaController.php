@@ -286,9 +286,12 @@ class SeguimientoSubtareaController extends Controller
 
     public function obtenerClientesMaterialesTarea(Request $request, Empleado $empleado)
     {
+        $empleado_id = request('empleado_id') ?? $empleado->id;
+        Log::channel('testing')->info('Log', compact('empleado_id'));
+
         $results = DB::table('materiales_empleados_tareas')
             ->select('materiales_empleados_tareas.cliente_id', 'empresas.razon_social')
-            ->where('empleado_id', $empleado->id)
+            ->where('empleado_id', $empleado_id)
             ->join('clientes', 'cliente_id', '=', 'clientes.id')
             ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
             ->groupBy('cliente_id')
@@ -298,6 +301,8 @@ class SeguimientoSubtareaController extends Controller
             'cliente_id' => null,
             'razon_social' => 'SIN CLIENTE',
         ]);
+
+        Log::channel('testing')->info('Log', compact('results'));
 
         return response()->json(compact('results'));
     }
