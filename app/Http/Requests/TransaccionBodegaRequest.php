@@ -52,6 +52,8 @@ class TransaccionBodegaRequest extends FormRequest
             'per_autoriza' => 'required|exists:empleados,id',
             'per_atiende' => 'sometimes|nullable|exists:empleados,id',
             'per_retira' => 'sometimes|nullable|exists:empleados,id',
+            'proyecto' => 'sometimes|nullable|exists:proyectos,id',
+            'etapa' => 'sometimes|nullable|exists:tar_etapas,id',
             'tarea' => 'sometimes|nullable|exists:tareas,id',
             'cliente' => 'sometimes|exists:clientes,id',
             'listadoProductosTransaccion.*.cantidad' => 'required'

@@ -35,6 +35,8 @@ class TransaccionBodega extends Model implements Auditable
         'devolucion_id',
         'pedido_id',
         'transferencia_id',
+        'proyecto_id',
+        'etapa_id',
         'tarea_id',
         'tipo_id',
         'sucursal_id',
@@ -330,7 +332,7 @@ class TransaccionBodega extends Model implements Auditable
 
                 // Si es material para tarea
                 if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
+                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                 } else {
                     // Stock personal
                     MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
