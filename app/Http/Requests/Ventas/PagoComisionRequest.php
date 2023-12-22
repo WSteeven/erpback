@@ -5,6 +5,7 @@ namespace App\Http\Requests\Ventas;
 use App\Models\Ventas\PagoComision;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class PagoComisionRequest extends FormRequest
 {
@@ -38,12 +39,8 @@ class PagoComisionRequest extends FormRequest
         $validator->after(function ($validator) {
 
 
-            $validarPagoComision = PagoComision::select('fecha_fin')->last();
-           // Log::channel('testing')->info('Log', ['validarPagoComision', $validarPagoComision]);
-
-            /*PagoComision::where('fecha_fin','>', $this->fecha_inicio)
-            ->get()
-            ->count();*/
+            $validarPagoComision = PagoComision::select('fecha_fin')->latest()->first();
+            Log::channel('testing')->info('Log', ['validarPagoComision', $validarPagoComision]);
            /* if ($validarPagoComision > 0) {
                 $validator->errors()->add('fecha', 'La fecha de Inicio no puede ser menor a la fecha de Fin');
             }*/
