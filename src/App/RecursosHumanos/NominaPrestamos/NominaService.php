@@ -195,7 +195,7 @@ class NominaService
                     $porcentaje = $this->rolPago->porcentaje_quincena ? $this->rolPago->porcentaje_quincena : 0;
                     $total_sueldo = $es_quincena ? $this->calcularAnticipo() * $porcentaje / 100 : $sueldo_diario;
                 } else {
-                    $total_sueldo = $es_quincena ? $sueldo_diario * $this->calcularPorcentajeAnticipo() / 100 : $sueldo_diario;
+                    $total_sueldo = $es_quincena ? $sueldo_diario * $this->calcularPorcentajeAnticipo() : $sueldo_diario;
                 }
                 break;
         }

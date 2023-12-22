@@ -36,7 +36,19 @@ class PagoComisionRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $pagoComision = PagoComision::where('fecha_inicio', $this->fecha_inicio)->where('fecha_fin', $this->fecha_fin)->get()->count();
+
+
+            $validarPagoComision = PagoComision::select('fecha_fin')->last();
+           // Log::channel('testing')->info('Log', ['validarPagoComision', $validarPagoComision]);
+
+            /*PagoComision::where('fecha_fin','>', $this->fecha_inicio)
+            ->get()
+            ->count();*/
+           /* if ($validarPagoComision > 0) {
+                $validator->errors()->add('fecha', 'La fecha de Inicio no puede ser menor a la fecha de Fin');
+            }*/
+            $pagoComision = PagoComision::where('fecha_inicio', $this->fecha_inicio)
+            ->where('fecha_fin', $this->fecha_fin)->get()->count();
             if ($pagoComision > 0) {
                 $validator->errors()->add('fecha', 'Ya se ha realizado Pago de comisiones en rango de fechas indicadas');
             }
