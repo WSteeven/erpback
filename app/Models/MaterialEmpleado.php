@@ -44,7 +44,7 @@ class MaterialEmpleado extends Model implements Auditable
 
     public function scopeMateriales($query)
     {
-        return $query->join('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where('productos.categoria_id', Producto::MATERIAL);
+        return $query->leftJoin('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where('productos.categoria_id', Producto::MATERIAL);
     }
 
     public function scopeTieneStock($query)

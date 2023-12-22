@@ -68,11 +68,13 @@ class TransaccionBodegaEgresoController extends Controller
             'seguimiento' => 'nullable|boolean',
         ]);
 
-        if ($request->exists('seguimiento')) {
+        if ($request->exists('subtarea_id')) {
+            Log::channel('testing')->info('Log', ['en el if', 'ifff..']);
             // Cuando se hace el seguimiento de la subtarea solo se deben descontar los materiales
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
             else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
         } else {
+            Log::channel('testing')->info('Log', ['en el else', 'else..']);
             // Mi bodega
             if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
             else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
