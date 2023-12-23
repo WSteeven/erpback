@@ -21,7 +21,7 @@ class ProyectoController extends Controller
     {
         /* Este código se utiliza para manejar un caso específico en el que es necesario
         recuperar los proyectos asociados con un empleado específico. */
-        if(request('empleado_id')) return $this->obtenerProyectosEmpleado(request());
+        if(request('empleado_id')) return $this->obtenerProyectosEmpleado(request('empleado_id'));
 
         if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO]))
             return Proyecto::ignoreRequest(['campos', 'coordinador_id'])->filter()->orderBy('id', 'desc')->get();
@@ -101,13 +101,14 @@ class ProyectoController extends Controller
      * en la solicitud. Luego, los resultados se transforman en una colección de objetos
      * ProyectoResource antes de ser devueltos.
      */
-    public function obtenerProyectosEmpleado(Request $request){
-        $tareas_ids_subtareas = Subtarea::where('empleado_id', $request->empleado_id)->get('tarea_id');
-        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->get('etapa_id');
-        $ids_proyectos = Etapa::whereIn('id', $ids_etapas)->get('proyecto_id');
-        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get();
-
-
+    public function obtenerProyectosEmpleado(int $empleado_id){
+        $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->get('tarea_id');
+        $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
+        $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');
+        $ids_proyectos = Etapa::where(function($query) use($ids_etapas, $empleado_id){
+            $query->whereIn('id', $ids_etapas)->orWhere('responsable_id', $empleado_id);
+        })->where('activo', true)->get('proyecto_id');
+        $proyectos = Proyecto::whereIn('id', $ids_proyectos)->orWhereIn('id', $ids_proyectos_tareas)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get();
         return $proyectos;
     }
 }

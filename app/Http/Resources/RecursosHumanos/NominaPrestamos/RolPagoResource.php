@@ -20,9 +20,6 @@ class RolPagoResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        $total = floatval($this->total);
-        $sueldo = floatval($this->sueldo);
-        $porcentaje_quincena = ($total)/$sueldo*100;
         $modelo = [
             'id' => $this->id,
             'fecha' => $this->cambiar_fecha($this->created_at),
@@ -61,7 +58,7 @@ class RolPagoResource extends JsonResource
             'es_quincena' => $this->rolPagoMes->es_quincena,
             'medio_tiempo' => $this->medio_tiempo,
             'porcentaje_anticipo' => $this->calcularPorcentajeAnticipo($this->rolPagoMes->es_quincena),
-            'porcentaje_quincena' => $porcentaje_quincena,
+           'porcentaje_quincena' => $this->porcentaje_quincena,
             'es_vendedor_medio_tiempo' => $this->es_vendedor_medio_tiempo,
         ];
 
