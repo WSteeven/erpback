@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('orden_interna');
             $table->unsignedBigInteger('vendedor_id');
             $table->unsignedBigInteger('producto_id');
-            $table->date('fecha_activ')->nullable();
-            $table->string('estado_activ');
+            $table->date('fecha_activacion')->nullable();
+            $table->string('estado_activacion');
             $table->string('forma_pago');
             $table->unsignedBigInteger('comision_id');
             $table->decimal('chargeback',8,4);

@@ -35,7 +35,7 @@ class VentasRequest extends FormRequest
             'vendedor_id' => 'required',
             'producto_id' => 'required',
             'fecha_activ' => 'nullable',
-            'estado_activ' => 'required',
+            'estado_activacion' => 'required',
             'forma_pago' => 'required',
             'comision_id' => 'required',
             'chargeback' => 'nullable',
@@ -52,7 +52,7 @@ class VentasRequest extends FormRequest
         $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->where('tipo_vendedor',$tipo_vendedor)->first();
         $chargeback = $this->chargeback!==null ? $this->chargeback:0;
         $comision_valor = floatval($comision != null ? $comision->comision:0);
-        $comision_total = $this->estado_activ=='APROBADO' ? ($producto->precio*$comision_valor )/100:0;
+        $comision_total = $this->estado_activacion=='APROBADO' ? ($producto->precio*$comision_valor )/100:0;
         if($this->fecha_activ!=null){
             $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activ);
             $this->merge([

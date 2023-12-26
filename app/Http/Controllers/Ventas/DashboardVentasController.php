@@ -27,16 +27,16 @@ class DashboardVentasController extends Controller
             $fecha_fin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
             $queryVentas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->with('vendedor', 'producto');
             $cantidad_ventas = $queryVentas->where('vendedor_id', $idVendedor)->get()->count();
-            $cantidad_ventas_instaladas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'APROBADO')->get()->count();
-            $cantidad_ventas_por_instalar =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'PENDIENTE')->get()->count();
-            $cantidad_ventas_por_rechazadas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activ', 'RECHAZADA')->get()->count();
+            $cantidad_ventas_instaladas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'APROBADO')->get()->count();
+            $cantidad_ventas_por_instalar =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'PENDIENTE')->get()->count();
+            $cantidad_ventas_por_rechazadas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'RECHAZADA')->get()->count();
             $ventasPorEstado = $queryVentas->get();
-            $ventasPorPlanes = $queryVentas->where('estado_activ', 'APROBADO')->get();
+            $ventasPorPlanes = $queryVentas->where('estado_activacion', 'APROBADO')->get();
             $ventasPorEstado = VentasResource::collection($ventasPorEstado);
-            $graficoVentasPorEstado = Ventas::select('estado_activ', DB::raw('COUNT(*) as total_ventas'))
+            $graficoVentasPorEstado = Ventas::select('estado_activacion', DB::raw('COUNT(*) as total_ventas'))
                 ->where('vendedor_id', $idVendedor)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->groupBy('estado_activ')
+                ->groupBy('estado_activacion')
                 ->get();
             $graficoVentasPorPlanes = [];
             foreach ($ventasPorPlanes as $venta) {
@@ -48,7 +48,7 @@ class DashboardVentasController extends Controller
             }
             $ventas_mes = Ventas::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('COUNT(*) as total_ventas'))
                 ->where('created_at', '<=', Carbon::now())
-                ->where('estado_activ', 'APROBADO')
+                ->where('estado_activacion', 'APROBADO')
                 ->groupBy('mes')
                 ->orderBy('mes', 'desc')
                 ->get();
@@ -58,13 +58,13 @@ class DashboardVentasController extends Controller
                 return $venta;
             });
             $ventasPorMes = Ventas::where('created_at', '<=', Carbon::now())
-            ->where('estado_activ', 'APROBADO')
+            ->where('estado_activacion', 'APROBADO')
             ->get();
             $ventasPorMes = VentasResource::collection($ventasPorMes);
             $ventasPorPlanes = VentasResource::collection($ventasPorPlanes);
             // Generar data para graficos estadisticos
             $ventasPorEstadoBar = [
-                'labels' => $graficoVentasPorEstado->pluck('estado_activ'),
+                'labels' => $graficoVentasPorEstado->pluck('estado_activacion'),
                 'datasets' => [
                     [
                         'backgroundColor' => [

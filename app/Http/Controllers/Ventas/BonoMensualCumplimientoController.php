@@ -40,30 +40,32 @@ class BonoMensualCumplimientoController extends Controller
     public function store(BonoMensualCumplimientoRequest $request)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
+            $datos = $request->validated();
             $this->tabla_bonos($datos['mes']);
-            $modelo = new BonoMensualCumplimiento();
-            DB::commit();
+            $modelo = [];
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
     public function update(BonoMensualCumplimientoRequest $request, BonoMensualCumplimiento $bono_mensual_cumplimiento)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
+            $datos = $request->validated();
             $bono_mensual_cumplimiento->update($datos);
             $modelo = new BonoMensualCumplimientoResource($bono_mensual_cumplimiento->refresh());
-            DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
@@ -74,48 +76,70 @@ class BonoMensualCumplimientoController extends Controller
     }
     public function tabla_bonos($mes)
     {
-        $vendedores = Vendedor::all();
-        $bonos_mensuales_cumplimiento  = [];
-        foreach ($vendedores as $key => $vendedor) {
-            $suma_ventas = $this->calcular_cantidad_ventas($mes, $vendedor->id);
-            $modalidad = Modalidad::where('id', $vendedor->modalidad_id)->first();
-            if ($vendedor->tipo_vendedor == 'Vendedor') {
-                $bono =  Bonos::where('cant_ventas', '>=', $suma_ventas)->where('cant_ventas', '<=', $suma_ventas)->orderBy('cant_ventas', 'asc')->first();
-                $valor = $bono != null ? $bono->valor : 0;
-                $bonos_mensuales_cumplimiento[]  = [
+        try {
+            DB::beginTransaction();
+            $vendedores = Vendedor::all();
+            foreach ($vendedores as $key => $vendedor) {
+                $suma_ventas = $this->calcular_cantidad_ventas($mes, $vendedor->id);
+                $bono = $this->calcular_bono($suma_ventas, $vendedor->tipo_vendedor);
+                $bono_mensual = BonoMensualCumplimiento::create([
                     'vendedor_id' => $vendedor->id,
                     'cant_ventas' => $suma_ventas,
                     'mes' =>  $mes,
                     'bono_id' => $bono != null  ? $bono->id : null,
-                    'valor' => $valor,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ];
+                    'valor' => $bono->valor,
+                ]);
+                Log::channel('testing')->info('Log', ['bono_mensual', $bono_mensual]);
             }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error al calcular bonos', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al calcular bonos' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-        BonoMensualCumplimiento::insert($bonos_mensuales_cumplimiento);
+    }
+    public function calcular_bono($suma_ventas, $tipo_vendedor)
+    {
+        $valor = null;
+        if ($tipo_vendedor == "VENDEDOR") {
+            $bono =  Bonos::where('cant_ventas', '<=', $suma_ventas)
+                ->first();
+            $valor = $bono ;
+        } else {
+            $valor = null;
+        }
+        return $valor;
     }
     public function  calcular_cantidad_ventas($mes, $vendedor_id)
     {
-        $vendedor = Vendedor::where('id', $vendedor_id)->first();
-        $fecha = $mes; // Tu fecha en formato "2023-02"
-        $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
-        $year = $parts[0]; // Año
-        $month = $parts[1]; // Mes
-        if ($vendedor->tipo_vendedor == 'VENDEDOR') {
-            $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
-                ->whereMonth('fecha_activ', $month)
-                ->where('vendedor_id', $vendedor_id)
-                ->get()
-                ->count();
-        } else {
-            $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
-                ->whereMonth('fecha_activ', $month)
-                ->whereIn('vendedor', function ($query) use ($vendedor) {
-                    $query->where('jefe_inmediato', $vendedor);
-                })->get()
-                ->count();
+        try {
+            DB::beginTransaction();
+
+            $vendedor = Vendedor::where('id', $vendedor_id)->first();
+            $fecha = $mes; // Tu fecha en formato "2023-02"
+            $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
+            $year = $parts[0]; // Año
+            $month = $parts[1]; // Mes
+            if ($vendedor->tipo_vendedor == 'VENDEDOR') {
+                $cantidad_ventas = Ventas::whereYear('fecha_activacion', $year)
+                    ->whereMonth('fecha_activacion', $month)
+                    ->where('vendedor_id', $vendedor_id)
+                    ->get()
+                    ->count();
+            } else {
+                $cantidad_ventas = Ventas::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
+                    ->whereYear('fecha_activacion', $year)
+                    ->whereMonth('fecha_activacion', $month)
+                    ->where('ventas_vendedor.jefe_inmediato_id', $vendedor->empleado_id)
+                    ->get()
+                    ->count();
+            }
+            DB::commit();
+            return $cantidad_ventas;
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error al calcular cantidad de ventas', $e->getMessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al calcular cantidad de ventas' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-        return $cantidad_ventas;
     }
 }

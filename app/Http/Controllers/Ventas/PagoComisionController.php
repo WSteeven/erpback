@@ -75,8 +75,8 @@ class PagoComisionController extends Controller
                     'valor' =>  $comisiones,
                 ]);
             }
-            DB::commit();
-            //  $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
+             $this->pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
+             DB::commit();
             // PagoComision::insert($pagos_comision);
         } catch (Exception $e) {
             DB::rollBack();
