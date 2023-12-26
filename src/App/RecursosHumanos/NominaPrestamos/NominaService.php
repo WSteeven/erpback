@@ -169,7 +169,8 @@ class NominaService
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;
         }
-        if ($this->rolPago != null) {
+        if ($this->rolPago != null && $sueldo===0) {
+            Log::channel('testing')->info('Log', ['ID this->rolpago',  $this->rolPago]);
             $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
         }
         return number_format($sueldo, 2);

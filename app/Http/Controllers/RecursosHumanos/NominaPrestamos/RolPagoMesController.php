@@ -43,11 +43,7 @@ class RolPagoMesController extends Controller
 
     public function index(Request $request)
     {
-        $results = [];
-        if ($request) {
-            $request['finalizado'] = $request['finalizado'] == 'true' ? '1' : '0';
-        }
-        $results = RolPagoMes::ignoreRequest(['campos'])->filter()->get();
+        $results = RolPagoMes::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = RolPagoMesResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -75,13 +71,15 @@ class RolPagoMesController extends Controller
             $rolPago = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rolPago);
             $this->tabla_roles($rolPago);
+            Log::channel('testing')->info('Log', ['despues de tabla roles']);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
@@ -557,27 +555,32 @@ class RolPagoMesController extends Controller
      */
     private function tabla_roles(RolPagoMes $rol)
     {
+        Log::channel('testing')->info('Log', ['rol', $rol]);
         try {
-            $mes_rol =Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
-            $final_mes = new Carbon($mes_rol);
-            $ultimo_dia_mes = $final_mes->endOfMonth();
+            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m'); // mes en formato yyyy-mm
+            $mes_fecha = new Carbon($mes); //mes en instancia de fecha
+            $ultimo_dia_mes = $mes_fecha->endOfMonth();
             $empleados_activos = Empleado::where('id', '>', 2)
             ->where('estado', true)
             ->where('esta_en_rol_pago', true)
             ->where('salario', '!=', 0)
-            ->where('fecha_vinculacion','<',$ultimo_dia_mes)
+            ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
             ->orderBy('apellidos', 'asc')->get();
-            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
+            Log::channel('testing')->info('Log', ['luego de setMes', $mes]);
             $this->prestamoService->setMes($mes);
+            Log::channel('testing')->info('Log', ['luego de setMes en prestamoService', $mes]);
             $roles_pago = [];
             foreach ($empleados_activos as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
+                Log::channel('testing')->info('Log', ['luego de setEmpleado', $mes]);
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
                 $diasTranscurridos = $rol->es_quincena ? 15 : 30;
                 $dias = $this->nominaService->calcularDias($diasTranscurridos);
-                $salario = $this->nominaService->calcularSalario();
+                Log::channel('testing')->info('Log', ['luego de calcular dias transcurridos', $mes]);
+                // $salario = $this->nominaService->calcularSalario();
+                $salario = $empleado->salario;
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
@@ -632,17 +635,17 @@ class RolPagoMesController extends Controller
      */
     private function agregar_nuevos_empleados(RolPagoMes $rol)
     {
-       try {
-            $mes_rol =Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+        try {
+            $mes_rol = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $final_mes = new Carbon($mes_rol);
             $ultimo_dia_mes = $final_mes->endOfMonth();
             $empleadosSinRolPago = Empleado::where('id', '>', 2)
-            ->where('estado', true)
-            ->where('esta_en_rol_pago', true)
-            ->where('fecha_vinculacion','<',$ultimo_dia_mes)
-            ->where('salario', '!=', 0)
-            ->whereDoesntHave('rolesPago')
-            ->get();
+                ->where('estado', true)
+                ->where('esta_en_rol_pago', true)
+                ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
+                ->where('salario', '!=', 0)
+                ->whereDoesntHave('rolesPago')
+                ->get();
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -694,7 +697,7 @@ class RolPagoMesController extends Controller
                 ];
             }
             $rol->rolPago()->createMany($roles_pago);
-       } catch (Exception $ex) {
+        } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar rol pago por empleado' => [$ex->getMessage()],

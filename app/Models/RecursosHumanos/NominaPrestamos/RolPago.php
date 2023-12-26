@@ -85,6 +85,27 @@ class RolPago extends Model implements Auditable
     {
         return $this->hasMany(IngresoRolPago::class, 'id_rol_pago', 'id')->with('concepto_ingreso_info');
     }
+
+    // Relacion uno a muchos (inversa)
+    public function rolPagoMes()
+    {
+        return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
+    }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    
+     /**
+     * La función "empaquetarListado" toma una matriz de objetos "roles de pagos" y devuelve una matriz ordenada
+     * de datos formateados.
+     * 
+     * @param rol_pagos Conjunto de objetos que representan información de nómina de empleados. 
+     * 
+     * @return una serie de resultados.
+     */
     public static function empaquetarListado($rol_pagos)
     {
         $results = [];
@@ -131,6 +152,15 @@ class RolPago extends Model implements Auditable
 
         return $results;
     }
+    
+    /**
+     * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
+     * datos relacionados con pagos en efectivo.
+     * 
+     * @param rol_pagos Una serie de objetos que representan pagos de nómina. 
+     * 
+     * @return una serie de resultados.
+     */
     public static function empaquetarCash($rol_pagos)
     {
         $results = [];
@@ -166,11 +196,16 @@ class RolPago extends Model implements Auditable
 
         return $results;
     }
-    // Relacion uno a muchos (inversa)
-    public function rolPagoMes()
-    {
-        return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
-    }
+    
+    /**
+     * La función "ordenar_por_nombres_apellidos" ordena una matriz de empleados según sus nombres y
+     * apellidos.
+     * 
+     * @param a Una matriz que representa la información del primer empleado.
+     * @param b El parámetro `` es una matriz que representa la información de un empleado.
+     * 
+     * @return el resultado de la comparación entre los nombres concatenados de los dos empleados.
+     */
     private static function  ordenar_por_nombres_apellidos($a, $b)
     {
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];

@@ -113,7 +113,7 @@ class RolPagosController extends Controller
             $datos['empleado_id'] = $request->safe()->only(['empleado'])['empleado'];
             $datos['estado'] = 'EJECUTANDO';
             DB::beginTransaction();
-           $rolPago = RolPago::create($datos);
+            $rolPago = RolPago::create($datos);
             foreach ($request->ingresos as $ingreso) {
                 $this->GuardarIngresos($ingreso, $rolPago);
             }
@@ -169,7 +169,7 @@ class RolPagosController extends Controller
             if (!$entidad) {
                 throw new \Exception("No se encontró la entidad para el ID de descuento: $id_descuento");
             }
-            if (isset($egreso['id'])){
+            if (isset($egreso['id'])) {
                 EgresoRolPago::editarEgresoRol($rolPago, $egreso['monto'], $egreso['id'], $entidad);
             }
             DB::commit();
@@ -209,13 +209,17 @@ class RolPagosController extends Controller
 
     public function update(RolPagoRequest $request, $rolPagoId): JsonResponse
     {
+        Log::channel('testing')->info('Log', ['ID',  $rolPagoId]);
+        Log::channel('testing')->info('Log', ['request', $request->all(), $rolPagoId]);
         $datos = $request->validated();
         $rolPago = RolPago::findOrFail($rolPagoId);
         $rolPago->update($datos);
-
-       $this->guardarIngresosYEgresos($request, $rolPago);
-
+        Log::channel('testing')->info('Log', ['rol actualizado', $rolPago->refresh()]);
+        
+        $this->guardarIngresosYEgresos($request, $rolPago);
+        
         $modelo = new RolPagoResource($rolPago->refresh());
+        Log::channel('testing')->info('Log', ['rol actualizado pasado por el resource', $rolPago->refresh()]);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -241,6 +245,18 @@ class RolPagosController extends Controller
         $rolPago->delete();
         return $rolPago;
     }
+    
+    /**
+     * La función `cambiar_estado` actualiza el estado de un objeto `RolPago` basado en el valor del
+     * parámetro `estado` y devuelve una respuesta JSON con el modelo actualizado y un mensaje.
+     * 
+     * @param Request request El parámetro  es una instancia de la clase Request, que
+     * representa la solicitud HTTP actual. Contiene información sobre la solicitud, como el método de
+     * solicitud, encabezados y datos de entrada.
+     * @param rolPagoId Es el ID del objeto `RolPago` cuyo estado desea actualizar.
+     * 
+     * @return una respuesta JSON que contiene las variables "modelo" y "mensaje".
+     */
     public function cambiar_estado(Request $request, $rolPagoId)
     {
         $rolPago = RolPago::find($rolPagoId);
