@@ -130,7 +130,6 @@ class PagoComisionController extends Controller
                     $tipo_vendedor= $vendedor->tipo_vendedor;
                     $comision_pagar = Comisiones::where('forma_pago', $forma_pago)->where('plan_id',$plan )->where('tipo_vendedor', $tipo_vendedor)->first();
                     $comision_pagar =  $comision_pagar != null ? $comision_pagar->comision:0;
-                    Log::channel('testing')->info('Log', ["calcular_comision",$comision_pagar]);
                     return $carry + $comision_pagar;
                 }, 0);
             }
@@ -154,12 +153,13 @@ class PagoComisionController extends Controller
                 $ventas->with('producto')->where('vendedor_id', $vendedor->id);
             } else {
                 $pago_comision = PagoComision::join('ventas_vendedor', 'ventas_pago_comision.vendedor_id', '=', 'ventas_vendedor.id')
+                    ->where('ventas_vendedor.jefe_inmediato_id', $empleado_id)
                     ->where('fecha_inicio', $fecha_inicio)
                     ->where('fecha_fin', $fecha_fin)
                     ->get()
                     ->count();
                 $ventas = Ventas::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
-                    ->where('ventas_vendedor.jefe_inmediato', $empleado_id)
+                    ->where('ventas_vendedor.jefe_inmediato_id', $empleado_id)
                     ->whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin]);
             }
             DB::commit();

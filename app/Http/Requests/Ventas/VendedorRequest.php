@@ -28,14 +28,15 @@ class VendedorRequest extends FormRequest
             'empleado_id'=> 'required|integer',
             'modalidad_id'=> 'required|integer',
             'tipo_vendedor'=> 'required',
-            'jefe_inmediato' => 'required|integer',
+            'jefe_inmediato_id' => 'required|integer',
         ];
     }
     protected function prepareForValidation()
     {
         $this->merge([
             'empleado_id'=> $this->empleado,
-            'modalidad_id'=> $this->modalidad
+            'modalidad_id'=> $this->modalidad,
+            'jefe_inmediato_id' => $this->jefe_inmediato
         ]);
     }
 }

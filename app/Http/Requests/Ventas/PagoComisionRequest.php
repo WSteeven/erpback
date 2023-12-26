@@ -37,17 +37,18 @@ class PagoComisionRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-
-
             $validarPagoComision = PagoComision::select('fecha_fin')->latest()->first();
-            Log::channel('testing')->info('Log', ['validarPagoComision', $validarPagoComision]);
-           /* if ($validarPagoComision > 0) {
-                $validator->errors()->add('fecha', 'La fecha de Inicio no puede ser menor a la fecha de Fin');
-            }*/
-            $pagoComision = PagoComision::where('fecha_inicio', $this->fecha_inicio)
-            ->where('fecha_fin', $this->fecha_fin)->get()->count();
-            if ($pagoComision > 0) {
-                $validator->errors()->add('fecha', 'Ya se ha realizado Pago de comisiones en rango de fechas indicadas');
+            $fecha_inicio = new Carbon($this->fecha_inicio);
+            $fecha_fin = new Carbon($this->fecha_fin);
+            $fecha_fin_db = $validarPagoComision != null? new Carbon($validarPagoComision->fecha_fin):new Carbon();
+            if ($validarPagoComision != null) {
+                if ($fecha_inicio->lt($fecha_fin_db)) {
+                    $validator->errors()->add('fecha', 'La fecha de Inicio no puede ser menor a: '.$validarPagoComision->fecha_fin);
+                }
+                $pagoComision = PagoComision::where('fecha_inicio', $fecha_inicio)->where('fecha_fin', $fecha_fin)->get()->count();
+                if ($pagoComision > 0) {
+                    $validator->errors()->add('fecha', 'Ya se ha realizado Pago de comisiones en rango de fechas indicadas');
+                }
             }
         });
     }

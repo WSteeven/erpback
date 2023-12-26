@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
+use App\Http\Controllers\Ventas\BonoPorcentualController;
 use App\Http\Controllers\Ventas\BonosController;
 use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebacksController;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources(
     [
         'bonos' => BonosController::class,
+        'bono-porcentual' => BonoPorcentualController::class,
         'comisiones' => ComisionesController::class,
         'modalidad' => ModalidadController::class,
         'planes' => PlanesController::class,

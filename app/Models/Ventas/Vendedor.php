@@ -15,7 +15,7 @@ class Vendedor extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_vendedor';
-    protected $fillable =['codigo_vendedor','empleado_id','modalidad_id','tipo_vendedor','jefe_inmediato'];
+    protected $fillable =['codigo_vendedor','empleado_id','modalidad_id','tipo_vendedor','jefe_inmediato','jefe_inmediato_id'];
     private static $whiteListFilter = [
         '*',
     ];
@@ -25,7 +25,7 @@ class Vendedor extends Model implements Auditable
     public function modalidad(){
         return $this->hasOne(Modalidad::class,'id','modalidad_id');
     }
-    public function jefe_inmediato_info(){
-        return $this->hasOne(Empleado::class,'id','jefe_inmediato')->with('canton');
+    public function jefe_inmediato(){
+        return $this->hasOne(Empleado::class,'id','jefe_inmediato_id')->with('canton');
     }
 }
