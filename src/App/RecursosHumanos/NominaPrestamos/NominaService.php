@@ -190,7 +190,7 @@ class NominaService
         $total_sueldo = 0;
         switch ($this->empleado->tipo_contrato) {
             case 3:
-                $total_sueldo = $sueldo_diario;
+                $total_sueldo = ($this->empleado->salario * $this->calcularPorcentajeAnticipo())/15*$dias;
                 break;
             default:
                 if ($this->rolPago->es_vendedor_medio_tiempo) {
@@ -198,7 +198,7 @@ class NominaService
                     $porcentaje = $this->rolPago->porcentaje_quincena ? $this->rolPago->porcentaje_quincena/100 : 0;
                     $total_sueldo = $es_quincena ? ($this->empleado->salario *0.5)* $porcentaje  : $sueldo_diario;
                 } else {
-                    $total_sueldo = $es_quincena ? $sueldo_diario * $this->calcularPorcentajeAnticipo() / 100 : $sueldo_diario;
+                    $total_sueldo = $es_quincena ? $sueldo_diario * $this->calcularPorcentajeAnticipo()  : $sueldo_diario;
                 }
                 break;
         }
