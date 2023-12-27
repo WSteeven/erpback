@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class BonoTrimestralCumplimientoController extends Controller
@@ -47,6 +48,7 @@ class BonoTrimestralCumplimientoController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ["error en guardar bono trimestral", $e->getmessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
@@ -57,11 +59,12 @@ class BonoTrimestralCumplimientoController extends Controller
             DB::beginTransaction();
             $bono_trimestral_cumplimiento->update($datos);
             $modelo = new BonoTrimestralCumplimientoResource($bono_trimestral_cumplimiento->refresh());
-            DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
+            Log::channel('testing')->info('Log', ["error en actualizar bonos", $e->getmessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
@@ -72,32 +75,45 @@ class BonoTrimestralCumplimientoController extends Controller
     }
     public function tabla_bonos($trimestre)
     {
-        $vendedores = Vendedor::all();
-        $bonos_mensuales_cumplimiento  = [];
-        foreach ($vendedores as $key => $vendedor) {
-            $suma_ventas = $this->calcular_cantidad_ventas($trimestre, $vendedor->id);
-            $valor = $suma_ventas*5;
-            $bonos_mensuales_cumplimiento[]  = [
-                'vendedor_id' => $vendedor->id,
-                'cant_ventas' => $suma_ventas,
-                'trimestre' =>  $trimestre,
-                'valor' => $valor,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ];
+        try {
+            DB::beginTransaction();
+            $vendedores = Vendedor::where('tipo_vendedor', 'VENDEDOR')->get();
+            foreach ($vendedores as $key => $vendedor) {
+                $suma_ventas = $this->calcular_cantidad_ventas($trimestre, $vendedor->id);
+                $valor = $suma_ventas * 5;
+                BonoTrimestralCumplimiento::create([
+                    'vendedor_id' => $vendedor->id,
+                    'cant_ventas' => $suma_ventas,
+                    'trimestre' =>  $trimestre,
+                    'valor' => $valor,
+                ]);
+            }
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('testing')->info('Log', ["error en tabla de bonos", $e->getmessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-        BonoTrimestralCumplimiento::insert($bonos_mensuales_cumplimiento);
     }
     public function  calcular_cantidad_ventas($trimestre, $vendedor_id)
     {
-        $fecha = $trimestre; // Tu fecha en formato "2023-02"
-        $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
-        $year = $parts[1]; // Año
-        $quarter =preg_replace('/[A-Za-z]/', '', $parts[0]); // Mes
-        $cantidad_ventas = Ventas::whereYear('fecha_activ', $year)
-            ->whereRaw('QUARTER(fecha_activ) = ?', [$quarter])
-            ->where('vendedor_id', $vendedor_id)
-            ->count();
-        return $cantidad_ventas;
+        try {
+            DB::beginTransaction();
+            $fecha = $trimestre; // Tu fecha en formato "2023-02"
+            $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
+            $year = $parts[1]; // Año
+            $quarter = preg_replace('/[A-Za-z]/', '', $parts[0]); // Mes
+            $cantidad_ventas = Ventas::whereYear('fecha_activacion', $year)
+                ->whereRaw('QUARTER(fecha_activacion) = ?', [$quarter])
+                ->where('vendedor_id', $vendedor_id)
+                ->where('estado_activacion', 'APROBADO')
+                ->count();
+            DB::commit();
+            return $cantidad_ventas;
+        } catch (Exception $e) {
+            DB::rollback();
+            Log::channel('testing')->info('Log', ["error en calcular_cantidad_ventas", $e->getmessage(), $e->getLine()]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
 }
