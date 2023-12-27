@@ -13,6 +13,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Support\Facades\Log;
 
 class TransferenciaProductoEmpleado extends Model implements Auditable
 {
@@ -22,11 +23,11 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     const COMPLETA = 'COMPLETA';
     const ANULADA = 'ANULADA';
 
-    public $table = 'tar_transferencias_productos_empleados';
+    public $table = 'tar_transf_produc_emplea';
     public $fillable = [
         'justificacion',
         'causa_anulacion',
-        'estado',
+        // 'estado',
         'observacion_aut',
         'solicitante_id',
         'empleado_origen_id',
@@ -38,6 +39,11 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function solicitante()
+    {
+        return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
+    }
 
     public function tareaOrigen()
     {
@@ -66,6 +72,33 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
 
     public function detallesTransferenciaProductoEmpleado()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'tar_transf_produc_emplea', 'transferencia_producto_empleado_id', 'detalle_producto_id')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad')->withTimestamps();
+    }
+
+    /************
+     * Funciones
+     ************/
+    public static function listadoProductos(int $id)
+    {
+        $detalles = TransferenciaProductoEmpleado::find($id)->detallesTransferenciaProductoEmpleado()->get();
+        Log::channel('testing')->info('Log', compact('detalles'));
+        $results = [];
+        $id = 0;
+        $row = [];
+        foreach ($detalles as $detalle) {
+            // $condicion= $detalle->pivot->condicion_id? Condicion::find($detalle->pivot->condicion_id):null;
+            $row['id'] = $detalle->id;
+            $row['producto'] = $detalle->producto->nombre;
+            $row['descripcion'] = $detalle->descripcion;
+            $row['serial'] = $detalle->serial;
+            $row['categoria'] = $detalle->producto->categoria->nombre;
+            $row['cantidad'] = $detalle->pivot->cantidad;
+            // $row['condiciones'] = $condicion?->nombre;
+            $row['observacion'] = $detalle->pivot->observacion;
+            $results[$id] = $row;
+            $id++;
+        }
+
+        return $results;
     }
 }
