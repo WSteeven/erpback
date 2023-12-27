@@ -3,42 +3,41 @@
 namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Ventas\VendedorRequest;
-use App\Http\Resources\Ventas\VendedorResource;
-use App\Models\Ventas\Vendedor;
+use App\Http\Requests\Ventas\UmbralVentasRequest;
+use App\Http\Resources\Ventas\UmbralVentasResource;
+use App\Models\Ventas\UmbralVentas;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
-class VendedorController extends Controller
+class UmbralVentasController extends Controller
 {
-    private $entidad = 'Vendedor';
+    private $entidad = 'Umbral Ventas';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.vendedor')->only('index', 'show');
-        $this->middleware('can:puede.crear.vendedor')->only('store');
+        $this->middleware('can:puede.ver.umbral_ventas')->only('index', 'show');
+        $this->middleware('can:puede.crear.umbral_ventas')->only('store');
     }
     public function index(Request $request)
     {
         $results = [];
-        $results = Vendedor::ignoreRequest(['campos'])->filter()->with('jefe_inmediato')->get();
-         $results = VendedorResource::collection($results);
+        $results = UmbralVentas::ignoreRequest(['campos'])->filter()->with('vendedor')->get();
+         $results = UmbralVentasResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Vendedor $vendedor)
+    public function show(Request $request, UmbralVentas $umbral_venta)
     {
-        $modelo = new VendedorResource($vendedor);
+        $modelo = new UmbralVentasResource($umbral_venta);
         return response()->json(compact('modelo'));
     }
-    public function store(VendedorRequest $request)
+    public function store(UmbralVentasRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $vendedor = Vendedor::create($datos);
-            $modelo = new VendedorResource($vendedor);
+            $umbral_venta = UmbralVentas::create($datos);
+            $modelo = new UmbralVentasResource($umbral_venta);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,13 +46,13 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(VendedorRequest $request, Vendedor $vendedor)
+    public function update(UmbralVentasRequest $request, UmbralVentas $umbral_venta)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $vendedor->update($datos);
-            $modelo = new VendedorResource($vendedor->refresh());
+            $umbral_venta->update($datos);
+            $modelo = new UmbralVentasResource($umbral_venta->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -62,9 +61,9 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Vendedor $vendedor)
+    public function destroy(Request $request, UmbralVentas $umbral_venta)
     {
-        $vendedor->delete();
-        return response()->json(compact('vendedor'));
+        $umbral_venta->delete();
+        return response()->json(compact('UmbralVentas'));
     }
 }

@@ -151,6 +151,7 @@ class EmpleadoController extends Controller
                 'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
                 'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
+                'coordenadas'=>$datos['coordenadas'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];

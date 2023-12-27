@@ -91,7 +91,9 @@ class PagoComisionController extends Controller
 
         $pago_comision = PagoComision::where('vendedor_id', $vendedor_id)->get()->count();
         $limite_venta = 0;
-        $query_ventas = Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $vendedor_id);
+        $query_ventas = Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+       ->where('estado_activacion','APROBADO')
+        ->where('vendedor_id', $vendedor_id);
         $comisiones = null;
         if ($pago_comision == 0) {
             $modalidad = Modalidad::where('id', $modalidad)->first();

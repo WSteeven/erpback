@@ -13,6 +13,7 @@ use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanesController;
 use App\Http\Controllers\Ventas\ProductoVentasController;
 use App\Http\Controllers\Ventas\TipoChargebackController;
+use App\Http\Controllers\Ventas\UmbralVentasController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentasController;
 use App\Models\Ventas\TipoChargeback;
@@ -34,6 +35,7 @@ Route::apiResources(
         'pago-comision' => PagoComisionController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
+        'umbral-ventas' =>UmbralVentasController::class,
         ],
     [
         'parameters' => [],

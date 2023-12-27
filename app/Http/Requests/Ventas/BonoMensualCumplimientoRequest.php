@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Ventas;
 
+use App\Models\Ventas\BonoMensualCumplimiento;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -27,6 +28,17 @@ class BonoMensualCumplimientoRequest extends FormRequest
         return [
             'mes' => 'required',
         ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            //$mes = Carbon::createFromFormat('m-Y', $this->mes);
+            $mes =  $this->mes;
+            $validarBonoMensual = BonoMensualCumplimiento::where('mes',$mes)->get()->count();
+            if ($validarBonoMensual > 0) {
+                $validator->errors()->add('fecha', 'Ya se pago Bono del mes: '.$mes);
+            }
+        });
     }
     protected function prepareForValidation()
     {
