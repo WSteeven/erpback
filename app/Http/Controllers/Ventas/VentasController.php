@@ -86,13 +86,32 @@ class VentasController extends Controller
             DB::beginTransaction();
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $ventas = Ventas::select(DB::raw('MONTHNAME(fecha_activacion) AS mes'), DB::raw('COUNT(*) as total_ventas'))
+            $ventas = Ventas::select(
+                DB::raw('MONTHNAME(fecha_activacion) AS mes'),
+                DB::raw('COUNT(*) as cantidad_ventas'),
+                DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
+                DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
+            )
+                ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
                 ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
                 ->where('pago', true)
                 ->groupBy('mes')
                 ->orderBy('mes', 'ASC')
                 ->get();
-            $reportes = $this->generarReporte($ventas);
+                $ventas_tc = Ventas::select(
+                    DB::raw('MONTHNAME(fecha_activacion) AS mes'),
+                    DB::raw('COUNT(*) as cantidad_ventas'),
+                    DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
+                    DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
+                )
+                    ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
+                    ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
+                    ->where('pago', true)
+                    ->where('forma_pago','TC')
+                    ->groupBy('mes')
+                    ->orderBy('mes', 'ASC')
+                    ->get();
+            $reportes = $this->generarReporte($ventas, $ventas_tc);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
             $export_excel = new ReporteValoresCobrarExport(compact('reportes', 'config'));
@@ -108,14 +127,16 @@ class VentasController extends Controller
     private function generarReporte($ventas)
     {
         $reporte = [];
+        Log::channel('testing')->info('Log', ["ventas", $ventas]);
         for ($i = 0; $i < count($ventas); $i++) {
             $mes = $ventas[$i]->mes;
             $total_ventas = $ventas[$i]->total_ventas;
-
+            $promedio_ventas = $ventas[$i]->promedio_precio;
+            $cantidad_ventas = $ventas[$i]->cantidad_ventas;
             $comision = $total_ventas * $this->calcularTarifaBasica('comision');
             $arpu = $total_ventas * $this->calcularTarifaBasica('bcarpu');
             $metas_altas = $total_ventas > 80 ? $total_ventas * $this->calcularTarifaBasica('metas_altas') : 0;
-            $bonotc = 0;
+            $bonotc = ($promedio_ventas* $cantidad_ventas)* $this->calcularTarifaBasica('tc');
             $bono_trimestral = 0;
             $bono_calidad180 = 0;
             $reporte[] = [
