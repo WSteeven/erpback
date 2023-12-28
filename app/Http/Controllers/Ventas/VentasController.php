@@ -62,12 +62,12 @@ class VentasController extends Controller
     public function update(VentasRequest $request, Ventas $venta)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
+            $datos = $request->validated();
             $venta->update($datos);
             $modelo = new VentasResource($venta->refresh());
-            DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
@@ -79,44 +79,88 @@ class VentasController extends Controller
         $venta->delete();
         return response()->json(compact('venta'));
     }
+
     public function generar_reporteCobroJP(Request $request)
     {
         try {
+            DB::beginTransaction();
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $ventas = Ventas::select(DB::raw('MONTHNAME(fecha_activ) AS mes'), DB::raw('COUNT(*) as total_ventas'))
-                ->whereBetween('fecha_activ', [$fecha_inicio, $fecha_fin])
+            $ventas = Ventas::select(DB::raw('MONTHNAME(fecha_activacion) AS mes'), DB::raw('COUNT(*) as total_ventas'))
+                ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
                 ->where('pago', true)
                 ->groupBy('mes')
                 ->orderBy('mes', 'ASC')
                 ->get();
-            $reporte = [];
-            foreach ($ventas as $key => $venta) {
-                $total_ventas = $venta->total_ventas;
-                $comision =  $total_ventas * 2.5;
-                $arpu = $total_ventas * 0.5;
-                $metas_altas = $total_ventas > 80 ? $total_ventas * 0.5 : 0;
-                $bonotc = 0;
-                $bono_trimestral = 0;
-                $bono_calidad180 = 0;
-                $config = ConfiguracionGeneral::first();
-                $reportes[] = [
-                    'mes' =>  Utils::$meses[$venta->mes],
-                    'comision' => $comision,
-                    'total_ventas' => $total_ventas,
-                    'arpu' => $arpu,
-                    'metas_altas' => $metas_altas,
-                    'bonotc' => $bonotc,
-                    'bono_trimestral' => $bono_trimestral,
-                    'bono_calidad180' => $bono_calidad180
-                ];
-            }
+            $reportes = $this->generarReporte($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
+            $config = ConfiguracionGeneral::first();
             $export_excel = new ReporteValoresCobrarExport(compact('reportes', 'config'));
+            DB::commit();
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', [compact('ex')]);
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al generar reporte de cobro de JP' . $ex->getMessage() . ' ' . $ex->getLine()], 422);
         }
+    }
+
+
+    private function generarReporte($ventas)
+    {
+        $reporte = [];
+        for ($i = 0; $i < count($ventas); $i++) {
+            $mes = $ventas[$i]->mes;
+            $total_ventas = $ventas[$i]->total_ventas;
+
+            $comision = $total_ventas * $this->calcularTarifaBasica('comision');
+            $arpu = $total_ventas * $this->calcularTarifaBasica('bcarpu');
+            $metas_altas = $total_ventas > 80 ? $total_ventas * $this->calcularTarifaBasica('metas_altas') : 0;
+            $bonotc = 0;
+            $bono_trimestral = 0;
+            $bono_calidad180 = 0;
+            $reporte[] = [
+                'mes' => $mes,
+                'comision' => $comision,
+                'total_ventas' => $total_ventas,
+                'arpu' => $arpu,
+                'metas_altas' => $metas_altas,
+                'bonotc' => $bonotc,
+                'bono_trimestral' => $bono_trimestral,
+                'bono_calidad180' => $bono_calidad180
+            ];
+        }
+
+        return $reporte;
+    }
+    public function calcularTarifaBasica($etiqueta)
+    {
+        $tarifas_basicas = [];
+        $id_esquemas_comision = [1, 2, 3, 4, 5, 6];
+        foreach ($id_esquemas_comision as $id_esquema_comision) {
+            $esquema_comision = EsquemaComisionController::obtener_esquema_comision($id_esquema_comision);
+
+            switch ($id_esquema_comision) {
+                case 1:
+                    $tarifas_basicas['comision'] = $esquema_comision->tarifa_basica;
+                    break;
+                case 2:
+                    $tarifas_basicas['bcarpu'] = $esquema_comision->tarifa_basica;
+                    break;
+                case 3:
+                    $tarifas_basicas['metas_altas'] = $esquema_comision->tarifa_basica;
+                    break;
+                case 4:
+                    $tarifas_basicas['tc'] = $esquema_comision->tarifa_basica;
+                    break;
+                case 5:
+                    $tarifas_basicas['90_dias'] = $esquema_comision->tarifa_basica;
+                    break;
+                case 6:
+                    $tarifas_basicas['180_dias'] = $esquema_comision->tarifa_basica;
+                    break;
+            }
+        }
+        return $tarifas_basicas[$etiqueta];
     }
     public function reporte_ventas(Request $request)
     {
@@ -197,7 +241,7 @@ class VentasController extends Controller
             $nombre_reporte = 'reporte_pagos';
             $config = ConfiguracionGeneral::first();
             $export_excel = new ReportePagoExport(compact('reportes', 'config'));
-             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+            return Excel::download($export_excel, $nombre_reporte . '.xlsx');
             return null;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', [compact('ex')]);

@@ -8,6 +8,7 @@ use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\DashboardVentasController;
+use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanesController;
@@ -36,6 +37,7 @@ Route::apiResources(
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         'umbral-ventas' =>UmbralVentasController::class,
+        'esquema-comision' =>EsquemaComisionController::class,
         ],
     [
         'parameters' => [],
