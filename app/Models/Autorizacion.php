@@ -27,6 +27,7 @@ class Autorizacion extends Model implements Auditable
 
     const PENDIENTE_ID = 1;
     const APROBADO_ID = 2;
+    const CANCELADO_ID = 3;
 
     private static $whiteListFilter = [
         '*',

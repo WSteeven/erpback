@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('detalle_producto_id');
-            $table->unsignedBigInteger('transferencia_producto_empleado_id');
+            $table->unsignedBigInteger('transf_produc_emplea_id');
             $table->integer('cantidad');
 
             $table->foreign('detalle_producto_id')->references('id')->on('detalles_productos')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('transferencia_producto_empleado_id')->references('id')->on('tar_transferencias_productos_empleados')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('transf_produc_emplea_id')->references('id')->on('tar_transf_produc_emplea')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
         });

@@ -135,16 +135,30 @@ class TransaccionBodegaEgresoController extends Controller
             'tarea_id' => 'nullable|numeric|integer',
             'empleado_id' => 'required|numeric|integer',
             'subtarea_id' => 'nullable|numeric|integer',
+            'etapa_id' => 'nullable|numeric|integer',
         ]);
 
         // Si es para el seguimiento se listan sólo los productos con categoria materiales con stock mayor e igual a cero
         if ($request->exists('subtarea_id')) {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->materiales()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->materiales()->get();
+            $ignoreRequest = ['subtarea_id'];
+            if (!request('etapa_id'))  array_push($ignoreRequest, 'etapa_id');
+            if (!request('cliente_id')) {
+                if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->where('etapa_id', null)->materiales()->get();
+                else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->materiales()->get();
+            } else {
+                if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->where('etapa_id', null)->filter()->materiales()->get();
+                else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->materiales()->get();
+            }
         } else {
             // Caso contrario se listan todos los productos con stock mayor a cero
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
+            $ignoreRequest = !request('etapa_id') ? ['etapa_id'] : [];
+            if (!request('cliente_id')) {
+                if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', null)->where('etapa_id', null)->tieneStock()->get();
+                else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->tieneStock()->get();
+            } else {
+                if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->where('etapa_id', null)->filter()->tieneStock()->get();
+                else $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock()->get();
+            }
         }
 
         // Obtener los materiales utilizados en el dia actual
@@ -331,7 +345,7 @@ class TransaccionBodegaEgresoController extends Controller
             //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
             if (!$transaccion->transferencia_id) {
                 $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
-                if(!$noGeneraComprobante){
+                if (!$noGeneraComprobante) {
                     //creamos el comprobante
                     $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
                     //lanzar el evento de la notificación
