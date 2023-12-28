@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;

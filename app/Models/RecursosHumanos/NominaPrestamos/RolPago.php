@@ -48,7 +48,8 @@ class RolPago extends Model implements Auditable
         'medio_tiempo',
         'es_vendedor_medio_tiempo',
         'fondos_reserva',
-        'porcentaje_quincena'
+        'porcentaje_quincena',
+        'sueldo_quincena_modificado',
     ];
     private static $whiteListFilter = [
         'id',
@@ -68,9 +69,14 @@ class RolPago extends Model implements Auditable
         'fondos_reserva',
         'medio_tiempo',
         'es_vendedor_medio_tiempo',
-        'porcentaje_quincena'
+        'porcentaje_quincena',
+        'sueldo_quincena_modificado',
     ];
-    protected $casts = ['medio_tiempo' => 'boolean', 'es_vendedor_medio_tiempo' => 'boolean'];
+    protected $casts = [
+        'medio_tiempo' => 'boolean',
+        'es_vendedor_medio_tiempo' => 'boolean',
+        'sueldo_quincena_modificado' => 'boolean',
+    ];
 
     public function empleado_info()
     {
@@ -97,8 +103,8 @@ class RolPago extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
-    
-     /**
+
+    /**
      * La función "empaquetarListado" toma una matriz de objetos "roles de pagos" y devuelve una matriz ordenada
      * de datos formateados.
      * 
@@ -152,7 +158,7 @@ class RolPago extends Model implements Auditable
 
         return $results;
     }
-    
+
     /**
      * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
      * datos relacionados con pagos en efectivo.
@@ -196,7 +202,7 @@ class RolPago extends Model implements Auditable
 
         return $results;
     }
-    
+
     /**
      * La función "ordenar_por_nombres_apellidos" ordena una matriz de empleados según sus nombres y
      * apellidos.

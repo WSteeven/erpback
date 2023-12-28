@@ -32,8 +32,8 @@ class PrestamoEmpresarialController extends Controller
 
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('GERENTE') ||  $usuario_ac->hasRole('RECURSOS HUMANOS') ||  $usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->get();
+        if ($usuario_ac->hasRole([User::ROL_GERENTE, User::ROL_RECURSOS_HUMANOS, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
+            $results = PrestamoEmpresarial::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
             $results = PrestamoEmpresarialResource::collection($results);
             return response()->json(compact('results'));
         } else {
