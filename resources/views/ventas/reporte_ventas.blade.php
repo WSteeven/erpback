@@ -46,9 +46,9 @@
             <td >{{ $reporte['item'] }}</td>
             <td >{{ $reporte['ciudad'] }}</td>
             <td >{{ $reporte['vendedor'] }}</td>
-            <td ></td>
+            <td >{{ $reporte['cliente'] }}</td>
             <td >{{ $reporte['codigo_orden'] }}</td>
-            <td ></td>
+            <td >{{ $reporte['identificacion_cliente'] }}</td>
             <td >{{ $reporte['venta'] }}</td>
             <td >{{ $reporte['fecha_ingreso'] }}</td>
             <td >{{ $reporte['fecha_activacion'] }}</td>

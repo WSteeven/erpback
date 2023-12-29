@@ -43,8 +43,8 @@ class Ventas  extends Model implements Auditable
             $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
             $row['codigo_orden'] =  $venta->orden_id;
             $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
-            $row['identificacion_cliente'] =  $venta->cliente->identificacion;
-            $row['cliente'] =  $venta->cliente->nombres.' '. $venta->cliente->apellidos;
+            $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion:'';
+            $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres.' '. $venta->cliente->apellidos:'';
             $row['venta'] = 1;
             $row['fecha_ingreso'] = $venta->created_at;
             $row['fecha_activacion'] =  $venta->fecha_activacion;

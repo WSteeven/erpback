@@ -224,7 +224,8 @@ class VentasController extends Controller
             $nombreMes = $meses[$mes - 1];
             // Concatenar los componentes de la fecha
             $fechaConvertida = "$nombreMes DEL $anio";
-            $ventas = Ventas::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto')->get();
+            $ventas = Ventas::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto','cliente')->get();
+            Log::channel('testing')->info('Log', [compact('ventas')]);
             $reportes = Ventas::empaquetarVentas($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
