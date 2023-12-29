@@ -40,31 +40,37 @@ class VentasRequest extends FormRequest
             'comision_id' => 'required',
             'chargeback' => 'nullable',
             'comision_vendedor' => 'nullable',
+            'cliente_id' => 'nullable',
 
         ];
     }
     protected function prepareForValidation()
     {
-        $vendedor = Vendedor::where('id',$this->vendedor_id)->first();
-        $tipo_vendedor = $vendedor->tipo_vendedor;
+        $vendedor = Vendedor::where('id', $this->vendedor_id)->first();
+        $tipo_vendedor = $vendedor !== null ?$vendedor->tipo_vendedor:'VENDEDOR';
 
         $producto = ProductoVentas::where('id', $this->producto)->first();
-        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->where('tipo_vendedor',$tipo_vendedor)->first();
-        $chargeback = $this->chargeback!==null ? $this->chargeback:0;
-        $comision_valor = floatval($comision != null ? $comision->comision:0);
-        $comision_total = $this->estado_activacion=='APROBADO' ? ($producto->precio*$comision_valor )/100:0;
-        if($this->fecha_activ!=null){
+        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->where('tipo_vendedor', $tipo_vendedor)->first();
+        $chargeback = $this->chargeback !== null ? $this->chargeback : 0;
+        $comision_valor = floatval($comision != null ? $comision->comision : 0);
+        $comision_total = $this->estado_activacion == 'APROBADO' ? ($producto->precio * $comision_valor) / 100 : 0;
+        if ($this->fecha_activ != null) {
             $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activ);
             $this->merge([
-                'fecha_activ'=>$date_activ->format('Y-m-d'),
+                'fecha_activ' => $date_activ->format('Y-m-d'),
+            ]);
+        }
+        if ($this->cliente) {
+            $this->merge([
+                'cliente_id' => $this->cliente,
             ]);
         }
         $this->merge([
             'vendedor_id' => $this->vendedor,
             'producto_id' => $this->producto,
             'comision_id' => $comision->id,
-            'comision_vendedor'=>$comision_total ,
-            'chargeback' =>$chargeback
+            'comision_vendedor' => $comision_total,
+            'chargeback' => $chargeback
         ]);
     }
 }

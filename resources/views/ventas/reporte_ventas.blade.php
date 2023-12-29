@@ -51,7 +51,7 @@
             <td ></td>
             <td >{{ $reporte['venta'] }}</td>
             <td >{{ $reporte['fecha_ingreso'] }}</td>
-            <td >{{ $reporte['fecha_activ'] }}</td>
+            <td >{{ $reporte['fecha_activacion'] }}</td>
             <td >{{ $reporte['plan'] }} </td>
             <td >{{ $reporte['forma_pago'] }} </td>
             <td >{{ $reporte['orden_interna'] }}</td>

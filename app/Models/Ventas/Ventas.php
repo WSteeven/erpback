@@ -14,12 +14,15 @@ class Ventas  extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_ventas';
-    protected $fillable =['orden_id','orden_interna','vendedor_id','producto_id','fecha_activacion','estado_activacion','forma_pago','comision_id','chargeback','comision_vendedor'];
+    protected $fillable =['orden_id','orden_interna','vendedor_id','producto_id','fecha_activacion','estado_activacion','forma_pago','comision_id','chargeback','comision_vendedor','cliente_id'];
     private static $whiteListFilter = [
         '*',
     ];
     public function vendedor(){
         return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
+    }
+    public function cliente(){
+        return $this->hasOne(ClienteClaro::class,'id','cliente_id');
     }
     public function producto(){
         return $this->hasOne(ProductoVentas::class,'id','producto_id')->with('plan');
@@ -40,6 +43,8 @@ class Ventas  extends Model implements Auditable
             $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
             $row['codigo_orden'] =  $venta->orden_id;
             $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
+            $row['identificacion_cliente'] =  $venta->cliente->identificacion;
+            $row['cliente'] =  $venta->cliente->nombres.' '. $venta->cliente->apellidos;
             $row['venta'] = 1;
             $row['fecha_ingreso'] = $venta->created_at;
             $row['fecha_activacion'] =  $venta->fecha_activacion;

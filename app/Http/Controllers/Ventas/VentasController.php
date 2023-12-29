@@ -98,19 +98,19 @@ class VentasController extends Controller
                 ->groupBy('mes')
                 ->orderBy('mes', 'ASC')
                 ->get();
-                $ventas_tc = Ventas::select(
-                    DB::raw('MONTHNAME(fecha_activacion) AS mes'),
-                    DB::raw('COUNT(*) as cantidad_ventas'),
-                    DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
-                    DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
-                )
-                    ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
-                    ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
-                    ->where('pago', true)
-                    ->where('forma_pago','TC')
-                    ->groupBy('mes')
-                    ->orderBy('mes', 'ASC')
-                    ->get();
+            $ventas_tc = Ventas::select(
+                DB::raw('MONTHNAME(fecha_activacion) AS mes'),
+                DB::raw('COUNT(*) as cantidad_ventas'),
+                DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
+                DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
+            )
+                ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
+                ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
+                ->where('pago', true)
+                ->where('forma_pago', 'TC')
+                ->groupBy('mes')
+                ->orderBy('mes', 'ASC')
+                ->get();
             $reportes = $this->generarReporte($ventas, $ventas_tc);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
@@ -124,64 +124,96 @@ class VentasController extends Controller
     }
 
 
-    private function generarReporte($ventas)
+    private function generarReporte($ventas, $ventas_tc)
     {
-        $reporte = [];
-        Log::channel('testing')->info('Log', ["ventas", $ventas]);
-        for ($i = 0; $i < count($ventas); $i++) {
-            $mes = $ventas[$i]->mes;
-            $total_ventas = $ventas[$i]->total_ventas;
-            $promedio_ventas = $ventas[$i]->promedio_precio;
-            $cantidad_ventas = $ventas[$i]->cantidad_ventas;
-            $comision = $total_ventas * $this->calcularTarifaBasica('comision');
-            $arpu = $total_ventas * $this->calcularTarifaBasica('bcarpu');
-            $metas_altas = $total_ventas > 80 ? $total_ventas * $this->calcularTarifaBasica('metas_altas') : 0;
-            $bonotc = ($promedio_ventas* $cantidad_ventas)* $this->calcularTarifaBasica('tc');
-            $bono_trimestral = 0;
-            $bono_calidad180 = 0;
-            $reporte[] = [
-                'mes' => $mes,
-                'comision' => $comision,
-                'total_ventas' => $total_ventas,
-                'arpu' => $arpu,
-                'metas_altas' => $metas_altas,
-                'bonotc' => $bonotc,
-                'bono_trimestral' => $bono_trimestral,
-                'bono_calidad180' => $bono_calidad180
-            ];
+        try {
+            DB::beginTransaction();
+            $reporte = [];
+            for ($i = 0; $i < count($ventas); $i++) {
+                $mes = $ventas[$i]->mes;
+                $total_ventas = $ventas[$i]->total_ventas;
+                $arreglo_ventas_tc =  $this->buscarArreglo($ventas_tc, $mes);
+                $total_ventas_tc = $arreglo_ventas_tc != null ? $arreglo_ventas_tc->total_ventas : 0;
+                $promedio_ventas = $ventas[$i]->promedio_precio;
+                $cantidad_ventas = $ventas[$i]->cantidad_ventas;
+                $comision = $total_ventas * $this->calcularTarifaBasica('comision');
+                $arpu = $total_ventas * $this->calcularTarifaBasica('bcarpu');
+                $metas_altas = $total_ventas > 80 ? $total_ventas * $this->calcularTarifaBasica('metas_altas') : 0;
+                $bonotc = $total_ventas_tc * $this->calcularTarifaBasica('tc');
+                $bono_trimestral = 0;
+                $bono_calidad180 = 0;
+                $reporte[] = [
+                    'mes' => $mes,
+                    'comision' => $comision,
+                    'total_ventas' => $total_ventas,
+                    'arpu' => $arpu,
+                    'metas_altas' => $metas_altas,
+                    'bonotc' => $bonotc,
+                    'bono_trimestral' => $bono_trimestral,
+                    'bono_calidad180' => $bono_calidad180
+                ];
+            }
+            DB::commit();
+            return $reporte;
+        } catch (Exception $ex) {
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al generar reporte' . $ex->getMessage() . ' ' . $ex->getLine()], 422);
         }
-
-        return $reporte;
+    }
+    public function buscarArreglo($arreglo, $mes)
+    {
+        try {
+            DB::beginTransaction();
+            $valor = null;
+            if (count($arreglo) > 0) {
+                $indice = array_search($mes, array_column($arreglo->toArray(), "mes"));
+                if ($indice !== false) {
+                    $valor = $arreglo[$indice];
+                }
+            }
+            DB::commit();
+            return $valor;
+        } catch (Exception $ex) {
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al generar reporte' . $ex->getMessage() . ' ' . $ex->getLine()], 422);
+        }
     }
     public function calcularTarifaBasica($etiqueta)
     {
-        $tarifas_basicas = [];
-        $id_esquemas_comision = [1, 2, 3, 4, 5, 6];
-        foreach ($id_esquemas_comision as $id_esquema_comision) {
-            $esquema_comision = EsquemaComisionController::obtener_esquema_comision($id_esquema_comision);
+        try {
+            DB::beginTransaction();
+            $tarifas_basicas = [];
+            $id_esquemas_comision = [1, 2, 3, 4, 5, 6];
+            foreach ($id_esquemas_comision as $id_esquema_comision) {
+                $esquema_comision = EsquemaComisionController::obtener_esquema_comision($id_esquema_comision);
 
-            switch ($id_esquema_comision) {
-                case 1:
-                    $tarifas_basicas['comision'] = $esquema_comision->tarifa_basica;
-                    break;
-                case 2:
-                    $tarifas_basicas['bcarpu'] = $esquema_comision->tarifa_basica;
-                    break;
-                case 3:
-                    $tarifas_basicas['metas_altas'] = $esquema_comision->tarifa_basica;
-                    break;
-                case 4:
-                    $tarifas_basicas['tc'] = $esquema_comision->tarifa_basica;
-                    break;
-                case 5:
-                    $tarifas_basicas['90_dias'] = $esquema_comision->tarifa_basica;
-                    break;
-                case 6:
-                    $tarifas_basicas['180_dias'] = $esquema_comision->tarifa_basica;
-                    break;
+                switch ($id_esquema_comision) {
+                    case 1:
+                        $tarifas_basicas['comision'] = $esquema_comision->tarifa_basica;
+                        break;
+                    case 2:
+                        $tarifas_basicas['bcarpu'] = $esquema_comision->tarifa_basica;
+                        break;
+                    case 3:
+                        $tarifas_basicas['metas_altas'] = $esquema_comision->tarifa_basica;
+                        break;
+                    case 4:
+                        $tarifas_basicas['tc'] = $esquema_comision->tarifa_basica;
+                        break;
+                    case 5:
+                        $tarifas_basicas['90_dias'] = $esquema_comision->tarifa_basica;
+                        break;
+                    case 6:
+                        $tarifas_basicas['180_dias'] = $esquema_comision->tarifa_basica;
+                        break;
+                }
             }
+            return $tarifas_basicas[$etiqueta];
+            DB::commit();
+        } catch (Exception $ex) {
+            DB::rollback();
+            return response()->json(['mensaje' => 'Ha ocurrido un error al generar reporte' . $ex->getMessage() . ' ' . $ex->getLine()], 422);
         }
-        return $tarifas_basicas[$etiqueta];
     }
     public function reporte_ventas(Request $request)
     {
@@ -192,7 +224,7 @@ class VentasController extends Controller
             $nombreMes = $meses[$mes - 1];
             // Concatenar los componentes de la fecha
             $fechaConvertida = "$nombreMes DEL $anio";
-            $ventas = Ventas::whereMonth('created_at', $mes)->whereYear('created_at', $anio)->with('vendedor', 'producto')->get();
+            $ventas = Ventas::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto')->get();
             $reportes = Ventas::empaquetarVentas($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
@@ -205,11 +237,13 @@ class VentasController extends Controller
     public function reporte_pagos(Request $request)
     {
         try {
+            DB::beginTransaction();
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
+            $mes = date("Y-m", strtotime($fecha_fin));
             $bonosMensuales = BonoMensualCumplimiento::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('SUM(valor) AS total_bmc'))
                 ->where('vendedor_id', $request->vendedor)
-                ->whereBetween(DB::raw('STR_TO_DATE(created_at, "%Y-%m-%d")'), ['2023-11-01', '2023-11-17'])
+                ->where('mes',$mes)
                 ->groupBy('mes')
                 ->get();
             $bonosTrimestrales = BonoTrimestralCumplimiento::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('SUM(valor) AS total_btc'))
@@ -217,8 +251,9 @@ class VentasController extends Controller
                 ->whereBetween(DB::raw('STR_TO_DATE(created_at, "%Y-%m-%d")'), ['2023-11-01', '2023-11-17'])
                 ->groupBy('mes')
                 ->get();
-            $comisiones = PagoComision::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_comisiones'))
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+            $comisiones = PagoComision::select(DB::raw('Concat(MONTHNAME(fecha_inicio),"-",Year(fecha_inicio)) AS mes'), DB::raw('SUM(valor) AS total_comisiones'))
+                ->where('fecha_inicio', $fecha_inicio)
+                ->where('fecha_fin',  $fecha_fin)
                 ->where('vendedor_id', $request->vendedor)
                 ->groupBy('mes')
                 ->get();
@@ -262,10 +297,11 @@ class VentasController extends Controller
             $nombre_reporte = 'reporte_pagos';
             $config = ConfiguracionGeneral::first();
             $export_excel = new ReportePagoExport(compact('reportes', 'config'));
+            DB::commit();
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
-            return null;
-        } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', [compact('ex')]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ["error en pago de comisiones", $e->getmessage(), $e->getLine()]);
         }
     }
 }
