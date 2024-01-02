@@ -14,6 +14,20 @@ class EscenarioVentaJPResource extends JsonResource
      */
     public function toArray($request)
     {
-        return parent::toArray($request);
+        $modelo = [
+            'mes'=>$this->mes,
+            'apoyo_das_fijos'=>$this->apoyo_das_fijos,
+            'vendedores'=>$this->vendedores,
+            'productividad_minima'=>$this->productividad_minima,
+            'vendedores_acumulados'=>$this->vendedores_acumulados,
+            'total_ventas_adicionales'=>$this->total_ventas_adicionales,
+            'arpu_prom'=>$this->arpu_prom,
+            'altas'=>$this->altas,
+            'bajas'=>$this->bajas,
+            'neta'=>$this->neta,
+            'stock'=>$this->stock,
+            'stock_que_factura'=>$this->stock_que_factura,
+        ];
+        return $modelo;
     }
 }

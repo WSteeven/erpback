@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
 use App\Http\Controllers\Ventas\BonoPorcentualController;
 use App\Http\Controllers\Ventas\BonosController;
@@ -9,6 +8,7 @@ use App\Http\Controllers\Ventas\ChargebacksController;
 use App\Http\Controllers\Ventas\ClienteClaroController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\DashboardVentasController;
+use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\PagoComisionController;
@@ -18,7 +18,6 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentasController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentasController;
-use App\Models\Ventas\TipoChargeback;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -40,7 +39,7 @@ Route::apiResources(
         'umbral-ventas' =>UmbralVentasController::class,
         'esquema-comision' =>EsquemaComisionController::class,
         'cliente-claro' =>ClienteClaroController::class,
-
+        'escenario-venta-jp' =>EscenarioVentaJPController::class,
     ],
     [
         'parameters' => [],

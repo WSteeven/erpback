@@ -24,7 +24,18 @@ class EscenarioVentaJPRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'mes'=> 'required',
+            'apoyo_das_fijos'=> 'required',
+            'vendedores'=> 'required',
+            'productividad_minima'=> 'required',
+            'vendedores_acumulados'=> 'required',
+            'total_ventas_adicionales'=> 'required',
+            'arpu_prom'=> 'required',
+            'altas'=> 'required',
+            'bajas'=> 'required',
+            'neta'=> 'required',
+            'stock'=> 'required',
+            'stock_que_factura'=> 'required',
         ];
     }
 }
