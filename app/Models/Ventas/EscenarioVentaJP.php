@@ -17,7 +17,6 @@ class EscenarioVentaJP extends Model implements Auditable
     protected $table = 'ventas_escenario_ventas_jp';
     protected $fillable = [
         'mes',
-        'apoyo_das_fijos',
         'vendedores',
         'productividad_minima',
         'vendedores_acumulados',
