@@ -43,6 +43,10 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['empleado_origen'] = $this->empleado_origen_id;
             $modelo['empleado_destino'] = $this->empleado_destino_id;
+            $modelo['proyecto_origen'] = $this->proyecto_origen_id;
+            $modelo['proyecto_destino'] = $this->proyecto_destino_id;
+            $modelo['etapa_origen'] = $this->etapa_origen_id;
+            $modelo['etapa_destino'] = $this->etapa_destino_id;
             $modelo['tarea_origen'] = $this->tarea_origen_id;
             $modelo['tarea_destino'] = $this->tarea_destino_id;
             $modelo['autorizador'] = $this->autorizador_id;
@@ -54,6 +58,6 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
 
     private function descripcionTarea($tarea)
     {
-        return $tarea->codigo_tarea . ' - ' . $tarea->titulo;
+        return $tarea?->codigo_tarea . ' - ' . $tarea?->titulo;
     }
 }

@@ -37,6 +37,10 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
             'solicitante' => 'required|exists:empleados,id',
             'empleado_origen' => 'required|exists:empleados,id',
             'empleado_destino' => 'required|exists:empleados,id',
+            'proyecto_origen' => 'sometimes|nullable|exists:proyectos,id',
+            'proyecto_destino' => 'sometimes|nullable|exists:proyectos,id',
+            'etapa_origen' => 'sometimes|nullable|exists:tar_etapas,id',
+            'etapa_destino' => 'sometimes|nullable|exists:tar_etapas,id',
             'tarea_origen' => 'sometimes|nullable|exists:tareas,id',
             'tarea_destino' => 'sometimes|nullable|exists:tareas,id',
             'autorizacion' => 'required|numeric|integer|exists:autorizaciones,id',
@@ -110,6 +114,6 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
     private function obtenerAutorizador()
     {
         $tarea = Tarea::find($this->tarea_origen);
-        return $tarea->etapa_id ? $tarea->coordinador_id : auth()->user()->empleado->jefe_id;
+        return $tarea?->etapa_id ? $tarea->coordinador_id : auth()->user()->empleado->jefe_id;
     }
 }
