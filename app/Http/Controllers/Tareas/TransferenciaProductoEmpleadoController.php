@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
 use Src\Config\Autorizaciones;
 use Src\Shared\Utils;
@@ -22,10 +23,12 @@ class TransferenciaProductoEmpleadoController extends Controller
 {
     private $entidad = 'Transferencia';
     private $transferenciaService;
+    private $productosTareaEmpleadoService;
 
     public function __construct()
     {
         $this->transferenciaService = new TransferenciaProductoEmpleadoService();
+        $this->productosTareaEmpleadoService = new ProductoTareaEmpleadoService();
     }
 
     public function index(Request $request)
@@ -100,16 +103,18 @@ class TransferenciaProductoEmpleadoController extends Controller
 
         $transferencia_producto_empleado->update($datos);
 
-        //borrar los registros de la tabla intermedia para guardar los modificados
+        // Borrar los registros de la tabla intermedia para guardar los modificados
         $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->detach();
 
-        //Guardar los productos seleccionados
+        // Guardar los productos seleccionados
         foreach ($request->listado_productos as $listado) {
             $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
         }
 
         $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        $results = $this->productosTareaEmpleadoService->obtenerProductos();
 
         // $msg = $transferencia_producto_empleado->autoriza->nombres . ' ' . $transferencia_producto_empleado->autoriza->apellidos . ' ha actualizado tu devolución, el estado de Autorización es: ' . $transferencia_producto_empleado->autorizacion->nombre;
         // event(new DevolucionActualizadaSolicitanteEvent($msg, $url, $devolucion, $devolucion->per_autoriza_id, $devolucion->solicitante_id, true)); //Se usa para notificar al tecnico que se actualizó la devolucion
@@ -120,5 +125,10 @@ class TransferenciaProductoEmpleadoController extends Controller
             // event(new DevolucionAutorizadaEvent($msg, User::ROL_BODEGA, $url, $devolucion, true));
         } */
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    private function ajustarValores()
+    {
+        //
     }
 }

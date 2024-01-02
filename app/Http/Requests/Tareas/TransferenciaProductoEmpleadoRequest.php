@@ -103,12 +103,12 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
 
-        if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP]) && $this->route()->getActionMethod() != 'update') {
+        /* if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP]) && $this->route()->getActionMethod() != 'update') {
             $this->merge([
                 'autorizacion' => Autorizacion::APROBADO_ID,
                 'autorizador' => auth()->user()->empleado->id,
             ]);
-        }
+        } */
     }
 
     private function obtenerAutorizador()
