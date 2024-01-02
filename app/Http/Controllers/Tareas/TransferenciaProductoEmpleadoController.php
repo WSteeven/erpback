@@ -45,6 +45,10 @@ class TransferenciaProductoEmpleadoController extends Controller
             $datos['solicitante_id'] = $request['solicitante'];
             $datos['empleado_origen_id'] = $request['empleado_origen'];
             $datos['empleado_destino_id'] = $request['empleado_destino'];
+            $datos['proyecto_origen_id'] = $request['proyecto_origen'];
+            $datos['proyecto_destino_id'] = $request['proyecto_destino'];
+            $datos['etapa_origen_id'] = $request['etapa_origen'];
+            $datos['etapa_destino_id'] = $request['etapa_destino'];
             $datos['tarea_origen_id'] = $request['tarea_origen'];
             $datos['tarea_destino_id'] = $request['tarea_destino'];
             $datos['autorizador_id'] = $request['autorizador'];
@@ -85,6 +89,10 @@ class TransferenciaProductoEmpleadoController extends Controller
         $datos['solicitante_id'] = $request['solicitante'];
         $datos['empleado_origen_id'] = $request['empleado_origen'];
         $datos['empleado_destino_id'] = $request['empleado_destino'];
+        $datos['proyecto_origen_id'] = $request['proyecto_origen'];
+        $datos['proyecto_destino_id'] = $request['proyecto_destino'];
+        $datos['etapa_origen_id'] = $request['etapa_origen'];
+        $datos['etapa_destino_id'] = $request['etapa_destino'];
         $datos['tarea_origen_id'] = $request['tarea_origen'];
         $datos['tarea_destino_id'] = $request['tarea_destino'];
         $datos['autorizacion_id'] = $request['autorizacion'];
