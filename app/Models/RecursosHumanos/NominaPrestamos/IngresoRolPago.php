@@ -3,8 +3,10 @@
 namespace App\Models\RecursosHumanos\NominaPrestamos;
 
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -28,6 +30,28 @@ class IngresoRolPago extends Model implements Auditable
     public function concepto_ingreso_info()
     {
         return $this->hasOne(ConceptoIngreso::class,'id', 'concepto');
+    }
+
+    public static function guardarIngresos($ingreso, $rolPago)
+    {
+        DB::beginTransaction();
+        try {
+            $ingresoData = [
+                'id_rol_pago' => $rolPago->id,
+                'monto' => $ingreso['monto'],
+                'concepto' => $ingreso['concepto'],
+            ];
+
+            IngresoRolPago::updateOrInsert(
+                ['id_rol_pago' => $ingresoData['id_rol_pago'], 'concepto' => $ingresoData['concepto']],
+                $ingresoData
+            );
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
 }

@@ -78,12 +78,16 @@ class GastoController extends Controller
     public function autorizaciones_gastos(Request $request)
     {
         $user =  Auth::user()->empleado;
+        $usuario_autenticado = Auth::user();
         $usuario = User::where('id', $user->id)->first();
         // $usuario->hasRole('writer');
         $results = [];
-
-        $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-        $results = GastoResource::collection($results);
+        if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
+            $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = GastoResource::collection($results);
+        } else {
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        }
 
         return response()->json(compact('results'));
     }
@@ -490,7 +494,8 @@ class GastoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);        }
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
     /**
      * It updates the status of the expense to 1, which means it is approved.
