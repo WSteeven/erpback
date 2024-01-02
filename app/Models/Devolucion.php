@@ -59,7 +59,7 @@ class Devolucion extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
-            ->withPivot('cantidad','condicion_id', 'observacion')->withTimestamps();
+            ->withPivot('cantidad', 'devuelto')->withTimestamps();
     }
 
 
@@ -163,6 +163,7 @@ class Devolucion extends Model implements Auditable
             $row['cantidad'] = $detalle->pivot->cantidad;
             $row['condiciones'] = $condicion?->nombre;
             $row['observacion'] = $detalle->pivot->observacion;
+            $row['devuelto'] = $detalle->pivot->devuelto;
             $results[$id] = $row;
             $id++;
         }
