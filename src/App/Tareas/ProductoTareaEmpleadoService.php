@@ -32,7 +32,11 @@ class ProductoTareaEmpleadoService
             'empleado_id' => 'required|numeric|integer',
         ]);
 
-        $results = request()->exists('subtarea_id') ? $this->listarMaterialesSeguimiento() : $this->listarProductosConStock();
+        $proyecto_id = request('proyecto_id');
+        $etapa_id = request('etapa_id');
+        $tarea_id = request('tarea_id');
+
+        $results = request()->exists('subtarea_id') ? $this->listarMaterialesSeguimiento() : $this->listarProductosConStock($proyecto_id, $etapa_id, $tarea_id);
 
         $materialesUtilizadosHoy = $this->obtenerMaterialesUsadosHoy();
 
@@ -64,13 +68,13 @@ class ProductoTareaEmpleadoService
     }
 
     // Caso contrario se listan todos los productos con stock mayor a cero
-    private function listarProductosConStock()
+    private function listarProductosConStockOld()
     {
         $proyecto_id = request('proyecto_id');
         $etapa_id = request('etapa_id');
         $tarea_id = request('tarea_id');
 
-        $ignoreRequest = ['proyecto_id', 'etapa_id'];//!request('etapa_id') ? ['etapa_id'] : [];
+        $ignoreRequest = ['proyecto_id', 'etapa_id']; //!request('etapa_id') ? ['etapa_id'] : [];
         $consulta = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock();
         if (request('proyecto_id') && !request('etapa_id')) $consulta = $consulta->deProyecto($proyecto_id);
         else if (request('proyecto_id') && request('etapa_id')) $consulta = $consulta->deEtapa($proyecto_id, $etapa_id);
@@ -82,13 +86,27 @@ class ProductoTareaEmpleadoService
             // $results = $consulta->get();
             // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->where('etapa_id', null)->filter()->tieneStock()->get();
             // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock()->get();
-        // } else {
+            // } else {
             // if (!request('etapa_id')) $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', null)->where('etapa_id', null)->tieneStock()->get();
             // $results = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->where('cliente_id', '=', null)->tieneStock()->get();
         }
 
         $sql = $consulta->toSql();
         Log::channel('testing')->info('Log', compact('sql'));
+        $results = $consulta->get();
+        return $results;
+    }
+
+    public function listarProductosConStock($proyecto_id, $etapa_id, $tarea_id)
+    {
+        $ignoreRequest = ['proyecto_id', 'etapa_id'];
+        $consulta = MaterialEmpleadoTarea::ignoreRequest($ignoreRequest)->filter()->tieneStock();
+        if ($proyecto_id && !$etapa_id) $consulta = $consulta->deProyecto($proyecto_id);
+        else if ($proyecto_id && $etapa_id) $consulta = $consulta->deEtapa($proyecto_id, $etapa_id);
+        else if (!$proyecto_id && !$etapa_id && $tarea_id) $consulta = $consulta->deTarea($tarea_id);
+
+        if (!$this->tieneCliente()) $consulta = $consulta->where('cliente_id', '=', null);
+
         $results = $consulta->get();
         return $results;
     }
@@ -118,6 +136,7 @@ class ProductoTareaEmpleadoService
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
+                'cliente_id' => $item->cliente_id,
             ];
         });
     }

@@ -76,7 +76,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
 
     public function detallesTransferenciaProductoEmpleado()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad', 'cliente_id')->withTimestamps();
     }
 
     /************
@@ -97,6 +97,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
             $row['serial'] = $detalle->serial;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
+            $row['cliente_id'] = $detalle->pivot->cliente_id;
             // $row['condiciones'] = $condicion?->nombre;
             $row['observacion'] = $detalle->pivot->observacion;
             $results[$id] = $row;
