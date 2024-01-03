@@ -61,7 +61,6 @@ class EmpleadoService
             'grupo_id',
             'cargo_id',
             'departamento_id',
-            'es_tecnico',
             'firma_url',
             'foto_url',
             'convencional',
@@ -76,7 +75,6 @@ class EmpleadoService
             'tipo_contrato_id',
             'tiene_discapacidad',
             'observacion',
-            'esta_en_empleado',
             'esta_en_rol_pago',
             'acumula_fondos_reserva',
             'realiza_factura',]
