@@ -15,7 +15,9 @@ class EscenarioVentaJPResource extends JsonResource
     public function toArray($request)
     {
         $modelo = [
+            'id'=> $this->id,
             'mes'=>$this->mes,
+            'numero_mes'=>$this->numero_mes,
             'apoyo_das_fijos'=>$this->apoyo_das_fijos,
             'vendedores'=>$this->vendedores,
             'productividad_minima'=>$this->productividad_minima,

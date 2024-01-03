@@ -6,7 +6,7 @@ use App\Models\Ventas\EscenarioVentaJP;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class EsernarioVentaJPSeeder extends Seeder
+class EscenarioVentaJPSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,7 +18,7 @@ class EsernarioVentaJPSeeder extends Seeder
         // Crear datos de ejemplo
         $datos = [
             [
-                'mes' => 1,
+                'numero_mes' => 1,
                 'vendedores' => 10,
                 'productividad_minima' => 9,
                 'vendedores_acumulados' => 10,
@@ -31,7 +31,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock_que_factura' => 80,
             ],
             [
-                'mes' => 2,
+                'numero_mes' => 2,
                 'vendedores' => 11,
                 'productividad_minima' => 10,
                 'vendedores_acumulados' => 21,
@@ -44,7 +44,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock_que_factura' => 90,
             ],
             [
-                'mes' => 3,
+                'numero_mes' => 3,
 
                 'vendedores' => 12,
                 'productividad_minima' => 11,
@@ -57,7 +57,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 100,
                 'stock_que_factura' => 100,
             ], [
-                'mes' => 4,
+                'numero_mes' => 4,
                 'vendedores' => 10,
                 'productividad_minima' => 9,
                 'vendedores_acumulados' => 35,
@@ -69,7 +69,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 710,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 5,
+                'numero_mes' => 5,
                 'vendedores' => 5,
                 'productividad_minima' => 10,
                 'vendedores_acumulados' => 40,
@@ -81,7 +81,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 1145,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 6,
+                'numero_mes' => 6,
                 'vendedores' => 10,
                 'productividad_minima' => 10,
                 'vendedores_acumulados' => 50,
@@ -93,7 +93,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 1640,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 7,
+                'numero_mes' => 7,
                 'vendedores' => 15,
                 'productividad_minima' => 11,
                 'vendedores_acumulados' => 65,
@@ -105,7 +105,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 1640,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 8,
+                'numero_mes' => 8,
                 'vendedores' => 5,
                 'productividad_minima' => 11,
                 'vendedores_acumulados' => 70,
@@ -117,7 +117,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 2715,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 9,
+                'numero_mes' => 9,
                 'vendedores' => 10,
                 'productividad_minima' => 12,
                 'vendedores_acumulados' => 80,
@@ -129,7 +129,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 3900,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 10,
+                'numero_mes' => 10,
                 'vendedores' => 10,
                 'productividad_minima' => 12,
                 'vendedores_acumulados' => 90,
@@ -141,7 +141,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 3900,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 11,
+                'numero_mes' => 11,
                 'vendedores' => 5,
                 'productividad_minima' => 13,
                 'vendedores_acumulados' => 95,
@@ -153,7 +153,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 4535,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 12,
+                'numero_mes' => 12,
                 'vendedores' => 5,
                 'productividad_minima' => 14,
                 'vendedores_acumulados' => 100,
@@ -165,7 +165,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 5205,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 13,
+                'numero_mes' => 13,
                 'vendedores' => 5,
                 'productividad_minima' => 16,
                 'vendedores_acumulados' => 105,
@@ -177,7 +177,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 6685,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 14,
+                'numero_mes' => 14,
                 'vendedores' => 5,
                 'productividad_minima' => 16,
                 'vendedores_acumulados' => 110,
@@ -189,7 +189,7 @@ class EsernarioVentaJPSeeder extends Seeder
                 'stock' => 6685,
                 'stock_que_factura' => 0,
             ], [
-                'mes' => 15,
+                'numero_mes' => 15,
                 'vendedores' => 5,
                 'productividad_minima' => 16,
                 'vendedores_acumulados' => 115,

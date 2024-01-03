@@ -28,9 +28,9 @@ class ModalidadController extends Controller
     }
     public function show(Request $request, Modalidad $modalidad)
     {
-        $results = new ModalidadResource($modalidad);
+        $modelo = new ModalidadResource($modalidad);
 
-        return response()->json(compact('results'));
+        return response()->json(compact('modelo'));
     }
     public function store(ModalidadRequest $request)
     {

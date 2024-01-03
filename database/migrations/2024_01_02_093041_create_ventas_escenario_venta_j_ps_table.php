@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('ventas_escenario_ventas_jp', function (Blueprint $table) {
             $table->id();
-            $table->integer('mes');
+            $table->integer('numero_mes');
+            $table->string('mes')->nullable();
             $table->integer('vendedores');
             $table->integer('productividad_minima');
             $table->integer('vendedores_acumulados');

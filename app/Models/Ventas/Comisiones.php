@@ -19,7 +19,7 @@ class Comisiones extends Model implements Auditable
         '*',
     ];
     public function plan(){
-        return $this->hasOne(ProductoVentas::class,'plan_id');
+        return $this->hasOne(ProductoVentas::class,'plan_id','id');
 
     }
 }

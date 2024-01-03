@@ -26,19 +26,19 @@ class PlanesController extends Controller
         $results = PlanesResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Planes $umbral)
+    public function show(Request $request, Planes $plan)
     {
-        $results = new PlanesResource($umbral);
+        $modelo = new PlanesResource($plan);
 
-        return response()->json(compact('results'));
+        return response()->json(compact('modelo'));
     }
     public function store(PlanesRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral = Planes::create($datos);
-            $modelo = new PlanesResource($umbral);
+            $plan = Planes::create($datos);
+            $modelo = new PlanesResource($plan);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,13 +47,13 @@ class PlanesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(PlanesRequest $request, Planes $umbral)
+    public function update(PlanesRequest $request, Planes $plan)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $umbral->update($datos);
-            $modelo = new PlanesResource($umbral->refresh());
+            $plan->update($datos);
+            $modelo = new PlanesResource($plan->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -62,9 +62,9 @@ class PlanesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Planes $umbral)
+    public function destroy(Request $request, Planes $plan)
     {
-        $umbral->delete();
+        $plan->delete();
         return response()->json(compact('umbral'));
     }
 }

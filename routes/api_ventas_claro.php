@@ -36,20 +36,23 @@ Route::apiResources(
         'pago-comision' => PagoComisionController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
-        'umbral-ventas' =>UmbralVentasController::class,
-        'esquema-comision' =>EsquemaComisionController::class,
-        'cliente-claro' =>ClienteClaroController::class,
-        'escenario-venta-jp' =>EscenarioVentaJPController::class,
+        'umbral-ventas' => UmbralVentasController::class,
+        'esquema-comision' => EsquemaComisionController::class,
+        'cliente-claro' => ClienteClaroController::class,
+        'escenario-venta-jp' => EscenarioVentaJPController::class,
     ],
     [
-        'parameters' => [],
+        'parameters' => [
+            'planes' => 'plan',
+            'comisiones' => 'comision',
+        ],
     ]
 );
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('obtener-comision/{idProducto}/{forma_pago}/{vendedor}', [ComisionesController::class, 'obtener_comision']);
     Route::post('cobrojp', [VentasController::class, 'generar_reporteCobroJP']);
-    Route::post('reporte-ventas',[VentasController::class, 'reporte_ventas']);
-    Route::post('pago',[VentasController::class, 'reporte_pagos']);
+    Route::post('reporte-ventas', [VentasController::class, 'reporte_ventas']);
+    Route::post('pago', [VentasController::class, 'reporte_pagos']);
     Route::get('dashboard', [DashboardVentasController::class, 'index']);
 });

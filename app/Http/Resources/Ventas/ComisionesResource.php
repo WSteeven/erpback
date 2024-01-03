@@ -17,10 +17,11 @@ class ComisionesResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'plan' => $this->cant_ventas,
-            'plan_info' => $this->valor,
+            'plan' => $this->plan_id,
+            'plan_info' => $this->plan!= null?$this->plan->nombre:'',
             'forma_pago' => $this->forma_pago,
-            'comision' => $this->comision
+            'comision' => $this->comision,
+            'tipo_vendedor' => $this->tipo_vendedor
         ];
         return $modelo;
     }

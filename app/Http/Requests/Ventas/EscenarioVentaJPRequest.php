@@ -13,7 +13,7 @@ class EscenarioVentaJPRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,7 +25,6 @@ class EscenarioVentaJPRequest extends FormRequest
     {
         return [
             'mes'=> 'required',
-            'apoyo_das_fijos'=> 'required',
             'vendedores'=> 'required',
             'productividad_minima'=> 'required',
             'vendedores_acumulados'=> 'required',

@@ -31,9 +31,9 @@ class ComisionesController extends Controller
     }
     public function show(Request $request, Comisiones $comision)
     {
-        $results = new ComisionesResource($comision);
+        $modelo = new ComisionesResource($comision);
 
-        return response()->json(compact('results'));
+        return response()->json(compact('modelo'));
     }
     public function store(ComisionesRequest $request)
     {
