@@ -622,7 +622,7 @@ class SaldoGrupoController extends Controller
                 ->prepend($nuevo_elemento)
                 ->toArray();
             $sub_total = 0;
-            $nuevo_saldo = $saldo_anterior != null ?  $saldo_anterior->saldo_actual:0;
+            $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual:0;
             $nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
