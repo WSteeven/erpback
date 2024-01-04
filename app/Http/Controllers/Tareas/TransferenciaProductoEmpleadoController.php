@@ -53,13 +53,14 @@ class TransferenciaProductoEmpleadoController extends Controller
             $datos['tarea_origen_id'] = $request['tarea_origen'];
             $datos['tarea_destino_id'] = $request['tarea_destino'];
             $datos['autorizador_id'] = $request['autorizador'];
+            $datos['cliente_id'] = $request['cliente'];
             $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID; // $request['autorizacion'];
             $cliente_id = $request['cliente_id'];
 
             $transferencia = TransferenciaProductoEmpleado::create($datos);
 
             foreach ($request->listado_productos as $listado) {
-                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'cliente_id' => $cliente_id]);
+                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);//, 'cliente_id' => $cliente_id]);
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia);
@@ -99,7 +100,7 @@ class TransferenciaProductoEmpleadoController extends Controller
         $datos['tarea_destino_id'] = $request['tarea_destino'];
         $datos['autorizacion_id'] = $request['autorizacion'];
         $datos['autorizador_id'] = $request['autorizador'];
-        $cliente_id = $request['cliente_id'];
+        // $cliente_id = $request['cliente_id'];
 
         $transferencia_producto_empleado->update($datos);
 
@@ -108,14 +109,14 @@ class TransferenciaProductoEmpleadoController extends Controller
 
         // Guardar los productos seleccionados
         foreach ($request->listado_productos as $listado) {
-            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'cliente_id' => $cliente_id]);
+            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]); ///, 'cliente_id' => $cliente_id]);
         }
 
         if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
             $mensaje = 'dentro de if';
             Log::channel('testing')->info('Log', compact('mensaje'));
 
-            $this->ajustarValoresProducto();
+            $this->ajustarValoresProducto($transferencia_producto_empleado);
         }
 
         $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
@@ -156,9 +157,9 @@ class TransferenciaProductoEmpleadoController extends Controller
         // ->where('tarea_id', $tarea_id)
     }
 
-    public function ajustarValoresProducto()
+    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado)
     {
-        $cliente_id = request('cliente');
+        $cliente_id = $transferencia_producto_empleado->cliente_id; // request('cliente');
 
         // Origen
         $empleado_origen_id = request('empleado_origen');

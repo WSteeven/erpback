@@ -16,7 +16,7 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
     public function toArray($request)
     {
         $controller_method = $request->route()->getActionMethod();
-        $detalles = TransferenciaProductoEmpleado::listadoProductos($this->id);
+        $detalles = TransferenciaProductoEmpleado::find($this->id)->listadoProductos(); //$this->id);
         $modelo = [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
