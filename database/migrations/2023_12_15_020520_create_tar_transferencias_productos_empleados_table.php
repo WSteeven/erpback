@@ -32,6 +32,7 @@ return new class extends Migration
             $table->unsignedBigInteger('tarea_destino_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id');
             $table->unsignedBigInteger('autorizador_id');
+            $table->unsignedBigInteger('cliente_id');
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('empleado_origen_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');

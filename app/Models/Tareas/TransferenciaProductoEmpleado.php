@@ -40,6 +40,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
         'tarea_destino_id',
         'autorizacion_id',
         'autorizador_id',
+        'cliente_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -76,15 +77,16 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
 
     public function detallesTransferenciaProductoEmpleado()
     {
-        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad', 'cliente_id')->withTimestamps();
+        return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad')->withTimestamps();
     }
 
     /************
      * Funciones
      ************/
-    public static function listadoProductos(int $id)
+    public function listadoProductos() //int $id)
     {
-        $detalles = TransferenciaProductoEmpleado::find($id)->detallesTransferenciaProductoEmpleado()->get();
+        // $detalles = TransferenciaProductoEmpleado::find($id)->detallesTransferenciaProductoEmpleado()->get();
+        $detalles = $this->detallesTransferenciaProductoEmpleado()->get();
         Log::channel('testing')->info('Log', compact('detalles'));
         $results = [];
         $id = 0;
@@ -97,7 +99,7 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
             $row['serial'] = $detalle->serial;
             $row['categoria'] = $detalle->producto->categoria->nombre;
             $row['cantidad'] = $detalle->pivot->cantidad;
-            $row['cliente_id'] = $detalle->pivot->cliente_id;
+            $row['cliente_id'] = $this->cliente_id; ///$detalle->pivot->cliente_id;
             // $row['condiciones'] = $condicion?->nombre;
             $row['observacion'] = $detalle->pivot->observacion;
             $results[$id] = $row;
