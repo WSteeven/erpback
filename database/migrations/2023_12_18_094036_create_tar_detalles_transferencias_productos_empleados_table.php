@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('detalle_producto_id');
             $table->unsignedBigInteger('transf_produc_emplea_id');
             $table->integer('cantidad');
+            $table->unsignedBigInteger('cliente_id');
 
             $table->foreign('detalle_producto_id')->references('id')->on('detalles_productos')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('transf_produc_emplea_id')->references('id')->on('tar_transf_produc_emplea')->onUpdate('cascade')->onDelete('cascade');

@@ -32,7 +32,7 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
         $rules =  [
             'justificacion' => 'required|string',
             'causa_anulacion' => 'nullable|string',
-            'estado' => ['sometimes', Rule::in([TransferenciaProductoEmpleado::PENDIENTE, TransferenciaProductoEmpleado::ANULADA, TransferenciaProductoEmpleado::COMPLETA])],
+            // 'estado' => ['sometimes', Rule::in([TransferenciaProductoEmpleado::PENDIENTE, TransferenciaProductoEmpleado::ANULADA, TransferenciaProductoEmpleado::COMPLETA])],
             'observacion_aut' => 'nullable|string',
             'solicitante' => 'required|exists:empleados,id',
             'empleado_origen' => 'required|exists:empleados,id',
@@ -43,9 +43,10 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
             'etapa_destino' => 'sometimes|nullable|exists:tar_etapas,id',
             'tarea_origen' => 'sometimes|nullable|exists:tareas,id',
             'tarea_destino' => 'sometimes|nullable|exists:tareas,id',
-            'autorizacion' => 'required|numeric|integer|exists:autorizaciones,id',
+            'autorizacion' => 'nullable|numeric|integer|exists:autorizaciones,id',
             'autorizador' => 'required|numeric|exists:empleados,id',
             'listado_productos.*.cantidad' => 'required',
+            // 'listado_productos.*.cliente_id' => 'required',
             // 'listado_productos.*.descripcion' => 'required',
         ];
 
@@ -85,7 +86,7 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
     }
 
     // Esto se ejecuta antes de validar las rules
-    protected function prepareForValidation()
+    /*protected function prepareForValidation()
     {
         $this->merge([
             'estado' => TransferenciaProductoEmpleado::PENDIENTE
@@ -103,13 +104,13 @@ class TransferenciaProductoEmpleadoRequest extends FormRequest
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
         }
 
-        /* if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP]) && $this->route()->getActionMethod() != 'update') {
+         if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_COORDINADOR_BACKUP]) && $this->route()->getActionMethod() != 'update') {
             $this->merge([
                 'autorizacion' => Autorizacion::APROBADO_ID,
                 'autorizador' => auth()->user()->empleado->id,
             ]);
-        } */
-    }
+        }
+    }*/
 
     private function obtenerAutorizador()
     {

@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers\Tareas;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Tareas\TransferenciaMaterialEmpleadoRequest;
-use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
-use App\Http\Requests\Tareas\TransferirMaterialEmpleadoRequest;
-use App\Http\Resources\Tareas\TransferenciaMaterialEmpleadoResource;
 use App\Http\Resources\Tareas\TransferenciaProductoEmpleadoResource;
-use App\Models\Autorizacion;
-use App\Models\Tareas\TransferenciaProductoEmpleado;
-use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Src\App\Tareas\ProductoTareaEmpleadoService;
+use App\Http\Requests\Tareas\TransferenciaProductoEmpleadoRequest;
 use Src\App\Tareas\TransferenciaProductoEmpleadoService;
-use Src\Config\Autorizaciones;
+use App\Models\Tareas\TransferenciaProductoEmpleado;
+use Src\App\Tareas\ProductoTareaEmpleadoService;
+use App\Http\Controllers\Controller;
+use App\Models\Autorizacion;
+use App\Models\MaterialEmpleadoTarea;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Src\Shared\Utils;
+use Exception;
 
 class TransferenciaProductoEmpleadoController extends Controller
 {
@@ -43,6 +40,7 @@ class TransferenciaProductoEmpleadoController extends Controller
     {
         try {
             DB::beginTransaction();
+
             // Adaptacion de foreign keys
             $datos = $request->validated();
             $datos['solicitante_id'] = $request['solicitante'];
@@ -55,12 +53,13 @@ class TransferenciaProductoEmpleadoController extends Controller
             $datos['tarea_origen_id'] = $request['tarea_origen'];
             $datos['tarea_destino_id'] = $request['tarea_destino'];
             $datos['autorizador_id'] = $request['autorizador'];
-            $datos['autorizacion_id'] = $request['autorizacion'];
+            $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID; // $request['autorizacion'];
+            $cliente_id = $request['cliente_id'];
 
             $transferencia = TransferenciaProductoEmpleado::create($datos);
 
             foreach ($request->listado_productos as $listado) {
-                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'cliente_id' => $cliente_id]);
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia);
@@ -100,6 +99,7 @@ class TransferenciaProductoEmpleadoController extends Controller
         $datos['tarea_destino_id'] = $request['tarea_destino'];
         $datos['autorizacion_id'] = $request['autorizacion'];
         $datos['autorizador_id'] = $request['autorizador'];
+        $cliente_id = $request['cliente_id'];
 
         $transferencia_producto_empleado->update($datos);
 
@@ -108,13 +108,25 @@ class TransferenciaProductoEmpleadoController extends Controller
 
         // Guardar los productos seleccionados
         foreach ($request->listado_productos as $listado) {
-            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            $transferencia_producto_empleado->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'cliente_id' => $cliente_id]);
+        }
+
+        if ($datos['autorizacion_id'] === Autorizacion::APROBADO_ID) {
+            $mensaje = 'dentro de if';
+            Log::channel('testing')->info('Log', compact('mensaje'));
+
+            $this->ajustarValoresProducto();
         }
 
         $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        $results = $this->productosTareaEmpleadoService->obtenerProductos();
+        /* $proyecto_id = request('proyecto_id');
+        $etapa_id = request('etapa_id');
+        $tarea_id = request('tarea_id'); */
+
+        // $results = $this->productosTareaEmpleadoService->listarProductosConStock($empleado_origen_id, $proyecto_id, $etapa_id, $tarea_id);
+
 
         // $msg = $transferencia_producto_empleado->autoriza->nombres . ' ' . $transferencia_producto_empleado->autoriza->apellidos . ' ha actualizado tu devolución, el estado de Autorización es: ' . $transferencia_producto_empleado->autorizacion->nombre;
         // event(new DevolucionActualizadaSolicitanteEvent($msg, $url, $devolucion, $devolucion->per_autoriza_id, $devolucion->solicitante_id, true)); //Se usa para notificar al tecnico que se actualizó la devolucion
@@ -127,8 +139,69 @@ class TransferenciaProductoEmpleadoController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    private function ajustarValores()
+    private function consultarProducto($empleado_id, $detalle_producto_id, $proyecto_id, $etapa_id, $tarea_id, $cliente_id)
     {
-        //
+        $consulta = MaterialEmpleadoTarea::where('empleado_id', $empleado_id)
+            ->where('detalle_producto_id', $detalle_producto_id)
+            ->where('proyecto_id', $proyecto_id)
+            ->where('etapa_id', $etapa_id)
+            ->where('cliente_id', $cliente_id)
+            ->tieneStock();
+
+
+        // $sql = $consulta->toSql();
+        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'cliente_id'));
+
+        return $consulta->first();
+        // ->where('tarea_id', $tarea_id)
+    }
+
+    public function ajustarValoresProducto()
+    {
+        $cliente_id = request('cliente');
+
+        // Origen
+        $empleado_origen_id = request('empleado_origen');
+        $proyecto_origen_id = request('proyecto_origen');
+        $etapa_origen_id = request('etapa_origen');
+        $tarea_origen_id = request('tarea_origen');
+
+        // Destino
+        $empleado_destino_id = request('empleado_destino');
+        $proyecto_destino_id = request('proyecto_destino');
+        $etapa_destino_id = request('etapa_destino');
+        $tarea_destino_id = request('tarea_destino');
+
+        foreach (request('listado_productos') as $producto) {
+            // Restar productos origen
+            $productoOrigen = $this->consultarProducto($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
+            $productoOrigen->cantidad_stock -= $producto['cantidad'];
+            $productoOrigen->save();
+
+            Log::channel('testing')->info('Log', compact('productoOrigen'));
+
+            if ($productoOrigen) {
+                // Sumar productos destino
+                $productoDestino = $this->consultarProducto($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
+
+                if ($productoDestino) {
+                    $productoDestino->cantidad_stock += $producto['cantidad'];
+                    $productoDestino->despachado += $producto['cantidad'];
+                    $productoDestino->save();
+                } else {
+                    MaterialEmpleadoTarea::create([
+                        'empleado_id' => $empleado_destino_id,
+                        'cantidad_stock' => $producto['cantidad'],
+                        'detalle_producto_id' => $producto['id'],
+                        'despachado' => $producto['cantidad'],
+                        'proyecto_id' => $proyecto_destino_id,
+                        'etapa_id' => $etapa_destino_id,
+                        'cliente_id' => $productoOrigen->cliente_id,
+                    ]);
+                }
+
+                Log::channel('testing')->info('Log', compact('productoDestino'));
+            }
+        }
     }
 }
