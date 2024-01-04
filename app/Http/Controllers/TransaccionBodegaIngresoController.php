@@ -148,10 +148,14 @@ class TransaccionBodegaIngresoController extends Controller
                 //se entiende que si hay un ingreso por transferencia es porque la transferencia llegó a su destino,
                 // entonces procedemos a actualizar la transferencia
                 if ($transaccion->transferencia_id) {
-                    $transferencia = Transferencia::find($transaccion->transferencia_id);
-                    $transferencia->estado = Transferencia::COMPLETADO;
-                    $transferencia->recibida = true;
-                    $transferencia->save();
+                    if(TransaccionBodega::verificarTransferenciaEnEgreso($transaccion->id, $transaccion->transferencia_id)){
+                        $transferencia = Transferencia::find($transaccion->transferencia_id);
+                        $transferencia->estado = Transferencia::COMPLETADO;
+                        $transferencia->recibida = true;
+                        $transferencia->save();
+                    }else{
+                        throw new Exception('Primero debes realizar el EGRESO POR TRANSFERENCIA ENTRE BODEGAS en la bodega de origen');
+                    }
                 }
 
                 if ($transaccion->motivo_id == 1) {

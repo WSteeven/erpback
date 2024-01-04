@@ -250,17 +250,11 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function index(Request $request)
     {
-        $estado = $request['estado'];
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
-        }
-        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
-        }
+        Log::channel('testing')->info('Log', ['antess de la consulta', time()]);
+        $results = $this->servicio->listar($request);
+        Log::channel('testing')->info('Log', ['despues de la consulta', time()]);
         $results = TransaccionBodegaResource::collection($results);
+        Log::channel('testing')->info('Log', ['despues del resource', time()]);
         return response()->json(compact('results'));
     }
 
@@ -323,7 +317,7 @@ class TransaccionBodegaEgresoController extends Controller
             //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
             if (!$transaccion->transferencia_id) {
                 $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
-                if(!$noGeneraComprobante){
+                if (!$noGeneraComprobante) {
                     //creamos el comprobante
                     $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
                     //lanzar el evento de la notificación

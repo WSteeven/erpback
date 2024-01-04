@@ -429,6 +429,25 @@ class TransaccionBodega extends Model implements Auditable
     }
 
     /**
+     * La función `verificarTransferenciaEnEgreso` verifica si existe una transacción de transferencia
+     * en una transacción de egreso.
+     * 
+     * @param int $id El ID de la transacción actual que se está verificando.
+     * @param int $transferencia_id El parámetro `transferencia_id` es el ID de una transferencia.
+     * 
+     * @return boolean Si la variable transacción no es nula devolverá verdadero. De lo
+     * contrario, devolverá falso.
+     */
+    public static function verificarTransferenciaEnEgreso($id, $transferencia_id)
+    {
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $transaccion = TransaccionBodega::whereIn('motivo_id', $ids_motivos)->where('id', '<>', $id)->where('transferencia_id', $transferencia_id)->first();
+        if ($transaccion) return true;
+        else return false;
+    }
+
+    /**
      * La función "verificarMotivosEgreso" verifica si un determinado ID está presente en un conjunto
      * de motivos de salida que no generan recibo.
      *
@@ -437,14 +456,15 @@ class TransaccionBodega extends Model implements Auditable
      * @return bool un valor booleano que indica si el ID proporcionado está presente en el conjunto de
      * motivos de alta que no generan un comprobante.
      */
-    public static function verificarMotivosEgreso(int $id){
+    public static function verificarMotivosEgreso(int $id)
+    {
         $motivosDeEgresoQueNoGeneranComprobante = [
-            ['id'=>15, 'nombre'=>'VENTA'],
-            ['id'=>18, 'nombre'=>'DESTRUCCION'],
-            ['id'=>23, 'nombre'=>'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
-            ['id'=>24, 'nombre'=>'EGRESO POR LIQUIDACION DE MATERIALES'],
-            ['id'=>25, 'nombre'=>'AJUSTE DE EGRESO POR REGULARIZACION'],
-            ['id'=>28, 'nombre'=>'ROBO'],
+            ['id' => 15, 'nombre' => 'VENTA'],
+            ['id' => 18, 'nombre' => 'DESTRUCCION'],
+            ['id' => 23, 'nombre' => 'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
+            ['id' => 24, 'nombre' => 'EGRESO POR LIQUIDACION DE MATERIALES'],
+            ['id' => 25, 'nombre' => 'AJUSTE DE EGRESO POR REGULARIZACION'],
+            ['id' => 28, 'nombre' => 'ROBO'],
         ];
         $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
 
