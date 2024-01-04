@@ -11,6 +11,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
@@ -66,7 +67,8 @@ Route::apiResources(
         'rol_pago' => RolPagosController::class,
         'egreso_rol_pago' => EgresoRolPagoController::class,
         'ingreso_rol_pago' => IngresoRolPagoController::class,
-        ],
+        'asignar-alimentacion' => AsignarAlimentacionController::class,
+    ],
     [
         'parameters' => ['descuentos_generales'=>'descuento_general',
     'descuentos_ley' => 'descuento_ley',],

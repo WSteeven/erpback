@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_asignar_alimentacion_tables', function (Blueprint $table) {
+        Schema::create('rrhh_asignar_alimentacion', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->decimal('valor_minimo');

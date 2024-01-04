@@ -14,7 +14,7 @@ class AsignarAlimentacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'areas';
+    protected $table = 'rrhh_asignar_alimentacion';
     protected $fillable = [
         'empleado_id',
         'valor_minimo'

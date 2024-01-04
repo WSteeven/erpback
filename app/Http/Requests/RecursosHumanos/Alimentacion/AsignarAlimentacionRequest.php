@@ -13,7 +13,7 @@ class AsignarAlimentacionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class AsignarAlimentacionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'empleados' => 'required',
+            'valor_minimo' => 'required',
         ];
     }
 }
