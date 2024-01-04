@@ -7,6 +7,7 @@ use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
 use App\Models\Empleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
@@ -289,21 +290,34 @@ class SeguimientoSubtareaController extends Controller
         /* $empleado_id = request('empleado_id') ?? $empleado->id;
         Log::channel('testing')->info('Log', compact('empleado_id')); */
 
-        $results = DB::table('materiales_empleados_tareas')
-            ->select('materiales_empleados_tareas.cliente_id', 'empresas.razon_social')
+        $results = MaterialEmpleadoTarea::select('cliente_id', 'empresas.razon_social')
             ->where('empleado_id', request('empleado_id'))
+            ->where('cantidad_stock', '>', 0)
+            ->devolverFiltroTareaEtapaProyecto()
             ->join('clientes', 'cliente_id', '=', 'clientes.id')
             ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
-            ->groupBy('cliente_id')
-            ->get();
+            ->groupBy('cliente_id');
+
+        $sql = $results->toSql();
+        Log::channel('testing')->info('Log', compact('sql'));
+        $results = $results->get();
 
         $results->push([
             'cliente_id' => null,
             'razon_social' => 'SIN CLIENTE',
         ]);
 
-        Log::channel('testing')->info('Log', compact('results'));
 
         return response()->json(compact('results'));
     }
+
+    /* function devolverFiltroTareaEtapaProyecto($query)
+    {
+
+        // $query = MaterialEmpleadoTarea::query();
+
+        if(request('filtrar_por_tarea')) return $query->porTarea();
+        if(request('filtrar_por_etapa')) return $query->porEtapa();
+        if(request('filtrar_por_proyecto')) return $query->porProyecto();
+    } */
 }

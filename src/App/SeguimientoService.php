@@ -225,13 +225,24 @@ class SeguimientoService
     public function actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request)
     {
         $idTarea = $request['tarea_id'];
+        $etapa_id = $request['etapa_id'];
+        $proyecto_id = $request['proyecto_id'];
+        $cliente_id = $request['cliente_id'];
         $idSubtarea = $request['subtarea_id'];
         $idEmpleado = $request['empleado_id'];
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
         $cantidadAnterior = $request['cantidad_anterior'];
 
-        $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->first();
+        if ($proyecto_id) {
+            $mensaje = 'Es de proyecto...........';
+            Log::channel('testing')->info('Log', compact('mensaje'));
+            $idTarea = null;
+            Log::channel('testing')->info('Log', compact('idTarea'));
+            $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
+        } else {
+            $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
+        }
         $material->cantidad_stock += (isset($cantidadAnterior) ? $cantidadAnterior : 0)  - $cantidadUtilizada;
         $material->save();
 
