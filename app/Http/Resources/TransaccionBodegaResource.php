@@ -27,6 +27,7 @@ class TransaccionBodegaResource extends JsonResource
             'id' => $this->id,
 
             'autorizacion' =>  $this->autorizacion?->nombre,
+            'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             'cliente_id' => $this->cliente_id,
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
             'estado_comprobante' => $comprobante?->estado,
@@ -53,7 +54,6 @@ class TransaccionBodegaResource extends JsonResource
             'tiene_pedido' => $this->pedido_id ? true : false,
             'transferencia' => $this->transferencia_id,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
-            // 'cliente' => $this->cliente ? $this->cliente->empresa->razon_social : null,
             // 'comprobante' => $this->comprobante,
             // 'comprobante'=>$comprobante,
             // 'devolucion' => $this->devolucion?->justificacion,
@@ -88,6 +88,7 @@ class TransaccionBodegaResource extends JsonResource
             $modelo['listadoProductosTransaccion'] = $detalles;
             $modelo['es_tarea'] = $this->tarea ? true : false;
             $modelo['es_transferencia'] = $this->transferencia_id ? true : false;
+            $modelo['observacion_est'] =  $this->observacion_est;
         }
 
         return $modelo;

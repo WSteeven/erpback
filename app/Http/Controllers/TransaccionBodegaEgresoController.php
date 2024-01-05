@@ -250,11 +250,8 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['antess de la consulta', time()]);
         $results = $this->servicio->listar($request);
-        Log::channel('testing')->info('Log', ['despues de la consulta', time()]);
         $results = TransaccionBodegaResource::collection($results);
-        Log::channel('testing')->info('Log', ['despues del resource', time()]);
         return response()->json(compact('results'));
     }
 

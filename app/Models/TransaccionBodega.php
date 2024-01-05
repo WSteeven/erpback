@@ -20,6 +20,7 @@ class TransaccionBodega extends Model implements Auditable
 
     const PENDIENTE = 'PENDIENTE';
     const ACEPTADA = 'ACEPTADA';
+    const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
     public $table = 'transacciones_bodega';
@@ -99,7 +100,7 @@ class TransaccionBodega extends Model implements Auditable
     public function items()
     {
         return $this->belongsToMany(Inventario::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
     /**
@@ -285,6 +286,8 @@ class TransaccionBodega extends Model implements Auditable
             $row['serial'] = $item->detalle->serial;
             $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
+            $row['recibido'] = $item->pivot->recibido;
+            $row['pendiente'] = $item->pivot->cantidad_inicial - $item->pivot->recibido;
             $row['despachado'] = $item->pivot->cantidad_final;
             $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;

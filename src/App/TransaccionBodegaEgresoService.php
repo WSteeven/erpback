@@ -37,13 +37,18 @@ class TransaccionBodegaEgresoService
                             $q->where('firmada', false);
                         })->orderBy('id', 'desc')->get();
                         break;
+                    case EstadoTransaccion::PARCIAL:
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                            $q->where('estado', EstadoTransaccion::PARCIAL);
+                        })->orderBy('id', 'desc')->get();
+                        break;
                     case EstadoTransaccion::COMPLETA:
                         $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
-                        ->where(function ($query) {
-                            $query->whereHas('comprobante', function ($q) {
-                                $q->where('firmada', true);
-                            })->orWhereDoesntHave('comprobante');
-                        })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')->get();
+                            ->where(function ($query) {
+                                $query->whereHas('comprobante', function ($q) {
+                                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                                })->orWhereDoesntHave('comprobante');
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->orderBy('id', 'desc')->get();
                         break;
                     case 'ANULADA':
                         $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('estado_id', EstadosTransacciones::ANULADA)->orderBy('id', 'desc')->get();
@@ -61,13 +66,18 @@ class TransaccionBodegaEgresoService
                             $q->where('firmada', false);
                         })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
+                    case EstadoTransaccion::PARCIAL:
+                        $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)->whereHas('comprobante', function ($q) {
+                            $q->where('estado', EstadoTransaccion::PARCIAL);
+                        })->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                        break;
                     case EstadoTransaccion::COMPLETA:
                         $results = TransaccionBodega::with('comprobante')->whereIn('motivo_id', $motivos)
-                        ->where(function ($query) {
-                            $query->whereHas('comprobante', function ($q) {
-                                $q->where('firmada', true);
-                            })->orWhereDoesntHave('comprobante');
-                        })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                            ->where(function ($query) {
+                                $query->whereHas('comprobante', function ($q) {
+                                    $q->where('firmada', true)->where('estado', TransaccionBodega::ACEPTADA);
+                                })->orWhereDoesntHave('comprobante');
+                            })->where('autorizacion_id', Autorizaciones::APROBADO)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
                         break;
                     case 'ANULADA':
                         $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('estado_id', EstadosTransacciones::ANULADA)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
