@@ -26,7 +26,7 @@ class AsignarAlimentacion extends Model implements Auditable
         'valor_minimo'
     ];
     public function empleado(){
-        return $this->hasMany(Empleado::class,'id','empleado_id');
+        return $this->hasOne(Empleado::class,'id','empleado_id');
     }
 
 }

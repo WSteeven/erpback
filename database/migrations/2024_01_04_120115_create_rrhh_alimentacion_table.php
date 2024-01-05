@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_alimentacion_tables', function (Blueprint $table) {
+        Schema::create('rrhh_alimentacion', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('empleado_id');
+            $table->decimal('valor_asignado');
+            $table->date('fecha_corte');
             $table->timestamps();
         });
     }
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_alimentacion_tables');
+        Schema::dropIfExists('rrhh_alimentacion');
     }
 };

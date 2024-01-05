@@ -17,8 +17,8 @@ class AsignarAlimentacionResource extends JsonResource
         return [
             'id' => $this->id,
             'empleado' => $this->empleado_id,
-            //'empleado_info' => $this->empleado != null ? $this->empleado->nombres.' '.$this->empleado->apellidos:'',
-            'codigo' => $this->codigo,
+            'empleado_info' => $this->empleado != null ? $this->empleado->nombres.' '.$this->empleado->apellidos:'',
+            'valor_minimo' => $this->valor_minimo,
         ];
     }
 }

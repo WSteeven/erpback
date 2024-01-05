@@ -11,6 +11,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PrestamoQuirirafarioCon
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
 use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\RecursosHumanos\Alimentacion\AlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
@@ -68,10 +69,13 @@ Route::apiResources(
         'egreso_rol_pago' => EgresoRolPagoController::class,
         'ingreso_rol_pago' => IngresoRolPagoController::class,
         'asignar-alimentacion' => AsignarAlimentacionController::class,
+        'alimentacion' => AlimentacionController::class,
     ],
     [
-        'parameters' => ['descuentos_generales'=>'descuento_general',
-    'descuentos_ley' => 'descuento_ley',],
+        'parameters' => [
+            'descuentos_generales' => 'descuento_general',
+            'descuentos_ley' => 'descuento_ley',
+        ],
 
     ]
 );
@@ -110,10 +114,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('finalizar-rol-pago', [RolPagoMesController::class, 'FinalizarRolPago']);
     Route::get('habilitar-empleado', [EmpleadoController::class, 'HabilitaEmpleado']);
     Route::get('imprimir_reporte_general/{rolPagoId}', [RolPagoMesController::class, 'imprimir_reporte_general']);
-    Route::get('enviar-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'enviarRoles']);
-    Route::get('enviar-rol-pago-empleado/{rolPagoId}',[RolPagosController::class, 'enviar_rolPago_empleado']);
-    Route::get('crear-cash-roles-pago/{rolPagoId}',[RolPagoMesController::class, 'crear_cash_rol_pago']);
-    Route::get('actualizar-rol-pago/{rolPagoId}',[RolPagoMesController::class, 'refrescar_rol_pago']);
-    Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
-    Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
+    Route::get('enviar-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'enviarRoles']);
+    Route::get('enviar-rol-pago-empleado/{rolPagoId}', [RolPagosController::class, 'enviar_rolPago_empleado']);
+    Route::get('crear-cash-roles-pago/{rolPagoId}', [RolPagoMesController::class, 'crear_cash_rol_pago']);
+    Route::get('actualizar-rol-pago/{rolPagoId}', [RolPagoMesController::class, 'refrescar_rol_pago']);
+    Route::get('generar-username', [EmpleadoController::class, 'obtenerNombreUsuario']);
+    Route::post('anular-prestamo-empresarial', [PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
 });

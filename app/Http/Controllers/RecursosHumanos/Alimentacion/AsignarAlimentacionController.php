@@ -16,7 +16,7 @@ use Src\Shared\Utils;
 
 class AsignarAlimentacionController extends Controller
 {
-    private $entidad = 'AsignarAlimentacion';
+    private $entidad = 'Asignar Alimentacion';
     public function __construct()
     {
         $this->middleware('can:puede.ver.asignar_alimentacion')->only('index', 'show');
