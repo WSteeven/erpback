@@ -8,6 +8,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\DetalleProducto;
 use App\Models\Producto;
 use App\Models\Cliente;
+use App\Models\Tarea;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -108,6 +109,7 @@ class ProductoTareaEmpleadoService
         if (!$this->tieneCliente()) $consulta = $consulta->where('cliente_id', '=', null);
 
         $results = $consulta->get();
+        Log::channel('testing')->info('Log', compact('results'));
         return $results;
     }
 
@@ -137,6 +139,7 @@ class ProductoTareaEmpleadoService
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
                 'cliente_id' => $item->cliente_id,
+                'codigo_tarea' => Tarea::find($item->tarea_id)->codigo_tarea,
             ];
         });
     }

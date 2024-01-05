@@ -237,8 +237,8 @@ class SeguimientoService
         if ($proyecto_id) {
             $mensaje = 'Es de proyecto...........';
             Log::channel('testing')->info('Log', compact('mensaje'));
-            $idTarea = null;
-            Log::channel('testing')->info('Log', compact('idTarea'));
+            // $idTarea = null;
+            // Log::channel('testing')->info('Log', compact('idTarea'));
             $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
         } else {
             $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
