@@ -60,7 +60,7 @@ class TransferenciaProductoEmpleadoController extends Controller
             $transferencia = TransferenciaProductoEmpleado::create($datos);
 
             foreach ($request->listado_productos as $listado) {
-                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);//, 'cliente_id' => $cliente_id]);
+                $transferencia->detallesTransferenciaProductoEmpleado()->attach($listado['id'], ['cantidad' => $listado['cantidad']]); //, 'cliente_id' => $cliente_id]);
             }
 
             $modelo = new TransferenciaProductoEmpleadoResource($transferencia);
@@ -149,9 +149,13 @@ class TransferenciaProductoEmpleadoController extends Controller
             ->where('cliente_id', $cliente_id)
             ->tieneStock();
 
+        if ($tarea_id) $consulta = $consulta->where('tarea_id', $tarea_id);
 
-        // $sql = $consulta->toSql();
-        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'cliente_id'));
+        $sql = $consulta->toSql();
+        $bin = $consulta->getBindings();
+
+        Log::channel('testing')->info('Log', compact('sql', 'bin'));
+        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'tarea_id', 'cliente_id'));
 
         return $consulta->first();
         // ->where('tarea_id', $tarea_id)
@@ -186,18 +190,24 @@ class TransferenciaProductoEmpleadoController extends Controller
                 $productoDestino = $this->consultarProducto($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
 
                 if ($productoDestino) {
+                    $mensaje = 'Si se encuentra';
+                    Log::channel('testing')->info('Log', compact('mensaje'));
                     $productoDestino->cantidad_stock += $producto['cantidad'];
                     $productoDestino->despachado += $producto['cantidad'];
                     $productoDestino->save();
                 } else {
-                    MaterialEmpleadoTarea::create([
+                    $mensaje = 'Si no se encuentra, se crea';
+                    Log::channel('testing')->info('Log', compact('mensaje'));
+
+                    $productoDestino = MaterialEmpleadoTarea::create([
                         'empleado_id' => $empleado_destino_id,
                         'cantidad_stock' => $producto['cantidad'],
                         'detalle_producto_id' => $producto['id'],
                         'despachado' => $producto['cantidad'],
                         'proyecto_id' => $proyecto_destino_id,
                         'etapa_id' => $etapa_destino_id,
-                        'cliente_id' => $productoOrigen->cliente_id,
+                        'tarea_id' => $tarea_destino_id,
+                        'cliente_id' => $cliente_id,
                     ]);
                 }
 

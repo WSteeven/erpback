@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -46,19 +47,52 @@ class MaterialEmpleadoTarea extends Model implements Auditable
         return $query->where('cantidad_stock', '>', 0);
     }
 
+    /**
+     *
+     */
     public function scopeDeProyecto($query, $proyecto_id)
     {
-        return $query->where('proyecto_id', $proyecto_id)->where('etapa_id', null); //->where('tarea_id', null);
+        return $query->where('proyecto_id', $proyecto_id)->where('etapa_id', null);
     }
 
     public function scopeDeEtapa($query, $proyecto_id, $etapa_id)
     {
-        return $query->where('proyecto_id', $proyecto_id)->where('etapa_id', $etapa_id);// ->where('tarea_id', null);
+        return $query->where('proyecto_id', $proyecto_id)->where('etapa_id', $etapa_id);
     }
 
     public function scopeDeTarea($query, $tarea_id)
     {
         return $query->where('proyecto_id', null)->where('etapa_id', null)->where('tarea_id', $tarea_id);
+    }
+
+    /**
+     *
+     */
+    public function scopeSoloProyectos($query)
+    {
+        return $query->where('proyecto_id', '!=', null)->where('etapa_id', null); //->where('tarea_id', null);
+    }
+
+    public function scopeSoloEtapas($query)
+    {
+        return $query->where('proyecto_id', '!=', null)->where('etapa_id', '!=', null); // ->where('tarea_id', null);
+    }
+
+    public function scopeSoloTareas($query)
+    {
+        return $query->where('proyecto_id', null)->where('etapa_id', null)->where('tarea_id', '!=', null);
+    }
+
+    /**
+     * Scope dinamico
+     */
+    public function scopeDevolverFiltroTareaEtapaProyecto($query)
+    {
+        $request = request()->all();
+        Log::channel('testing')->info('Log', compact('request'));
+        if (request('filtrar_por_tarea')) return $query->deTarea(request('tarea_id'));
+        if (request('filtrar_por_etapa')) return $query->deEtapa(request('proyecto_id'), request('etapa_id'));
+        if (request('filtrar_por_proyecto')) return $query->deProyecto(request('proyecto_id'));
     }
 
     public function tarea()
