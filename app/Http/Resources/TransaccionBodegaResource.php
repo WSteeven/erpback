@@ -60,8 +60,8 @@ class TransaccionBodegaResource extends JsonResource
             // 'fecha_limite' => $this->fecha_lximite,
             // 'listadoProductosTransaccion' => $detalles,
             // 'retira_tercero'=>$this->tarea?true:false,
-            // 'tarea_codigo' => $this->tarea ? $this->tarea->codigo_tarea : null,
-            // 'tarea' => $this->tarea ? $this->tarea->titulo : null,
+            'tarea_codigo' => $this->tarea ? $this->tarea->codigo_tarea : null,
+            'tarea' => $this->tarea ? $this->tarea->titulo : null,
             // 'tipo' => $this->motivo?->tipo?->nombre,
             //variables auxiliares
 
