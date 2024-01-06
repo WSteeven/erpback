@@ -329,15 +329,21 @@ class TransaccionBodega extends Model implements Auditable
         try {
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
-                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
+                if($detalle){
+                    $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
+                    $detalleTransaccion->recibido += $valor;
+                    $detalleTransaccion->save();
+                    $itemInventario = Inventario::find($detalle['inventario_id']);
 
-                // Si es material para tarea
-                if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
-                } else {
-                    // Stock personal
-                    MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
-                }
+                    // Si es material para tarea
+                    if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id);
+                    } else {
+                        // Stock personal
+                        MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
+                    }
+                }else throw new Exception('No se encontró el detalleProductoTransaccion '.$detalle);
             }
         } catch (Exception $e) {
             //
@@ -434,10 +440,10 @@ class TransaccionBodega extends Model implements Auditable
     /**
      * La función `verificarTransferenciaEnEgreso` verifica si existe una transacción de transferencia
      * en una transacción de egreso.
-     * 
+     *
      * @param int $id El ID de la transacción actual que se está verificando.
      * @param int $transferencia_id El parámetro `transferencia_id` es el ID de una transferencia.
-     * 
+     *
      * @return boolean Si la variable transacción no es nula devolverá verdadero. De lo
      * contrario, devolverá falso.
      */
