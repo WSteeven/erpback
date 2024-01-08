@@ -55,7 +55,7 @@ class GastoRequest extends FormRequest
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
         ];
-       if (!is_null($this->vehiculo) ) {
+        if (!is_null($this->vehiculo)) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'lugar' => 'required',
@@ -91,41 +91,8 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $date = Carbon::parse($this->fecha_viat);
-            /* if (!$date->greaterThan('2023-03-31')) {
-                $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
-            }*/
-            $factura = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', 1)
-                ->first();
-            $factura_pendiente = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', Gasto::PENDIENTE)
-                ->first();
-            if ($factura) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
-            }
-            if ($factura_pendiente) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
-            }
-            $comprobante = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 1)
-                ->first();
-            if ($comprobante) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-            }
-            $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 3)
-                ->first();
-            if ($comprobante_pendiente) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+            if($this->route()->getActionMethod() === 'store'){
+                $this->validar_numero_comprobante($validator);
             }
             if (substr_count($this->ruc, '9') < 9) {
                 $validador = new ValidarIdentificacion();
@@ -135,6 +102,41 @@ class GastoRequest extends FormRequest
                 }
             }
         });
+    }
+    public function validar_numero_comprobante($validator)
+    {
+        $factura = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', 1)
+            ->first();
+        $factura_pendiente = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', Gasto::PENDIENTE)
+            ->first();
+        if ($factura) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        if ($factura_pendiente) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        $comprobante = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', 1)
+            ->first();
+        if ($comprobante) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
+        $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', 3)
+            ->first();
+        if ($comprobante_pendiente) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
     }
     protected function prepareForValidation()
     {

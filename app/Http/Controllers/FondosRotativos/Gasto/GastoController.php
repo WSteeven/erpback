@@ -69,7 +69,7 @@ class GastoController extends Controller
             return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
         }
 
@@ -279,41 +279,14 @@ class GastoController extends Controller
      * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
-    public function update(Gasto $request, Gasto $activo)
+    public function update(GastoRequest $request, Gasto $gasto)
     {
-        //Adaptacion de foreign keys
-        $datos = $request->all();
-        $user = Auth::user();
-        $usuario_autorizado = User::where('id', $request->aut_especial)->first();
-        $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_gasto = 0;
-        if ($datos_detalle->descripcion == '') {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        } else {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        }
-        //Adaptacion de foreign keys
-        $datos['id_lugar'] = $request->lugar;
-        $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['estado'] = $datos_estatus_via->id;
-        $datos['caantidadidad'] = $request->caantidad;
-
-        //Respuesta
-        $activo->update($datos);
-        $modelo = new GastoResource($activo->refresh());
+        $datos = $request->validated();
+        $gasto->update($datos);
+        $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('modelo', 'mensaje'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
