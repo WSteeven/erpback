@@ -96,7 +96,7 @@ class ComprobanteController extends Controller
         try {
             Log::channel('testing')->info('Log', ['request:', $request->all()]);
             DB::beginTransaction();
-            
+
             foreach ($request->transaccion['listadoProductosTransaccion'] as $item) {
                 $detalle = DetalleProductoTransaccion::where('inventario_id', $item['id'])->where('transaccion_id', $transaccion->id)->first();
                 if ($detalle) {
@@ -116,18 +116,27 @@ class ComprobanteController extends Controller
                     throw new Exception('No se encontró un detalle');
                 }
             }
-            
-            Log::channel('testing')->info('Log', ['paso elforeach:']);
-            $transaccion->estado_id = EstadosTransacciones::PARCIAL;
-            $transaccion->observacion_est = $request->observacion;
-            $transaccion->save();
-            Log::channel('testing')->info('Log', ['se actualizo la transaccion']);
-            
-            $comprobante = Comprobante::where('transaccion_id', $transaccion->id)->first();
-            $comprobante->estado = TransaccionBodega::PARCIAL;
-            $comprobante->save();
-            Log::channel('testing')->info('Log', ['se actualizo el comprobante']);
 
+            if (Comprobante::verificarEgresoCompletado($transaccion->id)) { //se completo el egreso 
+                $transaccion->estado_id = EstadosTransacciones::COMPLETA;
+                $transaccion->observacion_est = $request->observacion;
+                $transaccion->save();
+
+                $comprobante = Comprobante::where('transaccion_id', $transaccion->id)->first();
+                $comprobante->estado = TransaccionBodega::ACEPTADA;
+                $comprobante->observacion = $request->observacion;
+                $comprobante->firmada = !$comprobante->firmada;
+                $comprobante->save();
+            } else {
+                $transaccion->estado_id = EstadosTransacciones::PARCIAL;
+                $transaccion->observacion_est = $request->observacion;
+                $transaccion->save();
+
+
+                $comprobante = Comprobante::where('transaccion_id', $transaccion->id)->first();
+                $comprobante->estado = TransaccionBodega::PARCIAL;
+                $comprobante->save();
+            }
             $modelo = new ComprobanteResource($comprobante);
             $mensaje = 'Comprobante actualizado correctamente';
             // throw new Exception('Actualizar comprobante parcial');
