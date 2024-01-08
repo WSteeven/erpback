@@ -51,7 +51,8 @@ class EmpleadoResource extends JsonResource
             'observacion' => $this->observacion,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'familiares' => $this->familiares_info
+            'familiares' => $this->familiares_info,
+            'num_cuenta' => $this->num_cuenta_bancaria,
         ];
 
 

@@ -250,11 +250,11 @@ class NominaService
                 return number_format(($this->calcularSueldo($dias) / 12), 2);
                 break;
             case 4:
-                if ($es_vendedor_medio_tiempo) {
-                    return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
-                } else {
+                // if ($es_vendedor_medio_tiempo) {
+                //     return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
+                // } else {
                     return (NominaService::calcularSueldoBasico() / 360) * $dias;
-                }
+                // }
                 break;
         }
     }

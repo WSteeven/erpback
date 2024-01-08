@@ -77,7 +77,9 @@ class EmpleadoService
             'observacion',
             'esta_en_rol_pago',
             'acumula_fondos_reserva',
-            'realiza_factura',]
+            'realiza_factura',
+            'usuario_id',
+            'num_cuenta_bancaria']
         );
         Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
