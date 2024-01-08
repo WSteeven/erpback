@@ -15,21 +15,19 @@ class Alimentacion extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use Filterable;
-    protected $table = 'rrhh_alimentacion';
+    protected $table = 'rrhh_alimentaciones';
     protected $fillable = [
-        'empleado_id',
-        'valor_asignado',
-        'fecha_corte',
+        'nombre',
+        'mes',
+        'finalizado',
+        'es_quincena'
     ];
-
     private static $whiteListFilter = [
-        'empleado_id',
+        'nombre',
         'empleado',
-        'valor_asignado',
-        'fecha_corte',
+        'mes',
+        'finalizado',
+        'es_quincena'
     ];
-    public function empleado()
-    {
-        return $this->hasOne(Empleado::class, 'id', 'empleado_id');
-    }
+    protected $casts = ['finalizado' => 'boolean', 'es_quincena' => 'boolean'];
 }

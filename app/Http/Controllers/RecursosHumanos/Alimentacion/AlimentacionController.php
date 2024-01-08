@@ -42,7 +42,10 @@ class AlimentacionController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $asignaciones_alimentacion = AsignarAlimentacion::get();
+            $alimentacion = Alimentacion::create($datos);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $modelo = new AlimentacionResource($alimentacion);
+          /*  $asignaciones_alimentacion = AsignarAlimentacion::get();
             foreach ($asignaciones_alimentacion as $asignacion_alimentacion) {
                     Alimentacion::create([
                         'empleado_id' => $asignacion_alimentacion['empleado_id'],
@@ -52,7 +55,7 @@ class AlimentacionController extends Controller
 
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo = [];
+            $modelo = [];*/
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

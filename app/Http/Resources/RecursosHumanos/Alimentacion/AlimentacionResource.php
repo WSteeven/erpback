@@ -14,12 +14,13 @@ class AlimentacionResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $modelo = [
             'id' => $this->id,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado != null ? $this->empleado->nombres . ' ' . $this->empleado->apellidos : '',
-            'valor_asignado' => $this->valor_asignado,
-            'fecha_corte' => $this->fecha_corte
+            'mes' => $this->mes,
+            'nombre' => $this->nombre,
+            'finalizado' => $this->finalizado,
+            'es_quincena' => $this->es_quincena,
         ];
+        return $modelo;
     }
 }

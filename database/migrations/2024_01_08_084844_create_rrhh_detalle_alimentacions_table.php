@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rrhh_alimentaciones', function (Blueprint $table) {
+        Schema::create('rrhh_detalle_alimentaciones', function (Blueprint $table) {
             $table->id();
-            $table->text('nombre');
-            $table->string('mes',7);
-            $table->boolean('finalizado')->default(false);
-            $table->boolean('es_quincena')->default(false);
+            $table->unsignedBigInteger('empleado_id');
+            $table->decimal('valor_asignado');
+            $table->date('fecha_corte');
+            $table->foreign('empleado_id')->on('empleado')->references('id');
+            $table->foreign('alimentacion_id')->on('rrhh_alimentaciones')->references('id');
             $table->timestamps();
+
         });
     }
 
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rrhh_alimentacion');
+        Schema::dropIfExists('rrhh_detalle_alimentacions');
     }
 };

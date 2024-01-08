@@ -64,16 +64,16 @@ class AsignarAlimentacionController extends Controller
     /**
      * Consultar
      */
-    public function show(AsignarAlimentacion $prefactura)
+    public function show(AsignarAlimentacion $asignar_alimentacion)
     {
-        $modelo = new AsignarAlimentacionResource($prefactura);
+        $modelo = new AsignarAlimentacionResource($asignar_alimentacion);
         return response()->json(compact('modelo'));
     }
 
     /**
      * Actualizar
      */
-    public function update(AsignarAlimentacionRequest $request, AsignarAlimentacion $prefactura)
+    public function update(AsignarAlimentacionRequest $request, AsignarAlimentacion $asignar_alimentacion)
     {
         try {
             DB::beginTransaction();
@@ -84,27 +84,14 @@ class AsignarAlimentacionController extends Controller
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             if ($request->preorden) $datos['preorden_id'] = $request->safe()->only(['preorden'])['preorden'];
             if ($request->pedido) $datos['pedido_id'] = $request->safe()->only(['pedido'])['pedido'];
-
-            Log::channel('testing')->info('Log', ['Datos validados:', $datos]);
-
-            //Creación de la prefactura
-            $prefactura->update($datos);
+            //Creación de la asignar_alimentacion
+            $asignar_alimentacion->update($datos);
             // Sincronizar los detalles de la orden de compra
-            AsignarAlimentacion::guardarDetalles($prefactura, $request->listadoProductos);
-
+            AsignarAlimentacion::guardarDetalles($asignar_alimentacion, $request->listadoProductos);
             //Respuesta
-            $modelo = new AsignarAlimentacionResource($prefactura);
+            $modelo = new AsignarAlimentacionResource($asignar_alimentacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-
-
             DB::commit();
-
-            // // aqui se debe lanzar la notificacion en caso de que la prefactura sea autorizacion pendiente
-            // if ($prefactura->estado_id === $estado_completo->id && $prefactura->autorizacion_id === $autorizacion_aprobada->id) {
-            // $prefactura->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
-            // event(new AsignarAlimentacionActualizadaEvent($prefactura, true));// crea el evento de la orden de compra actualizada al solicitante
-            // }
-
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();

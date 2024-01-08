@@ -25,21 +25,15 @@ class AlimentacionRequest extends FormRequest
     public function rules()
     {
         return [
-            'empleado_id' => 'nullable',
-            'valor_asignado' => 'nullable',
-            'fecha_corte' => 'nullable',
+            'mes' => 'required',
+            'nombre' => 'required | unique:rol_pago_mes,nombre',
+            'es_quincena' => 'nullable'
         ];
     }
-    protected function prepareForValidation()
+    public function messages(): array
     {
-        if ($this->fecha_corte !== null) {
-            $fecha_corte = Carbon::parse($this->fecha_corte);
-            $this->merge([
-                'fecha_corte' => $fecha_corte->format('Y-m-d'),
-            ]);
-        }
-        $this->merge([
-            'empleado_id' => $this->empleado
-        ]);
+        return [
+            'required | unique:rrhh_detalle_alimentaciones,nombre' => 'Ya asignado este nombre o periodo de alimentacion',
+        ];
     }
 }
