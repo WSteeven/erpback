@@ -139,7 +139,8 @@ class ProductoTareaEmpleadoService
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
                 'cliente_id' => $item->cliente_id,
-                'codigo_tarea' => Tarea::find($item->tarea_id)->codigo_tarea,
+                'codigo_tarea' => Tarea::find($item->tarea_id)?->codigo_tarea,
+                'tarea_id' => $item->tarea_id,
             ];
         });
     }
