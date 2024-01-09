@@ -20,7 +20,8 @@ class EmpleadoService
             $query->whereIn('name', $roles);
         })->pluck('id');
 
-        return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
+        // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
+        return Empleado::whereIn('usuario_id', $idUsers)->get($campos);
 
         // return $users;
     }
@@ -49,8 +50,9 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
-        return EmpleadoResource::collection($results);
+        // $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
+        return Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
+        // return EmpleadoResource::collection($results);
     }
 
     public function obtenerTodosCiertasColumnas($campos)

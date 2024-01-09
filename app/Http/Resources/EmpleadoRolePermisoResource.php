@@ -14,6 +14,8 @@ class EmpleadoRolePermisoResource extends JsonResource
      */
     public function toArray($request)
     {
+        $user = $this->empleado->user;
+
         return [
             'id' => $this->empleado->id,
             'identificacion' => $this->empleado->identificacion,
@@ -21,6 +23,7 @@ class EmpleadoRolePermisoResource extends JsonResource
             'apellidos' => $this->empleado->apellidos,
             'email' => $this->email,
             'departamento' => $this->empleado->departamento?->nombre,
+            'roles' => $user ? implode(', ', $user->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
         ];
     }
 }
