@@ -87,6 +87,7 @@ class GastoController extends Controller
             $results = GastoResource::collection($results);
         } else {
             $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = GastoResource::collection($results);
         }
 
         return response()->json(compact('results'));
