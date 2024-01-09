@@ -53,7 +53,7 @@ class GastoRequest extends FormRequest
             'observacion' => 'required|string',
             'comprobante1' => 'required|string',
             'comprobante2' => 'required|string',
-            'detalle_estado' => 'nullable|srtring',
+            'detalle_estado' => 'nullable|string',
         ];
         if (!is_null($this->vehiculo)) {
             $rules = [
@@ -75,7 +75,7 @@ class GastoRequest extends FormRequest
                 'observacion' => 'required|string',
                 'comprobante1' => 'required|string',
                 'comprobante2' => 'required|string',
-                'detalle_estado' => 'nullable|srtring',
+                'detalle_estado' => 'nullable|string',
                 'vehiculo' => 'required|integer',
                 'kilometraje' => 'required|integer'
             ];

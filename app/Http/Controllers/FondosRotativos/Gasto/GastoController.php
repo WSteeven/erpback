@@ -77,20 +77,24 @@ class GastoController extends Controller
     }
     public function autorizaciones_gastos(Request $request)
     {
-        $user =  Auth::user()->empleado;
-        $usuario_autenticado = Auth::user();
-        $usuario = User::where('id', $user->id)->first();
-        // $usuario->hasRole('writer');
-        $results = [];
-        if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
-            $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-            $results = GastoResource::collection($results);
-        } else {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-            $results = GastoResource::collection($results);
+        try {
+            $usuario_autenticado =  Auth::user();
+            $results = [];
+            if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
+                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+            } else {
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+            }
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al consultar' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-
-        return response()->json(compact('results'));
     }
     /**
      * Update the specified resource in storage.
@@ -403,20 +407,6 @@ class GastoController extends Controller
         }
     }
     /**
-     * It takes a user object and returns an array of the user's data
-     *
-     * @param usuario The user's email address.
-     *
-     * @return The user object is being returned.
-     */
-    private function obtener_usuario($usuario)
-    {
-        $usuario_logeado =  json_decode(json_encode($usuario), true);
-        $usuario_logeado = $usuario_logeado[0];
-        return $usuario_logeado;
-    }
-
-    /**
      * It takes a request, gets some data from the request, gets some data from the database, and then
      * returns a file
      *
@@ -478,20 +468,19 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_gasto(Request $request)
+    public function aprobar_gasto(GastoRequest $request)
     {
         try {
             DB::beginTransaction();
-            $gasto = Gasto::where('id', $request->id)->first();
+            $gasto = Gasto::find($request->id);
+            $datos = $request->validated();
             if ($gasto->estado == 1) {
-                Log::channel('testing')->info('Log', ['error', 'El gasto ya fue aprobado']);
                 throw ValidationException::withMessages([
-                    '404' => ['El gasto ya fue aprobado'],
+                    '402' => ['El gasto ya fue aprobado'],
                 ]);
             }
-            $gasto->estado = 1;
-            $gasto->detalle_estado = $request->detalle_estado;
-            $gasto->save();
+            $datos['estado'] = 1;
+            $gasto->update($datos);
             $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
                 ->where('per_destinatario_id', $gasto->aut_especial)
                 ->where('tipo_notificacion', 'AUTORIZACION GASTO')
