@@ -49,7 +49,8 @@ class CentroCostoController extends Controller
     /**
      * Consultar
      */
-    public function show(CentroCosto $centro){
+    public function show(CentroCosto $centro)
+    {
         $modelo = new CentroCostoResource($centro);
         return response()->json(compact('modelo'));
     }
@@ -78,5 +79,13 @@ class CentroCostoController extends Controller
         $centro->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * desactivar
+     */
+    public function desactivar(CentroCosto $centro)
+    {
+        $centro->activo = !$centro->activo;
     }
 }

@@ -90,6 +90,9 @@ Route::prefix('subtareas')->group(function () {
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
 
+//Centros de costos
+Route::post('centros-costos/desactivar/{centro}', [CentroCostoController::class, 'desactivar']);
+
 // Verificar que se pueden finalizar las subtareas
 Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);
 Route::get('verificar-material-tarea-devuelto', [TareaController::class, 'verificarMaterialTareaDevuelto']);
