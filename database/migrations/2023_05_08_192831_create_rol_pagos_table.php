@@ -37,7 +37,7 @@ return new class extends Migration
             $table->decimal('bono_recurente',8,2);
             $table->decimal('total_egreso',8,2);
             $table->decimal('total');
-            $table->enum('estado', [RolPago::CANCELADO, RolPago::CREADO, RolPago::EJECUTANDO, RolPago::REALIZADO, RolPago::FINALIZADO]);
+            $table->enum('estado', [RolPago::CANCELADO, RolPago::CREADO, RolPago::EJECUTANDO, RolPago::REALIZADO, RolPago::FINALIZADO])->default(RolPago::CREADO);
             $table->unsignedBigInteger('rol_pago_id');
             $table->foreign('rol_pago_id')->references('id')->on('rol_pago_mes')->onDelete('cascade')->onUpdate('cascade');
             $table->text('rol_firmado');

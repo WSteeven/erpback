@@ -100,7 +100,7 @@ class SaldoService
             ->where('fecha', '<=', Carbon::parse($fechaInicio)->subDay())
             ->latest('created_at')->first()->saldo_actual;
 
-        $saldo_anterior = $saldo_anterior ? $saldo_anterior : 0;
+        $saldo_anterior = $saldo_anterior !== null ? $saldo_anterior : 0;
 
         // Calcula las sumas directamente en las consultas
         $acreditaciones = Acreditaciones::where('id_usuario', $id_empleado)

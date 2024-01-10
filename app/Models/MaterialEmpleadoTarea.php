@@ -39,7 +39,9 @@ class MaterialEmpleadoTarea extends Model implements Auditable
 
     public function scopeMateriales($query)
     {
-        return $query->join('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where('productos.categoria_id', Producto::MATERIAL);
+        return $query->join('detalles_productos', 'detalle_producto_id', 'detalles_productos.id')->join('productos', 'detalles_productos.producto_id', 'productos.id')->where(function ($query) {
+            return $query->where('productos.categoria_id', Producto::MATERIAL)->orWhere('productos.categoria_id', Producto::EQUIPO);
+        });
     }
 
     public function scopeTieneStock($query)

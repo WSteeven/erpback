@@ -39,7 +39,7 @@ class TransferenciaController extends Controller
         $results = [];
 
 
-        if (auth()->user()->hasRole(User::ROL_BODEGA)) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_COORDINADOR_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_BODEGA_TELCONET])) {
             $results = Transferencia::filter()->orderBy('id', 'desc')->get();
             /* if(auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)){
                 $results = Transferencia::filtrarPedidosActivosFijos($estado);

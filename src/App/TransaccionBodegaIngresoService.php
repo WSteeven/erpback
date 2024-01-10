@@ -4,6 +4,7 @@ namespace Src\App;
 
 use App\Models\Autorizacion;
 use App\Models\DetalleDevolucionProducto;
+use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
@@ -618,9 +619,17 @@ class TransaccionBodegaIngresoService
     public function descontarMaterialesAsignados($listado, $transaccion, $detalle)
     {
         if ($transaccion->tarea_id) {
-            MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $transaccion->cliente_id);
+            if ($transaccion->devolucion_id) {
+                $devolucion = Devolucion::find($transaccion->devolucion_id);
+                MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $devolucion->cliente_id);
+            } else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $transaccion->cliente_id);
         } else { // Devolucion de stock personal
-            MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $transaccion->cliente_id);
+            if ($transaccion->devolucion_id) {
+                $devolucion = Devolucion::find($transaccion->devolucion_id);
+                MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $devolucion->cliente_id);
+            } else {
+                MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $transaccion->cliente_id);
+            }
         }
     }
 

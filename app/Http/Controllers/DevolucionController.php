@@ -80,6 +80,7 @@ class DevolucionController extends Controller
             $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['stock_personal'] = $request->es_para_stock;
 
             // Respuesta
@@ -127,6 +128,7 @@ class DevolucionController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
         $devolucion->update($datos);
