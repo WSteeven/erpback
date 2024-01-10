@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('rrhh_detalle_alimentaciones', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('empleado_id');
             $table->decimal('valor_asignado');
             $table->date('fecha_corte');
-            $table->foreign('empleado_id')->on('empleado')->references('id');
+            $table->unsignedBigInteger('empleado_id');
+            $table->unsignedBigInteger('alimentacion_id');
+            $table->foreign('empleado_id')->on('empleados')->references('id');
             $table->foreign('alimentacion_id')->on('rrhh_alimentaciones')->references('id');
             $table->timestamps();
 

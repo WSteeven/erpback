@@ -49,7 +49,7 @@ class DetalleDetalleAlimentacionController extends Controller
                         'empleado_id' => $asignacion_detalle_alimentacion['empleado_id'],
                         'valor_asignado' => $asignacion_detalle_alimentacion['valor_minimo'],
                         'fecha_corte' => Carbon::now()->format('Y-m-d'),
-                        'detalle_alimentacion_id' => $datos['detalle_alimentacion_id']
+                        'alimentacion_id' => $datos['alimentacion_id']
                     ]);
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
