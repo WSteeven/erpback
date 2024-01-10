@@ -29,6 +29,7 @@ class Producto extends Model implements Auditable
     const SERVICIO = 'SERVICIO';
 
     const MATERIAL = 7;
+    const EQUIPO = 4;
 
     private static $whiteListFilter = [
         '*',
