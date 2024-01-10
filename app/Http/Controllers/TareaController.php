@@ -46,10 +46,11 @@ class TareaController extends Controller
         // mejorar codigo
         // Lista las tareas disponibles junto con las que hayan finalizado.
         // Las tareas finalizadas estan disponibles un dia luego de finalizarse
-        if (request('formulario')) {
-            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+       if (request('formulario')) {
+            /*return Tarea::ignoreRequest(['campos', 'formulario','empleado_id','activas_empleado'])->filter()->where('finalizado', false)->orWhere(function ($query) {
                 $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            })->latest()->get();
+            })->latest()->get();*/
+            return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'))->disponibleUnaHoraFinalizar();
         }
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
