@@ -60,7 +60,7 @@ class CentroCostoController extends Controller
      */
     public function update(CentroCostoRequest $request, CentroCosto  $centro)
     {
-        //Adaptacion de foreign keys 
+        //Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
         //Respuesta
@@ -87,5 +87,8 @@ class CentroCostoController extends Controller
     public function desactivar(CentroCosto $centro)
     {
         $centro->activo = !$centro->activo;
+        $centro->save();
+        $modelo  = new CentroCostoResource($centro->refresh());
+        return response()->json(compact('modelo'));
     }
 }
