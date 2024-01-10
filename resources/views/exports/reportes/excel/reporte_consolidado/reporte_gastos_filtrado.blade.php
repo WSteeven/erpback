@@ -82,6 +82,10 @@
                                         <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
+                                            <div align="center"><strong>PROYECTO</strong></div>
+                                        </td>
+
                                         @if ($subtitulo == '' && $tipo_filtro != 3)
                                             <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
                                                 <div align="center"><strong>DESCRIPCI&Oacute;N DEL GASTO</strong></div>
@@ -132,6 +136,11 @@
                                             </td>
                                             <td style="font-size:10px">
                                                 <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="left">
+                                                    {{ $gasto['proyecto'] !== null?$gasto['proyecto']['nombre']:'' }}
                                                 </div>
                                             </td>
                                             @if ($subtitulo == '' && $tipo_filtro != 3)

@@ -295,7 +295,8 @@ Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBode
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
 Route::get('proveedores/show-preview/{proveedor}', [ProveedorController::class, 'showPreview']);
 
-Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
+// Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
+Route::put('comprobantes/aceptar-parcial/{transaccion}', [ComprobanteController::class, 'comprobanteParcial'])->middleware('auth:sanctum');
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);

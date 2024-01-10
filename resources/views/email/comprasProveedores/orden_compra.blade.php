@@ -11,7 +11,6 @@
 </head>
 
 <body>
-    <h5>Estamos realizando pruebas, por favor no prestar atención a este correo.</h5>
     <h2>JPCONSTRUCTRED C. Ltda.</h2>
     <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
     <h2> Estimado Proveedor, {{ $orden->solicitante->nombres }} {{ $orden->solicitante->apellidos }} ha generado una

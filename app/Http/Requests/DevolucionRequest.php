@@ -44,6 +44,7 @@ class DevolucionRequest extends FormRequest
             'listadoProductos.*.descripcion' => 'required',
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'pedido_automatico' => 'boolean',
+            'cliente' => 'nullable|sometimes|exists:clientes,id',
         ];
 
         return $rules;
