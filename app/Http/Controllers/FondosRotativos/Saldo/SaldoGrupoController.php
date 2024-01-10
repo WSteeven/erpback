@@ -228,7 +228,7 @@ class SaldoGrupoController extends Controller
      */
     public function consolidado_filtrado(Request $request, $tipo)
     {
-        try {
+       try {
             switch ($request->tipo_saldo) {
                 case '1':
                     return $this->acreditacion($request, $tipo);
@@ -438,7 +438,7 @@ class SaldoGrupoController extends Controller
             $transferencia = 0;
             $transferencia_recibida = 0;
             $total = 0;
-            $usuario_canton ='';
+            $usuario_canton = '';
             $fecha_anterior = '';
             $saldo_anterior = 0;
             if ($request->usuario == null) {
@@ -482,7 +482,7 @@ class SaldoGrupoController extends Controller
                     ->sum('monto');
                 $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
-                $gastos = Gasto::with('empleado_info', 'detalle_estado','detalle_info', 'sub_detalle_info', 'aut_especial_user')
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -490,7 +490,6 @@ class SaldoGrupoController extends Controller
                 $empleado = Empleado::where('id', $request->usuario)->first();
                 $usuario = $empleado->nombres . '' . ' ' . $empleado->apellidos;
                 $usuario_canton =  $empleado->canton->canton;
-
             }
             $nombre_reporte = 'reporte_gastos';
             $results = Gasto::empaquetar($gastos);
@@ -517,7 +516,7 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
- private function reporte_estado_cuenta(Request $request, $tipo)
+    private function reporte_estado_cuenta(Request $request, $tipo)
     {
         try {
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
@@ -574,7 +573,6 @@ class SaldoGrupoController extends Controller
                         ->orWhere('estado', '=', 4);
                 })
                 ->get();
-            Log::channel('testing')->info('Log', ['gastos_reporte', $gastos_reporte]);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -605,7 +603,8 @@ class SaldoGrupoController extends Controller
                 ->orderBy('id', 'desc')
                 ->first();
             $estado_cuenta_anterior = $request->fecha_inicio != '01-06-2023' ? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario) : $saldo_anterior->saldo_actual;
-            $salt_ant =  $estado_cuenta_anterior != 0 ? $estado_cuenta_anterior : $saldo_anterior->saldo_actual;
+            $saldo_anterior_db = $saldo_anterior !== null ? $saldo_anterior->saldo_actual:0;
+            $salt_ant =  $estado_cuenta_anterior !== 0 ? $estado_cuenta_anterior : $saldo_anterior_db;
             $nuevo_elemento = [
                 'item' => 1,
                 'fecha' => $fecha_anterior,
@@ -616,24 +615,25 @@ class SaldoGrupoController extends Controller
                 'ingreso' => 0,
                 'gasto' => 0,
                 'saldo_anterior'=>$salt_ant,
-                'saldo' => $saldo_anterior !=null ? $saldo_anterior->saldo_actual:0,
+                'saldo' => $saldo_anterior_db,
             ];
             $reportes_unidos =  collect($reportes_unidos)
                 ->prepend($nuevo_elemento)
                 ->toArray();
             $sub_total = 0;
-            $nuevo_saldo = $saldo_anterior != null ?  $saldo_anterior->saldo_actual:0;
+            $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual:0;
             $nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
+
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'empleado' => $empleado,
                 'usuario' => $usuario,
-                'saldo_anterior' => $saldo_anterior != null ?  $saldo_anterior->saldo_actual:0,
+                'saldo_anterior' =>  $saldo_anterior_db,
                 'acreditaciones' => $acreditaciones,
                 'transferencia_recibida' => $transferencia_recibida,
                 'gastos' => $gastos,
@@ -643,6 +643,7 @@ class SaldoGrupoController extends Controller
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
             ];
+
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);

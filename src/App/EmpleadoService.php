@@ -49,7 +49,39 @@ class EmpleadoService
 
     public function obtenerTodos()
     {
-        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol'])->filter()->where('id', '>', 1)->get(
+           [ 'id',
+            'identificacion',
+            'nombres',
+            'apellidos',
+            'telefono',
+            'jefe_id',
+            'canton_id',
+            'estado',
+            'grupo_id',
+            'cargo_id',
+            'departamento_id',
+            'firma_url',
+            'foto_url',
+            'convencional',
+            'telefono_empresa',
+            'extension',
+            'coordenadas',
+            'casa_propia',
+            'vive_con_discapacitados',
+            'responsable_discapacitados',
+            'area_id',
+            'fecha_vinculacion',
+            'tipo_contrato_id',
+            'tiene_discapacidad',
+            'observacion',
+            'esta_en_rol_pago',
+            'acumula_fondos_reserva',
+            'realiza_factura',
+            'usuario_id',
+            'num_cuenta_bancaria']
+        );
+        Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
 
@@ -59,7 +91,7 @@ class EmpleadoService
         $indice = array_search('responsable_departamento', $campos);
         if ($indice) unset($campos[$indice]);
 
-        $results = Empleado::ignoreRequest(['campos','es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get($campos);
+        $results = Empleado::ignoreRequest(['campos', 'es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get($campos);
         $ids = $this->obtenerIdsResponsablesDepartamentos();
 
         if ($indice) {
@@ -79,7 +111,7 @@ class EmpleadoService
 
     public function obtenerTodosSinEstado()
     {
-        $results = Empleado::ignoreRequest(['rol', 'campos','es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();
+        $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();
         return EmpleadoResource::collection($results);
     }
 

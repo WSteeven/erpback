@@ -18,7 +18,7 @@ class GastoResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id' => $this->id,
+            'id'=> $this->id,
             'fecha_viat' => $this->cambiar_fecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
             'lugar_info' => $this->lugar_info->canton,
@@ -52,11 +52,9 @@ class GastoResource extends JsonResource
             'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
             'estado' => $this->estado,
             'estado_info' => $this->estado_info->descripcion,
-            'detalle_esta' => $this->detalle,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->sub_detalle_info != null ? $this->sub_detalle_info : true,
-
             'tiene_factura' => $this->sub_detalle_info != null ? $this->tiene_factura($this->sub_detalle_info) : true,
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
