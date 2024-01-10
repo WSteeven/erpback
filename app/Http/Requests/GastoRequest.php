@@ -94,6 +94,11 @@ class GastoRequest extends FormRequest
             if($this->route()->getActionMethod() === 'store'){
                 $this->validar_numero_comprobante($validator);
             }
+            if($this->route()->getActionMethod() === 'aprobar_gasto'){
+                if ($this->estado == 1){
+                    $validator->errors()->add('estado', 'El gasto ya fue aprobado');
+                }
+            }
             if (substr_count($this->ruc, '9') < 9) {
                 $validador = new ValidarIdentificacion();
                 $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);

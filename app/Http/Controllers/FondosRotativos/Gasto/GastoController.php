@@ -71,9 +71,8 @@ class GastoController extends Controller
             $usuario = Auth::user()->empleado;
             $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
+            return response()->json(compact('results'));
         }
-
-        return response()->json(compact('results'));
     }
     public function autorizaciones_gastos(Request $request)
     {
@@ -83,11 +82,12 @@ class GastoController extends Controller
             if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
                 $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
                 $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
             } else {
-                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
                 $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
             }
-            return response()->json(compact('results'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
@@ -474,11 +474,6 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            if ($gasto->estado == 1) {
-                throw ValidationException::withMessages([
-                    '402' => ['El gasto ya fue aprobado'],
-                ]);
-            }
             $datos['estado'] = 1;
             $gasto->update($datos);
             $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
