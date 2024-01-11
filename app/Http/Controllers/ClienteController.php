@@ -61,7 +61,7 @@ class ClienteController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
-            if($datos['logo_url']) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
+            if ($datos['logo_url']) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
 
             //Respuesta
             $modelo = Cliente::create($datos);
@@ -99,7 +99,7 @@ class ClienteController extends Controller
             $datos['empresa_id'] = $request->safe()->only(['empresa'])['empresa'];
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
 
-            if($datos['logo_url'] && Utils::esBase64($datos['logo_url'])) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
+            if ($datos['logo_url'] && Utils::esBase64($datos['logo_url'])) $datos['logo_url'] = (new GuardarImagenIndividual($datos['logo_url'], RutasStorage::CLIENTES))->execute();
             else unset($datos['logo_url']);
 
             // Respuesta
