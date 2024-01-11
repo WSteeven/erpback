@@ -174,13 +174,15 @@ class Tarea extends Model implements Auditable
         return $query->orderBy('fecha_hora_agendado', 'desc');
     }
 
-    public function scopeDisponibleUnaHoraFinalizar($query) {
+    public function scopeDisponibleUnaHoraFinalizar($query)
+    {
         // $activeUsers = DB::table('tareas')->select('id')->where('finali', 1);
 
         return $query->where('updated_at', '>=', Carbon::now()->subHour(24));
     }
 
-    public function scopeFechaInicioFin($query) {
+    public function scopeFechaInicioFin($query)
+    {
         // Obtencion de parametros
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');
@@ -190,5 +192,10 @@ class Tarea extends Model implements Auditable
         $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
 
         return $query->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin);
+    }
+
+    public function scopeEstaActiva($query)
+    {
+        return $query->where('finalizado', false);
     }
 }
