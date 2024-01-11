@@ -196,6 +196,6 @@ class Tarea extends Model implements Auditable
 
     public function scopeEstaActiva($query)
     {
-        return $query->where('finalizado', 0);
+        return $query->where('finalizado', false);
     }
 }

@@ -56,6 +56,7 @@ class RolPagoRequest extends FormRequest
             'total_egreso' => 'required',
             'total' => 'required',
             'porcentaje_quincena'=> 'nullable',
+            'sueldo_quincena_modificado'=>'required|boolean',
         ];
     }
     protected function prepareForValidation()

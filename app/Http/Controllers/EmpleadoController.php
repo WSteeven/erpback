@@ -84,6 +84,7 @@ class EmpleadoController extends Controller
     public function index()
     {
         $results = $this->list();
+        $results = EmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -125,6 +126,7 @@ class EmpleadoController extends Controller
                 'jefe_id' => $datos['jefe_id'],
                 'canton_id' => $datos['canton_id'],
                 'cargo_id' => $datos['cargo_id'],
+                'coordenadas' => $datos['coordenadas'],
                 'departamento_id' => $datos['departamento_id'],
                 'grupo_id' => $datos['grupo_id'],
                 'firma_url' => $datos['firma_url'],

@@ -27,7 +27,7 @@ class PrestamoHipotecarioController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = PrestamoHipotecario::ignoreRequest(['campos'])->filter()->get();
+        $results = PrestamoHipotecario::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = PrestamoHipotecarioResource::collection($results);
         return response()->json(compact('results'));
     }
