@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\RecursosHumanos\DetalleAlimentacion;
+namespace App\Http\Controllers\RecursosHumanos\Alimentacion;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\Alimentacion\DetalleAlimentacionRequest;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
-class DetalleDetalleAlimentacionController extends Controller
+class DetalleAlimentacionController extends Controller
 {
 
     private $entidad = 'Detalle de Alimentacion';

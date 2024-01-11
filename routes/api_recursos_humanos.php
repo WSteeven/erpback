@@ -13,6 +13,7 @@ use App\Http\Controllers\DepartamentoController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AlimentacionController;
 use App\Http\Controllers\RecursosHumanos\Alimentacion\AsignarAlimentacionController;
+use App\Http\Controllers\RecursosHumanos\Alimentacion\DetalleAlimentacionController;
 use App\Http\Controllers\RecursosHumanos\AreasController;
 use App\Http\Controllers\RecursosHumanos\BancoController;
 use App\Http\Controllers\RecursosHumanos\EstadoCivilController;
@@ -70,6 +71,7 @@ Route::apiResources(
         'ingreso_rol_pago' => IngresoRolPagoController::class,
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
+        'detalle-alimentacion' => DetalleAlimentacionController::class,
     ],
     [
         'parameters' => [

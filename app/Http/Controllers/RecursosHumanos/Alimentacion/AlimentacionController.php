@@ -7,6 +7,7 @@ use App\Http\Requests\RecursosHumanos\Alimentacion\AlimentacionRequest;
 use App\Http\Resources\RecursosHumanos\Alimentacion\AlimentacionResource;
 use App\Models\RecursosHumanos\Alimentacion\Alimentacion;
 use App\Models\RecursosHumanos\Alimentacion\AsignarAlimentacion;
+use App\Models\RecursosHumanos\Alimentacion\DetalleAlimentacion;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -45,17 +46,7 @@ class AlimentacionController extends Controller
             $alimentacion = Alimentacion::create($datos);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new AlimentacionResource($alimentacion);
-          /*  $asignaciones_alimentacion = AsignarAlimentacion::get();
-            foreach ($asignaciones_alimentacion as $asignacion_alimentacion) {
-                    Alimentacion::create([
-                        'empleado_id' => $asignacion_alimentacion['empleado_id'],
-                        'valor_asignado' => $asignacion_alimentacion['valor_minimo'],
-                        'fecha_corte' => Carbon::now()->format('Y-m-d'),
-                    ]);
-
-            }
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $modelo = [];*/
+            $this->realizarCorte($modelo);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -87,12 +78,24 @@ class AlimentacionController extends Controller
             //Respuesta
             $modelo = new AlimentacionResource($alimentacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-             DB::commit();
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR update de alimentacion:', $e->getMessage(), $e->getLine()]);
             return response()->json(['ERROR' => $e->getMessage() . ', ' . $e->getLine()], 422);
+        }
+    }
+    private function realizarCorte(AlimentacionResource $alimentacion)
+    {
+        $asignaciones_detalle_alimentacion = AsignarAlimentacion::get();
+        foreach ($asignaciones_detalle_alimentacion as $asignacion_detalle_alimentacion) {
+            DetalleAlimentacion::create([
+                'empleado_id' => $asignacion_detalle_alimentacion['empleado_id'],
+                'valor_asignado' => $asignacion_detalle_alimentacion['valor_minimo'],
+                'fecha_corte' => Carbon::now()->format('Y-m-d'),
+                'alimentacion_id' => $alimentacion['id']
+            ]);
         }
     }
     public function destroy(Request $request, Alimentacion $alimentacion)

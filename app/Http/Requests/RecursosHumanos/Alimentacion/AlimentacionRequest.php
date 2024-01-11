@@ -36,4 +36,5 @@ class AlimentacionRequest extends FormRequest
             'required | unique:rrhh_detalle_alimentaciones,nombre' => 'Ya asignado este nombre o periodo de alimentacion',
         ];
     }
+    
 }
