@@ -85,7 +85,7 @@ class CentroCosto extends Model implements Auditable
                 'activo' => $activo,
             ]);
 
-            if ($centro) Mail::to('wcordova@jpconstrucred.com')->send(new EnviarMailCentroCosto($centro));
+            if ($centro) Mail::to('contabilidad@jpconstrucred.com')->send(new EnviarMailCentroCosto($centro));
 
             DB::commit();
             return $centro->id;
