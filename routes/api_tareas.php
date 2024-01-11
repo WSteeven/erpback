@@ -27,12 +27,16 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\Tareas\EtapaController;
 use App\Http\Controllers\Tareas\TransferenciaMaterialEmpleadoController;
 use App\Http\Controllers\Tareas\TransferenciaProductoEmpleadoController;
+use App\Http\Controllers\Tareas\CentroCostoController;
+use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
         'etapas' =>EtapaController::class,
+        'subcentros-costos' =>SubCentroCostoController::class,
+        'centros-costos' =>CentroCostoController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -55,6 +59,8 @@ Route::apiResources(
     ],
     [
         'parameters' => [
+            'subcentros-costos' => 'subcentro',
+            'centros-costos' => 'centro',
             'tipos-trabajos' => 'tipo_trabajo',
             'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
@@ -90,6 +96,8 @@ Route::prefix('subtareas')->group(function () {
 });
 
 Route::post('etapas/desactivar/{etapa}', [EtapaController::class, 'desactivar']);
+//Centros de costos
+Route::post('centros-costos/desactivar/{centro}', [CentroCostoController::class, 'desactivar']);
 
 // Verificar que se pueden finalizar las subtareas
 Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);

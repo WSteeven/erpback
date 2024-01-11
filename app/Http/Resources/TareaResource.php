@@ -41,6 +41,7 @@ class TareaResource extends JsonResource
             'etapa_id' => $this->etapa_id,
             'etapa' => $this->etapa?->nombre,
             'proyecto' => $this->proyecto?->nombre,
+            'centro_costo' => $this->centroCosto?->nombre,
         ];
 
         if ($controller_method == 'show') {
@@ -55,6 +56,7 @@ class TareaResource extends JsonResource
             $modelo['observacion'] = $this->observacion;
             $modelo['fecha_solicitud'] = $this->fecha_solicitud;
             $modelo['etapa'] = $this->etapa_id;
+            $modelo['centro_costo'] = $this->centro_costo_id;
         }
 
         return $modelo;

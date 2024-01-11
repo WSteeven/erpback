@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Tareas\Etapa;
+use App\Models\Tareas\CentroCosto;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -49,6 +50,7 @@ class Tarea extends Model implements Auditable
         'cliente_final_id',
         'ruta_tarea_id',
         'etapa_id',
+        'centro_costo_id',
     ];
 
     protected $casts = ['finalizado' => 'boolean'];
@@ -61,6 +63,11 @@ class Tarea extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+    // Relacion uno a muchos (inversa)
+    public function centroCosto()
+    {
+        return $this->belongsTo(CentroCosto::class);
+    }
     // Relacion uno a muchos (inversa)
     public function cliente()
     {
