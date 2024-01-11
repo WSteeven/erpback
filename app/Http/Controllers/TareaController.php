@@ -52,12 +52,12 @@ class TareaController extends Controller
             })->latest()->get();
         } */
 
-        if (request('formulario')) {
-            /* return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            })->latest()->get(); */
-            return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
-        }
+            if (request('formulario')) {
+                /* return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+                    $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+                })->latest()->get(); */
+                return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
+            }
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
 
