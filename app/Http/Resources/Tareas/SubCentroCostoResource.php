@@ -19,11 +19,13 @@ class SubCentroCostoResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'centro_costo' => $this->centro->nombre,
+            'grupo' => $this->grupo?->nombre,
             'activo' => $this->activo,
         ];
 
         if ($controller_method == 'show') {
             $modelo['centro_costo'] = $this->centro_costo_id;
+            $modelo['grupo'] = $this->grupo_id;
         }
 
         return $modelo;
