@@ -83,15 +83,4 @@ class TareaService
         })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
     }
 
-    public function obtenerTareasAsignadasGrupoLuegoFinalizar(int $grupo_id)
-    {
-        $tareas_ids = Subtarea::where('grupo_id', $grupo_id)->groupBy('tarea_id')->pluck('tarea_id');
-        $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
-
-        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) {
-            $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-        })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
-    }
 }
-
-// klever fanco y nuve de mayo - camperito
