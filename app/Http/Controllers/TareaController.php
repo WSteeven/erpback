@@ -52,7 +52,13 @@ class TareaController extends Controller
                 $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
             })->latest()->get();
         } */
-        if (request('formulario')) return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
+
+        if (request('formulario')) {
+            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+            })->latest()->get();
+            // return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
+        }
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
         if (request('campos')) {
@@ -96,7 +102,7 @@ class TareaController extends Controller
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
             $para_cliente_proyecto = $request['para_cliente_proyecto'];
             if ($request->centro_costo) $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
-            else $datos['centro_costo_id'] = CentroCosto::crearCentroCosto('TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1), $request->cliente, false);
+            else $datos['centro_costo_id'] = $request->no_lleva_centro_costo ? null : CentroCosto::crearCentroCosto('TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1), $request->cliente, false);
 
             // Establecer coordinador tarea para cliente final o mantenimiento
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);

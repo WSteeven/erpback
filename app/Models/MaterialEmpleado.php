@@ -84,7 +84,7 @@ class MaterialEmpleado extends Model implements Auditable
      * @param int cantidad La cantidad de material que es necesario descargar o descontar del stock.
      * @param int|null cliente_id El ID del cliente para quien se descarga el material.
      */
-    public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id)
+    public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id, int|null $transaccion_cliente_id)
     {
         try {
             $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)//107
@@ -95,7 +95,7 @@ class MaterialEmpleado extends Model implements Auditable
                 $material->save();
             } else {
                 $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)
-                    ->where('empleado_id', $empleado_id)->where('cliente_id', null)->first();
+                    ->where('empleado_id', $empleado_id)->where('cliente_id', $transaccion_cliente_id)->first();
                 if ($material) {
                     $material->cantidad_stock -= $cantidad;
                     $material->devuelto += $cantidad;
