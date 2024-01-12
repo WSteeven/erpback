@@ -5,6 +5,7 @@ namespace Src\App;
 use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
+use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Illuminate\Support\Facades\Log;
@@ -50,7 +51,7 @@ class TareaService
 
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
-        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
+        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->disponible()->groupBy('tarea_id')->pluck('tarea_id');
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'formulario', 'campos'];
 
         /* if (request('sin_etapa')) {
@@ -83,4 +84,9 @@ class TareaService
         })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
     }
 
+    public function puedeCrearMasTareas()
+    {
+        $total_tareas = Tarea::where('proyecto_id', request('proyecto'))->where('etapa_id', request('etapa'))->count();
+        return $total_tareas === 0;
+    }
 }

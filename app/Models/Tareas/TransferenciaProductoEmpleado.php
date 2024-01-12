@@ -2,6 +2,7 @@
 
 namespace App\Models\Tareas;
 
+use App\Models\Archivo;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
@@ -78,6 +79,11 @@ class TransferenciaProductoEmpleado extends Model implements Auditable
     public function detallesTransferenciaProductoEmpleado()
     {
         return $this->belongsToMany(DetalleProducto::class, 'tar_det_tran_prod_emp', 'transf_produc_emplea_id', 'detalle_producto_id')->withPivot('cantidad')->withTimestamps();
+    }
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     /************

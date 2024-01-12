@@ -4,6 +4,7 @@ namespace App\Models\Tareas;
 
 use App\Models\Empleado;
 use App\Models\Proyecto;
+use App\Models\Tarea;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,7 +44,7 @@ class Etapa extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
-     /**
+    /**
      * Relación uno a muchos (inversa).
      */
     public function responsable()
@@ -56,5 +57,10 @@ class Etapa extends Model implements Auditable
     public function proyecto()
     {
         return $this->belongsTo(Proyecto::class);
+    }
+
+    public function tareas()
+    {
+        return $this->hasMany(Tarea::class);
     }
 }

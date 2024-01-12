@@ -165,3 +165,9 @@ Route::get('reportes', [ReporteModuloTareaController::class, 'index']);
  * Dashboard
  ***********/
 Route::get('dashboard', [DashboardTareaController::class, 'index']);
+
+/*************************
+ * Archivos polimorficos
+ *************************/
+Route::get('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'indexFiles']);
+Route::post('transferencias-productos-empleados/files/{transferencia}', [TransferenciaProductoEmpleadoController::class, 'storeFiles']);

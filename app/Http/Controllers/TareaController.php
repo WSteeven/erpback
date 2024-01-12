@@ -88,6 +88,8 @@ class TareaController extends Controller
      **********/
     public function store(TareaRequest $request)
     {
+        if (!$this->tareaService->puedeCrearMasTareas()) throw ValidationException::withMessages(['422' => ['No puede crear más tareas!']]);
+
         DB::beginTransaction();
 
         try {

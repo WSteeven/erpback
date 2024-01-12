@@ -54,11 +54,16 @@ class Proyecto extends Model implements Auditable
     {
         return $this->belongsTo(Canton::class);
     }
-     /**
+    /**
      * Relación uno a muchos.
      * Un proyecto tiene varias etapas
      */
     public function etapas()
+    {
+        return $this->hasMany(Etapa::class);
+    }
+
+    public function tareas()
     {
         return $this->hasMany(Etapa::class);
     }
