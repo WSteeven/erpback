@@ -53,6 +53,7 @@ class EmpleadoResource extends JsonResource
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
             'familiares' => $this->familiares_info,
             'num_cuenta' => $this->num_cuenta_bancaria,
+            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
         ];
 
 
