@@ -25,11 +25,15 @@ use App\Http\Controllers\SeguimientoSubtareaController;
 use App\Http\Controllers\SubtareaController;
 use App\Http\Controllers\TendidoController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\Tareas\CentroCostoController;
+use App\Http\Controllers\Tareas\SubCentroCostoController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'subcentros-costos' =>SubCentroCostoController::class,
+        'centros-costos' =>CentroCostoController::class,
         'tareas' => TareaController::class,
         'subtareas' => SubtareaController::class,
         'tipos-trabajos' => TipoTrabajoController::class,
@@ -51,6 +55,8 @@ Route::apiResources(
     ],
     [
         'parameters' => [
+            'subcentros-costos' => 'subcentro',
+            'centros-costos' => 'centro',
             'tipos-trabajos' => 'tipo_trabajo',
             'causas-intervenciones' => 'causa_intervencion',
             'tipos-elementos' => 'tipo_elemento',
@@ -83,6 +89,9 @@ Route::prefix('subtareas')->group(function () {
     Route::get('obtener-suspendidos/{subtarea}', [SubtareaController::class, 'obtenerSuspendidos']);
     Route::put('actualizar-fechas-reagendar/{subtarea}', [SubtareaController::class, 'actualizarFechasReagendar']);
 });
+
+//Centros de costos
+Route::post('centros-costos/desactivar/{centro}', [CentroCostoController::class, 'desactivar']);
 
 // Verificar que se pueden finalizar las subtareas
 Route::get('verificar-todas-subtareas-finalizadas', [TareaController::class, 'verificarTodasSubtareasFinalizadas']);
