@@ -25,16 +25,11 @@ class DetalleAlimentacionRequest extends FormRequest
     public function rules()
     {
         $reglas =[
-            'empleado_id' => 'required',
+            'empleado_id' => 'nullable',
             'valor_asignado' => 'required',
             'fecha_corte' => 'required',
             'alimentacion_id' => 'required',
         ];
-        if ($this->route()->getActionMethod() === 'store') {
-            $reglas =[
-                'alimentacion_id' => 'required',
-            ];
-        }
         return $reglas;
     }
     protected function prepareForValidation()

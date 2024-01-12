@@ -42,18 +42,37 @@ class DetalleAlimentacionController extends Controller
     {
         try {
             DB::beginTransaction();
-            $datos = $request->validated();
-            $asignaciones_detalle_alimentacion = AsignarAlimentacion::get();
-            foreach ($asignaciones_detalle_alimentacion as $asignacion_detalle_alimentacion) {
+            if($request->nuevo){
+                $datos = $request->validated();
+                $modelo = DetalleAlimentacion::create($datos);
+                $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+                $modelo = new DetalleAlimentacionResource($modelo);
+                DB::commit();
+                return response()->json(compact('mensaje', 'modelo'));
+            }
+            if ($request->masivo) {
+                $detalle_alimentacion = DetalleAlimentacion::where('alimentacion_id',  $request->alimentacion_id)->first();
+                $detalle_alimentacion->valor_asignado = $request->valor_asignado;
+                $detalle_alimentacion->fecha_corte = $request->fecha_corte;
+                $detalle_alimentacion->where('alimentacion_id', $request->alimentacion_id)->update([
+                    'valor_asignado' =>  $request->valor_asignado,
+                    'fecha_corte' =>  $request->fecha_corte,
+                ]);
+            } else {
+                $datos = $request->validated();
+                $asignaciones_detalle_alimentacion = AsignarAlimentacion::get();
+                foreach ($asignaciones_detalle_alimentacion as $asignacion_detalle_alimentacion) {
                     DetalleAlimentacion::create([
                         'empleado_id' => $asignacion_detalle_alimentacion['empleado_id'],
                         'valor_asignado' => $asignacion_detalle_alimentacion['valor_minimo'],
                         'fecha_corte' => Carbon::now()->format('Y-m-d'),
                         'alimentacion_id' => $datos['alimentacion_id']
                     ]);
+                }
             }
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = [];
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -85,7 +104,7 @@ class DetalleAlimentacionController extends Controller
             //Respuesta
             $modelo = new DetalleAlimentacionResource($detalle_alimentacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-             DB::commit();
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
