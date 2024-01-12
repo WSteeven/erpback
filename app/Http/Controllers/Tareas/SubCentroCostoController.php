@@ -38,6 +38,7 @@ class SubCentroCostoController extends Controller
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
 
         // Respuesta
         $modelo = SubcentroCosto::create($datos);
@@ -63,6 +64,7 @@ class SubCentroCostoController extends Controller
         //Adaptacion de foreign keys 
         $datos = $request->validated();
         $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
+        $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         //Respuesta
         $subcentro->update($datos);
         $modelo = new SubCentroCostoResource($subcentro->refresh());
