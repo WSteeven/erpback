@@ -35,8 +35,9 @@ class TransferenciaProductoEmpleadoResource extends JsonResource
             'created_at' => date('d/m/Y', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
-            'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
-            'cliente_id' => $this->sucursal?->cliente_id,
+            'cliente' => $this->cliente_id,
+            // 'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
+            // 'cliente_id' => $this->sucursal?->cliente_id,
         ];
 
         if ($controller_method == 'show') {

@@ -321,4 +321,9 @@ class Subtarea extends Model implements Auditable
         // Log::channel('testing')->info('Log', ['Coordinador: ', $coordinador]);
         return DB::table('subtareas')->join('tareas', 'subtareas.tarea_id', '=', 'tareas.id')->where('tareas.coordinador_id', $coordinador);
     }
+
+    public function scopeDisponible($query)
+    {
+        return $query->whereNotIn('estado', [Subtarea::FINALIZADO, Subtarea::CANCELADO, Subtarea::SUSPENDIDO]);
+    }
 }

@@ -2,8 +2,10 @@
 
 namespace Src\App;
 
+use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
+use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Illuminate\Support\Facades\Log;
@@ -49,8 +51,8 @@ class TareaService
 
     public function obtenerTareasAsignadasEmpleado(int $empleado_id)
     {
-        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
-        $ignoreRequest = ['activas_empleado', 'empleado_id','formulario', 'campos'];
+        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->disponible()->groupBy('tarea_id')->pluck('tarea_id');
+        $ignoreRequest = ['activas_empleado', 'empleado_id', 'formulario', 'campos'];
 
         /* if (request('sin_etapa')) {
             Tarea::whereIn('id', $tareas_ids)->estaActiva()->sinEtapa()->ignoreRequest([...$ignoreRequest, 'etapa_id'])->filter()->get();
@@ -60,12 +62,31 @@ class TareaService
 
     public function obtenerTareasAsignadasEmpleadoLuegoFinalizar(int $empleado_id)
     {
-        $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
+        $empleado = Empleado::find(request('empleado_id'));
+        $grupo_id = $empleado->grupo_id;
+        if ($grupo_id) {
+            $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->groupBy('tarea_id')->pluck('tarea_id');
+        } else {
+            $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
+        }
+        $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
+        return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) {
+            $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+        })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
+    }
+    public function obtenerTareasAsignadasGrupoLuegoFinalizar(int $grupo_id)
+    {
+        $tareas_ids = Subtarea::where('grupo_id', $grupo_id)->groupBy('tarea_id')->pluck('tarea_id');
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
 
         return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) {
             $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
         })->ignoreRequest($ignoreRequest)->filter()->orderBy('id', 'desc')->get();
     }
+
+    public function puedeCrearMasTareas()
+    {
+        $total_tareas = Tarea::where('proyecto_id', request('proyecto'))->where('etapa_id', request('etapa'))->count();
+        return $total_tareas === 0;
+    }
 }
-// klever fanco y nuve de mayo - camperito

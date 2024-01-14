@@ -15,17 +15,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Src\Shared\Utils;
 use Exception;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 
 class TransferenciaProductoEmpleadoController extends Controller
 {
     private $entidad = 'Transferencia';
     private $transferenciaService;
     private $productosTareaEmpleadoService;
+    private $archivoService;
 
     public function __construct()
     {
         $this->transferenciaService = new TransferenciaProductoEmpleadoService();
         $this->productosTareaEmpleadoService = new ProductoTareaEmpleadoService();
+        $this->archivoService = new ArchivoService();
     }
 
     public function index(Request $request)
@@ -55,7 +59,7 @@ class TransferenciaProductoEmpleadoController extends Controller
             $datos['autorizador_id'] = $request['autorizador'];
             $datos['cliente_id'] = $request['cliente'];
             $datos['autorizacion_id'] = Autorizacion::PENDIENTE_ID; // $request['autorizacion'];
-            $cliente_id = $request['cliente_id'];
+            $cliente_id = $request['cliente'];
 
             $transferencia = TransferenciaProductoEmpleado::create($datos);
 
@@ -214,5 +218,32 @@ class TransferenciaProductoEmpleadoController extends Controller
                 Log::channel('testing')->info('Log', compact('productoDestino'));
             }
         }
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, TransferenciaProductoEmpleado $transferencia)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($transferencia);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, TransferenciaProductoEmpleado $transferencia)
+    {
+        try {
+            $modelo  = $this->archivoService->guardarArchivo($transferencia, $request->file, RutasStorage::TRANSFERENCIAS_PRODUCTOS_EMPLEADOS->value . '_' . $transferencia->id);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return response()->json(compact('mensaje', 'modelo'), 200);
     }
 }
