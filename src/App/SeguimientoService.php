@@ -262,6 +262,7 @@ class SeguimientoService
             'medida' => $producto->unidadMedida?->simbolo,
             'serial' => $detalle->serial,
             'cliente' => $material->cliente_id ? Cliente::find($material->cliente_id)->empresa->razon_social : null,
+            'cliente_id' => $material->cliente_id,
         ];
 
         $servicio = new TransaccionBodegaEgresoService();
