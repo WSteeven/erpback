@@ -90,6 +90,7 @@ class SubtareaResource extends JsonResource
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
             'etapa_id' => $tarea->etapa_id,
             'proyecto_id' => $tarea->proyecto_id,
+            'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
         ];
 
         if ($controller_method == 'show') {
