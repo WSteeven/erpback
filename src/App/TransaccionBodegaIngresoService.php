@@ -11,6 +11,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
@@ -649,5 +650,17 @@ class TransaccionBodegaIngresoService
         }
         //aquí se verifica si se completaron los items de la devolución y se actualiza con parcial o completado según corresponda.
         DevolucionService::verificarItemsDevolucion($itemDevolucion);
+    }
+
+    public static function anularIngresoDevolucion($devolucion_id, $detalle_id, $cantidad)
+    {
+        $item = DetalleDevolucionProducto::where('devolucion_id', $devolucion_id)->where('detalle_id', $detalle_id)->first();
+        if($item){
+            $item->devuelto -=$cantidad;
+            $item->save();
+        }else throw new Exception('Ha ocurrido un error al intentar restar de la devolucion el item '.$detalle_id);
+
+        DevolucionService::verificarItemsDevolucion($item);
+
     }
 }
