@@ -332,7 +332,7 @@ class TransaccionBodega extends Model implements Auditable
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
-                if($detalle){
+                if ($detalle) {
                     $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
                     $detalleTransaccion->recibido += $valor;
                     $detalleTransaccion->save();
@@ -340,12 +340,12 @@ class TransaccionBodega extends Model implements Auditable
 
                     // Si es material para tarea
                     if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                     } else {
                         // Stock personal
                         MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
                     }
-                }else throw new Exception('No se encontró el detalleProductoTransaccion '.$detalle);
+                } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }
         } catch (Exception $e) {
             //
