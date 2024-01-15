@@ -3,6 +3,7 @@
 namespace App\Models\RecursosHumanos\Alimentacion;
 
 use App\Models\Empleado;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,5 +37,62 @@ class DetalleAlimentacion extends Model implements Auditable
     }
     public function alimentacion(){
         return $this->hasOne(Alimentacion::class, 'id', 'alimentacion_id');
+    }
+
+    public static function empaquetar($detalles_alimentacion)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($detalles_alimentacion as $detalles_alimentacion) {
+            $row['item'] = $id + 1;
+            $row['empleado'] = $detalles_alimentacion->empleado->apellidos . ' ' . $detalles_alimentacion->empleado->nombres;
+            $row['valor_asignado'] = str_replace(".", "", number_format($detalles_alimentacion->valor_asignado, 2, ',', '.'));
+            $results[$id] = $row;
+            $id++;
+        }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
+        return $results;
+    }
+    public static function empaquetarCash($detalles_alimentacion)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+
+        foreach ($detalles_alimentacion as $detalles_alimentacion) {
+            $cuenta_bancarea_num = intval($detalles_alimentacion->empleado->num_cuenta_bancaria);
+            if ($cuenta_bancarea_num > 0) {
+                $referencia = $detalles_alimentacion->alimentacion->es_quincena ? 'ALIMENTACION PRIMERA QUINCENA MES ' : 'ALIMENTACION FIN DE MES ';
+                $row['item'] = $id + 1;
+                $row['empleado'] =  $detalles_alimentacion->empleado->apellidos . ' ' . $detalles_alimentacion->empleado->nombres;
+                $row['departamento'] = $detalles_alimentacion->empleado->departamento->nombre;
+                $row['numero_cuenta_bancareo'] =  $detalles_alimentacion->empleado->num_cuenta_bancaria;
+                $row['email'] =  $detalles_alimentacion->empleado->user->email;
+                $row['tipo_pago'] = 'PA';
+                $row['numero_cuenta_empresa'] = '02653010903';
+                $row['moneda'] = 'USD';
+                $row['forma_pago'] = 'CTA';
+                $row['codigo_banco'] = '0036';
+                $row['tipo_cuenta'] = 'AHO';
+                $row['tipo_documento_empleado'] = 'C';
+                $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::parse($detalles_alimentacion->alimentacion->mes)->locale('es')->translatedFormat('F')));
+                $row['identificacion'] =  $detalles_alimentacion->empleado->identificacion;
+                $row['total'] =  str_replace(".", "", number_format($detalles_alimentacion->valor_asignado, 2, ',', '.'));
+                $results[$id] = $row;
+                $id++;
+            }
+        }
+        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+
+        return $results;
+    }
+    private static function  ordenar_por_nombres_apellidos($a, $b)
+    {
+        $nameA = $a['empleado'] . ' ' . $a['empleado'];
+        $nameB = $b['empleado'] . ' ' . $b['empleado'];
+        return strcmp($nameA, $nameB);
     }
 }

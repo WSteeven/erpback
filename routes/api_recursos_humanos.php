@@ -123,4 +123,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('agregar-nuevos-empleados/{rol}',[RolPagoMesController::class, 'agregar_nuevos_empleados']);
     Route::get('generar-username',[EmpleadoController::class, 'obtenerNombreUsuario']);
     Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
+    Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
+    Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
+
+
 });

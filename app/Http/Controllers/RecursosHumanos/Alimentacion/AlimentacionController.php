@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\RecursosHumanos\Alimentacion;
 
+use App\Exports\RecursosHumanos\Alimentacion\AlimentacionExport;
+use App\Exports\RecursosHumanos\Alimentacion\CashAlimentacionExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\Alimentacion\AlimentacionRequest;
 use App\Http\Resources\RecursosHumanos\Alimentacion\AlimentacionResource;
@@ -13,13 +15,20 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\FondosRotativos\ReportePdfExcelService;
 
 class AlimentacionController extends Controller
 {
     private $entidad = 'Alimentacion';
+    private $reporteService;
+
     public function __construct()
     {
+        $this->reporteService = new ReportePdfExcelService();
+
         $this->middleware('can:puede.ver.alimentacion')->only('index', 'show');
         $this->middleware('can:puede.crear.alimentacion')->only('store');
         $this->middleware('can:puede.editar.alimentacion')->only('update');
@@ -102,5 +111,43 @@ class AlimentacionController extends Controller
     {
         $alimentacion->delete();
         return response()->json(compact('alimentacion'));
+    }
+    public function crear_cash_alimentacion($alimentacion_id)
+    {
+        $nombre_reporte = 'rol_pagos_general';
+        $alimentaciones = DetalleAlimentacion::with(['empleado', 'alimentacion'])
+            ->where('alimentacion_id', $alimentacion_id)
+            ->get();
+        $results = DetalleAlimentacion::empaquetarCash($alimentaciones);
+        $results = collect($results)->map(function ($elemento, $index) {
+            $elemento['item'] = $index + 1;
+            return $elemento;
+        })->all();
+        $reporte = ['reporte' => $results];
+        $export_excel = new CashAlimentacionExport($reporte);
+        return Excel::download($export_excel, $nombre_reporte . '.xlsx');
+    }
+    public function reporte_alimentacion(Request $request,$id){
+        try {
+            $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
+            $nombre_reporte = 'acreditaciones';
+            $valores_acreditar = DetalleAlimentacion::with(['empleado', 'alimentacion'])
+            ->where('alimentacion_id', $id)
+            ->get();
+            $suma= str_replace(".", "", number_format($valores_acreditar->sum('valor_asignado'), 2, ',', '.'));
+            $titulo= 'reporte de alimentacion';
+            $vista = 'recursos-humanos.reporte_general_alimentacion' ;
+            $reportes = DetalleAlimentacion::empaquetar($valores_acreditar);
+            $reportes =compact('reportes','titulo','suma');
+            $export_excel = new AlimentacionExport($reportes);
+            $orientacion = 'portail';
+            $tipo_pagina =  'A4' ;
+            return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
+        }
     }
 }
