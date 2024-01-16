@@ -120,7 +120,8 @@ class TransferenciaProductoEmpleadoController extends Controller
             $mensaje = 'dentro de if';
             Log::channel('testing')->info('Log', compact('mensaje'));
 
-            $this->ajustarValoresProducto($transferencia_producto_empleado);
+            $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
+            $this->transferenciaService->ajustarValoresProductoStock($transferencia_producto_empleado, $esTransferenciaDeStock);
         }
 
         $modelo = new TransferenciaProductoEmpleadoResource($transferencia_producto_empleado->refresh());
@@ -142,82 +143,6 @@ class TransferenciaProductoEmpleadoController extends Controller
             // event(new DevolucionAutorizadaEvent($msg, User::ROL_BODEGA, $url, $devolucion, true));
         } */
         return response()->json(compact('mensaje', 'modelo'));
-    }
-
-    private function consultarProducto($empleado_id, $detalle_producto_id, $proyecto_id, $etapa_id, $tarea_id, $cliente_id)
-    {
-        $consulta = MaterialEmpleadoTarea::where('empleado_id', $empleado_id)
-            ->where('detalle_producto_id', $detalle_producto_id)
-            ->where('proyecto_id', $proyecto_id)
-            ->where('etapa_id', $etapa_id)
-            ->where('cliente_id', $cliente_id)
-            ->tieneStock();
-
-        if ($tarea_id) $consulta = $consulta->where('tarea_id', $tarea_id);
-
-        $sql = $consulta->toSql();
-        $bin = $consulta->getBindings();
-
-        Log::channel('testing')->info('Log', compact('sql', 'bin'));
-        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'tarea_id', 'cliente_id'));
-
-        return $consulta->first();
-        // ->where('tarea_id', $tarea_id)
-    }
-
-    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado)
-    {
-        $cliente_id = $transferencia_producto_empleado->cliente_id; // request('cliente');
-
-        // Origen
-        $empleado_origen_id = request('empleado_origen');
-        $proyecto_origen_id = request('proyecto_origen');
-        $etapa_origen_id = request('etapa_origen');
-        $tarea_origen_id = request('tarea_origen');
-
-        // Destino
-        $empleado_destino_id = request('empleado_destino');
-        $proyecto_destino_id = request('proyecto_destino');
-        $etapa_destino_id = request('etapa_destino');
-        $tarea_destino_id = request('tarea_destino');
-
-        foreach (request('listado_productos') as $producto) {
-            // Restar productos origen
-            $productoOrigen = $this->consultarProducto($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
-            $productoOrigen->cantidad_stock -= $producto['cantidad'];
-            $productoOrigen->save();
-
-            Log::channel('testing')->info('Log', compact('productoOrigen'));
-
-            if ($productoOrigen) {
-                // Sumar productos destino
-                $productoDestino = $this->consultarProducto($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
-
-                if ($productoDestino) {
-                    $mensaje = 'Si se encuentra';
-                    Log::channel('testing')->info('Log', compact('mensaje'));
-                    $productoDestino->cantidad_stock += $producto['cantidad'];
-                    $productoDestino->despachado += $producto['cantidad'];
-                    $productoDestino->save();
-                } else {
-                    $mensaje = 'Si no se encuentra, se crea';
-                    Log::channel('testing')->info('Log', compact('mensaje'));
-
-                    $productoDestino = MaterialEmpleadoTarea::create([
-                        'empleado_id' => $empleado_destino_id,
-                        'cantidad_stock' => $producto['cantidad'],
-                        'detalle_producto_id' => $producto['id'],
-                        'despachado' => $producto['cantidad'],
-                        'proyecto_id' => $proyecto_destino_id,
-                        'etapa_id' => $etapa_destino_id,
-                        'tarea_id' => $tarea_destino_id,
-                        'cliente_id' => $cliente_id,
-                    ]);
-                }
-
-                Log::channel('testing')->info('Log', compact('productoDestino'));
-            }
-        }
     }
 
     /**
