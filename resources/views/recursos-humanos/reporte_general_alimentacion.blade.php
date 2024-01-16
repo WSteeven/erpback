@@ -109,7 +109,7 @@
                     <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
                 <td style="width: 100%">
-                    <div class="col-md-7" align="center"><b>REPORTE {{ $titulo }}</b>
+                    <div class="col-md-7" align="center"><b> {{strtoupper($titulo) }}</b>
                     </div>
 
                 </td>
@@ -173,7 +173,7 @@
                     </tr>
                 @endforeach
                 <tr>
-                    <td colspan="3" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
+                    <td colspan="2" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
                     <td style="font-size:10px">
                         <div align="right"> {{ $suma }}</div>
                     </td>
