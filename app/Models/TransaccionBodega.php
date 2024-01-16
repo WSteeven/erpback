@@ -10,6 +10,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransaccionBodega extends Model implements Auditable
@@ -329,6 +330,7 @@ class TransaccionBodega extends Model implements Auditable
     public static function asignarMateriales(TransaccionBodega $transaccion)
     {
         try {
+            DB::beginTransaction();
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
@@ -347,8 +349,10 @@ class TransaccionBodega extends Model implements Auditable
                     }
                 } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }
+            DB::commit();
         } catch (Exception $e) {
-            //
+            DB::rollBack();
+            throw new Exception($e->getMessage() . ' ' . $e->getLine());
         }
     }
 
