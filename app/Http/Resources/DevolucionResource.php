@@ -41,8 +41,8 @@ class DevolucionResource extends JsonResource
 
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
-            'cliente' => $this->sucursal?->cliente?->empresa?->razon_social,
-            'cliente_id' => $this->sucursal?->cliente_id,
+            'cliente' => $this->cliente_id,
+            'cliente_id' => $this->cliente_id,
             'sucursal' => $this->sucursal?->lugar,
             'sucursal_id' => $this->sucursal_id,
             'pedido_automatico' => $this->pedido_automatico,
@@ -55,6 +55,7 @@ class DevolucionResource extends JsonResource
             $modelo['per_autoriza'] = $this->per_autoriza_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['cliente'] = $this->cliente_id;
         }
 
         return $modelo;

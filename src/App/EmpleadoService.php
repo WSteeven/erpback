@@ -79,7 +79,10 @@ class EmpleadoService
             'acumula_fondos_reserva',
             'realiza_factura',
             'usuario_id',
-            'num_cuenta_bancaria']
+            'num_cuenta_bancaria',
+            'salario',
+            'supa'
+            ]
         );
         Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);

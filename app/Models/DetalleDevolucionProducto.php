@@ -34,6 +34,7 @@ class DetalleDevolucionProducto extends Pivot implements Auditable
         'detalle_id',
         'devolucion_id',
         'cantidad',
+        'devuelto',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

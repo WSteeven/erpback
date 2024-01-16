@@ -20,6 +20,7 @@ class TransaccionBodega extends Model implements Auditable
 
     const PENDIENTE = 'PENDIENTE';
     const ACEPTADA = 'ACEPTADA';
+    const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
     public $table = 'transacciones_bodega';
@@ -99,7 +100,7 @@ class TransaccionBodega extends Model implements Auditable
     public function items()
     {
         return $this->belongsToMany(Inventario::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
     /**
@@ -285,6 +286,8 @@ class TransaccionBodega extends Model implements Auditable
             $row['serial'] = $item->detalle->serial;
             $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
+            $row['recibido'] = $item->pivot->recibido;
+            $row['pendiente'] = $item->pivot->cantidad_inicial - $item->pivot->recibido;
             $row['despachado'] = $item->pivot->cantidad_final;
             $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
@@ -326,15 +329,21 @@ class TransaccionBodega extends Model implements Auditable
         try {
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
-                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
+                if($detalle){
+                    $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
+                    $detalleTransaccion->recibido += $valor;
+                    $detalleTransaccion->save();
+                    $itemInventario = Inventario::find($detalle['inventario_id']);
 
-                // Si es material para tarea
-                if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
-                } else {
-                    // Stock personal
-                    MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $detalle['cantidad_inicial'], $transaccion->cliente_id);
-                }
+                    // Si es material para tarea
+                    if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id);
+                    } else {
+                        // Stock personal
+                        MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
+                    }
+                }else throw new Exception('No se encontró el detalleProductoTransaccion '.$detalle);
             }
         } catch (Exception $e) {
             //
@@ -429,6 +438,25 @@ class TransaccionBodega extends Model implements Auditable
     }
 
     /**
+     * La función `verificarTransferenciaEnEgreso` verifica si existe una transacción de transferencia
+     * en una transacción de egreso.
+     *
+     * @param int $id El ID de la transacción actual que se está verificando.
+     * @param int $transferencia_id El parámetro `transferencia_id` es el ID de una transferencia.
+     *
+     * @return boolean Si la variable transacción no es nula devolverá verdadero. De lo
+     * contrario, devolverá falso.
+     */
+    public static function verificarTransferenciaEnEgreso($id, $transferencia_id)
+    {
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $transaccion = TransaccionBodega::whereIn('motivo_id', $ids_motivos)->where('id', '<>', $id)->where('transferencia_id', $transferencia_id)->first();
+        if ($transaccion) return true;
+        else return false;
+    }
+
+    /**
      * La función "verificarMotivosEgreso" verifica si un determinado ID está presente en un conjunto
      * de motivos de salida que no generan recibo.
      *
@@ -437,14 +465,15 @@ class TransaccionBodega extends Model implements Auditable
      * @return bool un valor booleano que indica si el ID proporcionado está presente en el conjunto de
      * motivos de alta que no generan un comprobante.
      */
-    public static function verificarMotivosEgreso(int $id){
+    public static function verificarMotivosEgreso(int $id)
+    {
         $motivosDeEgresoQueNoGeneranComprobante = [
-            ['id'=>15, 'nombre'=>'VENTA'],
-            ['id'=>18, 'nombre'=>'DESTRUCCION'],
-            ['id'=>23, 'nombre'=>'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
-            ['id'=>24, 'nombre'=>'EGRESO POR LIQUIDACION DE MATERIALES'],
-            ['id'=>25, 'nombre'=>'AJUSTE DE EGRESO POR REGULARIZACION'],
-            ['id'=>28, 'nombre'=>'ROBO'],
+            ['id' => 15, 'nombre' => 'VENTA'],
+            ['id' => 18, 'nombre' => 'DESTRUCCION'],
+            ['id' => 23, 'nombre' => 'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
+            ['id' => 24, 'nombre' => 'EGRESO POR LIQUIDACION DE MATERIALES'],
+            ['id' => 25, 'nombre' => 'AJUSTE DE EGRESO POR REGULARIZACION'],
+            ['id' => 28, 'nombre' => 'ROBO'],
         ];
         $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
 
