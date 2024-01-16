@@ -424,11 +424,13 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
+            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info','tarea_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
+                Log::channel('testing')->info('Log', ['error',  $reporte]);
+
             $subtotal = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)

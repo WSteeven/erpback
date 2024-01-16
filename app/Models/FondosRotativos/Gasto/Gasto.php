@@ -111,7 +111,7 @@ class Gasto extends Model implements Auditable
     }
     public function tarea_info()
     {
-        return $this->hasOne(Tarea::class, 'id', 'id_tarea');
+        return $this->hasOne(Tarea::class, 'id', 'id_tarea')->with('centroCosto');
     }
     public function subtarea_info()
     {
@@ -163,6 +163,8 @@ class Gasto extends Model implements Auditable
                 $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
                 $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
                 $row['tarea'] = $gasto->tarea_info;
+                $row['centro_costo'] = $gasto->tarea_info !== null ? $gasto->tarea_info->centroCosto->nombre:'';
+                $row['sub_centro_costo'] = $gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->subCentroCosto->nombre;
                 $row['proyecto'] = $gasto->proyecto_info;
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
