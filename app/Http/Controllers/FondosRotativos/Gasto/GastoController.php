@@ -477,6 +477,16 @@ class GastoController extends Controller
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
             $datos['estado'] = 1;
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante']);
+            }
+            if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
+                $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante2']);
+            }
             $gasto->update($datos);
             $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
                 ->where('per_destinatario_id', $gasto->aut_especial)
