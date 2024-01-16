@@ -86,6 +86,7 @@ class TareaService
 
     public function puedeCrearMasTareas()
     {
+        if (is_null(request('proyecto')) &&  is_null(request('etapa'))) return true;
         $total_tareas = Tarea::where('proyecto_id', request('proyecto'))->where('etapa_id', request('etapa'))->count();
         return $total_tareas === 0;
     }
