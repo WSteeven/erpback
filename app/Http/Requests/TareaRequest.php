@@ -46,6 +46,7 @@ class TareaRequest extends FormRequest
             'ruta_tarea' => 'nullable|numeric|integer',
             'finalizado' => 'nullable|boolean',
             'metraje_tendido' => 'nullable|numeric|integer',
+            'centro_costo' => 'nullable|numeric|integer|exists:tar_centros_costos,id',
         ];
 
         // Verifica si el usuario actual tiene el rol específico

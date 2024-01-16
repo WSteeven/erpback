@@ -95,7 +95,9 @@ class GastoRequest extends FormRequest
                 $this->validar_numero_comprobante($validator);
             }
             if($this->route()->getActionMethod() === 'aprobar_gasto'){
-                if ($this->estado == 1){
+                $gasto = Gasto::find($this->id);
+                $estado = $gasto->estado;
+                if ($estado == 1){
                     $validator->errors()->add('estado', 'El gasto ya fue aprobado');
                 }
             }

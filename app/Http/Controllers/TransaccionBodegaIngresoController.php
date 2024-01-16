@@ -273,7 +273,9 @@ class TransaccionBodegaIngresoController extends Controller
                     $itemInventario = Inventario::find($detalle['inventario_id']);
                     $itemInventario->cantidad -= $detalle['cantidad_inicial'];
                     $itemInventario->save();
+                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
                 }
+
                 $transaccion->estado_id = $estadoAnulado->id;
                 $transaccion->save();
                 DB::commit();
@@ -283,7 +285,8 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+                // return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
             }
         } else {
             // Log::channel('testing')->info('Log', ['La transacción está anulada, ya no se anulará nuevamente']);

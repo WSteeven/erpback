@@ -107,9 +107,9 @@ class RolPago extends Model implements Auditable
     /**
      * La función "empaquetarListado" toma una matriz de objetos "roles de pagos" y devuelve una matriz ordenada
      * de datos formateados.
-     * 
-     * @param rol_pagos Conjunto de objetos que representan información de nómina de empleados. 
-     * 
+     *
+     * @param rol_pagos Conjunto de objetos que representan información de nómina de empleados.
+     *
      * @return una serie de resultados.
      */
     public static function empaquetarListado($rol_pagos)
@@ -162,9 +162,9 @@ class RolPago extends Model implements Auditable
     /**
      * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
      * datos relacionados con pagos en efectivo.
-     * 
-     * @param rol_pagos Una serie de objetos que representan pagos de nómina. 
-     * 
+     *
+     * @param rol_pagos Una serie de objetos que representan pagos de nómina.
+     *
      * @return una serie de resultados.
      */
     public static function empaquetarCash($rol_pagos)
@@ -191,8 +191,7 @@ class RolPago extends Model implements Auditable
                 $row['tipo_documento_empleado'] = 'C';
                 $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
                 $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
-                $row['total'] =  str_replace(",", "", number_format($rol_pago->total, 2));
-
+                $row['total'] = str_replace(".", "", number_format($rol_pago->total, 2, ',', '.'));
                 $results[$id] = $row;
 
                 $id++;
@@ -206,10 +205,10 @@ class RolPago extends Model implements Auditable
     /**
      * La función "ordenar_por_nombres_apellidos" ordena una matriz de empleados según sus nombres y
      * apellidos.
-     * 
+     *
      * @param a Una matriz que representa la información del primer empleado.
      * @param b El parámetro `` es una matriz que representa la información de un empleado.
-     * 
+     *
      * @return el resultado de la comparación entre los nombres concatenados de los dos empleados.
      */
     private static function  ordenar_por_nombres_apellidos($a, $b)
