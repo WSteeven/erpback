@@ -24,9 +24,7 @@ class EmpleadoResource extends JsonResource
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
             'telefono' => $this->telefono,
-            'fecha_nacimiento' => $this->fecha_nacimiento,
             'email' => $this->user ? $this->user->email : '',
-            // 'password'=>bcrypt($this->user->password),
             'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
@@ -35,8 +33,6 @@ class EmpleadoResource extends JsonResource
             'departamento' => $this->departamento?->nombre,
             'grupo' => $this->grupo?->nombre,
             'grupo_id' => $this->grupo?->nombre,
-            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
-            'permisos' => $this->user?->getAllPermissions(),
             'cargo' => $this->cargo?->nombre,
             'firma_url' => $this->firma_url ? url($this->firma_url) : null,
             'foto_url' => $this->foto_url ? url($this->foto_url) : null,
@@ -47,39 +43,21 @@ class EmpleadoResource extends JsonResource
             'casa_propia' => $this->casa_propia,
             'vive_con_discapacitados' => $this->vive_con_discapacitados,
             'responsable_discapacitados' => $this->responsable_discapacitados,
-            //nuevos campos
-            'correo_personal' => $this->correo_personal,
-            'tipo_sangre' => $this->tipo_sangre,
-            'direccion' => $this->direccion,
-            'supa' => $this->supa,
-            'salario' => $this->salario,
-            'num_cuenta' => $this->num_cuenta_bancaria,
-            'banco' => $this->banco,
-            'banco_info' => $this->banco_info ? $this->banco_info->nombre : null,
             'tiene_discapacidad' => $this->tiene_discapacidad,
-            'fecha_ingreso' => $this->fecha_ingreso,
-            'antiguedad' => $this->antiguedad($this->fecha_ingreso),
             'modificar_fecha_vinculacion' => $this->fecha_ingreso != $this->fecha_vinculacion,
             'fecha_vinculacion' => $this->fecha_vinculacion,
-            'fecha_salida' => $this->fecha_salida,
-            'talla_zapato' => $this->talla_zapato,
-            'talla_camisa' => $this->talla_camisa,
-            'talla_guantes' => $this->talla_guantes,
-            'talla_pantalon' => $this->talla_pantalon,
-            'nivel_academico' => $this->nivel_academico,
-            'estado_civil' => $this->estado_civil_id,
-            'estado_civil_info' => $this->estadoCivil  ? $this->estadoCivil->nombre : null,
             'area' =>  $this->area_id,
             'area_info' =>  $this->area ? $this->area->nombre : null,
-            'tipo_contrato' => $this->tipo_contrato_id,
-            'tipo_contrato_info' => $this->tipoContrato ? $this->tipoContrato->nombre : null,
             'observacion' => $this->observacion,
-            'genero' => $this->genero,
             'esta_en_rol_pago' => $this->esta_en_rol_pago,
             'acumula_fondos_reserva' => $this->acumula_fondos_reserva,
-            'realiza_factura' => $this->realiza_factura,
-            'familiares' => $this->familiares_info
+            'familiares' => $this->familiares_info,
+            'num_cuenta' => $this->num_cuenta_bancaria,
+            'salario' => $this->salario,
+            'supa' => $this->supa,
+            'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
         ];
+
 
         if ($controller_method == 'show') {
             $modelo['jefe'] = $this->jefe_id;
@@ -89,6 +67,31 @@ class EmpleadoResource extends JsonResource
             $modelo['grupo'] = $this->grupo_id;
             $modelo['cargo'] = $this->cargo_id;
             $modelo['departamento'] = $this->departamento_id;
+            $modelo['fecha_nacimiento'] = $this->fecha_nacimiento;
+            $modelo['permisos'] = $this->user?->getAllPermissions();
+            $modelo['correo_personal'] = $this->correo_personal;
+            $modelo['tipo_sangre'] = $this->tipo_sangre;
+            $modelo['direccion'] = $this->direccion;
+            $modelo['supa'] = $this->supa;
+            $modelo['salario'] = $this->salario;
+            $modelo['num_cuenta'] = $this->num_cuenta_bancaria;
+            $modelo['banco'] = $this->banco;
+            $modelo['banco_info'] = $this->banco_info ? $this->banco_info->nombre : null;
+            $modelo['fecha_ingreso'] = $this->fecha_ingreso;
+            $modelo['antiguedad'] = $this->antiguedad($this->fecha_ingreso);
+            $modelo['fecha_salida'] = $this->fecha_salida;
+            $modelo['talla_zapato'] = $this->talla_zapato;
+            $modelo['talla_camisa'] = $this->talla_camisa;
+            $modelo['talla_guantes'] = $this->talla_guantes;
+            $modelo['talla_pantalon'] = $this->talla_pantalon;
+            $modelo['nivel_academico'] = $this->nivel_academico;
+            $modelo['estado_civil'] = $this->estado_civil_id;
+            $modelo['estado_civil_info'] = $this->estadoCivil  ? $this->estadoCivil->nombre : null;
+            $modelo['area_info'] =  $this->area ? $this->area->nombre : null;
+            $modelo['tipo_contrato'] = $this->tipo_contrato_id;
+            $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
+            $modelo['genero'] = $this->genero;
+            $modelo['realiza_factura'] = $this->realiza_factura;
         }
 
         // Filtra los campos personalizados y añádelos a la respuesta si existen

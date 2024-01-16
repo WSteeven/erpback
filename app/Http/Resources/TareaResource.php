@@ -48,6 +48,7 @@ class TareaResource extends JsonResource
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
             'metraje_tendido' => $this->metraje_tendido,
+            'centro_costo' => $this->centroCosto?->nombre,
         ];
 
         if ($controller_method == 'show') {
@@ -61,6 +62,7 @@ class TareaResource extends JsonResource
             $modelo['ubicacion_trabajo'] = $this->ubicacion_trabajo;
             $modelo['observacion'] = $this->observacion;
             $modelo['fecha_solicitud'] = $this->fecha_solicitud;
+            $modelo['centro_costo'] = $this->centro_costo_id;
         }
 
         return $modelo;

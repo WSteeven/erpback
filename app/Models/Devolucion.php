@@ -31,6 +31,7 @@ class Devolucion extends Model implements Auditable
         'estado',
         'estado_bodega',
         'pedido_automatico',
+        'cliente_id',
     ];
 
     protected $casts = [

@@ -9,6 +9,7 @@ use App\Models\Empleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Subtarea;
 use App\Models\Tarea;
+use App\Models\Tareas\CentroCosto;
 use App\Models\UbicacionTarea;
 use App\Models\User;
 use Carbon\Carbon;
@@ -46,10 +47,17 @@ class TareaController extends Controller
         // mejorar codigo
         // Lista las tareas disponibles junto con las que hayan finalizado.
         // Las tareas finalizadas estan disponibles un dia luego de finalizarse
+        /* if (request('formulario')) {
+            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+            })->latest()->get();
+        } */
+
         if (request('formulario')) {
             return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
                 $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
             })->latest()->get();
+            // return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         }
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
@@ -92,6 +100,8 @@ class TareaController extends Controller
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
             $para_cliente_proyecto = $request['para_cliente_proyecto'];
+            if ($request->centro_costo) $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
+            else $datos['centro_costo_id'] = $request->no_lleva_centro_costo ? null : CentroCosto::crearCentroCosto('TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1), $request->cliente, false);
 
             // Establecer coordinador
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
@@ -108,10 +118,10 @@ class TareaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (\Exception $e) {
+            Log::channel('testing')->info('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
         }
     }
-    // Log::channel('testing')->info('Log', ['Ubicacion', $ubicacionTarea]);
 
     /**
      * Consultar

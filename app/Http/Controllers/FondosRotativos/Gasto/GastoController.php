@@ -69,27 +69,32 @@ class GastoController extends Controller
             return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
+            return response()->json(compact('results'));
         }
-
-        return response()->json(compact('results'));
     }
     public function autorizaciones_gastos(Request $request)
     {
-        $user =  Auth::user()->empleado;
-        $usuario_autenticado = Auth::user();
-        $usuario = User::where('id', $user->id)->first();
-        // $usuario->hasRole('writer');
-        $results = [];
-        if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
-            $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-            $results = GastoResource::collection($results);
-        } else {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        try {
+            $usuario_autenticado =  Auth::user();
+            $results = [];
+            if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
+                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
+            } else {
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al consultar' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-
-        return response()->json(compact('results'));
     }
     /**
      * Update the specified resource in storage.
@@ -279,41 +284,14 @@ class GastoController extends Controller
      * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
-    public function update(Gasto $request, Gasto $activo)
+    public function update(GastoRequest $request, Gasto $gasto)
     {
-        //Adaptacion de foreign keys
-        $datos = $request->all();
-        $user = Auth::user();
-        $usuario_autorizado = User::where('id', $request->aut_especial)->first();
-        $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_gasto = 0;
-        if ($datos_detalle->descripcion == '') {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        } else {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        }
-        //Adaptacion de foreign keys
-        $datos['id_lugar'] = $request->lugar;
-        $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['estado'] = $datos_estatus_via->id;
-        $datos['caantidadidad'] = $request->caantidad;
-
-        //Respuesta
-        $activo->update($datos);
-        $modelo = new GastoResource($activo->refresh());
+        $datos = $request->validated();
+        $gasto->update($datos);
+        $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('modelo', 'mensaje'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -429,20 +407,6 @@ class GastoController extends Controller
         }
     }
     /**
-     * It takes a user object and returns an array of the user's data
-     *
-     * @param usuario The user's email address.
-     *
-     * @return The user object is being returned.
-     */
-    private function obtener_usuario($usuario)
-    {
-        $usuario_logeado =  json_decode(json_encode($usuario), true);
-        $usuario_logeado = $usuario_logeado[0];
-        return $usuario_logeado;
-    }
-
-    /**
      * It takes a request, gets some data from the request, gets some data from the database, and then
      * returns a file
      *
@@ -504,20 +468,14 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_gasto(Request $request)
+    public function aprobar_gasto(GastoRequest $request)
     {
         try {
             DB::beginTransaction();
-            $gasto = Gasto::where('id', $request->id)->first();
-            if ($gasto->estado == 1) {
-                Log::channel('testing')->info('Log', ['error', 'El gasto ya fue aprobado']);
-                throw ValidationException::withMessages([
-                    '404' => ['El gasto ya fue aprobado'],
-                ]);
-            }
-            $gasto->estado = 1;
-            $gasto->detalle_estado = $request->detalle_estado;
-            $gasto->save();
+            $gasto = Gasto::find($request->id);
+            $datos = $request->validated();
+            $datos['estado'] = 1;
+            $gasto->update($datos);
             $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
                 ->where('per_destinatario_id', $gasto->aut_especial)
                 ->where('tipo_notificacion', 'AUTORIZACION GASTO')

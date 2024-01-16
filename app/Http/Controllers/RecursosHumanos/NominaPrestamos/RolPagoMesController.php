@@ -561,11 +561,11 @@ class RolPagoMesController extends Controller
             $mes_fecha = new Carbon($mes); //mes en instancia de fecha
             $ultimo_dia_mes = $mes_fecha->endOfMonth();
             $empleados_activos = Empleado::where('id', '>', 2)
-            ->where('estado', true)
-            ->where('esta_en_rol_pago', true)
-            ->where('salario', '!=', 0)
-            ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
-            ->orderBy('apellidos', 'asc')->get();
+                ->where('estado', true)
+                ->where('esta_en_rol_pago', true)
+                ->where('salario', '!=', 0)
+                ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
+                ->orderBy('apellidos', 'asc')->get();
             $this->nominaService->setMes($mes);
             Log::channel('testing')->info('Log', ['luego de setMes', $mes]);
             $this->prestamoService->setMes($mes);
@@ -633,9 +633,10 @@ class RolPagoMesController extends Controller
      *
      * @param RolPagoMes rol El parámetro `` es una instancia de la clase `RolPagoMes`.
      */
-    private function agregar_nuevos_empleados(RolPagoMes $rol)
+    public function agregar_nuevos_empleados(RolPagoMes $rol)
     {
         try {
+            // $rol_pago = RolPagoMes::find($rolPagoId);
             $mes_rol = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $final_mes = new Carbon($mes_rol);
             $ultimo_dia_mes = $final_mes->endOfMonth();
@@ -646,6 +647,8 @@ class RolPagoMesController extends Controller
                 ->where('salario', '!=', 0)
                 ->whereDoesntHave('rolesPago')
                 ->get();
+            // Log::channel('testing')->info('Log', ['mes rol', $rol, $mes_rol, $final_mes, $ultimo_dia_mes]);
+            // Log::channel('testing')->info('Log', ['empleados sin rol', $empleadosSinRolPago]);
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -692,6 +695,7 @@ class RolPagoMesController extends Controller
                     'total_egreso' => $egreso,
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
+                    'estado' => RolPago::EJECUTANDO,
                     'created_at' => $this->date,
                     'updated_at' => $this->date
                 ];
@@ -778,7 +782,7 @@ class RolPagoMesController extends Controller
     public function refrescar_rol_pago($rolPagoId)
     {
         $rol_pago = RolPagoMes::find($rolPagoId);
-        $this->agregar_nuevos_empleados($rol_pago);
+        // $this->agregar_nuevos_empleados($rol_pago);
         $this->actualizar_tabla_roles($rol_pago);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));

@@ -4,12 +4,14 @@ namespace Src\App;
 
 use App\Models\Autorizacion;
 use App\Models\DetalleDevolucionProducto;
+use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
@@ -618,9 +620,17 @@ class TransaccionBodegaIngresoService
     public function descontarMaterialesAsignados($listado, $transaccion, $detalle)
     {
         if ($transaccion->tarea_id) {
-            MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $transaccion->cliente_id);
+            if ($transaccion->devolucion_id) {
+                $devolucion = Devolucion::find($transaccion->devolucion_id);
+                MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $devolucion->cliente_id);
+            } else MaterialEmpleadoTarea::descargarMaterialEmpleadoTarea($detalle->id, $transaccion->solicitante_id, $transaccion->tarea_id, $listado['cantidad'], $transaccion->cliente_id);
         } else { // Devolucion de stock personal
-            MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $transaccion->cliente_id);
+            if ($transaccion->devolucion_id) {
+                $devolucion = Devolucion::find($transaccion->devolucion_id);
+                MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $devolucion->cliente_id, $transaccion->cliente_id);
+            } else {
+                MaterialEmpleado::descargarMaterialEmpleado($detalle->id, $transaccion->solicitante_id, $listado['cantidad'], $transaccion->cliente_id, $transaccion->cliente_id);
+            }
         }
     }
 
@@ -640,5 +650,17 @@ class TransaccionBodegaIngresoService
         }
         //aquí se verifica si se completaron los items de la devolución y se actualiza con parcial o completado según corresponda.
         DevolucionService::verificarItemsDevolucion($itemDevolucion);
+    }
+
+    public static function anularIngresoDevolucion($devolucion_id, $detalle_id, $cantidad)
+    {
+        $item = DetalleDevolucionProducto::where('devolucion_id', $devolucion_id)->where('detalle_id', $detalle_id)->first();
+        if($item){
+            $item->devuelto -=$cantidad;
+            $item->save();
+        }else throw new Exception('Ha ocurrido un error al intentar restar de la devolucion el item '.$detalle_id);
+
+        DevolucionService::verificarItemsDevolucion($item);
+
     }
 }

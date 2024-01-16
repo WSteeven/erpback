@@ -250,16 +250,7 @@ class TransaccionBodegaEgresoController extends Controller
      */
     public function index(Request $request)
     {
-        $estado = $request['estado'];
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
-        }
-        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
-        }
+        $results = $this->servicio->listar($request);
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -323,7 +314,7 @@ class TransaccionBodegaEgresoController extends Controller
             //verificamos si es un egreso por transferencia, en ese caso habría responsable de los materiales pero no se crea comprobante,
             if (!$transaccion->transferencia_id) {
                 $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
-                if(!$noGeneraComprobante){
+                if (!$noGeneraComprobante) {
                     //creamos el comprobante
                     $transaccion->comprobante()->save(new Comprobante(['transaccion_id' => $transaccion->id]));
                     //lanzar el evento de la notificación
@@ -572,7 +563,7 @@ class TransaccionBodegaEgresoController extends Controller
         $datos = TransaccionBodega::with('comprobante')->where('responsable_id', auth()->user()->empleado->id)
             ->whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
-            })->get();
+            })->orderBy('id', 'desc')->get();
 
         $results = TransaccionBodegaResource::collection($datos);
         return response()->json(compact('results'));
