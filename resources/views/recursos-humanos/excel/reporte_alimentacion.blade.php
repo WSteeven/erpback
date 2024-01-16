@@ -58,7 +58,7 @@
                     <tr>
                         <td></td>
                         <td width="100%"bgcolor="#bfbfbf" style="font-size:12px">
-                            <div align="center">REPORTE {{ $titulo }}</div>
+                            <div align="center">{{ strtoupper($titulo) }}</div>
                         </td>
                     </tr>
                 </table>
@@ -105,7 +105,7 @@
                                 </tr>
                             @endforeach
                             <tr>
-                                <td colspan="3" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
+                                <td colspan="2" style="font-size:10px"> <div align="center"><strong>TOTAL DE MONTO ASIGNADO</strong></div></td>
                                 <td style="font-size:10px">
                                     <div align="right"> {{ $suma }}</div>
                                 </td>

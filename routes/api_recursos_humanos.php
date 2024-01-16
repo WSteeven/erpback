@@ -125,6 +125,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('anular-prestamo-empresarial',[PrestamoEmpresarialController::class, 'deshabilitarPrestamo']);
     Route::get('crear-cash-alimentacion/{alimentacion_id}',[AlimentacionController::class, 'crear_cash_alimentacion']);
     Route::get('imprimir-reporte-general-alimentacion/{id}',[AlimentacionController::class, 'reporte_alimentacion']);
+    Route::get('finalizar-asignacion-alimentacion', [AlimentacionController::class, 'finalizarAsignacionAlimentacion']);
+
 
 
 });

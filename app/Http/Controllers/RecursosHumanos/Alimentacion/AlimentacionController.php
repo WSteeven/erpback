@@ -114,7 +114,7 @@ class AlimentacionController extends Controller
     }
     public function crear_cash_alimentacion($alimentacion_id)
     {
-        $nombre_reporte = 'rol_pagos_general';
+        $nombre_reporte = 'alimentacions_general';
         $alimentaciones = DetalleAlimentacion::with(['empleado', 'alimentacion'])
             ->where('alimentacion_id', $alimentacion_id)
             ->get();
@@ -149,5 +149,14 @@ class AlimentacionController extends Controller
                 'Error al generar reporte' => [$e->getMessage()],
             ]);
         }
+    }
+    public function finalizarAsignacionAlimentacion(Request $request)
+    {
+        $alimentacion = Alimentacion::find($request['id']);
+        $alimentacion->finalizado = true;
+        $alimentacion->save();
+        $modelo = new  AlimentacionResource($alimentacion);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }
