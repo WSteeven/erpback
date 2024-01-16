@@ -26,6 +26,7 @@ class SubCentroCostoRequest extends FormRequest
         return [
             'nombre' => 'required',
             'centro_costo' => 'required|exists:tar_centros_costos,id',
+            'grupo' => 'required|exists:grupos,id',
             'activo' => 'boolean',
         ];
     }

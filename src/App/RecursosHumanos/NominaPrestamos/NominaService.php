@@ -165,7 +165,8 @@ class NominaService
     {
         $salario_diario = $this->empleado->salario / 30;
         if ($es_quincena) {
-            $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
+            $sueldo = $sueldo < 0 ?  $this->empleado->salario * NominaService::calcularPorcentajeAnticipo(): $sueldo;
+            // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
         } else {
             $dias_trabajados = $dias - $this->permisoEmpleado();
             $sueldo = $salario_diario * $dias_trabajados;

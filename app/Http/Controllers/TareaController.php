@@ -121,7 +121,7 @@ class TareaController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (\Exception $e) {
-            Log::channel('testing')->info('Log', ['Error al guardar', $e]);
+            Log::channel('testing')->info('Log', ['Excepcion', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
         }
     }

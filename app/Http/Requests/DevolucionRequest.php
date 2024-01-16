@@ -69,7 +69,7 @@ class DevolucionRequest extends FormRequest
                 foreach ($this->listadoProductos as $listado) {
                     $material = MaterialEmpleadoTarea::where('tarea_id', $this->tarea)
                         ->where('empleado_id', auth()->user()->empleado->id)
-                        ->where('detalle_producto_id', $listado['id'])->first();
+                        ->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
                             $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock');
@@ -78,15 +78,14 @@ class DevolucionRequest extends FormRequest
                 }
             } else {
                 foreach ($this->listadoProductos as $listado) {
-                    $sucursal = Sucursal::find($this->sucursal);
                     $material = MaterialEmpleado::where('empleado_id', $this->solicitante)
-                        ->where(function($query) use ($sucursal){
-                            $query->where('cliente_id', $sucursal->cliente_id)
-                            ->orWhere('cliente_id', null);
-                        })->where('detalle_producto_id', $listado['id'])->first();
+                        ->where(function ($query) {
+                            $query->where('cliente_id', $this->cliente)
+                                ->orWhere('cliente_id', null);
+                        })->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {
-                            $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock '.$material->cantidad_stock);
+                            $validator->errors()->add('listadoProductos.*.cantidad', 'La cantidad para el item ' . $listado['descripcion'] . ' no debe ser superior a la existente en el stock. En stock ' . $material->cantidad_stock);
                         }
                     }
                 }

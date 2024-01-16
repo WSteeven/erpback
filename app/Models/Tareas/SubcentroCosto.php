@@ -2,6 +2,7 @@
 
 namespace App\Models\Tareas;
 
+use App\Models\Grupo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ class SubcentroCosto extends Model implements Auditable
     use AuditableModel;
     protected $table = 'tar_subcentros_costos';
     protected $fillable = [
-        'nombre', 'centro_costo_id', 'activo'
+        'nombre', 'centro_costo_id', 'activo', 'grupo_id'
     ];
 
     protected $casts = [
@@ -36,5 +37,10 @@ class SubcentroCosto extends Model implements Auditable
     public function centro()
     {
         return $this->belongsTo(CentroCosto::class, 'centro_costo_id', 'id');
+    }
+
+    public function grupo()
+    {
+        return $this->belongsTo(Grupo::class);
     }
 }
