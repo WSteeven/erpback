@@ -99,7 +99,7 @@ class TransferenciaProductoEmpleadoService
     /********************************************************
      * Restar los productos del origen y sumar en el destino
      ********************************************************/
-    public function ajustarValoresProductoProyectoEtapaTarea(TransferenciaProductoEmpleado $transferencia_producto_empleado, $esEntreStock)
+    public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, $esEntreStock)
     {
         $cliente_id = $transferencia_producto_empleado->cliente_id; // request('cliente');
 
