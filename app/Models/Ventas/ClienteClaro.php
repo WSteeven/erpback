@@ -14,7 +14,7 @@ class ClienteClaro extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_clientes_claro';
-    protected $fillable =['identificacion','nombres','apellidos'];
+    protected $fillable =['identificacion','nombres','apellidos','direccion','telefono1','telefono2'];
     private static $whiteListFilter = [
         '*',
     ];

@@ -28,6 +28,9 @@ class ClienteClaroRequest extends FormRequest
             'identificacion'=> 'required',
             'nombres'=> 'required',
             'apellidos'=> 'required',
+            'direccion' => 'required',
+           'telefono1' => 'required',
+            'telefono2' => 'nullable',
         ];
     }
     public function withValidator($validator)

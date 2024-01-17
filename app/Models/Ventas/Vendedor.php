@@ -16,6 +16,9 @@ class Vendedor extends Model implements Auditable
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_vendedor';
     protected $fillable =['empleado_id','modalidad_id','tipo_vendedor','jefe_inmediato','jefe_inmediato_id'];
+    const VENDEDOR = 'VENDEDOR';
+    const JEFE_VENTAS = 'JEFE DE VENTAS';
+    const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     private static $whiteListFilter = [
         '*',
     ];
