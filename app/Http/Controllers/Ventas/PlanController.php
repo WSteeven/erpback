@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Ventas\PlanesRequest;
-use App\Http\Resources\Ventas\PlanesResource;
+use App\Http\Requests\Ventas\PlanRequest;
+use App\Http\Resources\Ventas\PlanResource;
 use App\Models\Ventas\Plan;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Src\Shared\Utils;
 
-class PlanesController extends Controller
+class PlanController extends Controller
 {
     private $entidad = 'Plan';
     public function __construct()
@@ -25,22 +25,22 @@ class PlanesController extends Controller
     {
         $results = [];
         $results = Plan::ignoreRequest(['campos'])->filter()->get();
-        $results = PlanesResource::collection($results);
+        $results = PlanResource::collection($results);
         return response()->json(compact('results'));
     }
     public function show(Request $request, Plan $plan)
     {
-        $modelo = new PlanesResource($plan);
+        $modelo = new PlanResource($plan);
 
         return response()->json(compact('modelo'));
     }
-    public function store(PlanesRequest $request)
+    public function store(PlanRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
             $plan = Plan::create($datos);
-            $modelo = new PlanesResource($plan);
+            $modelo = new PlanResource($plan);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -49,13 +49,13 @@ class PlanesController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(PlanesRequest $request, Plan $plan)
+    public function update(PlanRequest $request, Plan $plan)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
             $plan->update($datos);
-            $modelo = new PlanesResource($plan->refresh());
+            $modelo = new PlanResource($plan->refresh());
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));

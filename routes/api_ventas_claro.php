@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Venta\DashboardVentasController;
 use App\Http\Controllers\Venta\VentaController;
 use App\Http\Controllers\Ventas\BonoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
@@ -8,12 +9,11 @@ use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebackController;
 use App\Http\Controllers\Ventas\ClienteClaroController;
 use App\Http\Controllers\Ventas\ComisionController;
-use App\Http\Controllers\Ventas\DashboardVentasController;
 use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Controllers\Ventas\ModalidadController;
 use App\Http\Controllers\Ventas\PagoComisionController;
-use App\Http\Controllers\Ventas\PlanesController;
+use App\Http\Controllers\Ventas\PlanController;
 use App\Http\Controllers\Ventas\ProductoVentaController;
 use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
@@ -27,7 +27,7 @@ Route::apiResources(
         'bono-porcentual' => BonoPorcentualController::class,
         'comisiones' => ComisionController::class,
         'modalidad' => ModalidadController::class,
-        'planes' => PlanesController::class,
+        'planes' => PlanController::class,
         'producto-ventas' => ProductoVentaController::class,
         'vendedor' => VendedorController::class,
         'ventas' => VentaController::class,
