@@ -4,7 +4,7 @@ namespace App\Http\Resources\Ventas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UmbralVentasResource extends JsonResource
+class ProductoVentaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,10 +17,10 @@ class UmbralVentasResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'cantidad_ventas' => $this->cantidad_ventas,
-            'vendedor' => $this->vendedor_id,
-            'vendedor_id' => $this->vendedor_id,
-            'vendedor_info'=>$this->vendedor !=null?$this->vendedor->empleado->nombres.' '.$this->vendedor->empleado->apellidos:'',
+            'bundle' => $this->bundle_id,
+            'precio' => $this->precio,
+            'plan' => $this->plan_id,
+            'plan_info'=> $this->plan->nombre
         ];
         return $modelo;
     }

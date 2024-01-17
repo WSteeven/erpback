@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('plan_id');
             $table->string('forma_pago');
             $table->decimal('comision',8,4);
+            $table->string('tipo_vendedor')->nullable();
             $table->timestamps();
             $table->foreign('plan_id')->references('id')->on('ventas_planes')->cascadeOnUpdate();
         });

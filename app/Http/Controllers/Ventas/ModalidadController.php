@@ -16,8 +16,10 @@ class ModalidadController extends Controller
     private $entidad = 'Modalidad';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.modalidad')->only('index', 'show');
-        $this->middleware('can:puede.crear.modalidad')->only('store');
+        $this->middleware('can:puede.ver.modalidades')->only('index', 'show');
+        $this->middleware('can:puede.crear.modalidades')->only('store');
+        $this->middleware('can:puede.editar.modalidades')->only('update');
+        $this->middleware('can:puede.eliminar.modalidades')->only('destroy');
     }
     public function index(Request $request)
     {

@@ -13,7 +13,7 @@ class TipoChargeback extends Model  implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_tipo_chargeback';
+    protected $table = 'ventas_tipos_chargebacks';
     protected $fillable =['nombre'];
     private static $whiteListFilter = [
         '*',

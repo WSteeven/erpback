@@ -1,14 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Ventas;
+namespace App\Http\Controllers\Venta;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Ventas\VentasResource;
-use App\Models\Ventas\ProductoVentas;
-use App\Models\Ventas\Ventas;
+use App\Http\Resources\Ventas\VentaResource;
+use App\Models\Ventas\Venta;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
@@ -25,15 +23,15 @@ class DashboardVentasController extends Controller
             // Conversion de fechas
             $fecha_inicio = Carbon::createFromFormat('d-m-Y', $fechaInicio)->format('Y-m-d');
             $fecha_fin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
-            $queryVentas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->with('vendedor', 'producto');
+            $queryVentas =  Venta::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->with('vendedor', 'producto');
             $cantidad_ventas = $queryVentas->where('vendedor_id', $idVendedor)->get()->count();
-            $cantidad_ventas_instaladas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'APROBADO')->get()->count();
-            $cantidad_ventas_por_instalar =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'PENDIENTE')->get()->count();
-            $cantidad_ventas_por_rechazadas =  Ventas::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'RECHAZADA')->get()->count();
+            $cantidad_ventas_instaladas =  Venta::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'APROBADO')->get()->count();
+            $cantidad_ventas_por_instalar =  Venta::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'PENDIENTE')->get()->count();
+            $cantidad_ventas_por_rechazadas =  Venta::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->where('vendedor_id', $idVendedor)->where('estado_activacion', 'RECHAZADA')->get()->count();
             $ventasPorEstado = $queryVentas->get();
             $ventasPorPlanes = $queryVentas->where('estado_activacion', 'APROBADO')->get();
-            $ventasPorEstado = VentasResource::collection($ventasPorEstado);
-            $graficoVentasPorEstado = Ventas::select('estado_activacion', DB::raw('COUNT(*) as total_ventas'))
+            $ventasPorEstado = VentaResource::collection($ventasPorEstado);
+            $graficoVentasPorEstado = Venta::select('estado_activacion', DB::raw('COUNT(*) as total_ventas'))
                 ->where('vendedor_id', $idVendedor)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->groupBy('estado_activacion')
@@ -46,7 +44,7 @@ class DashboardVentasController extends Controller
                 }
                 $graficoVentasPorPlanes[$planId]++;
             }
-            $ventas_mes = Ventas::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('COUNT(*) as total_ventas'))
+            $ventas_mes = Venta::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('COUNT(*) as total_ventas'))
                 ->where('created_at', '<=', Carbon::now())
                 ->where('estado_activacion', 'APROBADO')
                 ->groupBy('mes')
@@ -57,11 +55,11 @@ class DashboardVentasController extends Controller
                 $venta->mes = Utils::$meses[$mes[0]] . '-' . $mes[1];
                 return $venta;
             });
-            $ventasPorMes = Ventas::where('created_at', '<=', Carbon::now())
+            $ventasPorMes = Venta::where('created_at', '<=', Carbon::now())
             ->where('estado_activacion', 'APROBADO')
             ->get();
-            $ventasPorMes = VentasResource::collection($ventasPorMes);
-            $ventasPorPlanes = VentasResource::collection($ventasPorPlanes);
+            $ventasPorMes = VentaResource::collection($ventasPorMes);
+            $ventasPorPlanes = VentaResource::collection($ventasPorPlanes);
             // Generar data para graficos estadisticos
             $ventasPorEstadoBar = [
                 'labels' => $graficoVentasPorEstado->pluck('estado_activacion'),

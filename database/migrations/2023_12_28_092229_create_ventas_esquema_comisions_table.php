@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_esquema_comisiones', function (Blueprint $table) {
+        Schema::create('ventas_esquemas_comisiones', function (Blueprint $table) {
             $table->id();
             $table->integer('mes_liquidacion');
             $table->string('esquema_comision');
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_esquema_comisiones');
+        Schema::dropIfExists('ventas_esquemas_comisiones');
     }
 };

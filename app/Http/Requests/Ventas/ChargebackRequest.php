@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Ventas;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProductoVentasRequest extends FormRequest
+class ChargebackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,16 +25,21 @@ class ProductoVentasRequest extends FormRequest
     public function rules()
     {
         return [
-            'bundle_id'=> 'required|unique:ventas_producto_ventas,bundle_id',
-            'precio'=> 'required',
-            'plan_id'=> 'required|integer',
+
+            'venta_id' => 'required',
+            'fecha' => 'required',
+            'valor' => 'required',
+            'id_tipo_chargeback' => 'required',
+            'porcentaje' => 'nullable',
         ];
     }
     protected function prepareForValidation()
     {
+        $date = Carbon::createFromFormat('d-m-Y', $this->fecha);
         $this->merge([
-            'bundle_id' => $this->bundle,
-            'plan_id'=> $this->plan
+            'venta_id' => $this->venta,
+            'fecha' => $date->format('Y-m-d'),
+            'id_tipo_chargeback' => $this->tipo_chargeback,
         ]);
     }
 }

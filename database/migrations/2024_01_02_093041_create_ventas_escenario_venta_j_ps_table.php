@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_escenario_ventas_jp', function (Blueprint $table) {
+        Schema::create('ventas_escenarios_ventas_jp', function (Blueprint $table) {
             $table->id();
             $table->integer('numero_mes');
             $table->string('mes')->nullable();
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_escenario_venta_j_ps');
+        Schema::dropIfExists('ventas_escenarios_ventas_jp');
     }
 };

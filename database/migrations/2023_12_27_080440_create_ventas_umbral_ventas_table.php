@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_umbral_ventas', function (Blueprint $table) {
+        Schema::create('ventas_umbrales_ventas', function (Blueprint $table) {
             $table->id();
             $table->integer('cantidad_ventas')->defaultValue(0);
             $table->unsignedBigInteger('vendedor_id');
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedor')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_umbral_ventas_tables');
+        Schema::dropIfExists('ventas_umbrales_ventas');
     }
 };

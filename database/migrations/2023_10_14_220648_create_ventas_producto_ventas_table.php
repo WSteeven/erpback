@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_producto_ventas', function (Blueprint $table) {
+        Schema::create('ventas_productos_ventas', function (Blueprint $table) {
             $table->id();
             $table->string('bundle_id');
             $table->decimal('precio',8,4);
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_producto_ventas');
+        Schema::dropIfExists('ventas_productos_ventas');
     }
 };

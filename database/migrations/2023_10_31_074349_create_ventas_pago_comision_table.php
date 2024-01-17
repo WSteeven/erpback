@@ -13,15 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_pago_comision', function (Blueprint $table) {
+        Schema::create('ventas_pagos_comisiones', function (Blueprint $table) {
             $table->id();
-            $table->date('fecha');
-            $table->unsignedBigInteger('vendedor_id');
-            $table->decimal('chargeback',8,4)->nullable();
-            $table->decimal('valor',8,4);
+            $table->date('fecha_inicio')->nullable();
+            $table->date('fecha_fin')->nullable();
+            $table->unsignedBigInteger('vendedor_id')->nullable();
+            $table->decimal('chargeback', 8, 4)->nullable();
+            $table->decimal('valor', 8, 4);
             $table->timestamps();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedor')->cascadeOnDelete()->cascadeOnUpdate();
-
+            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_pago_comision');
+        Schema::dropIfExists('ventas_pagos_comisiones');
     }
 };

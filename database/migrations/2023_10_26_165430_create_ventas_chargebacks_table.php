@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('porcentaje', 8, 4)->nullable();
             $table->timestamps();
             $table->foreign('venta_id')->references('id')->on('ventas_ventas')->cascadeOnUpdate();
-            $table->foreign('id_tipo_chargeback')->references('id')->on('ventas_tipo_chargeback')->cascadeOnUpdate();
+            $table->foreign('id_tipo_chargeback')->references('id')->on('ventas_tipos_chargebacks')->cascadeOnUpdate();
 
         });
     }

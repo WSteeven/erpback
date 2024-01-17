@@ -16,8 +16,10 @@ class TipoChargebackController extends Controller
     private $entidad = 'TipoChargeBack';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipo_chargeback')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipo_chargeback')->only('store');
+        $this->middleware('can:puede.ver.tipos_chargebacks')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_chargebacks')->only('store');
+        $this->middleware('can:puede.editar.tipos_chargebacks')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_chargebacks')->only('destroy');
     }
     public function index(Request $request)
     {

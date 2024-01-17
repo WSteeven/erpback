@@ -13,7 +13,7 @@ class BonoPorcentual extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_bono_porcentuales';
+    protected $table = 'ventas_bonos_porcentuales';
     protected $fillable =['porcentaje','valor','tipo_vendedor'];
     private static $whiteListFilter = [
         '*',

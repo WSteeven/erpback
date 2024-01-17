@@ -9,17 +9,14 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Comisiones extends Model implements Auditable
+
+class Bono extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_comisiones';
-    protected $fillable =['plan_id','forma_pago','comision'];
+    protected $table = 'ventas_bonos';
+    protected $fillable =['cant_ventas','valor'];
     private static $whiteListFilter = [
         '*',
     ];
-    public function plan(){
-        return $this->hasOne(Planes::class,'id','plan_id');
-
-    }
 }

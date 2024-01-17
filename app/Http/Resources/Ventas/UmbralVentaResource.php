@@ -4,7 +4,7 @@ namespace App\Http\Resources\Ventas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ComisionesResource extends JsonResource
+class UmbralVentaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,11 +17,10 @@ class ComisionesResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'plan' => $this->plan_id,
-            'plan_info' => $this->plan!= null?$this->plan->nombre:'',
-            'forma_pago' => $this->forma_pago,
-            'comision' => $this->comision,
-            'tipo_vendedor' => $this->tipo_vendedor
+            'cantidad_ventas' => $this->cantidad_ventas,
+            'vendedor' => $this->vendedor_id,
+            'vendedor_id' => $this->vendedor_id,
+            'vendedor_info'=>$this->vendedor !=null?$this->vendedor->empleado->nombres.' '.$this->vendedor->empleado->apellidos:'',
         ];
         return $modelo;
     }

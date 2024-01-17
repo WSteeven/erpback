@@ -14,7 +14,7 @@ class EscenarioVentaJP extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_escenario_ventas_jp';
+    protected $table = 'ventas_escenarios_ventas_jp';
     protected $fillable = [
         'mes',
         'vendedores',

@@ -8,6 +8,7 @@ use App\Http\Resources\Ventas\BonoTrimestralCumplimientoResource;
 use App\Models\Ventas\Bonos;
 use App\Models\Ventas\BonoTrimestralCumplimiento;
 use App\Models\Ventas\Vendedor;
+use App\Models\Ventas\Venta;
 use App\Models\Ventas\Ventas;
 use Carbon\Carbon;
 use Exception;
@@ -21,8 +22,10 @@ class BonoTrimestralCumplimientoController extends Controller
     private $entidad = 'BonoTrimestralCumplimiento';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.bono_trimestral_cumplimiento')->only('index', 'show');
-        $this->middleware('can:puede.crear.bono_trimestral_cumplimiento')->only('store');
+        $this->middleware('can:puede.ver.bonos_trimestrales_cumplimientos')->only('index', 'show');
+        $this->middleware('can:puede.crear.bonos_trimestrales_cumplimientos')->only('store');
+        $this->middleware('can:puede.editar.bonos_trimestrales_cumplimientos')->only('update');
+        $this->middleware('can:puede.eliminar.bonos_trimestrales_cumplimientos')->only('destroy');
     }
     public function index(Request $request)
     {
@@ -103,7 +106,7 @@ class BonoTrimestralCumplimientoController extends Controller
             $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
             $year = $parts[1]; // Año
             $quarter = preg_replace('/[A-Za-z]/', '', $parts[0]); // Mes
-            $cantidad_ventas = Ventas::whereYear('fecha_activacion', $year)
+            $cantidad_ventas = Venta::whereYear('fecha_activacion', $year)
                 ->whereRaw('QUARTER(fecha_activacion) = ?', [$quarter])
                 ->where('vendedor_id', $vendedor_id)
                 ->where('estado_activacion', 'APROBADO')

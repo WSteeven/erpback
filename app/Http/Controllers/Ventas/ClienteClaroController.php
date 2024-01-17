@@ -16,8 +16,10 @@ class ClienteClaroController extends Controller
     private $entidad = 'Cliente Claro';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.cliente_claro')->only('index', 'show');
-        $this->middleware('can:puede.crear.cliente_claro')->only('store');
+        $this->middleware('can:puede.ver.clientes_claro')->only('index', 'show');
+        $this->middleware('can:puede.crear.clientes_claro')->only('store');
+        $this->middleware('can:puede.editar.clientes_claro')->only('update');
+        $this->middleware('can:puede.eliminar.clientes_claro')->only('destroy');
     }
     public function index(Request $request)
     {

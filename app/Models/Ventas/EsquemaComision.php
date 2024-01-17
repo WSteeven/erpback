@@ -14,7 +14,7 @@ class EsquemaComision extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_esquema_comisiones';
+    protected $table = 'ventas_esquemas_comisiones';
     protected $fillable =['mes_liquidacion','esquema_comision','tarifa_basica'];
     private static $whiteListFilter = [
         '*',

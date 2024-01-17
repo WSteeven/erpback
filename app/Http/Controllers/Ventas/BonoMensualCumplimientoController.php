@@ -7,12 +7,10 @@ use App\Http\Requests\Ventas\BonoMensualCumplimientoRequest;
 use App\Http\Resources\Ventas\BonoMensualCumplimientoResource;
 use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\BonoPorcentual;
-use App\Models\Ventas\Bonos;
-use App\Models\Ventas\Modalidad;
-use App\Models\Ventas\UmbralVentas;
+use App\Models\Ventas\Bono;
+use App\Models\Ventas\UmbralVenta;
 use App\Models\Ventas\Vendedor;
-use App\Models\Ventas\Ventas;
-use Carbon\Carbon;
+use App\Models\Ventas\Venta;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,11 +19,13 @@ use Src\Shared\Utils;
 
 class BonoMensualCumplimientoController extends Controller
 {
-    private $entidad = 'BonoMensualCumplimiento';
+    private $entidad = 'Bono Mensual de Cumplimiento';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.bono_mensual_cumplimiento')->only('index', 'show');
-        $this->middleware('can:puede.crear.bono_mensual_cumplimiento')->only('store');
+        $this->middleware('can:puede.ver.bonos_mensuales_cumplimientos')->only('index', 'show');
+        $this->middleware('can:puede.crear.bonos_mensuales_cumplimientos')->only('store');
+        $this->middleware('can:puede.editar.bonos_mensuales_cumplimientos')->only('update');
+        $this->middleware('can:puede.eliminar.bonos_mensuales_cumplimientos')->only('destroy');
     }
     public function index(Request $request)
     {
@@ -112,11 +112,11 @@ class BonoMensualCumplimientoController extends Controller
             DB::beginTransaction();
             $valor = null;
             if ($vendedor->tipo_vendedor == "VENDEDOR") {
-                $bono =  Bonos::where('cant_ventas', '<=', $suma_ventas)
+                $bono =  Bono::where('cant_ventas', '<=', $suma_ventas)
                     ->first();
                 $valor = $bono;
             } else {
-                $meta_ventas = UmbralVentas::where('vendedor_id', $vendedor->id)->first();
+                $meta_ventas = UmbralVenta::where('vendedor_id', $vendedor->id)->first();
                 $cantidad_ventas = $meta_ventas == !null ? $meta_ventas->cantidad_ventas : 1;
                 $porcentaje =  $suma_ventas / $cantidad_ventas;
                 $bono_porcentual = BonoPorcentual::where('porcentaje', '<=',($porcentaje*100))->where('porcentaje','>',0)->orderBy('id','desc')->first();
@@ -142,14 +142,14 @@ class BonoMensualCumplimientoController extends Controller
             $year = $parts[0]; // Año
             $month = $parts[1]; // Mes
             if ($vendedor->tipo_vendedor == 'VENDEDOR') {
-                $cantidad_ventas = Ventas::whereYear('fecha_activacion', $year)
+                $cantidad_ventas = Venta::whereYear('fecha_activacion', $year)
                     ->whereMonth('fecha_activacion', $month)
                     ->where('estado_activacion','APROBADO')
                     ->where('vendedor_id', $vendedor_id)
                     ->get()
                     ->count();
             } else {
-                $cantidad_ventas = Ventas::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
+                $cantidad_ventas = Venta::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
                     ->whereYear('fecha_activacion', $year)
                     ->whereMonth('fecha_activacion', $month)
                     ->where('estado_activacion','APROBADO')

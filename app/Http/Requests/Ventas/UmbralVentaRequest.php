@@ -4,7 +4,7 @@ namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BonosRequest extends FormRequest
+class UmbralVentaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,14 @@ class BonosRequest extends FormRequest
     public function rules()
     {
         return [
-            'cant_ventas'=> 'required|integer',
-            'valor'=> 'required|integer',
+            'cantidad_ventas'=> 'required',
+            'vendedor_id'=> 'required|integer',
         ];
+    }
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'vendedor_id'=> $this->vendedor,
+        ]);
     }
 }

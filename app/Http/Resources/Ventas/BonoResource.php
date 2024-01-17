@@ -4,7 +4,7 @@ namespace App\Http\Resources\Ventas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ChargebacksResource extends JsonResource
+class BonoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,15 +17,8 @@ class ChargebacksResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'venta_id' => $this->venta_id,
-            'venta' => $this->venta_id,
-            'venta_info' => $this->venta->orden_interna,
-            'fecha' => $this->fecha,
+            'cant_ventas' => $this->cant_ventas,
             'valor' => $this->valor,
-            'id_tipo_chargeback' => $this->id_tipo_chargeback,
-            'tipo_chargeback' => $this->id_tipo_chargeback,
-            'tipo_chargeback_info' => $this->tipo_chargeback->nombre,
-            'porcentaje' => $this->porcentaje
         ];
         return $modelo;
     }
