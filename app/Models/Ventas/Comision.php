@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Comisiones extends Model implements Auditable
+class Comision extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
@@ -19,7 +19,7 @@ class Comisiones extends Model implements Auditable
         '*',
     ];
     public function plan(){
-        return $this->hasOne(Planes::class,'id','plan_id');
+        return $this->hasOne(Plan::class,'id','plan_id');
 
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Resources\Ventas;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VentasResource extends JsonResource
+class VentaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

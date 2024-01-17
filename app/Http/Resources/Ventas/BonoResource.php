@@ -4,7 +4,7 @@ namespace App\Http\Resources\Ventas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ComisionesResource extends JsonResource
+class BonoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,11 +17,8 @@ class ComisionesResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'plan' => $this->plan_id,
-            'plan_info' => $this->plan!= null?$this->plan->nombre:'',
-            'forma_pago' => $this->forma_pago,
-            'comision' => $this->comision,
-            'tipo_vendedor' => $this->tipo_vendedor
+            'cant_ventas' => $this->cant_ventas,
+            'valor' => $this->valor,
         ];
         return $modelo;
     }

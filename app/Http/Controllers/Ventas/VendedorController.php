@@ -17,8 +17,10 @@ class VendedorController extends Controller
     private $entidad = 'Vendedor';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.vendedor')->only('index', 'show');
-        $this->middleware('can:puede.crear.vendedor')->only('store');
+        $this->middleware('can:puede.ver.vendedores')->only('index', 'show');
+        $this->middleware('can:puede.crear.vendedores')->only('store');
+        $this->middleware('can:puede.editar.vendedores')->only('update');
+        $this->middleware('can:puede.eliminar.vendedores')->only('destroy');
     }
     public function index(Request $request)
     {

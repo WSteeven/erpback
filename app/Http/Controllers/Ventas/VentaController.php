@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Ventas;
+namespace App\Http\Controllers\Venta;
 
 use App\Exports\Ventas\ReportePagoExport;
 use App\Exports\Ventas\ReporteValoresCobrarExport;
 use App\Exports\Ventas\ReporteVentasExport;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Ventas\VentasRequest;
-use App\Http\Resources\Ventas\VentasResource;
+use App\Http\Controllers\Ventas\EsquemaComisionController;
+use App\Http\Requests\Ventas\VentaRequest;
+use App\Http\Resources\Ventas\VentaResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\BonoTrimestralCumplimiento;
 use App\Models\Ventas\Chargeback;
-use App\Models\Ventas\Comisiones;
 use App\Models\Ventas\PagoComision;
-use App\Models\Ventas\Ventas;
+use App\Models\Ventas\Venta;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -23,34 +23,36 @@ use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 use Maatwebsite\Excel\Facades\Excel;
 
-class VentasController extends Controller
+class VentaController extends Controller
 {
-    private $entidad = 'Ventas';
+    private $entidad = 'Venta';
     public function __construct()
     {
         $this->middleware('can:puede.ver.ventas')->only('index', 'show');
         $this->middleware('can:puede.crear.ventas')->only('store');
+        $this->middleware('can:puede.editar.ventas')->only('update');
+        $this->middleware('can:puede.eliminar.ventas')->only('destroy');
     }
     public function index(Request $request)
     {
         $results = [];
-        $results = Ventas::ignoreRequest(['campos'])->filter()->get();
-        $results = VentasResource::collection($results);
+        $results = Venta::ignoreRequest(['campos'])->filter()->get();
+        $results = VentaResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Ventas $venta)
+    public function show(Request $request, Venta $venta)
     {
-        $modelo = new VentasResource($venta);
+        $modelo = new VentaResource($venta);
         return response()->json(compact('modelo'));
     }
 
-    public function store(VentasRequest $request)
+    public function store(VentaRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $venta = Ventas::create($datos);
-            $modelo = new VentasResource($venta);
+            $venta = Venta::create($datos);
+            $modelo = new VentaResource($venta);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -59,13 +61,13 @@ class VentasController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function update(VentasRequest $request, Ventas $venta)
+    public function update(VentaRequest $request, Venta $venta)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $venta->update($datos);
-            $modelo = new VentasResource($venta->refresh());
+            $modelo = new VentaResource($venta->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -74,7 +76,7 @@ class VentasController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function destroy(Request $request, Ventas $venta)
+    public function destroy(Request $request, Venta $venta)
     {
         $venta->delete();
         return response()->json(compact('venta'));
@@ -86,7 +88,7 @@ class VentasController extends Controller
             DB::beginTransaction();
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-            $ventas = Ventas::select(
+            $ventas = Venta::select(
                 DB::raw('MONTHNAME(fecha_activacion) AS mes'),
                 DB::raw('COUNT(*) as cantidad_ventas'),
                 DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
@@ -98,7 +100,7 @@ class VentasController extends Controller
                 ->groupBy('mes')
                 ->orderBy('mes', 'ASC')
                 ->get();
-            $ventas_tc = Ventas::select(
+            $ventas_tc = Venta::select(
                 DB::raw('MONTHNAME(fecha_activacion) AS mes'),
                 DB::raw('COUNT(*) as cantidad_ventas'),
                 DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
@@ -224,9 +226,9 @@ class VentasController extends Controller
             $nombreMes = $meses[$mes - 1];
             // Concatenar los componentes de la fecha
             $fechaConvertida = "$nombreMes DEL $anio";
-            $ventas = Ventas::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto','cliente')->get();
+            $ventas = Venta::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto','cliente')->get();
             Log::channel('testing')->info('Log', [compact('ventas')]);
-            $reportes = Ventas::empaquetarVentas($ventas);
+            $reportes = Venta::empaquetarVenta($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
             $export_excel = new ReporteVentasExport(compact('reportes', 'config', 'fechaConvertida'));

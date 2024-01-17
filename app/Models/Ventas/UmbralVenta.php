@@ -9,17 +9,15 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class ProductoVentas extends Model implements Auditable
+class UmbralVenta extends Model implements Auditable
 {
-    use HasFactory;
-    use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_productos_ventas';
-    protected $fillable =['bundle_id','precio','plan_id'];
+   use AuditableModel, UppercaseValuesTrait, Filterable;
+    protected $table = 'ventas_umbrales_ventas';
+    protected $fillable =['cantidad_ventas','vendedor_id'];
     private static $whiteListFilter = [
         '*',
     ];
-    public function plan(){
-        return $this->hasOne(Planes::class,'id','plan_id');
-
+    public function vendedor(){
+        return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
     }
 }

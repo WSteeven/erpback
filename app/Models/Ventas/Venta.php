@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-class Ventas  extends Model implements Auditable
+class Venta  extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
@@ -25,10 +25,10 @@ class Ventas  extends Model implements Auditable
         return $this->hasOne(ClienteClaro::class,'id','cliente_id');
     }
     public function producto(){
-        return $this->hasOne(ProductoVentas::class,'id','producto_id')->with('plan');
+        return $this->hasOne(ProductoVenta::class,'id','producto_id')->with('plan');
     }
     public function comision(){
-        return $this->hasOne(Comisiones::class,'id','comision_id');
+        return $this->hasOne(Comision::class,'id','comision_id');
     }
 
     public static function empaquetarVentas($ventas)

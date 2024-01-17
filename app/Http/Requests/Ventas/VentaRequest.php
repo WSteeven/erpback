@@ -2,14 +2,14 @@
 
 namespace App\Http\Requests\Ventas;
 
-use App\Models\Ventas\Comisiones;
-use App\Models\Ventas\ProductoVentas;
+use App\Models\Ventas\Comision;
+use App\Models\Ventas\ProductoVenta;
 use App\Models\Ventas\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
-class VentasRequest extends FormRequest
+class VentaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -49,8 +49,8 @@ class VentasRequest extends FormRequest
         $vendedor = Vendedor::where('id', $this->vendedor_id)->first();
         $tipo_vendedor = $vendedor !== null ?$vendedor->tipo_vendedor:'VENDEDOR';
 
-        $producto = ProductoVentas::where('id', $this->producto)->first();
-        $comision = Comisiones::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->where('tipo_vendedor', $tipo_vendedor)->first();
+        $producto = ProductoVenta::where('id', $this->producto)->first();
+        $comision = Comision::where('plan_id', $producto->plan_id)->where('forma_pago', $this->forma_pago)->where('tipo_vendedor', $tipo_vendedor)->first();
         $chargeback = $this->chargeback !== null ? $this->chargeback : 0;
         $comision_valor = floatval($comision != null ? $comision->comision : 0);
         $comision_total = $this->estado_activacion == 'APROBADO' ? ($producto->precio * $comision_valor) / 100 : 0;

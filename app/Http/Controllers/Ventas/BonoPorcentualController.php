@@ -16,8 +16,10 @@ class BonoPorcentualController extends Controller
     private $entidad = 'BonoPorcentual';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.bono_porcentual')->only('index', 'show');
-        $this->middleware('can:puede.crear.bono_porcentual')->only('store');
+        $this->middleware('can:puede.ver.bonos_porcentuales')->only('index', 'show');
+        $this->middleware('can:puede.crear.bonos_porcentuales')->only('store');
+        $this->middleware('can:puede.editar.bonos_porcentuales')->only('update');
+        $this->middleware('can:puede.eliminar.bonos_porcentuales')->only('destroy');
     }
     public function index(Request $request)
     {

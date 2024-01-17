@@ -16,8 +16,10 @@ class EsquemaComisionController extends Controller
     private $entidad = 'Esquema Comision';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.esquema_comision')->only('index', 'show');
-        $this->middleware('can:puede.crear.esquema_comision')->only('store');
+        $this->middleware('can:puede.ver.esquemas_comisiones')->only('index', 'show');
+        $this->middleware('can:puede.crear.esquemas_comisiones')->only('store');
+        $this->middleware('can:puede.editar.esquemas_comisiones')->only('update');
+        $this->middleware('can:puede.eliminar.esquemas_comisiones')->only('destroy');
     }
     public function index(Request $request)
     {

@@ -17,8 +17,10 @@ class ChargebackController extends Controller
     private $entidad = 'ChargeBack';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.Chargeback')->only('index', 'show');
-        $this->middleware('can:puede.crear.Chargeback')->only('store');
+        $this->middleware('can:puede.ver.chargebacks')->only('index', 'show');
+        $this->middleware('can:puede.crear.chargebacks')->only('store');
+        $this->middleware('can:puede.editar.chargebacks')->only('update');
+        $this->middleware('can:puede.eliminar.chargebacks')->only('destroy');
     }
     public function index(Request $request)
     {

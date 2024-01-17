@@ -16,8 +16,10 @@ class EscenarioVentaJPController extends Controller
     private $entidad = 'Esenario Venta';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.escenario_venta_jp')->only('index', 'show');
-        $this->middleware('can:puede.crear.escenario_venta_jp')->only('store');
+        $this->middleware('can:puede.ver.escenarios_ventas_jp')->only('index', 'show');
+        $this->middleware('can:puede.crear.escenarios_ventas_jp')->only('store');
+        $this->middleware('can:puede.editar.escenarios_ventas_jp')->only('update');
+        $this->middleware('can:puede.eliminar.escenarios_ventas_jp')->only('destroy');
     }
     public function index(Request $request)
     {

@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Ventas\Bonos;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Ventas\Bono;
 use Illuminate\Database\Seeder;
 
 class BonosSeeder extends Seeder
@@ -15,7 +14,7 @@ class BonosSeeder extends Seeder
      */
     public function run()
     {
-        Bonos::insert([
+        Bono::insert([
             ['cant_ventas' => 6,'valor'=>20],
             ['cant_ventas' => 12,'valor'=>50],
             ['cant_ventas' => 16,'valor'=>75],

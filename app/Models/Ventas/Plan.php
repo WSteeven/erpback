@@ -9,14 +9,14 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
-
-class Bonos extends Model implements Auditable
+class Plan extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_bonos';
-    protected $fillable =['cant_ventas','valor'];
+    protected $table = 'ventas_planes';
+    protected $fillable =['nombre'];
     private static $whiteListFilter = [
         '*',
     ];
+
 }

@@ -7,12 +7,14 @@ use App\Http\Requests\Ventas\PagoComisionRequest;
 use App\Http\Resources\Ventas\PagoComisionResource;
 use App\Models\Producto;
 use App\Models\Ventas\Chargeback;
+use App\Models\Ventas\Comision;
 use App\Models\Ventas\Comisiones;
 use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\PagoComision;
+use App\Models\Ventas\ProductoVenta;
 use App\Models\Ventas\ProductoVentas;
 use App\Models\Ventas\Vendedor;
-use App\Models\Ventas\Ventas;
+use App\Models\Ventas\Venta;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,8 +27,10 @@ class PagoComisionController extends Controller
     private $entidad = 'PagoComision';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.pago_comision')->only('index', 'show');
-        $this->middleware('can:puede.crear.pago_comision')->only('store');
+        $this->middleware('can:puede.ver.pagos_comisiones')->only('index', 'show');
+        $this->middleware('can:puede.crear.pagos_comisiones')->only('store');
+        $this->middleware('can:puede.editar.pagos_comisiones')->only('update');
+        $this->middleware('can:puede.eliminar.pagos_comisiones')->only('destroy');
     }
     public function index(Request $request)
     {
@@ -91,7 +95,7 @@ class PagoComisionController extends Controller
             DB::beginTransaction();
             $pago_comision = PagoComision::where('vendedor_id', $vendedor_id)->get()->count();
             $limite_venta = 0;
-            $query_ventas = Ventas::whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
+            $query_ventas = Venta::whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
                 ->where('estado_activacion', 'APROBADO')
                 ->where('vendedor_id', $vendedor_id);
             $comisiones = null;
@@ -103,7 +107,7 @@ class PagoComisionController extends Controller
                 $comisiones = $query_ventas->get();
             }
             $ids = $comisiones->pluck('id');
-            Ventas::whereIn('id', $ids)->update([
+            Venta::whereIn('id', $ids)->update([
                 'pago' => true,
             ]);
             DB::commit();
@@ -131,11 +135,11 @@ class PagoComisionController extends Controller
             } else {
                 $ventas = $pago_comision['ventas']->orderBy('ventas_ventas.id')->get();
                 $comisiones = array_reduce($ventas->toArray(), function ($carry, $item) use ($vendedor) {
-                    $plan = ProductoVentas::select('plan_id')->where('id', $item['producto_id'])->first();
+                    $plan = ProductoVenta::select('plan_id')->where('id', $item['producto_id'])->first();
                     $plan = $plan != null ? $plan->plan_id : 0;
                     $forma_pago = $item['forma_pago'];
                     $tipo_vendedor = $vendedor->tipo_vendedor;
-                    $comision_pagar = Comisiones::where('forma_pago', $forma_pago)->where('plan_id', $plan)->where('tipo_vendedor', $tipo_vendedor)->first();
+                    $comision_pagar = Comision::where('forma_pago', $forma_pago)->where('plan_id', $plan)->where('tipo_vendedor', $tipo_vendedor)->first();
                     $comision_pagar =  $comision_pagar != null ? $comision_pagar->comision : 0;
                     return $carry + $comision_pagar;
                 }, 0);
@@ -152,7 +156,7 @@ class PagoComisionController extends Controller
     {
         try {
             DB::beginTransaction();
-            $ventas = Ventas::whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin]);
+            $ventas = Venta::whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin]);
             $comisiones = PagoComision::where('fecha_inicio', $fecha_inicio)->where('fecha_fin', $fecha_fin);
             $pago_comision = null;
             if ($vendedor->tipo_vendedor == 'VENDEDOR') {
@@ -165,7 +169,7 @@ class PagoComisionController extends Controller
                     ->where('fecha_fin', $fecha_fin)
                     ->get()
                     ->count();
-                $ventas = Ventas::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
+                $ventas = Venta::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
                     ->where('ventas_vendedor.jefe_inmediato_id', $empleado_id)
                     ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin]);
             }
