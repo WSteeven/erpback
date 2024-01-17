@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('ventas_vendedor', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_vendedor');
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('modalidad_id');
             $table->timestamps();

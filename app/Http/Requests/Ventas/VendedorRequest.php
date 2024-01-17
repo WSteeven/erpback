@@ -24,7 +24,6 @@ class VendedorRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo_vendedor'=> 'required',
             'empleado_id'=> 'required|integer',
             'modalidad_id'=> 'required|integer',
             'tipo_vendedor'=> 'required',

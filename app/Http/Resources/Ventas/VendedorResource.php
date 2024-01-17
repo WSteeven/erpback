@@ -17,7 +17,6 @@ class VendedorResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'codigo_vendedor' => $this->codigo_vendedor,
             'empleado' => $this->empleado_id,
             'empleado_id' => $this->empleado_id,
             'empleado_info'=>$this->empleado !=null?$this->empleado->nombres.''.$this->empleado->apellidos:'',
