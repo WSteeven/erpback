@@ -13,7 +13,7 @@ class Modalidad extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_modalidad';
+    protected $table = 'ventas_modalidades';
     protected $fillable =['nombre','umbral_minimo'];
     private static $whiteListFilter = [
         '*',

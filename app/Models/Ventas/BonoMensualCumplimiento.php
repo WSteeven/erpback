@@ -13,7 +13,7 @@ class BonoMensualCumplimiento extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_bono_mensual_cumplimiento';
+    protected $table = 'ventas_bonos_mensuales_cumplimientos';
     protected $fillable = [
         'vendedor_id',
         'cant_ventas',

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_tipo_chargeback', function (Blueprint $table) {
+        Schema::create('ventas_tipos_chargebacks', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
             $table->timestamps();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_tipo_chargeback');
+        Schema::dropIfExists('ventas_tipos_chargebacks');
     }
 };

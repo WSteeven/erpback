@@ -11,7 +11,7 @@ use App\Http\Resources\Ventas\VentasResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\BonoTrimestralCumplimiento;
-use App\Models\Ventas\Chargebacks;
+use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\Comisiones;
 use App\Models\Ventas\PagoComision;
 use App\Models\Ventas\Ventas;
@@ -258,13 +258,13 @@ class VentasController extends Controller
                 ->where('vendedor_id', $request->vendedor)
                 ->groupBy('mes')
                 ->get();
-            $chargebacks = Chargebacks::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_chargeback'))
-                ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
+            $Chargeback = Chargeback::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_chargeback'))
+                ->join('ventas_ventas', 'ventas_Chargeback.venta_id', '=', 'ventas_ventas.id')
                 ->where('ventas_ventas.vendedor_id', $request->vendedor)
-                ->whereBetween('ventas_chargebacks.fecha', [$fecha_inicio, $fecha_fin])
+                ->whereBetween('ventas_Chargeback.fecha', [$fecha_inicio, $fecha_fin])
                 ->groupBy('mes')
                 ->get();
-            $data = compact('bonosMensuales', 'bonosTrimestrales', 'comisiones', 'chargebacks');
+            $data = compact('bonosMensuales', 'bonosTrimestrales', 'comisiones', 'Chargeback');
             $reportes = [];
             $bmc = 0;
             $btc = 0;
@@ -286,7 +286,7 @@ class VentasController extends Controller
                         'bmc' => $bmc,
                         'btc' => $btc,
                         'total_comisiones' => $totalComisiones,
-                        'chargebacks' => $totalChargeback,
+                        'Chargeback' => $totalChargeback,
                         'ingresos' => $ingresos,
                         'egresos' => $egresos,
                         'total_a_pagar' => $total

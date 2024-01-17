@@ -4,7 +4,7 @@ namespace App\Http\Resources\Ventas;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ChargebacksResource extends JsonResource
+class ChargebackResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

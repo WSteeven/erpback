@@ -12,7 +12,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 class UmbralVentas extends Model implements Auditable
 {
    use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_umbral_ventas';
+    protected $table = 'ventas_umbrales_ventas';
     protected $fillable =['cantidad_ventas','vendedor_id'];
     private static $whiteListFilter = [
         '*',

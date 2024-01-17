@@ -4,7 +4,7 @@ use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
 use App\Http\Controllers\Ventas\BonoPorcentualController;
 use App\Http\Controllers\Ventas\BonosController;
 use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
-use App\Http\Controllers\Ventas\ChargebacksController;
+use App\Http\Controllers\Ventas\ChargebackController;
 use App\Http\Controllers\Ventas\ClienteClaroController;
 use App\Http\Controllers\Ventas\ComisionesController;
 use App\Http\Controllers\Ventas\DashboardVentasController;
@@ -32,7 +32,7 @@ Route::apiResources(
         'vendedor' => VendedorController::class,
         'ventas' => VentasController::class,
         'tipo-chargeback' => TipoChargebackController::class,
-        'chargebacks' => ChargebacksController::class,
+        'chargebacks' => ChargebackController::class,
         'pago-comision' => PagoComisionController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,

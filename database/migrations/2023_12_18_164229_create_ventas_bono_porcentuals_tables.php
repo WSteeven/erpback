@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_bono_porcentuales', function (Blueprint $table) {
+        Schema::create('ventas_bonos_porcentuales', function (Blueprint $table) {
             $table->id();
             $table->integer('porcentaje');
             $table->decimal('comision',10,2);
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_bono_porcentuales_tables');
+        Schema::dropIfExists('ventas_bonos_porcentuales');
     }
 };

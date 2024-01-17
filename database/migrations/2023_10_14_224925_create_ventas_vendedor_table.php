@@ -13,13 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_vendedor', function (Blueprint $table) {
+        Schema::create('ventas_vendedores', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('modalidad_id');
+            $table->string('tipo_vendedor')->nullable();
+            $table->unsignedBigInteger('jefe_inmediato_id')->nullable();
             $table->timestamps();
+            
+            $table->foreign('jefe_inmediato_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('empleado_id', 'fk_empleado_vendedor_id')->references('id')->on('empleados')->cascadeOnUpdate();
-            $table->foreign('modalidad_id', 'fk_modalidad_id')->references('id')->on('ventas_modalidad')->cascadeOnUpdate();
+            $table->foreign('modalidad_id', 'fk_modalidad_id')->references('id')->on('ventas_modalidades')->cascadeOnUpdate();
         });
     }
 
@@ -30,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_vendedor');
+        Schema::dropIfExists('ventas_vendedores');
     }
 };

@@ -13,7 +13,7 @@ class ProductoVentas extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_producto_ventas';
+    protected $table = 'ventas_productos_ventas';
     protected $fillable =['bundle_id','precio','plan_id'];
     private static $whiteListFilter = [
         '*',

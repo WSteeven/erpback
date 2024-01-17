@@ -13,7 +13,7 @@ class PagoComision extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
-    protected $table = 'ventas_pago_comision';
+    protected $table = 'ventas_pagos_comisiones';
     protected $fillable =['fecha_inicio','fecha_fin','vendedor_id','chargeback','valor','pago'];
     private static $whiteListFilter = [
         '*',

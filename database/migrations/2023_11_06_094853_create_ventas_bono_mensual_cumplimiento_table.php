@@ -13,16 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ventas_bono_mensual_cumplimiento', function (Blueprint $table) {
+        Schema::create('ventas_bonos_mensuales_cumplimientos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('vendedor_id');
+            $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->integer('cant_ventas');
             $table->string('mes',7);
-            $table->unsignedBigInteger('bono_id')->nullable();
             $table->decimal('valor',8,4);
+            $table->string('bono_type')->nullable();
+            $table->unsignedBigInteger('bono_id')->nullable();
             $table->timestamps();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedor')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('bono_id')->references('id')->on('ventas_bonos')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ventas_bono_mensual_cumplimiento');
+        Schema::dropIfExists('ventas_bonos_mensuales_cumplimientos');
     }
 };

@@ -126,7 +126,7 @@ class ProductosClaroSeeder extends Seeder
 
     ];
     foreach ($datos as $fila) {
-        DB::insert('INSERT INTO `ventas_producto_ventas` (`bundle_id`, `precio`,  `plan_id`, `created_at`,  `updated_at`) VALUES(?,?,?,?,?)', $fila);
+        DB::insert('INSERT INTO `ventas_productos_ventas` (`bundle_id`, `precio`,  `plan_id`, `created_at`,  `updated_at`) VALUES(?,?,?,?,?)', $fila);
     }
     }
 }

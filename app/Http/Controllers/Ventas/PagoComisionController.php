@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\PagoComisionRequest;
 use App\Http\Resources\Ventas\PagoComisionResource;
 use App\Models\Producto;
-use App\Models\Ventas\Chargebacks;
+use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\Comisiones;
 use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\PagoComision;
@@ -61,10 +61,10 @@ class PagoComisionController extends Controller
             DB::beginTransaction();
             $vendedor = Vendedor::get();
             foreach ($vendedor as $vendedor) {
-                $chargeback = Chargebacks::select(DB::raw('SUM(valor) AS total_chargeback'))
-                    ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
+                $chargeback = Chargeback::select(DB::raw('SUM(valor) AS total_chargeback'))
+                    ->join('ventas_ventas', 'ventas_Chargeback.venta_id', '=', 'ventas_ventas.id')
                     ->where('ventas_ventas.vendedor_id', $vendedor->id)
-                    ->whereBetween('ventas_chargebacks.fecha', [$fecha_inicio, $fecha_fin])
+                    ->whereBetween('ventas_Chargeback.fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $comisiones = $this->calcular_comisiones($vendedor->empleado_id, $fecha_inicio, $fecha_fin);
                 PagoComision::create([
