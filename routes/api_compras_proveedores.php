@@ -11,6 +11,7 @@ use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
+use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\ProveedorController;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use Illuminate\Support\Facades\Route;
@@ -91,4 +92,5 @@ Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consoli
  * Dashboard
  ***********/
 Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
+Route::get('empleados-ordenes', [EmpleadoController::class, 'empleadosConOrdenes']);
 // Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);

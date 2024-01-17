@@ -479,4 +479,12 @@ class EmpleadoController extends Controller
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }
+
+
+    public function empleadosConOrdenes(Request $request){
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = Empleado::has('ordenesCompras')->ignoreRequest(['campos'])->filter()->get($campos);
+
+        return EmpleadoResource::collection($empleados);
+    }
 }

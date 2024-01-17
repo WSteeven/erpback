@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
@@ -385,6 +386,10 @@ class Empleado extends Model implements Auditable
     }
     public function egresoRolPago(){
         return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
+    }
+    
+    public function ordenesCompras(){
+        return $this->hasMany(OrdenCompra::class, 'solicitante_id');
     }
 
     public static function empaquetarListado($empleados)
