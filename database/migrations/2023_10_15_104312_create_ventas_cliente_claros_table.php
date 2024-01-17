@@ -18,6 +18,9 @@ return new class extends Migration
             $table->string('identificacion');
             $table->string('nombres');
             $table->string('apellidos');
+            $table->text('direccion');
+            $table->string('telefono1');
+            $table->string('telefono2')->nullable();
             $table->timestamps();
         });
     }

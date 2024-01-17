@@ -25,8 +25,17 @@ class VendedorController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = Vendedor::ignoreRequest(['campos'])->filter()->with('jefe_inmediato')->get();
-         $results = VendedorResource::collection($results);
+        Log::channel('testing')->info('Log', ['supervisor', $request->supervisor]);
+
+        if ($request->supervisor === true) {
+            Log::channel('testing')->info('Log', ['supervisor']);
+            $results = Vendedor::ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
+        } else {
+            Log::channel('testing')->info('Log', ['vendedor']);
+            $results = Vendedor::where('tipo_vendedor', '!=', Vendedor::SUPERVISOR_VENTAS)->ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
+        }
+
+        $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
     }
     public function show(Request $request, Vendedor $vendedor)
