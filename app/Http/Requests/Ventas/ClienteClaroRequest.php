@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Src\Shared\ValidarIdentificacion;
 
 class ClienteClaroRequest extends FormRequest
 {
@@ -28,5 +29,14 @@ class ClienteClaroRequest extends FormRequest
             'nombres'=> 'required',
             'apellidos'=> 'required',
         ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $validador = new ValidarIdentificacion();
+            if (!$validador->validarCedula($this->identificacion)) {
+                $validator->errors()->add('identificacion', 'La identificación no pudo ser validada, verifica que sea una cédula válida');
+            }
+        });
     }
 }

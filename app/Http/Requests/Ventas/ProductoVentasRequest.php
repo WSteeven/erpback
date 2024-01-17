@@ -24,7 +24,7 @@ class ProductoVentasRequest extends FormRequest
     public function rules()
     {
         return [
-            'bundle_id'=> 'required',
+            'bundle_id'=> 'required|unique:ventas_producto_ventas,bundle_id',
             'precio'=> 'required',
             'plan_id'=> 'required|integer',
         ];
