@@ -429,8 +429,6 @@ class GastoController extends Controller
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-                Log::channel('testing')->info('Log', ['error',  $reporte]);
-
             $subtotal = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
@@ -450,7 +448,6 @@ class GastoController extends Controller
                 'tipo_reporte' => $tipo_reporte,
                 'subtotal' => $subtotal,
                 'DateAndTime' => $DateAndTime
-
             ];
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             $vista = 'exports.reportes.reporte_autorizaciones';

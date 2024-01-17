@@ -250,6 +250,12 @@
                 <td width="24%" bgcolor="#a9d08e">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                 </td>
+                <td width="24%" bgcolor="#a9d08e">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td width="24%" bgcolor="#a9d08e">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
                 <td width="10%" bgcolor="#a9d08e">
                     <div align="center"><strong>CANT.</strong></div>
                 </td>
@@ -310,6 +316,8 @@
                         <td style="font-size:10px;word-wrap: break-word;">
                             <div align="center">{{ $dato->observacion }}</div>
                         </td>
+                        <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
+                        <td style="font-size:10px">{{ $dato['sub_centro_costo'] }}</td>
                         <td style="font-size:10px">
                             <div align="center">{{ $dato->cantidad }}</div>
                         </td>
@@ -326,7 +334,7 @@
             @endif
             <tr>
                 <td>&nbsp;</td>
-                <td colspan="10" style="font-size:10px">
+                <td colspan="12" style="font-size:10px">
                     <div align="right"><strong>SUB TOTAL:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
@@ -335,7 +343,7 @@
             </tr>
             <tr>
                 <td>&nbsp;</td>
-                <td colspan="10" style="font-size:10px">
+                <td colspan="12" style="font-size:10px">
                     <div align="right"><strong>TOTAL:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
