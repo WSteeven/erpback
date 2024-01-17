@@ -3,6 +3,8 @@
 namespace App\Console;
 
 use App\Jobs\AnularProformaJob;
+use App\Jobs\Bodega\NotificarPedidoParcial;
+use App\Jobs\Bodega\NotificarPedidoParcialJob;
 use App\Jobs\MyJobExample;
 use App\Jobs\NotificarPermisoJob;
 use App\Jobs\NotificarVacacionesJob;
@@ -26,6 +28,8 @@ class Kernel extends ConsoleKernel
         $schedule->job(new RechazarGastoJob)->monthly();
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
         $schedule->job(new NotificarPermisoJob)->dailyAt('09:00');
+        $schedule->job(new NotificarPedidoParcialJob)->dailyAt('08:00');
+        // $schedule->job(new NotificarPedidoParcialJob)->everyMinute();
 
         // $schedule->job(new MyJobExample)->dailyAt('08:00'); // Execute job every
 
