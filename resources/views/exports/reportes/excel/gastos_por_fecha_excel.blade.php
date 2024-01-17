@@ -163,44 +163,48 @@
                         </tr>
                         <tr>
                             <td>
-                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
-                                    style="margin-top:8 ">
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
                                     <tr>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="5%" bgcolor="#a9d08e">
                                             <div align="center"><strong>N&deg;</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="15%" bgcolor="#a9d08e">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="17%" bgcolor="#a9d08e">
                                             <div align="center"><strong>TAREA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="20%" bgcolor="#a9d08e">
                                             <div align="center"><strong># FACTURA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="20%" bgcolor="#a9d08e">
                                             <div align="center"><strong>RUC</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
-                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong>
-                                            </div>
+                                        <td width="35%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>AUTORIZACION ESPECIAL</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="25%" bgcolor="#a9d08e">
                                             <div align="center"><strong>DETALLE</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="25%" bgcolor="#a9d08e">
                                             <div align="center"><strong>SUB DETALLE</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="24%" bgcolor="#a9d08e">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="24%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                                        </td>
+                                        <td width="24%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                                        </td>
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>CANT.</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>V. UNI.</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>TOTAL</strong></div>
                                         </td>
                                     </tr>
@@ -220,7 +224,7 @@
                                                     <div align="center">{{ $dato->id }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->fecha }}</div>
+                                                    <div align="center">{{ date('d-m-Y', strtotime($dato->fecha_viat)) }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
@@ -231,7 +235,7 @@
                                                     <div align="center">{{ $dato->factura }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->ruc . ' .' }}</div>
+                                                    <div align="center">{{ $dato->ruc }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
@@ -251,9 +255,11 @@
                                                         @endforeach
                                                     </div>
                                                 </td>
-                                                <td style="font-size:10px">
+                                                <td style="font-size:10px;word-wrap: break-word;">
                                                     <div align="center">{{ $dato->observacion }}</div>
                                                 </td>
+                                                <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
+                                                <td style="font-size:10px">{{ $dato['sub_centro_costo'] }}</td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->cantidad }}</div>
                                                 </td>
@@ -268,16 +274,9 @@
                                             </tr>
                                         @endforeach
                                     @endif
-                                </table>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <table width="100%" border="1" cellspacing="0"
-                                    bordercolor="#666666"style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 40px;">
                                     <tr>
                                         <td>&nbsp;</td>
-                                        <td colspan="10" style="font-size:10px">
+                                        <td colspan="12" style="font-size:10px">
                                             <div align="right"><strong>SUB TOTAL:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
@@ -286,7 +285,7 @@
                                     </tr>
                                     <tr>
                                         <td>&nbsp;</td>
-                                        <td colspan="10" style="font-size:10px">
+                                        <td colspan="12" style="font-size:10px">
                                             <div align="right"><strong>TOTAL:&nbsp;</strong></div>
                                         </td>
                                         <td style="font-size:10px">
@@ -297,6 +296,8 @@
                                     </tr>
                                 </table>
                             </td>
+                        </tr>
+
                     </table>
                 </div>
             </td>

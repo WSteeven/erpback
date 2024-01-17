@@ -442,7 +442,7 @@ class SaldoGrupoController extends Controller
             $fecha_anterior = '';
             $saldo_anterior = 0;
             if ($request->usuario == null) {
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user','tarea_info')
                     ->where('estado', Gasto::APROBADO)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
@@ -482,7 +482,7 @@ class SaldoGrupoController extends Controller
                     ->sum('monto');
                 $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user','tarea_info')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])

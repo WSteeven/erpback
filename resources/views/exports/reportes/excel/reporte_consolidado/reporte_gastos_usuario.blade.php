@@ -74,7 +74,9 @@
                             <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
                                 <div align="center"><strong>FECHA</strong></div>
                             </td>
-
+                            <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
+                                <div align="center"><strong>FECHA DE AUTORIZACION</strong></div>
+                            </td>
                             <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                                 <div align="center"><strong>#COMPROBANTE</strong></div>
                             </td>
@@ -83,6 +85,12 @@
                             </td>
                             <td bgcolor="#a9d08e" style="font-size:10px">
                                 <div align="center"><strong>COMENTARIO</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px">
+                                <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                            </td>
+                            <td bgcolor="#a9d08e" style="font-size:10px">
+                                <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
                             </td>
                             <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                                 <div align="center"><strong>AUTORIZADOR</strong></div>
@@ -114,6 +122,9 @@
                                     <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                                 </td>
                                 <td style="font-size:10px">
+                                    <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha_autorizacion'])) }}</div>
+                                </td>
+                                <td style="font-size:10px">
                                     <div align="left">{{ $gasto['factura'] }}</div>
                                 </td>
                                 <td style="font-size:10px">
@@ -122,6 +133,8 @@
                                 <td style="font-size:10px">
                                     <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                 </td>
+                                <td style="font-size:10px">{{ $gasto['centro_costo'] }}</td>
+                                <td style="font-size:10px">{{ $gasto['sub_centro_costo'] }}</td>
                                 <td style="font-size:10px" width="29%">
                                     <div align="left">
                                         {{ $gasto['autorizador'] }}
@@ -134,7 +147,7 @@
                             </tr>
                         @endforeach
                         <tr>
-                            <td colspan="6" style="font-size:10px" width="29%">
+                            <td colspan="11" style="font-size:10px" width="29%">
                                 <div align="right"><strong>Total</strong></div>
                             </td>
                             <td style="font-size:10px" width="10%">
