@@ -121,6 +121,8 @@ class TransferenciaProductoEmpleadoController extends Controller
             Log::channel('testing')->info('Log', compact('mensaje'));
 
             $esTransferenciaDeStock = !$datos['proyecto_origen_id'] && !$datos['etapa_origen_id'] && !$datos['tarea_origen_id'];
+            Log::channel('testing')->info('Log', compact('esTransferenciaDeStock'));
+
             $this->transferenciaService->ajustarValoresProducto($transferencia_producto_empleado, $esTransferenciaDeStock);
         }
 

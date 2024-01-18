@@ -126,7 +126,7 @@ class TransferenciaProductoEmpleadoService
 
             if ($productoOrigen) {
                 // Sumar productos destino
-                $productoDestino = $esEntreStock ? '' : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
+                $productoDestino = $esEntreStock ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
 
                 if ($productoDestino) {
                     $mensaje = 'Si se encuentra';
