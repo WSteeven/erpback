@@ -9,6 +9,8 @@ use App\Models\Ventas\ClienteClaro;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ClienteClaroController extends Controller
@@ -25,47 +27,62 @@ class ClienteClaroController extends Controller
     {
         $results = [];
         $results = ClienteClaro::ignoreRequest(['campos'])->filter()->get();
-         $results = ClienteClaroResource::collection($results);
+        $results = ClienteClaroResource::collection($results);
         return response()->json(compact('results'));
-    }
-    public function show(Request $request, ClienteClaro $cliente_claro)
-    {
-        $modelo = new ClienteClaroResource($cliente_claro);
-        return response()->json(compact('modelo'));
     }
     public function store(ClienteClaroRequest $request)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
-            $cliente_claro = ClienteClaro::create($datos);
-            $modelo = new ClienteClaroResource($cliente_claro);
-            DB::commit();
+            $cliente = ClienteClaro::create($request->validated());
+            $modelo = new ClienteClaroResource($cliente);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
+            DB::commit();
         } catch (Exception $e) {
             DB::rollback();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage() . '. ' . $e->getLine()],
+            ]);
         }
+        return response()->json(compact('mensaje', 'modelo'));
     }
-    public function update(ClienteClaroRequest $request, ClienteClaro $cliente_claro)
+
+    public function show(Request $request, ClienteClaro $cliente)
+    {
+        $modelo = new ClienteClaroResource($cliente);
+        return response()->json(compact('modelo'));
+    }
+
+    public function update(ClienteClaroRequest $request, ClienteClaro $cliente)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
-            $cliente_claro->update($datos);
-            $modelo = new ClienteClaroResource($cliente_claro->refresh());
+            $cliente->update($request->validated());
+            $modelo = new ClienteClaroResource($cliente->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw ValidationException::withMessages([
+                'Error al actualizar registro' => [$e->getMessage() . '. ' . $e->getLine()],
+            ]);
         }
+        return response()->json(compact('mensaje', 'modelo'));
     }
-    public function destroy(Request $request, ClienteClaro $cliente_claro)
+    public function destroy(Request $request, ClienteClaro $cliente)
     {
-        $cliente_claro->delete();
+        $cliente->delete();
         return response()->json(compact('ClienteClaro'));
+    }
+
+    /**
+     * desactivar
+     */
+    public function desactivar(ClienteClaro $cliente)
+    {
+        $cliente->activo = !$cliente->activo;
+        $cliente->save();
+        $modelo  = new ClienteClaroResource($cliente->refresh());
+        return response()->json(compact('modelo'));
     }
 }

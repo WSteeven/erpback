@@ -20,7 +20,11 @@ class ClienteClaroResource extends JsonResource
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
-            'cliente_info'=>$this->nombres.' '.$this->apellidos
+            'cliente_info' => $this->nombres . ' ' . $this->apellidos,
+            'direccion' => $this->direccion,
+            'telefono1' => $this->telefono1,
+            'telefono2' => $this->telefono2,
+            'activo' => $this->activo,
         ];
         return $modelo;
     }

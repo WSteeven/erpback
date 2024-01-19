@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('ventas_productos_ventas', function (Blueprint $table) {
             $table->id();
+            $table->text('nombre');
             $table->string('bundle_id');
             $table->decimal('precio',8,4);
             $table->unsignedBigInteger('plan_id');

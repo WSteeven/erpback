@@ -25,6 +25,7 @@ class ProductoVentaRequest extends FormRequest
     public function rules()
     {
         $rules = [
+            'nombre'=> 'required|string',
             'bundle_id'=> 'required|unique:ventas_productos_ventas,bundle_id',
             'precio'=> 'required',
             'plan_id'=> 'required|integer',

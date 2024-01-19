@@ -38,12 +38,13 @@ Route::apiResources(
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         'umbral-ventas' => UmbralVentaController::class,
         'esquema-comision' => EsquemaComisionController::class,
-        'cliente-claro' => ClienteClaroController::class,
+        'clientes-claro' => ClienteClaroController::class,
         'escenario-venta-jp' => EscenarioVentaJPController::class,
     ],
     [
         'parameters' => [
             'planes' => 'plan',
+            'clientes-claro' => 'cliente',
             'comisiones' => 'comision',
             'vendedores' => 'vendedor',
             'productos-ventas' => 'producto',
@@ -61,3 +62,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('productos-ventas/desactivar/{producto}', [ProductoVentaController::class, 'desactivar']);
 Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'desactivar']);
+Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('direccion');
             $table->string('telefono1');
             $table->string('telefono2')->nullable();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }

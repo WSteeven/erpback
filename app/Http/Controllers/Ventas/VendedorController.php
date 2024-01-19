@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ventas;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\VendedorRequest;
 use App\Http\Resources\Ventas\VendedorResource;
+use App\Models\User;
 use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
@@ -25,8 +26,6 @@ class VendedorController extends Controller
     public function index(Request $request)
     {
         // $results = [];
-        // Log::channel('testing')->info('Log', ['index vendedorController', $request->all()]);
-
         // if ($request->supervisor === true) {
         //     // Log::channel('testing')->info('Log', ['supervisor']);
         //     $results = Vendedor::ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
@@ -34,7 +33,11 @@ class VendedorController extends Controller
         //     // Log::channel('testing')->info('Log', ['vendedor']);
         //     $results = Vendedor::where('tipo_vendedor', '!=', Vendedor::SUPERVISOR_VENTAS)->ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
         // }
-        $results = Vendedor::filter()->get();
+        if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
+            $results = Vendedor::where('jefe_inmediato_id', auth()->user()->empleado->id)->filter()->get();
+        }else{
+            $results = Vendedor::filter()->get();
+        }
 
         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
@@ -79,7 +82,7 @@ class VendedorController extends Controller
         $vendedor->delete();
         return response()->json(compact('vendedor'));
     }
-    
+
     /**
      * Desactivar un vendedor
      */
@@ -87,7 +90,7 @@ class VendedorController extends Controller
     {
         $request->validate(['causa_desactivacion' => ['required', 'string']]);
         $vendedor->causa_desactivacion = $request->causa_desactivacion;
-        $vendedor->activo= !$vendedor->activo;
+        $vendedor->activo = !$vendedor->activo;
         $vendedor->save();
 
         $modelo = new VendedorResource($vendedor->refresh());

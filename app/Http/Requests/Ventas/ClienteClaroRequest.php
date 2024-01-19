@@ -25,12 +25,13 @@ class ClienteClaroRequest extends FormRequest
     public function rules()
     {
         return [
-            'identificacion'=> 'required',
-            'nombres'=> 'required',
-            'apellidos'=> 'required',
+            'identificacion' => 'required|unique:ventas_clientes_claro,id',
+            'nombres' => 'required',
+            'apellidos' => 'required',
             'direccion' => 'required',
-           'telefono1' => 'required',
+            'telefono1' => 'required',
             'telefono2' => 'nullable',
+            'activo' => 'boolean',
         ];
     }
     public function withValidator($validator)
