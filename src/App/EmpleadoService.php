@@ -84,7 +84,7 @@ class EmpleadoService
             'supa'
             ]
         );
-        Log::channel('testing')->info('Log', ['Empleado', $results]);
+        // Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
 

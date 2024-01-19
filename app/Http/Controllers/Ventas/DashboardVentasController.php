@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Venta;
+namespace App\Http\Controllers\Ventas;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Ventas\VentaResource;

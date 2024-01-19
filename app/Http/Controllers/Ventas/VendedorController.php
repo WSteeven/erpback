@@ -24,16 +24,17 @@ class VendedorController extends Controller
     }
     public function index(Request $request)
     {
-        $results = [];
-        Log::channel('testing')->info('Log', ['supervisor', $request->supervisor]);
+        // $results = [];
+        // Log::channel('testing')->info('Log', ['index vendedorController', $request->all()]);
 
-        if ($request->supervisor === true) {
-            Log::channel('testing')->info('Log', ['supervisor']);
-            $results = Vendedor::ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
-        } else {
-            Log::channel('testing')->info('Log', ['vendedor']);
-            $results = Vendedor::where('tipo_vendedor', '!=', Vendedor::SUPERVISOR_VENTAS)->ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
-        }
+        // if ($request->supervisor === true) {
+        //     // Log::channel('testing')->info('Log', ['supervisor']);
+        //     $results = Vendedor::ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
+        // } else {
+        //     // Log::channel('testing')->info('Log', ['vendedor']);
+        //     $results = Vendedor::where('tipo_vendedor', '!=', Vendedor::SUPERVISOR_VENTAS)->ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
+        // }
+        $results = Vendedor::filter()->get();
 
         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
@@ -66,7 +67,7 @@ class VendedorController extends Controller
             $vendedor->update($datos);
             $modelo = new VendedorResource($vendedor->refresh());
             DB::commit();
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
@@ -77,5 +78,19 @@ class VendedorController extends Controller
     {
         $vendedor->delete();
         return response()->json(compact('vendedor'));
+    }
+    
+    /**
+     * Desactivar un vendedor
+     */
+    public function desactivar(Request $request, Vendedor $vendedor)
+    {
+        $request->validate(['causa_desactivacion' => ['required', 'string']]);
+        $vendedor->causa_desactivacion = $request->causa_desactivacion;
+        $vendedor->activo= !$vendedor->activo;
+        $vendedor->save();
+
+        $modelo = new VendedorResource($vendedor->refresh());
+        return response()->json(compact('modelo'));
     }
 }

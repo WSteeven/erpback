@@ -14,7 +14,14 @@ class ProductoVenta extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_productos_ventas';
-    protected $fillable =['bundle_id','precio','plan_id'];
+    protected $fillable =['bundle_id','precio','plan_id', 'activo'];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo' => 'boolean',
+    ];
+    
     private static $whiteListFilter = [
         '*',
     ];

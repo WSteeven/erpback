@@ -15,20 +15,31 @@ class Vendedor extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_vendedores';
-    protected $fillable =['empleado_id','modalidad_id','tipo_vendedor','jefe_inmediato','jefe_inmediato_id'];
+    protected $fillable = ['empleado_id', 'modalidad_id', 'tipo_vendedor', 'jefe_inmediato', 'jefe_inmediato_id', 'activo', 'causa_desactivacion'];
+
     const VENDEDOR = 'VENDEDOR';
     const JEFE_VENTAS = 'JEFE DE VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo' => 'boolean',
+    ];
+
     private static $whiteListFilter = [
         '*',
     ];
-    public function empleado(){
-        return $this->hasOne(Empleado::class,'id','empleado_id')->with('canton');
+    public function empleado()
+    {
+        return $this->hasOne(Empleado::class, 'id', 'empleado_id')->with('canton');
     }
-    public function modalidad(){
-        return $this->hasOne(Modalidad::class,'id','modalidad_id');
+    public function modalidad()
+    {
+        return $this->hasOne(Modalidad::class, 'id', 'modalidad_id');
     }
-    public function jefe_inmediato(){
-        return $this->hasOne(Empleado::class,'id','jefe_inmediato_id')->with('canton');
+    public function jefe_inmediato()
+    {
+        return $this->hasOne(Empleado::class, 'id', 'jefe_inmediato_id')->with('canton');
     }
 }

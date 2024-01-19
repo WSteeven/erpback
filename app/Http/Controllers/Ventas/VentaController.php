@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Venta;
+namespace App\Http\Controllers\Ventas;
 
 use App\Exports\Ventas\ReportePagoExport;
 use App\Exports\Ventas\ReporteValoresCobrarExport;
@@ -91,10 +91,10 @@ class VentaController extends Controller
             $ventas = Venta::select(
                 DB::raw('MONTHNAME(fecha_activacion) AS mes'),
                 DB::raw('COUNT(*) as cantidad_ventas'),
-                DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
-                DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
+                DB::raw('SUM(ventas_productos_ventas.precio) as total_ventas'),
+                DB::raw('AVG(ventas_productos_ventas.precio) as promedio_precio')
             )
-                ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
+                ->join('ventas_productos_ventas', 'ventas_productos_ventas.id', '=', 'ventas_ventas.producto_id')
                 ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
                 ->where('pago', true)
                 ->groupBy('mes')
@@ -103,10 +103,10 @@ class VentaController extends Controller
             $ventas_tc = Venta::select(
                 DB::raw('MONTHNAME(fecha_activacion) AS mes'),
                 DB::raw('COUNT(*) as cantidad_ventas'),
-                DB::raw('SUM(ventas_producto_ventas.precio) as total_ventas'),
-                DB::raw('AVG(ventas_producto_ventas.precio) as promedio_precio')
+                DB::raw('SUM(ventas_productos_ventas.precio) as total_ventas'),
+                DB::raw('AVG(ventas_productos_ventas.precio) as promedio_precio')
             )
-                ->join('ventas_producto_ventas', 'ventas_producto_ventas.id', '=', 'ventas_ventas.producto_id')
+                ->join('ventas_productos_ventas', 'ventas_productos_ventas.id', '=', 'ventas_ventas.producto_id')
                 ->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin])
                 ->where('pago', true)
                 ->where('forma_pago', 'TC')

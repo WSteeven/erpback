@@ -20,7 +20,8 @@ class ProductoVentaResource extends JsonResource
             'bundle' => $this->bundle_id,
             'precio' => $this->precio,
             'plan' => $this->plan_id,
-            'plan_info'=> $this->plan->nombre
+            'plan_info'=> $this->plan->nombre,
+            'activo'=> $this->activo,
         ];
         return $modelo;
     }

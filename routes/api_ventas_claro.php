@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\Venta\DashboardVentasController;
-use App\Http\Controllers\Venta\VentaController;
+use App\Http\Controllers\Ventas\DashboardVentasController;
 use App\Http\Controllers\Ventas\BonoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
 use App\Http\Controllers\Ventas\BonoPorcentualController;
@@ -18,6 +17,7 @@ use App\Http\Controllers\Ventas\ProductoVentaController;
 use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
+use App\Http\Controllers\Ventas\VentaController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -28,8 +28,8 @@ Route::apiResources(
         'comisiones' => ComisionController::class,
         'modalidad' => ModalidadController::class,
         'planes' => PlanController::class,
-        'producto-ventas' => ProductoVentaController::class,
-        'vendedor' => VendedorController::class,
+        'productos-ventas' => ProductoVentaController::class,
+        'vendedores' => VendedorController::class,
         'ventas' => VentaController::class,
         'tipo-chargeback' => TipoChargebackController::class,
         'chargebacks' => ChargebackController::class,
@@ -45,6 +45,8 @@ Route::apiResources(
         'parameters' => [
             'planes' => 'plan',
             'comisiones' => 'comision',
+            'vendedores' => 'vendedor',
+            'productos-ventas' => 'producto',
         ],
     ]
 );
@@ -56,3 +58,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('pago', [VentaController::class, 'reporte_pagos']);
     Route::get('dashboard', [DashboardVentasController::class, 'index']);
 });
+
+Route::post('productos-ventas/desactivar/{producto}', [ProductoVentaController::class, 'desactivar']);
+Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'desactivar']);

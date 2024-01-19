@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductoVentaRequest extends FormRequest
 {
@@ -23,11 +24,21 @@ class ProductoVentaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'bundle_id'=> 'required|unique:ventas_producto_ventas,bundle_id',
+        $rules = [
+            'bundle_id'=> 'required|unique:ventas_productos_ventas,bundle_id',
             'precio'=> 'required',
             'plan_id'=> 'required|integer',
+            'activo'=> 'boolean',
         ];
+
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $producto = $this->route()->parameter('producto');
+
+            $rules['bundle_id'] = ['required',  Rule::unique('ventas_productos_ventas')->ignore($producto)];
+        }
+
+        return $rules;
     }
     protected function prepareForValidation()
     {

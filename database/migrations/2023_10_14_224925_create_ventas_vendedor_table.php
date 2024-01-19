@@ -19,6 +19,8 @@ return new class extends Migration
             $table->unsignedBigInteger('modalidad_id');
             $table->string('tipo_vendedor')->nullable();
             $table->unsignedBigInteger('jefe_inmediato_id')->nullable();
+            $table->boolean('activo')->default(true);
+            $table->text('causa_desactivacion')->nullable();
             $table->timestamps();
             
             $table->foreign('jefe_inmediato_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();

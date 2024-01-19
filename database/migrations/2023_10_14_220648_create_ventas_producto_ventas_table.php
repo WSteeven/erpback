@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('bundle_id');
             $table->decimal('precio',8,4);
             $table->unsignedBigInteger('plan_id');
+            $table->boolean('activo')->default(true);
             $table->timestamps();
             $table->foreign('plan_id', 'fk_plan_id')->references('id')->on('ventas_planes')->cascadeOnUpdate();
 
