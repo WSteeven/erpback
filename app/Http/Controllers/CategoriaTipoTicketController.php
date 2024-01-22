@@ -35,4 +35,21 @@ class CategoriaTipoTicketController extends Controller
 
         return response()->json(compact('mensaje', 'modelo'));
     }
+
+    /*************
+     * Actualizar
+     *************/
+    public function update(CategoriaTipoTicketRequest $request, CategoriaTipoTicket  $categoria_ticket)
+    {
+        if ($request->isMethod('patch')) {
+            $categoria_ticket->update($request->except(['id', ...$request->keys()]));
+        }
+
+        // Respuesta
+        $categoria_ticket->update($request->validated());
+        $modelo = new CategoriaTipoTicketResource($categoria_ticket->refresh());
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
 }
