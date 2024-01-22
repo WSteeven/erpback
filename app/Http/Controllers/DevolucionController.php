@@ -89,8 +89,22 @@ class DevolucionController extends Controller
             $modelo = new DevolucionResource($devolucion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-            foreach ($request->listadoProductos as $listado) {
-                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            if ($request->misma_condicion) {
+                foreach ($request->listadoProductos as $listado) {
+                    $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'condicion_id' => $request->condicion]);
+                }
+            } else {
+                foreach ($request->listadoProductos as $listado) {
+                    $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+                    $devolucion->detalles()->attach(
+                        $listado['id'],
+                        [
+                            'cantidad' => $listado['cantidad'],
+                            'observacion' => array_key_exists('observacion', $listado) ?  $listado['observacion'] : null,
+                            'condicion_id' => $condicion->id
+                        ]
+                    );
+                }
             }
 
 
@@ -196,7 +210,8 @@ class DevolucionController extends Controller
     }
 
     public function imprimir(Devolucion $devolucion)
-    {   $configuracion  = ConfiguracionGeneral::first();
+    {
+        $configuracion  = ConfiguracionGeneral::first();
         $resource = new DevolucionResource($devolucion);
         $persona_solicitante = Empleado::find($devolucion->solicitante_id);
         $persona_autoriza = Empleado::find($devolucion->per_autoriza_id);

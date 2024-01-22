@@ -38,8 +38,8 @@ class Devolucion extends Model implements Auditable
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'stock_personal'=>'boolean',
-        'pedido_automatico'=>'boolean',
+        'stock_personal' => 'boolean',
+        'pedido_automatico' => 'boolean',
     ];
 
     const CREADA = 'CREADA';
@@ -60,7 +60,7 @@ class Devolucion extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'detalle_devolucion_producto', 'devolucion_id', 'detalle_id')
-            ->withPivot('cantidad', 'devuelto')->withTimestamps();
+            ->withPivot('cantidad', 'devuelto', 'condicion_id', 'observacion')->withTimestamps();
     }
 
 
@@ -121,13 +121,15 @@ class Devolucion extends Model implements Auditable
      * Relación polimorfica a una notificación.
      * Un pedido puede tener una o varias notificaciones.
      */
-    public function notificaciones(){
+    public function notificaciones()
+    {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
     /**
      * Obtiene la ultima notificacion asociada a la devolucion.
      */
-    public function latestNotificacion(){
+    public function latestNotificacion()
+    {
         return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 
@@ -135,7 +137,8 @@ class Devolucion extends Model implements Auditable
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */
-    public function archivos(){
+    public function archivos()
+    {
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
@@ -155,7 +158,7 @@ class Devolucion extends Model implements Auditable
         $id = 0;
         $row = [];
         foreach ($detalles as $detalle) {
-            $condicion= $detalle->pivot->condicion_id? Condicion::find($detalle->pivot->condicion_id):null;
+            $condicion = $detalle->pivot->condicion_id ? Condicion::find($detalle->pivot->condicion_id) : null;
             $row['id'] = $detalle->id;
             $row['producto'] = $detalle->producto->nombre;
             $row['descripcion'] = $detalle->descripcion;
@@ -201,11 +204,20 @@ class Devolucion extends Model implements Auditable
                 return $results;
 
             case Devolucion::ANULADA:
-                $results = Devolucion::where('estado','=', Devolucion::ANULADA)->simplePaginate($offset);
+                $results = Devolucion::where('estado', '=', Devolucion::ANULADA)->simplePaginate($offset);
                 return $results;
             default:
                 $results = Devolucion::simplePaginate($offset);
                 return $results;
         }
+    }
+
+    public static function obtenerCondicionListado($id)
+    {
+        $detalles = DetalleDevolucionProducto::where('devolucion_id', $id)->get();
+        // $cuentaAntes = $detalles->count();
+        $cuentaDespues = $detalles->unique('condicion_id')->count();
+
+        return $cuentaDespues === 1; //true si son de la misma condicion
     }
 }
