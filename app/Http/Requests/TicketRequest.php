@@ -28,7 +28,7 @@ class TicketRequest extends FormRequest
             'descripcion' => 'required|string',
             'prioridad' => 'required|string',
             // 'fecha_hora_limite' => 'nullable|string',
-            'fecha_hora_limite' => 'required|date|after_or_equal:' . now(),
+            'fecha_hora_limite' => 'nullable|date|after_or_equal:' . now(),
             'observaciones_solicitante' => 'nullable|string',
             'calificacion_solicitante' => 'nullable|string',
             'destinatarios' => 'nullable|array',
