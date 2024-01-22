@@ -134,7 +134,7 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
@@ -184,7 +184,7 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_stock as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
