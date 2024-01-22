@@ -61,6 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('acreditacion-saldo-semana/{id}',[AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
     Route::get('actualizar-valores-saldo-semana/{id}',[AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporte_acreditacion_semanal']);
+    Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporte_acreditacion_semanal']);
+    Route::post('reporte-valores-fondos', [GastoController::class, 'reporte_valores_fondos']);
 
 
 });
