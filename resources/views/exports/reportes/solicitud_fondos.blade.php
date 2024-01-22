@@ -136,6 +136,7 @@
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0" class="saldos_depositados" >
             <tr>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Fecha</strong></td>
+                <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Empleado</strong></td>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Lugar</strong></td>
                 <td style="font-size:10px" width="8%" bgcolor="#a9d08e"><strong>Grupo</strong></td>
                 <td style="font-size:10px"width="7%" bgcolor="#a9d08e"><strong>Motivo</strong></td>
@@ -146,6 +147,7 @@
                 @foreach ($solicitudes as $dato)
                     <tr>
                         <td style="font-size:10px">{{  date("d-m-Y", strtotime(  $dato['fecha_gasto'])) }}</td>
+                        <td style="font-size:10px">{{ $dato['empleado_info'] }}</td>
                         <td style="font-size:10px">{{ $dato['lugar_info'] }}</td>
                         <td style="font-size:10px">{{ $dato['grupo_info'] }}</td>
                         <td style="font-size:10px">
