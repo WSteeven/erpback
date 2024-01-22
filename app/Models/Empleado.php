@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
+use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
-
+use App\Models\Vehiculos\BitacoraVehicular;
+use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -165,7 +167,7 @@ class Empleado extends Model implements Auditable
     // Relacion muchos a muchos
     public function grupo()
     {
-        return $this->belongsTo(Grupo::class);
+        return $this->belongsTo(Grupo::class)->with('subCentroCosto');
     }
 
     /**

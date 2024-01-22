@@ -442,7 +442,7 @@ class SaldoGrupoController extends Controller
             $fecha_anterior = '';
             $saldo_anterior = 0;
             if ($request->usuario == null) {
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user')
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user','tarea_info')
                     ->where('estado', Gasto::APROBADO)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
@@ -482,7 +482,7 @@ class SaldoGrupoController extends Controller
                     ->sum('monto');
                 $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
                 $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos_totales;
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')
+                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user','tarea_info')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -622,7 +622,7 @@ class SaldoGrupoController extends Controller
                 ->toArray();
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual:0;
-            $nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
+            //$nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';
