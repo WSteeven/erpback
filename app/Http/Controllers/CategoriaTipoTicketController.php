@@ -6,6 +6,7 @@ use App\Http\Requests\CategoriaTipoTicketRequest;
 use App\Http\Resources\CategoriaTipoTicketResource;
 use App\Models\CategoriaTipoTicket;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class CategoriaTipoTicketController extends Controller
@@ -39,15 +40,17 @@ class CategoriaTipoTicketController extends Controller
     /*************
      * Actualizar
      *************/
-    public function update(CategoriaTipoTicketRequest $request, CategoriaTipoTicket  $categoria_ticket)
+    public function update(CategoriaTipoTicketRequest $request, CategoriaTipoTicket  $categoria_tipo_ticket)
     {
         if ($request->isMethod('patch')) {
-            $categoria_ticket->update($request->except(['id', ...$request->keys()]));
+            $keys = $request->keys();
+            unset($keys['id']);
+            $categoria_tipo_ticket->update($request->only($request->keys()));
         }
 
         // Respuesta
-        $categoria_ticket->update($request->validated());
-        $modelo = new CategoriaTipoTicketResource($categoria_ticket->refresh());
+        $categoria_tipo_ticket->update($request->validated());
+        $modelo = new CategoriaTipoTicketResource($categoria_tipo_ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
