@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\CentroCosto;
+use App\Models\Tareas\SubcentroCosto;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -57,4 +59,9 @@ class Grupo extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
     }
+    public function subCentroCosto()
+    {
+        return $this->belongsTo(SubcentroCosto::class, 'id', 'grupo_id');
+    }
+
 }

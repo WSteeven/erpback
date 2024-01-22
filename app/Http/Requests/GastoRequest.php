@@ -51,7 +51,7 @@ class GastoRequest extends FormRequest
             'valor_u' => 'required|numeric',
             'total' => 'required|numeric',
             'observacion' => 'required|string',
-            'comprobante1' => 'required|string',
+            'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
         ];
@@ -73,7 +73,7 @@ class GastoRequest extends FormRequest
                 'valor_u' => 'required|numeric',
                 'total' => 'required|numeric',
                 'observacion' => 'required|string',
-                'comprobante1' => 'required|string',
+                'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|string',
                 'vehiculo' => 'required|integer',
@@ -154,6 +154,9 @@ class GastoRequest extends FormRequest
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);
+        $this->merge([
+            'comprobante' =>  $this->comprobante1,
+        ]);
         if (is_null($this->aut_especial)) {
             $id_jefe = Auth::user()->empleado->jefe_id;
             $this->merge([
@@ -170,5 +173,6 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
+
     }
 }
