@@ -92,10 +92,12 @@ class PedidoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             if ($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
@@ -167,10 +169,12 @@ class PedidoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia1']);

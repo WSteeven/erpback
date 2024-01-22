@@ -62,6 +62,6 @@ class GuardarArchivo
         // Convierte el arreglo en una cadena JSON
         $json = json_encode($data);
         return $json;
-    }
 
+    }
 }

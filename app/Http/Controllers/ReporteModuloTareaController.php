@@ -109,10 +109,11 @@ class ReporteModuloTareaController extends Controller
         return $results;
     }
 
-    // Emegerncias
+    // Emegerncias - Solo aplica a Nedetel
     private function trabajoRealizadoPorGrupoTiposTrabajos()
     {
         $mesAnio = request('mes_anio');
+        $cliente_id = request('cliente_id');
         $fecha = Carbon::createFromFormat('m-Y', $mesAnio)->startOfMonth();
 
         $results = DB::table('subtareas as s')

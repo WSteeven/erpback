@@ -238,4 +238,17 @@ class DetalleProductoController extends Controller
         $modelo = new DetalleProductoResource($detalle->refresh());
         return response()->json(compact('modelo'));
     }
+
+
+    public function obtenerMateriales(Request $request){
+        $detalles = DetalleProducto::whereHas('producto', function ($query) {
+            $query->where('categoria_id', 7);
+        })->where(function ($query) use ($request){
+            $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
+            $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
+        })->get();
+
+        $results = DetalleProductoResource::collection($detalles);
+        return response()->json(compact('results'));
+    }
 }

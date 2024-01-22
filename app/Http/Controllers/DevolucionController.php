@@ -8,7 +8,10 @@ use App\Events\DevolucionCreadaEvent;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
+use App\Models\Condicion;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Devolucion;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Producto;
 use App\Models\User;
@@ -135,7 +138,8 @@ class DevolucionController extends Controller
 
         //Guardar los productos seleccionados
         foreach ($request->listadoProductos as $listado) {
-            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'observacion' => $listado['observacion'], 'condicion_id' => $condicion->id]);
         }
 
         $modelo = new DevolucionResource($devolucion->refresh());
@@ -192,10 +196,13 @@ class DevolucionController extends Controller
     }
 
     public function imprimir(Devolucion $devolucion)
-    {
+    {   $configuracion  = ConfiguracionGeneral::first();
         $resource = new DevolucionResource($devolucion);
+        $persona_solicitante = Empleado::find($devolucion->solicitante_id);
+        $persona_autoriza = Empleado::find($devolucion->per_autoriza_id);
         try {
-            $pdf = Pdf::loadView('devoluciones.devolucion', $resource->resolve());
+            $devolucion = $resource->resolve();
+            $pdf = Pdf::loadView('devoluciones.devolucion', compact(['devolucion', 'configuracion', 'persona_solicitante', 'persona_autoriza']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -209,6 +216,8 @@ class DevolucionController extends Controller
             // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
         }
     }
 
