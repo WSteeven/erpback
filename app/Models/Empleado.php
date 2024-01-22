@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
@@ -386,6 +387,9 @@ class Empleado extends Model implements Auditable
     public function egresoRolPago(){
         return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
     }
+
+    public function gastos(){
+        return $this->hasMany(Gasto::class, 'id_usuario');    }
 
     public static function empaquetarListado($empleados)
     {

@@ -481,4 +481,20 @@ class EmpleadoController extends Controller
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
     }
+
+    function obtenerEmpleadosFondosRotativos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['request', $request->all()]);
+            $empleados = Empleado::has('gastos')->get();
+            Log::channel('testing')->info('Log', ['encontrados', $empleados]);
+            Log::channel('testing')->info('Log', ['resource', EmpleadoResource::collection($empleados)]);
+
+            $results = EmpleadoResource::collection($empleados);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en obtenerEmpleadosFondosRotativos', $th->getMessage(), $th->getLine()]);
+            throw new ValidationException($th->getMessage());
+        }
+        response()->json(compact('results'));
+    }
 }

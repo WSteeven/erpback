@@ -44,16 +44,6 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
-use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
-use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
-use App\Http\Controllers\FondosRotativos\TipoFondoController;
-use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
-use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
-use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
-use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
@@ -67,15 +57,8 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
-use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
 use App\Http\Resources\CantonResource;
-use App\Http\Resources\ParroquiaResource;
-use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
@@ -83,11 +66,7 @@ use App\Models\Canton;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Pais;
-use App\Models\Parroquia;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -306,6 +285,7 @@ Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarP
 Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
+Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmpleadosFondosRotativos'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
