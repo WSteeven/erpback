@@ -33,8 +33,12 @@ class ClienteClaroController extends Controller
     public function store(ClienteClaroRequest $request)
     {
         try {
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
+
             DB::beginTransaction();
-            $cliente = ClienteClaro::create($request->validated());
+            $cliente = ClienteClaro::create($datos);
             $modelo = new ClienteClaroResource($cliente);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -56,8 +60,12 @@ class ClienteClaroController extends Controller
     public function update(ClienteClaroRequest $request, ClienteClaro $cliente)
     {
         try {
+            // Adaptacion de foreign keys
+            $datos = $request->validated();
+            $datos['supervisor_id'] = $request->safe()->only(['supervisor'])['supervisor'];
+
             DB::beginTransaction();
-            $cliente->update($request->validated());
+            $cliente->update($datos);
             $modelo = new ClienteClaroResource($cliente->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();

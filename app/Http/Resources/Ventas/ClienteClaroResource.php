@@ -17,6 +17,7 @@ class ClienteClaroResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
+            'supervisor' => $this->supervisor?->nombres . ' ' . $this->supervisor?->apellidos,
             'identificacion' => $this->identificacion,
             'nombres' => $this->nombres,
             'apellidos' => $this->apellidos,
@@ -26,6 +27,10 @@ class ClienteClaroResource extends JsonResource
             'telefono2' => $this->telefono2,
             'activo' => $this->activo,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['supervisor'] = $this->supervisor_id;
+        }
         return $modelo;
     }
 }

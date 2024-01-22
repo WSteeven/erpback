@@ -14,7 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::create('ventas_vendedores', function (Blueprint $table) {
-            $table->id();
             $table->unsignedBigInteger('empleado_id');
             $table->unsignedBigInteger('modalidad_id');
             $table->string('tipo_vendedor')->nullable();
@@ -22,10 +21,11 @@ return new class extends Migration
             $table->boolean('activo')->default(true);
             $table->text('causa_desactivacion')->nullable();
             $table->timestamps();
-            
+
+            $table->primary('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnUpdate();
             $table->foreign('jefe_inmediato_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('empleado_id', 'fk_empleado_vendedor_id')->references('id')->on('empleados')->cascadeOnUpdate();
-            $table->foreign('modalidad_id', 'fk_modalidad_id')->references('id')->on('ventas_modalidades')->cascadeOnUpdate();
+            $table->foreign('modalidad_id')->references('id')->on('ventas_modalidades')->cascadeOnUpdate();
         });
     }
 

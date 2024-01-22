@@ -21,7 +21,8 @@ return new class extends Migration
             $table->decimal('chargeback', 8, 4)->nullable();
             $table->decimal('valor', 8, 4);
             $table->timestamps();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
+            
+            $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

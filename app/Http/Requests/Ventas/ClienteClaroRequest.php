@@ -26,6 +26,7 @@ class ClienteClaroRequest extends FormRequest
     {
         return [
             'identificacion' => 'required|unique:ventas_clientes_claro,id',
+            'supervisor' => 'required|exists:empleados,id',
             'nombres' => 'required',
             'apellidos' => 'required',
             'direccion' => 'required',

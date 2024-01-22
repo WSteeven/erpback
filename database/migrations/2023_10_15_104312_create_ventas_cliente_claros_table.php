@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('ventas_clientes_claro', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('supervisor_id')->nullable();
             $table->string('identificacion');
             $table->string('nombres');
             $table->string('apellidos');
@@ -23,6 +24,8 @@ return new class extends Migration
             $table->string('telefono2')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
+            
+            $table->foreign('supervisor_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

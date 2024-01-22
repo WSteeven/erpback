@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('bono_type')->nullable();
             $table->unsignedBigInteger('bono_id')->nullable();
             $table->timestamps();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
+            
+            $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 

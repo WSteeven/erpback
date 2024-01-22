@@ -15,12 +15,14 @@ return new class extends Migration
     {
         Schema::create('ventas_bonos_trimestrales_cumplimientos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('vendedor_id');
+            $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->integer('cant_ventas');
             $table->string('trimestre',7);
             $table->decimal('valor',8,4);
             $table->timestamps();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
+
         });
     }
 

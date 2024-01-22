@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('orden_id');
             $table->string('orden_interna');
-            $table->unsignedBigInteger('vendedor_id');
+            $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->unsignedBigInteger('producto_id');
             $table->unsignedBigInteger('cliente_id')->nullable();
             $table->date('fecha_activacion')->nullable();
@@ -28,8 +28,9 @@ return new class extends Migration
             $table->decimal('comision_vendedor', 8, 4);
             $table->boolean('pago')->default('0');
             $table->timestamps();
+
             $table->foreign('cliente_id')->references('id')->on('ventas_clientes_claro')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->cascadeOnUpdate();
+            $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('producto_id')->references('id')->on('ventas_productos_ventas')->cascadeOnUpdate();
             $table->foreign('comision_id')->references('id')->on('ventas_comisiones')->cascadeOnUpdate();
         });

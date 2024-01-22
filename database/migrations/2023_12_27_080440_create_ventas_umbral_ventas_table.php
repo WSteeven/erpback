@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('ventas_umbrales_ventas', function (Blueprint $table) {
             $table->id();
             $table->integer('cantidad_ventas')->defaultValue(0);
-            $table->unsignedBigInteger('vendedor_id');
-            $table->foreign('vendedor_id')->references('id')->on('ventas_vendedores')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
 
