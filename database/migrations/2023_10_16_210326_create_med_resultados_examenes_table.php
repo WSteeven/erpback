@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('med_resultados_examenes', function (Blueprint $table) {
             $table->id();
-            $table->json('resultados');
-            $table->string('url_certificado');
+            $table->
+            // $table->json('resultados');
+            // $table->string('url_certificado');
 
             // Foreign keys
             $table->unsignedBigInteger('empleado_examen_id');
