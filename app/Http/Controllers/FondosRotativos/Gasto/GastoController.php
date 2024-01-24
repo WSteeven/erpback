@@ -160,13 +160,12 @@ class GastoController extends Controller
             }
             $datos['estado'] = $datos_estatus_via->id;
             //Convierte base 64 a url
-            if ($request->comprobante1) {
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
+            if ($datos['comprobante']) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             if ($datos['comprobante2']) {
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
-            unset($datos['comprobante1']);
             $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
                 ->where('num_comprobante',  $datos['num_comprobante'])
                 ->where('estado', 1)
@@ -424,7 +423,7 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
+            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'tarea_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -448,7 +447,6 @@ class GastoController extends Controller
                 'tipo_reporte' => $tipo_reporte,
                 'subtotal' => $subtotal,
                 'DateAndTime' => $DateAndTime
-
             ];
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             $vista = 'exports.reportes.reporte_autorizaciones';
@@ -475,6 +473,16 @@ class GastoController extends Controller
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
             $datos['estado'] = 1;
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante']);
+            }
+            if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
+                $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante2']);
+            }
             $gasto->update($datos);
             $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
                 ->where('per_destinatario_id', $gasto->aut_especial)
@@ -577,6 +585,18 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+
+
+    public function reporte_valores_fondos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['Request', $request->all()]);
+
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
+            throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
     }
 }

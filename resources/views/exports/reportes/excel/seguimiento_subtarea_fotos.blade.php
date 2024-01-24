@@ -32,8 +32,10 @@
                 @endif
 
                 <td style="width: 400px; height: 400px; overflow: hidden;">
+                    @if(file_exists(public_path($foto)))
                     <img src="{{ public_path($foto) }}" height="400" width="400"
                         style="object-fit: cover; width: 100%; height: 100%;" />
+                    @endif
                 </td>
 
                 <td></td>

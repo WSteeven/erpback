@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
@@ -39,6 +40,9 @@ class PreingresoMaterial extends Model implements Auditable
         'coordinador_id',
         'autorizacion_id',
         'observacion_aut',
+        'solicitante_id',
+        'proyecto_id',
+        'etapa_id',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -80,6 +84,14 @@ class PreingresoMaterial extends Model implements Auditable
     }
     /**
      * Relacion uno a muchos (inversa).
+     * Uno o varios preingresos tienen un solicitante
+     */
+    public function solicitante()
+    {
+        return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
+    }
+    /**
+     * Relacion uno a muchos (inversa).
      * Uno o varios preingresos tienen un responsable
      */
     public function responsable()
@@ -93,6 +105,24 @@ class PreingresoMaterial extends Model implements Auditable
     public function coordinador()
     {
         return $this->belongsTo(Empleado::class, 'coordinador_id', 'id');
+    }
+
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios preingresos se cargan a un proyecto.
+     */
+    public function proyecto()
+    {
+        return $this->belongsTo(Proyecto::class, 'proyecto_id', 'id');
+    }
+
+    /**
+     * Relacion uno a muchos (inversa).
+     * Uno o varios preingresos se cargan a una etapa de un proyecto.
+     */
+    public function etapa()
+    {
+        return $this->belongsTo(Etapa::class, 'etapa_id', 'id');
     }
 
     /**

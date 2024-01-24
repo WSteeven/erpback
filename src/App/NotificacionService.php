@@ -19,8 +19,9 @@ class NotificacionService
             ->where('mensaje', 'LIKE', '%Preorden de compra N°%')
             ->orWhere('mensaje', 'LIKE', '%Por favor establece precios y proveedor para que la orden de compra pueda ser impresa%')
             ->orWhere('per_destinatario_id', auth()->user()->empleado->id)->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
-
-        return $results->push(...$results2);
+        $results3 = Notificacion::ignoreRequest(['campos'])->where('mensaje', 'LIKE', '%Estimado/a bodeguero, tienes%')->filter()->orderBy('id', 'desc')->limit(100)->get($campos);
+        $results->push(...$results2);
+        return $results3->merge($results);
     }
     /**
      * La función "obtenerNotificacionesRolBodega" recupera notificaciones en función del rol BODEGA
@@ -107,7 +108,7 @@ class NotificacionService
                 $results = $this->obtenerNotificacionesRolBodegaTelconet($campos);
                 break;
             case User::ROL_CONTABILIDAD:
-                
+
                 $results = $this->obtenerNotificacionesRolContabilidad($campos);
                 break;
             case User::ROL_COMPRAS:

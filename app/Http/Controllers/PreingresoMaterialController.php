@@ -8,6 +8,9 @@ use App\Http\Requests\PreingresoMaterialRequest;
 use App\Http\Resources\PreingresoMaterialResource;
 use App\Models\Pedido;
 use App\Models\PreingresoMaterial;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
@@ -56,9 +59,12 @@ class PreingresoMaterialController extends Controller
             //Adaptacion de foreign keys
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['responsable_id'] = $request->responsable_id;
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             //Se crea el registro de preingreso
@@ -67,17 +73,16 @@ class PreingresoMaterialController extends Controller
             //Se crea los detalles y se almacena en detalles productos
             $this->servicio->guardarDetalles($preingreso, $request->listadoProductos);
             // PreingresoMaterial::guardarDetalles($preingreso, $request->listadoProductos);
-
             //Se emite la notificación al autorizador
             if ($preingreso->tarea_id) event(new PreingresoCreadoEvent($preingreso, $preingreso->coordinador_id));
             else event(new PreingresoCreadoEvent($preingreso, $preingreso->autorizador_id));
-
             //Respuesta
             $modelo = new PreingresoMaterialResource($preingreso);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['Erorr: ', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage() . '. ' . $e->getLine()],
             ]);
@@ -108,9 +113,12 @@ class PreingresoMaterialController extends Controller
             //Adaptacion de foreign keys
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['autorizador_id'] = $request->safe()->only(['autorizador'])['autorizador'];
-            $datos['responsable_id'] = $request->responsable_id;
+            $datos['solicitante_id'] = $request->safe()->only(['solicitante'])['solicitante'];
+            $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             //Se actualiza el registro de preingreso
@@ -138,6 +146,34 @@ class PreingresoMaterialController extends Controller
         }
 
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+
+    /**
+     * Imprimir
+     */
+    public function imprimir(PreingresoMaterial $preingreso){
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new PreingresoMaterialResource($preingreso);
+        $persona_responsable = Empleado::find($preingreso->responsable_id);
+        $persona_autoriza = Empleado::find($preingreso->autorizador_id);
+        try {
+            $preingreso = $resource->resolve();
+            $preingreso['listadoProductos'] = PreingresoMaterial::listadoProductos($preingreso['id']);
+            Log::channel('testing')->info('Log', ['Preingreso a imprimir es: ', $preingreso]);
+            $pdf = Pdf::loadView('bodega.preingresos.preingreso', compact(['preingreso', 'configuracion', 'persona_responsable', 'persona_autoriza']));
+            $pdf->setPaper('A5', 'landscape');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+            $file = $pdf->output(); //SE GENERA EL PDF
+
+            // return $pdf->stream();
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
+        }
     }
 
     /**

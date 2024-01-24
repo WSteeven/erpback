@@ -7,6 +7,7 @@ use App\Exports\SeguimientoExport;
 use App\Http\Requests\SeguimientoSubtareaRequest;
 use App\Http\Resources\SeguimientoSubtareaResource;
 use App\Models\Empleado;
+use App\Models\MaterialEmpleadoTarea;
 use App\Models\SeguimientoMaterialSubtarea;
 use App\Models\SeguimientoSubtarea;
 use App\Models\Subtarea;
@@ -133,7 +134,7 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_subtareas as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados_tareas as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
@@ -183,7 +184,7 @@ class SeguimientoSubtareaController extends Controller
         $idTarea = Subtarea::find($idSubtarea)->tarea_id;
 
         $results = DB::table('seguimientos_materiales_stock as sms')
-            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida')
+            ->select('dp.descripcion as detalle_producto', 'met.cantidad_stock as stock_actual', 'sms.cantidad_utilizada', 'met.despachado', 'met.devuelto', 'dp.id as detalle_producto_id', 'empresas.razon_social as cliente', 'dp.serial', 'unidades_medidas.simbolo as medida', 'clientes.id as cliente_id')
             ->join('detalles_productos as dp', 'sms.detalle_producto_id', '=', 'dp.id')
             ->join('materiales_empleados as met', function ($join) use ($idEmpleado, $idTarea) {
                 $join->on('dp.id', '=', 'met.detalle_producto_id')
@@ -266,11 +267,11 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function obtenerClientesMaterialesEmpleado(Request $request, Empleado $empleado)
+    public function obtenerClientesMaterialesEmpleado(Request $request)
     {
         $results = DB::table('materiales_empleados')
             ->select('materiales_empleados.cliente_id', 'empresas.razon_social')
-            ->where('empleado_id', $empleado->id)
+            ->where('empleado_id', request('empleado_id'))
             ->join('clientes', 'cliente_id', '=', 'clientes.id')
             ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
             ->groupBy('cliente_id')
@@ -284,21 +285,39 @@ class SeguimientoSubtareaController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function obtenerClientesMaterialesTarea(Request $request, Empleado $empleado)
+    public function obtenerClientesMaterialesTarea(Request $request)
     {
-        $results = DB::table('materiales_empleados_tareas')
-            ->select('materiales_empleados_tareas.cliente_id', 'empresas.razon_social')
-            ->where('empleado_id', $empleado->id)
+        /* $empleado_id = request('empleado_id') ?? $empleado->id;
+        Log::channel('testing')->info('Log', compact('empleado_id')); */
+
+        $results = MaterialEmpleadoTarea::select('cliente_id', 'empresas.razon_social')
+            ->where('empleado_id', request('empleado_id'))
+            ->where('cantidad_stock', '>', 0)
+            ->devolverFiltroTareaEtapaProyecto()
             ->join('clientes', 'cliente_id', '=', 'clientes.id')
             ->join('empresas', 'clientes.empresa_id', '=', 'empresas.id')
-            ->groupBy('cliente_id')
-            ->get();
+            ->groupBy('cliente_id');
+
+        $sql = $results->toSql();
+        Log::channel('testing')->info('Log', compact('sql'));
+        $results = $results->get();
 
         $results->push([
             'cliente_id' => null,
             'razon_social' => 'SIN CLIENTE',
         ]);
 
+
         return response()->json(compact('results'));
     }
+
+    /* function devolverFiltroTareaEtapaProyecto($query)
+    {
+
+        // $query = MaterialEmpleadoTarea::query();
+
+        if(request('filtrar_por_tarea')) return $query->porTarea();
+        if(request('filtrar_por_etapa')) return $query->porEtapa();
+        if(request('filtrar_por_proyecto')) return $query->porProyecto();
+    } */
 }

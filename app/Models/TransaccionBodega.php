@@ -10,6 +10,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransaccionBodega extends Model implements Auditable
@@ -36,6 +37,8 @@ class TransaccionBodega extends Model implements Auditable
         'devolucion_id',
         'pedido_id',
         'transferencia_id',
+        'proyecto_id',
+        'etapa_id',
         'tarea_id',
         'tipo_id',
         'sucursal_id',
@@ -327,10 +330,11 @@ class TransaccionBodega extends Model implements Auditable
     public static function asignarMateriales(TransaccionBodega $transaccion)
     {
         try {
+            DB::beginTransaction();
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
                 $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
-                if($detalle){
+                if ($detalle) {
                     $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
                     $detalleTransaccion->recibido += $valor;
                     $detalleTransaccion->save();
@@ -338,15 +342,17 @@ class TransaccionBodega extends Model implements Auditable
 
                     // Si es material para tarea
                     if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                     } else {
                         // Stock personal
                         MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
                     }
-                }else throw new Exception('No se encontró el detalleProductoTransaccion '.$detalle);
+                } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }
+            DB::commit();
         } catch (Exception $e) {
-            //
+            DB::rollBack();
+            throw new Exception($e->getMessage() . ' ' . $e->getLine());
         }
     }
 

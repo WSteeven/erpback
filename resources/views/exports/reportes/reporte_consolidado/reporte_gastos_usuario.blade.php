@@ -100,7 +100,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                    </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -148,6 +149,12 @@
                 <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                     <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
@@ -189,6 +196,8 @@
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
+                    <td style="font-size:10px">{{ $gasto['centro_costo'] }}</td>
+                    <td style="font-size:10px">{{ $gasto['sub_centro_costo'] }}</td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['autorizador'] }}
@@ -201,7 +210,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="9" style="font-size:10px" width="29%">
+                <td colspan="11" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">

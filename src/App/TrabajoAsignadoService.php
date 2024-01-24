@@ -24,7 +24,7 @@ class TrabajoAsignadoService
 
     public function obtenerTodosTrabajosAsignadosEmpleado(Empleado $empleado)
     {
-        return $empleado->subtareas()->filter()->where('fecha_hora_agendado', '!=', null)->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO])->noEsStandby()->get();
+        return $empleado->subtareas()->where('fecha_hora_agendado', '!=', null)->whereIn('estado', [Subtarea::AGENDADO, Subtarea::EJECUTANDO, Subtarea::PAUSADO, Subtarea::REALIZADO])->noEsStandby()->get();
     }
 
     /********************

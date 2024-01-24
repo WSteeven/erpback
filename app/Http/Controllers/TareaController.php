@@ -54,14 +54,13 @@ class TareaController extends Controller
         } */
 
         if (request('formulario')) {
-            return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
-                $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
-            })->latest()->get();
-            // return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
+            // return Tarea::ignoreRequest(['campos', 'formulario'])->filter()->where('finalizado', false)->orWhere(function ($query) {
+            //     $query->where('finalizado', true)->disponibleUnaHoraFinalizar();
+            // })->latest()->get();
+            return $this->tareaService->obtenerTareasAsignadasEmpleadoLuegoFinalizar(request('empleado_id'));
         }
 
         if (request('activas_empleado')) return $this->tareaService->obtenerTareasAsignadasEmpleado(request('empleado_id'));
-
         if (request('campos')) {
             if ($esCoordinadorBackup) return Tarea::ignoreRequest(['campos'])->filter()->latest()->get($campos);
             if ($esCoordinador) return Tarea::ignoreRequest(['campos'])->filter()->porCoordinador()->latest()->get($campos);
@@ -79,7 +78,8 @@ class TareaController extends Controller
     public function index()
     {
         $results = $this->listar();
-        if (!request('campos')) $results = TareaResource::collection($results);
+        // if (!request('campos')) $results = TareaResource::collection($results);
+        $results = TareaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -88,6 +88,8 @@ class TareaController extends Controller
      **********/
     public function store(TareaRequest $request)
     {
+        if (!$this->tareaService->puedeCrearMasTareas()) throw ValidationException::withMessages(['422' => ['No puede crear más tareas!']]);
+
         DB::beginTransaction();
 
         try {
@@ -98,12 +100,13 @@ class TareaController extends Controller
             $datos['ruta_tarea_id'] = $request->safe()->only(['ruta_tarea'])['ruta_tarea'];
             $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
             $datos['fiscalizador_id'] = $request->safe()->only(['fiscalizador'])['fiscalizador'];
+            $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
             $datos['codigo_tarea'] = 'TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1);
             $para_cliente_proyecto = $request['para_cliente_proyecto'];
             if ($request->centro_costo) $datos['centro_costo_id'] = $request->safe()->only(['centro_costo'])['centro_costo'];
             else $datos['centro_costo_id'] = $request->no_lleva_centro_costo ? null : CentroCosto::crearCentroCosto('TR' . (Tarea::count() == 0 ? 1 : Tarea::latest('id')->first()->id + 1), $request->cliente, false);
 
-            // Establecer coordinador
+            // Establecer coordinador tarea para cliente final o mantenimiento
             $esCoordinadorBackup = Auth::user()->hasRole(User::ROL_COORDINADOR_BACKUP);
             if ($esCoordinadorBackup && $para_cliente_proyecto === Tarea::PARA_CLIENTE_FINAL) $datos['coordinador_id'] = $request->safe()->only(['coordinador'])['coordinador'];
             else $datos['coordinador_id'] = Auth::user()->empleado->id;
@@ -286,4 +289,23 @@ class TareaController extends Controller
         // Log::channel('testing')->info('Log', compact('tareas'));
         return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
     }
+
+    // public function obtenerTareasEmpleado(Request $request){
+    //     if (!$request->exists('proyecto_id')) $request->merge(['proyecto_id' => null]);
+    //     $campos = $request->campos?explode(',', request('campos')):'*';
+    //     $tareas_ids_subtareas = Subtarea::where('empleado_id', $request->empleado_id)->get('tarea_id');
+    //     $results = [];
+    //     if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_COORDINADOR_BACKUP])) {
+    //         Log::channel('testing')->info('Log', ['entro en rol hefe tecnico y coordinador backup']);
+    //         $results = Tarea::ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get($campos);
+    //     }else if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_SUPERVISOR_TECNICO])) {
+    //         Log::channel('testing')->info('Log', ['entro en rol coordinador, empleado_id:', auth()->user()->empleado->id]);
+    //         $results = Tarea::where('coordinador_id', auth()->user()->empleado->id)->ignoreRequest(['empleado_id', 'campos', 'para_cliente_proyecto'])->filter()->orderBy('id','desc')->get($campos);
+    //     }else{
+    //         Log::channel('testing')->info('Log', ['entro en rol else', $request->all(), $request->empleado_id]);
+    //         $results = Tarea::whereIn('id', $tareas_ids_subtareas)->where('proyecto_id', $request->proyecto_id)->ignoreRequest(['empleado_id', 'campos'])->filter()->orderBy('id','desc')->get($campos);
+    //     }
+    //     $results = TareaResource::collection($results);
+    //     return response()->json(compact('results'));
+    // }
 }

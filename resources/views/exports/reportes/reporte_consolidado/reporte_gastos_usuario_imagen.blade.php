@@ -191,7 +191,7 @@
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{$usuario}}
+                                                        {{ $usuario }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
@@ -216,7 +216,7 @@
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{$usuario}}
+                                                        {{ $usuario }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
@@ -241,7 +241,7 @@
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{$usuario}}
+                                                        {{ $usuario }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
@@ -265,7 +265,7 @@
                                             <tr>
                                                 <td style="font-size:10px" width="29%">
                                                     <div align="left">
-                                                        {{$usuario}}
+                                                        {{ $usuario }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px" width="15%">
@@ -344,6 +344,12 @@
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
@@ -397,12 +403,14 @@
                             </a>
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:10px; word-wrap: break-word;">
                         <div align="left">{{ strtoupper($gasto['observacion']) }}</div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:10px; word-wrap: break-word;">
                         <div align="left">{{ strtoupper($gasto['detalle_estado']) }}</div>
                     </td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['autorizador'] }}

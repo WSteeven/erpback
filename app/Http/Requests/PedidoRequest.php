@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Models\Fibra;
+use App\Models\Proyecto;
+use App\Models\Tareas\Etapa;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +39,9 @@ class PedidoRequest extends FormRequest
             'per_autoriza' => 'required|numeric|exists:empleados,id',
             'per_retira' => 'sometimes|nullable|numeric|exists:empleados,id',
             'cliente' => 'sometimes|nullable|numeric|exists:clientes,id',
-            'tarea' => 'sometimes|nullable|numeric|exists:tareas,id',
+            'proyecto' =>  'sometimes|nullable|numeric|exists:proyectos,id',
+            'etapa' =>  'sometimes|nullable|numeric|exists:tar_etapas,id',
+            'tarea' =>  'sometimes|nullable|numeric|exists:tareas,id',
             'sucursal' => 'required|numeric|exists:sucursales,id',
             'estado' => 'required|numeric|exists:estados_transacciones_bodega,id',
             'listadoProductos.*.cantidad' => 'required',
@@ -89,6 +93,15 @@ class PedidoRequest extends FormRequest
         }
         if (is_null($this->solicitante) || $this->solicitante === '') {
             $this->merge(['solicitante' => auth()->user()->empleado->id]);
+        }
+        if($this->proyecto){// cambio del autorizador si selecciona proyecto o etapa
+            if($this->etapa){
+                $etapa = Etapa::find($this->etapa);
+                $this->merge(['per_autoriza' => $etapa->responsable_id]);
+            }else{
+                $proyecto = Proyecto::find($this->proyecto);
+                $this->merge(['per_autoriza' => $proyecto->coordinador_id]);
+            }
         }
         if ((is_null($this->per_autoriza) || $this->per_autoriza === '')&& !$this->tarea) {
             $this->merge(['per_autoriza' => auth()->user()->empleado->jefe_id]);

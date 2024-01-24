@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
 use App\Models\Tareas\CentroCosto;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,6 +49,7 @@ class Tarea extends Model implements Auditable
         'cliente_id',
         'cliente_final_id',
         'ruta_tarea_id',
+        'etapa_id',
         'centro_costo_id',
     ];
 
@@ -159,6 +161,11 @@ class Tarea extends Model implements Auditable
     public function notificaciones()
     {
         return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function etapa()
+    {
+        return $this->belongsTo(Etapa::class);
     }
 
     /*********

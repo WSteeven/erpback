@@ -29,7 +29,7 @@ class GastoResource extends JsonResource
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->proyecto_info != null ? $this->proyecto_info->codigo_proyecto . ' - ' . $this->proyecto_info->nombre : 'Sin Proyecto',
             'ruc' => $this->ruc,
-            'factura' => $this->factura,
+            'factura' => strlen($this->factura)>1?$this->factura:null,
             'aut_especial_user' => $this->aut_especial_user->nombres . ' ' . $this->aut_especial_user->apellidos,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
@@ -59,6 +59,8 @@ class GastoResource extends JsonResource
             'tiene_factura' => $this->sub_detalle_info != null ? $this->tiene_factura($this->sub_detalle_info) : true,
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
+            'centro_costo' => $this->tarea_info !== null ? $this->tarea_info?->centroCosto?->nombre:'',
+            'subcentro_costo' => $this->empleado_info->grupo==null ?'':$this->empleado_info->grupo?->subCentroCosto?->nombre,
         ];
         return $modelo;
     }

@@ -33,6 +33,8 @@ class DetalleDevolucionProducto extends Pivot implements Auditable
     protected $fillable = [
         'detalle_id',
         'devolucion_id',
+        'observacion',
+        'condicion_id',
         'cantidad',
         'devuelto',
     ];
@@ -48,6 +50,10 @@ class DetalleDevolucionProducto extends Pivot implements Auditable
      * RELACIONES CON OTRAS TABLAS
      * ______________________________________________________________________________________
      */
+
+     public function condicion(){
+        return $this->belongsTo(Condicion::class);
+     }
 
 
 }

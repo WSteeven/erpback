@@ -32,9 +32,10 @@ class ClienteController extends Controller
     {
         $search = $request['search'];
         $campos = explode(',', $request['campos']);
+
         $results = [];
         if ($request['campos']) {
-            $results = Cliente::ignoreRequest(['campos'])->filter()->get($campos);
+            $results = Cliente::ignoreRequest(['campos'])->filter()->get();
             // return response()->json(compact('results'));
         } else if ($search) {
             $empresa = Empresa::select('id')->where('razon_social', 'LIKE', '%' . $search . '%')->first();

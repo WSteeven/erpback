@@ -45,7 +45,7 @@ class Cliente extends Model implements Auditable
      */
     public function empresa()
     {
-        return $this->belongsTo(Empresa::class);
+        return $this->belongsTo(Empresa::class, 'empresa_id', 'id');
     }
     /**
      * Relacion uno a muchos
