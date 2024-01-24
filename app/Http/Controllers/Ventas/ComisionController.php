@@ -72,7 +72,7 @@ class ComisionController extends Controller
         return response()->json(compact('comision'));
     }
     public function obtener_comision($idProducto,$forma_pago,$vendedor){
-        $vendedor = Vendedor::where('id',$vendedor)->first();
+        $vendedor = Vendedor::where('empleado_id',$vendedor)->first();
         $tipo_vendedor = $vendedor->tipo_vendedor;
         $producto = ProductoVenta::where('id', $idProducto)->first();
         $comision = Comision::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->where('tipo_vendedor',$tipo_vendedor)->first();

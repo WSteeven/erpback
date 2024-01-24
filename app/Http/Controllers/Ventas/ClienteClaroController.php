@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ventas;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\ClienteClaroRequest;
 use App\Http\Resources\Ventas\ClienteClaroResource;
+use App\Models\User;
 use App\Models\Ventas\ClienteClaro;
 use Exception;
 use Illuminate\Http\Request;
@@ -26,7 +27,11 @@ class ClienteClaroController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = ClienteClaro::ignoreRequest(['campos'])->filter()->get();
+        if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
+            $results = ClienteClaro::where('supervisor_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->get();
+        } else {
+            $results = ClienteClaro::ignoreRequest(['campos'])->filter()->get();
+        }
         $results = ClienteClaroResource::collection($results);
         return response()->json(compact('results'));
     }
