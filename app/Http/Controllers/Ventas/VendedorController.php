@@ -35,17 +35,12 @@ class VendedorController extends Controller
         // }
         if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
             $results = Vendedor::where('jefe_inmediato_id', auth()->user()->empleado->id)->filter()->get();
-        }else{
+        } else {
             $results = Vendedor::filter()->get();
         }
 
         $results = VendedorResource::collection($results);
         return response()->json(compact('results'));
-    }
-    public function show(Request $request, Vendedor $vendedor)
-    {
-        $modelo = new VendedorResource($vendedor);
-        return response()->json(compact('modelo'));
     }
     public function store(VendedorRequest $request)
     {
@@ -53,7 +48,9 @@ class VendedorController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $vendedor = Vendedor::create($datos);
+            Log::channel('testing')->info('Log', ['vendedor', $vendedor]);
             $modelo = new VendedorResource($vendedor);
+            Log::channel('testing')->info('Log', ['vendedor resource', $modelo]);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -62,6 +59,13 @@ class VendedorController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+
+    public function show(Request $request, Vendedor $vendedor)
+    {
+        $modelo = new VendedorResource($vendedor);
+        return response()->json(compact('modelo'));
+    }
+
     public function update(VendedorRequest $request, Vendedor $vendedor)
     {
         try {

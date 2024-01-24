@@ -15,7 +15,20 @@ class Vendedor extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_vendedores';
-    protected $fillable = ['empleado_id', 'modalidad_id', 'tipo_vendedor', 'jefe_inmediato', 'jefe_inmediato_id', 'activo', 'causa_desactivacion'];
+    protected $fillable = [
+        'empleado_id',
+        'modalidad_id',
+        'tipo_vendedor',
+        'jefe_inmediato_id', 
+        'activo', 
+        'causa_desactivacion'
+    ];
+
+    //obtener la llave primaria
+    public function getKeyName()
+    {
+        return 'empleado_id';
+    }
 
     const VENDEDOR = 'VENDEDOR';
     const JEFE_VENTAS = 'JEFE DE VENTAS';
@@ -32,7 +45,7 @@ class Vendedor extends Model implements Auditable
     ];
     public function empleado()
     {
-        return $this->hasOne(Empleado::class, 'id', 'empleado_id')->with('canton');
+        return $this->belongsTo(Empleado::class, 'id', 'empleado_id')->with('canton');
     }
     public function modalidad()
     {
