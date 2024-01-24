@@ -19,16 +19,19 @@ class Vendedor extends Model implements Auditable
         'empleado_id',
         'modalidad_id',
         'tipo_vendedor',
-        'jefe_inmediato_id', 
-        'activo', 
+        'jefe_inmediato_id',
+        'activo',
         'causa_desactivacion'
     ];
 
+    protected $primaryKey = 'empleado_id';
     //obtener la llave primaria
     public function getKeyName()
     {
         return 'empleado_id';
     }
+    public $incrementing = false;
+
 
     const VENDEDOR = 'VENDEDOR';
     const JEFE_VENTAS = 'JEFE DE VENTAS';
@@ -45,7 +48,8 @@ class Vendedor extends Model implements Auditable
     ];
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'id', 'empleado_id')->with('canton');
+        return $this->belongsTo(Empleado::class);
+        // return $this->belongsTo(Empleado::class, 'id', 'empleado_id')->with('canton');
     }
     public function modalidad()
     {

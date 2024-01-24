@@ -40,6 +40,13 @@ class VendedorRequest extends FormRequest
 
         return $rules;
     }
+
+    public function messages()
+    {
+        return [
+            'empleado_id.unique' => 'El empleado ya ha sido registrado como vendedor, verifica tus datos e intenta nuevamente.'
+        ];
+    }
     protected function prepareForValidation()
     {
         $this->merge([

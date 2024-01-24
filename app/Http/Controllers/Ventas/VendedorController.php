@@ -10,7 +10,6 @@ use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class VendedorController extends Controller
@@ -25,14 +24,6 @@ class VendedorController extends Controller
     }
     public function index(Request $request)
     {
-        // $results = [];
-        // if ($request->supervisor === true) {
-        //     // Log::channel('testing')->info('Log', ['supervisor']);
-        //     $results = Vendedor::ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
-        // } else {
-        //     // Log::channel('testing')->info('Log', ['vendedor']);
-        //     $results = Vendedor::where('tipo_vendedor', '!=', Vendedor::SUPERVISOR_VENTAS)->ignoreRequest(['campos','supervisor'])->filter()->with('jefe_inmediato')->get();
-        // }
         if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
             $results = Vendedor::where('jefe_inmediato_id', auth()->user()->empleado->id)->filter()->get();
         } else {
@@ -48,9 +39,7 @@ class VendedorController extends Controller
             $datos = $request->validated();
             DB::beginTransaction();
             $vendedor = Vendedor::create($datos);
-            Log::channel('testing')->info('Log', ['vendedor', $vendedor]);
             $modelo = new VendedorResource($vendedor);
-            Log::channel('testing')->info('Log', ['vendedor resource', $modelo]);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
