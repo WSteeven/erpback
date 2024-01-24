@@ -13,15 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_examenes', function (Blueprint $table) {
+        Schema::create('estado_solicitud_examens', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
-            // $table->json('ids_cargos_acceso')->nullable();
-
-            // Foreign keys
-            // $table->unsignedBigInteger('categoria_examen_id');
-            // $table->foreign('categoria_examen_id')->references('id')->on('med_categorias_examenes')->onDelete('cascade')->onUpdate('cascade');
-
             $table->timestamps();
         });
     }
@@ -33,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_examenes');
+        Schema::dropIfExists('estado_solicitud_examens');
     }
 };
