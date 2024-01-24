@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Medicos;
+namespace App\Models\Medico;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,10 +13,4 @@ class GestionPaciente extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
     protected $table = 'med_';
-
-    // Contantes
-    const INGRESO = 'INGRESO';
-    const OCUPACIONALES = 'OCUPACIONALES';
-    const REINGRESO = 'REINGRESO';
-    const SALIDA = 'SALIDA';
 }

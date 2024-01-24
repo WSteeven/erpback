@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Medico;
 
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
