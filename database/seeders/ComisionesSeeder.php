@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Ventas\Comisiones;
+use App\Models\Ventas\Comision;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class ComisionesSeeder extends Seeder
      */
     public function run()
     {
-        Comisiones::insert([
+        Comision::insert([
             ['plan_id' => 1,'forma_pago'=>'EFECTIVO','comision'=>170,'tipo_vendedor'=>'VENDEDOR'],
             ['plan_id' => 2,'forma_pago'=>'EFECTIVO','comision'=>190,'tipo_vendedor'=>'VENDEDOR'],
             ['plan_id' => 3,'forma_pago'=>'EFECTIVO','comision'=>200,'tipo_vendedor'=>'VENDEDOR'],
