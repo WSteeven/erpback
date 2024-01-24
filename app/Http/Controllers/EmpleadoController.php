@@ -495,6 +495,6 @@ class EmpleadoController extends Controller
             Log::channel('testing')->info('Log', ['error en obtenerEmpleadosFondosRotativos', $th->getMessage(), $th->getLine()]);
             throw new ValidationException($th->getMessage());
         }
-        response()->json(compact('results'));
+        return response()->json(compact('results'));
     }
 }

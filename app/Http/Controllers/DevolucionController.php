@@ -114,7 +114,7 @@ class DevolucionController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
