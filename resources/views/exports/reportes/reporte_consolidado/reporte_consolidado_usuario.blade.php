@@ -111,7 +111,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                    </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -279,7 +280,7 @@
                                             </td>
                                             <td style="font-size:10px" align="center">
                                                 <div align="right" style="margin-right:20px;">
-                                                    {{ number_format($nuevo_saldo, 2, ',', ' ') }}</div>
+                                                    {{ number_format($total_suma, 2, ',', ' ') }}</div>
                                             </td>
                                         </tr>
                                         <!--Fin Saldo Final-->
@@ -323,6 +324,12 @@
                 </td>
                 <td width="24%" bgcolor="#a9d08e">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
                 </td>
                 <td width="10%" bgcolor="#a9d08e">
                     <div align="center"><strong>CANT.</strong></div>
@@ -384,12 +391,14 @@
                         <td style="font-size:10px;word-wrap: break-word;">
                             <div align="center">{{ $dato->observacion }}</div>
                         </td>
+                        <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
+                        <td style="font-size:10px">{{ $dato['sub_centro_costo'] }}</td>
                         <td style="font-size:10px">
                             <div align="center">{{ $dato->cantidad }}</div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ number_format($dato->valor_u_unitario, 2, ',', '.') }}</div>
+                                {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
@@ -400,7 +409,7 @@
             @endif
             <tr>
                 <td>&nbsp;</td>
-                <td colspan="10" style="font-size:10px">
+                <td colspan="12" style="font-size:10px">
                     <div align="right"><strong>TOTAL DE GASTOS:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">

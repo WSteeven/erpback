@@ -58,6 +58,7 @@ class SubtareaRequest extends FormRequest
             // 'empleados_adicionales' => 'nullable|array',
             'modo_asignacion_trabajo' => 'required|string',
             'metraje_tendido' => 'nullable|numeric|integer',
+            'subtarea_id' => 'nullable|numeric|integer',
         ];
     }
 

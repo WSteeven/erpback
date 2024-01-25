@@ -33,6 +33,7 @@ class ConfiguracionGeneralResource extends JsonResource
             'sitio_web' => $this->sitio_web,
             'direccion_secundaria1' => $this->direccion_secundaria1,
             'direccion_secundaria2' => $this->direccion_secundaria2,
+            'nombre_empresa' => $this->nombre_empresa,
         ];
     }
 }

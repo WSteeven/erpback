@@ -36,7 +36,7 @@ class PrestamoHipotecarioImport implements ToModel, WithHeadingRow, WithValidati
     {
         return [
             '*.cedula' => ['required'],
-            '*.nut' => ['integer', 'required','unique:prestamo_hipotecario,nut'],
+            '*.nut' => ['integer', 'required'],
             '*.valor' => ['numeric', 'required'],
         ];
     }

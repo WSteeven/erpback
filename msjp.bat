@@ -51,7 +51,7 @@ if not defined component (
 
 rem Ejecutamos comandos de laravel
 echo Ejecutando comandos porfavor espere ...
-set migration_name= create_%prefix%%component%_table
+set migration_name= create_%prefix%%component%s_table
 php artisan make:model  %nmodule%/%component%
 php artisan make:migration %migration_name%
 php artisan make:controller %nmodule%/%component%Controller

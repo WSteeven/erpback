@@ -45,7 +45,7 @@ class MotivoController extends Controller
         return response()->json(compact('results'));
     }
 
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -57,8 +57,8 @@ class MotivoController extends Controller
         //adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_transaccion_id'] = $request->safe()->only(['tipo_transaccion'])['tipo_transaccion'];
-        
-        //Respuesta 
+
+        //Respuesta
         $modelo = Motivo::create($datos);
         $modelo = new MotivoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -90,7 +90,7 @@ class MotivoController extends Controller
         //Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['tipo_transaccion_id'] = $request->safe()->only(['tipo_transaccion'])['tipo_transaccion'];
-        
+
         //Respuesta
         $motivo->update($datos);
         $modelo = new MotivoResource($motivo->refresh());
@@ -105,11 +105,11 @@ class MotivoController extends Controller
      * @param  \App\Models\Motivo  $motivo
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Motivo $motivo)
-    {
-        $motivo->delete();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+    // public function destroy(Motivo $motivo)
+    // {
+    //     $motivo->delete();
+    //     $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
 
-        return response()->json(compact('mensaje'));
-    }
+    //     return response()->json(compact('mensaje'));
+    // }
 }

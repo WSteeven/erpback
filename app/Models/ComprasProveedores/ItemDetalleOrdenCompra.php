@@ -16,12 +16,26 @@ class ItemDetalleOrdenCompra extends Model implements Auditable
     use AuditableModel;
 
     protected $table = 'cmp_item_detalle_orden_compra';
+    protected $fillable = [
+        'orden_compra_id',
+        'producto_id',
+        'descripcion',
+        'cantidad',
+        'porcentaje_descuento',
+        'descuento',
+        'facturable',
+        'grava_iva',
+        'precio_unitario',
+        'iva',
+        'subtotal',
+        'total',
+    ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
-        'facturable'=>'boolean',
-        'grava_iva'=>'boolean',
+        'facturable' => 'boolean',
+        'grava_iva' => 'boolean',
     ];
     
 }

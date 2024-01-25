@@ -26,7 +26,7 @@ class PrestamoQuirirafarioController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = PrestamoQuirorafario::ignoreRequest(['campos'])->filter()->get();
+        $results = PrestamoQuirorafario::ignoreRequest(['campos'])->filter()->orderBy('mes', 'desc')->get();
         $results = PrestamoQuirorafarioResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -95,6 +95,7 @@ class PrestamoQuirirafarioController extends Controller
     {
         $prestamoQuirorafario = PrestamoQuirorafario::find($prestamoQuirorafarioId);
         $prestamoQuirorafario->delete();
-        return $prestamoQuirorafario;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

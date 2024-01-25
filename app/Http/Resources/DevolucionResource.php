@@ -27,7 +27,7 @@ class DevolucionResource extends JsonResource
             'solicitante_id' => $this->solicitante_id,
             'tarea' => $this->tarea?->titulo,
             'tarea_id' => $this->tarea_id,
-            'canton' => $this->canton->canton,
+            'canton' => $this->canton?->canton,
             'estado' => $this->estado,
             'observacion_aut' => $this->observacion_aut,
             'autorizacion' => $this->autorizacion?->nombre,
@@ -41,6 +41,11 @@ class DevolucionResource extends JsonResource
 
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
+            'cliente' => $this->cliente_id,
+            'cliente_id' => $this->cliente_id,
+            'sucursal' => $this->sucursal?->lugar,
+            'sucursal_id' => $this->sucursal_id,
+            'pedido_automatico' => $this->pedido_automatico,
         ];
 
         if ($controller_method == 'show') {
@@ -49,6 +54,9 @@ class DevolucionResource extends JsonResource
             $modelo['canton'] = $this->canton_id;
             $modelo['per_autoriza'] = $this->per_autoriza_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['cliente'] = $this->cliente_id;
+            $modelo['misma_condicion'] = Devolucion::obtenerCondicionListado($this->id);
         }
 
         return $modelo;

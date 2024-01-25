@@ -25,6 +25,7 @@ class ProveedorResource extends JsonResource
             'empresa' => $this->empresa_id,
             'ruc' => $this->empresa->identificacion,
             'razon_social' => $this->empresa->razon_social,
+            'nombre_comercial' => $this->empresa->nombre_comercial,
             'sitio_web' => $this->empresa->sitio_web,
             'sucursal' => $this->sucursal,
             'ubicacion' => $this->parroquia ? $this->parroquia?->canton->provincia->provincia . ' - ' . $this->parroquia?->canton->canton . ' - ' . $this->parroquia?->parroquia : null,
@@ -34,6 +35,7 @@ class ProveedorResource extends JsonResource
             'celular' => $this->celular,
             'telefono' => $this->telefono,
             'estado' => $this->estado,
+            'correo' => $this->correo,
             'tipos_ofrece' => $this->servicios_ofertados->map(fn ($item) => $item->id),
             'categorias_ofrece' => $this->categorias_ofertadas->map(fn ($item) => $item->id),
             'departamentos' => $this->departamentos_califican->map(fn ($item) => $item->id),
@@ -59,6 +61,7 @@ class ProveedorResource extends JsonResource
 
         if ($controller_method == 'show') {
             //listados
+            $modelo['canton'] = $this->parroquia?->canton_id;
             $modelo['parroquia'] = $this->parroquia_id;
             $modelo['tipos_ofrece'] = $this->servicios_ofertados->map(fn ($item) => $item->id);
             $modelo['categorias_ofrece'] = $this->categorias_ofertadas->map(fn ($item) => $item->id);

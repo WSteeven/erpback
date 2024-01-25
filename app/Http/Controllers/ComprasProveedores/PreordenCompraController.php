@@ -11,7 +11,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Src\Config\Autorizaciones;
 use Src\Shared\Utils;
 
 class PreordenCompraController extends Controller
@@ -30,13 +30,51 @@ class PreordenCompraController extends Controller
      */
     public function index(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS])) 
-            $results = PreordenCompra::ignoreRequest(['solicitante_id'])->filter()->get();
-        
-        $results = PreordenCompra::filter()->get();
+        if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_COMPRAS, User::ROL_COORDINADOR_BODEGA]))
+            $results = PreordenCompra::ignoreRequest(['solicitante_id'])->filter()->orderBy('updated_at', 'desc')->get();
+        else
+            $results = PreordenCompra::filter()->get();
         $results = PreordenCompraResource::collection($results);
 
         return response()->json(compact('results'));
+    }
+
+    /**
+     * Crear preordenes de compras.
+     * Este metodo solo se usa para crear manualmente una preorden de compra y consolidando otra.
+     */
+    public function store(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $items = collect($request->all())->map(function ($item) {
+                return [
+                    'detalle_id' => $item['detalle_id'],
+                    'cantidad' => $item['cantidad'],
+                ];
+            });
+            //Primero se elimina de las preordenes los items que ya se van a crear
+            PreordenCompra::eliminarItemsConsolidacion($items->pluck('detalle_id'));
+            $preorden = PreordenCompra::create([
+                'solicitante_id' => auth()->user()->empleado->id,
+                'pedido_id' => null,
+                'autorizador_id' => auth()->user()->empleado->id,
+                'autorizacion_id' => Autorizaciones::APROBADO,
+            ]);
+
+            // guardar los detalles en la preorden
+            $preorden->detalles()->sync($items);
+            $preorden->auditSync('detalles', $items);
+
+            $modelo = new PreordenCompraResource($preorden);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
+
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $e->getMessage() . '. ' . $e->getLine();
+        }
     }
 
     /**
@@ -53,21 +91,16 @@ class PreordenCompraController extends Controller
      */
     public function update(PreordenCompraRequest $request, PreordenCompra $preorden)
     {
-        Log::channel('testing')->info('Log', ['entro en el update del pedido', $request->all()]);
-        Log::channel('testing')->info('Log', ['preorden para actualizar', $request->listadoProductos]);
-        $detalles = array_map(function ($detalle) {
-            return  [
-                'detalle_id' => $detalle['id'],
-                'cantidad' => $detalle['cantidad'],
-            ];
-        }, $request->listadoProductos);
-        Log::channel('testing')->info('Log', ['preorden mapeada', $detalles]);
         try {
+            $detalles = array_map(function ($detalle) {
+                return  [
+                    'detalle_id' => $detalle['id'],
+                    'cantidad' => $detalle['cantidad'],
+                ];
+            }, $request->listadoProductos);
             DB::beginTransaction();
-            foreach ($request->listadoProductos as $detalle) {
-                Log::channel('testing')->info('Log', ['detalle', $detalle]);
-            }
             $preorden->detalles()->sync($detalles);
+            $preorden->auditSync('detalles', $detalles);
 
             DB::commit();
             $modelo = new PreordenCompraResource($preorden->refresh());
@@ -75,7 +108,7 @@ class PreordenCompraController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['Ocurrió un error al actualizar la preorden compra', $e->getMessage(), $e->getLine()]);
+            return $e->getMessage() . '. ' . $e->getLine();
         }
     }
 
@@ -91,14 +124,26 @@ class PreordenCompraController extends Controller
     /**
      * Anular una preorden de compra
      */
-    public function anular(Request $request, PreordenCompra $preorden){
-        $request->validate(['motivo'=>['required', 'string']]);
+    public function anular(Request $request, PreordenCompra $preorden)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
         $preorden->causa_anulacion = $request['motivo'];
         $preorden->estado = EstadoTransaccion::ANULADA;
-        $preorden->latestNotificacion()->update(['leida'=>true]);//marcando como leída la notificacion en caso de que esté vigente
+        $preorden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion en caso de que esté vigente
         $preorden->save();
 
         $modelo = new PreordenCompraResource($preorden->refresh());
         return response()->json(compact('modelo'));
+    }
+
+    public function consolidar()
+    {
+        $results = [];
+        try {
+            $results = PreordenCompra::itemsPreordenesPendientes();
+        } catch (Exception $e) {
+            return response()->json(compact('e'));
+        }
+        return response()->json(compact('results'));
     }
 }

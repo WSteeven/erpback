@@ -21,7 +21,7 @@ return new class extends Migration
         // Log::channel('testing')->info('Log', ['archivo sql', $sql, ]);
         DB::unprepared($sql);
     }
-
+    
     /**
      * Reverse the migrations.
      *

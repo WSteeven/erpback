@@ -54,6 +54,10 @@ class Transferencias extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+    }
     private static $whiteListFilter = [
         'usuario_envia_id',
         'usuario_recibe_id',

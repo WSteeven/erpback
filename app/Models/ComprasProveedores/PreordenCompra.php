@@ -7,6 +7,7 @@ use App\Events\ComprasProveedores\PreordenEvent;
 use App\Models\Autorizacion;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
+use App\Models\EstadoTransaccion;
 use App\Models\Notificacion;
 use App\Models\Pedido;
 use App\Models\User;
@@ -19,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
+use Src\Config\Autorizaciones;
+use Src\Config\EstadosTransacciones;
 
 class PreordenCompra extends Model implements Auditable
 {
@@ -118,12 +121,12 @@ class PreordenCompra extends Model implements Auditable
     /**
      * La función genera un mensaje para una preorden de compra generada automáticamente, que
      * incluye información sobre el solicitante y el autorizador.
-     * 
+     *
      * @param PreordenCompra $preorden El parámetro "preorden" es una instancia de la clase
      * "PreordenCompra". Representa una preorden de compra y contiene información como el ID de la
      * preorden, el nombre de la persona que lo solicitó (solicitante) y el nombre de la persona que lo
      * autorizó (autorizador).
-     * 
+     *
      * @return string $msg una cadena que incluye el número de preorden de compra, el nombre de la persona que
      * solicitó la preorden, el nombre de la persona que autorizó la preorden y un
      * mensaje para verificar y generar la orden de compra respectiva.
@@ -132,11 +135,15 @@ class PreordenCompra extends Model implements Auditable
     {
         return 'Preorden de compra N° ' . $preorden->id . ' generada automaticamente por el sistema, solicitada por ' . $preorden->solicitante->nombres . ' ' . $preorden->solicitante->apellidos . ' y autorizada por ' . $preorden->autorizador->nombres . ' ' . $preorden->autorizador->apellidos . '. Por favor verifica y genera la respectiva orden de compra';
     }
+    public static function generarMensajePreordenAutomaticaControlStock(PreordenCompra $preorden)
+    {
+        return 'Preorden de compra N° ' . $preorden->id . ' generada automaticamente por el sistema mediante control de stock, solicitada por ' . $preorden->solicitante->nombres . ' ' . $preorden->solicitante->apellidos . ' y autorizada por ' . $preorden->autorizador->nombres . ' ' . $preorden->autorizador->apellidos . '. Por favor verifica y genera la respectiva orden de compra';
+    }
 
     /**
      * La función "generarPreorden" crea una preorden anticipado para una compra en función de un pedido y
      * artículos determinados.
-     * 
+     *
      * @param Pedido pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema.
      * Contiene información como la identificación del solicitante (solicitante), la identificación del
      * autorizador (autorizador) y la identificación de la autorización (autorización).
@@ -159,21 +166,46 @@ class PreordenCompra extends Model implements Auditable
             // guardar los detalles en la preorden
             $preorden->detalles()->sync($items);
 
-            DB::commit();
             $msg = self::generarMensajePreordenAutomatica($preorden);
-            event(new PreordenCreadaEvent($msg, User::ROL_COMPRAS, $url, $preorden, true));
+            event(new PreordenCreadaEvent($msg, User::ROL_BODEGA, $url, $preorden, true));
+            DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al generar la preorden de compra', $e->getMessage(), $e->getLine()]);
         }
     }
 
+    public static function generarPreordenControlStock($item){
+        $url = '/preordenes-compras';
+        try {
+            $coordinadorBodega = User::whereHas("roles", function ($q) {
+                $q->where("name", User::ROL_COORDINADOR_BODEGA);
+            })->first();
+            DB::beginTransaction();
+            $preorden = PreordenCompra::create([
+                'solicitante_id'=>$coordinadorBodega->empleado->id,
+                'autorizador_id'=>$coordinadorBodega->empleado->id,
+                'autorizacion_id'=>Autorizaciones::APROBADO
+            ]);
+
+            $preorden->detalles()->sync($item);
+
+            $msg = self::generarMensajePreordenAutomaticaControlStock($preorden);
+            event(new PreordenCreadaEvent($msg, User::ROL_BODEGA, $url, $preorden, true));
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['Ha ocurrido un error en el método generarPreordenControlStock', $th->getMessage(), $th->getLine()]);
+            throw $th;
+        }
+    }
+
     /**
      * La función "listadoProductos" recupera detalles de productos de una pre-orden de compra y los
      * devuelve en una matriz.
-     * 
+     *
      * @param int id El parámetro "id" es un número entero que representa el ID de una preorden de compra.
-     * 
+     *
      * @return una matriz de detalles del producto para una identificación de compra de pedido
      * anticipado determinada. Cada detalle de producto incluye el ID, el nombre, la descripción, la
      * categoría, la unidad de medida, el número de serie, la cantidad y los valores calculados para el
@@ -201,5 +233,61 @@ class PreordenCompra extends Model implements Auditable
         }
 
         return $results;
+    }
+
+    public static function itemsPreordenesPendientes()
+    {
+        try {
+            $results = [];
+            $row = [];
+            $ids_preordenes = PreordenCompra::where('estado', EstadoTransaccion::PENDIENTE)->get('id');
+            $items = ItemDetallePreordenCompra::select('detalle_id', DB::raw('sum(cantidad) as total'))
+                ->whereIn('preorden_id', $ids_preordenes)->groupBy('detalle_id')->orderBy('total', 'desc')
+                ->get();
+            foreach ($items as $index => $item) {
+                $detalle = DetalleProducto::where('id', $item['detalle_id'])->first();
+                $ids_preordenes =  ItemDetallePreordenCompra::where('detalle_id', $detalle->id)->get('id');
+                $row['id'] = $index;
+                $row['producto'] = $detalle->producto->nombre;
+                $row['producto_id'] = $detalle->producto_id;
+                $row['detalle_id'] = $item['detalle_id'];
+                $row['descripcion'] = $detalle->descripcion;
+                $row['unidad_medida'] = $detalle->producto->unidadMedida?->nombre;
+                $row['preordenes'] = $ids_preordenes->pluck('id')->map(fn($value) => strval($value))->join(',');
+                $row['cantidad'] = $item['total'];
+                $results[$index] = $row;
+            }
+
+            return $results;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['Error: ', $th->getMessage(), $th->getLine()]);
+            throw $th;
+        }
+    }
+
+    public static function eliminarItemsConsolidacion($ids_detalle_id)
+    {
+        try {
+            DB::beginTransaction();
+            $ids_preordenes = PreordenCompra::where('estado', EstadoTransaccion::PENDIENTE)->get('id');
+            ItemDetallePreordenCompra::whereIn('preorden_id', $ids_preordenes)->whereIn('detalle_id', $ids_detalle_id)->delete();
+            self::verificarPreordenesPendientes();
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public static function verificarPreordenesPendientes()
+    {
+        try {
+            DB::beginTransaction();
+            PreordenCompra::whereDoesntHave('detalles')->update(['estado' => EstadoTransaccion::ANULADA, 'causa_anulacion' => 'sin elementos, anulada por consolidacion de items']);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
 }
