@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Medico\RegistroEmpleadoExamen;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,14 +14,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_registros_examenes', function (Blueprint $table) {
+        Schema::create('med_registros_empleados_examenes', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('numero_registro');
             $table->text('observacion');
+            $table->enum('tipo_proceso_examen', [RegistroEmpleadoExamen::INGRESO, RegistroEmpleadoExamen::OCUPACIONALES, RegistroEmpleadoExamen::REINGRESO, RegistroEmpleadoExamen::SALIDA]);
 
             // Foreign keys
-            $table->unsignedBigInteger('tipo_examen_id');
-            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->onDelete('cascade')->onUpdate('cascade');
+            /*$table->unsignedBigInteger('tipo_examen_id');
+            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->onDelete('cascade')->onUpdate('cascade');*/
 
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
@@ -36,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_registros_examenes');
+        Schema::dropIfExists('med_registros_empleados_examenes');
     }
 };

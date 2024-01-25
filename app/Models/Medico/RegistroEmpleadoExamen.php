@@ -1,18 +1,25 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Medico;
 
+use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class RegistroExamen extends Model implements Auditable
+class RegistroEmpleadoExamen extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_registros_examenes';
+    // Contantes
+    const INGRESO = 'INGRESO';
+    const OCUPACIONALES = 'OCUPACIONALES';
+    const REINGRESO = 'REINGRESO';
+    const SALIDA = 'SALIDA';
+
+    protected $table = 'med_registros_empleados_examenes';
     protected $fillable = [
         'numero_registro',
         'observacion',

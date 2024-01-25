@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('dosis_totales');
             $table->unsignedInteger('dosis_aplicadas');
             $table->text('observacion');
-            $table->string('url_certificado');
+            // $table->string('url_certificado');
 
             // Foreign keys
             $table->unsignedBigInteger('registro_examen_id');
