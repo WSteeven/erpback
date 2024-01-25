@@ -19,8 +19,9 @@ class RegistroEmpleadoExamenResource extends JsonResource
             'numero_registro' => $this->nombre,
             'observacion' => $this->observacion,
             'empleado' => $this->empleado_id,
-            'tipo_proceso_examen' => $this->tipo_proceso_examen,
             'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . ' ' . $this->empleado?->apellidos : ' ',
+            'tipo_proceso_examen' => $this->tipo_proceso_examen,
+            'estados_solicitudes_examenes' => $this->estadosSolicitudesExamenes !== null ? $this->estadosSolicitudesExamenes:[],
         ];
     }
 }

@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_detalles_resultados_examenes', function (Blueprint $table) {
+        Schema::create('med_orientaciones_sexuales', function (Blueprint $table) {
             $table->id();
-            $table->text('observacion');
-            $table->unsignedBigInteger('tipo_examen_id');
-            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('nombre');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_detalles_resultados_examenes');
+        Schema::dropIfExists('med_orientaciones_sexuales');
     }
 };

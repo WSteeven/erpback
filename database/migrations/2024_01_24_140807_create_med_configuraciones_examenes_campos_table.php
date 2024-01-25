@@ -22,7 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('configuracion_examen_categoria_id');
 
             // Foreign keys
-            $table->foreign('configuracion_examen_categoria_id')->references('id')->on('med_configuraciones_examenes_categorias')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('configuracion_examen_categoria_id','fk_config_exam_categ')->references('id')->on('med_configuraciones_examenes_categorias')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
