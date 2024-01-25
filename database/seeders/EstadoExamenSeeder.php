@@ -4,7 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\EstadoExamen;
 use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+// use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;
+// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EstadoExamenSeeder extends Seeder
@@ -18,16 +19,16 @@ class EstadoExamenSeeder extends Seeder
     {
         MedicoEstadoExamen::insert([
             [
-                'nombre' => 'Solicitado',
+                'nombre' => 'SOLICITADO',
             ],
             [
-                'nombre' => 'Aprobado por compras',
+                'nombre' => 'APROBADO POR COMPRAS',
             ],
             [
-                'nombre' => 'Diagnóstico realizado',
+                'nombre' => 'DIAGNÓSTICO REALIZADO',
             ],
             [
-                'nombre' => 'Apertura de ficha',
+                'nombre' => 'APERTURA DE FICHA MEDICA',
             ],
         ]);
     }
