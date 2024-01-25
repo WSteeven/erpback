@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\TipoExamen;
+// use App\Models\TipoExamen;
+
+use App\Models\Medico\TipoExamen;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,16 +19,10 @@ class TipoExamenSeeder extends Seeder
     {
         TipoExamen::insert([
             [
-                'nombre' => 'Ingreso',
+                'nombre' => 'COMUNES',
             ],
             [
-                'nombre' => 'Ocupacionales',
-            ],
-            [
-                'nombre' => 'Reingreso',
-            ],
-            [
-                'nombre' => 'Salida',
+                'nombre' => 'ESPECIALES',
             ],
         ]);
     }

@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Examen;
+// use App\Models\Examen;
+
+use App\Models\Medico\Examen;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
