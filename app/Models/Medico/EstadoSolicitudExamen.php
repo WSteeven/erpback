@@ -14,8 +14,8 @@ class EstadoSolicitudExamen extends Model implements Auditable
 
     protected $table = 'med_estados_solicitudes_examenes';
     protected $fillable = [
-        'registro_id',
-        'tipo_examen_id',
+        'registro_empleado_examen_id',
+        'examen_id',
         'estado_examen_id',
     ];
 }

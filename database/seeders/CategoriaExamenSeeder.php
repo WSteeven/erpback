@@ -17,22 +17,22 @@ class CategoriaExamenSeeder extends Seeder
     {
         CategoriaExamen::insert([
             [
-                'nombre' => 'Hematología',
+                'nombre' => 'HEMATOLOGIA',
             ],
             [
-                'nombre' => 'Uroanalisis',
+                'nombre' => 'UROANALISIS',
             ],
             [
-                'nombre' => 'Heces',
+                'nombre' => 'HECES',
             ],
             [
-                'nombre' => 'Quimica sanguinea',
+                'nombre' => 'QUIMICA SANGUINEA',
             ],
             [
-                'nombre' => 'Enzimas hepaticas',
+                'nombre' => 'ENZIMAS HEPATICAS',
             ],
             [
-                'nombre' => 'Imagenologia',
+                'nombre' => 'IMAGENOLOGIA',
             ],
         ]);
     }
