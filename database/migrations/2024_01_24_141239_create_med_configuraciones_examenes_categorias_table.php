@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detalles_examenes', function (Blueprint $table) {
+        Schema::create('med_configuraciones_examenes_categorias', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
 
-            $table->unsignedBigInteger('tipo_examen_id');
-            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+            // Foreign keys
+            $table->unsignedBigInteger('examen_id');
+            $table->foreign('examen_id')->references('id')->on('med_examenes')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detalles_examenes');
+        Schema::dropIfExists('med_configuraciones_examenes_categorias');
     }
 };

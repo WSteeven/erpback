@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\EstadoExamen;
+use App\Models\Medico\EstadoExamen as MedicoEstadoExamen;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +16,7 @@ class EstadoExamenSeeder extends Seeder
      */
     public function run()
     {
-        EstadoExamen::insert([
+        MedicoEstadoExamen::insert([
             [
                 'nombre' => 'Solicitado',
             ],
