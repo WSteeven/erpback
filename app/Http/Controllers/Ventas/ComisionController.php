@@ -11,6 +11,7 @@ use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
 class ComisionController extends Controller
@@ -71,13 +72,9 @@ class ComisionController extends Controller
         $comision->delete();
         return response()->json(compact('comision'));
     }
-    public function obtener_comision($idProducto,$forma_pago,$vendedor){
-        $vendedor = Vendedor::where('empleado_id',$vendedor)->first();
-        $tipo_vendedor = $vendedor->tipo_vendedor;
-        $producto = ProductoVenta::where('id', $idProducto)->first();
-        $comision = Comision::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->where('tipo_vendedor',$tipo_vendedor)->first();
-        $comision_valor = floatval($comision != null ? $comision->comision:0);
-        $comision_value = $tipo_vendedor== 'VENDEDOR'?  ($producto->precio*$comision_valor)/100:$comision_valor ;
+    public function obtener_comision($idProducto, $forma_pago, $vendedor)
+    {
+        [$comision_value, $comision] = Comision::calcularComision($vendedor, $idProducto, $forma_pago);
         return response()->json(compact('comision_value'));
     }
 }

@@ -20,6 +20,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -48,18 +49,22 @@ class VentaController extends Controller
 
     public function store(VentaRequest $request)
     {
+        Log::channel('testing')->info('Log', ['ventas requesst', $request->all()]);
         try {
             $datos = $request->validated();
             DB::beginTransaction();
+            Log::channel('testing')->info('Log', ['datos', $datos]);
             $venta = Venta::create($datos);
             $modelo = new VentaResource($venta);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollback();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw ValidationException::withMessages([
+                'Error' => [$e->getMessage() . '. ' . $e->getLine()],
+            ]);
         }
+        return response()->json(compact('mensaje', 'modelo'));
     }
     public function update(VentaRequest $request, Venta $venta)
     {
@@ -226,7 +231,7 @@ class VentaController extends Controller
             $nombreMes = $meses[$mes - 1];
             // Concatenar los componentes de la fecha
             $fechaConvertida = "$nombreMes DEL $anio";
-            $ventas = Venta::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto','cliente')->get();
+            $ventas = Venta::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto', 'cliente')->get();
             Log::channel('testing')->info('Log', [compact('ventas')]);
             $reportes = Venta::empaquetarVenta($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
@@ -246,7 +251,7 @@ class VentaController extends Controller
             $mes = date("Y-m", strtotime($fecha_fin));
             $bonosMensuales = BonoMensualCumplimiento::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('SUM(valor) AS total_bmc'))
                 ->where('vendedor_id', $request->vendedor)
-                ->where('mes',$mes)
+                ->where('mes', $mes)
                 ->groupBy('mes')
                 ->get();
             $bonosTrimestrales = BonoTrimestralCumplimiento::select(DB::raw('Concat(MONTHNAME(created_at),"-",Year(created_at)) AS mes'), DB::raw('SUM(valor) AS total_btc'))

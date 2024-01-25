@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('ventas_ventas', function (Blueprint $table) {
             $table->id();
             $table->string('orden_id');
-            $table->string('orden_interna');
+            $table->string('orden_interna')->nullable();
             $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->unsignedBigInteger('producto_id');
             $table->unsignedBigInteger('cliente_id')->nullable();

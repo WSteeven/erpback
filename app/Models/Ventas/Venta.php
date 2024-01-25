@@ -14,21 +14,25 @@ class Venta  extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_ventas';
-    protected $fillable =['orden_id','orden_interna','vendedor_id','producto_id','fecha_activacion','estado_activacion','forma_pago','comision_id','chargeback','comision_vendedor','cliente_id'];
+    protected $fillable = ['orden_id', 'orden_interna', 'vendedor_id', 'producto_id', 'fecha_activacion', 'estado_activacion', 'forma_pago', 'comision_id', 'chargeback', 'comision_vendedor', 'cliente_id'];
     private static $whiteListFilter = [
         '*',
     ];
-    public function vendedor(){
-        return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
+    public function vendedor()
+    {
+        return $this->belongsTo(Vendedor::class); //->with('empleado');
     }
-    public function cliente(){
-        return $this->hasOne(ClienteClaro::class,'id','cliente_id');
+    public function cliente()
+    {
+        return $this->hasOne(ClienteClaro::class, 'id', 'cliente_id');
     }
-    public function producto(){
-        return $this->hasOne(ProductoVenta::class,'id','producto_id')->with('plan');
+    public function producto()
+    {
+        return $this->hasOne(ProductoVenta::class, 'id', 'producto_id')->with('plan');
     }
-    public function comision(){
-        return $this->hasOne(Comision::class,'id','comision_id');
+    public function comision()
+    {
+        return $this->hasOne(Comision::class, 'id', 'comision_id');
     }
 
     public static function empaquetarVentas($ventas)
@@ -43,15 +47,15 @@ class Venta  extends Model implements Auditable
             $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
             $row['codigo_orden'] =  $venta->orden_id;
             $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
-            $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion:'';
-            $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres.' '. $venta->cliente->apellidos:'';
+            $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
+            $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
             $row['venta'] = 1;
             $row['fecha_ingreso'] = $venta->created_at;
             $row['fecha_activacion'] =  $venta->fecha_activacion;
             $row['plan'] = $venta->producto->plan->nombre;
             $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
             $row['forma_pago'] = $venta->forma_pago;
-            $row['orden_interna'] =$venta->orden_interna;
+            $row['orden_interna'] = $venta->orden_interna;
             $results[$id] = $row;
             $id++;
         }

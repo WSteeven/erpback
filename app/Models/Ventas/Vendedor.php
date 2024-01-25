@@ -59,4 +59,8 @@ class Vendedor extends Model implements Auditable
     {
         return $this->hasOne(Empleado::class, 'id', 'jefe_inmediato_id')->with('canton');
     }
+    public function ventas()
+    {
+        return $this->hasMany(Venta::class);
+    }
 }
