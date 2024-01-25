@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoAntecedenteResource extends JsonResource
+class TipoHabitoToxicoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,7 +17,5 @@ class TipoAntecedenteResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
-            'genero' => $this->genero,
-        ];
-    }
+        ];    }
 }
