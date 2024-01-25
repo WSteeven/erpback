@@ -17,60 +17,53 @@ class TipoTicketSeeder extends Seeder
     {
         TipoTicket::insert([
             [
-                'nombre' => 'Fallas de hardware',
+                'nombre' => 'Tipo de ticket 1',
                 'categoria_tipo_ticket_id' => 1,
             ],
             [
-                'nombre' => 'Fallas de software',
-                'categoria_tipo_ticket_id' => 1,
-            ],
-            [
-                'nombre' => 'Problemas de conectividad',
-                'categoria_tipo_ticket_id' => 1,
-            ],
-            [
-                'nombre' => 'Problemas de rendimiento',
-                'categoria_tipo_ticket_id' => 1,
-            ],
-            [
-                'nombre' => 'Recuperación de datos',
-                'categoria_tipo_ticket_id' => 1,
-            ],
-            [
-                'nombre' => 'Instalación de software',
+                'nombre' => 'Tipo de ticket 1',
                 'categoria_tipo_ticket_id' => 2,
+
             ],
             [
-                'nombre' => 'Configuración de cuentas',
-                'categoria_tipo_ticket_id' => 2,
-            ],
-            [
-                'nombre' => 'Personalización de software',
-                'categoria_tipo_ticket_id' => 2,
-            ],
-            [
-                'nombre' => 'Creación o modificación de cuentas',
+                'nombre' => 'Tipo de ticket 1',
                 'categoria_tipo_ticket_id' => 3,
             ],
             [
-                'nombre' => 'Restablecimiento de contraseñas',
-                'categoria_tipo_ticket_id' => 3,
-            ],
-            [
-                'nombre' => 'Administración de privilegios',
-                'categoria_tipo_ticket_id' => 3,
-            ],
-            [
-                'nombre' => 'Uso de software',
+                'nombre' => 'Tipo de ticket 1',
                 'categoria_tipo_ticket_id' => 4,
             ],
             [
-                'nombre' => 'Mejores prácticas de seguridad',
-                'categoria_tipo_ticket_id' => 4,
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 5,
             ],
             [
-                'nombre' => 'Herramientas de productividad',
-                'categoria_tipo_ticket_id' => 4,
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 6,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 7,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 8,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 9,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 10,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 11,
+            ],
+            [
+                'nombre' => 'Tipo de ticket 1',
+                'categoria_tipo_ticket_id' => 12,
             ],
         ]);
     }

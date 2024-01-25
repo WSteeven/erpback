@@ -6,12 +6,16 @@ use App\Events\ActualizarNotificacionesEvent;
 use App\Events\TicketEvent;
 use App\Http\Requests\TicketRequest;
 use App\Http\Resources\TicketResource;
+use App\Mail\Tickets\EnviarMailTicket;
 use App\Models\ActividadRealizadaSeguimientoTicket;
 use App\Models\CalificacionTicket;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\MotivoPausaTicket;
+use App\Models\Tareas\SolicitudAts;
 use App\Models\Ticket;
 use App\Models\TicketRechazado;
+use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Http\Request;
@@ -19,6 +23,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Src\App\TicketService;
 use Src\Shared\Utils;
+use Illuminate\Support\Facades\Mail;
 
 class TicketController extends Controller
 {
@@ -40,26 +45,38 @@ class TicketController extends Controller
     public function store(TicketRequest $request)
     {
         // Adaptacion de foreign keys
-        $datos = $request->validated();
-        $datos['codigo'] = 'TCKT-' . (Ticket::count() == 0 ? 1 : Ticket::latest('id')->first()->id + 1);
-        $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
-        $datos['solicitante_id'] = Auth::user()->empleado->id;
-        $datos['tipo_ticket_id'] = $request->safe()->only(['tipo_ticket'])['tipo_ticket'];
-        $datos['departamento_responsable_id'] = $request->safe()->only(['departamento_responsable'])['departamento_responsable'];
-        $datos['ticket_para_mi'] = $request->safe()->only(['ticket_para_mi'])['ticket_para_mi'];
+        $destinatarios = $request['destinatarios']; // array
 
-        // Calcular estados
-        $datos['estado'] = Ticket::ASIGNADO;
+        if ($request['ticket_interno']) {
+            $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
+        } else if ($request['para_sso']) {
+            $ticket = $this->servicio->crearTicket($request, [
+                'tipo_ticket_id' => Ticket::TIPO_TICKET_ATS,
+                'departamento_id' => Ticket::SSO,
+            ]);
 
-        $ticket = Ticket::create($datos);
+            $tickets_creados = [$ticket];
 
-        $modelo = new TicketResource($ticket->refresh());
+            SolicitudAts::create([
+                'ticket_id' => $ticket->id,
+                'subtarea_id' => $request['subtarea_id'],
+            ]);
+        } else {
+            $tickets_creados = $this->servicio->crearMultiplesDepartamentos($destinatarios, $request);
+        }
+
+        // $modelo = new TicketResource($ticket->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        // event(new TicketEvent($ticket, $modelo->solicitante_id, $modelo->responsable_id));
+        $this->servicio->notificarTicketsAsignados($tickets_creados);
         event(new ActualizarNotificacionesEvent());
 
-        return response()->json(compact('mensaje', 'modelo'));
+        $ids_tickets_creados = array_map(fn ($ticket) => $ticket->id, $tickets_creados);
+        $modelo = end($tickets_creados);
+        $modelo = new TicketResource($modelo->refresh());
+
+        return response()->json(compact('mensaje', 'modelo', 'ids_tickets_creados'));
     }
 
     public function show(Ticket $ticket)
@@ -80,12 +97,15 @@ class TicketController extends Controller
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket cancelado exitosamente!';
 
+        Mail::to($ticket->responsable->user->email)->send(new EnviarMailTicket($ticket));
+
         event(new TicketEvent($ticket->refresh(), $modelo->solicitante_id, $modelo->responsable_id));
         event(new ActualizarNotificacionesEvent());
 
         return response()->json(compact('modelo', 'mensaje'));
     }
 
+    // Reasignar
     public function cambiarResponsable(Request $request, Ticket $ticket)
     {
         $request->validate([
@@ -110,6 +130,7 @@ class TicketController extends Controller
                 'fecha_hora' => Carbon::now(),
                 'observacion' => 'TICKET REASIGNADO',
                 'actividad_realizada' => Empleado::extraerNombresApellidos(Empleado::find($idResponsableAnterior)) . ' le ha REASIGNADO el ticket a ' . Empleado::extraerNombresApellidos($ticket->responsable) . '.',
+                'responsable_id' => $idResponsableAnterior,
             ]);
 
             event(new TicketEvent($ticket, $idResponsableAnterior, $modelo->responsable_id));
@@ -128,6 +149,14 @@ class TicketController extends Controller
         $ticket->fecha_hora_ejecucion = Carbon::now();
         $ticket->save();
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET EJECUTADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha EJECUTADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket ejecutado exitosamente!';
 
@@ -139,6 +168,8 @@ class TicketController extends Controller
 
     public function pausar(Request $request, Ticket $ticket)
     {
+        $this->servicio->puedePausar($ticket);
+
         $motivo_pausa_id = $request['motivo_pausa_ticket_id'];
         $ticket->estado = Ticket::PAUSADO;
         $ticket->save();
@@ -154,6 +185,7 @@ class TicketController extends Controller
             'fecha_hora' => Carbon::now(),
             'observacion' => 'TICKET PAUSADO',
             'actividad_realizada' => Empleado::extraerNombresApellidos($ticket->responsable) . ' ha pausado el ticket por el motivo: ' . MotivoPausaTicket::find($motivo_pausa_id)->motivo,
+            'responsable_id' => Auth::user()->empleado->id,
         ]);
 
         $modelo = new TicketResource($ticket->refresh());
@@ -175,6 +207,14 @@ class TicketController extends Controller
         $pausa->fecha_hora_retorno = Carbon::now();
         $pausa->save();
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET EJECUTADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha REANUDADO el ticket.',
+            'responsable_id' => Auth::user()->empleado->id,
+        ]);
+
         $modelo = new TicketResource($ticket->refresh());
         $mensaje = 'Ticket reanudado exitosamente!';
 
@@ -189,12 +229,22 @@ class TicketController extends Controller
     {
         $this->servicio->puedeFinalizar($ticket);
 
+        ActividadRealizadaSeguimientoTicket::create([
+            'ticket_id' => $ticket->id,
+            'fecha_hora' => Carbon::now(),
+            'observacion' => 'TICKET FINALIZADO',
+            'actividad_realizada' => Empleado::extraerNombresApellidos(Auth::user()->empleado) . ' ha FINALIZADO el ticket.',
+            'responsable_id' => Auth::id(),
+        ]);
+
         $ticket->estado = Ticket::FINALIZADO_SOLUCIONADO;
         $ticket->fecha_hora_finalizado = Carbon::now();
         $ticket->save();
 
         $modelo = new TicketResource($ticket->refresh());
-        $mensaje = 'Ticket finalizado exitosamente!';
+        $mensaje = 'Ticket finalizado exitosamente!' ;
+
+        // Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket->refresh()));
 
         event(new TicketEvent($ticket, $modelo->responsable_id, $modelo->solicitante_id));
         event(new ActualizarNotificacionesEvent());
@@ -233,10 +283,9 @@ class TicketController extends Controller
         $idResponsableAnterior = $ticket->responsable_id;
 
         $ticket->estado = Ticket::RECHAZADO;
-        $ticket->responsable_id = NULL;
-        $ticket->departamento_responsable_id = NULL;
+        // $ticket->responsable_id = NULL;
+        // $ticket->departamento_responsable_id = NULL;
         $ticket->save();
-
 
         TicketRechazado::create([
             'fecha_hora' => Carbon::now(),
@@ -250,6 +299,8 @@ class TicketController extends Controller
 
         event(new TicketEvent($ticket, $idResponsableAnterior, $ticket->solicitante_id));
         event(new ActualizarNotificacionesEvent());
+
+        Mail::to($ticket->solicitante->user->email)->send(new EnviarMailTicket($ticket));
 
         return response()->json(compact('modelo', 'mensaje'));
     }
@@ -316,6 +367,26 @@ class TicketController extends Controller
             'responsable' => Empleado::extraerNombresApellidos($item->responsable),
         ]);
 
+        return response()->json(compact('results'));
+    }
+
+    public function auditoria($ticket_id)
+    {
+        $modelo = Ticket::find($ticket_id);
+        $auditoria = $modelo->audits()->get(['user_id', 'new_values', 'created_at']);
+        $auditoria = $auditoria->map(function ($item) {
+            $empleado = User::find($item->user_id)->empleado;
+            return [
+                'responsable' => Empleado::extraerNombresApellidos($empleado),
+                'estado' => array_key_exists('estado', $item->new_values) ? $item->new_values['estado'] : null,
+                'created_at' => Carbon::parse($item->created_at)->format('Y-m-d H:i:s'),
+                'departamento' => $empleado->departamento?->nombre,
+                'foto' => $empleado->foto_url ? url($empleado->foto_url) : url('/storage/sinfoto.png'),
+            ];
+        });
+
+        $results = array_values($auditoria->filter(fn ($item) => $item['estado'] !== Ticket::ASIGNADO)->toArray());
+        Log::channel('testing')->info('Log', compact('results'));
         return response()->json(compact('results'));
     }
 }

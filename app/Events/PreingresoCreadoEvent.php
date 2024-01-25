@@ -48,6 +48,6 @@ class PreingresoCreadoEvent implements ShouldBroadcast
 
     public function obtenerMensaje()
     {
-        return $this->preingreso->responsable->nombres . ' ' . $this->preingreso->responsable->apellidos . ' ha realizado un preingreso de materiales para la cuadrilla' . $this->preingreso->cuadrilla . ' y está pendiente de aprobación. Por favor verifica y aprueba o cancela el preingreso';
+        return $this->preingreso->responsable->nombres . ' ' . $this->preingreso->responsable->apellidos . ' ha realizado un preingreso de materiales para la cuadrilla ' . $this->preingreso->cuadrilla . ' y está pendiente de aprobación. Por favor verifica y aprueba o cancela el preingreso';
     }
 }

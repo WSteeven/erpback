@@ -28,6 +28,7 @@ class AcreditacionResource extends JsonResource
             'empleado_info' => $this->usuario->nombres.' '.$this->usuario->apellidos,
             'estado' => $this->estado!=null? $this->estado->estado:' ',
             'descripcion_acreditacion' => $this->descripcion_acreditacion,
+            'motivo' => $this->motivo,
             'monto' => $this->monto,
         ];
         return $modelo;

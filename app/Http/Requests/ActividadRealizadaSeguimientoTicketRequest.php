@@ -29,6 +29,7 @@ class ActividadRealizadaSeguimientoTicketRequest extends FormRequest
             'observacion' => 'nullable|string',
             'fotografia' => 'nullable|string',
             'ticket' => 'required|numeric|integer',
+            'responsable' => 'required|numeric|integer',
         ];
     }
 }

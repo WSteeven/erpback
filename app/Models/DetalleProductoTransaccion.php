@@ -28,10 +28,10 @@ class DetalleProductoTransaccion extends Model implements Auditable
      * @var string[]
      */
     protected $fillable = [
-        'detalle_id',
+        'inventario_id',
         'transaccion_id',
         'cantidad_inicial',
-        'cantidad_final',
+        'recibido',
     ];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

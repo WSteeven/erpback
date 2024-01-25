@@ -119,7 +119,7 @@
     </p>
     <p>
     <table width="100%" border="1" cellspacing="0" bordercolor="#666666">
-        <tr>
+        <tr style="font-size:11px">
             <td width="5%" bgcolor="#a9d08e">#</td>
             <td width="5%" bgcolor="#a9d08e">
                 <div align="center"><strong>FECHA</strong></div>
@@ -144,6 +144,12 @@
             </td>
             <td width="22%" bgcolor="#a9d08e">
                 <div align="center"><strong>DETALLE DEL ESTADO</strong></div>
+            </td>
+            <td width="22%" bgcolor="#a9d08e">
+                <div align="center"><strong>CENTRO DE COSTO</strong></div>
+            </td>
+            <td width="22%" bgcolor="#a9d08e">
+                <div align="center"><strong>SUB CENTRO DE COSTO</strong></div>
             </td>
             <td width="6%" bgcolor="#a9d08e">
                 <div align="center"><strong>TOTAL</strong></div>
@@ -170,6 +176,9 @@
                 </td>
                 <td width="33%">{{ $dato['observacion'] }}</td>
                 <td width="22%">{{ $dato['detalle_estado'] }}</td>
+                <td width="22%">{{ $dato['centro_costo'] }}</td>
+                <td width="22%">{{ $dato['sub_centro_costo'] }}</td>
+
                 <td width="6%" align="center">{{ number_format($dato['total'], 2, ',', ' ') }}</td>
             </tr>
             @php
@@ -177,7 +186,7 @@
             @endphp
         @endforeach
         <tr>
-            <td colspan="10">
+            <td colspan="12">
                 <table width="100%" border="1" cellspacing="0" bordercolor="#666666"
                     style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;">
 

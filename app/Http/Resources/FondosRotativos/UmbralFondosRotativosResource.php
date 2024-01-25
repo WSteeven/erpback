@@ -17,7 +17,8 @@ class UmbralFondosRotativosResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id'=>$this->id,
-            'empleado'=>$this->empleado->nombres.' '.$this->empleado->apellidos,
+            'empleado'=>$this->empleado_id,
+            'empleado_info'=>$this->empleado->nombres.' '.$this->empleado->apellidos,
             'empleado_id'=>$this->empleado_id,
             'valor_minimo'=>$this->valor_minimo,
             'referencia'=>$this->referencia,

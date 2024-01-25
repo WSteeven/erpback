@@ -10,6 +10,7 @@ use App\Http\Resources\PedidoResource;
 use App\Models\Autorizacion;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetallePedidoProducto;
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -25,6 +26,7 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\Bodega\PedidoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\EstadosTransacciones;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -50,17 +52,17 @@ class PedidoController extends Controller
         $results = [];
 
         if (auth()->user()->hasRole(User::ROL_ADMINISTRADOR)) {
-            $results = Pedido::filtrarPedidosAdministrador($estado);
+            $results = $this->servicio->filtrarPedidosAdministrador($estado);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA) && !auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) { //para que unicamente el bodeguero pueda ver las transacciones pendientes
             // Log::channel('testing')->info('Log', ['Es bodeguero:', $estado]);
-            $results = Pedido::filtrarPedidosBodeguero($estado);
+            $results = $this->servicio->filtrarPedidosBodeguero($estado);
         } else if (auth()->user()->hasRole(User::ROL_ACTIVOS_FIJOS)) {
-            $results = Pedido::filtrarPedidosActivosFijos($estado);
+            $results = $this->servicio->filtrarPedidosActivosFijos($estado);
         } else if (auth()->user()->hasRole(User::ROL_BODEGA_TELCONET)) {
-            $results = Pedido::filtrarPedidosBodegueroTelconet($estado);
+            $results = $this->servicio->filtrarPedidosBodegueroTelconet($estado);
         } else {
             // Log::channel('testing')->info('Log', ['Es empleado:', $estado]);
-            $results = Pedido::filtrarPedidosEmpleado($estado);
+            $results = $this->servicio->filtrarPedidosEmpleado($estado);
         }
 
 
@@ -90,10 +92,12 @@ class PedidoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1']) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             if ($datos['evidencia2']) $datos['evidencia2'] = (new GuardarImagenIndividual($datos['evidencia2'], RutasStorage::PEDIDOS))->execute();
@@ -165,10 +169,12 @@ class PedidoController extends Controller
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['estado_id'] = $request->safe()->only(['estado'])['estado'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
 
             if ($datos['evidencia1'] && Utils::esBase64($datos['evidencia1'])) $datos['evidencia1'] = (new GuardarImagenIndividual($datos['evidencia1'], RutasStorage::PEDIDOS))->execute();
             else unset($datos['evidencia1']);
@@ -184,7 +190,8 @@ class PedidoController extends Controller
             //modifica los datos del listado, en caso de requerirse
             $pedido->detalles()->detach();
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => array_key_exists('solicitante_id',$listado) ? $listado['solicitante_id'] : $listado['solicitante']]);
+                // $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
             }
             DB::commit();
 
@@ -324,6 +331,16 @@ class PedidoController extends Controller
         $request->validate(['motivo' => ['required', 'string']]);
         $pedido->causa_anulacion = $request['motivo'];
         $pedido->autorizacion_id = $autorizacion->id;
+        $pedido->save();
+
+        $modelo = new PedidoResource($pedido->refresh());
+        return response()->json(compact('modelo'));
+    }
+    public function marcarCompletado(Request $request, Pedido $pedido)
+    {
+        $request->validate(['motivo' => ['required', 'string']]);
+        $pedido->observacion_bodega = $request['motivo'];
+        $pedido->estado_id = EstadosTransacciones::COMPLETA;
         $pedido->save();
 
         $modelo = new PedidoResource($pedido->refresh());

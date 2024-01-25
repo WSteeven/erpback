@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ComprasProveedores\CalificacionProveedorEvent;
 use App\Exports\ComprasProveedores\CalificacionProveedorExcel;
 use App\Exports\ComprasProveedores\ProveedorExport;
+use App\Exports\ComprasProveedores\TodosProveedoresExport;
 use App\Http\Requests\ComprasProveedores\ProveedorRequest;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Archivo;
@@ -25,6 +26,7 @@ use Src\App\ComprasProveedores\ProveedorService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
+use Throwable;
 
 class ProveedorController extends Controller
 {
@@ -69,7 +71,6 @@ class ProveedorController extends Controller
      */
     public function store(ProveedorRequest $request)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
             DB::beginTransaction();
@@ -78,7 +79,6 @@ class ProveedorController extends Controller
             $datos['parroquia_id'] = $request->safe()->only(['parroquia'])['parroquia'];
             $datos['forma_pago'] = Utils::convertArrayToString($request->forma_pago, ',');
 
-            // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
             //Respuesta
             $proveedor = Proveedor::create($datos);
             $proveedor->servicios_ofertados()->attach($request->tipos_ofrece);
@@ -95,7 +95,6 @@ class ProveedorController extends Controller
 
             //guardando la logistica del proveedor
             if ($proveedor->empresa->logistica()->first()) {
-                // Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
                 $proveedor->empresa->logistica()->update([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -104,8 +103,6 @@ class ProveedorController extends Controller
                     'garantia' => $request->garantia,
                 ]);
             } else {
-                // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
-                // Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
                 $proveedor->empresa->logistica()->create([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -127,7 +124,6 @@ class ProveedorController extends Controller
 
             DB::commit();
 
-            Log::channel('testing')->info('Log', ['Modelo a recorrer', $proveedor->departamentos_califican]);
             foreach ($proveedor->departamentos_califican as $departamento) {
                 event(new CalificacionProveedorEvent($proveedor, auth()->user()->empleado->id, $departamento['responsable_id'], false));
             }
@@ -135,7 +131,7 @@ class ProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            $mensaje = '(' . $e->getLine() . ') Hubo un erorr: ' . $e->getMessage();
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
             return response()->json(compact('mensaje'), 500);
             //throw $th;
         }
@@ -166,7 +162,6 @@ class ProveedorController extends Controller
      */
     public function update(ProveedorRequest $request, Proveedor  $proveedor)
     {
-        Log::channel('testing')->info('Log', ['Solicitud recibida:', $request->all()]);
         $departamento_financiero = Departamento::where('nombre', 'FINANCIERO')->first();
         try {
             DB::beginTransaction();
@@ -189,7 +184,6 @@ class ProveedorController extends Controller
 
             //guardando la logistica del proveedor
             if ($proveedor->empresa->logistica()->first()) {
-                // Log::channel('testing')->info('Log', ['Ya existe logistica:', $proveedor->empresa->logistica()->first()]);
                 $proveedor->empresa->logistica()->update([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -198,8 +192,6 @@ class ProveedorController extends Controller
                     'garantia' => $request->garantia,
                 ]);
             } else {
-                // Log::channel('testing')->info('Log', ['No existe logistica:', Utils::convertirStringComasArray($request->tipo_envio), $request->all()]);
-                // Log::channel('testing')->info('Log', ['No existe logistica:', $request->all()]);
                 $proveedor->empresa->logistica()->create([
                     'tiempo_entrega' => $request->tiempo_entrega,
                     'envios' => $request->envios,
@@ -222,7 +214,9 @@ class ProveedorController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['Error:', $e->getLine(), $e->getMessage()]);
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$e->getMessage()],
+            ]);
             return response()->json(['mensaje' => $e->getMessage() . '. ' . $e->getLine()], 422);
         }
     }
@@ -261,7 +255,6 @@ class ProveedorController extends Controller
     public function reportes(Request $request)
     {
         $configuracion = ConfiguracionGeneral::first();
-        Log::channel('testing')->info('Log', ['ProveedorController->reportes', $request->all()]);
         $results = [];
         try {
             $vista = 'compras_proveedores.proveedores.proveedores';
@@ -270,12 +263,11 @@ class ProveedorController extends Controller
             $registros = $this->proveedorService->empaquetarDatos($results, 'razon_social');
             $contactos = $this->proveedorService->empaquetarDatosContactos($results, 'razon_social');
             $datosBancarios = $this->proveedorService->empaquetarDatosBancariosProveedor($results, 'razon_social');
+            $proveedoresCompletos = $this->proveedorService->empaquetarDatosProveedoresCompletos($results, 'razon_social');
             switch ($request->accion) {
                 case 'excel':
                     $reporte = $registros;
-                    Log::channel('testing')->info('Log', ['Lo que se va a imprimir', $reporte, $contactos, $datosBancarios]);
-                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion), 'reporte_proveedores.xlsx');
-                    // return $this->reporteService->imprimir_reporte('excel', 'A4', 'landscape', $reporte, 'reporte_proveedores', $vista, $export_excel);
+                    return Excel::download(new ProveedorExport(collect($reporte), collect($contactos), collect($datosBancarios), $configuracion, collect($proveedoresCompletos)), 'reporte_proveedores.xlsx');
                     break;
                 case 'pdf':
                     try {
@@ -284,24 +276,32 @@ class ProveedorController extends Controller
                         $pdf = Pdf::loadView($vista, compact(['reporte', 'peticion', 'configuracion']));
                         $pdf->setPaper('A4', 'landscape');
                         $pdf->render();
-                        // return $pdf->output();
                         return $pdf->stream();
-                        // return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', $reportes, 'reporte_proveedores', $vista);
-                    } catch (Exception $ex) {
-                        Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    } catch (Throwable $ex) {
+                        throw $ex->getMessage().'. '. $ex->getLine();
                     }
                     break;
                 default:
                     // Log::channel('testing')->info('Log', ['ProveedorController->reportes->default', '¿Todo bien en casa?']);
             }
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$ex->getMessage()],
             ]);
         }
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
+    }
+    public function reporteTodos(){
+        try {
+            $proveedoresCompletos = $this->proveedorService->empaquetarDatosProveedoresCompletos(Proveedor::all(), 'razon_social');
+           return Excel::download(new TodosProveedoresExport($proveedoresCompletos), 'datos_proveedores.xlsx');
+        } catch (Exception $ex) {
+            
+            throw ValidationException::withMessages([
+                'Error al generar reporte' => [$ex->getMessage()],
+            ]);
+        }
     }
 
     public function reporteCalificacion(Proveedor $proveedor)
@@ -311,8 +311,9 @@ class ProveedorController extends Controller
 
             return Excel::download(new CalificacionProveedorExcel(collect($registros)), 'calificacion_proveedor.xlsx');
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['Error en reporte de calificacion de proveedores', $ex->getMessage(), $ex->getLine()]);
-            return response()->json(['message' => 'Error de validacion' . $ex->getMessage() . $ex->getLine()], 422);
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$ex->getMessage() . '. ' . $ex->getLine()],
+            ]);
         }
     }
 
@@ -329,10 +330,18 @@ class ProveedorController extends Controller
             $idsDetallesDepartamentos = DetalleDepartamentoProveedor::where('proveedor_id', $proveedor->id)->get('id');
             $results = Archivo::whereIn('archivable_id', $idsDetallesDepartamentos)->get();
         } catch (Exception $ex) {
-            Log::channel('testing')->info('Log', ['Error en el listarArchivos de Archivo Service', $ex->getMessage(), $ex->getCode(), $ex->getLine()]);
             $mensaje = $ex->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('results'));
+    }
+
+
+
+    public function actualizarCalificacion(Proveedor $proveedor){
+        Proveedor::guardarCalificacion($proveedor->id);
+        $modelo = new ProveedorResource($proveedor->refresh());
+        $mensaje = 'Calificación de proveedor actualizada con éxito';
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

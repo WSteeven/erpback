@@ -506,7 +506,7 @@ class TransaccionBodegaSeeder extends Seeder
             [427, 454, 66, 300, 0, '2023-04-11 21:58:42', '2023-04-11 21:58:42'],
         ];
         foreach ($datos as $fila) {
-            DB::insert('INSERT INTO `detalle_producto_transaccion` (`id`, `inventario_id`, `transaccion_id`, `cantidad_inicial`, `cantidad_final`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?)', $fila);
+            DB::insert('INSERT INTO `detalle_producto_transaccion` (`id`, `inventario_id`, `transaccion_id`, `cantidad_inicial`, `recibido`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?,?)', $fila);
         }
     }
 }

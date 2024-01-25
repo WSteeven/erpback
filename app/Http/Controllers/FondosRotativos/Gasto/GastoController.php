@@ -69,23 +69,32 @@ class GastoController extends Controller
             return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
             $results = GastoResource::collection($results);
+            return response()->json(compact('results'));
         }
-
-        return response()->json(compact('results'));
     }
     public function autorizaciones_gastos(Request $request)
     {
-        $user =  Auth::user()->empleado;
-        $usuario = User::where('id', $user->id)->first();
-        // $usuario->hasRole('writer');
-        $results = [];
-
-        $results = Gasto::where('aut_especial', $user->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
-        $results = GastoResource::collection($results);
-
-        return response()->json(compact('results'));
+        try {
+            $usuario_autenticado =  Auth::user();
+            $results = [];
+            if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
+                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
+            } else {
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = GastoResource::collection($results);
+                return response()->json(compact('results'));
+            }
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al consultar' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
     /**
      * Update the specified resource in storage.
@@ -113,20 +122,19 @@ class GastoController extends Controller
                 $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
                 $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
                 $num_fact = str_replace(' ', '',  $datos['factura']);
-                if($request->detalle ==16){
+                if ($request->detalle == 16) {
                     if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
                         throw ValidationException::withMessages([
                             '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
                         ]);
                     }
-                }else{
+                } else {
                     if (strlen($num_fact) < $cantidad) {
                         throw ValidationException::withMessages([
                             '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
                         ]);
                     }
                 }
-
             }
             //Adaptacion de foreign keys
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
@@ -152,13 +160,12 @@ class GastoController extends Controller
             }
             $datos['estado'] = $datos_estatus_via->id;
             //Convierte base 64 a url
-            if ($request->comprobante1) {
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
+            if ($datos['comprobante']) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             if ($datos['comprobante2']) {
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
-            unset($datos['comprobante1']);
             $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
                 ->where('num_comprobante',  $datos['num_comprobante'])
                 ->where('estado', 1)
@@ -276,41 +283,14 @@ class GastoController extends Controller
      * @param  \App\Models\Gasto  $gasto
      * @return \Illuminate\Http\Response
      */
-    public function update(Gasto $request, Gasto $activo)
+    public function update(GastoRequest $request, Gasto $gasto)
     {
-        //Adaptacion de foreign keys
-        $datos = $request->all();
-        $user = Auth::user();
-        $usuario_autorizado = User::where('id', $request->aut_especial)->first();
-        $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-        $saldo_consumido_gasto = 0;
-        if ($datos_detalle->descripcion == '') {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        } else {
-            if ($datos_detalle->autorizacion == 'SI') {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-            } else {
-                $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                $saldo_consumido_gasto = (float)$saldo_consumido_gasto + (float)$request->total;
-            }
-        }
-        //Adaptacion de foreign keys
-        $datos['id_lugar'] = $request->lugar;
-        $datos['id_usuario'] = $usuario_autorizado->id;
-        $datos['estado'] = $datos_estatus_via->id;
-        $datos['caantidadidad'] = $request->caantidad;
-
-        //Respuesta
-        $activo->update($datos);
-        $modelo = new GastoResource($activo->refresh());
+        $datos = $request->validated();
+        $gasto->update($datos);
+        $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
-        return response()->json(compact('modelo', 'mensaje'));
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -345,7 +325,7 @@ class GastoController extends Controller
     public function generar_reporte(Request $request, $tipo)
     {
         try {
-            $datos_usuario_logueado = $request->usuario == null ? Empleado::where('usuario_id', auth()->user()->id)->first() : Empleado::where('id', $request->usuario)->first();
+            $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
             $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
             $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
@@ -376,15 +356,15 @@ class GastoController extends Controller
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $transferencia_enviada = Transferencias::where('usuario_envia_id', $request->usuario)
+            $transferencia_enviada = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $request->usuario)
+            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
+            $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->with('usuario_recibe', 'usuario_envia')
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -426,20 +406,6 @@ class GastoController extends Controller
         }
     }
     /**
-     * It takes a user object and returns an array of the user's data
-     *
-     * @param usuario The user's email address.
-     *
-     * @return The user object is being returned.
-     */
-    private function obtener_usuario($usuario)
-    {
-        $usuario_logeado =  json_decode(json_encode($usuario), true);
-        $usuario_logeado = $usuario_logeado[0];
-        return $usuario_logeado;
-    }
-
-    /**
      * It takes a request, gets some data from the request, gets some data from the database, and then
      * returns a file
      *
@@ -457,7 +423,7 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
+            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'tarea_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -467,7 +433,6 @@ class GastoController extends Controller
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
             $reporte_empaquetado = Gasto::empaquetar($reporte);
-            Log::channel('testing')->info('Log', ['reporte', $reporte_empaquetado]);
             $div = $tipo_reporte->nombre == 'Aprobado' ? 10 : 12;
             $resto = 0;
             $DateAndTime = date('Y-m-d H:i:s');
@@ -482,14 +447,16 @@ class GastoController extends Controller
                 'tipo_reporte' => $tipo_reporte,
                 'subtotal' => $subtotal,
                 'DateAndTime' => $DateAndTime
-
             ];
             $nombre_reporte = 'reporte_autorizaciones_' . $fecha_inicio . '-' . $fecha_fin;
             $vista = 'exports.reportes.reporte_autorizaciones';
             $export_excel = new AutorizacionesExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
     /**
@@ -499,24 +466,44 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_gasto(Request $request)
+    public function aprobar_gasto(GastoRequest $request)
     {
-        $gasto = Gasto::where('id', $request->id)->first();
-        $gasto->estado = 1;
-        $gasto->detalle_estado = $request->detalle_estado;
-        $gasto->save();
-        $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
-            ->where('per_destinatario_id', $gasto->aut_especial)
-            ->where('tipo_notificacion', 'AUTORIZACION GASTO')
-            ->where('leida', 0)
-            ->whereDate('notificable_id', $gasto->id)
-            ->first();
-        if ($notificacion != null) {
-            $notificacion->leida = 1;
-            $notificacion->save();
+        try {
+            DB::beginTransaction();
+            $gasto = Gasto::find($request->id);
+            $datos = $request->validated();
+            $datos['estado'] = 1;
+            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante']);
+            }
+            if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
+                $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+            } else {
+                unset($datos['comprobante2']);
+            }
+            $gasto->update($datos);
+            $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
+                ->where('per_destinatario_id', $gasto->aut_especial)
+                ->where('tipo_notificacion', 'AUTORIZACION GASTO')
+                ->where('leida', 0)
+                ->whereDate('notificable_id', $gasto->id)
+                ->first();
+            if ($notificacion != null) {
+                $notificacion->leida = 1;
+                $notificacion->save();
+            }
+            DB::commit();
+            event(new FondoRotativoEvent($gasto));
+            return response()->json(['success' => 'Gasto autorizado correctamente']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al aprobar gasto' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-        event(new FondoRotativoEvent($gasto));
-        return response()->json(['success' => 'Gasto autorizado correctamente']);
     }
     /**
      * It updates the status of the expense to 1, which means it is rejected.
@@ -527,21 +514,46 @@ class GastoController extends Controller
      */
     public function rechazar_gasto(Request $request)
     {
-        $gasto = Gasto::where('id', $request->id)->first();
-        $gasto->estado = 2;
-        $gasto->detalle_estado = $request->detalle_estado;
-        $gasto->save();
-        event(new FondoRotativoEvent($gasto));
-        return response()->json(['success' => 'Gasto rechazado']);
+        try {
+            DB::beginTransaction();
+            $gasto = Gasto::where('id', $request->id)->first();
+            $gasto->estado = 2;
+            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->save();
+            DB::commit();
+            event(new FondoRotativoEvent($gasto));
+            return response()->json(['success' => 'Gasto rechazado']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
     public function anular_gasto(Request $request)
     {
-        $gasto = Gasto::where('id', $request->id)->first();
-        $gasto->estado = 4;
-        $gasto->detalle_estado = $request->detalle_estado;
-        $gasto->save();
-        event(new FondoRotativoEvent($gasto));
-        return response()->json(['success' => 'Gasto rechazado']);
+        try {
+            DB::beginTransaction();
+            $gasto = Gasto::where('id', $request->id)->first();
+            if ($gasto->estado == 4) {
+                throw ValidationException::withMessages([
+                    '404' => ['El gasto ya fue anulado'],
+                ]);
+            }
+            $gasto->estado = 4;
+            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->save();
+            DB::commit();
+            event(new FondoRotativoEvent($gasto));
+            return response()->json(['success' => 'Gasto rechazado']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
     }
     public function crear_beneficiarios(Gasto $gasto, $beneficiarios)
     {
@@ -573,6 +585,18 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+
+
+    public function reporte_valores_fondos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['Request', $request->all()]);
+
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
+            throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
     }
 }

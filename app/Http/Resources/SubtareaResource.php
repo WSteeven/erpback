@@ -48,21 +48,21 @@ class SubtareaResource extends JsonResource
             'fecha_solicitud' => $this->cargar('fecha_solicitud', $campos) ? $this->tarea?->fecha_solicitud : null,
             'cliente' => $this->cargar('cliente', $campos) ? $this->tarea->cliente?->empresa?->razon_social : null,
             'cliente_id' => $this->cargar('cliente_id', $campos) ? $this->tarea->cliente_id : null,
-            'proyecto' => $this->cargar('proyectos', $campos) ? $this->tarea->proyecto?->codigo_proyecto : null,
+            'proyecto' => $this->cargar('proyecto', $campos) ? $this->tarea->proyecto?->codigo_proyecto : null,
             'ruta_tarea' => $this->cargar('ruta_tarea', $campos) ? $this->tarea->rutaTarea?->ruta : null,
             'cliente_final' => $this->cargar('cliente_final', $campos) ? $tarea->clienteFinal?->id_cliente_final : null,
             'es_ventana' => $this->cargar('es_ventana', $campos) ? $this->es_ventana : null,
             'fecha_inicio_trabajo' => $this->cargar('fecha_inicio_trabajo', $campos) ? Carbon::parse($this->fecha_inicio_trabajo)->format('d-m-Y') : null,
-            'hora_inicio_trabajo' => $this->cargar('hora_inicio_trabajo', $campos) ? $this->hora_inicio_trabajo: null,
-            'hora_fin_trabajo' => $this->cargar('hora_fin_trabajo', $campos) ? $this->hora_fin_trabajo: null,
-            'tipo_trabajo' => $this->cargar('tipo_trabajo', $campos) ? $this->tipo_trabajo?->descripcion: null,
-            'fecha_hora_creacion' => $this->cargar('fecha_hora_creacion', $campos) ? $this->formatTimestamp($this->fecha_hora_creacion): null,
-            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this->fecha_hora_agendado): null,
-            'fecha_hora_asignacion' => $this->cargar('fecha_hora_asignacion', $campos) ? $this->formatTimestamp($this->fecha_hora_asignacion): null,
-            'fecha_hora_ejecucion' => $this->cargar('fecha_hora_ejecucion', $campos) ? $this->formatTimestamp($this->fecha_hora_ejecucion): null,
-            'fecha_hora_finalizacion' => $this->cargar('fecha_hora_finalizacion', $campos) ? $this->formatTimestamp($this->fecha_hora_finalizacion): null,
-            'fecha_hora_realizado' => $this->cargar('fecha_hora_realizado', $campos) ? $this->formatTimestamp($this->fecha_hora_realizado): null,
-            'fecha_hora_pendiente' => $this->cargar('fecha_hora_pendiente', $campos) ? $this->formatTimestamp($this->fecha_hora_pendiente): null,
+            'hora_inicio_trabajo' => $this->cargar('hora_inicio_trabajo', $campos) ? $this->hora_inicio_trabajo : null,
+            'hora_fin_trabajo' => $this->cargar('hora_fin_trabajo', $campos) ? $this->hora_fin_trabajo : null,
+            'tipo_trabajo' => $this->cargar('tipo_trabajo', $campos) ? $this->tipo_trabajo?->descripcion : null,
+            'fecha_hora_creacion' => $this->cargar('fecha_hora_creacion', $campos) ? $this->formatTimestamp($this->fecha_hora_creacion) : null,
+            'fecha_hora_agendado' => $this->cargar('fecha_hora_agendado', $campos) ? $this->formatTimestamp($this->fecha_hora_agendado) : null,
+            'fecha_hora_asignacion' => $this->cargar('fecha_hora_asignacion', $campos) ? $this->formatTimestamp($this->fecha_hora_asignacion) : null,
+            'fecha_hora_ejecucion' => $this->cargar('fecha_hora_ejecucion', $campos) ? $this->formatTimestamp($this->fecha_hora_ejecucion) : null,
+            'fecha_hora_finalizacion' => $this->cargar('fecha_hora_finalizacion', $campos) ? $this->formatTimestamp($this->fecha_hora_finalizacion) : null,
+            'fecha_hora_realizado' => $this->cargar('fecha_hora_realizado', $campos) ? $this->formatTimestamp($this->fecha_hora_realizado) : null,
+            'fecha_hora_pendiente' => $this->cargar('fecha_hora_pendiente', $campos) ? $this->formatTimestamp($this->fecha_hora_pendiente) : null,
             'fecha_hora_suspendido' => $this->cargar('fecha_hora_suspendido', $campos) ? ($ultimaSuspension ? $this->formatTimestamp($ultimaSuspension->created_at) : null) : null,
             'motivo_suspendido' => $this->cargar('motivo_suspendido', $campos) ? ($ultimaSuspension ? MotivoSuspendido::find($ultimaSuspension->motivo_suspendido_id)->motivo : null) : null,
             'fecha_hora_cancelado' => $this->cargar('fecha_hora_cancelado', $campos) ? $this->formatTimestamp($this->fecha_hora_cancelado) : null,
@@ -73,7 +73,7 @@ class SubtareaResource extends JsonResource
             'dias_ocupados' => $this->cargar('id', $campos) ? ($this->fecha_hora_finalizacion ? Carbon::parse($this->fecha_hora_ejecucion)->diffInDays($this->fecha_hora_finalizacion) + 1 : null) : null,
             'canton' => $this->cargar('canton', $campos) ? $this->obtenerCanton() : null,
             'es_responsable' => $this->cargar('es_responsable', $campos) ? $this->verificarSiEsResponsable() : null,
-            'empleado_responsable_id' => $this->cargar('empleado_responsable_id', $campos) ? $this->obtenerIdEmpleadoResponsable() : null, // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
+            'empleado_responsable_id' => $this->cargar('empleado_responsable_id', $campos) ? $this->empleado_id : null, // Se utiliza para que el coordinador pueda acceder a los materiales del empleado respondable ya sea individual o de grupo y poder manipular sus materiales al editar el seguimiento.
             'empleado_responsable' => $this->cargar('empleado_responsable', $campos) ? $this->extraerNombresApellidos($this->empleado) : null,
             'empleado' => $this->cargar('empleado', $campos) ? $this->extraerNombresApellidos($this->empleado) : null,
             'fiscalizador' => $this->cargar('fiscalizador', $campos) ? $this->extraerNombresApellidos($this->tarea->fiscalizador) : null,
@@ -88,6 +88,9 @@ class SubtareaResource extends JsonResource
             'tiempo_estimado' => $this->cargar('tiempo_estimado', $campos) ? $this->tiempo_estimado : null,
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
+            'etapa_id' => $tarea->etapa_id,
+            'proyecto_id' => $tarea->proyecto_id,
+            'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
         ];
 
         if ($controller_method == 'show') {
@@ -116,7 +119,8 @@ class SubtareaResource extends JsonResource
         return count($campos) ? $data : $modelo;
     }
 
-    private function cargar($campo, $campos) {
+    private function cargar($campo, $campos)
+    {
         return in_array($campo, $campos) || !count($campos);
     }
 
@@ -229,7 +233,7 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
-        $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        $existeTrabajoEjecutado = !!$this->empleado?->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
         return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado;
     }
 
@@ -263,6 +267,7 @@ class SubtareaResource extends JsonResource
         return Carbon::now()->format('H:i:s') >= $horaInicio;
     }
 
+    // borrar
     public function obtenerIdEmpleadoResponsable()
     {
         if ($this->modo_asignacion_trabajo === Subtarea::POR_GRUPO) {

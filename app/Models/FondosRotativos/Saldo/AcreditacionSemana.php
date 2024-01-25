@@ -28,4 +28,8 @@ class AcreditacionSemana extends Model implements Auditable
     protected $casts = [
         'acreditar' => 'boolean',
     ];
+
+    public function  valor_acreditar(){
+        return $this->hasMany(ValorAcreditar::class,'acreditacion_semana_id','id');
+    }
 }

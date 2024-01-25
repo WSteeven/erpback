@@ -18,15 +18,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('numero_registro');
             $table->text('observacion');
-            $table->enum('tipo_proceso_examen', [RegistroEmpleadoExamen::INGRESO, RegistroEmpleadoExamen::OCUPACIONALES, RegistroEmpleadoExamen::REINGRESO, RegistroEmpleadoExamen::SALIDA]);
-
-            // Foreign keys
-            /*$table->unsignedBigInteger('tipo_examen_id');
-            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->onDelete('cascade')->onUpdate('cascade');*/
-
+            $table->string('tipo_proceso_examen');
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
-
             $table->timestamps();
         });
     }

@@ -28,9 +28,9 @@ class UmbralFondosRotativosController extends Controller
     }
     public function show(Request $request, UmbralFondosRotativos $umbral)
     {
-        $results = new UmbralFondosRotativosResource($umbral);
+        $modelo = new UmbralFondosRotativosResource($umbral);
 
-        return response()->json(compact('results'));
+        return response()->json(compact('modelo'));
     }
     public function store(UmbralFondosRotativosRequest $request)
     {
