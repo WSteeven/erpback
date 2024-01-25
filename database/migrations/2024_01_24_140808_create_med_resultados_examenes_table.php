@@ -20,7 +20,7 @@ return new class extends Migration
             $table->double('fecha_examen');
 
             $table->unsignedBigInteger('configuracion_examen_campo_id');
-            $table->foreign('configuracion_examen_campo_id')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('configuracion_examen_campo_id','fk_config_exam')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('estado_solicitud_examen_id');
             $table->foreign('estado_solicitud_examen_id')->references('id')->on('med_estados_solicitudes_examenes')->onDelete('cascade')->onUpdate('cascade');

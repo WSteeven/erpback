@@ -19,11 +19,10 @@ return new class extends Migration
             $table->unsignedInteger('dosis_totales');
             $table->unsignedInteger('dosis_aplicadas');
             $table->text('observacion');
-            // $table->string('url_certificado');
 
             // Foreign keys
-            $table->unsignedBigInteger('registro_examen_id');
-            $table->foreign('registro_examen_id')->references('id')->on('med_registros_examenes')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('registro_empleado_examen_id');
+            $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tipo_vacuna_id');
             $table->foreign('tipo_vacuna_id')->references('id')->on('med_tipos_vacunas')->onDelete('cascade')->onUpdate('cascade');

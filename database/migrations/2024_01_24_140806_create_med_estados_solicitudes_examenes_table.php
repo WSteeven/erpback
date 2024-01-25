@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('med_estados_solicitudes_examenes', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedBigInteger('registro_id');
+            $table->unsignedBigInteger('registro_empleado_examen_id');
             $table->unsignedBigInteger('examen_id');
             $table->unsignedBigInteger('estado_examen_id');
 
-            $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('registro_empleado_examen_id','fk_registro_empledo')->references('id')->on('med_registros_empleados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('examen_id')->references('id')->on('med_examenes')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('estado_examen_id')->references('id')->on('med_estados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
 

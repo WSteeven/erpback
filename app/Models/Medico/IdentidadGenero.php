@@ -2,22 +2,18 @@
 
 namespace App\Models\Medico;
 
+use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
-use App\Traits\UppercaseValuesTrait;
 
-class ConfiguracionExamenCategoria extends Model implements Auditable
+class IdentidadGenero extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_configuraciones_examenes_categorias';
+    protected $table = 'med_identidades_generos';
     protected $fillable = [
         'nombre',
-        'examen_id',
     ];
-    public function examen(){
-        return $this->hasOne(Examen::class,'id','examen_id');
-    }
 }
