@@ -15,16 +15,16 @@ class EstadoSolicitudExamen extends Model implements Auditable
     protected $table = 'med_estados_solicitudes_examenes';
     protected $fillable = [
         'registro_empleado_examen_id',
-        'tipo_examen_id',
+        'examen_id',
         'estado_examen_id',
     ];
     public function registroEmpleadoExamen()
     {
         return $this->hasOne(RegistroEmpleadoExamen::class, 'id', 'registro_id');
     }
-    public function tipoExamen()
+    public function examen()
     {
-        return $this->hasOne(TipoExamen::class, 'id', 'tipo_examen_id');
+        return $this->hasOne(Examen::class, 'id', 'examen_id');
     }
     public function estadoExamen()
     {

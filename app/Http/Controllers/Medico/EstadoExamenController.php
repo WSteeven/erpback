@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Src\Shared\Utils;
 
-class EstadoEstadoExamenController extends Controller
+class EstadoExamenController extends Controller
 {
     private $entidad = 'Estado de Examen';
 
