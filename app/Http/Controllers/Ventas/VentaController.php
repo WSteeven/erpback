@@ -10,6 +10,7 @@ use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Requests\Ventas\VentaRequest;
 use App\Http\Resources\Ventas\VentaResource;
 use App\Models\ConfiguracionGeneral;
+use App\Models\User;
 use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\BonoTrimestralCumplimiento;
 use App\Models\Ventas\Chargeback;
@@ -23,12 +24,16 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 use Maatwebsite\Excel\Facades\Excel;
+use Src\App\ArchivoService;
+use Src\Config\RutasStorage;
 
 class VentaController extends Controller
 {
     private $entidad = 'Venta';
+    private $archivoService;
     public function __construct()
     {
+        $this->archivoService = new ArchivoService();
         $this->middleware('can:puede.ver.ventas')->only('index', 'show');
         $this->middleware('can:puede.crear.ventas')->only('store');
         $this->middleware('can:puede.editar.ventas')->only('update');
@@ -37,7 +42,11 @@ class VentaController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = Venta::ignoreRequest(['campos'])->filter()->get();
+        if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
+            $results = Venta::where('supervisor_id', auth()->user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        } else {
+            $results = Venta::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        }
         $results = VentaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -310,6 +319,78 @@ class VentaController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ["error en pago de comisiones", $e->getmessage(), $e->getLine()]);
+        }
+    }
+
+    /**
+     * Suspender y reactivar
+     */
+    public function desactivar(Request $request, Venta $venta)
+    {
+        if (!$venta->activo) {
+            $request->validate(['observacion' => ['required', 'string']]);
+            $venta->observacion = $request->observacion;
+        }else{
+            $venta->activo = !$venta->activo;
+            $venta->save();
+            $modelo  = new VentaResource($venta->refresh());
+            
+        }
+
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Marcar una venta como pagado el primer mes
+     */
+    public function marcarPagado(Venta $venta)
+    {
+        try {
+            DB::beginTransaction();
+            if (!$venta->primer_mes) {
+                $venta->primer_mes = !$venta->primer_mes;
+                $venta->save();
+            } else throw new Exception('Esta venta ya ha sido marcada como pagada en su primer mes');
+            $modelo  = new VentaResource($venta->refresh());
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error' => [$th->getMessage() . '. ' . $th->getLine()],
+            ]);
+        }
+        return response()->json(compact('modelo'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request, Venta $venta)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($venta);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Venta $venta)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($venta, $request->file, RutasStorage::NOVEDADES_VENTAS_CLARO->value);
+            $mensaje = 'Archivo subido correctamente';
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de VentaController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
         }
     }
 }

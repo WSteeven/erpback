@@ -11,6 +11,7 @@ use App\Http\Controllers\Ventas\ComisionController;
 use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Controllers\Ventas\ModalidadController;
+use App\Http\Controllers\Ventas\NovedadVentaController;
 use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanController;
 use App\Http\Controllers\Ventas\ProductoVentaController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentaController;
+use App\Models\Ventas\NovedadVenta;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -34,6 +36,7 @@ Route::apiResources(
         'tipo-chargeback' => TipoChargebackController::class,
         'chargebacks' => ChargebackController::class,
         'pago-comision' => PagoComisionController::class,
+        'novedades-ventas' =>NovedadVentaController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         'umbral-ventas' => UmbralVentaController::class,
@@ -48,6 +51,7 @@ Route::apiResources(
             'comisiones' => 'comision',
             'vendedores' => 'vendedor',
             'productos-ventas' => 'producto',
+            'novedades-ventas' => 'venta',
         ],
     ]
 );
@@ -63,3 +67,11 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('productos-ventas/desactivar/{producto}', [ProductoVentaController::class, 'desactivar']);
 Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'desactivar']);
 Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);
+Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
+Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
+
+
+//listar archivos
+Route::get('ventas/files/{venta}', [VentaController::class, 'indexFiles'])->middleware('auth:sanctum');
+//guardar archivos
+Route::post('ventas/files/{venta}', [VentaController::class, 'storeFiles'])->middleware('auth:sanctum');

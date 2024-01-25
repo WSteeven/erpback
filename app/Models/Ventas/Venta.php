@@ -2,25 +2,61 @@
 
 namespace App\Models\Ventas;
 
+use App\Models\Archivo;
+use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use App\Models\Ventas\Vendedor;
+use Illuminate\Support\Facades\Mail;
 
 class Venta  extends Model implements Auditable
 {
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_ventas';
-    protected $fillable = ['orden_id', 'orden_interna', 'vendedor_id', 'producto_id', 'fecha_activacion', 'estado_activacion', 'forma_pago', 'comision_id', 'chargeback', 'comision_vendedor', 'cliente_id'];
+    protected $fillable = [
+        'orden_id', 'orden_interna',
+        'supervisor_id',
+        'vendedor_id',
+        'producto_id',
+        'fecha_activacion',
+        'estado_activacion',
+        'forma_pago',
+        'comision_id',
+        'chargeback',
+        'comision_vendedor',
+        'cliente_id',
+        'activo',
+        'observacion',
+        'primer_mes',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d h:i:s a',
+        'updated_at' => 'datetime:Y-m-d h:i:s a',
+        'activo' => 'boolean',
+        'primer_mes' => 'boolean',
+    ];
+
     private static $whiteListFilter = [
         '*',
     ];
+
+    public function novedadesVenta()
+    {
+        return $this->hasMany(NovedadVenta::class);
+    }
+    public function supervisor()
+    {
+        return $this->belongsTo(Vendedor::class, 'supervisor_id');
+    }
     public function vendedor()
     {
-        return $this->belongsTo(Vendedor::class); //->with('empleado');
+        return $this->belongsTo(Vendedor::class, 'vendedor_id'); //->with('empleado');
     }
     public function cliente()
     {
@@ -33,6 +69,14 @@ class Venta  extends Model implements Auditable
     public function comision()
     {
         return $this->hasOne(Comision::class, 'id', 'comision_id');
+    }
+    /**
+     * Relacion polimorfica con Archivos uno a muchos.
+     *
+     */
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 
     public static function empaquetarVentas($ventas)
@@ -60,5 +104,11 @@ class Venta  extends Model implements Auditable
             $id++;
         }
         return $results;
+    }
+
+    public static function enviarMailVendedor($vendedor_id, $supervisor_id, $cliente_id){
+        $empleado = Empleado::find($vendedor_id);
+        $supervisor= Empleado::find($supervisor_id);
+        Mail::to($empleado->user->email)->cc($supervisor->user->email)->send(new  );
     }
 }

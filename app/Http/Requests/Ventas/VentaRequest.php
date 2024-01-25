@@ -32,9 +32,10 @@ class VentaRequest extends FormRequest
 
             'orden_id' => 'required',
             'orden_interna' => 'sometimes|string|nullable',
+            'supervisor_id' => 'required',
             'vendedor_id' => 'required',
             'producto_id' => 'required',
-            'fecha_activ' => 'nullable',
+            'fecha_activacion' => 'nullable',
             'estado_activacion' => 'required',
             'forma_pago' => 'required',
             'comision_id' => 'required',
@@ -46,17 +47,17 @@ class VentaRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        Log::channel('testing')->info('Log', ['ventas requesst en prepareForValidation', $this->all()]);
         $chargeback = $this->chargeback !== null ? $this->chargeback : 0;
         [$comision_valor, $comision] = Comision::calcularComision($this->vendedor, $this->producto, $this->forma_pago);
         $comision_total = $this->estado_activacion == 'ACTIVADO' ?  $comision_valor : 0;
-        if ($this->fecha_activ != null) {
-            $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activ);
+        if ($this->fecha_activacion != null) {
+            $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activacion);
             $this->merge([
-                'fecha_activ' => $date_activ->format('Y-m-d'),
+                'fecha_activacion' => $date_activ->format('Y-m-d'),
             ]);
         }
         $this->merge([
+            'supervisor_id' => auth()->user()->empleado->id,
             'cliente_id' => $this->cliente,
             'vendedor_id' => $this->vendedor,
             'producto_id' => $this->producto,
