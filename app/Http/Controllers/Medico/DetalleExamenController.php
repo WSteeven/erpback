@@ -3,42 +3,42 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\EstadoExamenRequest;
-use App\Http\Resources\Medico\EstadoExamenResource;
-use App\Models\Medico\EstadoExamen;
+use App\Http\Requests\Medico\DetalleExamenRequest;
+use App\Http\Resources\Medico\DetalleExamenResource;
+use App\Models\Medico\DetalleExamen;
 use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Src\Shared\Utils;
 
-class EstadoEstadoExamenController extends Controller
+class DetalleExamenController extends Controller
 {
-    private $entidad = 'Estado de Examen';
+    private $entidad = 'Detalle Examen';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.estados_examenes')->only('index', 'show');
-        $this->middleware('can:puede.crear.estados_examenes')->only('store');
-        $this->middleware('can:puede.editar.estados_examenes')->only('update');
-        $this->middleware('can:puede.eliminar.estados_examenes')->only('destroy');
+        $this->middleware('can:puede.ver.detalles_examenes')->only('index', 'show');
+        $this->middleware('can:puede.crear.detalles_examenes')->only('store');
+        $this->middleware('can:puede.editar.detalles_examenes')->only('update');
+        $this->middleware('can:puede.eliminar.detalles_examenes')->only('destroy');
     }
 
     public function index()
     {
         $results = [];
-        $results = EstadoExamen::ignoreEstadoExamenRequest(['campos'])->filter()->get();
+        $results = DetalleExamen::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(EstadoExamenRequest $request)
+    public function store(DetalleExamenRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $categoria_examen = EstadoExamen::create($datos);
-            $modelo = new EstadoExamenResource($categoria_examen);
-            $this->tabla_roles($categoria_examen);
+            $detalle_examen = DetalleExamen::create($datos);
+            $modelo = new DetalleExamenResource($detalle_examen);
+            $this->tabla_roles($detalle_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -51,20 +51,20 @@ class EstadoEstadoExamenController extends Controller
         }
     }
 
-    public function show(EstadoExamenRequest $request, EstadoExamen $categoria_examen)
+    public function show(DetalleExamenRequest $request, DetalleExamen $detalle_examen)
     {
-        $modelo = new EstadoExamenResource($categoria_examen);
+        $modelo = new DetalleExamenResource($detalle_examen);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(EstadoExamenRequest $request, EstadoExamen $categoria_examen)
+    public function update(DetalleExamenRequest $request, DetalleExamen $detalle_examen)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $categoria_examen->update($datos);
-            $modelo = new EstadoExamenResource($categoria_examen->refresh());
+            $detalle_examen->update($datos);
+            $modelo = new DetalleExamenResource($detalle_examen->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -77,11 +77,11 @@ class EstadoEstadoExamenController extends Controller
         }
     }
 
-    public function destroy(EstadoExamenRequest $request, EstadoExamen $categoria_examen)
+    public function destroy(DetalleExamenRequest $request, DetalleExamen $detalle_examen)
     {
         try {
             DB::beginTransaction();
-            $categoria_examen->delete();
+            $detalle_examen->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -93,4 +93,5 @@ class EstadoEstadoExamenController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+
 }

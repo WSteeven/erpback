@@ -18,13 +18,17 @@ class EsquemaVacuna extends Model implements Auditable
         'dosis_totales',
         'dosis_aplicadas',
         'observacion',
-        'url_certificado',
-        'registro_examen_id',
+        'registro_empleado_examen_id',
+        'tipo_vacuna_id',
+
     ];
 
     // Relaciones
-    public function registroExamen()
+    public function registroEmpleadoExamen()
     {
-        return $this->belongsTo(RegistroExamen::class);
+        return $this->hasOne(RegistroEmpleadoExamen::class,'id','registro_examen_id');
+    }
+    public function tipoVacuna(){
+        return $this->hasOne(TipoVacuna::class,'id','tipo_vacuna_id');
     }
 }

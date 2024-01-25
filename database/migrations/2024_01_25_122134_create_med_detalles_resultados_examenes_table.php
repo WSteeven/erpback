@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('med_detalles_resultados_examenes', function (Blueprint $table) {
+            $table->id();
+            $table->text('observacion');
+            $table->unsignedBigInteger('tipo_examen_id');
+            $table->foreign('tipo_examen_id')->references('id')->on('med_tipos_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('med_detalle_resultados_examenes');
+    }
+};
