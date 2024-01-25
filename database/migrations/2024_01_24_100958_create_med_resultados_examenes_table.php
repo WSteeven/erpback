@@ -15,13 +15,15 @@ return new class extends Migration
     {
         Schema::create('med_resultados_examenes', function (Blueprint $table) {
             $table->id();
-            $table->
-            // $table->json('resultados');
-            // $table->string('url_certificado');
 
-            // Foreign keys
-            $table->unsignedBigInteger('empleado_examen_id');
-            $table->foreign('empleado_examen_id')->references('id')->on('med_empleado_examen')->onDelete('cascade')->onUpdate('cascade');
+            $table->double('resultado');
+            $table->double('fecha_examen');
+
+            $table->unsignedBigInteger('configuracion_examen_campo_id');
+            $table->foreign('configuracion_examen_campo_id')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
+
+            $table->unsignedBigInteger('estado_solicitud_examen_id');
+            $table->foreign('estado_solicitud_examen_id')->references('id')->on('med_estados_solicitudes_examenes')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

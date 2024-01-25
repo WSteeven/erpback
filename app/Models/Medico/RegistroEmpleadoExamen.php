@@ -23,7 +23,7 @@ class RegistroEmpleadoExamen extends Model implements Auditable
     protected $fillable = [
         'numero_registro',
         'observacion',
-        'tipo_examen_id',
+        'tipo_proceso_examen',
         'empleado_id',
     ];
 

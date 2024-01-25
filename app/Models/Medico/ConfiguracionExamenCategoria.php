@@ -15,6 +15,6 @@ class ConfiguracionExamenCategoria extends Model implements Auditable
     protected $table = 'med_configuraciones_examenes_categorias';
     protected $fillable = [
         'nombre',
-        'tipo_examen_id',
+        'examen_id',
     ];
 }
