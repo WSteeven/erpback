@@ -22,9 +22,9 @@ class EstadoSolicitudExamen extends Model implements Auditable
     {
         return $this->hasOne(RegistroEmpleadoExamen::class, 'id', 'registro_id');
     }
-    public function tipoExamen()
+    public function examen()
     {
-        return $this->hasOne(TipoExamen::class, 'id', 'tipo_examen_id');
+        return $this->hasOne(Examen::class, 'id', 'examen_id');
     }
     public function estadoExamen()
     {

@@ -7,16 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
-
-class TipoAntecedente extends Model implements Auditable
+class TipoHabitoToxico extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
-    const MASCULINO = 'MASCULINO';
-    const FEMENINO = 'FEMENINO';
-    protected $table = 'med_tipos_antecedentes';
+
+    protected $table = 'med_tipos_habitos_toxicos';
     protected $fillable = [
         'nombre',
-        'genero'
     ];
-
 }
