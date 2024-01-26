@@ -65,9 +65,11 @@ class TareaService
         $empleado = Empleado::find(request('empleado_id'));
         $grupo_id = $empleado->grupo_id;
         if ($grupo_id) {
-            $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->groupBy('tarea_id')->pluck('tarea_id');
+            $tareas_ids = Subtarea::where(function ($q) use ($empleado_id, $grupo_id) {
+                $q->where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%');
+            })->groupBy('tarea_id')->pluck('tarea_id');
         } else {
-            $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->groupBy('tarea_id')->pluck('tarea_id');
+            $tareas_ids = Subtarea::where('empleado_id', $empleado_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%')->groupBy('tarea_id')->pluck('tarea_id');
         }
         $ignoreRequest = ['activas_empleado', 'empleado_id', 'campos', 'formulario'];
         return Tarea::whereIn('id', $tareas_ids)->estaActiva()->orWhere(function ($query) {

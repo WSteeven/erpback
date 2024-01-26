@@ -19,4 +19,7 @@ class ConfiguracionExamenCampo extends Model implements Auditable
         'intervalo_referencia',
         'configuracion_examen_categoria_id',
     ];
+    public function configuracionExamenCategoria(){
+        return $this->hasOne(ConfiguracionExamenCategoria::class,'id','configuracion_examen_categoria_id');
+    }
 }
