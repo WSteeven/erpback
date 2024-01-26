@@ -42,7 +42,9 @@ Route::apiResources(
         'tipos-antecedentes' => TipoAntecedenteController::class,
     ],
     [
-        'parameters' => [],
+        'parameters' => [
+            'configuraciones-examenes-categ' => 'configuracion_examen_categoria'
+        ],
 
     ]
 );
