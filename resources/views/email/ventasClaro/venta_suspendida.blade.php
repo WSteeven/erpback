@@ -169,6 +169,8 @@
                 <td>{{ $venta->cliente->telefono1 }} {{ $venta->cliente->telefono2 }}</td>
             </tr>
         </table>
+
+        <p>Este correo se generó automaticamente, por favor no lo responda.</p>
     </main>
 
 </body>
