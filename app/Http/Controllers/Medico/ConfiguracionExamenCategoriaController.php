@@ -51,7 +51,7 @@ class ConfiguracionExamenCategoriaController extends Controller
         }
     }
 
-    public function show(ConfiguracionExamenCategoriaRequest $request, ConfiguracionExamenCategoria $configuracion_examen_categoria)
+    public function show(ConfiguracionExamenCategoria $configuracion_examen_categoria)
     {
         $modelo = new ConfiguracionExamenCategoriaResource($configuracion_examen_categoria);
         return response()->json(compact('modelo'));

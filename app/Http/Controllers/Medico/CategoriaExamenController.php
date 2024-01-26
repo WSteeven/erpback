@@ -27,7 +27,7 @@ class CategoriaExamenController extends Controller
     public function index()
     {
         $results = [];
-        $results = CategoriaExamen::ignoreCategoriaExamenRequest(['campos'])->filter()->get();
+        $results = CategoriaExamen::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
