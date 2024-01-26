@@ -114,7 +114,7 @@ class GastoRequest extends FormRequest
                 }
             } catch (Exception $e) {
                 throw ValidationException::withMessages([
-                    'Error al validar gasto' => [$e->getMessage()],
+                    'Error al validar gasto' => ['No se puede validar RUC con el servicio del SRI, porfavor intentelo mas tarde'],
                 ]);
             }
         });
