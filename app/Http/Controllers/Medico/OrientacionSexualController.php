@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\OrientacionSexualRequest;
 use App\Http\Resources\Medico\OrientacionSexualResource;
 use App\Models\Medico\OrientacionSexual;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class OrientacionSexualController extends Controller
@@ -27,7 +27,7 @@ class OrientacionSexualController extends Controller
     public function index()
     {
         $results = [];
-        $results = OrientacionSexual::ignoreOrientacionSexualRequest(['campos'])->filter()->get();
+        $results = OrientacionSexual::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -36,9 +36,9 @@ class OrientacionSexualController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $religion = OrientacionSexual::create($datos);
-            $modelo = new OrientacionSexualResource($religion);
-            $this->tabla_roles($religion);
+            $orientacion_sexual = OrientacionSexual::create($datos);
+            $modelo = new OrientacionSexualResource($orientacion_sexual);
+            $this->tabla_roles($orientacion_sexual);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,24 +47,24 @@ class OrientacionSexualController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de orientacion sexual' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(OrientacionSexualRequest $request, OrientacionSexual $religion)
+    public function show(OrientacionSexualRequest $request, OrientacionSexual $orientacion_sexual)
     {
-        $modelo = new OrientacionSexualResource($religion);
+        $modelo = new OrientacionSexualResource($orientacion_sexual);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(OrientacionSexualRequest $request, OrientacionSexual $religion)
+    public function update(OrientacionSexualRequest $request, OrientacionSexual $orientacion_sexual)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $religion->update($datos);
-            $modelo = new OrientacionSexualResource($religion->refresh());
+            $orientacion_sexual->update($datos);
+            $modelo = new OrientacionSexualResource($orientacion_sexual->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -73,15 +73,15 @@ class OrientacionSexualController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de orientacion sexual' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(OrientacionSexualRequest $request, OrientacionSexual $religion)
+    public function destroy(OrientacionSexualRequest $request, OrientacionSexual $orientacion_sexual)
     {
         try {
             DB::beginTransaction();
-            $religion->delete();
+            $orientacion_sexual->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -90,7 +90,7 @@ class OrientacionSexualController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de orientacion sexual' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

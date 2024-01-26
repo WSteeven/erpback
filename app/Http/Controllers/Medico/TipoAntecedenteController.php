@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\TipoAntecedenteRequest;
 use App\Http\Resources\Medico\TipoAntecedenteResource;
 use App\Models\Medico\TipoAntecedente;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class TipoAntecedenteController extends Controller
 {
-    private $entidad = 'Tipo de examen';
+    private $entidad = 'Tipo de antecedente de examen';
 
     public function __construct()
     {
@@ -27,7 +27,7 @@ class TipoAntecedenteController extends Controller
     public function index()
     {
         $results = [];
-        $results = TipoAntecedente::ignoreTipoAntecedenteRequest(['campos'])->filter()->get();
+        $results = TipoAntecedente::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -36,9 +36,9 @@ class TipoAntecedenteController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $tipo_examen = TipoAntecedente::create($datos);
-            $modelo = new TipoAntecedenteResource($tipo_examen);
-            $this->tabla_roles($tipo_examen);
+            $tipo_antecedente = TipoAntecedente::create($datos);
+            $modelo = new TipoAntecedenteResource($tipo_antecedente);
+            $this->tabla_roles($tipo_antecedente);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,24 +47,24 @@ class TipoAntecedenteController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de antecedente' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(TipoAntecedenteRequest $request, TipoAntecedente $tipo_examen)
+    public function show(TipoAntecedenteRequest $request, TipoAntecedente $tipo_antecedente)
     {
-        $modelo = new TipoAntecedenteResource($tipo_examen);
+        $modelo = new TipoAntecedenteResource($tipo_antecedente);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(TipoAntecedenteRequest $request, TipoAntecedente $tipo_examen)
+    public function update(TipoAntecedenteRequest $request, TipoAntecedente $tipo_antecedente)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $tipo_examen->update($datos);
-            $modelo = new TipoAntecedenteResource($tipo_examen->refresh());
+            $tipo_antecedente->update($datos);
+            $modelo = new TipoAntecedenteResource($tipo_antecedente->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -73,15 +73,15 @@ class TipoAntecedenteController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de antecedente' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(TipoAntecedenteRequest $request, TipoAntecedente $tipo_examen)
+    public function destroy(TipoAntecedenteRequest $request, TipoAntecedente $tipo_antecedente)
     {
         try {
             DB::beginTransaction();
-            $tipo_examen->delete();
+            $tipo_antecedente->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -90,7 +90,7 @@ class TipoAntecedenteController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de antecedente' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

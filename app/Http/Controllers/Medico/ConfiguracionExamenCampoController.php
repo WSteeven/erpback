@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\ConfiguracionExamenCampoRequest;
 use App\Http\Resources\Medico\ConfiguracionExamenCampoResource;
 use App\Models\Medico\ConfiguracionExamenCampo;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ConfiguracionExamenCampoController extends Controller
@@ -36,9 +36,9 @@ class ConfiguracionExamenCampoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $configuracion_examen_categoria = ConfiguracionExamenCampo::create($datos);
-            $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_categoria);
-            $this->tabla_roles($configuracion_examen_categoria);
+            $configuracion_examen_campo = ConfiguracionExamenCampo::create($datos);
+            $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_campo);
+            $this->tabla_roles($configuracion_examen_campo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -51,20 +51,20 @@ class ConfiguracionExamenCampoController extends Controller
         }
     }
 
-    public function show(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_categoria)
+    public function show(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_campo)
     {
-        $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_categoria);
+        $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_campo);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_categoria)
+    public function update(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_campo)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $configuracion_examen_categoria->update($datos);
-            $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_categoria->refresh());
+            $configuracion_examen_campo->update($datos);
+            $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_campo->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -77,11 +77,11 @@ class ConfiguracionExamenCampoController extends Controller
         }
     }
 
-    public function destroy(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_categoria)
+    public function destroy(ConfiguracionExamenCampoRequest $request, ConfiguracionExamenCampo $configuracion_examen_campo)
     {
         try {
             DB::beginTransaction();
-            $configuracion_examen_categoria->delete();
+            $configuracion_examen_campo->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));

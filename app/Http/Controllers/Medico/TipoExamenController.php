@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\TipoExamenRequest;
 use App\Http\Resources\Medico\TipoExamenResource;
 use App\Models\Medico\TipoExamen;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class TipoExamenController extends Controller
@@ -26,7 +26,7 @@ class TipoExamenController extends Controller
     public function index()
     {
         $results = [];
-        $results = TipoExamen::ignoreTipoExamenRequest(['campos'])->filter()->get();
+        $results = TipoExamen::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -46,7 +46,7 @@ class TipoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -72,7 +72,7 @@ class TipoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -89,7 +89,7 @@ class TipoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

@@ -7,6 +7,8 @@ use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
+use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -91,25 +93,33 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if($this->route()->getActionMethod() === 'store'){
-                $this->validar_numero_comprobante($validator);
-            }
-            if($this->route()->getActionMethod() === 'aprobar_gasto'){
-                $gasto = Gasto::find($this->id);
-                $estado = $gasto->estado;
-                if ($estado == 1){
-                    $validator->errors()->add('estado', 'El gasto ya fue aprobado');
+            try {
+                if ($this->route()->getActionMethod() === 'store') {
+                    $this->validar_numero_comprobante($validator);
                 }
-            }
-            if (substr_count($this->ruc, '9') < 9) {
-                $validador = new ValidarIdentificacion();
-                $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
-                if (!(($validador->validarCedula($this->ruc)) || ($existeRUC->body() == 'true'))) {
-                    $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
+                if ($this->route()->getActionMethod() === 'aprobar_gasto') {
+                    $gasto = Gasto::find($this->id);
+                    $estado = $gasto->estado;
+                    if ($estado == 1) {
+                        $validator->errors()->add('estado', 'El gasto ya fue aprobado');
+                    }
                 }
+                if (substr_count($this->ruc, '9') < 9) {
+                    $validador = new ValidarIdentificacion();
+                    $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
+
+                    if (!(($validador->validarCedula($this->ruc)) || ($existeRUC->body() == 'true'))) {
+                        $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
+                    }
+                }
+            } catch (Exception $e) {
+                throw ValidationException::withMessages([
+                    'Error al validar gasto' => [$e->getMessage()],
+                ]);
             }
         });
     }
+
     public function validar_numero_comprobante($validator)
     {
         $factura = Gasto::where('factura', '!=', null)
@@ -173,6 +183,5 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
-
     }
 }

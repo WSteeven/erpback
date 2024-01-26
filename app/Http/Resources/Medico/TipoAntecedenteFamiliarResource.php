@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TipoHabitoToxicoResource extends JsonResource
+class TipoAntecedenteFamiliarResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

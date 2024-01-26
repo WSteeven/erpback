@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\ReligionRequest;
 use App\Http\Resources\Medico\ReligionResource;
 use App\Models\Medico\Religion;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class ReligionController extends Controller
@@ -27,7 +27,7 @@ class ReligionController extends Controller
     public function index()
     {
         $results = [];
-        $results = Religion::ignoreReligionRequest(['campos'])->filter()->get();
+        $results = Religion::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -47,7 +47,7 @@ class ReligionController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de religion' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -73,7 +73,7 @@ class ReligionController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de religion' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -90,7 +90,7 @@ class ReligionController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de religion' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }
