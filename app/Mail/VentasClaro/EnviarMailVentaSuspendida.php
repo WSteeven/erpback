@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mail\VentasClaro;
 
 use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\Venta;
@@ -38,8 +38,9 @@ class EnviarMailVentaSuspendida extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address('JPCONSTRUCRED'),
-            subject: 'NOTIFCACION Venta Suspendida',
+            // from: new Address('JPCONSTRUCRED'),
+            from: new Address('no-reply@jpconstrucred.com', 'NOTIFICACIONES JP CONSTRUCRED C.LTDA'),
+            subject: '[PRUEBA] NOTIFCACION Venta Suspendida',
         );
     }
 
@@ -51,7 +52,7 @@ class EnviarMailVentaSuspendida extends Mailable
     public function content()
     {
         return new Content(
-            view: 'view.name',
+            view: 'email.ventasClaro.venta_suspendida',
         );
     }
 

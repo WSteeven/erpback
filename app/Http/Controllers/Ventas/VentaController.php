@@ -327,14 +327,21 @@ class VentaController extends Controller
      */
     public function desactivar(Request $request, Venta $venta)
     {
-        if (!$venta->activo) {
-            $request->validate(['observacion' => ['required', 'string']]);
-            $venta->observacion = $request->observacion;
-        }else{
-            $venta->activo = !$venta->activo;
+        try {
+            DB::beginTransaction();
+            if (!$venta->activo) {
+                $request->validate(['observacion' => ['required', 'string']]);
+                $venta->activo = !$venta->activo;
+                $venta->observacion = $request->observacion;
+            } else {
+                $venta->activo = !$venta->activo;
+                Venta::enviarMailVendedor($venta->vendedor_id, $venta->supervisor_id, $venta);
+            }
             $venta->save();
             $modelo  = new VentaResource($venta->refresh());
-            
+            DB::commit();
+        } catch (\Throwable $th) {
+            throw  ValidationException::withMessages(['Error' => $th->getMessage() . '. ' . $th->getLine()]);
         }
 
         return response()->json(compact('modelo'));

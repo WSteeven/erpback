@@ -2,6 +2,7 @@
 
 namespace App\Models\Ventas;
 
+use App\Mail\VentasClaro\EnviarMailVentaSuspendida;
 use App\Models\Archivo;
 use App\Models\Empleado;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -106,9 +107,11 @@ class Venta  extends Model implements Auditable
         return $results;
     }
 
-    public static function enviarMailVendedor($vendedor_id, $supervisor_id, $cliente_id){
+    public static function enviarMailVendedor($vendedor_id, $supervisor_id, $venta)
+    {
         $empleado = Empleado::find($vendedor_id);
-        $supervisor= Empleado::find($supervisor_id);
-        Mail::to($empleado->user->email)->cc($supervisor->user->email)->send(new  );
+        $supervisor = Empleado::find($supervisor_id);
+        // Mail::to($empleado->user->email)->cc($supervisor->user->email)->send(new EnviarMailVentaSuspendida($venta)); //usar esta línea en producción
+        Mail::to($empleado->user->email)->send(new EnviarMailVentaSuspendida($venta)); //pruebas
     }
 }
