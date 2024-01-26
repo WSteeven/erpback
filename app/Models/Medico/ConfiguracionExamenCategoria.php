@@ -17,4 +17,7 @@ class ConfiguracionExamenCategoria extends Model implements Auditable
         'nombre',
         'examen_id',
     ];
+    public function examen(){
+        return $this->hasOne(Examen::class,'id','examen_id');
+    }
 }

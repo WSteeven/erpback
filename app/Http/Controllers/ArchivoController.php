@@ -26,6 +26,8 @@ class ArchivoController extends Controller
         if (!$request->hasFile('file')) {
             throw ValidationException::withMessages(['file' => ['Debe selecionar al menos un archivo.']]);
         }
+
+        return response()->json(['mensaje' => 'Archivo subido exitosamente.']);
     }
 
     public function destroy(Archivo $archivo)

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
+use App\Models\Tareas\CentroCosto;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +49,8 @@ class Tarea extends Model implements Auditable
         'cliente_id',
         'cliente_final_id',
         'ruta_tarea_id',
+        'etapa_id',
+        'centro_costo_id',
     ];
 
     protected $casts = ['finalizado' => 'boolean'];
@@ -59,6 +63,11 @@ class Tarea extends Model implements Auditable
      * ______________________________________________________________________________________
      */
 
+    // Relacion uno a muchos (inversa)
+    public function centroCosto()
+    {
+        return $this->belongsTo(CentroCosto::class);
+    }
     // Relacion uno a muchos (inversa)
     public function cliente()
     {
@@ -154,6 +163,11 @@ class Tarea extends Model implements Auditable
         return $this->morphMany(Notificacion::class, 'notificable');
     }
 
+    public function etapa()
+    {
+        return $this->belongsTo(Etapa::class);
+    }
+
     /*********
      * Scopes
      *********/
@@ -167,13 +181,15 @@ class Tarea extends Model implements Auditable
         return $query->orderBy('fecha_hora_agendado', 'desc');
     }
 
-    public function scopeDisponibleUnaHoraFinalizar($query) {
+    public function scopeDisponibleUnaHoraFinalizar($query)
+    {
         // $activeUsers = DB::table('tareas')->select('id')->where('finali', 1);
 
         return $query->where('updated_at', '>=', Carbon::now()->subHour(24));
     }
 
-    public function scopeFechaInicioFin($query) {
+    public function scopeFechaInicioFin($query)
+    {
         // Obtencion de parametros
         $fechaInicio = request('fecha_inicio');
         $fechaFin = request('fecha_fin');
@@ -183,5 +199,10 @@ class Tarea extends Model implements Auditable
         $fechaFin = Carbon::createFromFormat('d-m-Y', $fechaFin)->addDay()->toDateString();
 
         return $query->whereBetween('created_at', [$fechaInicio, $fechaFin])->orWhere('created_at', $fechaFin);
+    }
+
+    public function scopeEstaActiva($query)
+    {
+        return $query->where('finalizado', false);
     }
 }

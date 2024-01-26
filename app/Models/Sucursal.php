@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -34,7 +37,7 @@ class Sucursal extends Model implements Auditable
 
     /**
      * La función "clientes" devuelve una relación entre el objeto actual y la clase "Cliente".
-     * 
+     *
      * @return una relación entre el modelo actual y el modelo Cliente.
      */
     public function cliente()
@@ -44,7 +47,7 @@ class Sucursal extends Model implements Auditable
 
     /**
      * Relacion uno a muchos
-     * Obtener los control de stock para una sucursal 
+     * Obtener los control de stock para una sucursal
      */
     public function control_stocks()
     {
@@ -137,4 +140,59 @@ class Sucursal extends Model implements Auditable
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    public static function crearSucursalProyectoEtapa(Etapa $etapa){
+        try {
+            DB::beginTransaction();
+            $sucursal  = Sucursal::create([
+                'lugar' => $etapa->proyecto->canton->canton .' - '.$etapa->nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social,
+                'cliente_id'=>$etapa->proyecto->cliente_id
+            ]);
+
+            DB::commit();
+            return $sucursal;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public static function modificarSucursalProyectoEtapa(Etapa $etapa, $nombre){
+        try {
+            DB::beginTransaction();
+            $sucursal  =Sucursal::where('lugar', 'like', '%'.$etapa->proyecto->canton->canton .' - '.$nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social.'%')->first();
+            if($sucursal){
+                $sucursal->update([
+                    'lugar' => $etapa->proyecto->canton->canton .' - '.$etapa->nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social,
+                    'cliente_id'=>$etapa->proyecto->cliente_id
+                ]);
+            }
+
+            DB::commit();
+            return $sucursal;
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+    // public static function eliminarSucursalProyectoEtapa(Etapa $etapa){
+    //     try {
+    //         DB::beginTransaction();
+    //         $sucursal  = Sucursal::create([
+    //             'lugar' => $etapa->proyecto->canton->canton .' - '.$etapa->nombre .' - '.$etapa->proyecto->cliente->empresa->razon_social,
+    //             'cliente_id'=>$etapa->proyecto->cliente_id
+    //         ]);
+
+    //         DB::commit();
+    //         return $sucursal;
+    //     } catch (\Throwable $th) {
+    //         DB::rollBack();
+    //         throw $th;
+    //     }
+    // }
 }

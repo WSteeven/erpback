@@ -20,6 +20,7 @@ class PedidoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $detalles = Pedido::listadoProductos($this->id);
 
+
         $modelo = [
             'id' => $this->id,
             'justificacion' => $this->justificacion,
@@ -47,6 +48,8 @@ class PedidoResource extends JsonResource
             'updated_at' => $this->updated_at,
             'evidencia1'=>$this->evidencia1 ? url($this->evidencia1) : null,
             'evidencia2'=>$this->evidencia2 ? url($this->evidencia2) : null,
+            'proyecto' => $this->proyecto_id,
+            'etapa' => $this->etapa_id,
 
             'tiene_fecha_limite'=>$this->fecha_limite?true:false,
             'es_tarea' => $this->tarea ? true : false,
@@ -55,6 +58,7 @@ class PedidoResource extends JsonResource
             'retira_tercero' => $this->per_retira_id ? true : false,
             'tiene_evidencia' => $this->evidencia1 ||$this->evidencia2 ? true : false,
             'para_cliente' => $this->cliente ? true : false,
+            'estado_orden_compra'=> $this->estadoOC($this->id)
         ];
 
         if ($controller_method == 'show') {
@@ -67,6 +71,9 @@ class PedidoResource extends JsonResource
             $modelo['tarea'] = $this->tarea_id;
             $modelo['sucursal'] = $this->sucursal_id;
             $modelo['estado'] = $this->estado_id;
+            $modelo['observacion_bodega'] = $this->observacion_bodega;
+            $modelo['proyecto'] = $this->proyecto_id;
+            $modelo['etapa'] = $this->etapa_id;
         }
 
 

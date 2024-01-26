@@ -2,6 +2,7 @@
 
 namespace App\Exports\ComprasProveedores;
 
+use App\Models\ConfiguracionGeneral;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -18,10 +19,12 @@ use Throwable;
 class CalificacionProveedorExcel extends DefaultValueBinder implements FromView, WithCustomValueBinder, ShouldAutoSize, WithColumnWidths
 {
     protected $datos;
+    public $configuracion;
 
     public function __construct($datos)
     {
         $this->datos = $datos;
+        $this->configuracion = ConfiguracionGeneral::first();
     }
 
     public function bindValue(Cell $cell, $value)
@@ -46,7 +49,7 @@ class CalificacionProveedorExcel extends DefaultValueBinder implements FromView,
     public function view(): View
     {
         try {
-            return view('compras_proveedores.proveedores.excel.calificacion_individual', ['reporte' => $this->datos]);
+            return view('compras_proveedores.proveedores.excel.calificacion_individual', ['reporte' => $this->datos, 'configuracion'=>$this->configuracion]);
         } catch (Throwable $th) {
             throw $th;
         }

@@ -13,10 +13,10 @@ class ParroquiaController extends Controller
     private $entidad = 'Parroquia';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.parroquias')->only('index', 'show');
-        $this->middleware('can:puede.crear.parroquias')->only('store');
-        $this->middleware('can:puede.editar.parroquias')->only('update');
-        $this->middleware('can:puede.eliminar.parroquias')->only('destroy');
+        // $this->middleware('can:puede.ver.parroquias')->only('index', 'show');
+        // $this->middleware('can:puede.crear.parroquias')->only('store');
+        // $this->middleware('can:puede.editar.parroquias')->only('update');
+        // $this->middleware('can:puede.eliminar.parroquias')->only('destroy');
     }
 
     public function index()

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSaludResource;
 use App\Imports\ExtensionCoverturaSaludImport;
-use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud ;
+use App\Models\RecursosHumanos\NominaPrestamos\ExtensionCoverturaSalud;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,14 +26,15 @@ class ExtensionCoverturaSaludController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = ExtensionCoverturaSalud::ignoreRequest(['campos'])->filter()->get();
+        $results = ExtensionCoverturaSalud::ignoreRequest(['campos'])->filter()->orderBy('mes', 'desc')->get();
         $results = ExtensionCoverturaSaludResource::collection($results);
         return response()->json(compact('results'));
     }
 
-    public function extension_covertura_salud_empleado(Request $request){
-       $valor= ExtensionCoverturaSalud::where('empleado_id',$request->empleado)->where('mes',$request->mes)->sum('aporte');
-       return response()->json(compact('valor'));
+    public function extension_covertura_salud_empleado(Request $request)
+    {
+        $valor = ExtensionCoverturaSalud::where('empleado_id', $request->empleado)->where('mes', $request->mes)->sum('aporte');
+        return response()->json(compact('valor'));
     }
 
     public function store(ExtensionCoverturaSaludRequest $request)
@@ -41,9 +42,9 @@ class ExtensionCoverturaSaludController extends Controller
         try {
             $request->validated();
             $existe_prestamo = ExtensionCoverturaSalud::where('mes', $request->mes)->count();
-            if ($existe_prestamo >0) {
+            if ($existe_prestamo > 0) {
                 throw ValidationException::withMessages([
-                    'mes' => ['Mes duplicado, ya registro listado de extension conyugal: '.$request->mes],
+                    'mes' => ['Mes duplicado, ya registro listado de extension conyugal: ' . $request->mes],
                 ]);
             }
             $modelo = new ExtensionCoverturaSalud();

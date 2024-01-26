@@ -42,6 +42,7 @@ class ConfiguracionGeneralRequest extends FormRequest
             'sitio_web' => 'required|string',
             'direccion_secundaria1' => 'nullable|string',
             'direccion_secundaria2' => 'nullable|string',
+            'nombre_empresa' => 'required|string',
         ];
     }
 }

@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Empleado;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use PhpParser\Node\Stmt\Break_;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -59,7 +57,7 @@ class PermisoRolController extends Controller
         $roles = Role::whereIn('id', $request->roles)->get();
         $permisos = [];
         if ($request->permiso_personalizado) {
-            $permiso = Permission::firstOrCreate(['name' => $request->name])->syncRoles($roles);
+            $permiso = Permission::firstOrCreate(['name' => strtolower($request->name)])->syncRoles($roles);
             return response()->json(['mensaje' => 'Se creó un permiso exitosamente',  'permiso' => $permiso]);
         } else {
             if ($request->autorizar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.autorizar.' . $request->name])->syncRoles($roles));

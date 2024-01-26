@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Gasto;
 
 use App\Models\Canton;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -74,6 +75,8 @@ class Gasto extends Model implements Auditable
         'usuario',
         'fecha_inicio',
         'fecha_fin',
+        'ciudad',
+        'id_lugar'
     ];
 
     public function detalle_info()
@@ -108,7 +111,7 @@ class Gasto extends Model implements Auditable
     }
     public function tarea_info()
     {
-        return $this->hasOne(Tarea::class, 'id', 'id_tarea');
+        return $this->hasOne(Tarea::class, 'id', 'id_tarea')->with('centroCosto');
     }
     public function subtarea_info()
     {
@@ -137,6 +140,10 @@ class Gasto extends Model implements Auditable
     public function beneficiario_info(){
         return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado_info');
     }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+    }
 
     public static function empaquetar($gastos)
     {
@@ -156,6 +163,8 @@ class Gasto extends Model implements Auditable
                 $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
                 $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
                 $row['tarea'] = $gasto->tarea_info;
+                $row['centro_costo'] = $gasto->tarea_info !== null ? $gasto->tarea_info?->centroCosto?->nombre:'';
+                $row['sub_centro_costo'] = $gasto->empleado_info->grupo==null ?'':$gasto->empleado_info->grupo?->subCentroCosto?->nombre;
                 $row['proyecto'] = $gasto->proyecto_info;
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
@@ -165,6 +174,8 @@ class Gasto extends Model implements Auditable
                 $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
                 $row['detalle_estado'] = $gasto->detalle_estado;
+                $row['comprobante'] = $gasto->comprobante;
+                $row['comprobante2'] = $gasto->comprobante2;
                 $row['total']= $gasto->total;
                 $results[$id] = $row;
                 $id++;

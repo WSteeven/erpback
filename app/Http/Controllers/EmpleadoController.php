@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
+use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\UserResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
@@ -13,6 +14,7 @@ use App\Models\User;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\EmpleadoService;
@@ -62,9 +64,14 @@ class EmpleadoController extends Controller
         if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
+        if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA]) && request('es_reporte__saldo_actual')) {
+            return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
+        }
+
+
 
         // Procesar respuesta
-        if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos);// EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
+        if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());
         if (request('campos')) return $this->servicio->obtenerTodosCiertasColumnas($campos);
         if ($search) return $this->servicio->search($search);
 
@@ -77,6 +84,7 @@ class EmpleadoController extends Controller
     public function index()
     {
         $results = $this->list();
+        $results = EmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -99,18 +107,16 @@ class EmpleadoController extends Controller
         if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
-
-        // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
-
         try {
             DB::beginTransaction();
+            $username = $this->generarNombreUsuario($datos);
+            $email = $username . '@' . explode("@", $datos['email'])[1];
             $user = User::create([
-                'name' => $datos['usuario'],
+                'name' => $username,
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -120,6 +126,7 @@ class EmpleadoController extends Controller
                 'jefe_id' => $datos['jefe_id'],
                 'canton_id' => $datos['canton_id'],
                 'cargo_id' => $datos['cargo_id'],
+                'coordenadas' => $datos['coordenadas'],
                 'departamento_id' => $datos['departamento_id'],
                 'grupo_id' => $datos['grupo_id'],
                 'firma_url' => $datos['firma_url'],
@@ -144,8 +151,8 @@ class EmpleadoController extends Controller
                 'talla_pantalon' => $datos['talla_pantalon'],
                 'banco' => $datos['banco'],
                 'genero' => $datos['genero'],
-                'esta_en_rol_pago'=> $datos['esta_en_rol_pago'],
-                'acumula_fondos_reserva'=> $datos['acumula_fondos_reserva'],
+                'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
+                'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
             ]);
 
@@ -168,6 +175,14 @@ class EmpleadoController extends Controller
     {
         $empleado = Empleado::find($id);
         return response()->json(compact('empleado'));
+    }
+    public function HabilitaEmpleado(Request $request)
+    {
+        $empleado = Empleado::find($request->id);
+        $empleado->estado = $request->estado == 'true' ? 1 : 0;
+        $empleado->save();
+        $modelo = $empleado;
+        return response()->json(compact('modelo'));
     }
     public function existeResponsableGrupo(Request $request)
     {
@@ -386,39 +401,100 @@ class EmpleadoController extends Controller
 
         return response()->json(['mensaje' => 'Nuevo secretario asignado exitosamente!']); */
     }
-    public function empleadosRoles(Request $request){
+    public function empleadosRoles(Request $request)
+    {
         $results = [];
         $roles = [];
         if (!is_null($request->roles)) {
             $roles = explode(',', $request->roles);
-            $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
+            $results = EmpleadoRolePermisoResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
                 $query->where('estado', true);
             })->get());
         }
         return response()->json(compact('results'));
     }
-    public function empleadoPermisos (Request $request) {
+    public function empleadoPermisos(Request $request)
+    {
         $permisos = [];
         $results = [];
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
         }
         return response()->json(compact('results'));
     }
-    public function imprimir_reporte_general_empleado(){
+    public function imprimir_reporte_general_empleado()
+    {
         $reportes = Empleado::where('estado', 1)
-        ->where('id', '>', 2)
-        ->where('esta_en_rol_pago', '1')
-        ->where('realiza_factura', '0')
-        ->where('salario', '!=', 0)
-        ->orderBy('area_id' ,'asc')
-        ->orderBy('apellidos','asc')
-        ->get();
+            ->where('id', '>', 2)
+            ->where('esta_en_rol_pago', '1')
+            ->where('realiza_factura', '0')
+            ->where('salario', '!=', 0)
+            ->orderBy('area_id', 'asc')
+            ->orderBy('apellidos', 'asc')
+            ->get();
         $results = Empleado::empaquetarListado($reportes);
-        $nombre_reporte= 'lista_empleados';
+        $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+    }
+    /**
+     * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe
+     * en la base de datos.
+     *
+     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
+     * para recuperar datos de la solicitud HTTP. Contiene información como los campos de entrada
+     * enviados en un formulario o los parámetros pasados en la URL.
+     *
+     * @return el nombre de usuario generado.
+     */
+    function generarNombreUsuario($request)
+    {
+        $nombreUsuario = $request['usuario'];
+        $nombres = str_replace('ñ', 'n', $request['nombres']);
+        $apellidos = str_replace('ñ', 'n', $request['apellidos']);
+        // Comprobamos si el nombre de usuario ya existe
+        $query = User::where('name', $nombreUsuario)->get();
+        $username = $nombreUsuario;
+        $inicio_username = '';
+        if ($query->count() > 0) {
+            // Separamos el nombre y el apellido en dos cadenas
+            $nombre = explode(" ", $nombres);
+            $apellido = explode(" ", $apellidos);
+            $inicio_username = $nombre[1][0];
+            $username = $nombre[0][0] . $inicio_username . $apellido[0];
+            $contador = 1;
+            while (User::where('name',  $username)->count() > 0) {
+                if ($contador <= strlen($nombre[0])) {
+                    $inicio_username .= $nombre[0][$contador];
+                    $username = $inicio_username . $nombre[1][0] . $apellido[0];
+                    $contador++;
+                }
+            }
+        }
+        return $username;
+    }
+    function obtenerNombreUsuario(Request $request)
+    {
+        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $username = $this->generarNombreUsuario($datos);
+        return response()->json(compact('username'));
+    }
+
+    function obtenerEmpleadosFondosRotativos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['request', $request->all()]);
+            $empleados = Empleado::has('gastos')->get();
+            Log::channel('testing')->info('Log', ['encontrados', $empleados]);
+            Log::channel('testing')->info('Log', ['resource', EmpleadoResource::collection($empleados)]);
+
+            $results = EmpleadoResource::collection($empleados);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en obtenerEmpleadosFondosRotativos', $th->getMessage(), $th->getLine()]);
+            throw new ValidationException($th->getMessage());
+        }
+        return response()->json(compact('results'));
     }
 }

@@ -37,7 +37,9 @@
 </head>
 
 <body>
-
+    @php
+        $sub_total = 0;
+    @endphp
     <table
         style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
         <tr>
@@ -94,7 +96,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
-                                            <div align="left">{{$empleado->canton->canton  }}
+                                            <div align="left">{{ $empleado->canton->canton }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
@@ -117,7 +119,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
-                                            <div align="left">{{$empleado->canton->canton  }}
+                                            <div align="left">{{ $empleado->canton->canton }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
@@ -142,7 +144,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
-                                            <div align="left">{{$empleado->canton->canton  }}
+                                            <div align="left">{{ $empleado->canton->canton }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
@@ -167,7 +169,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
-                                            <div align="left">{{$empleado->canton->canton  }}
+                                            <div align="left">{{ $empleado->canton->canton }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
@@ -191,7 +193,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="15%">
-                                            <div align="left">{{$empleado->canton->canton  }}
+                                            <div align="left">{{ $empleado->canton->canton }}
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
@@ -261,6 +263,13 @@
                                         <td bgcolor="#a9d08e" width="100%">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
+
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                                        </td>
+                                        <td bgcolor="#a9d08e" style="font-size:10px">
+                                            <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                                        </td>
                                         <td bgcolor="#a9d08e">
                                             <div align="center"><strong>CANT.</strong></div>
                                         </td>
@@ -279,6 +288,9 @@
                                         </tr>
                                     @else
                                         @foreach ($gastos_reporte as $dato)
+                                            @php
+                                                $sub_total = $sub_total + (float) $dato->total;
+                                            @endphp
                                             <tr>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->id }}</div>
@@ -318,6 +330,8 @@
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->observacion }}</div>
                                                 </td>
+                                                <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
+                                                <td style="font-size:10px">{{ $dato['sub_centro_costo'] }}</td>
                                                 <td style="font-size:10px">
                                                     <div align="center">{{ $dato->cantidad }}</div>
                                                 </td>
@@ -326,14 +340,14 @@
                                                         {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ number_format($dato->total, 2, ',', '.') }}
+                                                    <div align="center">{{ number_format($dato->total, 2, ',', ' ') }}
                                                     </div>
                                                 </td>
                                             </tr>
                                         @endforeach
                                         <tr>
                                             <td>&nbsp;</td>
-                                            <td colspan="10" style="font-size:10px">
+                                            <td colspan="12" style="font-size:10px">
                                                 <div align="right"><strong>TOTAL DE GASTOS:&nbsp;</strong></div>
                                             </td>
                                             <td style="font-size:10px">

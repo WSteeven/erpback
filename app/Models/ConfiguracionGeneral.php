@@ -11,7 +11,7 @@ use App\Traits\UppercaseValuesTrait;
 class ConfiguracionGeneral extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
-
+    
 
     protected $table = 'configuraciones_generales';
     protected $fillable = [
@@ -33,5 +33,6 @@ class ConfiguracionGeneral extends Model implements Auditable
         'sitio_web',
         'direccion_secundaria1',
         'direccion_secundaria2',
+        'nombre_empresa',
     ];
 }

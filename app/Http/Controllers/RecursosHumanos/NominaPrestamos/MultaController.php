@@ -5,9 +5,12 @@ namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 use App\Http\Controllers\Controller;
 use App\Models\RecursosHumanos\NominaPrestamos\Multas;
 use Illuminate\Http\Request;
+use Src\Shared\Utils;
 
 class MultaController extends Controller
 {
+    private $entidad = 'Multa';
+
     public function __construct()
     {
         $this->middleware('can:puede.ver.multa')->only('index', 'show');
@@ -22,21 +25,26 @@ class MultaController extends Controller
         $results = Multas::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
-    public function show(Request $request, Multas $multa)
+    public function show(Request $request, Multas $multum)
     {
-        return response()->json(compact('multa'));
+        $modelo = $multum;
+        return response()->json(compact('modelo'));
     }
     public function store(Request $request)
     {
-        $multa = new Multas();
-        $multa->nombre = $request->nombre;
-        $multa->save();
-        return $multa;
+        $datos = $request->validated();
+        $multa = Multas::create($datos);
+        $modelo = $multa;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+        return response()->json(compact('mensaje', 'modelo'));
     }
     public function update(Request $request, Multas $multa)
     {
-        $multa->nombre = $request->nombre;
-        $multa->save();
+        $datos = $request->validated();
+        $multa->update($datos);
+        $modelo = $multa;
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        return response()->json(compact('mensaje', 'modelo'));
         return $multa;
     }
     public function destroy(Request $request, Multas $multa)

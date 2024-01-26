@@ -113,6 +113,7 @@ class PrestamoService
             ->whereYear('fecha_vencimiento', $anio)
             ->whereMonth('fecha_vencimiento', $mes)
             ->where('pago_couta', 0)
+           -> where('plazo_prestamo_empresarial.estado', true)
             ->sum('valor_a_pagar');
             return $prestamo != null ? $prestamo : 0;
         }
@@ -124,7 +125,6 @@ class PrestamoService
             ->whereMonth('fecha_vencimiento', $mes)
             ->where('pago_couta', 0)
             ->first();
-        Log::channel('testing')->info('Log', ['prestamo pagado', $prestamo]);
         if ($prestamo != null) {
             $prestamo->valor_pagado = $prestamo->valor_a_pagar;
             $prestamo->valor_a_pagar = 0;

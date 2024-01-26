@@ -42,7 +42,7 @@ class GastoRequest extends FormRequest
             'proyecto' => 'required',
             'beneficiarios' => 'nullable',
             'ruc' => 'nullable|string',
-            'factura' => 'nullable|string|max:22|min:17',
+            'factura' => 'nullable|string|max:30|min:17',
             'num_comprobante' => 'nullable|string|max:13',
             'aut_especial' => 'required',
             'detalle' => 'required|exists:detalle_viatico,id',
@@ -51,11 +51,11 @@ class GastoRequest extends FormRequest
             'valor_u' => 'required|numeric',
             'total' => 'required|numeric',
             'observacion' => 'required|string',
-            'comprobante1' => 'required|string',
+            'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
-            'detalle_estado' => 'nullable|srtring',
+            'detalle_estado' => 'nullable|string',
         ];
-       if (!is_null($this->vehiculo) ) {
+        if (!is_null($this->vehiculo)) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'lugar' => 'required',
@@ -64,7 +64,7 @@ class GastoRequest extends FormRequest
                 'proyecto' => 'required',
                 'beneficiarios' => 'nullable',
                 'ruc' => 'nullable|string',
-                'factura' => 'nullable|string|max:22|min:17',
+                'factura' => 'nullable|string|max:30|min:17',
                 'num_comprobante' => 'nullable|string|max:13',
                 'aut_especial' => 'required',
                 'detalle' => 'required|exists:detalle_viatico,id',
@@ -73,9 +73,9 @@ class GastoRequest extends FormRequest
                 'valor_u' => 'required|numeric',
                 'total' => 'required|numeric',
                 'observacion' => 'required|string',
-                'comprobante1' => 'required|string',
+                'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
-                'detalle_estado' => 'nullable|srtring',
+                'detalle_estado' => 'nullable|string',
                 'vehiculo' => 'required|integer',
                 'kilometraje' => 'required|integer'
             ];
@@ -91,41 +91,15 @@ class GastoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $date = Carbon::parse($this->fecha_viat);
-            /* if (!$date->greaterThan('2023-03-31')) {
-                $validator->errors()->add('fecha_viat', 'La fecha no puede ser menor a 2023-03-31');
-            }*/
-            $factura = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', 1)
-                ->first();
-            $factura_pendiente = Gasto::where('factura', '!=', null)
-                ->where('factura', '!=', '')
-                ->where('ruc', $this->ruc)
-                ->where('factura', $this->factura)
-                ->where('estado', Gasto::PENDIENTE)
-                ->first();
-            if ($factura) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+            if($this->route()->getActionMethod() === 'store'){
+                $this->validar_numero_comprobante($validator);
             }
-            if ($factura_pendiente) {
-                $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
-            }
-            $comprobante = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 1)
-                ->first();
-            if ($comprobante) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
-            }
-            $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante', $this->num_comprobante)
-                ->where('estado', 3)
-                ->first();
-            if ($comprobante_pendiente) {
-                $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+            if($this->route()->getActionMethod() === 'aprobar_gasto'){
+                $gasto = Gasto::find($this->id);
+                $estado = $gasto->estado;
+                if ($estado == 1){
+                    $validator->errors()->add('estado', 'El gasto ya fue aprobado');
+                }
             }
             if (substr_count($this->ruc, '9') < 9) {
                 $validador = new ValidarIdentificacion();
@@ -136,6 +110,41 @@ class GastoRequest extends FormRequest
             }
         });
     }
+    public function validar_numero_comprobante($validator)
+    {
+        $factura = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', 1)
+            ->first();
+        $factura_pendiente = Gasto::where('factura', '!=', null)
+            ->where('factura', '!=', '')
+            ->where('ruc', $this->ruc)
+            ->where('factura', $this->factura)
+            ->where('estado', Gasto::PENDIENTE)
+            ->first();
+        if ($factura) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        if ($factura_pendiente) {
+            $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
+        }
+        $comprobante = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', 1)
+            ->first();
+        if ($comprobante) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
+        $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
+            ->where('num_comprobante', $this->num_comprobante)
+            ->where('estado', 3)
+            ->first();
+        if ($comprobante_pendiente) {
+            $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
+        }
+    }
     protected function prepareForValidation()
     {
         $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
@@ -144,6 +153,9 @@ class GastoRequest extends FormRequest
         ]);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
+        ]);
+        $this->merge([
+            'comprobante' =>  $this->comprobante1,
         ]);
         if (is_null($this->aut_especial)) {
             $id_jefe = Auth::user()->empleado->jefe_id;
@@ -161,5 +173,6 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
+
     }
 }

@@ -20,6 +20,7 @@ class DetalleProductoResource extends JsonResource
         // Log::channel('testing')->info('Log', ['request en resource de detalle_producto:', $request->all()]);
         $modelo =  [
             'id' => $this->id,
+            'detalle_id' => $this->id,
             'categoria' => $this->producto->categoria->nombre,
             'codigo'=>$this->codigo?$this->codigo->codigo:'',
             'producto' => $this->producto->nombre,
@@ -40,11 +41,11 @@ class DetalleProductoResource extends JsonResource
             'imei' => $this->computadora ? $this->computadora->imei: null,
 
             'computadora' => $this->computadora ? $this->computadora->memoria->nombre . ' RAM, ' . $this->computadora->disco->nombre . ', ' . $this->computadora->procesador->nombre . ($this->computadora->imei?', IMEI: ' .$this->computadora->imei:null) : null,
-            'fibra' => $this->fibra ? 'Span ' . $this->fibra->span->nombre . ', ' . $this->fibra->hilo->nombre . 'H, ' . $this->fibra->tipo_fibra->nombre : null,
+            'fibra' => $this->fibra ? 'Span ' . $this->fibra->span?->nombre . ', ' . $this->fibra->hilo?->nombre . 'H, ' . $this->fibra->tipo_fibra?->nombre : null,
 
             'span' => $this->fibra ? $this->fibra->span->nombre : 'N/A',
-            'tipo_fibra' => $this->fibra ? $this->fibra->tipo_fibra->nombre : null,
-            'hilos' => $this->fibra ?  $this->fibra->hilo->nombre : null,
+            'tipo_fibra' => $this->fibra ? $this->fibra->tipo_fibra?->nombre : null,
+            'hilos' => $this->fibra ?  $this->fibra->hilo?->nombre : null,
             'punta_inicial' => $this->fibra ? $this->fibra->punta_inicial : null,
             'punta_final' => $this->fibra ? $this->fibra->punta_final : null,
             'custodia' => $this->fibra ? $this->fibra->custodia : null,

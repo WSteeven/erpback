@@ -30,6 +30,7 @@ class Acreditaciones extends Model implements Auditable
     ];
     private static $whiteListFilter = [
         'fecha',
+        'id_estado',
     ];
     public function usuario()
     {
@@ -69,5 +70,9 @@ class Acreditaciones extends Model implements Auditable
         }
         return $results;
 
+    }
+    public function saldo_grupo()
+    {
+        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
     }
 }

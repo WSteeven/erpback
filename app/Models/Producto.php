@@ -19,11 +19,17 @@ class Producto extends Model implements Auditable
 
     protected $table = "productos";
 
-    protected $fillable = ["nombre", "categoria_id", "unidad_medida_id"];
+    protected $fillable = ["nombre", "categoria_id", "unidad_medida_id", 'tipo'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
     ];
+
+    const BIEN = 'BIEN';
+    const SERVICIO = 'SERVICIO';
+
+    const MATERIAL = 7;
+    const EQUIPO = 4;
 
     private static $whiteListFilter = [
         '*',
@@ -41,6 +47,18 @@ class Producto extends Model implements Auditable
         $detalles = DetalleProducto::where('producto_id', $id)->get();
         $result = count($detalles);
         return $result;
+    }
+
+    /**
+     * La función "obtenerProductoPorNombre" recupera un producto por su nombre de la base de datos.
+     *
+     * @param nombre El parámetro "nombre" es una cadena que representa el nombre del producto a buscar.
+     *
+     * @return una única instancia del modelo "Producto" que coincide con el nombre dado.
+     */
+    public static function obtenerProductoPorNombre($nombre)
+    {
+        return Producto::where('nombre', $nombre)->first();
     }
 
     /**

@@ -18,4 +18,13 @@ class DetalleExamen extends Model implements Auditable
         'categoria_examen_id',
         'examen_id',
     ];
+    public function tipoExamen(){
+        return $this->hasOne(TipoExamen::class,'id','tipo_examen_id');
+    }
+    public function categoriaExamen(){
+        return $this->hasOne(CategoriaExamen::class,'id','categoria_examen_id');
+    }
+    public function examen(){
+        return $this->hasOne(Examen::class,'id','examen_id');
+    }
 }

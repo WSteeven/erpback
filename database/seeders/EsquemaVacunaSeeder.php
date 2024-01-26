@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\EsquemaVacuna;
+use App\Models\Medico\EsquemaVacuna;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 

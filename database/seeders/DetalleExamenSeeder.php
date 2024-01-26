@@ -1,0 +1,114 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Medico\DetalleExamen;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DetalleExamenSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DetalleExamen::insert([
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>1, //hematologia_grupoSan//
+                'examen_id' =>1,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>1, //hematologia_biometria//
+                'examen_id' =>2,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>2, //urologia//
+                'examen_id' =>3,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>3, //heces//
+                'examen_id' =>4,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>5,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>6,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>7,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>8,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>9,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguinea
+                'examen_id' =>10,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>4, //quimica sanguines
+                'examen_id' =>11,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>5, //enzimas
+                'examen_id' =>12,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>5, //Enzimas
+                'examen_id' =>13,
+            ],
+            [
+                'tipo_examen_id' =>1,
+                'categoria_examen_id' =>6, //imagenologia
+                'examen_id' =>14,
+            ],
+            [
+                'tipo_examen_id' =>2,
+                'categoria_examen_id' =>null,
+                'examen_id' =>15,
+            ],
+            [
+                'tipo_examen_id' =>2,
+                'categoria_examen_id' =>null,
+                'examen_id' =>16,
+            ],
+            [
+                'tipo_examen_id' =>2,
+                'categoria_examen_id' =>null,
+                'examen_id' =>17,
+            ],
+            [
+                'tipo_examen_id' =>2,
+                'categoria_examen_id' =>null,
+                'examen_id' =>18,
+            ],
+
+        ]);
+
+     
+    }
+}

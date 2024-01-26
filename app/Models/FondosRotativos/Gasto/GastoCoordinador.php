@@ -74,7 +74,7 @@ class GastoCoordinador extends Model implements Auditable
             $row['monto'] = $gasto->monto;
             $row['observacion'] = $gasto->observacion;
             $row['usuario'] = $gasto->id_usuario;
-            $row['empleado_info'] = $gasto->empleado_info->user;
+            $row['empleado_info'] = $gasto->empleado_info != null ? $gasto->empleado_info->nombres.' '.$gasto->empleado_info->apellidos:' ' ;
 
             $results[$id] = $row;
             $id++;

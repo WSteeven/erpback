@@ -16,8 +16,7 @@ class TipoExamenResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'placa' => $this->nombre,
-
-        ];;
+            'nombre' => $this->nombre,
+        ];
     }
 }

@@ -18,9 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('categoria_id');
             $table->unsignedBigInteger('proveedor_id');
             $table->timestamps();
-
-            // $table->foreign('categoria_id')->references('id')->on('cmp_categorias_ofertas_proveedores');
-            // $table->foreign('proveedor_id')->references('id')->on('proveedores');
+            //$table->foreign('categoria_id')->references('id')->on('cmp_categorias_ofertas_proveedores');
+            $table->foreign('proveedor_id')->references('id')->on('proveedores');
         });
     }
 
