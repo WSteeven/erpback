@@ -28,6 +28,7 @@ class EstadoSolicitudExamenController extends Controller
     {
         $results = [];
         $results = EstadoSolicitudExamen::ignoreRequest(['campos'])->filter()->get();
+        $results = EstadoSolicitudExamenResource::collection($results);
         return response()->json(compact('results'));
     }
 
