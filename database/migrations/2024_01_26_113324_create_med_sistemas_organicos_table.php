@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_tipos_antecedentes_familiares', function (Blueprint $table) {
+        Schema::create('med_sistemas_organicos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
             $table->timestamps();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_tipos_antecedentes_familiares');
+        Schema::dropIfExists('med_sistemas_organicos');
     }
 };

@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\IdentidadGeneroRequest;
 use App\Http\Resources\Medico\IdentidadGeneroResource;
 use App\Models\Medico\IdentidadGenero;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class IdentidadGeneroController extends Controller
 {
-    private $entidad = 'IdentidadGenero';
+    private $entidad = 'Identidad de Genero';
 
     public function __construct()
     {
@@ -36,9 +36,9 @@ class IdentidadGeneroController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $religion = IdentidadGenero::create($datos);
-            $modelo = new IdentidadGeneroResource($religion);
-            $this->tabla_roles($religion);
+            $identidad_genero = IdentidadGenero::create($datos);
+            $modelo = new IdentidadGeneroResource($identidad_genero);
+            $this->tabla_roles($identidad_genero);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,24 +47,24 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(IdentidadGeneroRequest $request, IdentidadGenero $religion)
+    public function show(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
     {
-        $modelo = new IdentidadGeneroResource($religion);
+        $modelo = new IdentidadGeneroResource($identidad_genero);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(IdentidadGeneroRequest $request, IdentidadGenero $religion)
+    public function update(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $religion->update($datos);
-            $modelo = new IdentidadGeneroResource($religion->refresh());
+            $identidad_genero->update($datos);
+            $modelo = new IdentidadGeneroResource($identidad_genero->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -73,15 +73,15 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(IdentidadGeneroRequest $request, IdentidadGenero $religion)
+    public function destroy(IdentidadGeneroRequest $request, IdentidadGenero $identidad_genero)
     {
         try {
             DB::beginTransaction();
-            $religion->delete();
+            $identidad_genero->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -90,6 +90,6 @@ class IdentidadGeneroController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de identidad de genero' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }}

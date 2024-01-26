@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\TipoVacunaRequest;
 use App\Http\Resources\Medico\TipoVacunaResource;
 use App\Models\Medico\TipoVacuna;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class TipoVacunaController extends Controller
@@ -36,9 +36,9 @@ class TipoVacunaController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $tipo_examen = TipoVacuna::create($datos);
-            $modelo = new TipoVacunaResource($tipo_examen);
-            $this->tabla_roles($tipo_examen);
+            $tipo_vacuna = TipoVacuna::create($datos);
+            $modelo = new TipoVacunaResource($tipo_vacuna);
+            $this->tabla_roles($tipo_vacuna);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -47,24 +47,24 @@ class TipoVacunaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de vacuna' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(TipoVacunaRequest $request, TipoVacuna $tipo_examen)
+    public function show(TipoVacunaRequest $request, TipoVacuna $tipo_vacuna)
     {
-        $modelo = new TipoVacunaResource($tipo_examen);
+        $modelo = new TipoVacunaResource($tipo_vacuna);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(TipoVacunaRequest $request, TipoVacuna $tipo_examen)
+    public function update(TipoVacunaRequest $request, TipoVacuna $tipo_vacuna)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $tipo_examen->update($datos);
-            $modelo = new TipoVacunaResource($tipo_examen->refresh());
+            $tipo_vacuna->update($datos);
+            $modelo = new TipoVacunaResource($tipo_vacuna->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -73,15 +73,15 @@ class TipoVacunaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de vacuna' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(TipoVacunaRequest $request, TipoVacuna $tipo_examen)
+    public function destroy(TipoVacunaRequest $request, TipoVacuna $tipo_vacuna)
     {
         try {
             DB::beginTransaction();
-            $tipo_examen->delete();
+            $tipo_vacuna->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -90,7 +90,7 @@ class TipoVacunaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de tipo de vacuna' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
 }
 }

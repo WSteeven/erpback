@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TipoAntecedenteFamiliarRequest extends FormRequest
+class TipoFactorRiesgoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class TipoAntecedenteFamiliarRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
