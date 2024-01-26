@@ -9,6 +9,7 @@ use App\Http\Controllers\Medico\DetalleResultadoExamenController;
 use App\Http\Controllers\Medico\EsquemaVacunaController;
 use App\Http\Controllers\Medico\EstadoExamenController;
 use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
+use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
@@ -23,14 +24,14 @@ use Illuminate\Support\Facades\Route;
 Route::apiResources(
     [
         'tipos-examenes' => TipoExamenController::class,
-        'examenes' => ExamenesController::class,
+        'examenes' => ExamenController::class,
         'categorias-examenes' => CategoriaExamenController::class,
         'estados-examenes' => EstadoExamenController::class,
         'detalles-examenes' => DetalleExamenController::class,
-        'configuraciones-examenes-categorias' => ConfiguracionExamenCategoriaController::class,
+        'configuraciones-examenes-categ' => ConfiguracionExamenCategoriaController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'estados-solicitudes-examenes' => EstadoSolicitudExamenController::class,
-        'configuraciones-examenes-campo' => ConfiguracionExamenCampoController::class,
+        'configuraciones-examenes-campos' => ConfiguracionExamenCampoController::class,
         'resultados-examenes-campos' => ResultadoExamenController::class,
         'detalles-resultados-examenes' => DetalleResultadoExamenController::class,
         'tipos-vacunas' => TipoVacunaController::class,

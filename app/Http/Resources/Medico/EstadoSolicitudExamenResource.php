@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Medico;
 
+use App\Models\Medico\Examen;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class EstadoSolicitudExamenResource extends JsonResource
@@ -18,8 +19,10 @@ class EstadoSolicitudExamenResource extends JsonResource
             'id' => $this->id,
             'registro_empleado' => $this->registro_id,
             'registro_empleado_info' => $this->registroEmpleadoExamen !== null?$this->registroEmpleadoExamen->nombre:' ',
-            'tipo_examen' => $this->tipo_examen_id,
-            'tipo_examen_info' => $this->tipoExamen !== null ? $this->tipoExamen?->nombre:' ',
+            // 'tipo_examen' => $this->tipo_examen_id,
+            'nombre' => $this->examen_id ? Examen::find($this->examen_id)->nombre : null,
+            'tipo_examen' => $this->examen_id ? Examen::find($this->examen_id)->tipoExamen?->first()?->nombre : null, // !== null ? $this->tipoExamen?->nombre:' ',
+            'categoria' => $this->examen_id ? Examen::find($this->examen_id)->categoria?->first()?->nombre : null,
             'estado_examen' => $this->estado_examen_id,
             'estado_examen_info' => $this->estadoExamen !== null ? $this->estadoExamen?->nombre:' ',
         ];

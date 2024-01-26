@@ -27,7 +27,8 @@ class ExamenController extends Controller
     public function index()
     {
         $results = [];
-        $results = Examen::ignoreExamenRequest(['campos'])->filter()->get();
+        $results = Examen::ignoreRequest(['campos'])->filter()->get();
+        $results = ExamenResource::collection($results);
         return response()->json(compact('results'));
     }
 
