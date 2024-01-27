@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\EsquemaVacunaRequest;
 use App\Http\Resources\Medico\EsquemaVacunaResource;
 use App\Models\Medico\EsquemaVacuna;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class EsquemaVacunaController extends Controller
 {
-    private $entidad = 'Detalle Examen';
+    private $entidad = 'Esquema de vacunacion';
 
     public function __construct()
     {
@@ -36,9 +36,9 @@ class EsquemaVacunaController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $detalle_examen = EsquemaVacuna::create($datos);
-            $modelo = new EsquemaVacunaResource($detalle_examen);
-            $this->tabla_roles($detalle_examen);
+            $esquema_vacuna = EsquemaVacuna::create($datos);
+            $modelo = new EsquemaVacunaResource($esquema_vacuna);
+            $this->tabla_roles($esquema_vacuna);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -51,20 +51,20 @@ class EsquemaVacunaController extends Controller
         }
     }
 
-    public function show(EsquemaVacunaRequest $request, EsquemaVacuna $detalle_examen)
+    public function show(EsquemaVacunaRequest $request, EsquemaVacuna $esquema_vacuna)
     {
-        $modelo = new EsquemaVacunaResource($detalle_examen);
+        $modelo = new EsquemaVacunaResource($esquema_vacuna);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(EsquemaVacunaRequest $request, EsquemaVacuna $detalle_examen)
+    public function update(EsquemaVacunaRequest $request, EsquemaVacuna $esquema_vacuna)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $detalle_examen->update($datos);
-            $modelo = new EsquemaVacunaResource($detalle_examen->refresh());
+            $esquema_vacuna->update($datos);
+            $modelo = new EsquemaVacunaResource($esquema_vacuna->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -77,11 +77,11 @@ class EsquemaVacunaController extends Controller
         }
     }
 
-    public function destroy(EsquemaVacunaRequest $request, EsquemaVacuna $detalle_examen)
+    public function destroy(EsquemaVacunaRequest $request, EsquemaVacuna $esquema_vacuna)
     {
         try {
             DB::beginTransaction();
-            $detalle_examen->delete();
+            $esquema_vacuna->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));

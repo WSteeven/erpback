@@ -6,15 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\EstadoSolicitudExamenRequest;
 use App\Http\Resources\Medico\EstadoSolicitudExamenResource;
 use App\Models\Medico\EstadoSolicitudExamen;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class EstadoSolicitudExamenController extends Controller
 {
-    private $entidad = 'Configuracion de Examen Categoria';
+    private $entidad = 'Estado de solicitud de Examen';
 
     public function __construct()
     {
@@ -37,9 +37,9 @@ class EstadoSolicitudExamenController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $configuracion_examen_categoria = EstadoSolicitudExamen::create($datos);
-            $modelo = new EstadoSolicitudExamenResource($configuracion_examen_categoria);
-            $this->tabla_roles($configuracion_examen_categoria);
+            $estado_solicitud_examen = EstadoSolicitudExamen::create($datos);
+            $modelo = new EstadoSolicitudExamenResource($estado_solicitud_examen);
+            $this->tabla_roles($estado_solicitud_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -48,24 +48,24 @@ class EstadoSolicitudExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de estado de solicitud de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function show(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $configuracion_examen_categoria)
+    public function show(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $estado_solicitud_examen)
     {
-        $modelo = new EstadoSolicitudExamenResource($configuracion_examen_categoria);
+        $modelo = new EstadoSolicitudExamenResource($estado_solicitud_examen);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $configuracion_examen_categoria)
+    public function update(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $estado_solicitud_examen)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $configuracion_examen_categoria->update($datos);
-            $modelo = new EstadoSolicitudExamenResource($configuracion_examen_categoria->refresh());
+            $estado_solicitud_examen->update($datos);
+            $modelo = new EstadoSolicitudExamenResource($estado_solicitud_examen->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -74,15 +74,15 @@ class EstadoSolicitudExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de estado de solicitud de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $configuracion_examen_categoria)
+    public function destroy(EstadoSolicitudExamenRequest $request, EstadoSolicitudExamen $estado_solicitud_examen)
     {
         try {
             DB::beginTransaction();
-            $configuracion_examen_categoria->delete();
+            $estado_solicitud_examen->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -91,7 +91,7 @@ class EstadoSolicitudExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de estado de solicitud de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\DetalleExamenRequest;
 use App\Http\Resources\Medico\DetalleExamenResource;
 use App\Models\Medico\DetalleExamen;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class DetalleExamenController extends Controller
@@ -47,7 +47,7 @@ class DetalleExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de detalle de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -73,7 +73,7 @@ class DetalleExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de detalle de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -90,7 +90,7 @@ class DetalleExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de detalle de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 

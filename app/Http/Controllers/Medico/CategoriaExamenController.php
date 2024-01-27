@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\CategoriaExamenRequest;
 use App\Http\Resources\Medico\CategoriaExamenResource;
 use App\Models\Medico\CategoriaExamen;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class CategoriaExamenController extends Controller
@@ -27,7 +27,7 @@ class CategoriaExamenController extends Controller
     public function index()
     {
         $results = [];
-        $results = CategoriaExamen::ignoreCategoriaExamenRequest(['campos'])->filter()->get();
+        $results = CategoriaExamen::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 

@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\RegistroEmpleadoExamenRequest;
 use App\Http\Resources\Medico\RegistroEmpleadoExamenResource;
 use App\Models\Medico\RegistroEmpleadoExamen;
-use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
 class RegistroEmpleadoExamenController extends Controller
@@ -27,7 +27,7 @@ class RegistroEmpleadoExamenController extends Controller
     public function index()
     {
         $results = [];
-        $results = RegistroEmpleadoExamen::ignoreRegistroEmpleadoExamenRequest(['campos'])->filter()->get();
+        $results = RegistroEmpleadoExamen::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -47,7 +47,7 @@ class RegistroEmpleadoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de registro empleado examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -73,7 +73,7 @@ class RegistroEmpleadoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al actualizar el registro de registro empleado examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -90,7 +90,7 @@ class RegistroEmpleadoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de categoria de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de registro empleado examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }

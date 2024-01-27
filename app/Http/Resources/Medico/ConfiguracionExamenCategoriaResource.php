@@ -18,7 +18,7 @@ class ConfiguracionExamenCategoriaResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'examen' => $this->examen_id,
-            'examen_info' => $this->examen !==null ?$this->examen?->nombre:' ',
+            // 'examen_info' => $this->examen !==null ?$this->examen?->nombre:' ',
         ];
     }
 }
