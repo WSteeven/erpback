@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class TipoAntecedenteFamiliar extends Model  implements Auditable
+class TipoAptitud extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_tipos_antecedentes_familiares';
+    protected $table = 'med_tipos_aptitudes';
     protected $fillable = [
         'nombre',
     ];

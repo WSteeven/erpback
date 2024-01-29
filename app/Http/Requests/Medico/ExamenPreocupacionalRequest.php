@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ExamenRequest extends FormRequest
+class ExamenPreocupacionalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ExamenRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -25,6 +25,16 @@ class ExamenRequest extends FormRequest
     {
         return [
             'nombre' => 'required|string',
+            'tiempo' => 'required',
+            'resultados' => 'required|string',
+            'genero' => 'required|string',
+            'antecedente_personal_id' => 'required',
         ];
+    }
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'antecedente_personal_id' => $this->antecedente_personal,
+        ]);
     }
 }

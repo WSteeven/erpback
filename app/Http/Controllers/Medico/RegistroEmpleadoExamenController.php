@@ -26,8 +26,9 @@ class RegistroEmpleadoExamenController extends Controller
 
     public function index()
     {
-        $results = [];
+        // $results = [];
         $results = RegistroEmpleadoExamen::ignoreRequest(['campos'])->filter()->get();
+        $results = RegistroEmpleadoExamenResource::collection($results);
         return response()->json(compact('results'));
     }
 

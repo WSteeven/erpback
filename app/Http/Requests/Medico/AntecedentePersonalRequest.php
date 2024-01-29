@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ResultadoExamenRequest extends FormRequest
+class AntecedentePersonalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,17 +24,19 @@ class ResultadoExamenRequest extends FormRequest
     public function rules()
     {
         return [
-            'resultado' => 'required|string',
-            'fecha_examen' => 'required|string',
-            'configuracion_examen_id' => 'required|exists:med_configuraciones_examenes,id',
-            'empleado_id' => 'required|exists:empleados,id',
+            'antecedentes_quirorgicos' => 'required|string',
+            'vida_sexual_activa'=> 'required',
+            'tiene_metodo_planificacion_familiar'=> 'required',
+            'tipo_metodo_planificacion_familiar'=> 'required|string',
+            'hijos_vivos'=> 'required',
+            'hijos_muertos'=> 'required',
+            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
         ];
     }
     protected function prepareForValidation()
     {
             $this->merge([
-                'configuracion_examen_id' => $this->configuracion_examen,
-                'empleado_id' => $this->empleado
+                'preocupacional_id' => $this->preocupacional,
             ]);
     }
 }

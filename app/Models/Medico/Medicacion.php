@@ -8,12 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class TipoAntecedenteFamiliar extends Model  implements Auditable
+class Medicacion extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_tipos_antecedentes_familiares';
+    protected $table = 'med_medicaciones';
     protected $fillable = [
         'nombre',
+        'cantidad',
+        'preocupacional_id'
     ];
+    public function preocupacional()
+    {
+        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+    }
 }

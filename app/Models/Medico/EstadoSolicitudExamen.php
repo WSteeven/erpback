@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\ModelFilters\EstadoSolicitudExamenFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -11,7 +12,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class EstadoSolicitudExamen extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, EstadoSolicitudExamenFilter;
 
     protected $table = 'med_estados_solicitudes_examenes';
     protected $fillable = [
@@ -24,7 +25,7 @@ class EstadoSolicitudExamen extends Model implements Auditable
 
     public function registroEmpleadoExamen()
     {
-        return $this->hasOne(RegistroEmpleadoExamen::class, 'id', 'registro_id');
+        return $this->hasOne(RegistroEmpleadoExamen::class, 'id', 'registro_empleado_examen_id');
     }
 
     public function examen()

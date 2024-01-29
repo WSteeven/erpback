@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Medico;
 
+use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RegistroEmpleadoExamenResource extends JsonResource
@@ -22,6 +23,7 @@ class RegistroEmpleadoExamenResource extends JsonResource
             'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . ' ' . $this->empleado?->apellidos : ' ',
             'tipo_proceso_examen' => $this->tipo_proceso_examen,
             'estados_solicitudes_examenes' => $this->estadosSolicitudesExamenes !== null ? $this->estadosSolicitudesExamenes:[],
+            'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
         ];
     }
 }
