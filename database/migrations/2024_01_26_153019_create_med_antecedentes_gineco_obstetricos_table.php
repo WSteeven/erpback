@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('partos');
             $table->integer('cesareas');
             $table->integer('abortos');
+            $table->integer('hijos_vivos');
+            $table->integer('hijos_muertos');
             $table->unsignedBigInteger('antecedentes_personales_id');
             $table->foreign('antecedentes_personales_id')->on('med_antecedentes_personales')->references('id')->nullOnDelete()->cascadeOnUpdate();
             $table->timestamps();

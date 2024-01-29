@@ -31,6 +31,8 @@ return new class extends Migration
             $table->boolean('consume_medicacion')->default('0');
             $table->string('enfermedad_actual');
             $table->text('recomendaciones_tratamiento');
+            $table->text('descripcion_examen_fisico_regional');
+            $table->text('descripcion_revision_organos_sistemas');
             $table->foreign('religion_id')->on('med_religiones')->references('id')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('orientacion_sexual_id')->on('med_orientaciones_sexuales')->references('id')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('identidad_genero_id')->on('med_identidades_generos')->references('id')->nullOnDelete()->cascadeOnUpdate();

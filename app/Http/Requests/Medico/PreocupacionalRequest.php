@@ -38,6 +38,8 @@ class PreocupacionalRequest extends FormRequest
             'actividad_fisica'=> 'required|string',
             'enfermedad_actual'=> 'required|string',
             'recomendaciones_tratamiento'=> 'required|string',
+            'descripcion_examen_fisico_regional'=> 'required|string',
+            'descripcion_revision_organos_sistemas'=> 'required|string',
         ];
     }
     protected function prepareForValidation()

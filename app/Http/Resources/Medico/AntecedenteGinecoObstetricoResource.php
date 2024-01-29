@@ -23,6 +23,8 @@ class AntecedenteGinecoObstetricoResource extends JsonResource
             'partos' => $this->partos,
             'cesareas' => $this->cesareas,
             'abortos' => $this->abortos,
+            'hijos_vivos'=> $this->hijos_vivos,
+            'hijos_muertos'=> $this->hijos_muertos,
             'antecedentes_personales' => $this->antecedentes_personales_id,
         ];
     }
