@@ -14,7 +14,7 @@ use Src\Shared\Utils;
 
 class ExamenExamenPreocupacionalController extends Controller
 {
-    private $entidad = 'ExamenPreocupacional';
+    private $entidad = 'Examen Preocupacional';
 
     public function __construct()
     {

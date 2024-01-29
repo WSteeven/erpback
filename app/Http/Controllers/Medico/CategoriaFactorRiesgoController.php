@@ -14,7 +14,7 @@ use Src\Shared\Utils;
 
 class CategoriaFactorRiesgoController extends Controller
 {
-    private $entidad = 'Tipo de antecedente familiar';
+    private $entidad = 'Tipo de factor de riesgo';
 
     public function __construct()
     {
