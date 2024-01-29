@@ -12,7 +12,7 @@ class TipoAntecedenteFamiliar extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_tipos_factores_riesgos';
+    protected $table = 'med_tipos_antecedentes_familiares';
     protected $fillable = [
         'nombre',
     ];
