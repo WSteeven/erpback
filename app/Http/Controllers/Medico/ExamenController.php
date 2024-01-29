@@ -10,11 +10,13 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\ExamenService;
 use Src\Shared\Utils;
 
 class ExamenController extends Controller
 {
     private $entidad = 'Examen';
+    private $examenService;
 
     public function __construct()
     {
@@ -22,12 +24,12 @@ class ExamenController extends Controller
         $this->middleware('can:puede.crear.examenes')->only('store');
         $this->middleware('can:puede.editar.examenes')->only('update');
         $this->middleware('can:puede.eliminar.examenes')->only('destroy');
+        $this->examenService = new ExamenService();
     }
 
     public function index()
     {
-        $results = [];
-        $results = Examen::ignoreRequest(['campos'])->filter()->get();
+        $results = $this->examenService->listar();
         $results = ExamenResource::collection($results);
         return response()->json(compact('results'));
     }

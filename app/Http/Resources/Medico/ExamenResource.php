@@ -17,6 +17,7 @@ class ExamenResource extends JsonResource
         return [
             'id' => $this->id,
             'nombre' => $this->nombre,
+            'examen' => $this->nombre,
             'categoria' => $this->categoria?->first()?->nombre,
             'tipo_examen' => $this->tipoExamen?->first()?->nombre,
             // 'tipo_examen' => $this->tipoExamen->nombre,

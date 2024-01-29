@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class RegistroEmpleadoExamen extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     // Contantes
     const INGRESO = 'INGRESO';
@@ -27,12 +28,16 @@ class RegistroEmpleadoExamen extends Model implements Auditable
         'empleado_id',
     ];
 
+    private static $whiteListFilter = ['*'];
+
     // Relaciones
     public function empleado()
     {
         return $this->belongsTo(Empleado::class);
     }
-    public function estadosSolicitudesExamenes(){
-        return $this->hasMany(EstadoSolicitudExamen::class,'id','registro_empleado_examen_id')->with('examen','estadoExamen');
+
+    public function estadosSolicitudesExamenes()
+    {
+        return $this->hasMany(EstadoSolicitudExamen::class, 'id', 'registro_empleado_examen_id')->with('examen', 'estadoExamen');
     }
 }
