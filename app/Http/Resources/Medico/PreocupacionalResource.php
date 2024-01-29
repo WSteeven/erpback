@@ -64,10 +64,8 @@ class PreocupacionalResource extends JsonResource
             /****************************
              * Examenes Preocupacionales
              * **************************/
-            'nombre' => $this->antecedentePersonal->examenPreocupacional,
-            'tiempo' => $this->antecedentePersonal->examenPreocupacional,
-            'resultados' => $this->antecedentePersonal->examenPreocupacional,
-            'genero' => $this->antecedentePersonal->examenPreocupacional,
+            'examenes_preocupacionales' => $this->antecedentePersonal->examenesPreocupacionales,
+
             /********************************
              * Fin Examenes Preocupacionales
              * ******************************/

@@ -46,8 +46,8 @@ class Preocupacional extends Model implements Auditable
         return $this->hasOne(AntecedentePersonal::class,'preocupacional_id','id')->with('antecedenteGinecoobstetrico');
     }
 
-    public function examenPreocupacional(){
-        return  $this->hasOne(ExamenPreocupacional::class,'preocupacional_id','id');
+    public function examenesPreocupacionales(){
+        return  $this->hasMany(ExamenPreocupacional::class,'preocupacional_id','id');
     }
     public function habitosToxicos(){
         return $this->hasMany(HabitoToxico::class,'preocupacional_id','id');
