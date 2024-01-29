@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ExamenRequest extends FormRequest
+class MedicacionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ExamenRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,6 +24,7 @@ class ExamenRequest extends FormRequest
     public function rules()
     {
         return [
+            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
             'nombre' => 'required|string',
         ];
     }
