@@ -61,6 +61,7 @@ class EmpleadoService
                 'telefono',
                 'jefe_id',
                 'canton_id',
+                'direccion',
                 'estado',
                 'grupo_id',
                 'cargo_id',
@@ -88,7 +89,7 @@ class EmpleadoService
                 'supa'
             ]
         );
-        Log::channel('testing')->info('Log', ['Empleado', $results]);
+        // Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
 
