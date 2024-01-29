@@ -35,7 +35,7 @@ Route::apiResources(
         'ventas' => VentaController::class,
         'tipo-chargeback' => TipoChargebackController::class,
         'chargebacks' => ChargebackController::class,
-        'pago-comision' => PagoComisionController::class,
+        'pagos-comisiones' => PagoComisionController::class,
         'novedades-ventas' =>NovedadVentaController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
@@ -52,6 +52,7 @@ Route::apiResources(
             'vendedores' => 'vendedor',
             'productos-ventas' => 'producto',
             'novedades-ventas' => 'venta',
+            'pagos-comisiones' => 'pago',
         ],
     ]
 );

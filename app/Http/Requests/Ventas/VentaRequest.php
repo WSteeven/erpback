@@ -48,7 +48,7 @@ class VentaRequest extends FormRequest
     protected function prepareForValidation()
     {
         $chargeback = $this->chargeback !== null ? $this->chargeback : 0;
-        [$comision_valor, $comision] = Comision::calcularComision($this->vendedor, $this->producto, $this->forma_pago);
+        [$comision_valor, $comision] = Comision::calcularComisionVenta($this->vendedor, $this->producto, $this->forma_pago);
         $comision_total = $this->estado_activacion == 'ACTIVADO' ?  $comision_valor : 0;
         if ($this->fecha_activacion != null) {
             $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activacion);

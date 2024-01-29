@@ -8,6 +8,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Exception;
 
 class Comision extends Model implements Auditable
 {
@@ -37,12 +38,16 @@ class Comision extends Model implements Auditable
      * 
      * @return comision la comisión calculada en base a los parámetros dados.
      */
-    public static function calcularComision($idVendedor, $idProducto, $forma_pago)
+    public static function calcularComisionVenta($idVendedor, $idProducto, $forma_pago)
     {
         $vendedor = Vendedor::find($idVendedor);
         $producto = ProductoVenta::find($idProducto);
-        $comision = Comision::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->where('tipo_vendedor', $vendedor->tipo_vendedor)->first();
-        $valor_comision = floatval($comision != null ? $comision->comision : 0);
-        return [$vendedor->tipo_vendedor == 'VENDEDOR' ?  ($producto->precio * $valor_comision) / 100 : $valor_comision, $comision];
+        if ($vendedor->tipo_vendedor == Vendedor::SUPERVISOR_VENTAS) {
+            throw new Exception('Los supervisores de ventas no comisionan por las ventas registradas, por favor registra la venta a nombre de un vendedor.');
+        } else {
+            $comision = Comision::where('plan_id', $producto->plan_id)->where('forma_pago', $forma_pago)->where('tipo_vendedor', Vendedor::VENDEDOR)->first();
+            $valor_comision = floatval($comision != null ? $comision->comision : 0);
+            return [($producto->precio * $valor_comision) / 100, $comision];
+        }
     }
 }

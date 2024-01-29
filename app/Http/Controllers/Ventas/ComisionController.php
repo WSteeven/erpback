@@ -74,7 +74,7 @@ class ComisionController extends Controller
     }
     public function obtener_comision($idProducto, $forma_pago, $vendedor)
     {
-        [$comision_value, $comision] = Comision::calcularComision($vendedor, $idProducto, $forma_pago);
+        [$comision_value, $comision] = Comision::calcularComisionVenta($vendedor, $idProducto, $forma_pago);
         return response()->json(compact('comision_value'));
     }
 }
