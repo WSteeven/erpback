@@ -19,7 +19,7 @@ class PagoComision extends Model implements Auditable
         '*',
     ];
     public function vendedor(){
-        return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
+        return $this->belongsTo(Vendedor::class, 'vendedor_id');
     }
     protected $casts = ['pago'=>'boolean'];
 }

@@ -20,7 +20,7 @@ class PagoComisionResource extends JsonResource
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'vendedor_id' => $this->vendedor_id,
-            'vendedor_info' => $this->vendedor->empleado->nombres.' '.$this->vendedor->empleado->apellidos,
+            'vendedor_info' => $this->vendedor?->empleado->nombres.' '.$this->vendedor?->empleado->apellidos,
             'chargeback' => $this->chargeback,
             'valor' => $this->valor,
         ];

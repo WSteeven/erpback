@@ -13,8 +13,10 @@ use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class PagoComisionService{
-    public function __construct(){
+class PagoComisionService
+{
+    public function __construct()
+    {
     }
 
     private static function tabla_comisiones($fecha_inicio, $fecha_fin)
@@ -37,7 +39,7 @@ class PagoComisionService{
                     'valor' =>  $comisiones,
                 ]);
             }
-           self::pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
+            self::pagar_comisiones($vendedor->modalidad_id, $vendedor->id, $fecha_inicio, $fecha_fin);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -139,12 +141,8 @@ class PagoComisionService{
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ["error en pago de comisiones", $e->getmessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ["error en pago de comisiones 142", $e->getmessage(), $e->getLine()]);
+            throw $e;
         }
     }
-
-
-
-
-
-} 
+}

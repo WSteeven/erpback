@@ -5,17 +5,7 @@ namespace App\Http\Controllers\Ventas;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\PagoComisionRequest;
 use App\Http\Resources\Ventas\PagoComisionResource;
-use App\Models\Producto;
-use App\Models\Ventas\Chargeback;
-use App\Models\Ventas\Comision;
-use App\Models\Ventas\Comisiones;
-use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\PagoComision;
-use App\Models\Ventas\ProductoVenta;
-use App\Models\Ventas\ProductoVentas;
-use App\Models\Ventas\Vendedor;
-use App\Models\Ventas\Venta;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,11 +52,11 @@ class PagoComisionController extends Controller
 
         return response()->json(compact('modelo'));
     }
-    
 
 
 
-    
+
+
 
     public function update(PagoComisionRequest $request, PagoComision $pago_comision)
     {

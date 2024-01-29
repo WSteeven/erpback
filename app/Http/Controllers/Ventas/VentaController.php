@@ -275,9 +275,9 @@ class VentaController extends Controller
                 ->groupBy('mes')
                 ->get();
             $Chargeback = Chargeback::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_chargeback'))
-                ->join('ventas_ventas', 'ventas_Chargeback.venta_id', '=', 'ventas_ventas.id')
+                ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
                 ->where('ventas_ventas.vendedor_id', $request->vendedor)
-                ->whereBetween('ventas_Chargeback.fecha', [$fecha_inicio, $fecha_fin])
+                ->whereBetween('ventas_chargebacks.fecha', [$fecha_inicio, $fecha_fin])
                 ->groupBy('mes')
                 ->get();
             $data = compact('bonosMensuales', 'bonosTrimestrales', 'comisiones', 'Chargeback');
@@ -318,7 +318,8 @@ class VentaController extends Controller
             return Excel::download($export_excel, $nombre_reporte . '.xlsx');
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ["error en pago de comisiones", $e->getmessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ["error en pago de comisiones 321", $e->getmessage(), $e->getLine()]);
+            throw $e;
         }
     }
 
