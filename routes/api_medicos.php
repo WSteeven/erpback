@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\ExamenesController;
+use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
+use App\Http\Controllers\Medico\AntecedenteGinecoObstetricoController;
+use App\Http\Controllers\Medico\AntecedentePersonalController;
+use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
+use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
@@ -12,10 +17,12 @@ use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
 use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
+use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
 use App\Http\Controllers\Medico\TipoAntecedenteController;
+use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoVacunaController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +47,14 @@ Route::apiResources(
         'orientaciones-sexuales' => OrientacionSexualController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'tipos-antecedentes' => TipoAntecedenteController::class,
+        'actividades-puesto-trabajo', ActividadPuestoTrabajoController::class,
+        'antecedentes-familiares', TipoAntecedenteFamiliarController::class,
+        'antecedentes-gineco-obstetricos', AntecedenteGinecoObstetricoController::class,
+        'antecedentes-personales', AntecedentePersonalController::class,
+        'antecedentes-trabajos-anteriores', AntecedenteTrabajoAnteriorController::class,
+        'aptitudes-medicas', AptitudMedicaController::class,
+        'categorias-examenes', CategoriaExamenController::class,
+        'preocupacionales', PreocupacionalController::class,
     ],
     [
         'parameters' => [
