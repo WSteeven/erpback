@@ -65,6 +65,7 @@ class EmpleadoService
                 'estado',
                 'grupo_id',
                 'cargo_id',
+                'area_id',
                 'departamento_id',
                 'firma_url',
                 'foto_url',
