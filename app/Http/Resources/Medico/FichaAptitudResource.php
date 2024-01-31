@@ -19,10 +19,15 @@ class FichaAptitudResource extends JsonResource
             'fecha_emision' => $this->fecha_emision,
             'observaciones_aptitud_medica' => $this->observaciones_aptitud_medica,
             'recomendaciones' => $this->recomendaciones,
-            'tipo_evaluacion_id' => $this->tipo_evaluacion_id,
-            'tipo_aptitud_medica_laboral_id' => $this->tipo_aptitud_medica_laboral_id,
-            'tipo_evaluacion_medica_retiro_id' => $this->tipo_evaluacion_medica_retiro_id,
-            'preocupacional_id' => $this->preocupacional_id
+            'tipo_evaluacion' => $this->tipo_evaluacion_id,
+            'tipo_evaluacion_info' => $this->tipoEvaluacion !== null ? $this->tipoEvaluacion?->nombre : ' ',
+            'tipo_aptitud_medica_laboral' => $this->tipo_aptitud_medica_laboral_id,
+            'tipo_aptitud_medica_laboral_info' => $this->tipoAptitudMedicaLaboral !== null ? $this->tipoAptitudMedicaLaboral?->nombre : ' ',
+            'tipo_evaluacion_medica_retiro' => $this->tipo_evaluacion_medica_retiro_id,
+            'tipo_evaluacion_medica_retiro_info' => $this->tipoEvaluacionMedicaRetiro !== null ? $this->tipoEvaluacionMedicaRetiro->nombre : '',
+            'nombres' => $this->profesionalSalud !== null? $this->profesionalSalud->nombres : ' ',
+            'apellidos' => $this->profesionalSalud !== null? $this->profesionalSalud->apellidos: ' ',
+            'codigo' => $this->profesionalSalud !== null? $this->profesionalSalud->codigo: ' ',
         ];
     }
 }

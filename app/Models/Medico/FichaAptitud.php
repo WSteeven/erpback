@@ -34,4 +34,7 @@ class FichaAptitud extends Model implements Auditable
     public function preocupacional(){
         return $this->belongsTo(Preocupacional::class,'preocupacional_id');
     }
+    public function profesionalSalud(){
+        return $this->hasOne(ProfesionalSalud::class,'ficha_aptitud_id','id');
+    }
 }
