@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ExamenesController;
 use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
+use App\Http\Controllers\Medico\AntecedenteFamiliarController;
 use App\Http\Controllers\Medico\AntecedenteGinecoObstetricoController;
 use App\Http\Controllers\Medico\AntecedentePersonalController;
 use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoFactorRiesgoController;
 use App\Http\Controllers\Medico\TipoHabitoToxicoController;
 use App\Http\Controllers\Medico\TipoVacunaController;
+use App\Models\Medico\ActividadPuestoTrabajo;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\CategoriaFactorRiesgo;
 use Illuminate\Support\Facades\Route;
@@ -47,19 +49,19 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'actividades-puesto-trabajo', ActividadPuestoTrabajoController::class,
-        'antecedentes-familiares', TipoAntecedenteFamiliarController::class,
-        'antecedentes-gineco-obstetricos', AntecedenteGinecoObstetricoController::class,
-        'antecedentes-personales', AntecedentePersonalController::class,
-        'antecedentes-trabajos-anteriores', AntecedenteTrabajoAnteriorController::class,
-        'aptitudes-medicas', AptitudMedicaController::class,
+        'actividades-puestos-trabajos'=> ActividadPuestoTrabajoController::class,
+        'antecedentes-familiares' => AntecedenteFamiliarController::class,
+        'antecedentes-gineco-obstetricos' => AntecedenteGinecoObstetricoController::class,
+        'antecedentes-personales'=> AntecedentePersonalController::class,
+        'antecedentes-trabajos-anteriores'=> AntecedenteTrabajoAnteriorController::class,
+        'aptitudes-medicas'=> AptitudMedicaController::class,
         'categorias-examenes' => CategoriaExamenController::class,
         'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
         'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
         'configuraciones-examenes-campos' => ConfiguracionExamenCampoController::class,
-        'configuraciones-examenes-categoria' => ConfiguracionExamenCategoriaController::class,
+        'config-examns-categorias' => ConfiguracionExamenCategoriaController::class,
         'constantes-vitales' => ConstanteVitalController::class,
-        'descripciones-antecedentes-examenes' => DescripcionAntecedenteTrabajoController::class,
+        'descrip-antecedentes-examenes' => DescripcionAntecedenteTrabajoController::class,
         'detalles-examenes' => DetalleExamenController::class,
         'detalles-resultados-examenes' => DetalleResultadoExamenController::class,
         'diagnosticos' => DiagnosticoController::class,
@@ -71,12 +73,12 @@ Route::apiResources(
         'examenes-especificos' => ExamenEspecificoController::class,
         'examenes-fisicos-regionales' => ExamenFisicoRegionalController::class,
         'examenes-preocupacionales' => ExamenExamenPreocupacionalController::class,
-        'factores-riesgo' => FactorRiesgoController::class,
+        'factores-riesgos' => FactorRiesgoController::class,
         'habitos-toxicos' => HabitoToxicoController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
-        'preocupacionales', PreocupacionalController::class,
+        'preocupacionales'=> PreocupacionalController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,
         'resultados-examenes' => ResultadoExamenController::class,
