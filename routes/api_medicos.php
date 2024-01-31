@@ -21,14 +21,16 @@ use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
 use App\Http\Controllers\Medico\EstiloVidaController;
 use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\ExamenEspecificoController;
-use App\Http\Controllers\Medico\ExamenExamenPreocupacionalController;
 use App\Http\Controllers\Medico\ExamenFisicoRegionalController;
+use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
+use App\Http\Controllers\Medico\FichaAptitudController;
 use App\Http\Controllers\Medico\HabitoToxicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\MedicacionController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreocupacionalController;
+use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
@@ -37,6 +39,9 @@ use App\Http\Controllers\Medico\SistemaOrganicoController;
 use App\Http\Controllers\Medico\TipoAntecedenteController;
 use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
+use App\Http\Controllers\Medico\TipoAptitudMedicaLaboralController;
+use App\Http\Controllers\Medico\TipoEvaluacionController;
+use App\Http\Controllers\Medico\TipoEvaluacionMedicaRetiroMedicaRetiroController;
 use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoFactorRiesgoController;
 use App\Http\Controllers\Medico\TipoHabitoToxicoController;
@@ -44,6 +49,7 @@ use App\Http\Controllers\Medico\TipoVacunaController;
 use App\Models\Medico\ActividadPuestoTrabajo;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\CategoriaFactorRiesgo;
+use App\Models\Medico\FichaAptitud;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -72,13 +78,15 @@ Route::apiResources(
         'examenes' => ExamenController::class,
         'examenes-especificos' => ExamenEspecificoController::class,
         'examenes-fisicos-regionales' => ExamenFisicoRegionalController::class,
-        'examenes-preocupacionales' => ExamenExamenPreocupacionalController::class,
+        'examenes-preocupacionales' => ExamenPreocupacionalController::class,
         'factores-riesgos' => FactorRiesgoController::class,
+        'fichas-aptitudes' => FichaAptitudController::class,
         'habitos-toxicos' => HabitoToxicoController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
         'preocupacionales'=> PreocupacionalController::class,
+        'profecionales-salud'=> ProfesionalSaludController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,
         'resultados-examenes' => ResultadoExamenController::class,
@@ -87,7 +95,9 @@ Route::apiResources(
         'tipos-antecedentes' => TipoAntecedenteController::class,
         'tipos-antecedentes-familiares' => TipoAntecedenteFamiliarController::class,
         'tipos-aptitudes' => TipoAptitudController::class,
-        'tipos-examenes' => TipoExamenController::class,
+        'tipos-aptidudes-medicas-laborales' => TipoAptitudMedicaLaboralController::class,
+        'tipos-evaluaciones' => TipoEvaluacionController::class,
+        'tipos-evaluaciones-medicas-retiros' => TipoEvaluacionMedicaRetiroMedicaRetiroController::class,
         'tipos-examenes' => TipoExamenController::class,
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
