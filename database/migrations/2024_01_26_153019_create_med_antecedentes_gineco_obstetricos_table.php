@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('partos');
             $table->integer('cesareas');
             $table->integer('abortos');
+            $table->integer('hijos_vivos');
+            $table->integer('hijos_muertos');
 
             // Foreign keys
             $table->unsignedBigInteger('antecedentes_personales_id');

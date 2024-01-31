@@ -14,7 +14,7 @@ class ExamenPreocupacional extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_preocupacionales';
+    protected $table = 'med_examenes_preocupacionales';
     protected $fillable = [
         'nombre',
         'tiempo',

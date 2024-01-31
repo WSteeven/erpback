@@ -27,6 +27,8 @@ return new class extends Migration
             $table->boolean('consume_medicacion')->default('0');
             $table->string('enfermedad_actual');
             $table->text('recomendaciones_tratamiento');
+            $table->text('descripcion_examen_fisico_regional');
+            $table->text('descripcion_revision_organos_sistemas');
 
             // Foreign keys
             $table->unsignedBigInteger('religion_id');

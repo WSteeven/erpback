@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class ExamenExamenPreocupacionalController extends Controller
+class ExamenPreocupacionalController extends Controller
 {
     private $entidad = 'Examen Preocupacional';
 
@@ -38,7 +38,6 @@ class ExamenExamenPreocupacionalController extends Controller
             DB::beginTransaction();
             $preocupacional = ExamenPreocupacional::create($datos);
             $modelo = new ExamenPreocupacionalResource($preocupacional);
-            $this->tabla_roles($preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -51,7 +50,7 @@ class ExamenExamenPreocupacionalController extends Controller
         }
     }
 
-    public function show(ExamenPreocupacionalRequest $request, ExamenPreocupacional $preocupacional)
+    public function show(ExamenPreocupacional $preocupacional)
     {
         $modelo = new ExamenPreocupacionalResource($preocupacional);
         return response()->json(compact('modelo'));
@@ -77,7 +76,7 @@ class ExamenExamenPreocupacionalController extends Controller
         }
     }
 
-    public function destroy(ExamenPreocupacionalRequest $request, ExamenPreocupacional $preocupacional)
+    public function destroy(ExamenPreocupacional $preocupacional)
     {
         try {
             DB::beginTransaction();
