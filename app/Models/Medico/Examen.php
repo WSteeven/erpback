@@ -3,12 +3,12 @@
 namespace App\Models\Medico;
 
 use App\ModelFilters\Medico\ExamenFilter;
-use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use App\Traits\UppercaseValuesTrait;
 
 class Examen extends Model implements Auditable
 {

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('tipo_antecedente_familiares_id');
             $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('tipo_antecedente_familiares_id')->on('med_tipos_antecedentes_familiares')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('tipo_antecedente_familiares_id', 'med_antecedentes_familiares')->references('id')->on('med_tipos_antecedentes_familiares')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

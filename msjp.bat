@@ -54,7 +54,7 @@ echo Ejecutando comandos porfavor espere ...
 set migration_name= create_%prefix%%component%s_table
 php artisan make:model  %nmodule%/%component%
 php artisan make:migration %migration_name%
-php artisan make:controller %nmodule%/%component%Controller
+php artisan make:controller %nmodule%/%component%Controller --api
 php artisan make:request %nmodule%/%component%Request
 php artisan make:resource %nmodule%/%component%Resource
 

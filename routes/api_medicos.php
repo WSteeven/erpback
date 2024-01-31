@@ -11,6 +11,7 @@ use App\Http\Controllers\Medico\EstadoExamenController;
 use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
 use App\Http\Controllers\Medico\ExamenController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
+use App\Http\Controllers\Medico\LaboratorioClinicoController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
@@ -40,10 +41,12 @@ Route::apiResources(
         'orientaciones-sexuales' => OrientacionSexualController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'tipos-antecedentes' => TipoAntecedenteController::class,
+        'laboratorios-clinicos' => LaboratorioClinicoController::class,
     ],
     [
         'parameters' => [
-            'configuraciones-examenes-categ' => 'configuracion_examen_categoria'
+            'configuraciones-examenes-categ' => 'configuracion_examen_categoria',
+            'laboratorios-clinicos' => 'laboratorio_clinico',
         ],
 
     ]

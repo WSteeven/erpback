@@ -20,8 +20,10 @@ return new class extends Migration
             $table->date('fecha');
             $table->text('observacion');
             $table->string('tipo_descripcion_antecedente_trabajo');
+
             $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('preocupacional_id', 'med_descripcione_anteced_trab')->references('id')->on('med_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

@@ -54,7 +54,7 @@ class ExamenController extends Controller
         }
     }
 
-    public function show(ExamenRequest $request, Examen $examen)
+    public function show(Examen $examen)
     {
         $modelo = new ExamenResource($examen);
         return response()->json(compact('modelo'));

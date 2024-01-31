@@ -20,21 +20,27 @@ return new class extends Migration
             $table->string('numero_historia_clinica');
             $table->string('numero_archivo');
             $table->string('puesto_trabajo');
-            $table->unsignedBigInteger('religion_id');
-            $table->unsignedBigInteger('orientacion_sexual_id');
-            $table->unsignedBigInteger('identidad_genero_id');
             $table->integer('porcentaje_discapacidad');
             $table->text('actividades_relevantes_puesto_trabajo_ocupar');
             $table->text('motivo_consulta');
-            $table->unsignedBigInteger('empleado_id');
             $table->boolean('actividad_fisica')->default('0');
             $table->boolean('consume_medicacion')->default('0');
             $table->string('enfermedad_actual');
             $table->text('recomendaciones_tratamiento');
-            $table->foreign('religion_id')->on('med_religiones')->references('id')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('orientacion_sexual_id')->on('med_orientaciones_sexuales')->references('id')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('identidad_genero_id')->on('med_identidades_generos')->references('id')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('empleado_id')->on('empleados')->references('id')->nullOnDelete()->cascadeOnUpdate();
+
+            // Foreign keys
+            $table->unsignedBigInteger('religion_id');
+            $table->foreign('religion_id')->references('id')->on('med_religiones')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('orientacion_sexual_id');
+            $table->foreign('orientacion_sexual_id')->references('id')->on('med_orientaciones_sexuales')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('identidad_genero_id');
+            $table->foreign('identidad_genero_id')->references('id')->on('med_identidades_generos')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

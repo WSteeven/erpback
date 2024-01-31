@@ -19,8 +19,10 @@ return new class extends Migration
             $table->integer('tiempo');
             $table->text('resultados');
             $table->string('genero');
+
+            // Foreign keys
             $table->unsignedBigInteger('antecedente_personal_id');
-            $table->foreign('antecedente_personal_id')->on('med_antecedentes_personales')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('antecedente_personal_id')->on('med_antecedentes_personales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
