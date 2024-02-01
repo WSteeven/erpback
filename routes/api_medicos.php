@@ -8,6 +8,7 @@ use App\Http\Controllers\Medico\AntecedentePersonalController;
 use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
 use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
+use App\Http\Controllers\Medico\CieController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
@@ -42,15 +43,13 @@ use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
 use App\Http\Controllers\Medico\TipoAptitudMedicaLaboralController;
 use App\Http\Controllers\Medico\TipoEvaluacionController;
-use App\Http\Controllers\Medico\TipoEvaluacionMedicaRetiroMedicaRetiroController;
 use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoFactorRiesgoController;
 use App\Http\Controllers\Medico\TipoHabitoToxicoController;
 use App\Http\Controllers\Medico\TipoVacunaController;
-use App\Models\Medico\ActividadPuestoTrabajo;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\CategoriaFactorRiesgo;
-use App\Models\Medico\FichaAptitud;
+use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -99,15 +98,18 @@ Route::apiResources(
         'tipos-aptitudes' => TipoAptitudController::class,
         'tipos-aptidudes-medicas-laborales' => TipoAptitudMedicaLaboralController::class,
         'tipos-evaluaciones' => TipoEvaluacionController::class,
-        'tipos-evaluaciones-medicas-retiros' => TipoEvaluacionMedicaRetiroMedicaRetiroController::class,
+        'tipos-eval-medicas-retiro' => TipoEvaluacionMedicaRetiro::class,
         'tipos-examenes' => TipoExamenController::class,
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
+        'cie' => CieController::class
     ],
     [
         'parameters' => [
             'configuraciones-examenes-categ' => 'configuracion_examen_categoria',
+            'tipos_eval_medicas_retiro' => 'tipo_eval_medica_retiro',
+            'tipos_evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
         ],
 
@@ -115,4 +117,6 @@ Route::apiResources(
 );
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('archivo-cie', [CieController::class, 'archivoCie']);
+
 });

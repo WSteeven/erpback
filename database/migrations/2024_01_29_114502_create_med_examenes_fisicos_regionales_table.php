@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table -> unsignedBigInteger('categoria_examen_fisico_id');
             $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('categoria_examen_fisico_id')->on('med_categorias_examenes_fisicos')->references('id')->nullOnDelete()->cascadeOnUpdate();
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('categoria_examen_fisico_id','fk_categoria_examen_fisico')->on('med_categorias_examenes_fisicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('preocupacional_id','fk_preocupacional_exam_fisc_reg')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
