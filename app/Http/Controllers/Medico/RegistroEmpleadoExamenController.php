@@ -39,7 +39,6 @@ class RegistroEmpleadoExamenController extends Controller
             DB::beginTransaction();
             $registro_empleado_examen = RegistroEmpleadoExamen::create($datos);
             $modelo = new RegistroEmpleadoExamenResource($registro_empleado_examen);
-            $this->tabla_roles($registro_empleado_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

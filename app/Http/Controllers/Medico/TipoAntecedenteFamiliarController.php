@@ -39,7 +39,6 @@ class TipoAntecedenteFamiliarController extends Controller
             DB::beginTransaction();
             $tipo_antecedente_familiar = TipoHabitoToxico::create($datos);
             $modelo = new TipoHabitoToxicoResource($tipo_antecedente_familiar);
-            $this->tabla_roles($tipo_antecedente_familiar);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

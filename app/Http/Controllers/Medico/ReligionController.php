@@ -38,7 +38,6 @@ class ReligionController extends Controller
             DB::beginTransaction();
             $religion = Religion::create($datos);
             $modelo = new ReligionResource($religion);
-            $this->tabla_roles($religion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

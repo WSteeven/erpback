@@ -38,7 +38,6 @@ class TipoHabitoToxicoController extends Controller
             DB::beginTransaction();
             $tipo_habito_toxico = TipoHabitoToxico::create($datos);
             $modelo = new TipoHabitoToxicoResource($tipo_habito_toxico);
-            $this->tabla_roles($tipo_habito_toxico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

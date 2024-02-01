@@ -38,7 +38,6 @@ class ActividadPuestoTrabajoController extends Controller
             DB::beginTransaction();
             $actividad_puesto_trabajo = ActividadPuestoTrabajo::create($datos);
             $modelo = new ActividadPuestoTrabajoResource($actividad_puesto_trabajo);
-            $this->tabla_roles($actividad_puesto_trabajo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

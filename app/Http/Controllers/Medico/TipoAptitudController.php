@@ -38,7 +38,6 @@ class TipoAptitudController extends Controller
             DB::beginTransaction();
             $tipo_antecedente = TipoAptitud::create($datos);
             $modelo = new TipoAptitudResource($tipo_antecedente);
-            $this->tabla_roles($tipo_antecedente);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

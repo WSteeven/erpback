@@ -38,7 +38,6 @@ class EstiloVidaController extends Controller
             DB::beginTransaction();
             $estilo_vida = EstiloVida::create($datos);
             $modelo = new EstiloVidaResource($estilo_vida);
-            $this->tabla_roles($estilo_vida);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

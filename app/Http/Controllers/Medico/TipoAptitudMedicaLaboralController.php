@@ -39,7 +39,6 @@ class TipoAptitudMedicaLaboralController extends Controller
             $tipo_aptitud_medica_laboral = TipoAptitudMedicaLaboral::create($datos);
             $modelo = new TipoAptitudMedicaLaboralResource($tipo_aptitud_medica_laboral);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

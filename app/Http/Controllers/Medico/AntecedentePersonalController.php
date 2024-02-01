@@ -38,7 +38,6 @@ class AntecedentePersonalController extends Controller
             DB::beginTransaction();
             $antecedente_personal = AntecedentePersonal::create($datos);
             $modelo = new AntecedentePersonalResource($antecedente_personal);
-            $this->tabla_roles($antecedente_personal);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

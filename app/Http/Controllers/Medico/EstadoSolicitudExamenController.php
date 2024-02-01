@@ -39,7 +39,6 @@ class EstadoSolicitudExamenController extends Controller
             DB::beginTransaction();
             $estado_solicitud_examen = EstadoSolicitudExamen::create($datos);
             $modelo = new EstadoSolicitudExamenResource($estado_solicitud_examen);
-            $this->tabla_roles($estado_solicitud_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

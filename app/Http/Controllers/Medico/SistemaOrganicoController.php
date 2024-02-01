@@ -38,7 +38,6 @@ class SistemaOrganicoController extends Controller
             DB::beginTransaction();
             $sistema_organico = SistemaOrganico::create($datos);
             $modelo = new SistemaOrganicoResource($sistema_organico);
-            $this->tabla_roles($sistema_organico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

@@ -38,7 +38,6 @@ class IdentidadGeneroController extends Controller
             DB::beginTransaction();
             $identidad_genero = IdentidadGenero::create($datos);
             $modelo = new IdentidadGeneroResource($identidad_genero);
-            $this->tabla_roles($identidad_genero);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

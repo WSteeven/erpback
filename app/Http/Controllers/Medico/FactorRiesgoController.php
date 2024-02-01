@@ -38,7 +38,6 @@ class FactorRiesgoController extends Controller
             DB::beginTransaction();
             $factor_riesgo = FactorRiesgo::create($datos);
             $modelo = new FactorRiesgoResource($factor_riesgo);
-            $this->tabla_roles($factor_riesgo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

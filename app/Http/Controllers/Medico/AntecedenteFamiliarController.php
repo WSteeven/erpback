@@ -38,7 +38,6 @@ class AntecedenteFamiliarController extends Controller
             DB::beginTransaction();
             $antecedente_familiar = AntecedenteFamiliar::create($datos);
             $modelo = new AntecedenteFamiliarResource($antecedente_familiar);
-            $this->tabla_roles($antecedente_familiar);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
