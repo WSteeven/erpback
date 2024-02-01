@@ -8,6 +8,7 @@ use App\Http\Controllers\Ventas\BonoTrimestralCumplimientoController;
 use App\Http\Controllers\Ventas\ChargebackController;
 use App\Http\Controllers\Ventas\ClienteClaroController;
 use App\Http\Controllers\Ventas\ComisionController;
+use App\Http\Controllers\Ventas\CortePagoComisionController;
 use App\Http\Controllers\Ventas\EscenarioVentaJPController;
 use App\Http\Controllers\Ventas\EsquemaComisionController;
 use App\Http\Controllers\Ventas\ModalidadController;
@@ -36,13 +37,14 @@ Route::apiResources(
         'tipo-chargeback' => TipoChargebackController::class,
         'chargebacks' => ChargebackController::class,
         'pagos-comisiones' => PagoComisionController::class,
-        'novedades-ventas' =>NovedadVentaController::class,
+        'novedades-ventas' => NovedadVentaController::class,
         'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         'umbral-ventas' => UmbralVentaController::class,
         'esquema-comision' => EsquemaComisionController::class,
         'clientes-claro' => ClienteClaroController::class,
         'escenario-venta-jp' => EscenarioVentaJPController::class,
+        'cortes-pagos-comisiones' => CortePagoComisionController::class,
     ],
     [
         'parameters' => [
@@ -53,6 +55,7 @@ Route::apiResources(
             'productos-ventas' => 'producto',
             'novedades-ventas' => 'venta',
             'pagos-comisiones' => 'pago',
+            'cortes-pagos-comisiones' => 'corte',
         ],
     ]
 );

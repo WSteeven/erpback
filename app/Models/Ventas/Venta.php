@@ -36,6 +36,9 @@ class Venta  extends Model implements Auditable
         'primer_mes',
     ];
 
+    const ACTIVADO= 'ACTIVADO';
+    const APROBADO= 'APROBADO';
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
