@@ -38,7 +38,6 @@ class ConstanteVitalController extends Controller
             DB::beginTransaction();
             $constante_vital = ConstanteVital::create($datos);
             $modelo = new ConstanteVitalResource($constante_vital);
-            $this->tabla_roles($constante_vital);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

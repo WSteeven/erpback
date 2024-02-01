@@ -38,7 +38,6 @@ class ExamenEspecificoController extends Controller
             DB::beginTransaction();
             $examen_especifico = ExamenEspecifico::create($datos);
             $modelo = new ExamenEspecificoResource($examen_especifico);
-            $this->tabla_roles($examen_especifico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

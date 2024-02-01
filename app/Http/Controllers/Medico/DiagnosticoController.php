@@ -38,7 +38,6 @@ class DiagnosticoController extends Controller
             DB::beginTransaction();
             $diagnostico = Diagnostico::create($datos);
             $modelo = new DiagnosticoResource($diagnostico);
-            $this->tabla_roles($diagnostico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

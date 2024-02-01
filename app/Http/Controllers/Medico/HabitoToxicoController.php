@@ -38,7 +38,6 @@ class HabitoToxicoController extends Controller
             DB::beginTransaction();
             $identidad_genero = HabitoToxico::create($datos);
             $modelo = new HabitoToxicoResource($identidad_genero);
-            $this->tabla_roles($identidad_genero);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

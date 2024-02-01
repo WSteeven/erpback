@@ -38,7 +38,6 @@ class ConfiguracionExamenCategoriaController extends Controller
             DB::beginTransaction();
             $configuracion_examen_categoria = ConfiguracionExamenCategoria::create($datos);
             $modelo = new ConfiguracionExamenCategoriaResource($configuracion_examen_categoria);
-            $this->tabla_roles($configuracion_examen_categoria);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

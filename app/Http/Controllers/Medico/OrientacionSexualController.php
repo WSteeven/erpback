@@ -38,7 +38,6 @@ class OrientacionSexualController extends Controller
             DB::beginTransaction();
             $orientacion_sexual = OrientacionSexual::create($datos);
             $modelo = new OrientacionSexualResource($orientacion_sexual);
-            $this->tabla_roles($orientacion_sexual);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

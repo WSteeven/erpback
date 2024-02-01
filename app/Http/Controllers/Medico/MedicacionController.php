@@ -38,7 +38,6 @@ class MedicacionController extends Controller
             DB::beginTransaction();
             $medicacion = Medicacion::create($datos);
             $modelo = new MedicacionResource($medicacion);
-            $this->tabla_roles($medicacion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

@@ -38,7 +38,6 @@ class AntecedenteTrabajoAnteriorController extends Controller
             DB::beginTransaction();
             $antecedente_trabajo_anterior = AntecedenteTrabajoAnterior::create($datos);
             $modelo = new AntecedenteTrabajoAnteriorResource($antecedente_trabajo_anterior);
-            $this->tabla_roles($antecedente_trabajo_anterior);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

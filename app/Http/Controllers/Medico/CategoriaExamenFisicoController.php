@@ -38,7 +38,6 @@ class CategoriaExamenFisicoController extends Controller
             DB::beginTransaction();
             $categoria_examen_fisico = CategoriaExamenFisico::create($datos);
             $modelo = new CategoriaExamenFisicoResource($categoria_examen_fisico);
-            $this->tabla_roles($categoria_examen_fisico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

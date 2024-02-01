@@ -38,7 +38,6 @@ class ExamenFisicoRegionalController extends Controller
             DB::beginTransaction();
             $examen_fisico_regional = ExamenFisicoRegional::create($datos);
             $modelo = new ExamenFisicoRegionalResource($examen_fisico_regional);
-            $this->tabla_roles($examen_fisico_regional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

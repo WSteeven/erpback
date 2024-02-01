@@ -38,7 +38,6 @@ class DetalleExamenController extends Controller
             DB::beginTransaction();
             $detalle_examen = DetalleExamen::create($datos);
             $modelo = new DetalleExamenResource($detalle_examen);
-            $this->tabla_roles($detalle_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

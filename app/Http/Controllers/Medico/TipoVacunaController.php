@@ -38,7 +38,6 @@ class TipoVacunaController extends Controller
             DB::beginTransaction();
             $tipo_vacuna = TipoVacuna::create($datos);
             $modelo = new TipoVacunaResource($tipo_vacuna);
-            $this->tabla_roles($tipo_vacuna);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

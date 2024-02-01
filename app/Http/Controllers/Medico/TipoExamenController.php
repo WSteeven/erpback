@@ -37,7 +37,6 @@ class TipoExamenController extends Controller
             DB::beginTransaction();
             $tipo_examen = TipoExamen::create($datos);
             $modelo = new TipoExamenResource($tipo_examen);
-            $this->tabla_roles($tipo_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

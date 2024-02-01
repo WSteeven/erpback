@@ -38,7 +38,6 @@ class ConfiguracionExamenCampoController extends Controller
             DB::beginTransaction();
             $configuracion_examen_campo = ConfiguracionExamenCampo::create($datos);
             $modelo = new ConfiguracionExamenCampoResource($configuracion_examen_campo);
-            $this->tabla_roles($configuracion_examen_campo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

@@ -38,7 +38,6 @@ class ResultadoExamenController extends Controller
             DB::beginTransaction();
             $resultado_examen = ResultadoExamen::create($datos);
             $modelo = new ResultadoExamenResource($resultado_examen);
-            $this->tabla_roles($resultado_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

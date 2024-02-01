@@ -38,7 +38,6 @@ class AptitudMedicaController extends Controller
             DB::beginTransaction();
             $aptitud_medica = AptitudMedica::create($datos);
             $modelo = new AptitudMedicaResource($aptitud_medica);
-            $this->tabla_roles($aptitud_medica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

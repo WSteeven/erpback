@@ -38,7 +38,6 @@ class CitaMedicaController extends Controller
             DB::beginTransaction();
             $citamedica = CitaMedica::create($datos);
             $modelo = new CitaMedicaResource($citamedica);
-            $this->tabla_roles($citamedica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

@@ -38,7 +38,6 @@ class TipoAntecedenteController extends Controller
             DB::beginTransaction();
             $tipo_antecedente = TipoAntecedente::create($datos);
             $modelo = new TipoAntecedenteResource($tipo_antecedente);
-            $this->tabla_roles($tipo_antecedente);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

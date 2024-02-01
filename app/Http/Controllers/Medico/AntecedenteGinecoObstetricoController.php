@@ -38,7 +38,6 @@ class AntecedenteGinecoObstetricoController extends Controller
             DB::beginTransaction();
             $antecedente_ginecoobstetrico = AntecedenteGinecoObstetrico::create($datos);
             $modelo = new AntecedenteGinecoObstetricoResource($antecedente_ginecoobstetrico);
-            $this->tabla_roles($antecedente_ginecoobstetrico);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

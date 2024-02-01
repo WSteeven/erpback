@@ -38,7 +38,6 @@ class EsquemaVacunaController extends Controller
             DB::beginTransaction();
             $esquema_vacuna = EsquemaVacuna::create($datos);
             $modelo = new EsquemaVacunaResource($esquema_vacuna);
-            $this->tabla_roles($esquema_vacuna);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

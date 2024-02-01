@@ -38,7 +38,6 @@ class RevisionActualOrganoSistemaController extends Controller
             DB::beginTransaction();
             $revision_actual_organo_sistema = RevisionActualOrganoSistema::create($datos);
             $modelo = new RevisionActualOrganoSistemaResource($revision_actual_organo_sistema);
-            $this->tabla_roles($revision_actual_organo_sistema);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
