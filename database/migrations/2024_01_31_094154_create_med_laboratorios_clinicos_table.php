@@ -13,14 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_medicaciones', function (Blueprint $table) {
+        Schema::create('med_laboratorios_clinicos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->integer('cantidad');
+            $table->string('direccion');
+            $table->string('celular');
+            $table->string('correo');
+            $table->string('coordenadas');
+            $table->boolean('activo');
 
             // Foreign keys
-            $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('canton_id');
+            $table->foreign('canton_id')->references('id')->on('cantones')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
@@ -33,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_medicaciones');
+        Schema::dropIfExists('med_laboratorios_clinicos');
     }
 };

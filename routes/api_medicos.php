@@ -27,6 +27,7 @@ use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
 use App\Http\Controllers\Medico\HabitoToxicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
+use App\Http\Controllers\Medico\LaboratorioClinicoController;
 use App\Http\Controllers\Medico\MedicacionController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreocupacionalController;
@@ -93,6 +94,7 @@ Route::apiResources(
         'revisiones-actuales-organos' => RevisionActualOrganoSistemaController::class,
         'sistemas-organicos' => SistemaOrganicoController::class,
         'tipos-antecedentes' => TipoAntecedenteController::class,
+        'laboratorios-clinicos' => LaboratorioClinicoController::class,
         'tipos-antecedentes-familiares' => TipoAntecedenteFamiliarController::class,
         'tipos-aptitudes' => TipoAptitudController::class,
         'tipos-aptidudes-medicas-laborales' => TipoAptitudMedicaLaboralController::class,
@@ -105,7 +107,8 @@ Route::apiResources(
     ],
     [
         'parameters' => [
-            'configuraciones-examenes-categ' => 'configuracion_examen_categoria'
+            'configuraciones-examenes-categ' => 'configuracion_examen_categoria',
+            'laboratorios-clinicos' => 'laboratorio_clinico',
         ],
 
     ]

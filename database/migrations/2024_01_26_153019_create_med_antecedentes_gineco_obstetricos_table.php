@@ -24,8 +24,11 @@ return new class extends Migration
             $table->integer('abortos');
             $table->integer('hijos_vivos');
             $table->integer('hijos_muertos');
+
+            // Foreign keys
             $table->unsignedBigInteger('antecedentes_personales_id');
-            $table->foreign('antecedentes_personales_id')->on('med_antecedentes_personales')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('antecedentes_personales_id', 'med_anteced_gineco_obstet')->references('id')->on('med_antecedentes_personales')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

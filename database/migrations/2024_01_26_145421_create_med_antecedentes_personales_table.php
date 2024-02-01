@@ -19,8 +19,13 @@ return new class extends Migration
             $table->boolean('vida_sexual_activa')->default('0');
             $table->boolean('tiene_metodo_planificacion_familiar')->default('0');
             $table->string('tipo_metodo_planificacion_familiar');
+            $table->integer('hijos_vivos');
+            $table->integer('hijos_muertos');
+
+            // Foreign keys
             $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->nullOnDelete()->cascadeOnUpdate();
+            $table->foreign('preocupacional_id', 'med_antecedentes_foreign')->references('id')->on('med_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }
