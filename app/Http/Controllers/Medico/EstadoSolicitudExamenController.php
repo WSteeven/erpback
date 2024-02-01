@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\EstadoSolicitudExamenRequest;
 use App\Http\Resources\Medico\EstadoSolicitudExamenResource;
+use App\Models\Medico\EstadoExamen;
 use App\Models\Medico\EstadoSolicitudExamen;
 use Exception;
 use Illuminate\Http\Request;
@@ -36,10 +37,26 @@ class EstadoSolicitudExamenController extends Controller
     {
         try {
             $datos = $request->validated();
+
             DB::beginTransaction();
-            $estado_solicitud_examen = EstadoSolicitudExamen::create($datos);
+
+            $datos['registro_empleado_examen_id'] = $request['registro_empleado_examen'];
+
+            foreach($request['examenes_solicitados'] as $examenSolicitado) {
+                $examen['registro_empleado_examen_id'] = $request['registro_empleado_examen'];
+                $examen['examen_id'] = $examenSolicitado['examen'];
+                $examen['estado_examen_id'] = EstadoExamen::SOLICITADO_ID;
+                $examen['laboratorio_clinico_id'] = $examenSolicitado['laboratorio_clinico'];
+                $examen['fecha_hora_asistencia'] = $examenSolicitado['fecha_hora_asistencia'];
+                $examen['observacion'] = $request['observacion'];
+
+                $estado_solicitud_examen = EstadoSolicitudExamen::create($examen);
+            }
+
             $modelo = new EstadoSolicitudExamenResource($estado_solicitud_examen);
+
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {

@@ -24,17 +24,24 @@ class EstadoSolicitudExamenRequest extends FormRequest
     public function rules()
     {
         return [
-            'registro_id' =>  'required|exists:med_registros_empleados_examenes,id',
-            'tipo_examen_id' => 'required|exists:med_tipos_examenes,id',
-            'estado_examen_id' => 'required|exists:med_estados_examenes,id',
+            'registro_empleado_examen' =>  'required|exists:med_registros_empleados_examenes,id',
+            // 'examen_id' => 'required|exists:med_tipos_examenes,id',
+            // 'estado_examen_id' => 'required|exists:med_estados_examenes,id',
+            // 'laboratorio_clinico_id' => 'required|exists:med_laboratorios_clinicos,id',
+            'observacion' => 'nullable|string',
+            'examenes_solicitados.*.examen' => 'required|exists:med_examenes,id',
+            'examenes_solicitados.*.estado_examen' => 'nullable|exists:med_estados_examenes,id',
+            'examenes_solicitados.*.laboratorio_clinico' => 'required|exists:med_laboratorios_clinicos,id',
+            'examenes_solicitados.*.fecha_hora_asistencia' => 'required|string',
         ];
     }
-    protected function prepareForValidation()
+
+    /* protected function prepareForValidation()
     {
         $this->merge([
             'registro_id' => $this->registro_empleado_examen,
             'tipo_examen_id' => $this->tipo_examen,
             'estado_examen_id' => $this->estado_examen
         ]);
-    }
+    } */
 }

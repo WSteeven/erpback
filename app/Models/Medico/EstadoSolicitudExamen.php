@@ -19,6 +19,9 @@ class EstadoSolicitudExamen extends Model implements Auditable
         'registro_empleado_examen_id',
         'examen_id',
         'estado_examen_id',
+        'laboratorio_clinico_id',
+        'observacion',
+        'fecha_hora_asistencia',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -36,5 +39,10 @@ class EstadoSolicitudExamen extends Model implements Auditable
     public function estadoExamen()
     {
         return $this->hasOne(EstadoExamen::class, 'id', 'estado_examen_id');
+    }
+
+    public function laboratorioClinico()
+    {
+        return $this->belongsTo(LaboratorioClinico::class);
     }
 }

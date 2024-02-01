@@ -12,6 +12,8 @@ class EstadoExamen extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
+    const SOLICITADO_ID = 1;
+
     protected $table = 'med_estados_examenes';
     protected $fillable = [
         'nombre',
