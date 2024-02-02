@@ -25,7 +25,7 @@ class RubroRequest extends FormRequest
     {
         return [
             'nombre_rubro' => 'required|string',
-            'valor_rubro'=> 'required|number',
+            'valor_rubro'=> 'required|numeric',
             'es_porcentaje'=>'required|boolean',
         ];
     }
