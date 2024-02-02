@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\ConfiguracionExamenCategoriaRequest;
 use App\Http\Resources\Medico\ConfiguracionExamenCategoriaResource;
+use App\Models\Medico\ConfiguracionExamenCampo;
 use App\Models\Medico\ConfiguracionExamenCategoria;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -24,10 +26,32 @@ class ConfiguracionExamenCategoriaController extends Controller
         $this->middleware('can:puede.eliminar.configuraciones_examenes_categorias')->only('destroy');
     }
 
+    private function obtenerCategoriaCampos()
+    {
+        $examen_id = request('examen_id');
+
+        $categorias = ConfiguracionExamenCategoria::ignoreRequest(['con_campos'])->filter()->where('examen_id', $examen_id)->get();
+
+        $data = $categorias->map(fn ($categoria) => [
+            'categoria' => $categoria->nombre,
+            'campos' => ConfiguracionExamenCampo::where('configuracion_examen_categoria_id', $categoria->id)->get(),
+        ]);
+
+        return $data;
+    }
+
+    private function listar()
+    {
+        $con_campos = request('con_campos');
+        // Log::channel('testing')->info('Log', ['Empleado', 'listar...']);
+
+        if ($con_campos) return $this->obtenerCategoriaCampos();
+        else return ConfiguracionExamenCampo::ignoreRequest(['campos'])->filter()->get();
+    }
+
     public function index()
     {
-        $results = [];
-        $results = ConfiguracionExamenCategoria::ignoreRequest(['campos'])->filter()->get();
+        $results = $this->listar();
         return response()->json(compact('results'));
     }
 
