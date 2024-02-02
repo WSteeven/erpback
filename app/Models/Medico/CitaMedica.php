@@ -18,7 +18,7 @@ class CitaMedica extends Model implements Auditable
     protected $table = 'med_citas_medicas';
     protected $fillable = [
         'sintomas',
-        'razon',
+        'motivo',
         'observacion',
         'fecha_hora_cita',
         'estado_cita_medica_id',

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('med_citas_medicas', function (Blueprint $table) {
             $table->id();
             $table->text('sintomas');
-            $table->text('razon');
+            $table->text('motivo');
             $table->text('observacion');
             $table->dateTime('fecha_hora_cita');
 

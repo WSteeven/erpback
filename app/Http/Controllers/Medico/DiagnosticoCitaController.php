@@ -3,29 +3,25 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Medico\CieResource;
-use App\Imports\Medico\CieImport;
-use App\Models\Medico\Cie;
+use App\Http\Requests\Medico\DiagnosticoCitaRequest;
+use App\Http\Resources\Medico\DiagnosticoCitaResource;
+use App\Models\Medico\DiagnosticoCita;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use League\Csv\Reader;
-use Maatwebsite\Excel\Excel as ExcelUtil;
 use Src\Shared\Utils;
-use Maatwebsite\Excel\Facades\Excel;
 
-class CieController extends Controller
+class DiagnosticoCitaController extends Controller
 {
-    private $entidad = 'CIE';
+    private $entidad = 'Diagnostico cita';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.cies')->only('index', 'show');
-        $this->middleware('can:puede.crear.cies')->only('store');
-        $this->middleware('can:puede.editar.cies')->only('update');
-        $this->middleware('can:puede.eliminar.cies')->only('destroy');
+        $this->middleware('can:puede.ver.diagnosticos_citas')->only('index', 'show');
+        $this->middleware('can:puede.crear.diagnosticos_citas')->only('store');
+        $this->middleware('can:puede.editar.diagnosticos_citas')->only('update');
+        $this->middleware('can:puede.eliminar.diagnosticos_citas')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -35,7 +31,7 @@ class CieController extends Controller
     public function index()
     {
         $results = [];
-        $results = Cie::ignoreRequest(['campos'])->filter()->get();
+        $results = DiagnosticoCita::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
@@ -45,13 +41,13 @@ class CieController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DiagnosticoCitaRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $cie = Cie::create($datos);
-            $modelo = new CieResource($cie);
+            $diagnosticocita = DiagnosticoCita::create($datos);
+            $modelo = new DiagnosticoCitaResource($diagnosticocita);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -60,19 +56,19 @@ class CieController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de cie' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de diagnosticocita' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  Cie  $cie
+     * @param  DiagnosticoCita  $diagnostico_cita
      * @return \Illuminate\Http\Response
      */
-    public function show($cie)
+    public function show(DiagnosticoCita $diagnostico_cita)
     {
-        $modelo = new CieResource($cie);
+        $modelo = new DiagnosticoCitaResource($diagnostico_cita);
         return response()->json(compact('modelo'));
     }
 
@@ -80,16 +76,16 @@ class CieController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  Cie  $cie
+     * @param  DiagnosticoCita  $diagnostico_cita
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $cie)
+    public function update(DiagnosticoCitaRequest $request, $diagnostico_cita)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $cie->update($datos);
-            $modelo = new CieResource($cie->refresh());
+            $diagnostico_cita->update($datos);
+            $modelo = new DiagnosticoCitaResource($diagnostico_cita->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -98,39 +94,21 @@ class CieController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de cie' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de diagnosticocita' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function archivoCie(Request $request)
-    {
-        try {
-            if (!$request->hasFile('file')) {
-                throw ValidationException::withMessages([
-                    'file' => ['Debe seleccionar al menos un archivo.'],
-                ]);
-            }
-            Excel::import(new CieImport(), $request->file);
-            return response()->json(['mensaje' => 'Subido exitosamente!']);
-        } catch (Exception $e) {
-            throw ValidationException::withMessages([
-                'file' => [$e->getMessage(), $e->getLine()],
-            ]);
 
-            Log::channel('testing')->info('Log', ['ERROR en el insert de permiso de prestamo hipotecario', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
-        }
-    }
     /**
      * Remove the specified resource from storage.
      *
-     * @param  Cie  $cie
+     * @param  DiagnosticoCita  $diagnostico_cita
      * @return \Illuminate\Http\Response
      */
-    public function destroy($cie)
+    public function destroy(DiagnosticoCita $diagnostico_cita)
     {
         try {
             DB::beginTransaction();
-            $cie->delete();
+            $diagnostico_cita->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -139,7 +117,7 @@ class CieController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de cie' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de diagnosticocita' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 }
