@@ -39,9 +39,9 @@ class CortePagoComisionController extends Controller
             $datos = $request->validated();
             $corte = CortePagoComision::create($datos);
             // aqui se calcula los cortes para crear los respectivos ítems
-            DetallePagoComision::crearComisionesEmpleados($corte, $request->fecha_inicio, $request->fecha_fin);
+            DetallePagoComision::crearComisionesEmpleados($corte);
 
-            throw new Exception('Error no controlado');
+            // throw new Exception('Error no controlado');
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new CortePagoComisionResource($corte);
             DB::commit();

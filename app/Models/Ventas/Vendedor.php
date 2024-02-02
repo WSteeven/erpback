@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Support\Facades\Log;
 
 class Vendedor extends Model implements Auditable
 {
@@ -62,5 +64,32 @@ class Vendedor extends Model implements Auditable
     public function ventas()
     {
         return $this->hasMany(Venta::class);
+    }
+
+    /********************************
+     * FUNCIONES
+     *******************************/
+
+    /**
+     * La función "verificarVentasMensuales" verifica si un vendedor ha alcanzado el umbral mínimo de
+     * ventas para un mes hasta una fecha determinada.
+     * 
+     * @param Vendedor $vendedor Una instancia de la clase Vendedor, que representa a un vendedor.
+     * @param string $fecha El parámetro "fecha" es una fecha que representa la fecha maxima del mes del cual queremos verificar
+     * las ventas mensuales.
+     * 
+     * @return bool Devuelve verdadero si el recuento de ventas en el mes determinado es
+     * mayor que el umbral mínimo definido en la modalidad del vendedor, y falso en caso contrario.
+     */
+    public static function verificarVentasMensuales(Vendedor $vendedor, $fecha)
+    {
+        $fecha_maxima  = Carbon::parse($fecha);
+        $ventas = Venta::whereMonth('fecha_activacion', $fecha_maxima->month)
+            ->where('fecha_activacion', '<=', $fecha_maxima)
+            ->where('vendedor_id', $vendedor->empleado_id)
+            ->where('estado_activacion', Venta::ACTIVADO)
+            ->get();
+        
+        return $ventas->count() > $vendedor->modalidad->umbral_minimo;
     }
 }

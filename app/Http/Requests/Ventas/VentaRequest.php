@@ -53,9 +53,8 @@ class VentaRequest extends FormRequest
         $comision_total = $this->estado_activacion == Venta::ACTIVADO ?  $comision_valor : 0;
         if ($this->estado_activacion == Venta::APROBADO) $this->merge(['fecha_activacion' => null]);
         if ($this->fecha_activacion != null) {
-            $date_activ = Carbon::createFromFormat('d-m-Y', $this->fecha_activacion);
             $this->merge([
-                'fecha_activacion' => $date_activ->format('Y-m-d'),
+                'fecha_activacion' => date('Y-m-d', strtotime($this->fecha_activacion)),
             ]);
         }
         $this->merge([
