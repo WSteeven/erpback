@@ -163,19 +163,24 @@ class NominaService
 
     public function calcularSueldo($dias = 30, $es_quincena = false, $sueldo = 0)
     {
-        $salario_diario = $this->empleado->salario / 30;
-        if ($es_quincena) {
-            $sueldo = $sueldo < 0 ?  $this->empleado->salario * NominaService::calcularPorcentajeAnticipo(): $sueldo;
-            // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
-        } else {
-            $dias_trabajados = $dias - $this->permisoEmpleado();
-            $sueldo = $salario_diario * $dias_trabajados;
+        try {
+            $salario_diario = $this->empleado->salario / 30;
+            if ($es_quincena) {
+                $sueldo = $sueldo < 0 ?  $this->empleado->salario * NominaService::calcularPorcentajeAnticipo() : $sueldo;
+                // $sueldo = $sueldo !== 0 ? $sueldo : $this->empleado->salario * NominaService::calcularPorcentajeAnticipo();
+            } else {
+                $dias_trabajados = $dias - $this->permisoEmpleado();
+                $sueldo = $salario_diario * $dias_trabajados;
+            }
+            if ($this->rolPago != null && $sueldo === 0) {
+                Log::channel('testing')->info('Log', ['ID this->rolpago',  $this->rolPago]);
+                $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
         }
-        if ($this->rolPago != null && $sueldo === 0) {
-            Log::channel('testing')->info('Log', ['ID this->rolpago',  $this->rolPago]);
-            $sueldo = $this->calculoSueldoRolPago($es_quincena, $dias);
-        }
-        return number_format($sueldo, 2);
+        // Log::channel('testing')->info('Log', ['DATOS',  $this->empleado->nombres, $this->rolPago, $dias, $sueldo]);
+        return $sueldo;
     }
 
     public function calculoSueldoRolPago($es_quincena, $dias = 30)
@@ -241,22 +246,26 @@ class NominaService
     }
     public function calcularDecimo($tipo, $dias)
     {
-        $es_vendedor_medio_tiempo = false;
-        if (isset($this->rolPago->es_vendedor_medio_tiempo)) {
-            $es_vendedor_medio_tiempo = $this->rolPago->es_vendedor_medio_tiempo;
-        }
-        switch ($tipo) {
-            case 3:
-                // return number_format((($this->calcularSueldo($dias) / 360) * $dias), 2);
-                return number_format(($this->calcularSueldo($dias) / 12), 2);
-                break;
-            case 4:
-                // if ($es_vendedor_medio_tiempo) {
-                //     return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
-                // } else {
+        try {
+            $es_vendedor_medio_tiempo = false;
+            if (isset($this->rolPago->es_vendedor_medio_tiempo)) {
+                $es_vendedor_medio_tiempo = $this->rolPago->es_vendedor_medio_tiempo;
+            }
+            switch ($tipo) {
+                case 3:
+                    // return number_format((($this->calcularSueldo($dias) / 360) * $dias), 2);
+                    return number_format(($this->calcularSueldo($dias) / 12), 2);
+                    break;
+                case 4:
+                    // if ($es_vendedor_medio_tiempo) {
+                    //     return ((NominaService::calcularSueldoBasico() / 2) / 360) * $dias;
+                    // } else {
                     return (NominaService::calcularSueldoBasico() / 360) * $dias;
-                // }
-                break;
+                    // }
+                    break;
+            }
+        } catch (Exception $e) {
+            throw $e;
         }
     }
     public function calcularAnticipo()
