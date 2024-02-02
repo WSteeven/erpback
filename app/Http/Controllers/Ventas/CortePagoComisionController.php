@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\CortePagoComisionRequest;
 use App\Http\Resources\Ventas\CortePagoComisionResource;
 use App\Models\Ventas\CortePagoComision;
+use App\Models\Ventas\DetallePagoComision;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,7 +39,9 @@ class CortePagoComisionController extends Controller
             $datos = $request->validated();
             $corte = CortePagoComision::create($datos);
             // aqui se calcula los cortes para crear los respectivos ítems
+            DetallePagoComision::crearComisionesEmpleados($corte, $request->fecha_inicio, $request->fecha_fin);
 
+            throw new Exception('Error no controlado');
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             $modelo = new CortePagoComisionResource($corte);
             DB::commit();

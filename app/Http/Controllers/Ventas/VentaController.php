@@ -357,6 +357,7 @@ class VentaController extends Controller
             DB::beginTransaction();
             if (!$venta->primer_mes) {
                 $venta->primer_mes = !$venta->primer_mes;
+                $venta->fecha_pago_primer_mes = Carbon::now();
                 $venta->save();
             } else throw new Exception('Esta venta ya ha sido marcada como pagada en su primer mes');
             $modelo  = new VentaResource($venta->refresh());

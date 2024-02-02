@@ -4,7 +4,7 @@ namespace App\Http\Requests\Ventas;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ComisionRequest extends FormRequest
+class RetencionChargebackRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class ComisionRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -24,15 +24,7 @@ class ComisionRequest extends FormRequest
     public function rules()
     {
         return [
-            'forma_pago'=> 'required',
-            'comision'=> 'required|numeric|decimal:0,4',
-            'plan_id'=> 'required|integer',
+            //
         ];
-    }
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'plan_id'=> $this->plan
-        ]);
     }
 }

@@ -31,6 +31,8 @@ return new class extends Migration
             $table->boolean('activo')->default(true);
             $table->text('observacion')->nullable();
             $table->boolean('primer_mes')->default(false);
+            $table->timestamp('fecha_pago_primer_mes')->nullable();
+            $table->boolean('comision_pagada')->default(false);
             $table->timestamps();
 
             $table->foreign('cliente_id')->references('id')->on('ventas_clientes_claro')->nullOnDelete()->cascadeOnUpdate();
