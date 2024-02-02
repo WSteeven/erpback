@@ -38,10 +38,8 @@ class GastoRequest extends FormRequest
     {
         $rules = [
             'fecha_viat' => 'required|date_format:Y-m-d',
-            'lugar' => 'required',
-            'num_tarea' => 'required',
+            'id_lugar' => 'required',
             'subTarea' => 'nullable',
-            'proyecto' => 'required',
             'beneficiarios' => 'nullable',
             'ruc' => 'nullable|string',
             'factura' => 'nullable|string|max:30|min:17',
@@ -56,14 +54,14 @@ class GastoRequest extends FormRequest
             'comprobante' => 'required|string',
             'comprobante2' => 'required|string',
             'detalle_estado' => 'nullable|string',
+            'id_tarea' => 'nullable',
+            'id_proyecto' => 'nullable',
         ];
         if (!is_null($this->vehiculo)) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
-                'lugar' => 'required',
-                'num_tarea' => 'required',
+                'id_lugar' => 'required',
                 'subTarea' => 'nullable',
-                'proyecto' => 'required',
                 'beneficiarios' => 'nullable',
                 'ruc' => 'nullable|string',
                 'factura' => 'nullable|string|max:30|min:17',
@@ -79,7 +77,9 @@ class GastoRequest extends FormRequest
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|string',
                 'vehiculo' => 'required|integer',
-                'kilometraje' => 'required|integer'
+                'kilometraje' => 'required|integer',
+                'id_tarea' => 'nullable',
+                'id_proyecto' => 'nullable',
             ];
         }
         return $rules;
@@ -183,5 +183,18 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
+        $tarea = null;
+        $proyecto = null;
+        if ($this->num_tarea !== 0) {
+            $tarea = $this->num_tarea;
+        }
+        if ($this->proyecto !== 0) {
+            $proyecto = $this->proyecto;
+        }
+        $this->merge([
+            'id_tarea' => $tarea,
+            'id_proyecto' => $proyecto,
+            'id_lugar' => $this->lugar,
+        ]);
     }
 }

@@ -137,10 +137,6 @@ class GastoController extends Controller
                 }
             }
             //Adaptacion de foreign keys
-            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
-            $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
-            $datos['id_tarea'] = $request->num_tarea == 0 ? null : $request->safe()->only(['num_tarea'])['num_tarea'];
-            $datos['id_subtarea'] = $request->subTarea == 0 ? null : $request->safe()->only(['subTarea'])['subTarea'];
             $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
             $datos['id_usuario'] = Auth::user()->empleado->id;
             //Asignacion de estatus de gasto

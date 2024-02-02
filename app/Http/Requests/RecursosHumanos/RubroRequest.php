@@ -13,7 +13,7 @@ class RubroRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class RubroRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'nombre_rubro' => 'required|string',
+            'valor_rubro'=> 'required|number',
+            'es_porcentaje'=>'required|boolean',
         ];
     }
 }
