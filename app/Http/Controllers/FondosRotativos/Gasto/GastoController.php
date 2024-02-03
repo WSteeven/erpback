@@ -108,34 +108,6 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            if ($datos['factura'] != null) {
-                $numFacturaObjeto = [
-                    [
-                        "detalle" => 16,
-                        "cantidad" => 22,
-                    ],
-                    [
-                        "detalle" => 10,
-                        "cantidad" => 17,
-                    ],
-                ];
-                $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
-                $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
-                $num_fact = str_replace(' ', '',  $datos['factura']);
-                if ($request->detalle == 16) {
-                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
-                        throw ValidationException::withMessages([
-                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                        ]);
-                    }
-                } else {
-                    if (strlen($num_fact) < $cantidad) {
-                        throw ValidationException::withMessages([
-                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                        ]);
-                    }
-                }
-            }
             //Adaptacion de foreign keys
             $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
             $datos['id_usuario'] = Auth::user()->empleado->id;
