@@ -21,6 +21,7 @@ return new class extends Migration
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
             $table->enum('estado', [EstadoTransaccion::PENDIENTE, EstadoTransaccion::COMPLETA, 'ANULADA'])->default(EstadoTransaccion::PENDIENTE);
+            $table->string('causa_anulacion')->nullable();
             $table->timestamps();
         });
     }

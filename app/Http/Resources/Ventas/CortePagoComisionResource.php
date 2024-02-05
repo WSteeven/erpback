@@ -20,6 +20,7 @@ class CortePagoComisionResource extends JsonResource
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'estado' => $this->estado,
+            'listadoEmpleados' => DetallePagoComisionResource::collection($this->detalles),
         ];
     }
 }

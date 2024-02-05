@@ -4,11 +4,13 @@ namespace Src\App\VentasClaro;
 
 use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\Comision;
+use App\Models\Ventas\CortePagoComision;
 use App\Models\Ventas\Modalidad;
 use App\Models\Ventas\PagoComision;
 use App\Models\Ventas\ProductoVenta;
 use App\Models\Ventas\Vendedor;
 use App\Models\Ventas\Venta;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -144,5 +146,43 @@ class PagoComisionService
             Log::channel('testing')->info('Log', ["error en pago de comisiones 142", $e->getmessage(), $e->getLine()]);
             throw $e;
         }
+    }
+
+    public static function fechasDisponiblesCorte()
+    {
+        $cortes = CortePagoComision::where('estado', '<>', CortePagoComision::ANULADA)->get(['fecha_inicio', 'fecha_fin']);
+        $ventas = Venta::all();
+        $fechas_ventas = $ventas->pluck('fecha_activacion')->toArray();
+
+        $fecha_inicio = Carbon::parse(min($fechas_ventas));
+
+
+        $fechasArray = [];
+
+        while ($fecha_inicio->lessThanOrEqualTo(Carbon::now())) {
+            $fechasArray[] = $fecha_inicio->format('Y/m/d');//->toDateString();
+            $fecha_inicio->addDay();
+        }
+
+        $fechasFiltradas = array_filter($fechasArray, function ($fecha) use ($cortes) {
+            foreach ($cortes as $corte) {
+                if (self::fechaEnRango($fecha, $corte)) return false;
+            }
+            return true;
+        });
+
+        Log::channel('testing')->info('Log', ["fechas_ventas", $fechas_ventas]);
+        Log::channel('testing')->info('Log', ["fecha_minima", min($fechas_ventas), 'fecha_actual', Carbon::now()]);
+        Log::channel('testing')->info('Log', ["cortes", $cortes]);
+        Log::channel('testing')->info('Log', ["fechas de cortes 1", $cortes->toArray()]);
+        Log::channel('testing')->info('Log', ["fechas de cortes", $cortes->pluck('fecha_inicio', 'fecha_fin')->toArray()]);
+        Log::channel('testing')->info('Log', ["fechas filtradas: ", $fechasFiltradas]);
+        return $fechasFiltradas;
+    }
+
+    private static function fechaEnRango($fecha, $rango)
+    {
+        $fecha = Carbon::parse($fecha);
+        return $fecha->between(Carbon::parse($rango['fecha_inicio']), Carbon::parse($rango['fecha_fin']), true);
     }
 }

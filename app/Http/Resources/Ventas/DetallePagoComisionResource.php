@@ -20,7 +20,7 @@ class DetallePagoComisionResource extends JsonResource
             'corte_id' => $this->corte_id,
             'corte_info' => $this->corte->nombre,
             'vendedor_id' => $this->vendedor_id,
-            'vendedor_info' => $this->vendedor->empleado->nombres . ' ' . $this->vendedor->empleado->apellidos,
+            'vendedor_info' => $this->vendedor?->empleado->nombres . ' ' . $this->vendedor?->empleado->apellidos,
             'chargeback' => $this->chargeback,
             'ventas' => $this->ventas,
             'valor' => $this->valor,

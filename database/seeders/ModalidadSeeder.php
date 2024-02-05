@@ -16,9 +16,9 @@ class ModalidadSeeder extends Seeder
     public function run()
     {
         Modalidad::insert([
-            ['nombre'=> 'TIEMPO COMPLETO','umbral_minimo'=>14],
-            ['nombre'=> 'MEDIO TIEMPO','umbral_minimo'=>7],
-            ['nombre'=> 'FREELANCE','umbral_minimo'=>1],
+            ['nombre'=> 'TIEMPO COMPLETO','umbral_minimo'=>13],
+            ['nombre'=> 'MEDIO TIEMPO','umbral_minimo'=>6],
+            ['nombre'=> 'FREELANCE','umbral_minimo'=>0],
         ]);
     }
 }

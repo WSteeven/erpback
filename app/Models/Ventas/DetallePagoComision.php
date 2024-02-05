@@ -34,7 +34,7 @@ class DetallePagoComision extends Model implements Auditable
 
     public function vendedor()
     {
-        return $this->belongsTo(Vendedor::class);
+        return $this->belongsTo(Vendedor::class, 'vendedor_id');
     }
 
     public function corte()
@@ -79,7 +79,7 @@ class DetallePagoComision extends Model implements Auditable
                 }
             }
         } catch (\Throwable $th) {
-            //throw $th;
+            throw $th;
         }
     }
 }

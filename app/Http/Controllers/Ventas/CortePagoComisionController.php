@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers\Ventas;
 
+use App\Exports\Ventas\CortePagoComisionExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ventas\CortePagoComisionRequest;
 use App\Http\Resources\Ventas\CortePagoComisionResource;
+use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\CortePagoComision;
 use App\Models\Ventas\DetallePagoComision;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
+use Src\App\VentasClaro\PagoComisionService;
 use Src\Shared\Utils;
 
 class CortePagoComisionController extends Controller
@@ -19,6 +24,7 @@ class CortePagoComisionController extends Controller
     private $servicio;
     public function __construct()
     {
+        $this->servicio = new PagoComisionService();
         $this->middleware('can:puede.ver.cortes_pagos_comisiones')->only('index', 'show');
         $this->middleware('can:puede.crear.cortes_pagos_comisiones')->only('store');
         $this->middleware('can:puede.editar.cortes_pagos_comisiones')->only('update');
@@ -79,5 +85,43 @@ class CortePagoComisionController extends Controller
         $corte->delete();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje'));
+    }
+
+    /**
+     * Anular un corte de pago
+     */
+    public function anular(Request $request, CortePagoComision $corte)
+    {
+        try {
+            DB::beginTransaction();
+            $request->validate(['causa_anulacion' => ['required', 'string']]);
+            $corte->causa_anulacion = $request->causa_anulacion;
+            $corte->estado = CortePagoComision::ANULADA;
+            $corte->save();
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+        }
+        $modelo = new CortePagoComisionResource($corte->refresh());
+        return response()->json(compact('modelo'));
+    }
+
+    public function imprimirExcel(CortePagoComision $corte)
+    {
+        $config = ConfiguracionGeneral::first();
+        $reporte = CortePagoComisionResource::collection($corte);
+        return Excel::download(new CortePagoComisionExport(compact('reporte', 'config')), 'reporte.xlsx');
+    }
+
+    public function obtenerFechasDisponblesCortes()
+    {
+        try {
+            $results = $this->servicio->fechasDisponiblesCorte();
+        } catch (\Throwable $e) {
+            Log::channel('testing')->info('Log', ["error", $e->getLine(), $e->getMessage()]);
+            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+        }
+        return response()->json(compact('results'));
     }
 }

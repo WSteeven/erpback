@@ -20,6 +20,7 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentaController;
+use App\Models\Ventas\CortePagoComision;
 use App\Models\Ventas\NovedadVenta;
 use Illuminate\Support\Facades\Route;
 
@@ -73,9 +74,19 @@ Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'des
 Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);
 Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
 Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
+Route::get('obtener-fechas-disponbles-cortes', [CortePagoComisionController::class, 'obtenerFechasDisponblesCortes']);
 
 
 //listar archivos
 Route::get('ventas/files/{venta}', [VentaController::class, 'indexFiles'])->middleware('auth:sanctum');
 //guardar archivos
 Route::post('ventas/files/{venta}', [VentaController::class, 'storeFiles'])->middleware('auth:sanctum');
+
+//anular
+Route::post('cortes-pagos-comisiones/anular/{corte}', [CortePagoComisionController::class, 'anular']);
+
+
+/**
+ * Rutas para imprimir archivos (PDF y EXCEL)
+ */
+Route::get('cortes-pagos-comisiones/imprimir-excel/{corte}', [CortePagoComisionController::class, 'imprimirExcel']);
