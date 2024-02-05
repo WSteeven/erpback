@@ -97,6 +97,7 @@ class GastoRequest extends FormRequest
                 if ($this->route()->getActionMethod() === 'store') {
                     $this->validar_numero_comprobante($validator);
                 }
+
                 if ($this->route()->getActionMethod() === 'aprobar_gasto') {
                     $gasto = Gasto::find($this->id);
                     $estado = $gasto->estado;
@@ -154,6 +155,36 @@ class GastoRequest extends FormRequest
         if ($comprobante_pendiente) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
         }
+        if($this->factura !== null){
+            $numFacturaObjeto = [
+                [
+                    "detalle" => 16,
+                    "cantidad" => 22,
+                ],
+                [
+                    "detalle" => 10,
+                    "cantidad" => 17,
+                ],
+            ];
+            $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
+            $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
+            $num_fact = str_replace(' ', '',  $this->factura);
+            if ($this->detalle == 16) {
+                if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                    throw ValidationException::withMessages([
+                        '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                    ]);
+                }
+            } else {
+                if (strlen($num_fact) < $cantidad) {
+                    throw ValidationException::withMessages([
+                        '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
+                    ]);
+                }
+            }
+        }
+
+
     }
     protected function prepareForValidation()
     {
