@@ -34,6 +34,7 @@ class PrefacturaResource extends JsonResource
             'tiempo' => $this->tiempo,
             'listadoProductos' => $detalles,
             'iva' => $this->iva,
+            'proforma' => $this->proforma->codigo,
             'sum_subtotal' => number_format($subtotal, 2),
             'sum_descuento' => number_format($descuento, 2),
             'sum_iva' => number_format($iva, 2),
@@ -45,6 +46,7 @@ class PrefacturaResource extends JsonResource
             $modelo['solicitante'] = $this->solicitante_id;
             $modelo['cliente'] = $this->cliente_id;
             $modelo['estado'] = $this->estado_id;
+            $modelo['proforma'] = $this->proforma_id;
         }
         return $modelo;
     }

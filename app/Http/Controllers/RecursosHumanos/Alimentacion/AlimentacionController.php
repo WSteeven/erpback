@@ -29,10 +29,10 @@ class AlimentacionController extends Controller
     {
         $this->reporteService = new ReportePdfExcelService();
 
-        $this->middleware('can:puede.ver.alimentacion')->only('index', 'show');
-        $this->middleware('can:puede.crear.alimentacion')->only('store');
-        $this->middleware('can:puede.editar.alimentacion')->only('update');
-        $this->middleware('can:puede.eliminar.alimentacion')->only('destroy');
+        $this->middleware('can:puede.ver.alimentaciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.alimentaciones')->only('store');
+        $this->middleware('can:puede.editar.alimentaciones')->only('update');
+        $this->middleware('can:puede.eliminar.alimentaciones')->only('destroy');
     }
     /**
      * Listar

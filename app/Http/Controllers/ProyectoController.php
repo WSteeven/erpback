@@ -110,9 +110,11 @@ class ProyectoController extends Controller
         $empleado = Empleado::find($empleado_id);
         $grupo_id = $empleado->grupo_id;
         if ($grupo_id) {
-            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->disponible()->get('tarea_id');
+            $tareas_ids_subtareas = Subtarea::where(function ($q) use ($empleado_id, $grupo_id) {
+                $q->where('empleado_id', $empleado_id)->orwhere('grupo_id', $grupo_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%');
+            })->groupBy('tarea_id')->pluck('tarea_id');
         } else {
-            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->disponible()->get('tarea_id');
+            $tareas_ids_subtareas = Subtarea::where('empleado_id', $empleado_id)->orWhere('empleados_designados', 'LIKE', '%' . $empleado_id . '%')->disponible()->get('tarea_id');
         }
         $ids_etapas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('etapa_id');
         $ids_proyectos_tareas = Tarea::whereIn('id', $tareas_ids_subtareas)->where('finalizado', false)->get('proyecto_id');

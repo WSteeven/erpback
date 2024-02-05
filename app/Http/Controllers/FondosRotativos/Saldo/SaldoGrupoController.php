@@ -170,12 +170,24 @@ class SaldoGrupoController extends Controller
     public function saldo_actual(Request $request, $tipo)
     {
         try {
+            $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            $saldos_actual_user = $request->usuario == null ?
-                SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
-                    $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
-                })->get()
-                : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            if ($usuario_ac->hasRole('CONTABILIDAD')) {
+                $saldos_actual_user = $request->usuario == null ?
+                    SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                        $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+                    })->get()
+                    : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            }else{
+                $empleados= Empleado::where('jefe_id',$usuario->empleado->id)->get('id','nombres','apellidos')->pluck('id');
+                $saldos_actual_user = $request->usuario == null ?
+                    SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                        $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+                    })->whereIn('id_usuario', $empleados)
+                    ->get()
+                    : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            }
             $tipo_reporte = $request->usuario != null ? 'usuario' : 'todos';
             $results = SaldoGrupo::empaquetarListado($saldos_actual_user, $tipo_reporte);
             $nombre_reporte = 'reporte_saldoActual';

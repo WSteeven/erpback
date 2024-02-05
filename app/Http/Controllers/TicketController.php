@@ -49,8 +49,7 @@ class TicketController extends Controller
 
         if ($request['ticket_interno']) {
             $tickets_creados = $this->servicio->crearMultiplesResponsablesMismoDepartamento($request);
-        }
-        if ($request['para_sso']) {
+        } else if ($request['para_sso']) {
             $ticket = $this->servicio->crearTicket($request, [
                 'tipo_ticket_id' => Ticket::TIPO_TICKET_ATS,
                 'departamento_id' => Ticket::SSO,
