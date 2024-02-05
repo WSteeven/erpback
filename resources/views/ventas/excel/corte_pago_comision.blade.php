@@ -28,9 +28,8 @@
                             <div align="center"></div>
                         </td>
                         <td width="83%" colspan="7" style="font-size:12px;text-align: center">
-                            <div align="center"><strong>REPORTE DE {{ $reporte['nombre'] }}
-                                </strong>
-                            </div>
+                            {{-- <div align="center"><strong>REPORTE DE {{ $reporte['nombre'] }}</strong></div> --}}
+                            <div align="center"><strong>REPORTE DE corte </strong></div>
                         </td>
                     </tr>
                 </table>
@@ -54,29 +53,22 @@
                                         <td style="font-weight: bold"> CHARGEBACK </td>
                                         <td style="font-weight: bold"> VALOR A PAGAR</td>
                                     </tr>
-
-                                    @foreach ($reporte['listadoEmpleados'] as $key => $listado)
+                                    {{-- @foreach ($reporte['listadoEmpleados'] as $key => $listado)
                                         <tr>
-                                            <td>{{ $key }}</td>
                                             <td>{{ $listado['fecha_inicio'] }}</td>
                                             <td>{{ $listado['fecha_fin'] }}</td>
                                             <td>{{ $listado['vendedor_info'] }}</td>
                                             <td>{{ $listado['ventas'] }}</td>
+                                            <td>{{ $listado['chargeback'] }}</td>
                                             <td>{{ $listado['valor'] }}</td>
                                         </tr>
-                                    @endforeach
-                                    <tr>
-                                        <td colspan="5">TOTAL A PAGAR</td>
-                                        <td colspan="6">{{ $listado->sum('valor') }}</td>
-                                    </tr>
-                                </table>
+                                    @endforeach --}}
                             </td>
                         </tr>
                     </table>
                 </div>
             </td>
         </tr>
-
     </table>
 
 </body>

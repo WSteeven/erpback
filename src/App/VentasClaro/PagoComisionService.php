@@ -148,6 +148,12 @@ class PagoComisionService
         }
     }
 
+    /**
+     * La función "fechasDisponiblesCorte" devuelve un conjunto de fechas disponibles para un corte de
+     * pago basado en las fechas de activaciones de ventas y cortes de pago existentes.
+     * 
+     * @return array una variedad de fechas disponibles para un corte de pago.
+     */
     public static function fechasDisponiblesCorte()
     {
         $cortes = CortePagoComision::where('estado', '<>', CortePagoComision::ANULADA)->get(['fecha_inicio', 'fecha_fin']);
@@ -155,7 +161,6 @@ class PagoComisionService
         $fechas_ventas = $ventas->pluck('fecha_activacion')->toArray();
 
         $fecha_inicio = Carbon::parse(min($fechas_ventas));
-
 
         $fechasArray = [];
 
@@ -171,15 +176,21 @@ class PagoComisionService
             return true;
         });
 
-        Log::channel('testing')->info('Log', ["fechas_ventas", $fechas_ventas]);
-        Log::channel('testing')->info('Log', ["fecha_minima", min($fechas_ventas), 'fecha_actual', Carbon::now()]);
-        Log::channel('testing')->info('Log', ["cortes", $cortes]);
-        Log::channel('testing')->info('Log', ["fechas de cortes 1", $cortes->toArray()]);
-        Log::channel('testing')->info('Log', ["fechas de cortes", $cortes->pluck('fecha_inicio', 'fecha_fin')->toArray()]);
-        Log::channel('testing')->info('Log', ["fechas filtradas: ", $fechasFiltradas]);
         return $fechasFiltradas;
     }
 
+    /**
+     * La función `fechaEnRango` verifica si una fecha determinada está dentro de un rango específico.
+     * 
+     * @param string $fecha El parámetro fecha es una fecha que debe verificarse si se encuentra dentro de un
+     * rango específico.
+     * @param array $rango Se espera que el parámetro `rango` sea un arreglo asociativo con dos claves:
+     * `fecha_inicio` y `fecha_fin`. Estas claves representan las fechas de inicio y finalización de un
+     * rango.
+     * 
+     * @return bool un valor booleano que indica si la fecha dada se encuentra dentro del rango
+     * especificado.
+     */
     private static function fechaEnRango($fecha, $rango)
     {
         $fecha = Carbon::parse($fecha);

@@ -15,12 +15,13 @@ class DetallePagoComisionResource extends JsonResource
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'fecha_inicio' => $this->fecha_inicio,
             'fecha_fin' => $this->fecha_fin,
             'corte_id' => $this->corte_id,
             'corte_info' => $this->corte->nombre,
             'vendedor_id' => $this->vendedor_id,
-            'vendedor_info' => $this->vendedor?->empleado->nombres . ' ' . $this->vendedor?->empleado->apellidos,
+            'vendedor_info' => $this->vendedor->empleado->nombres . ' ' . $this->vendedor->empleado->apellidos,
             'chargeback' => $this->chargeback,
             'ventas' => $this->ventas,
             'valor' => $this->valor,

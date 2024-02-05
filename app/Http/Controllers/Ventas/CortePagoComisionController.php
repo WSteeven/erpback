@@ -109,9 +109,16 @@ class CortePagoComisionController extends Controller
 
     public function imprimirExcel(CortePagoComision $corte)
     {
-        $config = ConfiguracionGeneral::first();
-        $reporte = CortePagoComisionResource::collection($corte);
-        return Excel::download(new CortePagoComisionExport(compact('reporte', 'config')), 'reporte.xlsx');
+        try {
+            $modelo = new CortePagoComisionResource($corte);
+            $reporte = $modelo->resolve();
+            Log::channel('testing')->info('Log', ["corte resource", $reporte]);
+            return Excel::download(new CortePagoComisionExport($reporte), 'reporte.xlsx');
+            // return Excel::download(new CortePagoComisionExport($reporte, $config), 'reporte.xlsx');
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ["error", $e->getLine(), $e->getMessage()]);
+            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+        }
     }
 
     public function obtenerFechasDisponblesCortes()
@@ -119,7 +126,6 @@ class CortePagoComisionController extends Controller
         try {
             $results = $this->servicio->fechasDisponiblesCorte();
         } catch (\Throwable $e) {
-            Log::channel('testing')->info('Log', ["error", $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages(['error' => $e->getMessage()]);
         }
         return response()->json(compact('results'));

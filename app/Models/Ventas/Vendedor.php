@@ -10,7 +10,6 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Illuminate\Support\Facades\Log;
 
 class Vendedor extends Model implements Auditable
 {
