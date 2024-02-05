@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('med_respuestas', function (Blueprint $table) {
             $table->id();
             $table->text('respuesta');
+            $table->integer('valor');
             $table->timestamps();
         });
     }

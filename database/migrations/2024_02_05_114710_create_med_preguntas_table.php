@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('med_preguntas', function (Blueprint $table) {
             $table->id();
+            $table->string('codigo');
             $table->text('pregunta');
             $table->timestamps();
         });

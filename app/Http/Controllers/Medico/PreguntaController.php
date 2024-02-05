@@ -31,6 +31,7 @@ class PreguntaController extends Controller
     {
         $results = [];
         $results = Pregunta::ignoreRequest(['campos'])->filter()->get();
+        $results = PreguntaResource::collection($results);
         return response()->json(compact('results'));
     }
 

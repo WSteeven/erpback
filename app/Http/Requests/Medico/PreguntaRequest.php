@@ -24,6 +24,7 @@ class PreguntaRequest extends FormRequest
     public function rules()
     {
         return [
+            'codigo' => 'required|string',
             'pregunta' => 'required|string',
         ];
     }

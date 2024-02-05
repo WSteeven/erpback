@@ -31,6 +31,7 @@ use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LaboratorioClinicoController;
 use App\Http\Controllers\Medico\MedicacionController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
+use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
@@ -103,7 +104,8 @@ Route::apiResources(
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
-        'cie' => CieController::class
+        'cie' => CieController::class,
+        'preguntas' => PreguntaController::class
     ],
     [
         'parameters' => [

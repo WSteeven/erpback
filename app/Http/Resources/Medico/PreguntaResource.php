@@ -16,7 +16,10 @@ class PreguntaResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'codigo' => $this->codigo,
             'pregunta' => $this->pregunta,
+            'respuesta' => count($this->respuestaCuestionarioEmpleado) > 0 ? $this->respuestaCuestionarioEmpleado?->respuesta?->id : null,
+            'posibles_respuestas' => count($this->cuestionario) > 0  ? $this->cuestionario?->respuesta : []
         ];
     }
 }

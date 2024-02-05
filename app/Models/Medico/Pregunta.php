@@ -14,8 +14,15 @@ class Pregunta extends Model implements Auditable
 
     protected $table = 'med_preguntas';
     protected $fillable = [
+        'codigo',
         'pregunta',
     ];
     private static $whiteListFilter = ['*'];
+     public function cuestionario(){
+        return $this->hasMany(Cuestionario::class,'pregunta_id','id')->with('respuesta');
+     }
+     public function respuestaCuestionarioEmpleado(){
+        return $this->hasMany(RespuestaCuestionarioEmpleado::class,'pregunta_id','id');
+     }
 
 }
