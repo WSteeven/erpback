@@ -17,13 +17,14 @@ class RegistroEmpleadoExamenResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'numero_registro' => $this->nombre,
+            'numero_registro' => $this->numero_registro,
             'observacion' => $this->observacion,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . ' ' . $this->empleado?->apellidos : ' ',
             'tipo_proceso_examen' => $this->tipo_proceso_examen,
             'estados_solicitudes_examenes' => $this->estadosSolicitudesExamenes !== null ? $this->estadosSolicitudesExamenes:[],
             'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+
         ];
     }
 }

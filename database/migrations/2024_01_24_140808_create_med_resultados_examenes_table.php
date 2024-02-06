@@ -17,13 +17,13 @@ return new class extends Migration
             $table->id();
 
             $table->double('resultado');
-            $table->double('fecha_examen');
+            $table->dateTime('fecha_examen');
 
             $table->unsignedBigInteger('configuracion_examen_campo_id');
             $table->foreign('configuracion_examen_campo_id','fk_config_exam')->references('id')->on('med_configuraciones_examenes_campos')->onDelete('cascade')->onUpdate('cascade');
 
-            $table->unsignedBigInteger('estado_solicitud_examen_id');
-            $table->foreign('estado_solicitud_examen_id')->references('id')->on('med_estados_solicitudes_examenes')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('detalle_resultado_examen_id');
+            $table->foreign('detalle_resultado_examen_id')->references('id')->on('med_detalles_resultados_examenes')->onDelete('cascade')->onUpdate('cascade');
 
             $table->timestamps();
         });

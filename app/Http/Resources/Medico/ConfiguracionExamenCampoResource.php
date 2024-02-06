@@ -18,8 +18,10 @@ class ConfiguracionExamenCampoResource extends JsonResource
             'id' => $this->id,
             'campo' => $this->campo,
             'unidad_medida' => $this->unidad_medida,
-            'intervalo_referencia' => $this->intervalo_referencia,
-            'configuracion_examen_categoria' => $this->configuracionExamenCategoria,
-            'configuracion_examen_categoria_info' => $this->configuracionExamenCategoria !==null ?$this->configuracionExamenCategoria?->nombre:' ',
-        ];    }
+            'rango_inferior' => $this->rango_inferior,
+            'rango_superior' => $this->rango_superior,
+            'configuracion_examen_categoria_id' => $this->configuracion_examen_categoria_id,
+            'configuracion_examen_categoria' => $this->configuracionExamenCategoria?->nombre,
+        ];
+    }
 }

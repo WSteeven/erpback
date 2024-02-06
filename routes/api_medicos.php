@@ -65,7 +65,7 @@ Route::apiResources(
         'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
         'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
         'configuraciones-examenes-campos' => ConfiguracionExamenCampoController::class,
-        'config-examns-categorias' => ConfiguracionExamenCategoriaController::class,
+        'configuraciones-examenes-categ' => ConfiguracionExamenCategoriaController::class,
         'constantes-vitales' => ConstanteVitalController::class,
         'descrip-antecedentes-examenes' => DescripcionAntecedenteTrabajoController::class,
         'detalles-examenes' => DetalleExamenController::class,
@@ -111,6 +111,7 @@ Route::apiResources(
             'tipos_eval_medicas_retiro' => 'tipo_eval_medica_retiro',
             'tipos_evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
+            'detalles-resultados-examenes' => 'detalle_resultado_examen',
         ],
 
     ]
@@ -118,5 +119,10 @@ Route::apiResources(
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
-
 });
+
+/*************************
+ * Archivos polimorficos
+ *************************/
+Route::get('detalles-resultados-examenes/files/{detalle_resultado_examen}', [DetalleResultadoExamenController::class, 'indexFiles']);
+Route::post('detalles-resultados-examenes/files/{detalle_resultado_examen}', [DetalleResultadoExamenController::class, 'storeFiles']);

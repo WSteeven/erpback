@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\ConfiguracionExamenCategoriaRequest;
+use App\Http\Resources\Medico\ConfiguracionExamenCampoResource;
 use App\Http\Resources\Medico\ConfiguracionExamenCategoriaResource;
 use App\Models\Medico\ConfiguracionExamenCampo;
 use App\Models\Medico\ConfiguracionExamenCategoria;
@@ -34,7 +35,8 @@ class ConfiguracionExamenCategoriaController extends Controller
 
         $data = $categorias->map(fn ($categoria) => [
             'categoria' => $categoria->nombre,
-            'campos' => ConfiguracionExamenCampo::where('configuracion_examen_categoria_id', $categoria->id)->get(),
+            'categoria_id' => $categoria->id,
+            'campos' => ConfiguracionExamenCampoResource::collection(ConfiguracionExamenCampo::where('configuracion_examen_categoria_id', $categoria->id)->get()),
         ]);
 
         return $data;

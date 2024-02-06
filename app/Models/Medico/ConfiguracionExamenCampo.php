@@ -17,7 +17,8 @@ class ConfiguracionExamenCampo extends Model implements Auditable
     protected $fillable = [
         'campo',
         'unidad_medida',
-        'intervalo_referencia',
+        'rango_inferior',
+        'rango_superior',
         'configuracion_examen_categoria_id',
     ];
 
