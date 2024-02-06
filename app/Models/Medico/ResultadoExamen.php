@@ -17,13 +17,23 @@ class ResultadoExamen extends Model implements Auditable
     protected $fillable = [
         'resultado',
         'fecha_examen',
-        'configuracion_examen_id',
-        'empleado_id',
+        'configuracion_examen_campo_id',
+        // 'estado_solicitud_examen_id',
+        'detalle_resultado_examen_id',
     ];
-    public function configuracionExamen(){
-        return $this->hasOne(ConfiguracionExamen::class,'id','configuracion_examen_id');
+
+    public function configuracionExamenCampo()
+    {
+        return $this->hasOne(ConfiguracionExamenCampo::class); //, 'id', 'configuracion_examen_id');
     }
-    public function empleado(){
-        return $this->hasOne(Empleado::class,'id','empleado_id');
+
+    /*public function estadoSolicitudExamen()
+    {
+        return $this->hasOne(EstadoSolicitudExamen::class); //, 'id', 'empleado_id');
+    }*/
+
+    public function detalleResultadoExamen()
+    {
+        return $this->belongsTo(DetalleResultadoExamen::class);
     }
 }

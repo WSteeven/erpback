@@ -9,6 +9,7 @@ use App\Models\Medico\RegistroEmpleadoExamen;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -37,9 +38,16 @@ class RegistroEmpleadoExamenController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
+
+            Log::channel('testing')->info('Log', ['Datos registro', $datos]);
+
+            $proximoNumeroRegistro = RegistroEmpleadoExamen::where('tipo_proceso_examen', $datos['tipo_proceso_examen'])->where('empleado_id', $datos['empleado_id'])->count() + 1;
+            $datos['numero_registro'] = $proximoNumeroRegistro;
+
             $registro_empleado_examen = RegistroEmpleadoExamen::create($datos);
             $modelo = new RegistroEmpleadoExamenResource($registro_empleado_examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -47,7 +55,6 @@ class RegistroEmpleadoExamenController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de registro empleado examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 

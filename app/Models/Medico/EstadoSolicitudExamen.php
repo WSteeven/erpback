@@ -45,4 +45,9 @@ class EstadoSolicitudExamen extends Model implements Auditable
     {
         return $this->belongsTo(LaboratorioClinico::class);
     }
+
+    public function detalleResultadoExamen()
+    {
+        return $this->hasOne(DetalleResultadoExamen::class);
+    }
 }

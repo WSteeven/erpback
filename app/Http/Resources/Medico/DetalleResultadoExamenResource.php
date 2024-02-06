@@ -17,10 +17,12 @@ class DetalleResultadoExamenResource extends JsonResource
         return [
             'id' => $this->id,
             'observacion' => $this->observacion,
-            'tipo_examen' => $this->tipo_examen_id,
-            'tipo_examen_info' => $this->tipoExamen !== null ? $this->tipoExamen?->nombre : ' ',
-            'examen' => $this->examen_id,
-            'examen_info' => $this->examen !== null ? $this->examen?->nombre : ' ',
+            'estado_solicitud_examen' => $this->estado_solicitud_examen_id,
+            'resultados_examenes' => ResultadoExamenResource::collection($this->resultadosExamenes),
+            // 'tipo_examen' => $this->tipo_examen_id,
+            // 'tipo_examen_info' => $this->tipoExamen !== null ? $this->tipoExamen?->nombre : ' ',
+            // 'examen' => $this->examen_id,
+            // 'examen_info' => $this->examen !== null ? $this->examen?->nombre : ' ',
         ];
     }
 }

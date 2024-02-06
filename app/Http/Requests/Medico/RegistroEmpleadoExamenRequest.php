@@ -13,7 +13,7 @@ class RegistroEmpleadoExamenRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,7 @@ class RegistroEmpleadoExamenRequest extends FormRequest
     public function rules()
     {
         return [
-            'numero_registro' => 'required|string',
+            // 'numero_registro' => 'required|string',
             'observacion' => 'required|string',
             'tipo_proceso_examen' => 'required|string',
             'empleado_id' => 'required|exists:empleados,id',

@@ -16,11 +16,14 @@ return new class extends Migration
     {
         Schema::create('med_registros_empleados_examenes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('numero_registro');
             $table->text('observacion');
             $table->string('tipo_proceso_examen');
+            $table->unsignedInteger('numero_registro');
+
+            // Foreign keys
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
+
             $table->timestamps();
         });
     }

@@ -18,10 +18,11 @@ class ResultadoExamenResource extends JsonResource
             'id' => $this->id,
             'resultado' => $this->resultado,
             'fecha_examen' => $this->fecha_examen,
-            'configuracion_examen' => $this->configuracion_examen_id,
-            'configuracion_examen_info' => $this->configuracion_examen !== null ? $this->configuracion_examen?->nombre_prueba :' ',
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . ' ' . $this->empleado?->apellidos : ' ',
+            'configuracion_examen_campo' => $this->configuracion_examen_campo_id,
+            'detalle_resultado_examen' => $this->detalle_resultado_examen_id,
+            // 'configuracion_examen_info' => $this->configuracion_examen !== null ? $this->configuracion_examen?->nombre_prueba :' ',
+            // 'empleado' => $this->empleado_id,
+            // 'empleado_info' => $this->empleado !== null ? $this->empleado?->nombres . ' ' . $this->empleado?->apellidos : ' ',
         ];
     }
 }
