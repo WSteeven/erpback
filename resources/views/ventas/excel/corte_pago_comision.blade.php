@@ -62,6 +62,11 @@
                             <div align="center"><strong>REPORTE DE {{ $reporte['nombre'] }}</strong></div>
                         </td>
                     </tr>
+                    <tr></tr>
+                    <tr>
+                        <td colspan="5" style="text-align:right"><strong> ESTADO DE PAGO:</strong></td>
+                        <td>{{ $reporte['estado'] }} </td>
+                    </tr>
                 </table>
             </div>
         </tr>
