@@ -44,15 +44,23 @@ class PreocupacionalController extends Controller
             DB::beginTransaction();
             $preocupacional = Preocupacional::create($datos);
             $preocupacional_service = new PreocupacionalService($preocupacional->id);
+            $preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
+            $preocupacional_service->agregarEstiloVida($request->estilos_vida);
+            $preocupacional_service->agregarMedicacion($request->medicaciones);
+            $preocupacional_service->agregarActividadPuestoTrabajo($request->actividades_puestos_trabajos);
+            $preocupacional_service->agregarExamenesExpecificos($request->examenes_especificos);
+            $preocupacional_service->agregarDiagnosticos($request->diagnosticos);
+            $preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
             $preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
                 'antecedentes_quirorgicos' => $request->antecedentes_quirorgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
                 'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
                 'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
             ]));
+            $preocupacional_service->agregarExamenes($request->examenes);
             $empleado = Empleado::find($preocupacional->empleado_id);
             $genero = $empleado?->genero;
-            if($genero === 'F'){
+            if ($genero === 'F') {
                 $preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
                     'menarquia' => $request->menarquia,
                     'ciclos' => $request->ciclos,
@@ -65,27 +73,27 @@ class PreocupacionalController extends Controller
                     'hijos_muertos' => $request->hijos_muertos,
                 ]));
             }
-                $preocupacional_service->insertarDescripcionAntecedenteTrabajo(
-                    new DescripcionAntecedenteTrabajo([
-                        'calificado_iess' => $request->calificado_iess,
-                        'descripcion' => $request->descripcion,
-                        'fecha' => $request->fecha,
-                        'observacion' => $request->observacion,
-                        'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
-                    ])
-                );
-                $preocupacional_service->insertarConstanteVital(new ConstanteVital([
-                    'presion_arterial' => $request->presion_arterial,
-                    'temperatura' => $request->temperatura,
-                    'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
-                    'saturacion_oxigeno' => $request->saturacion_oxigeno,
-                    'frecuencia_respiratoria' => $request->frecuencia_respiratoria,
-                    'peso' => $request->peso,
-                    'estatura' => $request->estatura,
-                    'talla' => $request->talla,
-                    'indice_masa_corporal' => $request->indice_masa_corporal,
-                    'perimetro_abdominal' => $request->perimetro_abdominal,
-                ]));
+            $preocupacional_service->insertarDescripcionAntecedenteTrabajo(
+                new DescripcionAntecedenteTrabajo([
+                    'calificado_iess' => $request->calificado_iess,
+                    'descripcion' => $request->descripcion,
+                    'fecha' => $request->fecha,
+                    'observacion' => $request->observacion,
+                    'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
+                ])
+            );
+            $preocupacional_service->insertarConstanteVital(new ConstanteVital([
+                'presion_arterial' => $request->presion_arterial,
+                'temperatura' => $request->temperatura,
+                'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
+                'saturacion_oxigeno' => $request->saturacion_oxigeno,
+                'frecuencia_respiratoria' => $request->frecuencia_respiratoria,
+                'peso' => $request->peso,
+                'estatura' => $request->estatura,
+                'talla' => $request->talla,
+                'indice_masa_corporal' => $request->indice_masa_corporal,
+                'perimetro_abdominal' => $request->perimetro_abdominal,
+            ]));
             $modelo = new PreocupacionalResource($preocupacional);
             $this->tabla_roles($preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
