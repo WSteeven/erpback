@@ -101,14 +101,11 @@ class GastoRequest extends FormRequest
                 }
                 if (substr_count($this->ruc, '9') < 9) {
                     $validador = new ValidarIdentificacion();
-                    try {
-                        $existeRUC = Http::get('https://srienlinea.sri.gob.ecc/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
 
-                        if (!(($validador->validarCedula($this->ruc)) || ($existeRUC->body() == 'true'))) {
-                            $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
-                        }
-                    } catch (Exception $e) {
-                        throw new Exception('No se puede validar RUC con el servicio del SRI, porfavor intentelo mas tarde.');
+                    $existeRUC = $validador->validarRUCSRI($this->ruc);
+
+                    if (!(($validador->validarCedula($this->ruc)) || $existeRUC)) {
+                        $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
                     }
                 }
             } catch (Exception $e) {

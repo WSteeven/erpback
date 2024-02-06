@@ -3,6 +3,8 @@
 namespace Src\Shared;
 
 use Exception;
+use Illuminate\Support\Facades\Http;
+
 // https://github.com/diaspar/validacion-cedula-ruc-ecuador
 /**
  * MIT License
@@ -60,6 +62,24 @@ class ValidarIdentificacion
 	 * @access protected
 	 */
 	protected $error = '';
+
+	/**
+	 * Función para validar RUC en el SRI
+	 * 
+	 * @param string $ruc El RUC a validar en el SRI
+	 * 
+	 * @return Boolean
+	 */
+	public function validarRUCSRI($ruc)
+	{
+		try {
+			$existeRUC = Http::get('https://srienlinea.sri.gob.ecc/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $ruc);
+		} catch (Exception $e) {
+			throw new Exception('No se puede validar RUC con el servicio del SRI, porfavor intentelo mas tarde.');
+			// throw $e;
+		}
+		return $existeRUC->body() == 'true';
+	}
 
 	/**
 	 * Validar cédula
