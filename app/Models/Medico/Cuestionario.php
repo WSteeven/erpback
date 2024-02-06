@@ -26,5 +26,8 @@ class Cuestionario extends Model implements Auditable
     {
         return $this->belongsTo(Respuesta::class, 'respuesta_id');
     }
+    public function respuestasCuestionariosEmpleados(){
+        return $this->belongsTo(RespuestaCuestionarioEmpleado::class, 'pregunta_id')->with('cuestionario');
+    }
 
 }

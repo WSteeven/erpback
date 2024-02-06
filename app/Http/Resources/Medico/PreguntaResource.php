@@ -18,8 +18,14 @@ class PreguntaResource extends JsonResource
             'id' => $this->id,
             'codigo' => $this->codigo,
             'pregunta' => $this->pregunta,
-            'respuesta' => count($this->respuestaCuestionarioEmpleado) > 0 ? $this->respuestaCuestionarioEmpleado?->respuesta?->id : null,
-            'posibles_respuestas' => count($this->cuestionario) > 0  ? $this->cuestionario?->respuesta : []
+            'respuesta' => $this->obtenerRespuesta( $this->cuestionario),
+            'posibles_respuestas' =>  $this->cuestionario
         ];
+    }
+    public function obtenerRespuesta($cuestionarios){
+        $dobles = array_map(function($cuestionario) {
+            return $cuestionario;
+        }, $cuestionarios);
+        return $dobles;
     }
 }

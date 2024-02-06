@@ -16,10 +16,8 @@ class RespuestaCuestionarioEmpleadoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pregunta' => $this->pregunta_id,
-            'pregunta_info' => $this->pregunta?->pregunta,
-            'respuesta' => $this->respuesta_id,
-            'respuesta_info' => $this->respuesta->respuesta,
+            'cuestionario' => $this->cuestionario_id,
+            'cuestionario_info' => $this->cuestionario,
             'empleado' => $this->empleado_id,
             'empleado_info' => $this->empleado !== null ?$this->empleado->nombres.' '.$this->empleado->apellidos: '',
         ];

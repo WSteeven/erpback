@@ -8,6 +8,8 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
+use Illuminate\Database\Eloquent\Scope;
+
 class Pregunta extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
@@ -18,11 +20,8 @@ class Pregunta extends Model implements Auditable
         'pregunta',
     ];
     private static $whiteListFilter = ['*'];
-     public function cuestionario(){
-        return $this->hasMany(Cuestionario::class,'pregunta_id','id')->with('respuesta');
-     }
-     public function respuestaCuestionarioEmpleado(){
-        return $this->hasMany(RespuestaCuestionarioEmpleado::class,'pregunta_id','id');
-     }
-
+    public function cuestionario()
+    {
+        return $this->hasMany(Cuestionario::class, 'pregunta_id', 'id')->with('respuesta','respuestasCuestionariosEmpleados');
+    }
 }

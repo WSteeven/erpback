@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class RespuestaCuestionarioEmpleadoRequest extends FormRequest
 {
@@ -13,7 +14,7 @@ class RespuestaCuestionarioEmpleadoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,9 +25,14 @@ class RespuestaCuestionarioEmpleadoRequest extends FormRequest
     public function rules()
     {
         return [
-            'pregunta_id'=> 'required|exists:med_preguntas,id',
-            'respuesta_id'=> 'required|exists:med_respuestas,id',
+            'cuestionario_id'=> 'nullable|exists:med_cuestionarios,id',
             'empleado_id'=> 'required|exists:empleados,id',
         ];
+    }
+    protected function prepareForValidation()
+    {
+            $this->merge([
+                'empleado_id' =>  Auth::user()->empleado->id
+            ]);
     }
 }

@@ -36,6 +36,7 @@ use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
+use App\Http\Controllers\Medico\RespuestaCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
 use App\Http\Controllers\Medico\RevisionActualOrganoSistemaController;
 use App\Http\Controllers\Medico\SistemaOrganicoController;
@@ -105,7 +106,8 @@ Route::apiResources(
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
         'cie' => CieController::class,
-        'preguntas' => PreguntaController::class
+        'preguntas' => PreguntaController::class,
+        'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class
     ],
     [
         'parameters' => [
@@ -113,6 +115,7 @@ Route::apiResources(
             'tipos_eval_medicas_retiro' => 'tipo_eval_medica_retiro',
             'tipos_evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
+            'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
         ],
 
     ]

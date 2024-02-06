@@ -15,18 +15,15 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
 
     protected $table = 'med_respuestas_cuestionarios_empleados';
     protected $fillable = [
-        'pregunta_id',
-        'respuesta_id',
+        'cuestionario_id',
         'empleado_id'
     ];
     private static $whiteListFilter = ['*'];
 
-    public function pregunta(){
-        return $this->belongsTo(Pregunta::class, 'pregunta_id');
+    public function cuestionario(){
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
     }
-    public function respuesta(){
-        return $this->belongsTo(Respuesta::class, 'respuesta_id');
-    }
+
     public function empleado(){
         return $this->belongsTo(Empleado::class, 'empleado_id');
     }

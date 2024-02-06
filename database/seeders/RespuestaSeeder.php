@@ -16,72 +16,77 @@ class RespuestaSeeder extends Seeder
     public function run()
     {
         Respuesta::insert([
+            //respuestas1_4a
             [
-                'respuesta' => 'Muy clara',
+                'respuesta' => 'Muy clara',//1
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'Clara',
+                'respuesta' => 'Clara',//2
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Poco clara',
+                'respuesta' => 'Poco clara',//3
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'Nada clara',
+                'respuesta' => 'Nada clara',//4
                 'valor' => 4,
             ],
+            //respuestas1_4b
             [
-                'respuesta' => 'Siempre o casi siempre',
+                'respuesta' => 'Siempre o casi siempre',//5
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'A menudo',
+                'respuesta' => 'A menudo',//6
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'A veces',
+                'respuesta' => 'A veces',//7
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'Nunca o casi nunca',
+                'respuesta' => 'Nunca o casi nunca',//8
                 'valor' => 4,
             ],
+            //respuestas1_5
             [
-                'respuesta' => 'No tengo, no hay otras personas',
+                'respuesta' => 'No tengo, no hay otras personas',//9
                 'valor' => 5,
             ],
+            //respuestas1_5a
             [
-                'respuesta' => 'No trabajo turnos rotativos',
+                'respuesta' => 'No trabajo turnos rotativos',//10
                 'valor' => 5,
             ],
+            //respuestas1_6
             [
-                'respuesta' => 'No hay información',
+                'respuesta' => 'Puede decidir',//11
                 'valor' => 1,
             ],
             [
-                'respuesta' => 'Insuficiente',
+                'respuesta' => 'Se me consulta',//12
                 'valor' => 2,
             ],
             [
-                'respuesta' => 'Es adecuada',
+                'respuesta' => 'Solo recibo informacion',//13
                 'valor' => 3,
             ],
             [
-                'respuesta' => 'Puede decidir',
+                'respuesta' => 'Ninguna participacion',//14
+                'valor' => 4,
+            ],            [
+                'respuesta' => 'No interviene',//15
                 'valor' => 1,
-            ],
-            [
-                'respuesta' => 'Se me consulta',
+            ],            [
+                'respuesta' => 'Insuficiuente',//16
                 'valor' => 2,
-            ],
-            [
-                'respuesta' => 'Solo recibo informacion',
+            ],            [
+                'respuesta' => 'Adecuada',//17
                 'valor' => 3,
-            ],
-            [
-                'respuesta' => 'Ninguna participacion',
+            ],            [
+                'respuesta' => 'Excesiva',//18
                 'valor' => 4,
             ],
         ]);

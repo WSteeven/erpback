@@ -15,10 +15,8 @@ return new class extends Migration
     {
         Schema::create('med_respuestas_cuestionarios_empleados', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('pregunta_id');
-            $table->foreign('pregunta_id')->on('med_preguntas')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->unsignedBigInteger('respuesta_id');
-            $table->foreign('respuesta_id')->on('med_respuestas')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('cuestionario_id');
+            $table->foreign('cuestionario_id')->on('med_cuestionarios')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->on('empleados')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
