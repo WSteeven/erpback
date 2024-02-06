@@ -222,4 +222,14 @@ class PagoComisionService
         // Log::channel('testing')->info('Log', ['datos empaquetados', $results]);
         return $results;
     }
+    public static function actualizarEstadoDetallesCortePagoComision(CortePagoComision $corte){
+        try {
+            foreach ($corte->detalles()->get() as $detalle){
+                $detalle->pagado=true;
+                $detalle->save();
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

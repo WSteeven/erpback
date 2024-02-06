@@ -16,6 +16,7 @@ use App\Http\Controllers\Ventas\NovedadVentaController;
 use App\Http\Controllers\Ventas\PagoComisionController;
 use App\Http\Controllers\Ventas\PlanController;
 use App\Http\Controllers\Ventas\ProductoVentaController;
+use App\Http\Controllers\Ventas\RetencionChargebackController;
 use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
@@ -46,6 +47,7 @@ Route::apiResources(
         'clientes-claro' => ClienteClaroController::class,
         'escenario-venta-jp' => EscenarioVentaJPController::class,
         'cortes-pagos-comisiones' => CortePagoComisionController::class,
+        'retenciones-chargebacks' => RetencionChargebackController::class,
     ],
     [
         'parameters' => [
@@ -57,6 +59,7 @@ Route::apiResources(
             'novedades-ventas' => 'venta',
             'pagos-comisiones' => 'pago',
             'cortes-pagos-comisiones' => 'corte',
+            'retenciones-chargebacks' => 'retencion',
         ],
     ]
 );
@@ -75,6 +78,8 @@ Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::clas
 Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
 Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
 Route::get('obtener-fechas-disponbles-cortes', [CortePagoComisionController::class, 'obtenerFechasDisponblesCortes']);
+Route::get('cortes-pagos-comisiones/marcar-completada/{corte}', [CortePagoComisionController::class, 'marcarCompletado']);
+Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionChargebackController::class, 'marcarPagada']);
 
 
 //listar archivos

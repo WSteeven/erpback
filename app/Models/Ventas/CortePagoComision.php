@@ -21,6 +21,7 @@ class CortePagoComision extends Model implements Auditable
         'fecha_inicio',
         'fecha_fin',
         'estado',
+        'causa_anulacion',
     ];
 
     const PENDIENTE = 'PENDIENTE';

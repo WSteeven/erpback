@@ -127,4 +127,29 @@ class CortePagoComisionController extends Controller
         }
         return response()->json(compact('results'));
     }
+
+    public function marcarCompletado(CortePagoComision $corte)
+    {
+        try {
+            switch ($corte->estado) {
+                case CortePagoComision::PENDIENTE:
+                    $corte->estado = CortePagoComision::COMPLETA;
+                    $corte->save();
+                    //actualizamos el estado de los detalles de corte de cada empleado
+                    $this->servicio->actualizarEstadoDetallesCortePagoComision($corte);
+                    // $corte->detalles()->update(['pagado' => true]);
+                    $modelo = new CortePagoComisionResource($corte->refresh());
+                    $mensaje = 'El corte de pago de comisión ha sido actualizado con éxito';
+                    return response()->json(compact('modelo', 'mensaje'));
+                case CortePagoComision::COMPLETA:
+                    throw new Exception('Este corte ya ha sido marcado como completado previamente!');
+                case CortePagoComision::ANULADA:
+                    throw new Exception('No se puede marcar como completado un corte anulado!');
+                default:
+                    throw new Exception('Ha ocurrido un error no controlado');
+            }
+        } catch (\Throwable $e) {
+            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+        }
+    }
 }
