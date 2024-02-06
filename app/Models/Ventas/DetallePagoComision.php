@@ -50,7 +50,7 @@ class DetallePagoComision extends Model implements Auditable
                 $query->whereBetween('fecha_activacion', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))])
                     ->orWhereBetween('fecha_pago_primer_mes', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))]);
             })->where('estado_activacion', Venta::ACTIVADO)->get();
-            Log::channel('testing')->info('Log', ['ventas', $ventas]);
+            // Log::channel('testing')->info('Log', ['ventas', $ventas]);
             // Log::channel('testing')->info('Log', ['total_ventas',  $ventas->count()]);
             // Log::channel('testing')->info('Log', ['valor',  $ventas->sum('comision_vendedor')]);
             foreach ($ventas->unique('vendedor_id')->pluck('vendedor_id') as $v) {
@@ -72,6 +72,7 @@ class DetallePagoComision extends Model implements Auditable
                     'chargeback' => $ventas_vendedor->sum('chargeback'),
                     'ventas' => $ventas_vendedor->count(),
                     'valor' => $alcanza_umbral ? $ventas_vendedor->sum('comision_vendedor') * .45 : 0,
+                    'pagado'=> !$alcanza_umbral
                 ]);
                 Log::channel('testing')->info('Log', ['detalle creado',  $detalle]);
                 if ($alcanza_umbral) {

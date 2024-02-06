@@ -12,7 +12,7 @@ use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class CortePagoComisionExport implements FromView, ShouldAutoSize, WithColumnWidths
+class CortePagoComisionExport extends DefaultValueBinder implements FromView, ShouldAutoSize, WithColumnWidths
 {
     protected $reporte;
     protected $config;
@@ -23,20 +23,22 @@ class CortePagoComisionExport implements FromView, ShouldAutoSize, WithColumnWid
         $this->config = ConfiguracionGeneral::first();
     }
 
-    // function bindValue(Cell $cell, $value)
-    // {
-    //     if (is_numeric($value) && $value > 9999) {
-    //         $cell->setValueExplicit($value, DataType::TYPE_STRING);
+    function bindValue(Cell $cell, $value)
+    {
+        if (is_numeric($value) && $value > 9999) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
 
-    //         return true;
-    //     }
-    //     return parent::bindValue($cell, $value);
-    // }
+            return true;
+        }
+        return parent::bindValue($cell, $value);
+    }
 
     public function view(): View
     {
         try {
-            return view('ventas.excel.corte_pago_comision', ['reporte' => $this->reporte, 'config' => $this->config]);
+            $reporte = $this->reporte;
+            $config = $this->config;
+            return view('ventas.excel.corte_pago_comision', compact('reporte', 'config'));
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -46,7 +48,7 @@ class CortePagoComisionExport implements FromView, ShouldAutoSize, WithColumnWid
     {
         return [
             'A' => 20,
-            'B' => 20,
+            'B' => 15,
         ];
     }
 }

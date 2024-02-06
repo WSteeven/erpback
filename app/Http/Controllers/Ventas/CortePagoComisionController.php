@@ -110,11 +110,8 @@ class CortePagoComisionController extends Controller
     public function imprimirExcel(CortePagoComision $corte)
     {
         try {
-            $modelo = new CortePagoComisionResource($corte);
-            $reporte = $modelo->resolve();
-            Log::channel('testing')->info('Log', ["corte resource", $reporte]);
+            $reporte = $this->servicio->empaquetarDatosCortePagoComision($corte);
             return Excel::download(new CortePagoComisionExport($reporte), 'reporte.xlsx');
-            // return Excel::download(new CortePagoComisionExport($reporte, $config), 'reporte.xlsx');
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ["error", $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages(['error' => $e->getMessage()]);

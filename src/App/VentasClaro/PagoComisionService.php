@@ -2,6 +2,7 @@
 
 namespace Src\App\VentasClaro;
 
+use App\Http\Resources\Ventas\CortePagoComisionResource;
 use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\Comision;
 use App\Models\Ventas\CortePagoComision;
@@ -165,7 +166,7 @@ class PagoComisionService
         $fechasArray = [];
 
         while ($fecha_inicio->lessThanOrEqualTo(Carbon::now())) {
-            $fechasArray[] = $fecha_inicio->format('Y/m/d');//->toDateString();
+            $fechasArray[] = $fecha_inicio->format('Y/m/d'); //->toDateString();
             $fecha_inicio->addDay();
         }
 
@@ -195,5 +196,30 @@ class PagoComisionService
     {
         $fecha = Carbon::parse($fecha);
         return $fecha->between(Carbon::parse($rango['fecha_inicio']), Carbon::parse($rango['fecha_fin']), true);
+    }
+
+    public static function empaquetarDatosCortePagoComision(CortePagoComision $corte)
+    {
+        $results = [];
+        $empleados = [];
+        $modelo = new CortePagoComisionResource($corte);
+        $modelo = $modelo->resolve();
+        foreach ($corte->detalles()->get() as $i => $detalle) {
+            $row['fecha_inicio'] = $detalle->fecha_inicio;
+            $row['fecha_fin'] = $detalle->fecha_fin;
+            $row['corte_info'] = $detalle->corte->nombre;
+            $row['vendedor_info'] = $detalle->vendedor->empleado->nombres . ' ' . $detalle->vendedor->empleado->apellidos;
+            $row['chargeback'] = $detalle->chargeback;
+            $row['ventas'] = $detalle->ventas;
+            $row['valor'] = $detalle->valor;
+            $row['pagado'] = $detalle->pagado;
+            $empleados[$i] = $row;
+        }
+        // Log::channel('testing')->info('Log', ['empleados', $empleados]);
+        $modelo['listadoEmpleados'] = $empleados;
+
+        $results = $modelo;
+        // Log::channel('testing')->info('Log', ['datos empaquetados', $results]);
+        return $results;
     }
 }
