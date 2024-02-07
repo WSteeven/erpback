@@ -63,10 +63,9 @@ class DetallePedidoProducto extends Pivot implements Auditable
         $pedido = Pedido::find($detallePedidoProducto->pedido_id);
         $detallesSinDespachar = $pedido->detalles()->where('despachado', 0)->count();
 
-        if ($resultados[0]->cantidad > 0) {
-            $pedido->update(['estado_id' => EstadosTransacciones::PARCIAL]);
-        } else {
-            if ($detallesSinDespachar === $pedido->detalles()->count()) $pedido->update(['estado_id' => EstadosTransacciones::PENDIENTE]);
+        if ($detallesSinDespachar === $pedido->detalles()->count()) $pedido->update(['estado_id' => EstadosTransacciones::PENDIENTE]);
+        else {
+            if ($resultados[0]->cantidad > 0) $pedido->update(['estado_id' => EstadosTransacciones::PARCIAL]);
             else $pedido->update(['estado_id' => EstadosTransacciones::COMPLETA]);
         }
     }
