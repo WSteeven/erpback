@@ -53,31 +53,31 @@ class Gasto extends Model implements Auditable
         'detalle_estado'
     ];
 
-    private static $whiteListFilter = [
-        'factura',
-        'fecha_viat',
-        'id_tarea',
-        'subdetalle',
-        'id_proyecto',
-        'ruc',
-        'factura',
-        'aut_especial',
-        'detalle',
-        'cantidad',
-        'valor_u',
-        'total',
-        'comprobante',
-        'comprobante2',
-        'observacion',
-        'id_usuario',
-        'estado',
-        'detalle_estado',
-        'usuario',
-        'fecha_inicio',
-        'fecha_fin',
-        'ciudad',
-        'id_lugar'
-    ];
+    private static $whiteListFilter = ['*'];
+        // 'factura',
+        // 'fecha_viat',
+        // 'id_tarea',
+        // 'subdetalle',
+        // 'id_proyecto',
+        // 'ruc',
+        // 'factura',
+        // 'aut_especial',
+        // 'detalle',
+        // 'cantidad',
+        // 'valor_u',
+        // 'total',
+        // 'comprobante',
+        // 'comprobante2',
+        // 'observacion',
+        // 'id_usuario',
+        // 'estado',
+        // 'detalle_estado',
+        // 'usuario',
+        // 'fecha_inicio',
+        // 'fecha_fin',
+        // 'ciudad',
+        // 'id_lugar'
+    // ];
 
     public function detalle_info()
     {

@@ -60,11 +60,13 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        $fechaActual = Carbon::now();
+        $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d'); //Se consultara los gastos cuya fecha sea posterior a los ultimos 6 meses
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
@@ -561,7 +563,6 @@ class GastoController extends Controller
     {
         try {
             Log::channel('testing')->info('Log', ['Request', $request->all()]);
-
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
