@@ -2,6 +2,7 @@
 
 use App\Exports\RegistroTendidoExport;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Medico\CuestionarioController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PrestamoTemporalController;
 use App\Http\Controllers\TransaccionBodegaIngresoController;

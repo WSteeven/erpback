@@ -21,7 +21,7 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
     private static $whiteListFilter = ['*'];
 
     public function cuestionario(){
-        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_id')->with('pregunta');
     }
 
     public function empleado(){

@@ -12,6 +12,7 @@ use App\Http\Controllers\Medico\CieController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
+use App\Http\Controllers\Medico\CuestionarioController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
@@ -124,6 +125,7 @@ Route::apiResources(
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
+    Route::get('reporte-cuestionario', [CuestionarioController::class, 'ReportesCuestionarios']);
 });
 
 /*************************

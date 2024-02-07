@@ -5,7 +5,7 @@ namespace App\Http\Resources\Medico;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
-class PreguntaResource extends JsonResource
+class PreguntaVisualizarResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -19,8 +19,15 @@ class PreguntaResource extends JsonResource
             'id' => $this->id,
             'codigo' => $this->codigo,
             'pregunta' => $this->pregunta,
-            'respuesta' =>null,
+            'respuesta' =>$this->obtenerRespuesta($this->cuestionario->toArray()),
             'posibles_respuestas' =>  $this->cuestionario
         ];
+    }
+    public function obtenerRespuesta(array $cuestionarios)
+    {
+        $respuesta = array_map(function ($cuestionario) {
+            return $cuestionario['respuestas_cuestionarios_empleados'] !== null ?$cuestionario['respuestas_cuestionarios_empleados']['cuestionario_id']:null;
+        }, $cuestionarios);
+        return $respuesta[0];
     }
 }
