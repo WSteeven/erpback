@@ -242,7 +242,7 @@ class VentaController extends Controller
             $fechaConvertida = "$nombreMes DEL $anio";
             $ventas = Venta::whereMonth('fecha_activacion', $mes)->whereYear('fecha_activacion', $anio)->with('vendedor', 'producto', 'cliente')->get();
             Log::channel('testing')->info('Log', [compact('ventas')]);
-            $reportes = Venta::empaquetarVenta($ventas);
+            $reportes = Venta::empaquetarVentas($ventas);
             $nombre_reporte = 'reporte_valores_cobrar';
             $config = ConfiguracionGeneral::first();
             $export_excel = new ReporteVentasExport(compact('reportes', 'config', 'fechaConvertida'));

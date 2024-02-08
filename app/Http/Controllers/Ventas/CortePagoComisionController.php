@@ -9,6 +9,7 @@ use App\Http\Resources\Ventas\CortePagoComisionResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Ventas\CortePagoComision;
 use App\Models\Ventas\DetallePagoComision;
+use App\Models\Ventas\RetencionChargeback;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +34,7 @@ class CortePagoComisionController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = CortePagoComision::ignoreRequest(['campos'])->filter()->get();
+        $results = CortePagoComision::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = CortePagoComisionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -53,7 +54,7 @@ class CortePagoComisionController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollback();
-            throw ValidationException::withMessages(['error' => $e->getMessage()]);
+            throw ValidationException::withMessages(['error' => $e->getLine() . '.' . $e->getMessage()]);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -98,6 +99,10 @@ class CortePagoComisionController extends Controller
             $corte->causa_anulacion = $request->causa_anulacion;
             $corte->estado = CortePagoComision::ANULADA;
             $corte->save();
+
+            //Eliminar las retenciones de chargebacks realizadas ya que se crearan nuevas cuando se realice un nuevo corte
+            RetencionChargeback::eliminarRetencionesPorAnulacionCorte($corte->created_at);
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -111,7 +116,8 @@ class CortePagoComisionController extends Controller
     {
         try {
             $reporte = $this->servicio->empaquetarDatosCortePagoComision($corte);
-            return Excel::download(new CortePagoComisionExport($reporte), 'reporte.xlsx');
+            $ventas = $this->servicio->empaquetarVentasCortePagoComision($corte);
+            return Excel::download(new CortePagoComisionExport($reporte, $ventas), 'reporte.xlsx');
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ["error", $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages(['error' => $e->getMessage()]);
@@ -123,6 +129,7 @@ class CortePagoComisionController extends Controller
         try {
             $results = $this->servicio->fechasDisponiblesCorte();
         } catch (\Throwable $e) {
+            Log::channel('testing')->info('Log', ["error obtenerFechasDisponblesCortes", $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages(['error' => $e->getMessage()]);
         }
         return response()->json(compact('results'));

@@ -20,7 +20,8 @@ class Venta  extends Model implements Auditable
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_ventas';
     protected $fillable = [
-        'orden_id', 'orden_interna',
+        'orden_id',
+        'orden_interna',
         'supervisor_id',
         'vendedor_id',
         'producto_id',
@@ -38,8 +39,8 @@ class Venta  extends Model implements Auditable
         'comision_pagada',
     ];
 
-    const ACTIVADO= 'ACTIVADO';
-    const APROBADO= 'APROBADO';
+    const ACTIVADO = 'ACTIVADO';
+    const APROBADO = 'APROBADO';
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',

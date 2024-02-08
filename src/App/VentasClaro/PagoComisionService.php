@@ -3,6 +3,7 @@
 namespace Src\App\VentasClaro;
 
 use App\Http\Resources\Ventas\CortePagoComisionResource;
+use App\Http\Resources\Ventas\VentaResource;
 use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\Comision;
 use App\Models\Ventas\CortePagoComision;
@@ -157,27 +158,37 @@ class PagoComisionService
      */
     public static function fechasDisponiblesCorte()
     {
-        $cortes = CortePagoComision::where('estado', '<>', CortePagoComision::ANULADA)->get(['fecha_inicio', 'fecha_fin']);
-        $ventas = Venta::all();
-        $fechas_ventas = $ventas->pluck('fecha_activacion')->toArray();
+        try {
+            $cortes = CortePagoComision::where('estado', '<>', CortePagoComision::ANULADA)->get(['fecha_inicio', 'fecha_fin']);
+            $ventas = Venta::whereNotNull('fecha_activacion')->get('fecha_activacion');
 
-        $fecha_inicio = Carbon::parse(min($fechas_ventas));
+            //se hace un array con todos los campos fecha_activacion
+            $fechas_ventas = $ventas->pluck('fecha_activacion')->toArray();
 
-        $fechasArray = [];
+            //se toma la fecha mas pequeña para completar el array de fechas disponibles hasta la actual
+            $fecha_inicio = Carbon::parse(min($fechas_ventas));
 
-        while ($fecha_inicio->lessThanOrEqualTo(Carbon::now())) {
-            $fechasArray[] = $fecha_inicio->format('Y/m/d'); //->toDateString();
-            $fecha_inicio->addDay();
-        }
+            $fechasArray = [];
 
-        $fechasFiltradas = array_filter($fechasArray, function ($fecha) use ($cortes) {
-            foreach ($cortes as $corte) {
-                if (self::fechaEnRango($fecha, $corte)) return false;
+            // se crea un array de fechas desde la inicial hasta la actual
+            while ($fecha_inicio->lessThanOrEqualTo(Carbon::now())) {
+                $fechasArray[] = $fecha_inicio->format('Y/m/d'); //->toDateString();
+                $fecha_inicio->addDay();
             }
-            return true;
-        });
 
-        return $fechasFiltradas;
+            // se filtran los rangos de fechas de cortes para que no esten disponibles para seleccionar en el front
+            $fechasFiltradas = array_filter($fechasArray, function ($fecha) use ($cortes) {
+                foreach ($cortes as $corte) {
+                    if (self::fechaEnRango($fecha, $corte)) return false;
+                }
+                return true;
+            });
+
+            return $fechasFiltradas;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ["error fechasDisponiblesCorte", $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
     }
 
     /**
@@ -189,13 +200,18 @@ class PagoComisionService
      * `fecha_inicio` y `fecha_fin`. Estas claves representan las fechas de inicio y finalización de un
      * rango.
      * 
-     * @return bool un valor booleano que indica si la fecha dada se encuentra dentro del rango
+     * @return Boolean un valor booleano que indica si la fecha dada se encuentra dentro del rango
      * especificado.
      */
     private static function fechaEnRango($fecha, $rango)
     {
-        $fecha = Carbon::parse($fecha);
-        return $fecha->between(Carbon::parse($rango['fecha_inicio']), Carbon::parse($rango['fecha_fin']), true);
+        try {
+            $fecha = Carbon::parse($fecha);
+            return $fecha->between(Carbon::parse($rango['fecha_inicio']), Carbon::parse($rango['fecha_fin']), true);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ["error fechaEnRango", $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
     }
 
     public static function empaquetarDatosCortePagoComision(CortePagoComision $corte)
@@ -203,7 +219,7 @@ class PagoComisionService
         $results = [];
         $empleados = [];
         $modelo = new CortePagoComisionResource($corte);
-        $modelo = $modelo->resolve();
+        $results = $modelo->resolve();
         foreach ($corte->detalles()->get() as $i => $detalle) {
             $row['fecha_inicio'] = $detalle->fecha_inicio;
             $row['fecha_fin'] = $detalle->fecha_fin;
@@ -215,17 +231,76 @@ class PagoComisionService
             $row['pagado'] = $detalle->pagado;
             $empleados[$i] = $row;
         }
-        // Log::channel('testing')->info('Log', ['empleados', $empleados]);
-        $modelo['listadoEmpleados'] = $empleados;
+        $results['listadoEmpleados'] = $empleados;
 
-        $results = $modelo;
-        // Log::channel('testing')->info('Log', ['datos empaquetados', $results]);
         return $results;
     }
-    public static function actualizarEstadoDetallesCortePagoComision(CortePagoComision $corte){
+    public static function empaquetarVentasCortePagoComision(CortePagoComision $corte)
+    {
         try {
-            foreach ($corte->detalles()->get() as $detalle){
-                $detalle->pagado=true;
+            $results = [];
+            $count = 0;
+            $ventas = Venta::where(function ($query) use ($corte) {
+                $query->whereBetween('fecha_activacion', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))])
+                    ->orWhereBetween('fecha_pago_primer_mes', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))]);
+            })->where('estado_activacion', Venta::ACTIVADO)->get();
+            // Log::channel('testing')->info('Log', ['ventas', $ventas]);
+            $ventas_vendedores_ids = $ventas->unique('vendedor_id')->pluck('vendedor_id');
+            foreach ($ventas_vendedores_ids as $v) {
+                $vendedor = Vendedor::find($v);
+                [$ventas_con_comision, $ventas_sin_comision] = Vendedor::obtenerVentasConComision($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
+                if (!is_null($ventas_sin_comision))
+                    foreach ($ventas_sin_comision as $index => $venta) {
+                        $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
+                        $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
+                        $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
+                        $row['codigo_orden'] =  $venta->orden_id;
+                        $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
+                        $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
+                        $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
+                        $row['venta'] = 1;
+                        $row['fecha_ingreso'] = $venta->created_at;
+                        $row['fecha_activacion'] =  $venta->fecha_activacion;
+                        $row['plan'] = $venta->producto->plan->nombre;
+                        $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
+                        $row['forma_pago'] = $venta->forma_pago;
+                        $row['orden_interna'] = $venta->orden_interna;
+                        $row['comisiona'] = false;
+                        $results[$count] = $row;
+                        $count++;
+                    }
+                foreach ($ventas_con_comision as $index => $venta) {
+                    $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
+                    $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
+                    $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
+                    $row['codigo_orden'] =  $venta->orden_id;
+                    $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
+                    $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
+                    $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
+                    $row['venta'] = 1;
+                    $row['fecha_ingreso'] = $venta->created_at;
+                    $row['fecha_activacion'] =  $venta->fecha_activacion;
+                    $row['plan'] = $venta->producto->plan->nombre;
+                    $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
+                    $row['forma_pago'] = $venta->forma_pago;
+                    $row['orden_interna'] = $venta->orden_interna;
+                    $row['comisiona'] = true;
+                    $results[$count] = $row;
+                    $count++;
+                }
+                // Log::channel('testing')->info('Log', ['ventas empaquetadas, resultado', $results]);
+            }
+            return $results;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en empaquetarVentasCortePagoComision', $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
+    }
+    public static function actualizarEstadoDetallesCortePagoComision(CortePagoComision $corte)
+    {
+        try {
+            foreach ($corte->detalles()->get() as $detalle) {
+                $detalle->pagado = true;
                 $detalle->save();
             }
         } catch (\Throwable $th) {

@@ -77,7 +77,7 @@ Route::post('vendedores/desactivar/{vendedor}', [VendedorController::class, 'des
 Route::post('clientes-claro/desactivar/{cliente}', [ClienteClaroController::class, 'desactivar']);
 Route::post('ventas/suspender/{venta}', [VentaController::class, 'desactivar']);
 Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPagado']);
-Route::get('obtener-fechas-disponbles-cortes', [CortePagoComisionController::class, 'obtenerFechasDisponblesCortes']);
+Route::get('obtener-fechas-disponibles-cortes', [CortePagoComisionController::class, 'obtenerFechasDisponblesCortes']);
 Route::get('cortes-pagos-comisiones/marcar-completada/{corte}', [CortePagoComisionController::class, 'marcarCompletado']);
 Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionChargebackController::class, 'marcarPagada']);
 

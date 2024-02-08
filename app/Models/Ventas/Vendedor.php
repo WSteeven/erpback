@@ -10,6 +10,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Support\Facades\Log;
 
 class Vendedor extends Model implements Auditable
 {
@@ -82,13 +83,48 @@ class Vendedor extends Model implements Auditable
      */
     public static function verificarVentasMensuales(Vendedor $vendedor, $fecha)
     {
-        $fecha_maxima  = Carbon::parse($fecha);
-        $ventas = Venta::whereMonth('fecha_activacion', $fecha_maxima->month)
-            ->where('fecha_activacion', '<=', $fecha_maxima)
-            ->where('vendedor_id', $vendedor->empleado_id)
-            ->where('estado_activacion', Venta::ACTIVADO)
-            ->get();
-        
-        return $ventas->count() > $vendedor->modalidad->umbral_minimo;
+        try {
+            $fecha_maxima  = Carbon::parse($fecha);
+            $ventas = Venta::whereMonth('fecha_activacion', $fecha_maxima->month)
+                ->where('fecha_activacion', '<=', $fecha_maxima)
+                ->where('vendedor_id', $vendedor->empleado_id)
+                ->where('estado_activacion', Venta::ACTIVADO)
+                ->get();
+
+            return $ventas->count() > $vendedor->modalidad->umbral_minimo;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['erorr en verificar ventas mensuales', $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
+    }
+
+
+    public static function obtenerVentasConComision(Vendedor $vendedor, $fecha_inicio, $fecha_fin)
+    {
+        try {
+            $total_comisiones = 0;
+            $fecha_maxima  = Carbon::parse($fecha_fin);
+            $ventas = Venta::whereMonth('fecha_activacion', $fecha_maxima->month)
+                ->where('fecha_activacion', '<=', $fecha_maxima)
+                ->where('vendedor_id', $vendedor->empleado_id)
+                ->where('estado_activacion', Venta::ACTIVADO)
+                ->orderBy('fecha_activacion')->get();
+            Log::channel('testing')->info('Log', ['todas las ventas del vendedor?', $ventas]);
+            $ventasSinComision = $ventas->count() > $vendedor->modalidad->umbral_minimo ?  $ventas->take($vendedor->modalidad->umbral_minimo) : $ventas;
+            if (!empty($ventasSinComision)) $ventasSinComision = $ventasSinComision->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin]);
+            $ventasConComision = $ventas->skip($vendedor->modalidad->umbral_minimo)->whereBetween('fecha_activacion', [$fecha_inicio, $fecha_fin]);
+            Log::channel('testing')->info('Log', ['todas las ventas del vendedor SIN comision?', $ventasSinComision]);
+            Log::channel('testing')->info('Log', ['todas las ventas del vendedor con comision?', $ventasConComision]);
+            Log::channel('testing')->info('Log', ['estadisticas de ventas del vendedor?', $ventas->count(), count($ventasSinComision), $ventasConComision->count()]);
+            foreach ($ventasConComision as $index => $venta) {
+                [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
+                $total_comisiones += $comision_valor;
+            }
+
+            return [$ventasConComision, $ventasSinComision, $total_comisiones];
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['erorr en obtenerVentasConComision', $th->getLine(), $th->getMessage()]);
+            throw $th;
+        }
     }
 }

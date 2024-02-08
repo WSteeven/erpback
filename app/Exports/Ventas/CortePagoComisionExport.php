@@ -8,37 +8,79 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
-class CortePagoComisionExport extends DefaultValueBinder implements FromView, ShouldAutoSize, WithColumnWidths
+class CortePagoComisionExport implements WithMultipleSheets
+{
+    protected $reporte;
+    protected $ventas;
+    protected $config;
+
+    function __construct($reporte, $ventas)
+    {
+        $this->reporte = $reporte;
+        $this->ventas = $ventas;
+        $this->config = ConfiguracionGeneral::first();
+    }
+
+    public function sheets(): array
+    {
+        $sheets = [];
+        $sheets[1] = new CortePagosComisionExport($this->reporte, $this->config);
+        $sheets[2] = new VentasCorteComisionExport($this->ventas, $this->config);
+
+        return $sheets;
+    }
+}
+class CortePagosComisionExport extends DefaultValueBinder implements FromView, ShouldAutoSize, WithColumnWidths
 {
     protected $reporte;
     protected $config;
 
-    function __construct($reporte)
+    public function __construct($proveedores, $configuracion)
     {
-        $this->reporte = $reporte;
-        $this->config = ConfiguracionGeneral::first();
+        $this->reporte = $proveedores;
+        $this->config = $configuracion;
     }
-
-    function bindValue(Cell $cell, $value)
-    {
-        if (is_numeric($value) && $value > 9999) {
-            $cell->setValueExplicit($value, DataType::TYPE_STRING);
-
-            return true;
-        }
-        return parent::bindValue($cell, $value);
-    }
-
     public function view(): View
     {
         try {
             $reporte = $this->reporte;
             $config = $this->config;
             return view('ventas.excel.corte_pago_comision', compact('reporte', 'config'));
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 20,
+            'B' => 15,
+        ];
+    }
+}
+
+class VentasCorteComisionExport extends DefaultValueBinder implements FromView, ShouldAutoSize, WithColumnWidths
+{
+    protected $reporte;
+    protected $config;
+
+    public function __construct($ventas, $configuracion)
+    {
+        $this->reporte = $ventas;
+        $this->config = $configuracion;
+    }
+    public function view(): View
+    {
+        try {
+            $reporte = $this->reporte;
+            $config = $this->config;
+            return view('ventas.excel.corte_ventas_comision', compact('reporte', 'config'));
         } catch (\Throwable $th) {
             throw $th;
         }
