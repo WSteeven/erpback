@@ -293,6 +293,7 @@ class SaldoGrupoController extends Controller
                 'estado',
                 'proyecto',
                 'ciudad',
+                'subdetalle'
             ])
                 ->filter($request->all())
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
