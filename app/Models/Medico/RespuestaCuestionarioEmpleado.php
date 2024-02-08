@@ -41,7 +41,9 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
             $row['empleado'] = $result->apellidos .' '.  $result->nombres;
             $row['ciudad'] = $result->canton->canton;
             $row['provincia'] = $result->canton->provincia->provincia;
-            $row['cuestionario'] = RespuestaCuestionarioEmpleado::obtenerCuestionario($result->id);
+            $cuestionario = RespuestaCuestionarioEmpleado::obtenerCuestionario($result->id);
+            $row['fecha_creacion'] = count($cuestionario)>0?Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d-m-Y H:i:s'):'';
+            $row['cuestionario'] = $cuestionario;
             $row['area'] =  $result->area->nombre;
             $row['nivel_academico'] =$result->nivel_academico;
             $row['edad'] =Carbon::now()->diffInYears($result->fecha_nacimiento).' AÑOS';
@@ -57,7 +59,7 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
         if ( $respuesta_cuestionario) {
             $cuestionarios = array_map(function ($cuestionario) {
                 $respuesta =Respuesta::find($cuestionario['cuestionario']['respuesta_id']);
-                $new_cuestionario = ["pregunta_id" => $cuestionario['cuestionario']['pregunta_id'],'respuesta'=>$respuesta];
+                $new_cuestionario = ["pregunta_id" => $cuestionario['cuestionario']['pregunta_id'],'respuesta'=>$respuesta,'fecha_creacion'=>$cuestionario['created_at']];
                 return $new_cuestionario;
             }, $respuesta_cuestionario->toArray());
             return $cuestionarios;

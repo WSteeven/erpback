@@ -12,6 +12,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>FECHA DE CREACIÓN</th>
                 <th>NOMBRES Y APELLIDOS</th>
                 <th>PROVINCIA</th>
                 <th>CIUDAD</th>
@@ -28,6 +29,7 @@
         <tbody>
             @foreach ($reportes_empaquetado as $reporte_empaquetado)
                 <tr>
+                    <td>{{ $reporte_empaquetado['fecha_creacion'] }}</td>
                     <td>{{ $reporte_empaquetado['empleado'] }}</td>
                     <td>{{ $reporte_empaquetado['provincia'] }}</td>
                     <td>{{ $reporte_empaquetado['ciudad'] }}</td>

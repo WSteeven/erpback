@@ -9,6 +9,7 @@ use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
 use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\CieController;
+use App\Http\Controllers\Medico\ConfiguracionCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
@@ -108,7 +109,8 @@ Route::apiResources(
         'tipos-vacunas' => TipoVacunaController::class,
         'cie' => CieController::class,
         'preguntas' => PreguntaController::class,
-        'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class
+        'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
+        'configuracion-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
     ],
     [
         'parameters' => [
