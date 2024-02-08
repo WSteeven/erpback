@@ -9,6 +9,7 @@ use App\Http\Resources\Medico\CuestionarioResource;
 use App\Models\Empleado;
 use App\Models\Medico\Cuestionario;
 use App\Models\Medico\Pregunta;
+use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -68,16 +69,18 @@ class CuestionarioController extends Controller
     public function ReportesCuestionarios(Request $request){
         try {
             $results = [];
-            $results = Empleado::where('id', '>', 2)
+            $empleados = Empleado::where('id', '>', 2)
             ->where('estado', true)
             ->where('esta_en_rol_pago', true)
             ->where('salario', '!=', 0)
             ->orderBy('apellidos','asc')
+            ->with('canton','area')
             ->get();
-            $results = CuestionarioEmpleadoResource::collection($results);
+            $results = CuestionarioEmpleadoResource::collection($empleados);
             if($request->imprimir){
-                $preguntas = Pregunta::all(['id','pregunta']);
-                $reporte = compact('preguntas','results');
+                $preguntas = Pregunta::all(['id','pregunta','codigo']);
+                $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
+                $reporte = compact('preguntas','reportes_empaquetado');
                 return CuestionarioPisicosocialService::imprimir_reporte($reporte);
             }
             return response()->json(compact('results'));

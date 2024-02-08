@@ -23,8 +23,8 @@ class CuestionarioEmpleadoResource extends JsonResource
         return [
             'id' => $this->id,
             'empleado' => $this->apellidos . ' ' . $this->nombres,
+            'empleado_info' => $this->apellidos . ' ' . $this->nombres,
             'repuesta' => $this->respuesta,
-            'cuestionario' => $this->obtenerCuestionario($this->id),
             'finalizado' => $this->tieneCuestionario($this->id),
             'preguntas' => $this->obtenerPreguntas()
         ];

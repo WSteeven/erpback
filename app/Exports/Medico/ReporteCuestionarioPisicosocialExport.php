@@ -23,7 +23,7 @@ class ReporteCuestionarioPisicosocialExport implements FromView,ShouldAutoSize,W
     public function columnWidths(): array
     {
         return [
-            'A' => 5,
+            'A' => 42,
             'B' => 41,
             'C' => 20,
             'D' => 20,
