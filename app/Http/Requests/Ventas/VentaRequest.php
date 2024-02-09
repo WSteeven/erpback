@@ -63,6 +63,7 @@ class VentaRequest extends FormRequest
             'vendedor_id' => $this->vendedor,
             'producto_id' => $this->producto,
             'comision_id' => $comision->id,
+            'comisiona' => Venta::obtenerVentaComisiona($this->vendedor),
             'comision_vendedor' => $comision_total,
             'chargeback' => $chargeback
         ]);

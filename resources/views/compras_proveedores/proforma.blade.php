@@ -276,7 +276,7 @@
                 <tr class="row" style="width: auto">
                     {{-- <td>{{$index+1}}</td> --}}
                     <td align="center">{{ $item['cantidad'] }}</td>
-                    <td align="center">{{ $item['descripcion'] }}</td>
+                    <td align="center">{{ strtoupper($item['descripcion']) }}</td>
                     <td align="center">{{ $item['unidad_medida_id'] }}</td>
                     <td align="center">{{ $item['precio_unitario'] }}</td>
                     <td align="center">{{ $item['descuento'] }}</td>

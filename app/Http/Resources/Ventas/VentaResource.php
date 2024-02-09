@@ -33,6 +33,7 @@ class VentaResource extends JsonResource
             'mes' => strtoupper(Carbon::parse($this->created_at)->translatedFormat('F-Y')),
             'estado_activacion' => $this->estado_activacion,
             'forma_pago' => $this->forma_pago,
+            'comisiona' => $this->comisiona ? 'SI' : 'NO',
             'comision' => $this->comision_id,
             'comision_info' =>  $this->comision != null ? $this->comision->comision : '',
             'chargeback' => $this->chargeback,
@@ -40,7 +41,7 @@ class VentaResource extends JsonResource
             'activo' => $this->activo,
             'observacion' => $this->observacion,
             'primer_mes' => $this->primer_mes,
-            'novedades'=>$this->novedadesVenta->count(),
+            'novedades' => $this->novedadesVenta->count(),
         ];
         return $modelo;
     }

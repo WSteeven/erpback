@@ -57,17 +57,19 @@ class DetallePagoComision extends Model implements Auditable
                 $alcanza_umbral = Vendedor::verificarVentasMensuales($vendedor, $corte->fecha_fin);
                 [$ventas_vendedor, $ventas_sin_comision, $total_comisiones]  = Vendedor::obtenerVentasConComision($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
                 Log::channel('testing')->info('Log', ['ventas_vendedor?', $ventas_vendedor,  $vendedor]);
-                $detalle =  DetallePagoComision::create([
-                    'fecha_inicio' => $corte->fecha_inicio,
-                    'fecha_fin' => $corte->fecha_fin,
-                    'corte_id' => $corte->id,
-                    'vendedor_id' => $vendedor->empleado_id,
-                    'chargeback' => $ventas_vendedor->sum('chargeback'),
-                    'ventas' => $ventas_vendedor->count(),
-                    'valor' => $alcanza_umbral ? $total_comisiones * .45 : 0,
-                    'pagado' => !$alcanza_umbral
-                ]);
-                Log::channel('testing')->info('Log', ['detalle creado',  $detalle]);
+                if ($ventas_vendedor->count() > 0) {
+                    $detalle =  DetallePagoComision::create([
+                        'fecha_inicio' => $corte->fecha_inicio,
+                        'fecha_fin' => $corte->fecha_fin,
+                        'corte_id' => $corte->id,
+                        'vendedor_id' => $vendedor->empleado_id,
+                        'chargeback' => $ventas_vendedor->sum('chargeback'),
+                        'ventas' => $ventas_vendedor->count(),
+                        'valor' => $alcanza_umbral ? $total_comisiones * .45 : 0,
+                        'pagado' => !$alcanza_umbral
+                    ]);
+                    Log::channel('testing')->info('Log', ['detalle creado',  $detalle]);
+                }
                 if ($alcanza_umbral) {
                     RetencionChargeback::crearRetencionesChargebackCorte($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
                 }

@@ -12,6 +12,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Models\Ventas\Vendedor;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 class Venta  extends Model implements Auditable
@@ -30,6 +31,7 @@ class Venta  extends Model implements Auditable
         'forma_pago',
         'comision_id',
         'chargeback',
+        'comisiona',
         'comision_vendedor',
         'cliente_id',
         'activo',
@@ -119,5 +121,30 @@ class Venta  extends Model implements Auditable
         $supervisor = Empleado::find($supervisor_id);
         // Mail::to($empleado->user->email)->cc($supervisor->user->email)->send(new EnviarMailVentaSuspendida($venta)); //usar esta línea en producción
         Mail::to($empleado->user->email)->send(new EnviarMailVentaSuspendida($venta)); //pruebas
+    }
+
+    /**
+     * La función "obtenerVentaComisiona" comprueba si un vendedor ha alcanzado el umbral mínimo de
+     * ventas para comisión en función del número de ventas realizadas en el mes actual.
+     * 
+     * @param Vendedor $vendedor_id El parámetro vendedor_id es el ID del vendedor (vendedor) del cual queremos
+     * obtener la venta comisiona.
+     * 
+     * @return Boolean Devuelve verdadero si el recuento de ventas realizadas por el
+     * vendedor especificado en el mes actual es mayor o igual al umbral mínimo definido en la
+     * modalidad de su vendedor. De lo contrario, devuelve falso.
+     */
+    public static function obtenerVentaComisiona($vendedor_id)
+    {
+        $vendedor = Vendedor::find($vendedor_id);
+        $mes = Carbon::now()->format('m');
+        $suma = Venta::where(function ($query) use ($mes) {
+            $query->whereMonth('fecha_activacion', $mes)
+            ->orWhereMonth('created_at', $mes);
+        })->whereYear('created_at', date('Y'))
+            ->where('vendedor_id', $vendedor_id)
+            ->count();
+
+        return $suma >= $vendedor->modalidad->umbral_minimo;
     }
 }

@@ -27,7 +27,7 @@ return new class extends Migration
             $table->unsignedBigInteger('comision_id');
             $table->decimal('chargeback', 8, 4);
             $table->decimal('comision_vendedor', 8, 4);
-            $table->boolean('pago')->default('0');
+            $table->boolean('comisiona')->default('0');
             $table->boolean('activo')->default(true);
             $table->text('observacion')->nullable();
             $table->boolean('primer_mes')->default(false);

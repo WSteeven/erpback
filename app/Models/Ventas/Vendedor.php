@@ -63,7 +63,7 @@ class Vendedor extends Model implements Auditable
     }
     public function ventas()
     {
-        return $this->hasMany(Venta::class);
+        return $this->hasMany(Venta::class, 'vendedor_id');
     }
 
     /********************************

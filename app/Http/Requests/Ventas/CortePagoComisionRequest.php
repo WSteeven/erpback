@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Ventas;
 
 use App\Models\EstadoTransaccion;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CortePagoComisionRequest extends FormRequest
@@ -30,6 +31,15 @@ class CortePagoComisionRequest extends FormRequest
             'fecha_fin' => 'required',
             'estado' => 'required',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $fecha_inicio  = Carbon::parse($this->fecha_inicio);
+            $fecha_fin  = Carbon::parse($this->fecha_fin);
+            if ($fecha_inicio->month !== $fecha_fin->month) $validator->errors()->add('fecha_fin', 'La fecha de fin debe corresponder al mismo mes que la fecha de inicio. Solo se puede hacer cortes de un mismo mes');
+        });
     }
 
     protected function prepareForValidation()
