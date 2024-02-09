@@ -177,7 +177,7 @@ class Empleado extends Model implements Auditable
      */
     public function canton()
     {
-        return $this->belongsTo(Canton::class);
+        return $this->belongsTo(Canton::class)->with('provincia');
     }
 
     // Relacion uno a uno

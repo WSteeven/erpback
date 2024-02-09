@@ -10,10 +10,12 @@ use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\CieController;
 use App\Http\Controllers\Medico\CitaMedicaController;
+use App\Http\Controllers\Medico\ConsultaController;
+use App\Http\Controllers\Medico\ConfiguracionCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
-use App\Http\Controllers\Medico\ConsultaController;
+use App\Http\Controllers\Medico\CuestionarioController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
@@ -38,6 +40,7 @@ use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
+use App\Http\Controllers\Medico\RespuestaCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
 use App\Http\Controllers\Medico\RevisionActualOrganoSistemaController;
 use App\Http\Controllers\Medico\SistemaOrganicoController;
@@ -110,6 +113,8 @@ Route::apiResources(
         'preguntas' => PreguntaController::class,
         'citas-medicas' => CitaMedicaController::class,
         'consultas' => ConsultaController::class,
+        'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
+        'configuracion-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
     ],
     [
         'parameters' => [
@@ -117,6 +122,7 @@ Route::apiResources(
             'tipos_eval_medicas_retiro' => 'tipo_eval_medica_retiro',
             'tipos_evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
+            'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
         ],
@@ -126,6 +132,7 @@ Route::apiResources(
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
+    Route::get('reporte-cuestionario', [CuestionarioController::class, 'ReportesCuestionarios']);
 });
 
 /************************************

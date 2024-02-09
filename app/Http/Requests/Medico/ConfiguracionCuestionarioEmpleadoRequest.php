@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class RespuestaCuestionarioEmpleadoRequest extends FormRequest
+class ConfiguracionCuestionarioEmpleadoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,14 +25,12 @@ class RespuestaCuestionarioEmpleadoRequest extends FormRequest
     public function rules()
     {
         return [
-            'cuestionario_id'=> 'nullable|exists:med_cuestionarios,id',
-            'empleado_id'=> 'required|exists:empleados,id',
+            'fecha_hora_inicio' => 'required|string',
+            'fecha_hora_fin' => 'required|string',
         ];
     }
     protected function prepareForValidation()
     {
-            $this->merge([
-                'empleado_id' =>  Auth::user()->empleado->id
-            ]);
+        Log::channel('testing')->info('log',[[$this->fecha_hora_inicio]]);
     }
 }

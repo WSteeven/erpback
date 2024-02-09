@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\RespuestaCuestionarioEmpleadoRequest ;
+use App\Http\Requests\Medico\RespuestaCuestionarioEmpleadoRequest;
 use App\Http\Resources\Medico\RespuestaCuestionarioEmpleadoResource;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\CuestionarioPisicosocialService;
 use Src\Shared\Utils;
 
 class RespuestaCuestionarioEmpleadoController extends Controller
@@ -45,8 +47,9 @@ class RespuestaCuestionarioEmpleadoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $RespuestaCuestionarioEmpleado = RespuestaCuestionarioEmpleado::create($datos);
-            $modelo = new RespuestaCuestionarioEmpleadoResource($RespuestaCuestionarioEmpleado);
+            $cuestionario_pisicosocial_service = new CuestionarioPisicosocialService($request->empleado_id);
+            $cuestionario_pisicosocial_service->guardarCuestionario($request->cuestionario);
+            $modelo = [];
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

@@ -8,20 +8,17 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
-use Illuminate\Database\Eloquent\Scope;
 
-class Pregunta extends Model implements Auditable
+class ConfiguracionCuestionarioEmpleado extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
-    protected $table = 'med_preguntas';
+    protected $table = 'med_configuraciones_cuestionarios_empleados';
     protected $fillable = [
-        'codigo',
-        'pregunta',
+        'fecha_hora_inicio',
+        'fecha_hora_fin'
     ];
     private static $whiteListFilter = ['*'];
-    public function cuestionario()
-    {
-        return $this->hasMany(Cuestionario::class, 'pregunta_id', 'id')->with('respuesta','respuestasCuestionariosEmpleados');
-    }
+
+
 }

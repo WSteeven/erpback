@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\CuestionarioRequest;
+use App\Http\Resources\Medico\CuestionarioEmpleadoResource;
 use App\Http\Resources\Medico\CuestionarioResource;
+use App\Models\Empleado;
 use App\Models\Medico\Cuestionario;
+use App\Models\Medico\Pregunta;
+use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\CuestionarioPisicosocialService;
 use Src\Shared\Utils;
 
 class CuestionarioController extends Controller
@@ -59,6 +66,29 @@ class CuestionarioController extends Controller
         }
     }
 
+    public function ReportesCuestionarios(Request $request){
+        try {
+            $results = [];
+            $empleados = Empleado::where('id', '>', 2)
+            ->where('estado', true)
+            ->where('esta_en_rol_pago', true)
+            ->where('salario', '!=', 0)
+            ->orderBy('apellidos','asc')
+            ->with('canton','area')
+            ->get();
+            $results = CuestionarioEmpleadoResource::collection($empleados);
+            if($request->imprimir){
+                $preguntas = Pregunta::all(['id','pregunta','codigo']);
+                $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
+                $reporte = compact('preguntas','reportes_empaquetado');
+                return CuestionarioPisicosocialService::imprimir_reporte($reporte);
+            }
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+
+    }
     /**
      * Display the specified resource.
      *

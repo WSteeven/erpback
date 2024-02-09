@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RespuestaCuestionarioEmpleadoResource extends JsonResource
+class ConfiguracionCuestionarioEmpleadoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,8 @@ class RespuestaCuestionarioEmpleadoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'cuestionario' => $this->cuestionario_id,
-            'cuestionario_info' => $this->cuestionario,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado !== null ?$this->empleado->nombres.' '.$this->empleado->apellidos: '',
+            'fecha_hora_inicio' => $this->fecha_hora_inicio,
+            'fecha_hora_fin' => $this->fecha_hora_fin
         ];
     }
 }
