@@ -24,10 +24,11 @@ class VendedorController extends Controller
     }
     public function index(Request $request)
     {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
         if (auth()->user()->hasRole([User::SUPERVISOR_VENTAS])) {
             $results = Vendedor::where('jefe_inmediato_id', auth()->user()->empleado->id)->filter()->get();
         } else {
-            $results = Vendedor::filter()->get();
+            $results = Vendedor::ignoreRequest(['campos'])->filter()->get($campos);
         }
 
         $results = VendedorResource::collection($results);
