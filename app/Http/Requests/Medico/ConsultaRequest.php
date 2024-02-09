@@ -25,10 +25,10 @@ class ConsultaRequest extends FormRequest
     {
         return [
             'empleado_id'=> 'required|exists:empleados,id',
-            'cita_id'=> 'required|exists:med_cies,id|unique:med_citas_medicas,id',
+            'cita_id'=> 'required|exists:med_citas_medicas,id',
             'rp'=> 'required|string',
             'prescripcion'=> 'required|string',
-            'diagnosticos.*.cie' => 'nullable|exists:med_cies,id',
+            'diagnosticos.*.id' => 'nullable|exists:med_cies,id',
             'diagnosticos.*.recomendacion' => 'nullable|string',
         ];
     }

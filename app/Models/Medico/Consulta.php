@@ -35,10 +35,10 @@ class Consulta extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'empleado_id');
     }
 
-    public function diagnosticosCita()
+    /*public function diagnosticosCita()
     {
-        return $this->belongsToMany(DiagnosticoCita::class, 'diagnostico_cita_id', 'id');
-    }
+        return $this->belongsToMany(DiagnosticoCita::class);//, 'diagnostico_cita_id', 'id');
+    } */
 
     public function cita()
     {

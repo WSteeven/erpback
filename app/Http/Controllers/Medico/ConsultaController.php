@@ -52,7 +52,7 @@ class ConsultaController extends Controller
             $consulta = Consulta::create($datos);
 
             foreach($request['diagnosticos'] as $diagnostico) {
-                $diagnostico['cie_id'] = $diagnostico['cie'];
+                $diagnostico['cie_id'] = $diagnostico['id'];
 
                 DiagnosticoCita::create($diagnostico);
             }
