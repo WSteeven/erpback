@@ -9,6 +9,8 @@ use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
 use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\CieController;
+use App\Http\Controllers\Medico\CitaMedicaController;
+use App\Http\Controllers\Medico\ConsultaController;
 use App\Http\Controllers\Medico\ConfiguracionCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
@@ -59,12 +61,12 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'actividades-puestos-trabajos'=> ActividadPuestoTrabajoController::class,
+        'actividades-puestos-trabajos' => ActividadPuestoTrabajoController::class,
         'antecedentes-familiares' => AntecedenteFamiliarController::class,
         'antecedentes-gineco-obstetricos' => AntecedenteGinecoObstetricoController::class,
-        'antecedentes-personales'=> AntecedentePersonalController::class,
-        'antecedentes-trabajos-anteriores'=> AntecedenteTrabajoAnteriorController::class,
-        'aptitudes-medicas'=> AptitudMedicaController::class,
+        'antecedentes-personales' => AntecedentePersonalController::class,
+        'antecedentes-trabajos-anteriores' => AntecedenteTrabajoAnteriorController::class,
+        'aptitudes-medicas' => AptitudMedicaController::class,
         'categorias-examenes' => CategoriaExamenController::class,
         'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
         'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
@@ -89,8 +91,8 @@ Route::apiResources(
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
-        'preocupacionales'=> PreocupacionalController::class,
-        'profecionales-salud'=> ProfesionalSaludController::class,
+        'preocupacionales' => PreocupacionalController::class,
+        'profecionales-salud' => ProfesionalSaludController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,
         'resultados-examenes' => ResultadoExamenController::class,
@@ -109,6 +111,8 @@ Route::apiResources(
         'tipos-vacunas' => TipoVacunaController::class,
         'cie' => CieController::class,
         'preguntas' => PreguntaController::class,
+        'citas-medicas' => CitaMedicaController::class,
+        'consultas' => ConsultaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
         'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
     ],
@@ -120,6 +124,7 @@ Route::apiResources(
             'laboratorios-clinicos' => 'laboratorio_clinico',
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
+            'citas-medicas' => 'cita_medica',
         ],
 
     ]
@@ -129,6 +134,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
     Route::get('reporte-cuestionario', [CuestionarioController::class, 'ReportesCuestionarios']);
 });
+
+/************************************
+ * Cambiar estados de citas medicas
+ ************************************/
+Route::post('citas-medicas/cancelar/{cita_medica}', [CitaMedicaController::class, 'cancelar']);
+Route::post('citas-medicas/rechazar/{cita_medica}', [CitaMedicaController::class, 'rechazar']);
 
 /*************************
  * Archivos polimorficos

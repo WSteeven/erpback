@@ -15,27 +15,31 @@ class Consulta extends Model implements Auditable
 
     protected $table = 'med_consultas';
     protected $primaryKey = 'cita_id';
-    //obtener la llave primaria
+    public $incrementing = false;
+
+    // Obtener la llave primaria
     public function getKeyName()
     {
         return 'cita_id';
     }
-    public $incrementing = false;
 
     protected $fillable = [
         'empleado_id',
-        'diagnostico_cita_id',
         'cita_id',
+        'rp',
+        'prescripcion',
     ];
 
     public function empleado()
     {
         return $this->belongsTo(Empleado::class, 'empleado_id');
     }
-    public function diagnosticoCita()
+
+    public function diagnosticosCita()
     {
-        return $this->belongsTo(DiagnosticoCita::class, 'diagnostico_cita_id');
+        return $this->belongsToMany(DiagnosticoCita::class, 'diagnostico_cita_id', 'id');
     }
+
     public function cita()
     {
         return $this->belongsTo(CitaMedica::class, 'cita_id');

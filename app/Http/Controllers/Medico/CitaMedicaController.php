@@ -9,12 +9,15 @@ use App\Models\Medico\CitaMedica;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\CitaMedicaService;
 use Src\Shared\Utils;
 
 class CitaMedicaController extends Controller
 {
-    private $entidad = 'Cita Medica';
+    private $entidad = 'Cita médica';
+    private $citaMedicaService;
 
     public function __construct()
     {
@@ -22,12 +25,15 @@ class CitaMedicaController extends Controller
         $this->middleware('can:puede.crear.citas_medicas')->only('store');
         $this->middleware('can:puede.editar.citas_medicas')->only('update');
         $this->middleware('can:puede.eliminar.citas_medicas')->only('destroy');
+
+        $this->citaMedicaService = new CitaMedicaService();
     }
 
     public function index()
     {
         $results = [];
         $results = CitaMedica::ignoreRequest(['campos'])->filter()->get();
+        $results = CitaMedicaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -36,9 +42,13 @@ class CitaMedicaController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $citamedica = CitaMedica::create($datos);
-            $modelo = new CitaMedicaResource($citamedica);
+
+            $datos['estado_cita_medica'] = CitaMedica::PENDIENTE;
+
+            $cita_medica = CitaMedica::create($datos);
+            $modelo = new CitaMedicaResource($cita_medica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -50,21 +60,27 @@ class CitaMedicaController extends Controller
         }
     }
 
-    public function show(CitaMedicaRequest $request, CitaMedica $citamedica)
+    public function show(CitaMedica $cita_medica)
     {
-        $modelo = new CitaMedicaResource($citamedica);
+        $modelo = new CitaMedicaResource($cita_medica);
         return response()->json(compact('modelo'));
     }
 
-
-    public function update(CitaMedicaRequest $request, CitaMedica $citamedica)
+    public function update(CitaMedicaRequest $request, CitaMedica $cita_medica)
     {
         try {
             DB::beginTransaction();
+
             $datos = $request->validated();
-            $citamedica->update($datos);
-            $modelo = new CitaMedicaResource($citamedica->refresh());
+
+            $keys = $request->keys();
+            unset($keys['id']);
+            $cita_medica->update($request->only($keys));
+
+            // $cita_medica->update($datos);
+            $modelo = new CitaMedicaResource($cita_medica->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -72,15 +88,14 @@ class CitaMedicaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de citamedica' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function destroy(CitaMedicaRequest $request, CitaMedica $citamedica)
+    public function destroy(CitaMedicaRequest $request, CitaMedica $cita_medica)
     {
         try {
             DB::beginTransaction();
-            $citamedica->delete();
+            $cita_medica->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -89,7 +104,16 @@ class CitaMedicaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de citamedica' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
+    }
+
+    public function cancelar(CitaMedica $cita_medica)
+    {
+        return $this->citaMedicaService->cancelar($cita_medica);
+    }
+
+    public function rechazar(CitaMedica $cita_medica)
+    {
+        return $this->citaMedicaService->rechazar($cita_medica);
     }
 }

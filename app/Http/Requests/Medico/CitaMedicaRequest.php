@@ -14,7 +14,7 @@ class CitaMedicaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,19 +26,21 @@ class CitaMedicaRequest extends FormRequest
     {
         return [
             'sintomas' => 'required|string',
-            'razon' => 'required|string',
-            'observacion' => 'required|string',
-            'fecha_hora_cita' => 'required|date_format:Y-m-d H:i:s',
-            'estado_cita_medica_id' => 'required|exists:med_estados_citas_medicas,id',
-            'configuracion_examen_categoria_id' => 'required|exists:empleados,id',
+            'observacion' => 'nullable|string',
+            'fecha_hora_cita' => 'nullable',//|date_format:Y-m-d H:i:s',
+            'estado_cita_medica' => 'required|string',//exists:med_estados_citas_medicas,id',
+            'paciente_id' => 'required|exists:empleados,id',
+            'motivo_rechazo' => 'nullable|string',
+            'motivo_cancelacion' => 'nullable|string',
         ];
     }
+
     protected function prepareForValidation()
     {
-            $this->merge([
-                'fecha_hora_cita' => Carbon::parse($this->fecha_hora_cita)->format('Y-m-d H:i:s'),
-                'estado_cita_medica_id' => $this->estado_cita_medica,
-                'configuracion_examen_categoria_id' => $this->configuracion_examen_categoria
-            ]);
+        $this->merge([
+            // 'fecha_hora_cita' => Carbon::parse($this->fecha_hora_cita)->format('Y-m-d H:i:s'),
+            // 'estado_cita_medica_id' => $this->estado_cita_medica,
+            'paciente_id' => $this->paciente,
+        ]);
     }
 }

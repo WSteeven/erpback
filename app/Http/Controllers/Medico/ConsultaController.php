@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\ConsultaRequest;
 use App\Http\Resources\Medico\ConsultaResource;
 use App\Models\Medico\Consulta;
+use App\Models\Medico\Diagnostico;
+use App\Models\Medico\DiagnosticoCita;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -31,6 +33,7 @@ class ConsultaController extends Controller
     {
         $results = [];
         $results = Consulta::ignoreRequest(['campos'])->filter()->get();
+        $results = ConsultaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -45,9 +48,18 @@ class ConsultaController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
+
             $consulta = Consulta::create($datos);
-            $modelo = new ConsultaResource($consulta);
+
+            foreach($request['diagnosticos'] as $diagnostico) {
+                $diagnostico['cie_id'] = $diagnostico['cie'];
+
+                DiagnosticoCita::create($diagnostico);
+            }
+
+            $modelo = new ConsultaResource($consulta->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -55,7 +67,6 @@ class ConsultaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de consulta' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
