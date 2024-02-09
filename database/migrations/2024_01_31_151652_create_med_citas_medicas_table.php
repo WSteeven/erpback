@@ -16,13 +16,18 @@ return new class extends Migration
         Schema::create('med_citas_medicas', function (Blueprint $table) {
             $table->id();
             $table->text('sintomas');
-            $table->text('motivo');
-            $table->text('observacion');
-            $table->dateTime('fecha_hora_cita');
+            // $table->text('motivo');
+            $table->text('observacion')->nullable();
+            $table->dateTime('fecha_hora_cita')->nullable();
+            $table->string('estado_cita_medica');
+            $table->string('motivo_rechazo');
+            $table->string('motivo_cancelacion');
+            $table->dateTime('fecha_hora_rechazo');
+            $table->dateTime('fecha_hora_cancelado');
 
             //Laves foraneas
-            $table->unsignedBigInteger('estado_cita_medica_id');
-            $table->foreign('estado_cita_medica_id')->references('id')->on('med_estados_citas_medicas')->cascadeOnUpdate();
+            /*$table->unsignedBigInteger('estado_cita_medica_id');
+            $table->foreign('estado_cita_medica_id')->references('id')->on('med_estados_citas_medicas')->cascadeOnUpdate();*/
 
             $table->unsignedBigInteger('paciente_id');
             $table->foreign('paciente_id')->references('id')->on('empleados')->cascadeOnUpdate();

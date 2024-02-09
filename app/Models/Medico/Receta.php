@@ -2,7 +2,6 @@
 
 namespace App\Models\Medico;
 
-use App\ModelFilters\Medico\ExamenFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -12,7 +11,7 @@ use App\Traits\UppercaseValuesTrait;
 
 class Receta extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel, ExamenFilter;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'med_recetas';
     protected $fillable = [

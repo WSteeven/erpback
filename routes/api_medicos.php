@@ -9,9 +9,11 @@ use App\Http\Controllers\Medico\AntecedenteTrabajoAnteriorController;
 use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\CieController;
+use App\Http\Controllers\Medico\CitaMedicaController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
+use App\Http\Controllers\Medico\ConsultaController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
@@ -56,12 +58,12 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
-        'actividades-puestos-trabajos'=> ActividadPuestoTrabajoController::class,
+        'actividades-puestos-trabajos' => ActividadPuestoTrabajoController::class,
         'antecedentes-familiares' => AntecedenteFamiliarController::class,
         'antecedentes-gineco-obstetricos' => AntecedenteGinecoObstetricoController::class,
-        'antecedentes-personales'=> AntecedentePersonalController::class,
-        'antecedentes-trabajos-anteriores'=> AntecedenteTrabajoAnteriorController::class,
-        'aptitudes-medicas'=> AptitudMedicaController::class,
+        'antecedentes-personales' => AntecedentePersonalController::class,
+        'antecedentes-trabajos-anteriores' => AntecedenteTrabajoAnteriorController::class,
+        'aptitudes-medicas' => AptitudMedicaController::class,
         'categorias-examenes' => CategoriaExamenController::class,
         'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
         'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
@@ -86,8 +88,8 @@ Route::apiResources(
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
-        'preocupacionales'=> PreocupacionalController::class,
-        'profecionales-salud'=> ProfesionalSaludController::class,
+        'preocupacionales' => PreocupacionalController::class,
+        'profecionales-salud' => ProfesionalSaludController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,
         'resultados-examenes' => ResultadoExamenController::class,
@@ -105,7 +107,9 @@ Route::apiResources(
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
         'cie' => CieController::class,
-        'preguntas' => PreguntaController::class
+        'preguntas' => PreguntaController::class,
+        'citas-medicas' => CitaMedicaController::class,
+        'consultas' => ConsultaController::class,
     ],
     [
         'parameters' => [
@@ -114,6 +118,7 @@ Route::apiResources(
             'tipos_evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
+            'citas-medicas' => 'cita_medica',
         ],
 
     ]
@@ -122,6 +127,12 @@ Route::apiResources(
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
 });
+
+/************************************
+ * Cambiar estados de citas medicas
+ ************************************/
+Route::post('citas-medicas/cancelar/{cita_medica}', [CitaMedicaController::class, 'cancelar']);
+Route::post('citas-medicas/rechazar/{cita_medica}', [CitaMedicaController::class, 'rechazar']);
 
 /*************************
  * Archivos polimorficos

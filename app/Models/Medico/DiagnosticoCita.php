@@ -17,8 +17,9 @@ class DiagnosticoCita extends Model implements Auditable
         'recomendacion',
         'cie_id',
     ];
-    public function cie(){
-        return $this->belongsTo(Cie::class, 'cie_id');
-    }
 
+    public function cie()
+    {
+        return $this->belongsTo(Cie::class); //, 'cie_id');
+    }
 }

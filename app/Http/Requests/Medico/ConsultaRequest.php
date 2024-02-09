@@ -13,7 +13,7 @@ class ConsultaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,15 +25,18 @@ class ConsultaRequest extends FormRequest
     {
         return [
             'empleado_id'=> 'required|exists:empleados,id',
-            'diagnostico_cita_id'=> 'required|exists:med_diagnosticos_citas,id',
             'cita_id'=> 'required|exists:med_cies,id|unique:med_citas_medicas,id',
+            'rp'=> 'required|string',
+            'prescripcion'=> 'required|string',
+            'diagnosticos.*.cie' => 'nullable|exists:med_cies,id',
+            'diagnosticos.*.recomendacion' => 'nullable|string',
         ];
     }
+
     protected function prepareForValidation()
     {
         $this->merge([
             'empleado_id' => $this->empleado,
-            'diagnostico_cita_id' => $this->diagnostico_cita,
             'cita_id' => $this->cita,
         ]);
     }

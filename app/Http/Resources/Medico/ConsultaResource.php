@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Medico;
 
+use App\Models\Empleado;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ConsultaResource extends JsonResource
@@ -15,13 +16,12 @@ class ConsultaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'=> $this->id,
-            'empleado' => $this->empleado_id,
-            'empleado_info' => $this->empleado? $this->empleado->nombres.' '.$this->empleado->apellidos:'',
-            'diagnostico_cita' => $this->diagnostico_cita_id,
-            'diagnostico_cita_info' => $this->diagnostico? $this->diagnostico->recomendacion:'',
-            'cita' => $this->cita_id,
-            'cita_info' => $this->cita,
+            'id'=> $this->cita_id,
+            'empleado_id' => $this->empleado_id,
+            'empleado' => Empleado::extraerNombresApellidos($this->empleado),
+            'cita_id' => $this->cita_id,
+            'cita' => $this->cita,
+            'diagnosticos' => $this->diagnosticosCita,
         ];
     }
 }

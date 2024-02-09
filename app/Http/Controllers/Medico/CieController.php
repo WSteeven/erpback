@@ -36,6 +36,7 @@ class CieController extends Controller
     {
         $results = [];
         $results = Cie::ignoreRequest(['campos'])->filter()->get();
+        $results = CieResource::collection($results);
         return response()->json(compact('results'));
     }
 

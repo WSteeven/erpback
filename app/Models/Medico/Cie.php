@@ -2,7 +2,6 @@
 
 namespace App\Models\Medico;
 
-use App\ModelFilters\Medico\ExamenFilter;
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +12,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class Cie extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel, ExamenFilter;
+    use HasFactory, UppercaseValuesTrait, Filterable, AuditableModel;
 
     protected $table = 'med_cies';
     protected $fillable = [

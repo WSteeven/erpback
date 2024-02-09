@@ -14,6 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('med_consultas', function (Blueprint $table) {
+            $table->string('rp');
+            $table->string('prescripcion');
+
             //Laves foraneas
             $table->unsignedBigInteger('cita_id');
             $table->primary('cita_id');
@@ -22,8 +25,6 @@ return new class extends Migration
             $table->unsignedBigInteger('empleado_id');
             $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnUpdate();
 
-            $table->unsignedBigInteger('diagnostico_cita_id');
-            $table->foreign('diagnostico_cita_id')->references('id')->on('med_diagnosticos_citas')->cascadeOnUpdate();
             $table->timestamps();
         });
     }
