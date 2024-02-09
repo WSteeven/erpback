@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Medico;
 
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 
@@ -31,6 +32,9 @@ class ConfiguracionCuestionarioEmpleadoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        Log::channel('testing')->info('log',[[$this->fecha_hora_inicio]]);
+        $this->merge([
+            'fecha_hora_inicio' => Carbon::parse($this->fecha_hora_inicio)->format('Y-m-d H:i:s'),
+            'fecha_hora_fin' => Carbon::parse($this->fecha_hora_fin)->format('Y-m-d H:i:s'),
+        ]);
     }
 }

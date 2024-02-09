@@ -110,7 +110,7 @@ Route::apiResources(
         'cie' => CieController::class,
         'preguntas' => PreguntaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
-        'configuracion-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
+        'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
     ],
     [
         'parameters' => [

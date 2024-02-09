@@ -55,19 +55,18 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de configuracioncuestionarioempleado' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  ConfiguracionCuestionarioEmpleado  $configuracion_cuestionario
+     * @param  ConfiguracionCuestionarioEmpleado  $config_cuestionario_empleado
      * @return \Illuminate\Http\Response
      */
-    public function show(ConfiguracionCuestionarioEmpleado $configuracion_cuestionario)
+    public function show(ConfiguracionCuestionarioEmpleado $config_cuestionario_empleado)
     {
-        $modelo = new ConfiguracionCuestionarioEmpleadoResource($configuracion_cuestionario);
+        $modelo = new ConfiguracionCuestionarioEmpleadoResource($config_cuestionario_empleado);
         return response()->json(compact('modelo'));
     }
 
@@ -75,16 +74,16 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\ConfiguracionCuestionarioEmpleadoRequest  $request
-     * @param  ConfiguracionCuestionarioEmpleado  $configuracion_cuestionario
+     * @param  ConfiguracionCuestionarioEmpleado  $config_cuestionario_empleado
      * @return \Illuminate\Http\Response
      */
-    public function update(ConfiguracionCuestionarioEmpleadoRequest $request, ConfiguracionCuestionarioEmpleado $configuracion_cuestionario)
+    public function update(ConfiguracionCuestionarioEmpleadoRequest $request, ConfiguracionCuestionarioEmpleado $config_cuestionario_empleado)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $configuracion_cuestionario->update($datos);
-            $modelo = new ConfiguracionCuestionarioEmpleadoResource($configuracion_cuestionario->refresh());
+            $config_cuestionario_empleado->update($datos);
+            $modelo = new ConfiguracionCuestionarioEmpleadoResource($config_cuestionario_empleado->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -93,21 +92,20 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de configuracioncuestionarioempleado' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  ConfiguracionCuestionarioEmpleado  $configuracion_cuestionario
+     * @param  ConfiguracionCuestionarioEmpleado  $config_cuestionario_empleado
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ConfiguracionCuestionarioEmpleado $configuracion_cuestionario)
+    public function destroy(ConfiguracionCuestionarioEmpleado $config_cuestionario_empleado)
     {
         try {
             DB::beginTransaction();
-            $configuracion_cuestionario->delete();
+            $config_cuestionario_empleado->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));
@@ -116,7 +114,12 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de configuracioncuestionarioempleado' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+    }
+    public function obtenerConfiguracion(){
+        try {
+            $results = ConfiguracionCuestionarioEmpleado::last();
+        } catch (Exception $e) {
         }
     }
 }
