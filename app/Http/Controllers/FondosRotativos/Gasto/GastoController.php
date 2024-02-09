@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use PgSql\Lob;
+use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
@@ -86,7 +87,9 @@ class GastoController extends Controller
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             } else {
-                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $fechaActual = Carbon::now();
+                $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d');
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             }
@@ -454,18 +457,10 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
-            $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
-                ->where('per_destinatario_id', $gasto->aut_especial)
-                ->where('tipo_notificacion', 'AUTORIZACION GASTO')
-                ->where('leida', 0)
-                ->whereDate('notificable_id', $gasto->id)
-                ->first();
-            if ($notificacion != null) {
-                $notificacion->leida = 1;
-                $notificacion->save();
-            }
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -490,8 +485,10 @@ class GastoController extends Controller
             $gasto->estado = 2;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -514,8 +511,10 @@ class GastoController extends Controller
             $gasto->estado = 4;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
             DB::rollBack();
