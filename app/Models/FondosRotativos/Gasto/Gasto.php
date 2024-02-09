@@ -152,11 +152,13 @@ class Gasto extends Model implements Auditable
             $id = 0;
             $row = [];
             foreach ($gastos as $gasto) {
+                $row['id'] = $gasto->id;
                 $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
                 $row['fecha_autorizacion']= $gasto->updated_at;
                 $row['lugar']= $gasto->lugar_info?->canton;
                 $row['factura']= $gasto->factura;
+                $row['ruc'] = $gasto->ruc;
                 $row['num_comprobante']= $gasto->num_comprobante;
                 $row['empleado_info']= $gasto->empleado_info->user;
                 $row['usuario'] = $gasto->empleado_info;
@@ -168,6 +170,8 @@ class Gasto extends Model implements Auditable
                 $row['proyecto'] = $gasto->proyecto_info;
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
+                $row['cantidad'] = $gasto->cantidad;
+                $row['valor_u'] = $gasto->valor_u;
                 $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
                 //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
                 $row['placa'] = $gasto->gasto_vehiculo_info?->placa;
