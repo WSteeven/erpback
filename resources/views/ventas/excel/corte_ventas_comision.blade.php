@@ -87,6 +87,7 @@
                                         <td style="font-weight: bold"> NOMBRE CLIENTE</td>
                                         <td style="font-weight: bold"> CEDULA</td>
                                         <td style="font-weight: bold"> VENTA</td>
+                                        <td style="font-weight: bold"> VENTA_ID</td>
                                         <td style="font-weight: bold"> FECHA DE INGRESO</td>
                                         <td style="font-weight: bold"> FECHA DE ACTIVACION</td>
                                         <td style="font-weight: bold"> PLAN DE INTERNET</td>
@@ -94,6 +95,11 @@
                                         <td style="font-weight: bold">PRECIO </td>
                                         <td style="font-weight: bold">ORDEN INTERNA </td>
                                         <td style="font-weight: bold">COMISIONA</td>
+                                        <td style="font-weight: bold">% COMISION</td>
+                                        <td style="font-weight: bold">TOTAL COMISION</td>
+                                        <td style="font-weight: bold">45%</td>
+                                        <td style="font-weight: bold">45%</td>
+                                        <td style="font-weight: bold">10%</td>
                                     </tr>
                                     @foreach ($reporte as $key => $reporte)
                                         <tr>
@@ -105,6 +111,7 @@
                                             <td>{{ $reporte['cliente'] }}</td>
                                             <td>{{ $reporte['identificacion_cliente'] }}</td>
                                             <td>{{ $reporte['venta'] }}</td>
+                                            <td>{{ $reporte['venta_id'] }}</td>
                                             <td>{{ $reporte['fecha_ingreso'] }}</td>
                                             <td>{{ $reporte['fecha_activacion'] }}</td>
                                             <td>{{ $reporte['plan'] }} </td>
@@ -112,6 +119,11 @@
                                             <td>&nbsp;$ {{ $reporte['precio'] }} </td>
                                             <td>{{ $reporte['orden_interna'] }}</td>
                                             <td>{{ $reporte['comisiona'] ? 'SI' : 'NO' }}</td>
+                                            <td>{{ $reporte['porcentaje_comision'] }}</td>
+                                            <td>{{ $reporte['valor_comision'] }}</td>
+                                            <td>{{ $reporte['primer_pago'] }}</td>
+                                            <td>{{ $reporte['primer_pago'] }}</td>
+                                            <td>{{ $reporte['retencion_chargeback'] }}</td>
                                         </tr>
                                     @endforeach
                                 </table>

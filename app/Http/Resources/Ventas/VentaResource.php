@@ -41,6 +41,7 @@ class VentaResource extends JsonResource
             'activo' => $this->activo,
             'observacion' => $this->observacion,
             'primer_mes' => $this->primer_mes,
+            'fecha_pago_primer_mes' => $this->fecha_pago_primer_mes,
             'novedades' => $this->novedadesVenta->count(),
         ];
         return $modelo;

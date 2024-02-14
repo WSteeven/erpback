@@ -46,16 +46,24 @@ class DetallePagoComision extends Model implements Auditable
     public static function crearComisionesEmpleados(CortePagoComision $corte)
     {
         try {
+            $total_comisiones = 0;
             $ventas = Venta::where(function ($query) use ($corte) {
                 $query->whereBetween('fecha_activacion', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))])
                     ->orWhereBetween('fecha_pago_primer_mes', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))]);
-            })->where('estado_activacion', Venta::ACTIVADO)->get();
+            })->where('estado_activacion', Venta::ACTIVADO)->where('comisiona', true)->get();
             Log::channel('testing')->info('Log', ['ventas crearComisionesEmpleado', $ventas]);
             $ventas_vendedores_ids = $ventas->unique('vendedor_id')->pluck('vendedor_id');
             foreach ($ventas_vendedores_ids as $v) {
                 $vendedor = Vendedor::find($v);
                 $alcanza_umbral = Vendedor::verificarVentasMensuales($vendedor, $corte->fecha_fin);
-                [$ventas_vendedor, $ventas_sin_comision, $total_comisiones]  = Vendedor::obtenerVentasConComision($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
+                $ventas_vendedor = $ventas->filter(function ($venta) use ($vendedor) {
+                    return $venta->vendedor_id == $vendedor->empleado_id;
+                });
+                foreach ($ventas_vendedor as $venta) {
+                    [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
+                    $total_comisiones += $comision_valor;
+                }
+                // [$ventas_vendedor, $total_comisiones]  = Vendedor::obtenerVentasConComision($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
                 Log::channel('testing')->info('Log', ['ventas_vendedor?', $ventas_vendedor,  $vendedor]);
                 if ($ventas_vendedor->count() > 0) {
                     $detalle =  DetallePagoComision::create([
@@ -69,10 +77,11 @@ class DetallePagoComision extends Model implements Auditable
                         'pagado' => !$alcanza_umbral
                     ]);
                     Log::channel('testing')->info('Log', ['detalle creado',  $detalle]);
+                    if ($alcanza_umbral) {
+                        RetencionChargeback::crearRetencionesChargebackCorte($vendedor, $ventas_vendedor, $corte->fecha_inicio, $corte->fecha_fin);
+                    }
                 }
-                if ($alcanza_umbral) {
-                    RetencionChargeback::crearRetencionesChargebackCorte($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
-                }
+                $total_comisiones = 0;
             }
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['error en crear comisiones empleado', $th->getLine(), $th->getMessage()]);

@@ -43,6 +43,7 @@ class VentaRequest extends FormRequest
             'chargeback' => 'nullable',
             'comision_vendedor' => 'nullable',
             'cliente_id' => 'nullable',
+            'primer_mes' => 'nullable|boolean',
 
         ];
     }

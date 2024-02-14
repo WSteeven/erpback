@@ -80,6 +80,7 @@ Route::post('ventas/marcar-pagado/{venta}', [VentaController::class, 'marcarPaga
 Route::get('obtener-fechas-disponibles-cortes', [CortePagoComisionController::class, 'obtenerFechasDisponblesCortes']);
 Route::get('cortes-pagos-comisiones/marcar-completada/{corte}', [CortePagoComisionController::class, 'marcarCompletado']);
 Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionChargebackController::class, 'marcarPagada']);
+Route::get('actualizar-comisiones-ventas', [VentaController::class, 'actualizarComisiones']);
 
 
 //listar archivos

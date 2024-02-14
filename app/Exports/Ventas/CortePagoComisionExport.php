@@ -9,9 +9,9 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use Maatwebsite\Excel\DefaultValueBinder;
 use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Cell\DefaultValueBinder;
 
 class CortePagoComisionExport implements WithMultipleSheets
 {
@@ -74,6 +74,17 @@ class VentasCorteComisionExport extends DefaultValueBinder implements FromView, 
     {
         $this->reporte = $ventas;
         $this->config = $configuracion;
+    }
+    public function bindValue(Cell $cell, $value)
+    {
+        if (is_numeric($value) && $value > 9999) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
+
+        // else return default behavior
+        return parent::bindValue($cell, $value);
     }
     public function view(): View
     {

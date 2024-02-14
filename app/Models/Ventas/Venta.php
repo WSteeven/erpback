@@ -137,10 +137,12 @@ class Venta  extends Model implements Auditable
     public static function obtenerVentaComisiona($vendedor_id)
     {
         $vendedor = Vendedor::find($vendedor_id);
-        $mes = Carbon::now()->format('m');
+        $mes = Carbon::createFromFormat('Y-m-d', '2024-01-01')->format('m');
+        // $mes = Carbon::now()->format('m');
         $suma = Venta::where(function ($query) use ($mes) {
             $query->whereMonth('fecha_activacion', $mes)
-            ->orWhereMonth('created_at', $mes);
+                ->whereMonth('created_at', $mes);
+                // ->orWhereMonth('created_at', $mes);
         })->whereYear('created_at', date('Y'))
             ->where('vendedor_id', $vendedor_id)
             ->count();

@@ -245,50 +245,30 @@ class PagoComisionService
                     ->orWhereBetween('fecha_pago_primer_mes', [date('Y-m-d', strtotime($corte->fecha_inicio)), date('Y-m-d', strtotime($corte->fecha_fin))]);
             })->where('estado_activacion', Venta::ACTIVADO)->get();
             // Log::channel('testing')->info('Log', ['ventas', $ventas]);
-            $ventas_vendedores_ids = $ventas->unique('vendedor_id')->pluck('vendedor_id');
-            foreach ($ventas_vendedores_ids as $v) {
-                $vendedor = Vendedor::find($v);
-                [$ventas_con_comision, $ventas_sin_comision] = Vendedor::obtenerVentasConComision($vendedor, $corte->fecha_inicio, $corte->fecha_fin);
-                if (!is_null($ventas_sin_comision))
-                    foreach ($ventas_sin_comision as $index => $venta) {
-                        $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
-                        $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
-                        $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
-                        $row['codigo_orden'] =  $venta->orden_id;
-                        $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
-                        $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
-                        $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
-                        $row['venta'] = 1;
-                        $row['fecha_ingreso'] = $venta->created_at;
-                        $row['fecha_activacion'] =  $venta->fecha_activacion;
-                        $row['plan'] = $venta->producto->plan->nombre;
-                        $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
-                        $row['forma_pago'] = $venta->forma_pago;
-                        $row['orden_interna'] = $venta->orden_interna;
-                        $row['comisiona'] = false;
-                        $results[$count] = $row;
-                        $count++;
-                    }
-                foreach ($ventas_con_comision as $index => $venta) {
-                    $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
-                    $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
-                    $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
-                    $row['codigo_orden'] =  $venta->orden_id;
-                    $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
-                    $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
-                    $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
-                    $row['venta'] = 1;
-                    $row['fecha_ingreso'] = $venta->created_at;
-                    $row['fecha_activacion'] =  $venta->fecha_activacion;
-                    $row['plan'] = $venta->producto->plan->nombre;
-                    $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
-                    $row['forma_pago'] = $venta->forma_pago;
-                    $row['orden_interna'] = $venta->orden_interna;
-                    $row['comisiona'] = true;
-                    $results[$count] = $row;
-                    $count++;
-                }
-                // Log::channel('testing')->info('Log', ['ventas empaquetadas, resultado', $results]);
+            foreach ($ventas as $index => $venta) {
+                [$valor_comision, $comision]= Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
+                $row['venta_id'] =  $venta->id;
+                $row['vendedor'] =  $venta->vendedor->empleado->apellidos . ' ' . $venta->vendedor->empleado->nombres;
+                $row['tipo_vendedor'] =  $venta->vendedor->modalidad->nombre;
+                $row['ciudad'] = $venta->vendedor->empleado->canton->canton;
+                $row['codigo_orden'] =  $venta->orden_id;
+                $row['identificacion'] =  $venta->vendedor->empleado->identificacion;
+                $row['identificacion_cliente'] = $venta->cliente != null ? $venta->cliente->identificacion : '';
+                $row['cliente'] =  $venta->cliente != null ? $venta->cliente->nombres . ' ' . $venta->cliente->apellidos : '';
+                $row['venta'] = 1;
+                $row['fecha_ingreso'] = $venta->created_at;
+                $row['fecha_activacion'] =  $venta->fecha_activacion;
+                $row['plan'] = $venta->producto->plan->nombre;
+                $row['precio'] =  number_format($venta->producto->precio, 2, ',', '.');
+                $row['forma_pago'] = $venta->forma_pago;
+                $row['orden_interna'] = $venta->orden_interna;
+                $row['comisiona'] = $venta->comisiona;
+                $row['porcentaje_comision'] = $comision->comision;
+                $row['valor_comision'] = $valor_comision;
+                $row['primer_pago'] = $valor_comision*.45;
+                $row['retencion_chargeback'] = $valor_comision*1;
+                $results[$count] = $row;
+                $count++;
             }
             return $results;
         } catch (\Throwable $th) {

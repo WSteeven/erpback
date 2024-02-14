@@ -15,6 +15,7 @@ use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\BonoTrimestralCumplimiento;
 use App\Models\Ventas\Chargeback;
 use App\Models\Ventas\PagoComision;
+use App\Models\Ventas\Vendedor;
 use App\Models\Ventas\Venta;
 use Carbon\Carbon;
 use Exception;
@@ -82,7 +83,7 @@ class VentaController extends Controller
             $datos = $request->validated();
             $venta->update($datos);
             $modelo = new VentaResource($venta->refresh());
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -369,6 +370,41 @@ class VentaController extends Controller
             ]);
         }
         return response()->json(compact('modelo'));
+    }
+
+    public function actualizarComisiones(Request $request)
+    {
+        try {
+            $request->validate(['fecha' => ['required', 'string']]);
+            $fecha = Carbon::createFromFormat('Y-m', $request->fecha);
+            DB::beginTransaction();
+            $ventas = Venta::whereYear('fecha_activacion', $fecha->year)
+                ->whereMonth('fecha_activacion', $fecha->month)
+                ->where('estado_activacion', Venta::ACTIVADO)
+                ->orderBy('fecha_activacion')->get();
+            $ventas_vendedores_ids = $ventas->unique('vendedor_id')->pluck('vendedor_id');
+            foreach ($ventas_vendedores_ids as $v) {
+                $vendedor = Vendedor::find($v);
+                $ventas_vendedor = $ventas->filter(function ($venta) use ($vendedor) {
+                    return $venta->vendedor_id == $vendedor->empleado_id;
+                });
+                $cont = 0;
+                foreach ($ventas_vendedor as $venta) {
+                    if ($cont + 1 <= $vendedor->modalidad->umbral_minimo) $venta->update(['comisiona' => false]);
+                    else $venta->update(['comisiona' => true]);
+                    $cont++;
+                }
+            }
+            $mensaje = 'Se ha actualizado los registros';
+            DB::commit();
+            return response()->json(compact('mensaje'));
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error en actualizarComisiones', $th->getLine(), $th->getMessage()]);
+            throw ValidationException::withMessages([
+                'Error' => [$th->getMessage() . '. ' . $th->getLine()],
+            ]);
+        }
     }
 
     /**

@@ -23,8 +23,10 @@ class VentaSeeder extends Seeder
     {
         $faker = Faker::create();
         $fechaInicial = Carbon::createFromFormat('Y-m-d', '2024-01-01');
+        $fechaFinal = Carbon::createFromFormat('Y-m-d', '2024-01-31');
+        // $fechaFinal = Carbon::now();
 
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < 150; $i++) {
             $venta = new Venta();
 
             // $venta->orden_id = implode(',', $faker->randomElements([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 14, true));
@@ -35,7 +37,9 @@ class VentaSeeder extends Seeder
             $venta->producto_id = ProductoVenta::inRandomOrder()->first()->id;
             // $venta->estado_activacion = $faker->randomElement([Venta::ACTIVADO, Venta::APROBADO]);
             $venta->estado_activacion = Venta::ACTIVADO;
-            $venta->fecha_activacion = $venta->estado_activacion == Venta::ACTIVADO ? $faker->dateTimeBetween($fechaInicial, 'now')->format('Y-m-d') : null;
+            $venta->created_at = $faker->dateTimeBetween($fechaInicial, $fechaFinal);
+            $venta->fecha_activacion = $venta->estado_activacion == Venta::ACTIVADO ? $faker->dateTimeBetween($fechaInicial, $venta->created_at)->format('Y-m-d') : null;
+            // $venta->fecha_activacion = $venta->estado_activacion == Venta::ACTIVADO ? $faker->dateTimeBetween($fechaInicial, 'now')->format('Y-m-d') : null;
             $venta->forma_pago = $faker->randomElement(['EFECTIVO', 'TC', 'D. BANCARIO']);
             [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
             $venta->comision_id = $comision->id;
@@ -45,8 +49,7 @@ class VentaSeeder extends Seeder
             $venta->activo = true;
             $venta->observacion = null;
             $venta->primer_mes = $faker->randomElement([true, false]);
-            $venta->fecha_pago_primer_mes = $venta->primer_mes && !is_null($venta->fecha_activacion) ? $faker->dateTimeBetween(Carbon::createFromFormat('Y-m-d', $venta->fecha_activacion), 'now')->format('Y-m-d') : null;
-            $venta->created_at = $faker->dateTimeBetween($fechaInicial, 'now');
+            $venta->fecha_pago_primer_mes = $venta->primer_mes && !is_null($venta->fecha_activacion) ? $faker->dateTimeBetween(Carbon::createFromFormat('Y-m-d', $venta->fecha_activacion), $fechaFinal)->format('Y-m-d') : null;
             $venta->comisiona = Venta::obtenerVentaComisiona($venta->vendedor_id);
             $venta->comision_pagada = false;
             $venta->save();
