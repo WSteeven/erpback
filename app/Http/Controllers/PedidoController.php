@@ -190,7 +190,7 @@ class PedidoController extends Controller
             //modifica los datos del listado, en caso de requerirse
             $pedido->detalles()->detach();
             foreach ($request->listadoProductos as $listado) {
-                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => array_key_exists('solicitante_id',$listado) ? $listado['solicitante_id'] : $listado['solicitante']]);
+                $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => array_key_exists('solicitante_id', $listado) ? $listado['solicitante_id'] : $listado['solicitante']]);
                 // $pedido->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'solicitante_id' => $listado['solicitante_id']]);
             }
             DB::commit();
@@ -331,6 +331,7 @@ class PedidoController extends Controller
         $request->validate(['motivo' => ['required', 'string']]);
         $pedido->causa_anulacion = $request['motivo'];
         $pedido->autorizacion_id = $autorizacion->id;
+        $pedido->estado_id = EstadosTransacciones::ANULADA;
         $pedido->save();
 
         $modelo = new PedidoResource($pedido->refresh());

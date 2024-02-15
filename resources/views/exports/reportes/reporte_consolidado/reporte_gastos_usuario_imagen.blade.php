@@ -328,6 +328,12 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                    <div align="center"><strong>PROYECTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                    <div align="center"><strong>TAREA</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="30%">
                     <div align="center"><strong>DESCRIPCION DETALLE</strong></div>
                 </td>
@@ -385,6 +391,12 @@
                         <div align="left">{{ $gasto['factura'] }}</div>
                     </td>
                     <td style="font-size:10px">
+                        <div align="left">  {{ $gasto['proyecto'] != null ? $gasto['proyecto']['codigo_proyecto'].' - '.$gasto['proyecto']['nombre'] : 'Sin Proyecto' }} </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left"> {{ $gasto['tarea'] != null ? $gasto['tarea']['codigo_tarea'] : 'Sin Tarea' }}</div>
+                    </td>
+                    <td style="font-size:10px">
                         <div align="left">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
                     </td>
                     <td style="font-size:10px">
@@ -423,7 +435,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="11" style="font-size:10px" width="29%">
+                <td colspan="16" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">

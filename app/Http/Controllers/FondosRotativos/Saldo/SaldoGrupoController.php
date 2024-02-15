@@ -170,12 +170,24 @@ class SaldoGrupoController extends Controller
     public function saldo_actual(Request $request, $tipo)
     {
         try {
+            $usuario = Auth::user();
+        $usuario_ac = User::where('id', $usuario->id)->first();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            $saldos_actual_user = $request->usuario == null ?
-                SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
-                    $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
-                })->get()
-                : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            if ($usuario_ac->hasRole('CONTABILIDAD')) {
+                $saldos_actual_user = $request->usuario == null ?
+                    SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                        $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+                    })->get()
+                    : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            }else{
+                $empleados= Empleado::where('jefe_id',$usuario->empleado->id)->get('id','nombres','apellidos')->pluck('id');
+                $saldos_actual_user = $request->usuario == null ?
+                    SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
+                        $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
+                    })->whereIn('id_usuario', $empleados)
+                    ->get()
+                    : SaldoGrupo::with('usuario')->where('id_usuario', $id)->orderBy('id', 'desc')->first();
+            }
             $tipo_reporte = $request->usuario != null ? 'usuario' : 'todos';
             $results = SaldoGrupo::empaquetarListado($saldos_actual_user, $tipo_reporte);
             $nombre_reporte = 'reporte_saldoActual';
@@ -281,6 +293,7 @@ class SaldoGrupoController extends Controller
                 'estado',
                 'proyecto',
                 'ciudad',
+                'subdetalle'
             ])
                 ->filter($request->all())
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -694,11 +707,12 @@ class SaldoGrupoController extends Controller
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->sum('total');
-            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user','tarea_info')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=',  $request->usuario)
                 ->get();
+                $gastos_reporte = Gasto::empaquetar($gastos_reporte);
             $transferencia = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
@@ -728,6 +742,7 @@ class SaldoGrupoController extends Controller
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
+            // Log::channel('testing')->info('log',[['gasto',$gastos_reporte]]);
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,
