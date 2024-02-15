@@ -2,9 +2,10 @@
 
 namespace App\Http\Resources\Medico;
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\BaseResource;
+// use Illuminate\Http\Resources\Json\JsonResource;
 
-class LaboratorioClinicoResource extends JsonResource
+class LaboratorioClinicoResource extends BaseResource
 {
     /**
      * Transform the resource into an array.
@@ -12,7 +13,7 @@ class LaboratorioClinicoResource extends JsonResource
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public function toArray($request)
+    public function construirModelo($request)
     {
         return [
             'id' => $this->id,
