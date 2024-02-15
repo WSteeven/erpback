@@ -168,4 +168,49 @@ class MaterialEmpleadoTarea extends Model implements Auditable
             throw $th;
         }
     }
+
+    /**
+     * La función `cargarMaterialEmpleadoTareaPorAnulacionDevolucion` se utiliza para actualizar el
+     * stock y cantidad de devolución de un material asignado a un empleado para una tarea específica,
+     * en función de la cancelación o anulación de una devolución de material.
+     * 
+     * @param int detalle_id El ID del producto detallado.
+     * @param int empleado_id El parámetro `empleado_id` representa el ID del empleado.
+     * @param int tarea_id El parámetro `tarea_id` representa el ID de la tarea para la cual se carga
+     * el material para el empleado.
+     * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
+     * cargar para el empleado y tarea debido a una baja o devolución.
+     * @param int cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * cargando el material.
+     * @param int proyecto_id El parámetro "proyecto_id" es un número entero opcional que representa el
+     * ID de un proyecto. Se utiliza para filtrar el material por proyecto si se proporciona. Si no se
+     * proporciona, no se utilizará en la consulta.
+     * @param int etapa_id El parámetro "etapa_id" representa el ID de una etapa o fase de un proyecto.
+     * Se utiliza en la función para filtrar el material asignado a un empleado según la etapa
+     * específica del proyecto.
+     */
+    public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    {
+        try {
+            $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)
+                ->where('tarea_id', $tarea_id)
+                ->where('cliente_id', $cliente_id)
+                ->where('empleado_id', $empleado_id)
+                ->when('proyecto_id', function ($query) use ($proyecto_id) {
+                    $query->where('proyecto_id', $proyecto_id);
+                })
+                ->when('etapa_id', function ($query) use ($etapa_id) {
+                    $query->where('etapa_id', $etapa_id);
+                })
+                ->first();
+
+            if ($material) {
+                $material->cantidad_stock += $cantidad;
+                $material->devuelto -= $cantidad;
+                $material->save();
+            } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

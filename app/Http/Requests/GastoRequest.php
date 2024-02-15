@@ -2,19 +2,13 @@
 
 namespace App\Http\Requests;
 
-use App\Models\FondosRotativos\Gasto\DetalleViatico;
-use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
-use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use PgSql\Lob;
-use Psy\CodeCleaner\AssignThisVariablePass;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
@@ -107,16 +101,15 @@ class GastoRequest extends FormRequest
                 }
                 if (substr_count($this->ruc, '9') < 9) {
                     $validador = new ValidarIdentificacion();
-                    $existeRUC = Http::get('https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente/existePorNumeroRuc?numeroRuc=' . $this->ruc);
 
-                    if (!(($validador->validarCedula($this->ruc)) || ($existeRUC->body() == 'true'))) {
+                    $existeRUC = $validador->validarRUCSRI($this->ruc);
+
+                    if (!(($validador->validarCedula($this->ruc)) || $existeRUC)) {
                         $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
                     }
                 }
             } catch (Exception $e) {
-                throw ValidationException::withMessages([
-                    'Error al validar gasto' => ['No se puede validar RUC con el servicio del SRI, porfavor intentelo mas tarde'],
-                ]);
+                throw ValidationException::withMessages(['Error al validar gasto' => $e->getMessage()]);
             }
         });
     }
@@ -155,7 +148,7 @@ class GastoRequest extends FormRequest
         if ($comprobante_pendiente) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
         }
-        if($this->factura !== null){
+        if ($this->factura !== null) {
             $numFacturaObjeto = [
                 [
                     "detalle" => 16,
@@ -171,27 +164,22 @@ class GastoRequest extends FormRequest
             $num_fact = str_replace(' ', '',  $this->factura);
             if ($this->detalle == 16) {
                 if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
-                    throw ValidationException::withMessages([
-                        '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                    ]);
+                    throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
                 }
             } else {
                 if (strlen($num_fact) < $cantidad) {
-                    throw ValidationException::withMessages([
-                        '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                    ]);
+                    throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
                 }
             }
         }
-
-
     }
     protected function prepareForValidation()
     {
         $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
-        $this->merge([
-            'factura' => str_replace('_', ' ', $this->factura),
-        ]);
+        if (!is_null($this->factura))
+            $this->merge([
+                'factura' => str_replace('_', ' ', $this->factura),
+            ]);
         $this->merge([
             'fecha_viat' =>  $date_viat->format('Y-m-d'),
         ]);

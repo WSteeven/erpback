@@ -273,7 +273,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $itemInventario = Inventario::find($detalle['inventario_id']);
                     $itemInventario->cantidad -= $detalle['cantidad_inicial'];
                     $itemInventario->save();
-                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
                 }
 
                 $transaccion->estado_id = $estadoAnulado->id;
@@ -290,7 +290,7 @@ class TransaccionBodegaIngresoController extends Controller
             }
         } else {
             // Log::channel('testing')->info('Log', ['La transacción está anulada, ya no se anulará nuevamente']);
-            $mensaje = 'La transacción está anulada, ya no se anulará nuevamente';
+            $mensaje = 'La transacción ya está anulada, ya no se anulará nuevamente';
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
             return response()->json(compact('modelo', 'mensaje'));
         }
