@@ -652,15 +652,20 @@ class TransaccionBodegaIngresoService
         DevolucionService::verificarItemsDevolucion($itemDevolucion);
     }
 
-    public static function anularIngresoDevolucion($devolucion_id, $detalle_id, $cantidad)
+    public static function anularIngresoDevolucion($transaccion, $devolucion_id, $detalle_id, $cantidad)
     {
+        $devolucion = Devolucion::find($devolucion_id);
+        if ($transaccion->tarea_id) {
+            MaterialEmpleadoTarea::cargarMaterialEmpleadoTareaPorAnulacionDevolucion($detalle_id, $devolucion->solicitante_id, $transaccion->tarea_id, $cantidad, $devolucion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
+        } else {
+            MaterialEmpleado::cargarMaterialEmpleadoPorAnulacionDevolucion($detalle_id, $devolucion->solicitante_id, $cantidad, $devolucion->cliente_id);
+        }
         $item = DetalleDevolucionProducto::where('devolucion_id', $devolucion_id)->where('detalle_id', $detalle_id)->first();
-        if($item){
-            $item->devuelto -=$cantidad;
+        if ($item) {
+            $item->devuelto -= $cantidad;
             $item->save();
-        }else throw new Exception('Ha ocurrido un error al intentar restar de la devolucion el item '.$detalle_id);
+        } else throw new Exception('Ha ocurrido un error al intentar restar de la devolucion el item ' . $detalle_id);
 
         DevolucionService::verificarItemsDevolucion($item);
-
     }
 }
