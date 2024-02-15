@@ -30,10 +30,8 @@ class GuardarArchivo
     public function execute()
     {
         $archivo = $this->request->file('file');
-        // $carpeta = $this->request['carpeta'];
-        // $carpeta = Carpeta::find($carpeta);
 
-        $path = $archivo->store($this->ruta->value);
+        $path = $archivo->storeAs($this->ruta->value, $archivo->getClientOriginalName());
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
         return $this->modelo->archivos()->create([
             'nombre' => $archivo->getClientOriginalName(),
