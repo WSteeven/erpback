@@ -3,6 +3,7 @@
 namespace App\Models\Ventas;
 
 use App\Traits\UppercaseValuesTrait;
+use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -60,6 +61,8 @@ class DetallePagoComision extends Model implements Auditable
                     return $venta->vendedor_id == $vendedor->empleado_id;
                 });
                 foreach ($ventas_vendedor as $venta) {
+                    if (($venta->fecha_activacion >= $corte->fecha_inicio && $venta->fecha_activacion <= $corte->fecha_fin) && (Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') >= $corte->fecha_inicio && Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') <= $corte->fecha_fin))
+                        Log::channel('testing')->info('Log', ['Venta que se repite en ambas fechas?', $venta]);
                     [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
                     $total_comisiones += $comision_valor;
                 }
@@ -77,9 +80,9 @@ class DetallePagoComision extends Model implements Auditable
                         'pagado' => !$alcanza_umbral
                     ]);
                     Log::channel('testing')->info('Log', ['detalle creado',  $detalle]);
-                    if ($alcanza_umbral) {
-                        RetencionChargeback::crearRetencionesChargebackCorte($vendedor, $ventas_vendedor, $corte->fecha_inicio, $corte->fecha_fin);
-                    }
+                    // if ($alcanza_umbral) {
+                    RetencionChargeback::crearRetencionesChargebackCorte($vendedor, $ventas_vendedor, $corte->fecha_inicio, $corte->fecha_fin);
+                    // }
                 }
                 $total_comisiones = 0;
             }

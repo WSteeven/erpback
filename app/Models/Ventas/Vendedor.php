@@ -71,6 +71,9 @@ class Vendedor extends Model implements Auditable
      *******************************/
 
     /**
+     * ESTE METODO ESTA EN DESUSO, POR FAVOR ELIMINARLO
+     */
+    /**
      * La función "verificarVentasMensuales" verifica si un vendedor ha alcanzado el umbral mínimo de
      * ventas para un mes hasta una fecha determinada.
      * 
