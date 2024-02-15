@@ -742,7 +742,7 @@ class SaldoGrupoController extends Controller
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
-            Log::channel('testing')->info('log',[['gasto',$gastos_reporte]]);
+            // Log::channel('testing')->info('log',[['gasto',$gastos_reporte]]);
             $reportes =  [
                 'fecha_anterior' => $fecha_anterior,
                 'fecha_inicio' => $fecha_inicio,

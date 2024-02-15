@@ -289,38 +289,40 @@
                                     @else
                                         @foreach ($gastos_reporte as $dato)
                                             @php
-                                                $sub_total = $sub_total + (float) $dato->total;
+                                                $sub_total = $sub_total + (float) $dato['total'];
                                             @endphp
                                             <tr>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->id }}</div>
+                                                    <div align="center">{{ $dato['id'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->fecha }}</div>
+                                                    <div align="center">{{ $dato['fecha'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $dato->tarea != null ? $dato->tareacodigo_tarea : 'Sin Tarea' }}
+                                                        {{ $dato['tarea'] != null ? $dato['tarea']->codigo_tarea : 'Sin Tarea' }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->factura }}</div>
+                                                    <div align="center">{{ $dato['factura'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->ruc }}</div>
+                                                    <div align="center">{{ $dato['ruc'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
+                                                        {{-- {{ $dato[aut_especial_user]->nombres . '' . $dato->aut_especial_user->apellidos }} --}}
+                                                        {{ $dato['autorizador'] }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->detalle_info->descripcion }}</div>
+                                                    {{-- <div align="center">{{ $dato->detalle_info->descripcion }}</div> --}}
+                                                    <div align="center">{{ $dato['detalle'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        @foreach ($dato->sub_detalle_info as $sub_detalle)
-                                                            {{ $sub_detalle->descripcion }}
+                                                        @foreach ($dato['sub_detalle'] as $sub_detalle)
+                                                            {{strtoupper( $sub_detalle->descripcion) }}
                                                             @if (!$loop->last)
                                                                 ,
                                                             @endif
@@ -328,19 +330,20 @@
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->observacion }}</div>
+                                                    <div align="center">{{ $dato['observacion'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
                                                 <td style="font-size:10px">{{ $dato['sub_centro_costo'] }}</td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato->cantidad }}</div>
+                                                    <div align="center">{{ $dato['cantidad'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ number_format($dato->valor_u, 2, ',', '.') }}</div>
+                                                        {{ number_format($dato['valor_u'], 2, ',', '.') }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ number_format($dato->total, 2, ',', ' ') }}
+                                                    <div align="center">
+                                                        {{ number_format($dato['total'], 2, ',', ' ') }}
                                                     </div>
                                                 </td>
                                             </tr>
