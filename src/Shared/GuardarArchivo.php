@@ -27,21 +27,23 @@ class GuardarArchivo
         $this->ruta = $ruta;
     }
 
+    // Guarda un archivo a la vez
     public function execute()
     {
         $archivo = $this->request->file('file');
 
-        $path = $archivo->storeAs($this->ruta->value, $archivo->getClientOriginalName());
+        $nombreArchivo = preg_replace('/[^\w\-\.]/', '', $archivo->getClientOriginalName());
+
+        // $path = $archivo->storeAs($this->ruta->value, $archivo->getClientOriginalName());
+        $path = $archivo->storeAs($this->ruta->value, $nombreArchivo);
         $ruta_relativa = Utils::obtenerRutaRelativaArchivo($path);
         return $this->modelo->archivos()->create([
             'nombre' => $archivo->getClientOriginalName(),
             'ruta' => $ruta_relativa,
             'tamanio_bytes' => filesize($archivo)
         ]);
-
-
-        //return response()->json(['mensaje' => 'Video actualizado exitosamente!']);
     }
+
     public static function json(Request $request, RutasStorage $ruta, $carpeta_usuario = false,$empleado =null)
     {
         $empleado_identificacion = Empleado::where('id',$empleado)->first()->identificacion;

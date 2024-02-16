@@ -12,12 +12,23 @@
 
 <body>
     <!-- <h5>Estamos realizando pruebas, por favor no prestar atención a este correo.</h5> -->
-    <h2>JPCONSTRUCTRED C. Ltda.</h2>
     <img src="{{ $logo_principal }}" alt="logo" width="100" height="100" />
-    <p>Estimado, {{ $ticket->solicitante->nombres }} {{ $ticket->solicitante->apellidos . ', ' }}
-        se le notifica que {{ $ticket->responsable->nombres . ' ' . $ticket->responsable->apellidos }} ha
-        {{ $ticket->estado }} el ticket con asunto: {{ $ticket->asunto }}.
-    </p>
+    <h2>JPCONSTRUCTRED C. Ltda.</h2>
+
+    @if ($ticket->estado === 'RECHAZADO')
+        <p>Estimado, {{ $ticket->solicitante->nombres }} {{ $ticket->solicitante->apellidos . ', ' }}
+            se le notifica que {{ $ticket->responsable->nombres . ' ' . $ticket->responsable->apellidos }} ha
+            {{ $ticket->estado }} el ticket {{ $ticket->codigo }} con asunto: {{ $ticket->asunto }}.
+        </p>
+    @endif
+
+    @if ($ticket->estado === 'CANCELADO')
+        <p>Estimado, {{ $ticket->responsable->nombres . ' ' . $ticket->responsable->apellidos }}
+            se le notifica que {{ $ticket->solicitante->nombres }} {{ $ticket->solicitante->apellidos . ', ' }} ha
+            {{ $ticket->estado }} el ticket {{ $ticket->codigo }} con asunto: {{ $ticket->asunto }}.
+        </p>
+    @endif
+
     @if (!is_null($ticket->motivo_cancelado_ticket_id))
         <p><b>Motivo de cancelación: </b>{{ $ticket->motivoCanceladoTicket?->motivo }}</p>
     @endif
@@ -26,7 +37,7 @@
         <p><b>Motivo de rechazo: </b>{{ $ticket->ticketsRechazados->last()->motivo }}</p>
     @endif
 
-    <p>Éste correo es automático, por favor, no lo responda.</p>
+    <small>Éste mensaje de correo electrónico es generado automáticamente. Por favor, no lo responda.</small>
 </body>
 
 </html>
