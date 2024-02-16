@@ -82,16 +82,16 @@ class BonoMensualCumplimientoController extends Controller
             DB::beginTransaction();
             $vendedores = Vendedor::all();
             foreach ($vendedores as $key => $vendedor) {
-                $suma_ventas = $this->calcular_cantidad_ventas($mes, $vendedor->id);
+                $suma_ventas = $this->calcular_cantidad_ventas($mes, $vendedor->empleado_id);
                 $bono = $this->calcular_bono($suma_ventas, $vendedor);
                 $valor_bono =  $bono != null  ? $bono : null;
-                if($vendedor->tipo_vendedor === "VENDEDOR"){
-                   $valor_bono = $valor_bono !== null?  $valor_bono->valor :0;
-                }else{
-                    $valor_bono = $valor_bono !== null?  $valor_bono->comision :0;
+                if ($vendedor->tipo_vendedor === "VENDEDOR") {
+                    $valor_bono = $valor_bono !== null ?  $valor_bono->valor : 0;
+                } else {
+                    $valor_bono = $valor_bono !== null ?  $valor_bono->comision : 0;
                 }
                 $bono_mensual = BonoMensualCumplimiento::create([
-                    'vendedor_id' => $vendedor->id,
+                    'vendedor_id' => $vendedor->empleado_id,
                     'cant_ventas' => $suma_ventas,
                     'mes' =>  $mes,
                     'bono_id' => $bono != null  ? $bono->id : null,
@@ -119,7 +119,7 @@ class BonoMensualCumplimientoController extends Controller
                 $meta_ventas = UmbralVenta::where('vendedor_id', $vendedor->id)->first();
                 $cantidad_ventas = $meta_ventas == !null ? $meta_ventas->cantidad_ventas : 1;
                 $porcentaje =  $suma_ventas / $cantidad_ventas;
-                $bono_porcentual = BonoPorcentual::where('porcentaje', '<=',($porcentaje*100))->where('porcentaje','>',0)->orderBy('id','desc')->first();
+                $bono_porcentual = BonoPorcentual::where('porcentaje', '<=', ($porcentaje * 100))->where('porcentaje', '>', 0)->orderBy('id', 'desc')->first();
                 $valor = $bono_porcentual;
             }
             DB::commit();
@@ -129,14 +129,13 @@ class BonoMensualCumplimientoController extends Controller
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al calcular bonos', $e->getMessage(), $e->getLine()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al calcular bonos' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-
     }
     public function  calcular_cantidad_ventas($mes, $vendedor_id)
     {
         try {
             DB::beginTransaction();
 
-            $vendedor = Vendedor::where('id', $vendedor_id)->first();
+            $vendedor = Vendedor::find($vendedor_id);
             $fecha = $mes; // Tu fecha en formato "2023-02"
             $parts = explode('-', $fecha); // Divide la fecha por el carácter '-'
             $year = $parts[0]; // Año
@@ -144,20 +143,21 @@ class BonoMensualCumplimientoController extends Controller
             if ($vendedor->tipo_vendedor == 'VENDEDOR') {
                 $cantidad_ventas = Venta::whereYear('fecha_activacion', $year)
                     ->whereMonth('fecha_activacion', $month)
-                    ->where('estado_activacion','APROBADO')
+                    ->where('estado_activacion', 'APROBADO')
                     ->where('vendedor_id', $vendedor_id)
                     ->get()
                     ->count();
             } else {
-                $cantidad_ventas = Venta::join('ventas_vendedor', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedor.id')
+                $cantidad_ventas = Venta::join('ventas_vendedores', 'ventas_ventas.vendedor_id', '=', 'ventas_vendedores.empleado_id')
                     ->whereYear('fecha_activacion', $year)
                     ->whereMonth('fecha_activacion', $month)
-                    ->where('estado_activacion','APROBADO')
-                    ->where('ventas_vendedor.jefe_inmediato_id', $vendedor->empleado_id)
+                    ->where('estado_activacion', 'APROBADO')
+                    ->where('ventas_vendedores.jefe_inmediato_id', $vendedor->empleado_id)
                     ->get()
                     ->count();
             }
             DB::commit();
+            Log::channel('testing')->info('Log', ['Cantidad de ventas', $cantidad_ventas]);
             return $cantidad_ventas;
         } catch (Exception $e) {
             DB::rollback();

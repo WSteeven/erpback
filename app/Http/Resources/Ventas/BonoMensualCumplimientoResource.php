@@ -19,7 +19,7 @@ class BonoMensualCumplimientoResource extends JsonResource
             'id' => $this->id,
             'vendedor_id' => $this->vendedor_id,
             'vendedor' => $this->vendedor,
-            'vendedor_info' => $this->vendedor->empleado->nombres.' '.$this->vendedor->empleado->apellidos,
+            'vendedor_info' => $this->vendedor?->empleado->nombres.' '.$this->vendedor?->empleado->apellidos,
             'bono_id' => $this->bono_id,
             'bono' => $this->bono_id,
             'bono_info' => $this->bono!=null? $this->bono->valor:' ',

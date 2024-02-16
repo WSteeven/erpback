@@ -25,9 +25,9 @@ class BonoMensualCumplimiento extends Model implements Auditable
         '*',
     ];
     public function vendedor(){
-        return $this->hasOne(Vendedor::class,'id','vendedor_id')->with('empleado');
+        return $this->hasOne(Vendedor::class,'empleado_id','vendedor_id')->with('empleado');
     }
     public function bono(){
-        return $this->hasOne(Bonos::class,'id','bono_id');
+        return $this->hasOne(Bono::class,'id','bono_id');
     }
 }

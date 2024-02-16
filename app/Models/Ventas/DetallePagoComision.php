@@ -61,8 +61,11 @@ class DetallePagoComision extends Model implements Auditable
                     return $venta->vendedor_id == $vendedor->empleado_id;
                 });
                 foreach ($ventas_vendedor as $venta) {
-                    if (($venta->fecha_activacion >= $corte->fecha_inicio && $venta->fecha_activacion <= $corte->fecha_fin) && (Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') >= $corte->fecha_inicio && Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') <= $corte->fecha_fin))
+                    if (($venta->fecha_activacion >= $corte->fecha_inicio && $venta->fecha_activacion <= $corte->fecha_fin) && (Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') >= $corte->fecha_inicio && Carbon::parse($venta->fecha_pago_primer_mes)->format('Y-m-d') <= $corte->fecha_fin)) {
                         Log::channel('testing')->info('Log', ['Venta que se repite en ambas fechas?', $venta]);
+                        [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
+                        $total_comisiones += $comision_valor;
+                    }
                     [$comision_valor, $comision] = Comision::calcularComisionVenta($venta->vendedor_id, $venta->producto_id, $venta->forma_pago);
                     $total_comisiones += $comision_valor;
                 }

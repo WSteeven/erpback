@@ -102,6 +102,32 @@ class Vendedor extends Model implements Auditable
         }
     }
 
+    /**
+     * La función calcula el número de ventas mensuales de un vendedor específico en función de una
+     * fecha determinada.
+     * 
+     * @param Carbon fecha El parámetro "fecha" es una instancia de la clase Carbon, que representa una
+     * fecha y hora. Se utiliza para especificar el mes y año para el cual se deben calcular las
+     * ventas.
+     * @param vendedor_id El parámetro `vendedor_id` representa el ID del vendedor o proveedor para
+     * quien desea calcular la cantidad de ventas mensuales.
+     * 
+     * @return el recuento de ventas para un mes y año específico, realizado por un vendedor
+     * específico.
+     */
+    public static function calcularCantidadVentasMensuales(Carbon $fecha, $vendedor_id)
+    {
+        try {
+            $ventas = Venta::whereYear('fecha_activacion', $fecha->year)->whereMonth('fecha_activacion', $fecha->month)
+                ->where('vendedor_id', $vendedor_id)
+                ->where('estado_activacion', Venta::ACTIVADO)
+                ->get();
+            return $ventas->count();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
 
     /**
      * ESTE METODO ESTA EN DESUSO, POR FAVOR ELIMINARLO

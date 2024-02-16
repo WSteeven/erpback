@@ -263,10 +263,10 @@ class PagoComisionService
                 $row['forma_pago'] = $venta->forma_pago;
                 $row['orden_interna'] = $venta->orden_interna;
                 $row['comisiona'] = $venta->comisiona;
-                $row['porcentaje_comision'] = $comision->comision;
-                $row['valor_comision'] = $valor_comision;
-                $row['primer_pago'] = $valor_comision*.45;
-                $row['retencion_chargeback'] = $valor_comision*1;
+                $row['porcentaje_comision'] = $venta->comisiona?$comision->comision:null;
+                $row['valor_comision'] = $venta->comisiona?$valor_comision:null;
+                $row['primer_pago'] = $venta->comisiona?$valor_comision*.45:null;
+                $row['retencion_chargeback'] = $venta->comisiona?$valor_comision*.1:null;
                 $results[$count] = $row;
                 $count++;
             }
