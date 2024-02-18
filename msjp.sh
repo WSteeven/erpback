@@ -60,6 +60,34 @@ echo "Ejecutando comandos porfavor espere ..."
 migration_name="create_${prefix}${component}s_table"
 php artisan make:model  "$nmodule/$component"
 php artisan make:migration "$migration_name"
-php artisan make:controller "$nmodule/$component"Controller
+php artisan make:controller "$nmodule/$component"Controller --api
 php artisan make:request "$nmodule/$component"Request
 php artisan make:resource "$nmodule/$component"Resource
+
+#crear permisos
+archivo="./app/Http/Controllers/${nmodule}/${component}Controller.php"
+linea=10
+texto_a_insertar="
+ public function __construct()
+    {
+        \$this->middleware('can:puede.ver.${component}s')->only('index', 'show');
+        \$this->middleware('can:puede.crear.${component}s')->only('store');
+        \$this->middleware('can:puede.editar.${component}s')->only('update');
+        \$this->middleware('can:puede.eliminar.${component}s')->only('destroy');
+    }"
+
+# Crear un archivo temporal
+tempfile=$(mktemp)
+
+# Copiar las primeras 14 líneas del archivo original al archivo temporal
+head -n $linea "$archivo" > "$tempfile"
+
+# Insertar el nuevo texto en la línea deseada
+echo "$texto_a_insertar" >> "$tempfile"
+
+# Copiar las líneas restantes del archivo original al archivo temporal
+tail -n +$((linea + 1)) "$archivo" >> "$tempfile"
+
+# Reemplazar el archivo original con el archivo temporal
+mv "$tempfile" "$archivo"
+

@@ -58,4 +58,42 @@ php artisan make:controller %nmodule%/%component%Controller --api
 php artisan make:request %nmodule%/%component%Request
 php artisan make:resource %nmodule%/%component%Resource
 
+echo Creando permisos...
+
+set "archivo=./app/Http/Controllers/%nmodule%/%component%Controller.php"
+set "linea=10"
+set "texto_a_insertar=^
+ public function __construct()^
+    {^
+        $this->middleware('can:puede.ver.%component%')->only('index', 'show');^
+        $this->middleware('can:puede.crear.%component%')->only('store');^
+        $this->middleware('can:puede.editar.%component%')->only('update');^
+        $this->middleware('can:puede.eliminar.%component%')->only('destroy');^
+    }"
+
+REM Crear un archivo temporal
+set "tempfile=%temp%\tempfile_%random%.tmp"
+
+REM Copiar las primeras 14 líneas del archivo original al archivo temporal
+for /f "tokens=1,* delims=:" %%a in ('findstr /n "^" "%archivo%"') do (
+    if %%a leq %linea% (
+        echo %%b >> "%tempfile%"
+    ) else (
+        goto InsertText
+    )
+)
+
+:InsertText
+REM Insertar el nuevo texto en la línea deseada
+echo %texto_a_insertar% >> "%tempfile%"
+
+REM Copiar las líneas restantes del archivo original al archivo temporal
+for /f "skip=%linea% tokens=*" %%a in ('findstr /n "^" "%archivo%"') do (
+    echo %%b >> "%tempfile%"
+)
+
+REM Reemplazar el archivo original con el archivo temporal
+move /y "%tempfile%" "%archivo%"
+
+
 endlocal
