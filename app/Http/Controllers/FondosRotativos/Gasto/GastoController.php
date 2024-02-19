@@ -299,8 +299,8 @@ class GastoController extends Controller
     {
         try {
             $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
@@ -387,8 +387,8 @@ class GastoController extends Controller
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $tipo_ARCHIVO = $tipo;

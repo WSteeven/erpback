@@ -116,8 +116,8 @@ class GastoCoordinadorController extends Controller
     {
         try {
             $datos = $request->all();
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $usuario = null;

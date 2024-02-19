@@ -175,7 +175,7 @@ class GastoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
-        $date_viat = Carbon::createFromFormat('d-m-Y', $this->fecha_viat);
+        $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
         if (!is_null($this->factura))
             $this->merge([
                 'factura' => str_replace('_', ' ', $this->factura),
