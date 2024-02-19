@@ -842,10 +842,11 @@ class SaldoGrupoController extends Controller
     public function gastocontabilidad(Request $request)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
-            $fecha_inicio = $date_inicio->format('Y-m-d');
-            $fecha_fin = $date_fin->format('Y-m-d');
+            $mask = 'Y-m-d';
+            $date_inicio = Carbon::createFromFormat($mask, $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat($mask, $request->fecha_fin);
+            $fecha_inicio = $date_inicio->format($mask);
+            $fecha_fin = $date_fin->format($mask);
             $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
