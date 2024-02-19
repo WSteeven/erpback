@@ -34,17 +34,18 @@ class BonoMensualCumplimientoRequest extends FormRequest
         $validator->after(function ($validator) {
             //$mes = Carbon::createFromFormat('m-Y', $this->mes);
             $mes =  $this->mes;
-            $validarBonoMensual = BonoMensualCumplimiento::where('mes',$mes)->get()->count();
+            $validarBonoMensual = BonoMensualCumplimiento::where('mes', $mes)->get()->count();
             if ($validarBonoMensual > 0) {
-                $validator->errors()->add('fecha', 'Ya se pago Bono del mes: '.$mes);
+                $validator->errors()->add('fecha', 'Ya se pago Bono del mes: ' . $mes);
             }
         });
     }
     protected function prepareForValidation()
     {
-        $date = Carbon::createFromFormat('m-Y', $this->mes);
+        // $date = Carbon::createFromFormat('m-Y', $this->mes);
         $this->merge([
-            'mes' =>  $date->format('Y-m'),
+            // 'mes' =>  $date->format('Y-m'),
+            'mes' =>  Carbon::createFromFormat('Y-m', $this->mes),
         ]);
     }
 }

@@ -18,4 +18,14 @@ class BonoPorcentual extends Model implements Auditable
     private static $whiteListFilter = [
         '*',
     ];
+
+
+    /**
+     * Relacion polimorfica a un bono de cumplimiento.
+     * Un bono puede tener uno o varios registos en un bono Mensual de cumplimiento.
+     */
+    public function bonosCumplimiento()
+    {
+        return $this->morphMany(BonoMensualCumplimiento::class, 'bonificable');
+    }
 }

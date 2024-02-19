@@ -66,7 +66,7 @@ class GastoController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
-        if ($usuario_ac->hasRole('CONTABILIDAD')) {
+        if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
             $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));

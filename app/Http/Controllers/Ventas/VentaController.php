@@ -275,13 +275,13 @@ class VentaController extends Controller
                 ->where('vendedor_id', $request->vendedor)
                 ->groupBy('mes')
                 ->get();
-            $Chargeback = Chargeback::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_chargeback'))
+            $chargeback = Chargeback::select(DB::raw('Concat(MONTHNAME(fecha),"-",Year(fecha)) AS mes'), DB::raw('SUM(valor) AS total_chargeback'))
                 ->join('ventas_ventas', 'ventas_chargebacks.venta_id', '=', 'ventas_ventas.id')
                 ->where('ventas_ventas.vendedor_id', $request->vendedor)
                 ->whereBetween('ventas_chargebacks.fecha', [$fecha_inicio, $fecha_fin])
                 ->groupBy('mes')
                 ->get();
-            $data = compact('bonosMensuales', 'bonosTrimestrales', 'comisiones', 'Chargeback');
+            $data = compact('bonosMensuales', 'bonosTrimestrales', 'comisiones', 'chargeback');
             $reportes = [];
             $bmc = 0;
             $btc = 0;
@@ -303,7 +303,7 @@ class VentaController extends Controller
                         'bmc' => $bmc,
                         'btc' => $btc,
                         'total_comisiones' => $totalComisiones,
-                        'Chargeback' => $totalChargeback,
+                        'chargeback' => $totalChargeback,
                         'ingresos' => $ingresos,
                         'egresos' => $egresos,
                         'total_a_pagar' => $total

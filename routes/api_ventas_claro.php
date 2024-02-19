@@ -21,6 +21,7 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentaController;
+use App\Models\Ventas\BonoMensualCumplimiento;
 use App\Models\Ventas\CortePagoComision;
 use App\Models\Ventas\NovedadVenta;
 use Illuminate\Support\Facades\Route;
@@ -40,7 +41,7 @@ Route::apiResources(
         'chargebacks' => ChargebackController::class,
         'pagos-comisiones' => PagoComisionController::class,
         'novedades-ventas' => NovedadVentaController::class,
-        'bono-mensual-cumplimiento' => BonoMensualCumplimientoController::class,
+        'bonos-mensuales-cumplimientos' => BonoMensualCumplimientoController::class,
         'bono-trimestral-cumplimiento' => BonoTrimestralCumplimientoController::class,
         'umbral-ventas' => UmbralVentaController::class,
         'esquema-comision' => EsquemaComisionController::class,
@@ -60,6 +61,7 @@ Route::apiResources(
             'pagos-comisiones' => 'pago',
             'cortes-pagos-comisiones' => 'corte',
             'retenciones-chargebacks' => 'retencion',
+            'bonos-mensuales-cumplimientos' => 'bono',
         ],
     ]
 );
@@ -81,6 +83,7 @@ Route::get('obtener-fechas-disponibles-cortes', [CortePagoComisionController::cl
 Route::get('cortes-pagos-comisiones/marcar-completada/{corte}', [CortePagoComisionController::class, 'marcarCompletado']);
 Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionChargebackController::class, 'marcarPagada']);
 Route::get('actualizar-comisiones-ventas', [VentaController::class, 'actualizarComisiones']);
+Route::post('bonos-mensuales-cumplimientos/marcar-pagada/{bono}', [BonoMensualCumplimientoController::class, 'marcarPagada']);
 
 
 //listar archivos

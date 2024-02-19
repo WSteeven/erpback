@@ -15,8 +15,17 @@ class Bono extends Model implements Auditable
     use HasFactory;
     use AuditableModel, UppercaseValuesTrait, Filterable;
     protected $table = 'ventas_bonos';
-    protected $fillable =['cant_ventas','valor'];
+    protected $fillable = ['cant_ventas', 'valor'];
     private static $whiteListFilter = [
         '*',
     ];
+
+    /**
+     * Relacion polimorfica a un bono de cumplimiento.
+     * Un bono puede tener uno o varios registos en un bono Mensual de cumplimiento.
+     */
+    public function bonosCumplimiento()
+    {
+        return $this->morphMany(BonoMensualCumplimiento::class, 'bonificable');
+    }
 }

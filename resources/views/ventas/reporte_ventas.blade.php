@@ -21,8 +21,8 @@
         <td colspan="12">&nbsp;JUAN SALVADOR TAPIA SILVERS </td>
       </tr>
       <tr >
-        <td style="font-weight: bold" >SUPERVISOR:</td>
-        <td colspan="12">JUAN PABLO CALLE</td>
+        {{-- <td style="font-weight: bold" >SUPERVISOR:</td>
+        <td colspan="12">JUAN PABLO CALLE</td> --}}
       </tr>
       <tr>
         <td style="font-weight: bold" >N <span style="color:#000000; font-family:'Calibri'; font-size:11pt">°</span></td>

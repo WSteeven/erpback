@@ -25,6 +25,7 @@ class BonoMensualCumplimientoResource extends JsonResource
             'bono_info' => $this->bono!=null? $this->bono->valor:' ',
             'cant_ventas' => $this->cant_ventas,
             'mes' => $this->mes,
+            'pagada' => $this->pagada,
             'valor' =>  number_format($this->valor,2)
         ];
         return $modelo;

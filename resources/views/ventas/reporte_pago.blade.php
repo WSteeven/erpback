@@ -61,7 +61,7 @@
                                       <td >{{ $reporte['total_comisiones'] }}</td>
                                       <td >{{ $reporte['bmc'] }}</td>
                                       <td >{{ $reporte['btc'] }}</td>
-                                      <td >{{ $reporte['chargebacks'] }}</td>
+                                      <td >{{ $reporte['chargeback'] }}</td>
                                       <td >{{ $reporte['ingresos'] }}</td>
                                       <td >{{ $reporte['egresos'] }}</td>
                                       <td >{{ $reporte['total_a_pagar'] }} </td>

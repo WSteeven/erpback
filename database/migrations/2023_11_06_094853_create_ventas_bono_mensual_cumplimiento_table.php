@@ -17,12 +17,15 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('vendedor_id')->nullable();
             $table->integer('cant_ventas');
-            $table->string('mes',7);
-            $table->decimal('valor',8,4);
-            $table->string('bono_type')->nullable();
-            $table->unsignedBigInteger('bono_id')->nullable();
+            $table->string('mes', 7);
+            $table->decimal('valor', 8, 4);
+            $table->boolean('pagada')->default(false);
+            $table->string('bonificable_type')->nullable();
+            $table->unsignedBigInteger('bonificable_id')->nullable();
             $table->timestamps();
-            
+
+            $table->unique(['vendedor_id', 'mes']);
+
             $table->foreign('vendedor_id')->references('empleado_id')->on('ventas_vendedores')->nullOnDelete()->cascadeOnUpdate();
         });
     }
