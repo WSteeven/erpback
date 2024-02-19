@@ -3,8 +3,10 @@
 namespace Src\App\Medico;
 
 use App\Exports\Medico\ReporteCuestionarioPisicosocialExport;
+use App\Exports\Medico\RespuestasCuestionarioExport;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Excel as ExcelCosnstant;
 use Maatwebsite\Excel\Facades\Excel;
 
 class CuestionarioPisicosocialService
@@ -30,4 +32,10 @@ class CuestionarioPisicosocialService
         $export_excel = new ReporteCuestionarioPisicosocialExport($reporte);
         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
+    public static function imprimir_respuesta_cuestionario($reporte){
+        $nombre_reporte ='reporte_c_p';
+        $export_excel = new RespuestasCuestionarioExport($reporte);
+        return Excel::download($export_excel, $nombre_reporte . '.csv', ExcelCosnstant::CSV);
+    }
+
 }

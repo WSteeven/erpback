@@ -133,6 +133,7 @@ Route::apiResources(
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('archivo-cie', [CieController::class, 'archivoCie']);
     Route::get('reporte-cuestionario', [CuestionarioController::class, 'ReportesCuestionarios']);
+    Route::get('imprimir-cuestionario', [CuestionarioController::class, 'imprimirCuestionario']);
 });
 
 /************************************

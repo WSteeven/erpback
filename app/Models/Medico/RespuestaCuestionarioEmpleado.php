@@ -38,33 +38,42 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
         $cont = 0;
         foreach ($results_data as $result) {
             $row['id'] =  $result->id;
-            $row['empleado'] = $result->apellidos .' '.  $result->nombres;
+            $row['empleado'] = $result->apellidos . ' ' .  $result->nombres;
             $row['ciudad'] = $result->canton->canton;
             $row['provincia'] = $result->canton->provincia->provincia;
             $cuestionario = RespuestaCuestionarioEmpleado::obtenerCuestionario($result->id);
-            $row['fecha_creacion'] = count($cuestionario)>0?Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d-m-Y H:i:s'):'';
+            $row['fecha_creacion'] = count($cuestionario) > 0 ? Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d-m-Y H:i:s') : '';
             $row['cuestionario'] = $cuestionario;
+            $row['respuestas_concatenadas'] = RespuestaCuestionarioEmpleado::obtenerRespuestasConcatenadas($cuestionario);
             $row['area'] =  $result->area->nombre;
-            $row['nivel_academico'] =$result->nivel_academico;
-            $row['edad'] =Carbon::now()->diffInYears($result->fecha_nacimiento).' AÑOS';
-            $row['antiguedad'] =Carbon::now()->diffInYears($result->fecha_vinculacion).' AÑOS';
-            $row['genero'] =$result->genero ==='M'?'MASCULINO':'FEMENINO';
+            $row['nivel_academico'] = $result->nivel_academico;
+            $row['edad'] = Carbon::now()->diffInYears($result->fecha_nacimiento) . ' AÑOS';
+            $row['antiguedad'] = Carbon::now()->diffInYears($result->fecha_vinculacion) . ' AÑOS';
+            $row['genero'] = $result->genero === 'M' ? 'MASCULINO' : 'FEMENINO';
             $results[$cont] = $row;
             $cont++;
         }
         return $results;
     }
-    private static function obtenerCuestionario($empleado_id){
+    private static function obtenerRespuestasConcatenadas($cuestionario)
+    {
+        $respuestas_concatenadas = '';
+        foreach ($cuestionario as $key => $value) {
+            $respuestas_concatenadas .= $value['respuesta']['valor'];
+        }
+        return $respuestas_concatenadas;
+    }
+    private static function obtenerCuestionario($empleado_id)
+    {
         $respuesta_cuestionario = RespuestaCuestionarioEmpleado::where('empleado_id', $empleado_id)->with('cuestionario')->get();
-        if ( $respuesta_cuestionario) {
+        if ($respuesta_cuestionario) {
             $cuestionarios = array_map(function ($cuestionario) {
-                $respuesta =Respuesta::find($cuestionario['cuestionario']['respuesta_id']);
-                $new_cuestionario = ["pregunta_id" => $cuestionario['cuestionario']['pregunta_id'],'respuesta'=>$respuesta,'fecha_creacion'=>$cuestionario['created_at']];
+                $respuesta = Respuesta::find($cuestionario['cuestionario']['respuesta_id']);
+                $new_cuestionario = ["pregunta_id" => $cuestionario['cuestionario']['pregunta_id'], 'respuesta' => $respuesta, 'fecha_creacion' => $cuestionario['created_at']];
                 return $new_cuestionario;
             }, $respuesta_cuestionario->toArray());
             return $cuestionarios;
         }
         return null;
-
     }
 }
