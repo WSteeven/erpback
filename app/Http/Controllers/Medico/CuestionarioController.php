@@ -12,8 +12,10 @@ use App\Models\Medico\Pregunta;
 use App\Models\Medico\RespuestaCuestionarioEmpleado;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\CuestionarioPisicosocialService;
 use Src\Shared\Utils;
@@ -154,4 +156,20 @@ class CuestionarioController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+    public function imprimirCuestionario()
+    {
+        $empleados = Empleado::where('id', '>', 2)
+        ->where('estado', true)
+        ->where('esta_en_rol_pago', true)
+        ->where('salario', '!=', 0)
+        ->orderBy('apellidos', 'asc')
+        ->with('canton', 'area')
+        ->get();
+        $preguntas = Pregunta::all(['id', 'pregunta', 'codigo']);
+        $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
+        $reporte = compact('preguntas', 'reportes_empaquetado');
+        return CuestionarioPisicosocialService::imprimir_respuesta_cuestionario($reporte);
+
+    }
+
 }

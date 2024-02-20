@@ -132,6 +132,7 @@ Route::apiResources(
 
 Route::post('archivo-cie', [CieController::class, 'archivoCie']);
 Route::get('reporte-cuestionario', [CuestionarioController::class, 'reportesCuestionarios']);
+Route::get('imprimir-cuestionario', [CuestionarioController::class, 'imprimirCuestionario']);
 
 /************************************
  * Cambiar estados de citas medicas
