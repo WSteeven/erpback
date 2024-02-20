@@ -104,7 +104,7 @@ class GastoResource extends JsonResource
     }
     private function cambiar_fecha($fecha)
     {
-        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
+        $fecha_formateada = Carbon::parse($fecha)->format('Y-m-d');
         return $fecha_formateada;
     }
 }
