@@ -47,10 +47,12 @@ class RespuestaCuestionarioEmpleadoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
+
             $cuestionario_pisicosocial_service = new CuestionarioPisicosocialService($request->empleado_id);
             $cuestionario_pisicosocial_service->guardarCuestionario($request->cuestionario);
             $modelo = [];
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $mensaje = 'Gracias por completar el cuestionario.';// Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -58,7 +60,6 @@ class RespuestaCuestionarioEmpleadoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de RespuestaCuestionarioEmpleado' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 

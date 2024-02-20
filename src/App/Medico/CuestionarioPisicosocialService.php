@@ -16,6 +16,7 @@ class CuestionarioPisicosocialService
 
         $this->empleado_id = $empleado_id;
     }
+
     public function guardarCuestionario($respuestas_cuestionario)
     {
         foreach ($respuestas_cuestionario as $key => $value) {

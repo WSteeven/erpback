@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Medico;
 
+use App\Http\Resources\BaseResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -19,8 +20,22 @@ class PreguntaResource extends JsonResource
             'id' => $this->id,
             'codigo' => $this->codigo,
             'pregunta' => $this->pregunta,
-            'respuesta' =>null,
-            'posibles_respuestas' =>  $this->cuestionario
+            'respuesta' => null,
+            'cuestionario' =>  $this->mapearCuestionario(),
         ];
+    }
+
+    private function mapearCuestionario()
+    {
+        $var = $this->cuestionario->map(function ($cuestionario) {
+            return [
+                'id' => $cuestionario->id,
+                // 'pregunta' => $cuestionario->pregunta_id, //?->pregunta,
+                'respuesta' => $cuestionario->respuesta?->respuesta,
+            ];
+        });
+
+        Log::channel('testing')->info('Log', ['var...', $var]);
+        return $var;
     }
 }

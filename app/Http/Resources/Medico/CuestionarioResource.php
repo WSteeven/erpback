@@ -16,7 +16,7 @@ class CuestionarioResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pregunta'=> $this->pregunta?->pregunta,
+            'pregunta' => $this->pregunta_id, //?->pregunta,
             'respuesta' => $this->respuesta?->respuesta,
         ];
     }

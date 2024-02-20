@@ -20,6 +20,7 @@ class Pregunta extends Model implements Auditable
         'pregunta',
     ];
     private static $whiteListFilter = ['*'];
+
     public function cuestionario()
     {
         return $this->hasMany(Cuestionario::class, 'pregunta_id', 'id')->with('respuesta','respuestasCuestionariosEmpleados');

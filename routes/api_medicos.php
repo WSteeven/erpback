@@ -130,10 +130,8 @@ Route::apiResources(
     ]
 );
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('archivo-cie', [CieController::class, 'archivoCie']);
-    Route::get('reporte-cuestionario', [CuestionarioController::class, 'ReportesCuestionarios']);
-});
+Route::post('archivo-cie', [CieController::class, 'archivoCie']);
+Route::get('reporte-cuestionario', [CuestionarioController::class, 'reportesCuestionarios']);
 
 /************************************
  * Cambiar estados de citas medicas

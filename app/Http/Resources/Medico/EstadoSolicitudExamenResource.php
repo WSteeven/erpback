@@ -21,7 +21,7 @@ class EstadoSolicitudExamenResource extends JsonResource
             // 'tipo_examen' => $this->tipo_examen_id,
             'examen' => $this->examen_id ? Examen::find($this->examen_id)->nombre : null,
             'examen_id' => $this->examen_id,
-            // 'tipo_examen' => $this->examen_id ? Examen::find($this->examen_id)->tipoExamen?->first()?->nombre : null, // !== null ? $this->tipoExamen?->nombre:' ',
+            'tipo_examen' => $this->examen?->tipoExamen?->first()->nombre,
             'categoria' => $this->examen_id ? Examen::find($this->examen_id)->categoria?->first()?->nombre : null,
             'estado_examen_id' => $this->estado_examen_id,
             'estado_examen' => $this->estadoExamen?->nombre,

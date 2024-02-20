@@ -60,35 +60,40 @@ class CuestionarioController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                'Error en el servidor' => ['Mensaje: ' . $e->getMessage() . ' - Linea: ' . $e->getLine()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            // return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
-    public function ReportesCuestionarios(Request $request){
+    public function reportesCuestionarios(Request $request)
+    {
         try {
             $results = [];
-            $empleados = Empleado::where('id', '>', 2)
-            ->where('estado', true)
-            ->where('esta_en_rol_pago', true)
-            ->where('salario', '!=', 0)
-            ->orderBy('apellidos','asc')
-            ->with('canton','area')
-            ->get();
+            $empleados = Empleado::habilitado()
+                ->where('salario', '!=', 0)
+                ->orderBy('apellidos', 'asc')
+                ->with('canton', 'area')
+                ->get();
+
             $results = CuestionarioEmpleadoResource::collection($empleados);
-            if($request->imprimir){
-                $preguntas = Pregunta::all(['id','pregunta','codigo']);
+
+            if ($request->imprimir) {
+                $preguntas = Pregunta::all(['id', 'pregunta', 'codigo']);
                 $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
-                $reporte = compact('preguntas','reportes_empaquetado');
+                $reporte = compact('preguntas', 'reportes_empaquetado');
                 return CuestionarioPisicosocialService::imprimir_reporte($reporte);
             }
+
             return response()->json(compact('results'));
         } catch (Exception $e) {
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw ValidationException::withMessages([
+                'Error en el servidor' => ['Mensaje: ' . $e->getMessage() . ' - Linea: ' . $e->getLine()],
+            ]);
+            // return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de Cuestionario' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
-
     }
+
     /**
      * Display the specified resource.
      *

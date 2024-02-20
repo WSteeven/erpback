@@ -7,13 +7,16 @@ use App\Http\Requests\Medico\PreguntaRequest;
 use App\Http\Resources\Medico\PreguntaResource;
 use App\Models\Medico\Pregunta;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Src\App\Medico\PreguntaService;
 use Src\Shared\Utils;
 
 class PreguntaController extends Controller
 {
     private $entidad = 'Pregunta';
+    private PreguntaService $preguntaService;
 
     public function __construct()
     {
@@ -21,7 +24,10 @@ class PreguntaController extends Controller
         $this->middleware('can:puede.crear.preguntas')->only('store');
         $this->middleware('can:puede.editar.preguntas')->only('update');
         $this->middleware('can:puede.eliminar.preguntas')->only('destroy');
+
+        $this->preguntaService = new PreguntaService();
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -29,6 +35,14 @@ class PreguntaController extends Controller
      */
     public function index()
     {
+        $empleado_id = Auth::user()->empleado->id;
+
+        if ($this->preguntaService->empleadoYaLlenoCuestionario($empleado_id)) {
+            throw ValidationException::withMessages([
+                'cuestionario' => ['Ya completaste el cuestionario para éste período.'],
+            ]);
+        }
+
         $results = [];
         $results = Pregunta::ignoreRequest(['campos'])->filter()->get();
         $results = PreguntaResource::collection($results);
@@ -56,7 +70,6 @@ class PreguntaController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de pregunta' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
@@ -79,7 +92,7 @@ class PreguntaController extends Controller
      * @param  Pregunta  $pregunta
      * @return \Illuminate\Http\Response
      */
-    public function update(PreguntaRequest $request,Pregunta $pregunta)
+    public function update(PreguntaRequest $request, Pregunta $pregunta)
     {
         try {
             DB::beginTransaction();
@@ -104,7 +117,7 @@ class PreguntaController extends Controller
      * @param  Pregunta  $pregunta
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Pregunta$pregunta)
+    public function destroy(Pregunta $pregunta)
     {
         try {
             DB::beginTransaction();
