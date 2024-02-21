@@ -489,7 +489,8 @@ class EmpleadoController extends Controller
         $campos = request('campos') ? explode(',', request('campos')) : '*';
         $empleados = Empleado::has('ordenesCompras')->ignoreRequest(['campos'])->filter()->get($campos);
 
-        return EmpleadoResource::collection($empleados);
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
     }
 
     function obtenerEmpleadosFondosRotativos(Request $request)
