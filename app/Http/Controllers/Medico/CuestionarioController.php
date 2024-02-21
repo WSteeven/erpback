@@ -158,9 +158,7 @@ class CuestionarioController extends Controller
     }
     public function imprimirCuestionario()
     {
-        $empleados = Empleado::where('id', '>', 2)
-        ->where('estado', true)
-        ->where('esta_en_rol_pago', true)
+        $empleados = Empleado::habilitado()
         ->where('salario', '!=', 0)
         ->orderBy('apellidos', 'asc')
         ->with('canton', 'area')
