@@ -93,4 +93,5 @@ Route::get('preordenes-consolidadas', [PreordenCompraController::class, 'consoli
  ***********/
 Route::post('dashboard', [OrdenCompraController::class, 'dashboard']);
 Route::get('empleados-ordenes', [EmpleadoController::class, 'empleadosConOrdenes']);
+Route::get('proveedores-ordenes', [ProveedorController::class, 'proveedoresConOrdenes']);
 // Route::get('linea-tiempo/{ticket}', [TicketController::class, 'auditoria']);
