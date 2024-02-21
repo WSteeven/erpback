@@ -20,6 +20,7 @@ use Illuminate\Validation\ValidationException;
 use Src\App\Medico\CuestionarioPisicosocialService;
 use Src\Shared\Utils;
 
+
 class CuestionarioController extends Controller
 {
     private $entidad = 'Cuestionario';
@@ -158,16 +159,41 @@ class CuestionarioController extends Controller
     }
     public function imprimirCuestionario()
     {
+        // Crear el contenido del archivo .txt
         $empleados = Empleado::habilitado()
-        ->where('salario', '!=', 0)
-        ->orderBy('apellidos', 'asc')
-        ->with('canton', 'area')
-        ->get();
-        $preguntas = Pregunta::all(['id', 'pregunta', 'codigo']);
+            ->where('salario', '!=', 0)
+            ->orderBy('apellidos', 'asc')
+            ->with('canton', 'area')
+            ->get();
         $reportes_empaquetado = RespuestaCuestionarioEmpleado::empaquetar($empleados);
-        $reporte = compact('preguntas', 'reportes_empaquetado');
-        return CuestionarioPisicosocialService::imprimir_respuesta_cuestionario($reporte);
-
+        $datos = CuestionarioPisicosocialService::mapear_datos($reportes_empaquetado);
+        $contenido = "";
+        $contenido .= "a.  Género \n";
+        $contenido .= "> Mujer  \n";
+        $contenido .= "> Hombre  \n";
+        $contenido .= "b.  Antigüedad en el puesto \n";
+        $contenido .= ">Menor a un año  \n";
+        $contenido .= ">Entre 1 y 2 años  \n";
+        $contenido .= ">Entre 2 y 3 años  \n";
+        $contenido .= ">Entre 3 y 4 años  \n";
+        $contenido .= ">Entre 4 y 5 años  \n";
+        $contenido .= ">Entre 5 y 6 años  \n";
+        $contenido .= ">Entre 6 y 7 años  \n";
+        $contenido .= ">Entre 7 y 8 años  \n";
+        $contenido .= ">Entre 8 y 9 años  \n";
+        $contenido .= ">Entre 9 y 10 años  \n";
+        $contenido .= ">Mayor a 10 años   \n";
+        $contenido .= "****************************************   \n";
+        foreach ($datos as $dato) {
+            $contenido .= implode("", $dato) . "\n";
+        }
+        // Generar el nombre del archivo
+        $nombreArchivo = 'respuestas_cuestionario.txt';
+        // Crear el archivo .txt
+        $archivo = fopen($nombreArchivo, 'w');
+        fwrite($archivo, $contenido);
+        fclose($archivo);
+        // Enviar el archivo como respuesta HTTP
+        return Response::download($nombreArchivo)->deleteFileAfterSend(true);
     }
-
 }
