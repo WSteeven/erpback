@@ -41,6 +41,8 @@ use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\MaterialesService;
+use Src\App\Tareas\ProductoEmpleadoService;
+use Src\App\Tareas\ProductoTareaEmpleadoService;
 use Src\App\TransaccionBodegaEgresoService;
 use Src\Config\Autorizaciones;
 use Src\Config\ClientesCorporativos;
@@ -49,10 +51,14 @@ class TransaccionBodegaEgresoController extends Controller
 {
     private $entidad = 'Transacción';
     private $servicio;
+    private $productosEmpleadoService;
+    private $productosTareaEmpleadoService;
 
     public function __construct()
     {
         $this->servicio = new TransaccionBodegaEgresoService();
+        $this->productosEmpleadoService = new ProductoEmpleadoService();
+        $this->productosTareaEmpleadoService = new ProductoTareaEmpleadoService();
         $this->middleware('can:puede.ver.transacciones_egresos')->only('index', 'show');
         $this->middleware('can:puede.crear.transacciones_egresos')->only('store');
         $this->middleware('can:puede.editar.transacciones_egresos')->only('update');
@@ -63,132 +69,14 @@ class TransaccionBodegaEgresoController extends Controller
     // Stock personal: solo materiales excepto bobinas
     public function obtenerMaterialesEmpleado(Request $request)
     {
-        $request->validate([
-            'empleado_id' => 'required|numeric|integer',
-            'seguimiento' => 'nullable|boolean',
-        ]);
-
-        if ($request->exists('subtarea_id')) {
-            Log::channel('testing')->info('Log', ['en el if', 'ifff..']);
-            // Cuando se hace el seguimiento de la subtarea solo se deben descontar los materiales
-            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
-        } else {
-            Log::channel('testing')->info('Log', ['en el else', 'else..']);
-            // Mi bodega
-            if (!request('cliente_id')) $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
-        }
-
-        $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
-
-        $materiales = collect($results)->map(function ($item) use ($materialesUtilizadosHoy) {
-            $detalle = DetalleProducto::find($item->detalle_producto_id);
-            $producto = Producto::find($detalle->producto_id);
-
-            return [
-                'id' => $item->detalle_producto_id,
-                'producto' => $producto->nombre,
-                'detalle_producto' => $detalle->descripcion,
-                'detalle_producto_id' => $item->detalle_producto_id,
-                'categoria' => $detalle->producto->categoria->nombre,
-                'stock_actual' => intval($item->cantidad_stock),
-                'despachado' => intval($item->despachado),
-                'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
-                'medida' => $producto->unidadMedida?->simbolo,
-                'serial' => $detalle->serial,
-                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
-            ];
-        });
-
-        // En el seguimiento - se ordena por cantidad utilizada en el dia
-        if ($request['subtarea_id']) {
-            $materialesUsados = $this->servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
-            $results = $materiales->map(function ($material) use ($materialesUsados) {
-                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
-                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
-                        return $item->detalle_producto_id === $material['detalle_producto_id'];
-                    })->suma_total;
-                }
-                return $material;
-            });
-
-            $results = $results->sortByDesc(function ($elemento) {
-                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
-                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
-            })->toArray();
-
-            $results = array_values($results);
-            return response()->json(compact('results'));
-        }
-
-        $results = $materiales->toArray();
-        $results = array_values($results);
+        $results = $this->productosEmpleadoService->obtenerProductos();
         return response()->json(compact('results'));
     }
 
     // Stock personal: materiales y bobinas material para tarea no borrar
     public function obtenerMaterialesEmpleadoTarea(Request $request)
     {
-        $request->validate([
-            'tarea_id' => 'required|numeric|integer',
-            'empleado_id' => 'required|numeric|integer',
-            'subtarea_id' => 'nullable|numeric|integer',
-        ]);
-
-        if ($request->exists('seguimiento')) {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->where('cliente_id', '=', null)->materiales()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id', 'seguimiento'])->filter()->materiales()->get();
-        } else {
-            if (!request('cliente_id')) $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->where('cliente_id', '=', null)->tieneStock()->get();
-            else $results = MaterialEmpleadoTarea::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
-        }
-        $materialesUtilizadosHoy = SeguimientoMaterialSubtarea::where('empleado_id', $request['empleado_id'])->where('subtarea_id', $request['subtarea_id'])->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
-
-        $materialesTarea = collect($results)->map(function ($item, $index) use ($materialesUtilizadosHoy) {
-            $detalle = DetalleProducto::find($item->detalle_producto_id);
-            $producto = Producto::find($detalle->producto_id);
-
-            return [
-                'id' => $item->detalle_producto_id,
-                'producto' => $producto->nombre,
-                'detalle_producto' => $detalle->descripcion,
-                'detalle_producto_id' => $item->detalle_producto_id,
-                'categoria' => $detalle->producto->categoria->nombre,
-                'stock_actual' => intval($item->cantidad_stock),
-                'despachado' => intval($item->despachado),
-                'devuelto' => intval($item->devuelto),
-                'cantidad_utilizada' => $materialesUtilizadosHoy->first(fn ($material) => $material->detalle_producto_id == $item->detalle_producto_id)?->cantidad_utilizada,
-                'medida' => $producto->unidadMedida?->simbolo,
-                'serial' => $detalle->serial,
-                'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
-            ];
-        });
-
-        if ($request['subtarea_id']) {
-            $materialesUsados = $this->servicio->obtenerSumaMaterialTareaUsado($request['subtarea_id'], $request['empleado_id']);
-            $results = $materialesTarea->map(function ($material) use ($materialesUsados) {
-                if ($materialesUsados->contains('detalle_producto_id', $material['detalle_producto_id'])) {
-                    $material['total_cantidad_utilizada'] = $materialesUsados->first(function ($item) use ($material) {
-                        return $item->detalle_producto_id === $material['detalle_producto_id'];
-                    })->suma_total;
-                }
-                return $material;
-            });
-
-            $results = $results->sortByDesc(function ($elemento) {
-                // Ordena por cantidad_utilizada y coloca aquellos sin valor al final
-                return is_null($elemento['cantidad_utilizada']) ? -PHP_INT_MAX : $elemento['cantidad_utilizada'];
-            })->toArray();
-
-            $results = array_values($results);
-
-            return response()->json(compact('results'));
-        }
-
-        $results = $materialesTarea;
-
+        $results = $this->productosTareaEmpleadoService->obtenerProductos();
         return response()->json(compact('results'));
     }
 
@@ -225,7 +113,7 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
-    public function materialesDespachadosSinBobinaRespaldo($id)
+    /*public function materialesDespachadosSinBobinaRespaldo($id)
     {
         $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
         return response()->json(compact('results'));
@@ -235,15 +123,15 @@ class TransaccionBodegaEgresoController extends Controller
     {
         $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
         return response()->json(compact('results'));
-    }
+    }*/
 
-    public function prueba($id)
+    /* public function prueba($id)
     {
         $results = $this->servicio->obtenerTransaccionesPorTarea($id);
         $results = TransaccionBodega::listadoProductosTarea($results);
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
-    }
+    } */
 
     /**
      * Listar
@@ -273,10 +161,12 @@ class TransaccionBodegaEgresoController extends Controller
             $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
-            $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['responsable_id'] = $request->safe()->only(['responsable'])['responsable'];
             $datos['per_retira_id'] = $request->safe()->only(['per_retira'])['per_retira'];
+            if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+            if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+            if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
             if ($request->subtarea) $datos['subtarea_id'] = $request->safe()->only(['subtarea'])['subtarea'];
             if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
@@ -354,6 +244,9 @@ class TransaccionBodegaEgresoController extends Controller
         $datos['sucursal_id'] = $request->safe()->only(['sucursal'])['sucursal'];
         $datos['motivo_id'] = $request->safe()->only(['motivo'])['motivo'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        if ($request->proyecto) $datos['proyecto_id'] = $request->safe()->only(['proyecto'])['proyecto'];
+        if ($request->etapa) $datos['etapa_id'] = $request->safe()->only(['etapa'])['etapa'];
+        if ($request->tarea) $datos['tarea_id'] = $request->safe()->only(['tarea'])['tarea'];
         if ($request->per_atiende) $datos['per_atiende_id'] = $request->safe()->only(['per_atiende'])['per_atiende'];
 
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
@@ -571,7 +464,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();

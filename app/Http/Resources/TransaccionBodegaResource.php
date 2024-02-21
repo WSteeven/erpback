@@ -54,7 +54,7 @@ class TransaccionBodegaResource extends JsonResource
             'tiene_pedido' => $this->pedido_id ? true : false,
             'transferencia' => $this->transferencia_id,
             // 'aviso_liquidacion_cliente'=>TransaccionBodega::verificarEgresoLiquidacionMateriales($this->motivo_id, $this->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales),
-            // 'comprobante' => $this->comprobante,
+            'comprobante' => $this->comprobante,
             // 'comprobante'=>$comprobante,
             // 'devolucion' => $this->devolucion?->justificacion,
             // 'fecha_limite' => $this->fecha_lximite,

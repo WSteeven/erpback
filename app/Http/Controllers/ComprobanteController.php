@@ -74,6 +74,8 @@ class ComprobanteController extends Controller
 
             if ($comprobante->firmada) {
                 $transaccion = TransaccionBodega::find($comprobante->transaccion_id);
+                $transaccion->estado_id = EstadosTransacciones::COMPLETA;
+                $transaccion->save();
                 $transaccion->latestNotificacion()->update(['leida' => true]);
                 $esEgresoLiquidacionMateriales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales);
                 if (!$esEgresoLiquidacionMateriales) TransaccionBodega::asignarMateriales($transaccion);
@@ -105,7 +107,7 @@ class ComprobanteController extends Controller
                     $itemInventario = Inventario::find($item['id']);
                     if ($itemInventario) {
                         if ($transaccion->tarea_id) {
-                            MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $item['recibido'], $transaccion->cliente_id);
+                            MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $item['recibido'], $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                         } else {
                             MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $item['recibido'], $transaccion->cliente_id);
                         }

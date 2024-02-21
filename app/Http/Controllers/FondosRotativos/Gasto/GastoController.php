@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use PgSql\Lob;
+use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Config\RutasStorage;
@@ -60,11 +61,13 @@ class GastoController extends Controller
      */
     public function index(Request $request)
     {
+        $fechaActual = Carbon::now();
+        $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d'); //Se consultara los gastos cuya fecha sea posterior a los ultimos 6 meses
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
-        if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+        if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
@@ -84,7 +87,9 @@ class GastoController extends Controller
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             } else {
-                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $fechaActual = Carbon::now();
+                $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d');
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             }
@@ -108,39 +113,7 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            if ($datos['factura'] != null) {
-                $numFacturaObjeto = [
-                    [
-                        "detalle" => 16,
-                        "cantidad" => 22,
-                    ],
-                    [
-                        "detalle" => 10,
-                        "cantidad" => 17,
-                    ],
-                ];
-                $index = array_search($request->detalle, array_column($numFacturaObjeto, 'detalle'));
-                $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
-                $num_fact = str_replace(' ', '',  $datos['factura']);
-                if ($request->detalle == 16) {
-                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
-                        throw ValidationException::withMessages([
-                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                        ]);
-                    }
-                } else {
-                    if (strlen($num_fact) < $cantidad) {
-                        throw ValidationException::withMessages([
-                            '404' => ['El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.'],
-                        ]);
-                    }
-                }
-            }
             //Adaptacion de foreign keys
-            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
-            $datos['id_proyecto'] = $request->proyecto == 0 ? null : $request->safe()->only(['proyecto'])['proyecto'];
-            $datos['id_tarea'] = $request->num_tarea == 0 ? null : $request->safe()->only(['num_tarea'])['num_tarea'];
-            $datos['id_subtarea'] = $request->subTarea == 0 ? null : $request->safe()->only(['subTarea'])['subTarea'];
             $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
             $datos['id_usuario'] = Auth::user()->empleado->id;
             //Asignacion de estatus de gasto
@@ -160,13 +133,12 @@ class GastoController extends Controller
             }
             $datos['estado'] = $datos_estatus_via->id;
             //Convierte base 64 a url
-            if ($request->comprobante1) {
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
+            if ($datos['comprobante']) {
+                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             if ($datos['comprobante2']) {
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
-            unset($datos['comprobante1']);
             $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
                 ->where('num_comprobante',  $datos['num_comprobante'])
                 ->where('estado', 1)
@@ -327,8 +299,8 @@ class GastoController extends Controller
     {
         try {
             $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
@@ -415,8 +387,8 @@ class GastoController extends Controller
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $tipo_ARCHIVO = $tipo;
@@ -424,7 +396,7 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info','tarea_info')
+            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'tarea_info')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -485,18 +457,10 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
-            $notificacion = Notificacion::where('per_originador_id', $gasto->id_usuario)
-                ->where('per_destinatario_id', $gasto->aut_especial)
-                ->where('tipo_notificacion', 'AUTORIZACION GASTO')
-                ->where('leida', 0)
-                ->whereDate('notificable_id', $gasto->id)
-                ->first();
-            if ($notificacion != null) {
-                $notificacion->leida = 1;
-                $notificacion->save();
-            }
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -521,8 +485,10 @@ class GastoController extends Controller
             $gasto->estado = 2;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -545,8 +511,10 @@ class GastoController extends Controller
             $gasto->estado = 4;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
-            DB::commit();
             event(new FondoRotativoEvent($gasto));
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->marcar_notificacion_leida();
+            DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -586,6 +554,17 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+        }
+    }
+
+
+    public function reporte_valores_fondos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['Request', $request->all()]);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
+            throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
     }
 }

@@ -100,11 +100,12 @@ class DevolucionService
     {
         $resultados = DB::select('select count(*) as cantidad from detalle_devolucion_producto dpp where dpp.devolucion_id=' . $detalleDevolucionProducto->devolucion_id . ' and dpp.cantidad!=dpp.devuelto');
         $devolucion = Devolucion::find($detalleDevolucionProducto->devolucion_id);
+        $detallesSinDevolver = $devolucion->detalles()->where('devuelto', 0)->count();
 
-        if ($resultados[0]->cantidad > 0) {
-            $devolucion->update(['estado_bodega' => EstadoTransaccion::PARCIAL]);
-        } else {
-            $devolucion->update(['estado_bodega' => EstadoTransaccion::COMPLETA]);
+        if ($detallesSinDevolver === $devolucion->detalles()->count()) $devolucion->update(['estado_bodega' => EstadoTransaccion::PENDIENTE]);
+        else {
+            if ($resultados[0]->cantidad > 0) $devolucion->update(['estado_bodega' => EstadoTransaccion::PARCIAL]);
+            else $devolucion->update(['estado_bodega' => EstadoTransaccion::COMPLETA]);
         }
     }
 

@@ -54,6 +54,19 @@ class MaterialEmpleado extends Model implements Auditable
         return $query->where('cantidad_stock', '>', 0);
     }
 
+    /**
+     * La función "cargarMaterialEmpleado" se utiliza para cargar materiales para un empleado, mediante un despacho de bodega o preingreso,
+     * actualizando las cantidades de stock y despacho si el material ya existe, o creando una nueva
+     * entrada de material si no existe.
+     * 
+     * @param int $detalle_id El ID del detalle_producto al que pertenece el material.
+     * @param int $empleado_id El parámetro empleado_id representa el ID del empleado. Se utiliza para
+     * identificar al empleado específico para quien se carga el material.
+     * @param int $cantidad El parámetro cantidad representa la cantidad de material a cargar para el
+     * empleado.
+     * @param int $cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * cargando el material.
+     */
     public static function cargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
     {
         try {
@@ -87,7 +100,7 @@ class MaterialEmpleado extends Model implements Auditable
     public static function descargarMaterialEmpleado(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id, int|null $transaccion_cliente_id)
     {
         try {
-            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)//107
+            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id) //107
                 ->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first(); //5 
             if ($material) {
                 $material->cantidad_stock -= $cantidad;
@@ -103,6 +116,33 @@ class MaterialEmpleado extends Model implements Auditable
                 } else
                     throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado');
             }
+        } catch (\Throwable $th) {
+            throw new Exception($th->getMessage() . '. ' . $th->getLine());
+        }
+    }
+
+    /**
+     * La función "cargarMaterialEmpleadoPorAnulacionDevolucion" actualiza el stock y cantidad de
+     * devolución de un material asignado a un empleado en función de la anulación de una devolución de
+     * producto.
+     * 
+     * @param int detalle_id El parámetro detalle_id es un número entero que representa el ID del
+     * detalle_producto que está asociado con el material que se carga para el empleado.
+     * @param int empleado_id El parámetro empleado_id representa el ID del empleado.
+     * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
+     * cargar o agregar al stock.
+     * @param int cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * cargando el material.
+     */
+    public static function cargarMaterialEmpleadoPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
+    {
+        try {
+            $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();
+            if ($material) {
+                $material->cantidad_stock += $cantidad;
+                $material->devuelto -= $cantidad;
+                $material->save();
+            } else throw new Exception('No se encontró material ' . DetalleProducto::find($detalle_id)->descripcion . ' asignado al empleado para descontar lo devuelto');
         } catch (\Throwable $th) {
             throw new Exception($th->getMessage() . '. ' . $th->getLine());
         }

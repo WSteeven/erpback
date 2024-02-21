@@ -34,8 +34,11 @@ class PreingresoMaterialRequest extends FormRequest
             'num_guia' => 'string',
             'courier' => 'string',
             'fecha' => 'string',
+            'proyecto' =>  'sometimes|nullable|numeric|exists:proyectos,id',
+            'etapa' =>  'sometimes|nullable|numeric|exists:tar_etapas,id',
             'tarea' =>  'sometimes|nullable|numeric|exists:tareas,id',
             'cliente' => 'sometimes|nullable|numeric|exists:clientes,id',
+            'solicitante' => 'nullable|sometimes|numeric|exists:empleados,id',
             'autorizador' => 'nullable|sometimes|numeric|exists:empleados,id',
             'responsable' => 'required',
             'coordinador' => 'required|numeric|exists:empleados,id',
@@ -86,6 +89,12 @@ class PreingresoMaterialRequest extends FormRequest
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha))
         ]);
+
+        if(is_null($this->solicitante) || $this->solicitante==''){
+            $this->merge([
+                'solicitante' => auth()->user()->empleado->id
+            ]);
+        }
 
         if (is_null($this->tarea)) { //si no hay tarea, el autorizador es el coordinador de bodega y los materiales se cargarán al stock del tecnico
             $this->merge([

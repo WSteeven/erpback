@@ -75,7 +75,7 @@ class SubtareaController extends Controller
     }
 
     /**
-     * Las subareas no se pueden editar
+     * Las subtareas no se pueden editar
      */
     public function update(SubtareaRequest $request, Subtarea $subtarea)
     {

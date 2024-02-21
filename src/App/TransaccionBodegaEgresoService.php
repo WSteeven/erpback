@@ -29,7 +29,7 @@ class TransaccionBodegaEgresoService
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
         $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
         $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD])) { //si es bodeguero
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_CONTABILIDAD, User::ROL_CONSULTA])) { //si es bodeguero
             if ($estado) {
                 switch ($estado) {
                     case EstadoTransaccion::PENDIENTE:

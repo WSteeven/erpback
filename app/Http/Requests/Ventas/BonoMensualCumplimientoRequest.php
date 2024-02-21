@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Http\Requests\Ventas;
+
+use App\Models\Ventas\BonoMensualCumplimiento;
+use Carbon\Carbon;
+use Illuminate\Foundation\Http\FormRequest;
+
+class BonoMensualCumplimientoRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, mixed>
+     */
+    public function rules()
+    {
+        return [
+            'mes' => 'required',
+        ];
+    }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            //$mes = Carbon::createFromFormat('m-Y', $this->mes);
+            $mes =  $this->mes;
+            $validarBonoMensual = BonoMensualCumplimiento::where('mes', $mes)->get()->count();
+            if ($validarBonoMensual > 0) {
+                $validator->errors()->add('fecha', 'Ya se pago Bono del mes: ' . $mes);
+            }
+        });
+    }
+    protected function prepareForValidation()
+    {
+        // $date = Carbon::createFromFormat('m-Y', $this->mes);
+        $this->merge([
+            // 'mes' =>  $date->format('Y-m'),
+            'mes' =>  Carbon::createFromFormat('Y-m', $this->mes),
+        ]);
+    }
+}

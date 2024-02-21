@@ -24,7 +24,7 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, WithTitle, WithColumnWidths
+class SeguimientoSubtareaFotosExport implements FromView, WithTitle, WithColumnWidths //WithBackgroundColor
 {
     use Exportable;
 
@@ -36,7 +36,7 @@ class SeguimientoSubtareaFotosExport implements FromView, WithBackgroundColor, W
         $this->backgroundColor();
     }
 
-    public function backgroundColor()
+     public function backgroundColor()
     {
         return new Color(Color::COLOR_WHITE);
     }

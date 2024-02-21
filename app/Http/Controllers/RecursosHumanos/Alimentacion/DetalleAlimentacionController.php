@@ -20,10 +20,10 @@ class DetalleAlimentacionController extends Controller
     private $entidad = 'Detalle de Alimentacion';
     public function __construct()
     {
-        $this->middleware('can:puede.ver.detalle_detalle_alimentacion')->only('index', 'show');
-        $this->middleware('can:puede.crear.detalle_detalle_alimentacion')->only('store');
-        $this->middleware('can:puede.editar.detalle_detalle_alimentacion')->only('update');
-        $this->middleware('can:puede.eliminar.detalle_detalle_alimentacion')->only('destroy');
+        $this->middleware('can:puede.ver.detalle_alimentaciones')->only('index', 'show');
+        $this->middleware('can:puede.crear.detalle_alimentaciones')->only('store');
+        $this->middleware('can:puede.editar.detalle_alimentaciones')->only('update');
+        $this->middleware('can:puede.eliminar.detalle_alimentaciones')->only('destroy');
     }
     /**
      * Listar
