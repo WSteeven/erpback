@@ -483,6 +483,14 @@ class EmpleadoController extends Controller
         return response()->json(compact('username'));
     }
 
+    public function empleadosConSaldoFondosRotativos(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
+
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
 
     public function empleadosConOrdenes(Request $request)
     {
