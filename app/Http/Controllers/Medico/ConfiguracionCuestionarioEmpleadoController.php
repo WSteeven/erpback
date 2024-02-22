@@ -29,8 +29,8 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
      */
     public function index()
     {
-        $results = [];
-        $results = ConfiguracionCuestionarioEmpleado::ignoreRequest(['campos'])->filter()->get();
+        $configuracion = ConfiguracionCuestionarioEmpleado::first();
+        $results = $configuracion ? ConfiguracionCuestionarioEmpleadoResource::collection([$configuracion]) : [];
         return response()->json(compact('results'));
     }
 
@@ -45,11 +45,15 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $configuracioncuestionarioempleado = ConfiguracionCuestionarioEmpleado::create($datos);
-            $modelo = new ConfiguracionCuestionarioEmpleadoResource($configuracioncuestionarioempleado);
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            $configuracion = ConfiguracionCuestionarioEmpleado::first();
+            if ($configuracion) {
+                $configuracion->update($datos);
+            } else {
+                $configuracion = ConfiguracionCuestionarioEmpleado::create($datos);
+            }
+            $mensaje = 'Actualizado exitosamente!';
             DB::commit();
-            return response()->json(compact('mensaje', 'modelo'));
+            return response()->json(compact('mensaje'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
@@ -118,8 +122,11 @@ class ConfiguracionCuestionarioEmpleadoController extends Controller
     }
     public function obtenerConfiguracion(){
         try {
-            $results = ConfiguracionCuestionarioEmpleado::last();
+            $configuracion = ConfiguracionCuestionarioEmpleado::first();
+            $results = $configuracion ? ConfiguracionCuestionarioEmpleadoResource::collection([$configuracion]) : [];
+            return response()->json(compact('results'));
         } catch (Exception $e) {
+            return $e;
         }
     }
 }

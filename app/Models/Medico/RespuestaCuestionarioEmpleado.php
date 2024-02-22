@@ -11,6 +11,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Src\App\Medico\CuestionarioPisicosocialService;
 
 class RespuestaCuestionarioEmpleado extends Model implements Auditable
 {
@@ -44,12 +45,14 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
             $row['provincia'] = $result->canton->provincia->provincia;
             $cuestionario = RespuestaCuestionarioEmpleado::obtenerCuestionario($result->id);
             $row['fecha_creacion'] = count($cuestionario) > 0 ? Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d-m-Y H:i:s') : '';
+            $row['fecha_creacion_respuesta'] = count($cuestionario) > 0 ? Carbon::parse($cuestionario[0]['fecha_creacion'])->format('d/m/Y H:i:s') : '';
             $row['cuestionario'] = $cuestionario;
             $row['respuestas_concatenadas'] = RespuestaCuestionarioEmpleado::obtenerRespuestasConcatenadas($cuestionario);
             $row['area'] =  $result->area->nombre;
             $row['nivel_academico'] = $result->nivel_academico;
             $row['edad'] = Carbon::now()->diffInYears($result->fecha_nacimiento) . ' AÑOS';
             $row['antiguedad'] = Carbon::now()->diffInYears($result->fecha_vinculacion) . ' AÑOS';
+            $row['codigo_antigueda_genero'] = CuestionarioPisicosocialService::obtener_codigo_genero($result->genero).CuestionarioPisicosocialService::obtener_codigo_antiguedad_empleado( Carbon::now()->diffInYears($result->fecha_vinculacion));
             $row['genero'] = $result->genero === 'M' ? 'MASCULINO' : 'FEMENINO';
             $results[$cont] = $row;
             $cont++;
