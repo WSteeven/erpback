@@ -37,7 +37,10 @@ class PreguntasDiagnosticoConsumoDrogasSeeder extends Seeder
                 'codigo' => '5',
                 'pregunta' => 'EMPLEADO RECONOCE TENER UN PROBLEMA DE CONSUMO ',
             ],
-
+            [
+                'codigo' => '6',
+                'pregunta' => 'FACTORES PSICO-SOCIALES RELACIONADOS AL CONSUMO ',
+            ],
         ]);
     }
 }
