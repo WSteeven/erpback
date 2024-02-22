@@ -6,6 +6,7 @@ use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\Ventas\VendedorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\Grupo;
@@ -489,6 +490,14 @@ class EmpleadoController extends Controller
         $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
 
         $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
+    public function empleadosConVentasClaro(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = $this->servicio->obtenerEmpleadosConVentasClaro();
+
+        $results = VendedorResource::collection($empleados);
         return response()->json(compact('results'));
     }
 

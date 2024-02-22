@@ -10,6 +10,7 @@ use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
+use App\Models\Ventas\Vendedor;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -207,5 +208,11 @@ class EmpleadoService
         })->ignoreRequest(['campos'])->filter()->get();
 
         return $empleados;
+    }
+
+    public function obtenerEmpleadosConVentasClaro()
+    {
+        $vendedores = Vendedor::has('ventas')->get();
+        return $vendedores;
     }
 }

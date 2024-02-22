@@ -44,6 +44,11 @@ class Venta  extends Model implements Auditable
     const ACTIVADO = 'ACTIVADO';
     const APROBADO = 'APROBADO';
 
+    //formas de pago
+    const EFECTIVO = 'EFECTIVO';
+    const TC = 'TC';
+    const D_BANCARIO = 'D. BANCARIO';
+
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
@@ -142,7 +147,7 @@ class Venta  extends Model implements Auditable
         $suma = Venta::where(function ($query) use ($mes) {
             $query->whereMonth('fecha_activacion', $mes)
                 ->whereMonth('created_at', $mes);
-                // ->orWhereMonth('created_at', $mes);
+            // ->orWhereMonth('created_at', $mes);
         })->whereYear('created_at', date('Y'))
             ->where('vendedor_id', $vendedor_id)
             ->count();

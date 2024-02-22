@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Ventas\DashboardVentasController;
 use App\Http\Controllers\Ventas\BonoController;
 use App\Http\Controllers\Ventas\BonoMensualCumplimientoController;
@@ -21,9 +22,6 @@ use App\Http\Controllers\Ventas\TipoChargebackController;
 use App\Http\Controllers\Ventas\UmbralVentaController;
 use App\Http\Controllers\Ventas\VendedorController;
 use App\Http\Controllers\Ventas\VentaController;
-use App\Models\Ventas\BonoMensualCumplimiento;
-use App\Models\Ventas\CortePagoComision;
-use App\Models\Ventas\NovedadVenta;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -85,6 +83,7 @@ Route::get('retenciones-chargebacks/marcar-pagada/{retencion}', [RetencionCharge
 Route::get('actualizar-comisiones-ventas', [VentaController::class, 'actualizarComisiones']);
 Route::post('bonos-mensuales-cumplimientos/marcar-pagada/{bono}', [BonoMensualCumplimientoController::class, 'marcarPagada']);
 
+Route::get('empleados-ventas', [EmpleadoController::class, 'empleadosConVentasClaro']);
 
 //listar archivos
 Route::get('ventas/files/{venta}', [VentaController::class, 'indexFiles'])->middleware('auth:sanctum');
