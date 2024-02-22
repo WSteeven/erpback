@@ -7,9 +7,11 @@ use App\Http\Requests\Medico\EstadoSolicitudExamenRequest;
 use App\Http\Resources\Medico\EstadoSolicitudExamenResource;
 use App\Models\Medico\EstadoExamen;
 use App\Models\Medico\EstadoSolicitudExamen;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -25,9 +27,30 @@ class EstadoSolicitudExamenController extends Controller
         $this->middleware('can:puede.eliminar.estados_solicitudes_examenes')->only('destroy');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $results = [];
+        if (request('solicitudes')) {
+            $request->validate([
+                'estado_examen_id' => 'required|numeric|integer',
+                'registro_empleado_examen_id' => 'required|numeric|integer',
+            ]);
+
+            $results = EstadoSolicitudExamen::select('registro_empleado_examen_id', 'created_at', DB::raw('COUNT(*) AS cantidad_examenes_solicitados'))->where('estado_examen_id', request('estado_examen_id'))->where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->groupBy('registro_empleado_examen_id', 'created_at')->get();
+            // $results = EstadoSolicitudExamen::select('id', 'registro_empleado_examen_id', 'created_at')->where('estado_examen_id', request('estado_examen_id'))->where('registro_empleado_examen_id', request('registro_empleado_examen_id'))->get();
+            // $results =
+            Log::channel('testing')->info('Log', ['results', $results]);
+
+            $results = $results->map(function ($solicitud) {
+                return [
+                    'registro_empleado_examen_id' => $solicitud->registro_empleado_examen_id,
+                    'created_at' => Carbon::parse($solicitud->created_at)->format('Y-m-d H:i:s'),
+                    'cantidad_examenes_solicitados' => $solicitud->cantidad_examenes_solicitados,
+                    'examenes_ids' => EstadoSolicitudExamenResource::collection(EstadoSolicitudExamen::where('created_at', $solicitud->created_at)->get()),
+                ];
+            });
+            return response()->json(compact('results'));
+        }
+
         $results = EstadoSolicitudExamen::ignoreRequest(['campos'])->filter()->get();
         $results = EstadoSolicitudExamenResource::collection($results);
         return response()->json(compact('results'));
@@ -42,7 +65,7 @@ class EstadoSolicitudExamenController extends Controller
 
             $datos['registro_empleado_examen_id'] = $request['registro_empleado_examen'];
 
-            foreach($request['examenes_solicitados'] as $examenSolicitado) {
+            foreach ($request['examenes_solicitados'] as $examenSolicitado) {
                 $examen['registro_empleado_examen_id'] = $request['registro_empleado_examen'];
                 $examen['examen_id'] = $examenSolicitado['examen'];
                 $examen['estado_examen_id'] = EstadoExamen::SOLICITADO_ID;

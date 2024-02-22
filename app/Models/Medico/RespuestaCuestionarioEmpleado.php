@@ -32,6 +32,7 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'empleado_id');
     }
+
     public static function empaquetar($results_data)
     {
         $results = [];
@@ -55,6 +56,7 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
         }
         return $results;
     }
+
     private static function obtenerRespuestasConcatenadas($cuestionario)
     {
         $respuestas_concatenadas = '';
