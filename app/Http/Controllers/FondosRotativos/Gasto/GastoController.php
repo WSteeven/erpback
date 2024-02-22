@@ -565,7 +565,10 @@ class GastoController extends Controller
         try {
             Log::channel('testing')->info('Log', ['Request', $request->all()]);
             $empleadoService = new EmpleadoService();
-            $results = $empleadoService->obtenerValoresFondosRotativos();
+            if ($request->todos)
+                $results = $empleadoService->obtenerValoresFondosRotativos();
+            else
+                $results = [$empleadoService->obtenerValoresFondosRotativosEmpleado(Empleado::find($request->empleado ? $request->empleado : auth()->user()->empleado->id))];
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
