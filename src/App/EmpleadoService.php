@@ -5,9 +5,12 @@ namespace Src\App;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Log;
 
 class EmpleadoService
@@ -140,14 +143,36 @@ class EmpleadoService
 
     public function obtenerValoresFondosRotativos()
     {
-        $empleados = Empleado::has('gastos')->get();
-        $results = [];
-        $row = [];
-        foreach ($empleados as $index => $empleado) {
-            $row['empleado'] = $empleado->nombres . ' ' . $empleado->apellidos;
-            $row['saldo_inicial'] = SaldoGrupo::where('fecha', '2023-03-31')->first()->get('saldo_actual');
-            $row['acreditaciones'] = Acreditaciones::where('id_usuario', $empleado->id)->sum('monto');
-            $results[$index] = $row;
+        try {
+            $empleados = Empleado::has('saldo')->get();
+            $results = [];
+            $row = [];
+            foreach ($empleados as $index => $empleado) {
+                Log::channel('testing')->info('Log', ['empleado', $empleado]);
+                $row['empleado'] = $empleado->nombres . ' ' . $empleado->apellidos;
+                $row['empleado_id'] = $empleado->id;
+                $row['saldo_inicial'] = SaldoGrupo::where('id_usuario', $empleado->id)->where('fecha', '2023-03-31')->first()?->get('saldo_actual');
+                $row['acreditaciones'] = Acreditaciones::where('id_usuario', $empleado->id)->where('id_estado', 1)->sum('monto');
+                $row['gastos'] = Gasto::where('id_usuario', $empleado->id)->where('estado', 1)->sum('total');
+                $row['transferencias_enviadas'] = Transferencias::where('usuario_envia_id', $empleado->id)->where('estado', 1)->sum('monto');
+                $row['transferencias_recibidas'] = Transferencias::where('usuario_recibe_id', $empleado->id)->where('estado', 1)->sum('monto');
+                $row['saldo_actual'] = SaldoGrupo::where('id_usuario', $empleado->id)->orderBy('id', 'desc')->first()->get('saldo_actual');
+                $results[$index] = $row;
+            }
+            return $results;
+        } catch (Exception $e) {
+            throw $e;
         }
+    }
+
+    public function obtenerEmpleadosConSaldoFondosRotativos()
+    {
+        $empleados = Empleado::whereHas('saldo', function ($query) {
+            $query->whereRaw('id = (SELECT MAX(id) FROM saldo_grupo WHERE id_usuario = empleados.id)');
+            //   ->where('saldo_actual', '<>', 0);
+            // $query->orderBy('id', 'desc')->where('saldo_actual', '!=', 0);
+        })->ignoreRequest(['campos'])->filter()->get();
+
+        return $empleados;
     }
 }

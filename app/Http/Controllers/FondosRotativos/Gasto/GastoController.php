@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use PgSql\Lob;
+use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -554,6 +555,7 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
 
@@ -562,9 +564,12 @@ class GastoController extends Controller
     {
         try {
             Log::channel('testing')->info('Log', ['Request', $request->all()]);
+            $empleadoService = new EmpleadoService();
+            $results = $empleadoService->obtenerValoresFondosRotativos();
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
+        return response()->json(compact('results'));
     }
 }
