@@ -31,6 +31,7 @@ class RespuestaCuestionarioEmpleadoRequest extends FormRequest
     }
     protected function prepareForValidation()
     {
+        
             $this->merge([
                 'empleado_id' =>  Auth::user()->empleado->id
             ]);
