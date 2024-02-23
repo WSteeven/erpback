@@ -7,6 +7,7 @@ use App\Http\Requests\Medico\PreguntaRequest;
 use App\Http\Resources\Medico\PreguntaResource;
 use App\Models\Medico\Pregunta;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -33,7 +34,7 @@ class PreguntaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $empleado_id = Auth::user()->empleado->id;
 
@@ -44,7 +45,9 @@ class PreguntaController extends Controller
         }
 
         $results = [];
-        $results = Pregunta::ignoreRequest(['campos'])->filter()->get();
+        $results = Pregunta::ignoreRequest(['campos','tipo_cuestionario_id'])->filter()->whereHas('cuestionario', function($query) use($request) {
+            $query->where('tipo_cuestionario_id', $request->tipo_cuestionario_id);
+        })->get();
         $results = PreguntaResource::collection($results);
         return response()->json(compact('results'));
     }
