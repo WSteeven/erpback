@@ -729,808 +729,839 @@ class CuestionarioSeeder extends Seeder
             // Pregunta 16a
             [
                 'pregunta_id' => 43,
-                'respuesta_id' => 6,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 43,
-                'respuesta_id' => 7,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 43,
-                'respuesta_id' => 8,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 43,
-                'respuesta_id' => 9,
+                'respuesta_id' => 4,
             ],
             [
                 'pregunta_id' => 43,
-                'respuesta_id' => 10,
+                'respuesta_id' => 20,
             ],
             // Pregunta 16b
             [
                 'pregunta_id' => 44,
-                'respuesta_id' => 89,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 44,
-                'respuesta_id' => 90,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 44,
-                'respuesta_id' => 91,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 44,
-                'respuesta_id' => 92,
+                'respuesta_id' => 4,
             ],
             [
                 'pregunta_id' => 44,
-                'respuesta_id' => 93,
+                'respuesta_id' => 20,
             ],
             // Pregunta 16c
             [
                 'pregunta_id' => 45,
-                'respuesta_id' => 89,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 45,
-                'respuesta_id' => 90,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 45,
-                'respuesta_id' => 91,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 45,
-                'respuesta_id' => 92,
+                'respuesta_id' => 4,
             ],
             [
                 'pregunta_id' => 45,
-                'respuesta_id' => 93,
+                'respuesta_id' => 20,
             ],
             // Pregunta 16d
             [
                 'pregunta_id' => 46,
-                'respuesta_id' => 89,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 46,
-                'respuesta_id' => 90,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 46,
-                'respuesta_id' => 91,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 46,
-                'respuesta_id' => 92,
+                'respuesta_id' => 4,
             ],
             [
                 'pregunta_id' => 46,
-                'respuesta_id' => 93,
+                'respuesta_id' => 20,
             ],
             // Pregunta 17
             [
                 'pregunta_id' => 47,
-                'respuesta_id' => 94,
+                'respuesta_id' => 21,
             ],
             [
                 'pregunta_id' => 47,
-                'respuesta_id' => 95,
+                'respuesta_id' => 22,
             ],
             [
                 'pregunta_id' => 47,
-                'respuesta_id' => 96,
+                'respuesta_id' => 23,
             ],
             [
                 'pregunta_id' => 47,
-                'respuesta_id' => 97,
+                'respuesta_id' => 24,
             ],
             // Pregunta 18a
             [
                 'pregunta_id' => 48,
-                'respuesta_id' => 98,
+                'respuesta_id' => 25,
             ],
             [
                 'pregunta_id' => 48,
-                'respuesta_id' => 99,
+                'respuesta_id' => 26,
             ],
             [
                 'pregunta_id' => 48,
-                'respuesta_id' => 100,
+                'respuesta_id' => 27,
             ],
             [
                 'pregunta_id' => 48,
-                'respuesta_id' => 101,
+                'respuesta_id' => 28,
             ],
             // Pregunta 18b
             [
                 'pregunta_id' => 49,
-                'respuesta_id' => 98,
+                'respuesta_id' => 25,
             ],
             [
                 'pregunta_id' => 49,
-                'respuesta_id' => 99,
+                'respuesta_id' => 26,
             ],
             [
                 'pregunta_id' => 49,
-                'respuesta_id' => 100,
+                'respuesta_id' => 27,
             ],
             [
                 'pregunta_id' => 49,
-                'respuesta_id' => 101,
+                'respuesta_id' => 28,
             ],
             // Pregunta 18c
             [
                 'pregunta_id' => 50,
-                'respuesta_id' => 98,
+                'respuesta_id' => 25,
             ],
             [
                 'pregunta_id' => 50,
-                'respuesta_id' => 99,
+                'respuesta_id' => 26,
             ],
             [
                 'pregunta_id' => 50,
-                'respuesta_id' => 100,
+                'respuesta_id' => 27,
             ],
             [
                 'pregunta_id' => 50,
-                'respuesta_id' => 101,
+                'respuesta_id' => 28,
             ],
             // Pregunta 18d
             [
                 'pregunta_id' => 51,
-                'respuesta_id' => 98,
+                'respuesta_id' => 25,
             ],
             [
                 'pregunta_id' => 51,
-                'respuesta_id' => 99,
+                'respuesta_id' => 26,
             ],
             [
                 'pregunta_id' => 51,
-                'respuesta_id' => 100,
+                'respuesta_id' => 27,
             ],
             [
                 'pregunta_id' => 51,
-                'respuesta_id' => 101,
+                'respuesta_id' => 28,
             ],
             // Pregunta 19
             [
                 'pregunta_id' => 52,
-                'respuesta_id' => 107,
+                'respuesta_id' => 29,
             ],
             [
                 'pregunta_id' => 52,
-                'respuesta_id' => 108,
+                'respuesta_id' => 30,
             ],
             [
                 'pregunta_id' => 52,
-                'respuesta_id' => 109,
+                'respuesta_id' => 31,
             ],
             [
                 'pregunta_id' => 52,
-                'respuesta_id' => 110,
+                'respuesta_id' => 32,
             ],
             // Pregunta 20
             [
                 'pregunta_id' => 53,
-                'respuesta_id' => 111,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 53,
-                'respuesta_id' => 112,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 53,
-                'respuesta_id' => 113,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 53,
-                'respuesta_id' => 114,
+                'respuesta_id' => 4,
             ],
             // Pregunta 21
             [
                 'pregunta_id' => 54,
-                'respuesta_id' => 115,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 54,
-                'respuesta_id' => 116,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 54,
-                'respuesta_id' => 117,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 54,
-                'respuesta_id' => 118,
+                'respuesta_id' => 4,
             ],
             // Pregunta 22
             [
                 'pregunta_id' => 55,
-                'respuesta_id' => 119,
+                'respuesta_id' => 33,
             ],
             [
                 'pregunta_id' => 55,
-                'respuesta_id' => 120,
+                'respuesta_id' => 34,
             ],
             [
                 'pregunta_id' => 55,
-                'respuesta_id' => 121,
+                'respuesta_id' => 35,
             ],
             [
                 'pregunta_id' => 55,
-                'respuesta_id' => 122,
+                'respuesta_id' => 36,
             ],
             [
                 'pregunta_id' => 55,
-                'respuesta_id' => 123,
+                'respuesta_id' => 37,
             ],
             // Pregunta 23
             [
                 'pregunta_id' => 56,
-                'respuesta_id' => 124,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 56,
-                'respuesta_id' => 125,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 56,
-                'respuesta_id' => 126,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 56,
-                'respuesta_id' => 127,
+                'respuesta_id' => 4,
             ],
             // Pregunta 24
             [
                 'pregunta_id' => 57,
-                'respuesta_id' => 128,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 57,
-                'respuesta_id' => 129,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 57,
-                'respuesta_id' => 130,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 57,
-                'respuesta_id' => 131,
+                'respuesta_id' => 4,
             ],
             // Pregunta 25
             [
                 'pregunta_id' => 58,
-                'respuesta_id' => 132,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 58,
-                'respuesta_id' => 133,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 58,
-                'respuesta_id' => 134,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 58,
-                'respuesta_id' => 135,
+                'respuesta_id' => 4,
             ],
             // Pregunta 26
             [
                 'pregunta_id' => 59,
-                'respuesta_id' => 136,
+                'respuesta_id' => 38,
             ],
             [
                 'pregunta_id' => 59,
-                'respuesta_id' => 137,
+                'respuesta_id' => 39,
             ],
             [
                 'pregunta_id' => 59,
-                'respuesta_id' => 138,
+                'respuesta_id' => 40,
             ],
             [
                 'pregunta_id' => 59,
-                'respuesta_id' => 139,
+                'respuesta_id' => 41,
             ],
             [
                 'pregunta_id' => 59,
-                'respuesta_id' => 140,
+                'respuesta_id' => 42,
             ],
             // Pregunta 27
             [
                 'pregunta_id' => 60,
-                'respuesta_id' => 141,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 60,
-                'respuesta_id' => 142,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 60,
-                'respuesta_id' => 143,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 60,
-                'respuesta_id' => 144,
+                'respuesta_id' => 4,
             ],
             // Pregunta 28
             [
                 'pregunta_id' => 61,
-                'respuesta_id' => 145,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 61,
-                'respuesta_id' => 146,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 61,
-                'respuesta_id' => 147,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 61,
-                'respuesta_id' => 148,
+                'respuesta_id' => 4,
             ],
             // Pregunta 29
             [
                 'pregunta_id' => 62,
-                'respuesta_id' => 149,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 62,
-                'respuesta_id' => 150,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 62,
-                'respuesta_id' => 151,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 62,
-                'respuesta_id' => 152,
+                'respuesta_id' => 4,
             ],
             // Pregunta 30
             [
                 'pregunta_id' => 63,
-                'respuesta_id' => 153,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 63,
-                'respuesta_id' => 154,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 63,
-                'respuesta_id' => 155,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 63,
-                'respuesta_id' => 156,
+                'respuesta_id' => 4,
             ],
             // Pregunta 31
             [
                 'pregunta_id' => 64,
-                'respuesta_id' => 157,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 64,
-                'respuesta_id' => 158,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 64,
-                'respuesta_id' => 159,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 64,
-                'respuesta_id' => 160,
+                'respuesta_id' => 4,
             ],
             // Pregunta 32
             [
                 'pregunta_id' => 65,
-                'respuesta_id' => 161,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 65,
-                'respuesta_id' => 162,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 65,
-                'respuesta_id' => 163,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 65,
-                'respuesta_id' => 164,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33a
             [
                 'pregunta_id' => 66,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 66,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 66,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 66,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33b
             [
                 'pregunta_id' => 67,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 67,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 67,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 67,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33c
             [
                 'pregunta_id' => 68,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 68,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 68,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 68,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33d
             [
                 'pregunta_id' => 69,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 69,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 69,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 69,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33e
             [
                 'pregunta_id' => 70,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 70,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 70,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 70,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 33f
             [
                 'pregunta_id' => 71,
-                'respuesta_id' => 165,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 71,
-                'respuesta_id' => 166,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 71,
-                'respuesta_id' => 167,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 71,
-                'respuesta_id' => 168,
+                'respuesta_id' => 4,
             ],
             // Pregunta 34a
             [
                 'pregunta_id' => 72,
-                'respuesta_id' => 169,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 72,
-                'respuesta_id' => 170,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 72,
-                'respuesta_id' => 171,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 72,
-                'respuesta_id' => 172,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 72,
+                'respuesta_id' => 42,
             ],
             // Pregunta 34b
             [
                 'pregunta_id' => 73,
-                'respuesta_id' => 169,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 73,
-                'respuesta_id' => 170,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 73,
-                'respuesta_id' => 171,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 73,
-                'respuesta_id' => 172,
+                'respuesta_id' => 4,
+            ],[
+                'pregunta_id' => 73,
+                'respuesta_id' => 42,
             ],
             // Pregunta 34c
             [
                 'pregunta_id' => 74,
-                'respuesta_id' => 169,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 74,
-                'respuesta_id' => 170,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 74,
-                'respuesta_id' => 171,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 74,
-                'respuesta_id' => 172,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 74,
+                'respuesta_id' => 42,
             ],
             // Pregunta 34d
             [
                 'pregunta_id' => 75,
-                'respuesta_id' => 169,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 75,
-                'respuesta_id' => 170,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 75,
-                'respuesta_id' => 171,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 75,
-                'respuesta_id' => 172,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 75,
+                'respuesta_id' => 42,
             ],
             // Pregunta 35
             [
                 'pregunta_id' => 76,
-                'respuesta_id' => 173,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 76,
-                'respuesta_id' => 174,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 76,
-                'respuesta_id' => 175,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 76,
-                'respuesta_id' => 176,
+                'respuesta_id' => 4,
             ],
             // Pregunta 36
             [
                 'pregunta_id' => 77,
-                'respuesta_id' => 173,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 77,
-                'respuesta_id' => 174,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 77,
-                'respuesta_id' => 175,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 77,
-                'respuesta_id' => 176,
+                'respuesta_id' => 4,
             ],
             // Pregunta 37
             [
                 'pregunta_id' => 78,
-                'respuesta_id' => 177,
+                'respuesta_id' => 43,
             ],
             [
                 'pregunta_id' => 78,
-                'respuesta_id' => 178,
+                'respuesta_id' => 44,
             ],
             [
                 'pregunta_id' => 78,
-                'respuesta_id' => 179,
+                'respuesta_id' => 45,
             ],
             [
                 'pregunta_id' => 78,
-                'respuesta_id' => 180,
+                'respuesta_id' => 46,
             ],
             // Pregunta 38
             [
                 'pregunta_id' => 79,
-                'respuesta_id' => 181,
+                'respuesta_id' => 47,
             ],
             [
                 'pregunta_id' => 79,
-                'respuesta_id' => 182,
+                'respuesta_id' => 48,
             ],
             [
                 'pregunta_id' => 79,
-                'respuesta_id' => 183,
+                'respuesta_id' => 49,
             ],
             [
                 'pregunta_id' => 79,
-                'respuesta_id' => 184,
+                'respuesta_id' => 50,
             ],
             // Pregunta 39
             [
                 'pregunta_id' => 80,
-                'respuesta_id' => 185,
+                'respuesta_id' => 51,
             ],
             [
                 'pregunta_id' => 80,
-                'respuesta_id' => 186,
+                'respuesta_id' => 52,
             ],
             [
                 'pregunta_id' => 80,
-                'respuesta_id' => 187,
+                'respuesta_id' => 53,
             ],
             [
                 'pregunta_id' => 80,
-                'respuesta_id' => 188,
+                'respuesta_id' => 54,
             ],
             // Pregunta 40a
             [
                 'pregunta_id' => 81,
-                'respuesta_id' => 189,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 81,
-                'respuesta_id' => 190,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 81,
-                'respuesta_id' => 191,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 81,
-                'respuesta_id' => 192,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 81,
+                'respuesta_id' => 42,
             ],
             // Pregunta 40b
             [
                 'pregunta_id' => 82,
-                'respuesta_id' => 189,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 82,
-                'respuesta_id' => 190,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 82,
-                'respuesta_id' => 191,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 82,
-                'respuesta_id' => 192,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 82,
+                'respuesta_id' => 42,
             ],
             // Pregunta 40c
             [
                 'pregunta_id' => 83,
-                'respuesta_id' => 189,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 83,
-                'respuesta_id' => 190,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 83,
-                'respuesta_id' => 191,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 83,
-                'respuesta_id' => 192,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 83,
+                'respuesta_id' => 42,
             ],
             // Pregunta 40d
             [
                 'pregunta_id' => 84,
-                'respuesta_id' => 189,
+                'respuesta_id' => 1,
             ],
             [
                 'pregunta_id' => 84,
-                'respuesta_id' => 190,
+                'respuesta_id' => 2,
             ],
             [
                 'pregunta_id' => 84,
-                'respuesta_id' => 191,
+                'respuesta_id' => 3,
             ],
             [
                 'pregunta_id' => 84,
-                'respuesta_id' => 192,
+                'respuesta_id' => 4,
+            ],
+            [
+                'pregunta_id' => 84,
+                'respuesta_id' => 42,
             ],
             // Pregunta 41
             [
                 'pregunta_id' => 85,
-                'respuesta_id' => 193,
+                'respuesta_id' => 55,
             ],
             [
                 'pregunta_id' => 85,
-                'respuesta_id' => 194,
+                'respuesta_id' => 56,
             ],
             [
                 'pregunta_id' => 85,
-                'respuesta_id' => 195,
+                'respuesta_id' => 57,
             ],
             [
                 'pregunta_id' => 85,
-                'respuesta_id' => 196,
+                'respuesta_id' => 58,
             ],
             // Pregunta 42
             [
                 'pregunta_id' => 86,
-                'respuesta_id' => 197,
+                'respuesta_id' => 59,
             ],
             [
                 'pregunta_id' => 86,
-                'respuesta_id' => 198,
+                'respuesta_id' => 60,
             ],
             [
                 'pregunta_id' => 86,
-                'respuesta_id' => 199,
+                'respuesta_id' => 61,
             ],
             [
                 'pregunta_id' => 86,
-                'respuesta_id' => 200,
+                'respuesta_id' => 62,
             ],
             // Pregunta 43
             [
                 'pregunta_id' => 87,
-                'respuesta_id' => 201,
+                'respuesta_id' => 59,
             ],
             [
                 'pregunta_id' => 87,
-                'respuesta_id' => 202,
+                'respuesta_id' => 60,
             ],
             [
                 'pregunta_id' => 87,
-                'respuesta_id' => 203,
+                'respuesta_id' => 61,
             ],
             [
                 'pregunta_id' => 87,
-                'respuesta_id' => 204,
+                'respuesta_id' => 62,
             ],
             // Pregunta 44
             [
                 'pregunta_id' => 88,
-                'respuesta_id' => 201,
+                'respuesta_id' => 63,
             ],
             [
                 'pregunta_id' => 88,
-                'respuesta_id' => 202,
+                'respuesta_id' => 64,
             ],
             [
                 'pregunta_id' => 88,
-                'respuesta_id' => 203,
+                'respuesta_id' => 65,
             ],
             [
                 'pregunta_id' => 88,
-                'respuesta_id' => 204,
+                'respuesta_id' => 66,
             ],
         ]);
     }
