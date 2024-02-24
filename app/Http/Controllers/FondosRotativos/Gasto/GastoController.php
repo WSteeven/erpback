@@ -198,6 +198,8 @@ class GastoController extends Controller
 
             if ($request->detalle == 24) {
                 $this->guardar_gasto_vehiculo($request, $gasto);
+                Log::channel('testing')->info('Log', ['detalle 24']);
+
             }
             if ($request->detalle == 6 || $request->detalle == 16) {
                 //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
@@ -210,15 +212,13 @@ class GastoController extends Controller
                 if (array_key_exists(66, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
-                if (array_key_exists(97, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
                 if (array_key_exists(96, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
                 if (array_key_exists(97, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
+
             }
             event(new FondoRotativoEvent($gasto));
             $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
