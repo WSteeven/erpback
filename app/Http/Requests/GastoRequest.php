@@ -51,7 +51,7 @@ class GastoRequest extends FormRequest
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
         ];
-        if (!is_null($this->vehiculo)) {
+        if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
                 'fecha_viat' => 'required|date_format:Y-m-d',
                 'id_lugar' => 'required',
@@ -70,7 +70,9 @@ class GastoRequest extends FormRequest
                 'comprobante' => 'required|string',
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|string',
-                'vehiculo' => 'required|integer',
+                'es_vehiculo_alquilado' => 'boolean',
+                'vehiculo' =>  $this->es_vehiculo_alquilado ?'nullable':'required|integer',
+                'placa' =>  $this->es_vehiculo_alquilado ?'required|string':'nullable',
                 'kilometraje' => 'required|integer',
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
@@ -202,6 +204,9 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 0,
             ]);
         }
+        $this->merge([
+            'factura' => str_replace('_', ' ', $this->factura),
+        ]);
         $tarea = null;
         $proyecto = null;
         if ($this->num_tarea !== 0) {

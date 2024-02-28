@@ -198,8 +198,6 @@ class GastoController extends Controller
 
             if ($request->detalle == 24) {
                 $this->guardar_gasto_vehiculo($request, $gasto);
-                Log::channel('testing')->info('Log', ['detalle 24']);
-
             }
             if ($request->detalle == 6 || $request->detalle == 16) {
                 //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
@@ -458,6 +456,28 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
+            if ($request->detalle == 24) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
+            if ($request->detalle == 6 || $request->detalle == 16) {
+                //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
+                $sub_detalle = $request->sub_detalle;
+                $sub_detalle = array_map('intval', $sub_detalle);
+                $sub_detalle = array_flip($sub_detalle);
+                if (array_key_exists(65, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(66, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(96, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(97, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+
+            }
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
             $gasto_service->marcar_notificacion_leida();
@@ -545,8 +565,34 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] = Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
+            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado',$datos['es_vehiculo_alquilado']]);
+
             $gasto_vehiculo =  GastoVehiculo::create($datos);
+            $modelo = new GastoVehiculoResource($gasto_vehiculo);
+            DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+        }
+    }
+    public function modificar_gasto_vehiculo(GastoRequest $request, Gasto $gasto)
+    {
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $datos['id_gasto'] = $request->id;
+            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
+
+            $gasto_vehiculo = GastoVehiculo::where('id_gasto' , $datos['id_gasto'])->first();
+            $gasto_vehiculo -> update($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
             DB::commit();
