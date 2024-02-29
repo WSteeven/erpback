@@ -18,14 +18,12 @@ class EstadoSolicitudExamenResource extends JsonResource
         return [
             'id' => $this->id,
             'registro_empleado_examen' => $this->registro_empleado_examen_id,
-            // 'tipo_examen' => $this->tipo_examen_id,
-            'examen' => $this->examen_id ? Examen::find($this->examen_id)->nombre : null,
-            'examen_id' => $this->examen_id,
+            // 'examen' => $this->examen_id ? Examen::find($this->examen_id)->nombre : null,
+            'examen' => $this->examen_id,
             'tipo_examen' => $this->examen?->tipoExamen?->first()->nombre,
             'categoria' => $this->examen_id ? Examen::find($this->examen_id)->categoria?->first()?->nombre : null,
             'estado_examen_id' => $this->estado_examen_id,
             'estado_examen' => $this->estadoExamen?->nombre,
-            // 'detalle_resultado_examen' => $this->detalleResultadoExamen?->id,
             'laboratorio_clinico' => $this->laboratorio_clinico_id,
             'fecha_hora_asistencia' => $this->fecha_hora_asistencia,
         ];

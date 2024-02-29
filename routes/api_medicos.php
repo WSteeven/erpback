@@ -44,6 +44,7 @@ use App\Http\Controllers\Medico\RespuestaCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
 use App\Http\Controllers\Medico\RevisionActualOrganoSistemaController;
 use App\Http\Controllers\Medico\SistemaOrganicoController;
+use App\Http\Controllers\Medico\SolicitudExamenController;
 use App\Http\Controllers\Medico\TipoAntecedenteController;
 use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
@@ -55,6 +56,7 @@ use App\Http\Controllers\Medico\TipoHabitoToxicoController;
 use App\Http\Controllers\Medico\TipoVacunaController;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\CategoriaFactorRiesgo;
+use App\Models\Medico\SolicitudExamen;
 use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Illuminate\Support\Facades\Route;
 
@@ -114,7 +116,8 @@ Route::apiResources(
         'citas-medicas' => CitaMedicaController::class,
         'consultas' => ConsultaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
-        'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class
+        'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class,
+        'solicitudes-examenes' => SolicitudExamenController::class,
     ],
     [
         'parameters' => [
@@ -125,6 +128,7 @@ Route::apiResources(
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
+            'solicitudes-examenes' => 'solicitud_examen',
         ],
 
     ]

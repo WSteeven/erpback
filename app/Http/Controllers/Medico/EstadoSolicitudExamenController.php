@@ -84,10 +84,8 @@ class EstadoSolicitudExamenController extends Controller
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de estado de solicitud de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            throw ValidationException::withMessages(['Error al insertar' => [$e->getMessage() . ' ' . $e->getLine()]]);
+            // return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de estado de solicitud de examen' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 

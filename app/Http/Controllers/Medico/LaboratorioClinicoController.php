@@ -39,7 +39,7 @@ class LaboratorioClinicoController extends Controller
             DB::beginTransaction();
             $examen = LaboratorioClinico::create($datos);
             $modelo = new LaboratorioClinicoResource($examen);
-            $this->tabla_roles($examen);
+            // $this->tabla_roles($examen);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -48,7 +48,6 @@ class LaboratorioClinicoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de laboratorio clinico' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
 
