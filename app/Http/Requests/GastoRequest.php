@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
@@ -71,8 +72,8 @@ class GastoRequest extends FormRequest
                 'comprobante2' => 'required|string',
                 'detalle_estado' => 'nullable|string',
                 'es_vehiculo_alquilado' => 'boolean',
-                'vehiculo' =>  $this->es_vehiculo_alquilado ?'nullable':'required|integer',
-                'placa' =>  $this->es_vehiculo_alquilado ?'required|string':'nullable',
+                'vehiculo' =>  $this->es_vehiculo_alquilado ? 'nullable' : 'required|integer',
+                'placa' =>  $this->es_vehiculo_alquilado ? 'required|string' : 'nullable',
                 'kilometraje' => 'required|integer',
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
@@ -164,13 +165,15 @@ class GastoRequest extends FormRequest
             $index = array_search($this->detalle, array_column($numFacturaObjeto, 'detalle'));
             $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
             $num_fact = str_replace(' ', '',  $this->factura);
-            if ($this->detalle == 16) {
-                if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
-                    throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
-                }
-            } else {
-                if (strlen($num_fact) < $cantidad) {
-                    throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+            if (!!$this->factura) {
+                if ($this->detalle == 16) {
+                    if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
+                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                    }
+                } else {
+                    if (strlen($num_fact) < $cantidad) {
+                        throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
+                    }
                 }
             }
         }
