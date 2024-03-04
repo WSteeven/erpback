@@ -288,42 +288,50 @@ class InventarioController extends Controller
 
     public function kardex(Request $request)
     {
+        Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
-        $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
+        // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         $cont = 0;
         $row = [];
         $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
         $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $ids_itemsInventario = Inventario::where('detalle_id', $request->detalle)->orderBy('updated_at', 'desc')->get('id');
+        $ids_itemsInventario = Inventario::where('detalle_id', $request->detalle_id)
+            ->when($request->sucursal_id, function ($q) use ($request) {
+                $q->where('sucursal_id', $request->sucursal_id);
+            })->orderBy('updated_at', 'desc')->get('id');
         if ($request->fecha_inicio && $request->fecha_fin) {
             // Log::channel('testing')->info('Log', ['Request', $request->all(), 'primer if']);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
                 ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])
                 ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
-                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         if ($request->fecha_inicio && !$request->fecha_fin) {
             // Log::channel('testing')->info('Log', ['Request', $request->all(), 'segundo if', date('Y-m-d h:i:s')]);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
                 ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])
                 ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
-                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         if (!$request->fecha_inicio && !$request->fecha_fin) {
             // Log::channel('testing')->info('Log', ['Request', $request->all(), 'tercer if']);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
                 ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
-                ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+                ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         // Log::channel('testing')->info('Log', ['Listado de movimientos', $movimientos]);
         foreach ($movimientos as $movimiento) {
-            // Log::channel('testing')->info('Log', ['Movimiento', $movimiento]);
+            Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             $row['id'] = $movimiento->inventario->detalle->id;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
             $row['num_transaccion'] = $movimiento->transaccion->id;
             $row['motivo'] = $movimiento->transaccion->motivo->nombre;
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
+            $row['sucursal'] = $movimiento->inventario->sucursal->lugar;
             $row['cantidad'] = $movimiento->cantidad_inicial;
             $row['cant_anterior'] = $cont == 0 ? 0 : $row['cant_actual'];
             $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);

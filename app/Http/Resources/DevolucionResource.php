@@ -36,7 +36,7 @@ class DevolucionResource extends JsonResource
             'estado_bodega' => $this->estado_bodega,
             'es_para_stock' => $this->stock_personal,
             'listadoProductos' => $detalles,
-            'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'created_at' => date('Y-m-d', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
 
             'es_tarea' => $this->tarea ? true : false,

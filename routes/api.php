@@ -239,6 +239,7 @@ Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionControlle
  ******************************************************/
 //Reportes de pedidos
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesDetalle']);
 //Reportes de ingresos y egresos
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
@@ -268,7 +269,9 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'corregirPedido']);
+Route::put('devoluciones/corregir-devolucion/{devolucion}', [DevolucionController::class, 'corregirDevolucion']);
 Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
+Route::post('devoluciones/eliminar-item', [DevolucionController::class, 'eliminarDetalleDevolucion']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
