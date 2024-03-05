@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
+
 class EstadoSolicitudExamenController extends Controller
 {
     private $entidad = 'Estado de solicitud de Examen';

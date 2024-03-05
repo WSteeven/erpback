@@ -19,14 +19,22 @@ return new class extends Migration
         Schema::create('med_solicitudes_examenes', function (Blueprint $table) use ($enumEstados) {
             $table->id();
 
-            $table->string('observacion');
+            $table->string('observacion')->nullable();
+            $table->string('observacion_autorizador')->nullable();
             $table->enum('estado_solicitud_examen', $enumEstados);
 
-            // $table->unsignedBigInteger('estado_examen_id');
-            // $table->foreign('estado_examen_id')->references('id')->on('med_estados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
-
+            // Foreign keys
             $table->unsignedBigInteger('registro_empleado_examen_id');
             $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('canton_id');
+            $table->foreign('canton_id')->references('id')->on('cantones')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('solicitante_id');
+            $table->foreign('solicitante_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('autorizador_id');
+            $table->foreign('autorizador_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

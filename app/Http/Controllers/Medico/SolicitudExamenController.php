@@ -53,28 +53,21 @@ class SolicitudExamenController extends Controller
         return response()->json(compact('mensaje', 'modelo'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(SolicitudExamen $solicitud_examen)
     {
         $modelo = new SolicitudExamenResource($solicitud_examen);
         return response()->json(compact('modelo'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $datosValidados = $request->validated();
+
+        $modelo = $this->solicitudExamenService->actualizarSolicitudExamen($datosValidados, $id);
+        $modelo = new SolicitudExamenResource($modelo);
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**

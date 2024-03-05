@@ -52,7 +52,8 @@ class EmpleadoController extends Controller
 
         $user = User::find(auth()->id());
 
-        // Devuelve al  empleado resposanble del departamento que se pase como parametro
+        // Devuelve en un array al  empleado resposanble del departamento que se pase como parametro
+        // Requiere de campos: es_responsable_departamento=true&departamento_id=
         if (request('es_responsable_departamento')) {
             $idResponsable = Departamento::find(request('departamento_id'))->responsable_id;
             if ($idResponsable) {
@@ -64,11 +65,10 @@ class EmpleadoController extends Controller
         if ($user->hasRole([User::ROL_RECURSOS_HUMANOS])) {
             return $this->servicio->obtenerTodosSinEstado();
         }
+
         if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA]) && request('es_reporte__saldo_actual')) {
             return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
         }
-
-
 
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());

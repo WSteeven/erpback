@@ -74,8 +74,8 @@ class TransferenciaProductoEmpleadoService
         $sql = $consulta->toSql();
         $bin = $consulta->getBindings();
 
-        Log::channel('testing')->info('Log', compact('sql', 'bin'));
-        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'tarea_id', 'cliente_id'));
+        Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('sql', 'bin'));
+        Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('empleado_id', 'detalle_producto_id', 'proyecto_id', 'etapa_id', 'tarea_id', 'cliente_id'));
 
         return $consulta->first();
     }
@@ -90,8 +90,8 @@ class TransferenciaProductoEmpleadoService
         $sql = $consulta->toSql();
         $bin = $consulta->getBindings();
 
-        Log::channel('testing')->info('Log', compact('sql', 'bin'));
-        Log::channel('testing')->info('Log', compact('empleado_id', 'detalle_producto_id', 'cliente_id'));
+        Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('sql', 'bin'));
+        Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('empleado_id', 'detalle_producto_id', 'cliente_id'));
 
         return $consulta->first();
     }
@@ -102,6 +102,7 @@ class TransferenciaProductoEmpleadoService
     public function ajustarValoresProducto(TransferenciaProductoEmpleado $transferencia_producto_empleado, $esEntreStock)
     {
         $cliente_id = $transferencia_producto_empleado->cliente_id; // request('cliente');
+        Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ') Cliente: ' . $cliente_id);
 
         // Origen
         $empleado_origen_id = request('empleado_origen');
@@ -126,19 +127,20 @@ class TransferenciaProductoEmpleadoService
 
             if ($productoOrigen) {
                 // Sumar productos destino
-                $productoDestino = $esEntreStock ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
+                // $productoDestino = $esEntreStock ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
+                $productoDestino = $esEntreStock && !$tarea_destino_id ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
 
                 if ($productoDestino) {
                     $mensaje = 'Si se encuentra';
-                    Log::channel('testing')->info('Log', compact('mensaje'));
+                    Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
                     $productoDestino->cantidad_stock += $producto['cantidad'];
                     $productoDestino->despachado += $producto['cantidad'];
                     $productoDestino->save();
                 } else {
                     $mensaje = 'Si no se encuentra, se crea';
-                    Log::channel('testing')->info('Log', compact('mensaje'));
+                    Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
 
-                    if ($esEntreStock) {
+                    if ($esEntreStock && !$tarea_destino_id) {
                         $productoDestino = MaterialEmpleado::create([
                             'empleado_id' => $empleado_destino_id,
                             'cantidad_stock' => $producto['cantidad'],
@@ -160,7 +162,7 @@ class TransferenciaProductoEmpleadoService
                     }
                 }
 
-                Log::channel('testing')->info('Log', compact('productoDestino'));
+                Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('productoDestino'));
             }
         }
     }

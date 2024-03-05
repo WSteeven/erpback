@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Canton;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -16,8 +17,12 @@ class SolicitudExamen extends Model implements Auditable
     protected $table = 'med_solicitudes_examenes';
     protected $fillable = [
         'observacion',
+        'observacion_autorizador',
         'registro_empleado_examen_id',
         'estado_solicitud_examen',
+        'canton_id',
+        'solicitante_id',
+        'autorizador_id',
     ];
 
     // Estados solicitudes examenes
@@ -37,5 +42,10 @@ class SolicitudExamen extends Model implements Auditable
     public function examenesSolicitados()
     {
         return $this->hasMany(EstadoSolicitudExamen::class);
+    }
+
+    public function canton()
+    {
+        return $this->belongsTo(Canton::class);
     }
 }

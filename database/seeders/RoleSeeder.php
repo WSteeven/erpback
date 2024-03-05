@@ -636,6 +636,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'puede.ver.solicitudes_examenes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => 'puede.crear.solicitudes_examenes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => 'puede.editar.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => 'puede.autorizar.solicitudes_examenes']); // yloja
         Permission::firstOrCreate(['name' => 'puede.ver.reporte_cuestionarios_psicosocial'])->syncRoles([$medico]);
     }
 }

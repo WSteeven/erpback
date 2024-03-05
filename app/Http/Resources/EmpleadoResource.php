@@ -28,6 +28,7 @@ class EmpleadoResource extends JsonResource
             'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
+            // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,
             'cargo' => $this->cargo?->nombre,
             'nombre_cargo' => $this->cargo?->nombre,
@@ -102,11 +103,12 @@ class EmpleadoResource extends JsonResource
         foreach ($campos as $campo) {
             if (isset($modelo[$campo])) {
                 // $modelo[$campo] = $this->{$campo};
-                $data[$campo] = $this->{$campo};
+                $data[$campo] = $modelo[$campo];
             }
         }
         return count($campos) ? $data : $modelo;
     }
+
     public function antiguedad($fecha_ingreso)
     {
         // Obtén la fecha actual con Carbon
