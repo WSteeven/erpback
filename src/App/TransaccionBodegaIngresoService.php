@@ -11,10 +11,12 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\App\Bodega\DevolucionService;
+use Src\Config\ClientesCorporativos;
 
 class TransaccionBodegaIngresoService
 {
@@ -667,5 +669,51 @@ class TransaccionBodegaIngresoService
         } else throw new Exception('Ha ocurrido un error al intentar restar de la devolucion el item ' . $detalle_id);
 
         DevolucionService::verificarItemsDevolucion($item);
+    }
+
+    /**
+     * La función "obtenerIngresos" recupera transacciones de ingresos según criterios específicos,
+     * como rango de fechas y roles de usuario.
+     * 
+     * @param string $fecha_inicio El parámetro `fecha_inicio` representa la fecha de inicio a partir de la
+     * cual se quieren filtrar las transacciones. Si proporciona un valor para `fecha_inicio`, la
+     * función solo recuperará transacciones que se crearon en esa fecha o después.
+     * @param string $fecha_fin El parámetro `fecha_fin` representa la fecha de
+     * finalización del filtrado de transacciones. Se utiliza para recuperar transacciones que se
+     * crearon en esta fecha o antes. Si se proporciona un valor para `fecha_fin`, la función filtrará
+     * las transacciones según esta fecha de finalización.
+     * 
+     * @return mixed Devuelve una colección de transacciones en función de
+     * ciertas condiciones. Las transacciones se filtran según el rol del usuario (ya sea `ROL_BODEGA`
+     * o `ROL_ADMINISTRADOR` para un conjunto de condiciones, o `ROL_BODEGA_TELCONET` para otro
+     * conjunto de condiciones).
+     */
+    public static function obtenerIngresos($fecha_inicio = null, $fecha_fin = null)
+    {
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
+        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $results = [];
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
+                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                    $q->where('created_at', '>=', $fecha_inicio);
+                })
+                ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                    $q->where('created_at', '<=', $fecha_fin);
+                })
+                ->orderBy('id', 'desc')->get();
+        }
+        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
+            $results = TransaccionBodega::whereIn('motivo_id', $ids_motivos)
+                ->where('cliente_id', ClientesCorporativos::TELCONET)
+                ->when($fecha_inicio, function ($q) use ($fecha_inicio) {
+                    $q->where('created_at', '>=', $fecha_inicio);
+                })
+                ->when($fecha_fin, function ($q) use ($fecha_fin) {
+                    $q->where('created_at', '<=', $fecha_fin);
+                })
+                ->orderBy('id', 'desc')->get();
+        }
+        return $results;
     }
 }

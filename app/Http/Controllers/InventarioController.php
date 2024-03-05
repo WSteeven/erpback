@@ -363,4 +363,16 @@ class InventarioController extends Controller
                 return response()->json(compact('results'));
         }
     }
+
+    
+    /**
+     * Dashboard de ordenes de compras
+     */
+    public function dashboard(Request $request)
+    {
+
+        $results = $this->servicio->obtenerDashboard($request);
+
+        return response()->json(compact('results'));
+    }
 }

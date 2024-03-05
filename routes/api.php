@@ -306,6 +306,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
 
 });
+/***********
+ * Dashboard
+ ***********/
+Route::post('dashboard-bodega', [InventarioController::class, 'dashboard'])->middleware('auth:sanctum');
 
 
 /**
