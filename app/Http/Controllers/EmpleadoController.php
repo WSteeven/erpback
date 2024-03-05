@@ -154,6 +154,7 @@ class EmpleadoController extends Controller
                 'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
                 'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
+                'coordenadas' => $datos['coordenadas'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -480,6 +481,24 @@ class EmpleadoController extends Controller
         $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
         $username = $this->generarNombreUsuario($datos);
         return response()->json(compact('username'));
+    }
+
+    public function empleadosConSaldoFondosRotativos(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
+
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
+
+    public function empleadosConOrdenes(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = Empleado::has('ordenesCompras')->ignoreRequest(['campos'])->filter()->get($campos);
+
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
     }
 
     function obtenerEmpleadosFondosRotativos(Request $request)

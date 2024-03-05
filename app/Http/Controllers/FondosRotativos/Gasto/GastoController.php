@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use PgSql\Lob;
+use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -66,7 +67,7 @@ class GastoController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
-        if ($usuario_ac->hasRole('CONTABILIDAD')) {
+        if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
             $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
@@ -209,15 +210,13 @@ class GastoController extends Controller
                 if (array_key_exists(66, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
-                if (array_key_exists(97, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
                 if (array_key_exists(96, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
                 if (array_key_exists(97, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
+
             }
             event(new FondoRotativoEvent($gasto));
             $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
@@ -299,8 +298,8 @@ class GastoController extends Controller
     {
         try {
             $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
@@ -387,8 +386,8 @@ class GastoController extends Controller
     public function reporte_autorizaciones(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $tipo_ARCHIVO = $tipo;
@@ -457,6 +456,28 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
+            if ($request->detalle == 24) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
+            if ($request->detalle == 6 || $request->detalle == 16) {
+                //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
+                $sub_detalle = $request->sub_detalle;
+                $sub_detalle = array_map('intval', $sub_detalle);
+                $sub_detalle = array_flip($sub_detalle);
+                if (array_key_exists(65, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(66, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(96, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+                if (array_key_exists(97, $sub_detalle)) {
+                    $this->modificar_gasto_vehiculo($request, $gasto);
+                }
+
+            }
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
             $gasto_service->marcar_notificacion_leida();
@@ -544,7 +565,10 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] = Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
+            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado',$datos['es_vehiculo_alquilado']]);
+
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
@@ -554,6 +578,30 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+        }
+    }
+    public function modificar_gasto_vehiculo(GastoRequest $request, Gasto $gasto)
+    {
+        try {
+            $datos = $request->validated();
+            DB::beginTransaction();
+            $datos['id_gasto'] = $request->id;
+            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
+
+            $gasto_vehiculo = GastoVehiculo::where('id_gasto' , $datos['id_gasto'])->first();
+            $gasto_vehiculo -> update($datos);
+            $modelo = new GastoVehiculoResource($gasto_vehiculo);
+            DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
+            DB::commit();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
 
@@ -562,9 +610,15 @@ class GastoController extends Controller
     {
         try {
             Log::channel('testing')->info('Log', ['Request', $request->all()]);
+            $empleadoService = new EmpleadoService();
+            if ($request->todos)
+                $results = $empleadoService->obtenerValoresFondosRotativos();
+            else
+                $results = [$empleadoService->obtenerValoresFondosRotativosEmpleado(Empleado::find($request->empleado ? $request->empleado : auth()->user()->empleado->id))];
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['ERROR al imprimir el reporte', $th->getMessage(), $th->getLine()]);
             throw ValidationException::withMessages(['error' => [$th->getMessage()]]);
         }
+        return response()->json(compact('results'));
     }
 }

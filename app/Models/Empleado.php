@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
@@ -11,6 +13,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Vehiculo;
+use App\Models\Ventas\Vendedor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -165,6 +168,15 @@ class Empleado extends Model implements Auditable
         return $this->belongsTo(User::class, 'usuario_id', 'id');
     }
 
+    /**
+     * Relacion uno a muchos.
+     * Un empleado tiene muchos registros de saldo.
+     */
+    public function saldo()
+    {
+        return $this->hasMany(SaldoGrupo::class, 'id_usuario');
+    }
+
     // Relacion muchos a muchos
     public function grupo()
     {
@@ -203,8 +215,9 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasMany(TransaccionBodega::class);
     }
-    public function rolesPago(){
-        return $this->hasMany(RolPago::class,'empleado_id');
+    public function rolesPago()
+    {
+        return $this->hasMany(RolPago::class, 'empleado_id');
     }
 
     /**
@@ -325,11 +338,11 @@ class Empleado extends Model implements Auditable
      */
     public function estadoCivil()
     {
-        return $this->hasOne(EstadoCivil::class,'id','estado_civil_id');
+        return $this->hasOne(EstadoCivil::class, 'id', 'estado_civil_id');
     }
     public function familiares_info()
     {
-        return $this->hasMany(Familiares::class,'empleado_id','id');
+        return $this->hasMany(Familiares::class, 'empleado_id', 'id');
     }
     /**
      * Relación uno a uno.
@@ -337,7 +350,7 @@ class Empleado extends Model implements Auditable
      */
     public function banco_info()
     {
-        return $this->hasOne(Banco::class,'id','banco');
+        return $this->hasOne(Banco::class, 'id', 'banco');
     }
     /**
      * Relación uno a uno.
@@ -345,7 +358,7 @@ class Empleado extends Model implements Auditable
      */
     public function tipoContrato()
     {
-        return $this->belongsTo(TipoContrato::class,'tipo_contrato_id','id');
+        return $this->belongsTo(TipoContrato::class, 'tipo_contrato_id', 'id');
     }
     /**
      * Relación uno a uno.
@@ -384,13 +397,25 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasOne(UmbralFondosRotativos::class, 'empleado_id', 'id');
     }
-    public function egresoRolPago(){
+    public function egresoRolPago()
+    {
         return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
     }
 
-    public function gastos(){
-        return $this->hasMany(Gasto::class, 'id_usuario');    }
+    public function ordenesCompras()
+    {
+        return $this->hasMany(OrdenCompra::class, 'solicitante_id');
+    }
 
+    public function gastos()
+    {
+        return $this->hasMany(Gasto::class, 'id_usuario');
+    }
+
+    public function vendedor()
+    {
+        return $this->hasOne(Vendedor::class);
+    }
     public static function empaquetarListado($empleados)
     {
         $results = [];
@@ -404,14 +429,13 @@ class Empleado extends Model implements Auditable
             $row['apellidos'] =  $empleado->apellidos;
             $row['nombres'] =   $empleado->nombres;
             $row['identificacion'] =  $empleado->identificacion;
-            $row['departamento'] =  $empleado->departamento!=null?$empleado->departamento->nombre:'';
-            $row['area'] =  $empleado->area!=null?$empleado->area->nombre:'';
-            $row['cargo'] =  $empleado->cargo !=null ?$empleado->cargo->nombre:'';
+            $row['departamento'] =  $empleado->departamento != null ? $empleado->departamento->nombre : '';
+            $row['area'] =  $empleado->area != null ? $empleado->area->nombre : '';
+            $row['cargo'] =  $empleado->cargo != null ? $empleado->cargo->nombre : '';
             $row['salario'] =  $empleado->salario;
             $results[$id] = $row;
             $id++;
         }
         return $results;
     }
-
 }

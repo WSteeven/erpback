@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
@@ -28,7 +29,7 @@ Route::apiResources(
         'transferencia' => TransferenciasController::class,
         'gasto-coordinador' => GastoCoordinadorController::class,
         'motivo-gasto' => MotivoGastoController::class,
-        'umbral' =>UmbralFondosRotativosController::class,
+        'umbral' => UmbralFondosRotativosController::class,
         'acreditacion-semana' => AcreditacionSemanaController::class,
         'valor-acreditar' => ValorAcreditarController::class,
     ],
@@ -57,12 +58,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('rechazar-transferencia', [TransferenciasController::class, 'rechazar_transferencia']);
     Route::post('anular-transferencia', [TransferenciasController::class, 'anular_transferencia']);
     Route::post('anular-acreditacion', [AcreditacionesController::class, 'anular_acreditacion']);
-    Route::get('crear-cash-acreditacion-saldo/{id}',[AcreditacionSemanaController::class, 'crear_cash_acreditacion_saldo']);
-    Route::get('acreditacion-saldo-semana/{id}',[AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
-    Route::get('actualizar-valores-saldo-semana/{id}',[AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
+    Route::get('crear-cash-acreditacion-saldo/{id}', [AcreditacionSemanaController::class, 'crear_cash_acreditacion_saldo']);
+    Route::get('acreditacion-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
+    Route::get('actualizar-valores-saldo-semana/{id}', [AcreditacionSemanaController::class, 'acreditacion_saldo_semana']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporte_acreditacion_semanal']);
     Route::get('reporte-acreditacion-semanal/{id}', [AcreditacionSemanaController::class, 'reporte_acreditacion_semanal']);
     Route::post('reporte-valores-fondos', [GastoController::class, 'reporte_valores_fondos']);
-
-
 });
+
+
+Route::get('empleados-saldos-fr', [EmpleadoController::class, 'empleadosConSaldoFondosRotativos']);

@@ -78,7 +78,8 @@ class ComprobanteController extends Controller
                 $transaccion->save();
                 $transaccion->latestNotificacion()->update(['leida' => true]);
                 $esEgresoLiquidacionMateriales = TransaccionBodega::verificarEgresoLiquidacionMateriales($transaccion->motivo_id, $transaccion->motivo->tipo_transaccion_id, MotivosTransaccionesBodega::egresoLiquidacionMateriales);
-                if (!$esEgresoLiquidacionMateriales) TransaccionBodega::asignarMateriales($transaccion);
+                $noGeneraComprobante = TransaccionBodega::verificarMotivosEgreso($transaccion->motivo_id);
+                if (!$esEgresoLiquidacionMateriales && !$noGeneraComprobante) TransaccionBodega::asignarMateriales($transaccion);
             }
         } else throw new Exception('Transacción ya fue firmada');
 

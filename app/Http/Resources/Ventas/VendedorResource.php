@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Http\Resources\Ventas;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class VendedorResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
+    public function toArray($request)
+    {
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->empleado_id,
+            'empleado' => $this->empleado_id,
+            'empleado_id' => $this->empleado_id,
+            'empleado_info' => $this->empleado != null ? $this->empleado->nombres . ' ' . $this->empleado->apellidos : '',
+            'modalidad' => $this->modalidad_id,
+            'modalidad_id' => $this->modalidad_id,
+            'modalidad_info' => $this->modalidad != null ? $this->modalidad->nombre : '',
+            'tipo_vendedor' => $this->tipo_vendedor,
+            'jefe_inmediato_info' => $this->jefe_inmediato !== null ? $this->jefe_inmediato->nombres . ' ' . $this->jefe_inmediato->apellidos : '',
+            'jefe_inmediato' => $this->jefe_inmediato_id,
+            'causa_desactivacion' => $this->causa_desactivacion,
+            'activo' => $this->activo,
+        ];
+        return $modelo;
+    }
+}

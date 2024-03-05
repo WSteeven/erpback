@@ -464,7 +464,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();

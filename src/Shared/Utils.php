@@ -11,6 +11,20 @@ use Ramsey\Uuid\Type\Integer;
 
 class Utils
 {
+    public static $meses = array(
+        "January" => "Enero",
+        "February" => "Febrero",
+        "March" => "Marzo",
+        "April" => "Abril",
+        "May" => "Mayo",
+        "June" => "Junio",
+        "July" => "Julio",
+        "August" => "Agosto",
+        "September" => "Septiembre",
+        "October" => "Octubre",
+        "November" => "Noviembre",
+        "December" => "Diciembre"
+    );
     public static function esBase64(string $imagen): bool
     {
         return str_contains($imagen, ';base64');
