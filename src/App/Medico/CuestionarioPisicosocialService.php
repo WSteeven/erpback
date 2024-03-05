@@ -23,7 +23,8 @@ class CuestionarioPisicosocialService
     {
         foreach ($respuestas_cuestionario as $key => $value) {
             RespuestaCuestionarioEmpleado::create([
-                'cuestionario_id' => $value['id_cuestionario'],
+                'cuestionario_id' => !is_string($value['id_cuestionario'])?$value['id_cuestionario']:null,
+                'respuesta' => is_string($value['id_cuestionario'])?$value['id_cuestionario']:null,
                 'empleado_id' => $this->empleado_id,
             ]);
         }

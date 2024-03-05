@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_respuestas', function (Blueprint $table) {
+        Schema::create('med_tipos_cuestionarios', function (Blueprint $table) {
             $table->id();
-            $table->text('respuesta');
-            $table->text('valor');
+            $table->text('titulo');
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_respuestas');
+        Schema::dropIfExists('med_tipo_cuestionarios');
     }
 };

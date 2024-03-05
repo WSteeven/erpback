@@ -20,6 +20,7 @@ class RespuestaCuestionarioEmpleado extends Model implements Auditable
     protected $table = 'med_respuestas_cuestionarios_empleados';
     protected $fillable = [
         'cuestionario_id',
+        'respuesta',
         'empleado_id'
     ];
     private static $whiteListFilter = ['*'];

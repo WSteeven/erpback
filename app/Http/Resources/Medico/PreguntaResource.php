@@ -34,8 +34,6 @@ class PreguntaResource extends JsonResource
                 'respuesta' => $cuestionario->respuesta?->respuesta,
             ];
         });
-
-        Log::channel('testing')->info('Log', ['var...', $var]);
         return $var;
     }
 }
