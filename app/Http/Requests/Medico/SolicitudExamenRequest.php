@@ -54,7 +54,7 @@ class SolicitudExamenRequest extends FormRequest
             $this->merge([
                 'estado_solicitud_examen' => SolicitudExamen::SOLICITADO,
                 'solicitante_id' => Auth::user()->empleado->id,
-                // 'autorizador_id' => 1,
+                'canton_id' => $this->canton,
             ]);
         }
 
