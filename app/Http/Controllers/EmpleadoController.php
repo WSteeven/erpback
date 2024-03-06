@@ -144,6 +144,7 @@ class EmpleadoController extends Controller
                 'tiene_discapacidad' => $datos['tiene_discapacidad'],
                 'observacion' => $datos['observacion'],
                 'nivel_academico' => $datos['nivel_academico'],
+                'titulo' => $datos['titulo'],
                 'supa' => $datos['supa'],
                 'talla_zapato' => $datos['talla_zapato'],
                 'talla_camisa' => $datos['talla_camisa'],
