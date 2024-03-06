@@ -688,7 +688,7 @@ class TransaccionBodegaIngresoService
      * o `ROL_ADMINISTRADOR` para un conjunto de condiciones, o `ROL_BODEGA_TELCONET` para otro
      * conjunto de condiciones).
      */
-    public static function obtenerIngresos($fecha_inicio = null, $fecha_fin = null)
+    public static function listar($fecha_inicio = null, $fecha_fin = null)
     {
         $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
         $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');

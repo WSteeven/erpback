@@ -113,26 +113,6 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
-    /*public function materialesDespachadosSinBobinaRespaldo($id)
-    {
-        $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
-        return response()->json(compact('results'));
-    }
-
-    public function materialesDespachados($id)
-    {
-        $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
-        return response()->json(compact('results'));
-    }*/
-
-    /* public function prueba($id)
-    {
-        $results = $this->servicio->obtenerTransaccionesPorTarea($id);
-        $results = TransaccionBodega::listadoProductosTarea($results);
-        $results = TransaccionBodegaResource::collection($results);
-        return response()->json(compact('results'));
-    } */
-
     /**
      * Listar
      */

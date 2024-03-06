@@ -55,7 +55,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
-        $results = $this->servicio->obtenerIngresos();
+        $results = $this->servicio->listar();
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }

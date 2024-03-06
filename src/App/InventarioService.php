@@ -105,7 +105,6 @@ class InventarioService
         switch ($request->tipo) {
             case 'INGRESO':
                 $results = self::obtenerIngresos($fecha_inicio, $fecha_fin);
-                $results['todas'] = TransaccionBodegaResource::collection($results['todas']);
                 break;
             case 'EGRESO':
                 $results = self::obtenerEgresos($fecha_inicio, $fecha_fin);
@@ -125,6 +124,7 @@ class InventarioService
                 throw new Exception('Error con el tipo obtenido, no concuerda con ninguna opción de tipo de dashboard');
         }
 
+        $results['todas'] = TransaccionBodegaResource::collection($results['todas']);
         return $results;
     }
 
@@ -133,7 +133,7 @@ class InventarioService
         $servicioIngreso = new TransaccionBodegaIngresoService();
 
         Log::channel('testing')->info('Log', ['fechas de filtrado en obtener ingresos:', $fecha_inicio, $fecha_fin]);
-        $todas = $servicioIngreso->obtenerIngresos($fecha_inicio, $fecha_fin);
+        $todas = $servicioIngreso->listar($fecha_inicio, $fecha_fin);
         $resultados_agrupados = $todas->groupBy('motivo_id');
         // Log::channel('testing')->info('Log', ['resultados agrupados:', $resultados_agrupados]);
         $data = []; //Claves y valores a graficarse en el pie
@@ -181,7 +181,7 @@ class InventarioService
             'labels' => array_keys($displayedData),
             'datasets' => [
                 [
-                    'backgroundColor' => Utils::colorDefault(),
+                    'backgroundColor' => Utils::coloresAleatorios(),
                     'label' => $tituloGrafico,
                     'data' => array_values($displayedData),
                 ]
@@ -193,18 +193,18 @@ class InventarioService
         $graficoOtros = new Collection([
             'id' => 2,
             'identificador' => 'OTROS',
-            'encabezado' => 'Ingresos a bodega por diferentes motivos poco frecuentes',
-            'labels' => array_keys($displayedData),
+            'encabezado' => 'Ingresos a bodega por motivos poco frecuentes',
+            'labels' => array_keys($othersData),
             'datasets' => [
                 [
                     'backgroundColor' => Utils::colorDefault(),
                     'label' => $tituloGrafico,
-                    'data' => array_values($displayedData),
+                    'data' => array_values($othersData),
                 ]
             ],
         ]);
-        array_push($graficos, $graficoIngresos);
-        
+        array_push($graficos, $graficoOtros);
+
         return compact(
             'graficos',
             'todas'
@@ -212,6 +212,83 @@ class InventarioService
     }
     public static function obtenerEgresos($fecha_inicio, $fecha_fin)
     {
+        $request = new Request();
+        // $request->estado = null;
+        $request['fecha_inicio'] = $fecha_inicio;
+        $request['fecha_fin'] = $fecha_fin;
+        $servicioEgreso = new TransaccionBodegaEgresoService();
+        $todas = $servicioEgreso->listar($request);
+        $resultados_agrupados = $todas->groupBy('motivo_id');
+        $data = [];
+        foreach ($resultados_agrupados as $motivo_id => $r) {
+            $data[Motivo::find($motivo_id)->nombre] = $r->count();
+        }
+        $tituloGrafico = 'Ingresos a bodega';
+        $graficos = [];
+
+        //Ordenamos los datos en orden descendente
+        arsort($data);
+        Log::channel('testing')->info('Log', ['Data a mostrar:', $data]);
+
+        // Definimos un límite superior para la cantidad de elementos a mostrar directamente
+        $limit = 4;
+        //Creamos dos arreglos para almacenar los datos mostrados y los datos agrupados en otros
+        $displayedData  = [];
+        $othersData  = [];
+
+        // Iteramos sobre los datos y los distribuimos entre los mostrados y los agrupados en "otros"
+        foreach ($data as $key => $value) {
+            if (count($displayedData) < $limit) {
+                $displayedData[$key] = $value;
+            } else
+                $othersData[$key] = $value;
+        }
+
+        // Si hay elementos agrupados en "otros", sumamos sus valores
+        if (!empty($othersData)) {
+            $othersValue = array_sum($othersData);
+            $displayedData['OTROS'] = $othersValue;
+        }
+
+        //Configuramos el primer grafico
+        $graficoIngresos = new Collection([
+            'id' => 1,
+            'identificador' => 'TODOS',
+            'encabezado' => 'Egresos a bodega por motivos frecuentes',
+            'labels' => array_keys($displayedData),
+            'datasets' => [
+                [
+                    'backgroundColor' => Utils::coloresAleatorios(),
+                    'label' => $tituloGrafico,
+                    'data' => array_values($displayedData),
+                ]
+            ],
+        ]);
+        array_push($graficos, $graficoIngresos);
+
+        if (count($othersData) > 0) {
+
+            //Configuramos el segundo grafico
+            $graficoOtros = new Collection([
+                'id' => 2,
+                'identificador' => 'OTROS',
+                'encabezado' => 'Egresos a bodega por motivos poco frecuentes',
+                'labels' => array_keys($othersData),
+                'datasets' => [
+                    [
+                        'backgroundColor' => Utils::colorDefault(),
+                        'label' => $tituloGrafico,
+                        'data' => array_values($othersData),
+                    ]
+                ],
+            ]);
+            array_push($graficos, $graficoOtros);
+        }
+
+        return compact(
+            'graficos',
+            'todas'
+        );
     }
     public static function obtenerDevoluciones($fecha_inicio, $fecha_fin)
     {
