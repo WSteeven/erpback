@@ -3,12 +3,16 @@
 namespace Src\App;
 
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\Comprobante;
+use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\TransaccionBodega;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class InventarioService
@@ -213,7 +217,6 @@ class InventarioService
     public static function obtenerEgresos($fecha_inicio, $fecha_fin)
     {
         $request = new Request();
-        // $request->estado = null;
         $request['fecha_inicio'] = $fecha_inicio;
         $request['fecha_fin'] = $fecha_fin;
         $servicioEgreso = new TransaccionBodegaEgresoService();
@@ -228,7 +231,7 @@ class InventarioService
 
         //Ordenamos los datos en orden descendente
         arsort($data);
-        Log::channel('testing')->info('Log', ['Data a mostrar:', $data]);
+        // Log::channel('testing')->info('Log', ['Data a mostrar:', $data]);
 
         // Definimos un límite superior para la cantidad de elementos a mostrar directamente
         $limit = 4;
@@ -254,7 +257,7 @@ class InventarioService
         $graficoIngresos = new Collection([
             'id' => 1,
             'identificador' => 'TODOS',
-            'encabezado' => 'Egresos a bodega por motivos frecuentes',
+            'encabezado' => 'Egresos de bodega por motivos frecuentes',
             'labels' => array_keys($displayedData),
             'datasets' => [
                 [
@@ -266,13 +269,12 @@ class InventarioService
         ]);
         array_push($graficos, $graficoIngresos);
 
+        //Configuramos el segundo grafico
         if (count($othersData) > 0) {
-
-            //Configuramos el segundo grafico
             $graficoOtros = new Collection([
                 'id' => 2,
                 'identificador' => 'OTROS',
-                'encabezado' => 'Egresos a bodega por motivos poco frecuentes',
+                'encabezado' => 'Egresos de bodega por motivos poco frecuentes',
                 'labels' => array_keys($othersData),
                 'datasets' => [
                     [
@@ -285,9 +287,43 @@ class InventarioService
             array_push($graficos, $graficoOtros);
         }
 
+        $pendientes = $todas->filter(function ($egreso) {
+            return !$egreso->comprobante()->first()?->firmada;
+        })->count();
+        $parciales = $todas->filter(function ($egreso) {
+            return  $egreso->comprobante()->first()?->estado == EstadoTransaccion::PARCIAL;
+        })->count();
+        $completas = $todas->filter(function ($egreso) {
+            $comprobante = $egreso->comprobante()->first();
+            return  $comprobante?->firmada && $comprobante?->estado == TransaccionBodega::ACEPTADA;
+        })->count();
+        $anuladas = $todas->filter(function ($egreso) {
+            return $egreso->estado_id == 4;
+        })->count();
+
+        //Configuramos el tercer grafico
+        $graficoEstados = new Collection([
+            'id' => 1,
+            'identificador' => 'ESTADOS',
+            'encabezado' => 'Egresos de bodega por estados',
+            'labels' => [EstadoTransaccion::PENDIENTE, EstadoTransaccion::PARCIAL, EstadoTransaccion::COMPLETA, EstadoTransaccion::ANULADA],
+            'datasets' => [
+                [
+                    'backgroundColor' => Utils::coloresEstadosEgresos(),
+                    'label' => $tituloGrafico,
+                    'data' => [$pendientes, $parciales, $completas, $anuladas],
+                ]
+            ],
+        ]);
+        array_push($graficos, $graficoEstados);
+
         return compact(
             'graficos',
-            'todas'
+            'todas',
+            'pendientes',
+            'parciales',
+            'completas',
+            'anuladas',
         );
     }
     public static function obtenerDevoluciones($fecha_inicio, $fecha_fin)
