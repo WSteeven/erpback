@@ -34,7 +34,6 @@ class TransferenciaProductoEmpleadoController extends Controller
 
     public function index(Request $request)
     {
-        // $results = TransferenciaProductoEmpleado::filter()->get();
         $results = $this->transferenciaService->filtrarTransferencias($request);
         $results = TransferenciaProductoEmpleadoResource::collection($results);
         return response()->json(compact('results'));

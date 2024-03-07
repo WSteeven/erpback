@@ -277,14 +277,17 @@ class TareaController extends Controller
     public function transferirMisTareasActivas(Request $request)
     {
         $request->validate([
-            'actual_coordinador' => 'required|numeric|integer',
+            // 'actual_coordinador' => 'required|numeric|integer',
             'nuevo_coordinador' => 'required|numeric|integer',
+            'ids_tareas' => 'required|array',
         ]);
 
-        $nuevoCoordinador = request('nuevo_coordinador');
-        $actualCoordinador = request('actual_coordinador');
+        // $nuevoCoordinador = request('nuevo_coordinador');
+        // $actualCoordinador = request('actual_coordinador');
 
-        $tareas = Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $nuevoCoordinador]);
+        // Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)->update(['coordinador_id' => $nuevoCoordinador]);
+        // Empleado::find($actualCoordinador)->tareasCoordinador()->where('finalizado', false)
+        Tarea::whereIn('id', $request['ids_tareas'])->update(['coordinador_id' => $request['nuevo_coordinador']]);
 
         // Log::channel('testing')->info('Log', compact('tareas'));
         return response()->json(['mensaje' => 'Transferencia de tareas realizada exitosamente!']);
