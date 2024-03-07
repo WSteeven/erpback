@@ -366,7 +366,7 @@ class InventarioController extends Controller
 
     
     /**
-     * Dashboard de ordenes de compras
+     * Dashboard de bodega
      */
     public function dashboard(Request $request)
     {

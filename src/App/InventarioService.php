@@ -2,16 +2,22 @@
 
 namespace Src\App;
 
+use App\Http\Resources\DevolucionResource;
+use App\Http\Resources\PedidoResource;
 use App\Http\Resources\TransaccionBodegaResource;
+use App\Models\Autorizacion;
 use App\Models\Comprobante;
+use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
 use App\Models\Motivo;
+use App\Models\Pedido;
 use App\Models\TransaccionBodega;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Src\App\Bodega\DevolucionService;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
@@ -109,26 +115,25 @@ class InventarioService
         switch ($request->tipo) {
             case 'INGRESO':
                 $results = self::obtenerIngresos($fecha_inicio, $fecha_fin);
+                $results['todas'] = TransaccionBodegaResource::collection($results['todas']);
                 break;
             case 'EGRESO':
                 $results = self::obtenerEgresos($fecha_inicio, $fecha_fin);
+                $results['todas'] = TransaccionBodegaResource::collection($results['todas']);
                 break;
             case 'DEVOLUCION':
                 $results = self::obtenerDevoluciones($fecha_inicio, $fecha_fin);
+                $results['todas'] = DevolucionResource::collection($results['todas']);
                 break;
             case 'PEDIDO':
                 $results = self::obtenerPedidos($fecha_inicio, $fecha_fin);
-                break;
-            case 'INVENTARIO':
-                // aqui se realizará el dashboard de inventarios
-                $results = self::obtenerInventarios($fecha_inicio, $fecha_fin);
+                $results['todas'] = PedidoResource::collection($results['todas']);
                 break;
             default:
                 // aqui se lanzará un error
                 throw new Exception('Error con el tipo obtenido, no concuerda con ninguna opción de tipo de dashboard');
         }
 
-        $results['todas'] = TransaccionBodegaResource::collection($results['todas']);
         return $results;
     }
 
@@ -136,7 +141,7 @@ class InventarioService
     {
         $servicioIngreso = new TransaccionBodegaIngresoService();
 
-        Log::channel('testing')->info('Log', ['fechas de filtrado en obtener ingresos:', $fecha_inicio, $fecha_fin]);
+        // Log::channel('testing')->info('Log', ['fechas de filtrado en obtener ingresos:', $fecha_inicio, $fecha_fin]);
         $todas = $servicioIngreso->listar($fecha_inicio, $fecha_fin);
         $resultados_agrupados = $todas->groupBy('motivo_id');
         // Log::channel('testing')->info('Log', ['resultados agrupados:', $resultados_agrupados]);
@@ -150,7 +155,6 @@ class InventarioService
 
         //Ordenamos los datos en orden descendente
         arsort($data);
-        Log::channel('testing')->info('Log', ['Data a mostrar:', $data]);
 
         // Definimos un límite superior para la cantidad de elementos a mostrar directamente
         $limit = 4;
@@ -173,40 +177,16 @@ class InventarioService
             $displayedData['OTROS'] = $othersValue;
         }
 
-        Log::channel('testing')->info('Log', ['Displayed data:', $displayedData]);
-        Log::channel('testing')->info('Log', ['labels:', array_keys($displayedData)]);
-        Log::channel('testing')->info('Log', ['values:', array_values($displayedData)]);
+        // Log::channel('testing')->info('Log', ['Displayed data:', $displayedData]);
+        // Log::channel('testing')->info('Log', ['labels:', array_keys($displayedData)]);
+        // Log::channel('testing')->info('Log', ['values:', array_values($displayedData)]);
 
         //Configuramos el primer grafico
-        $graficoIngresos = new Collection([
-            'id' => 1,
-            'identificador' => 'TODOS',
-            'encabezado' => 'Ingresos a bodega por motivos frecuentes',
-            'labels' => array_keys($displayedData),
-            'datasets' => [
-                [
-                    'backgroundColor' => Utils::coloresAleatorios(),
-                    'label' => $tituloGrafico,
-                    'data' => array_values($displayedData),
-                ]
-            ],
-        ]);
+        $graficoIngresos = Utils::configurarGrafico(1, 'TODOS', 'Ingresos a bodega por motivos frecuentes', array_keys($displayedData), Utils::coloresAleatorios(), $tituloGrafico, array_values($displayedData));
         array_push($graficos, $graficoIngresos);
 
         //Configuramos el segundo grafico
-        $graficoOtros = new Collection([
-            'id' => 2,
-            'identificador' => 'OTROS',
-            'encabezado' => 'Ingresos a bodega por motivos poco frecuentes',
-            'labels' => array_keys($othersData),
-            'datasets' => [
-                [
-                    'backgroundColor' => Utils::colorDefault(),
-                    'label' => $tituloGrafico,
-                    'data' => array_values($othersData),
-                ]
-            ],
-        ]);
+        $graficoOtros = Utils::configurarGrafico(2, 'TODOS', 'Ingresos a bodega por motivos poco frecuentes', array_keys($othersData), Utils::colorDefault(), $tituloGrafico, array_values($othersData));
         array_push($graficos, $graficoOtros);
 
         return compact(
@@ -254,36 +234,12 @@ class InventarioService
         }
 
         //Configuramos el primer grafico
-        $graficoIngresos = new Collection([
-            'id' => 1,
-            'identificador' => 'TODOS',
-            'encabezado' => 'Egresos de bodega por motivos frecuentes',
-            'labels' => array_keys($displayedData),
-            'datasets' => [
-                [
-                    'backgroundColor' => Utils::coloresAleatorios(),
-                    'label' => $tituloGrafico,
-                    'data' => array_values($displayedData),
-                ]
-            ],
-        ]);
-        array_push($graficos, $graficoIngresos);
+        $graficoEgresos = Utils::configurarGrafico(1, 'TODOS', 'Egresos de bodega por motivos frecuentes', array_keys($displayedData), Utils::coloresAleatorios(), $tituloGrafico, array_values($displayedData));
+        array_push($graficos, $graficoEgresos);
 
         //Configuramos el segundo grafico
         if (count($othersData) > 0) {
-            $graficoOtros = new Collection([
-                'id' => 2,
-                'identificador' => 'OTROS',
-                'encabezado' => 'Egresos de bodega por motivos poco frecuentes',
-                'labels' => array_keys($othersData),
-                'datasets' => [
-                    [
-                        'backgroundColor' => Utils::colorDefault(),
-                        'label' => $tituloGrafico,
-                        'data' => array_values($othersData),
-                    ]
-                ],
-            ]);
+            $graficoOtros = Utils::configurarGrafico(2, 'OTROS', 'Egresos de bodega por motivos poco frecuentes', array_keys($othersData), Utils::colorDefault(), $tituloGrafico, array_values($othersData));
             array_push($graficos, $graficoOtros);
         }
 
@@ -302,19 +258,9 @@ class InventarioService
         })->count();
 
         //Configuramos el tercer grafico
-        $graficoEstados = new Collection([
-            'id' => 1,
-            'identificador' => 'ESTADOS',
-            'encabezado' => 'Egresos de bodega por estados',
-            'labels' => [EstadoTransaccion::PENDIENTE, EstadoTransaccion::PARCIAL, EstadoTransaccion::COMPLETA, EstadoTransaccion::ANULADA],
-            'datasets' => [
-                [
-                    'backgroundColor' => Utils::coloresEstadosEgresos(),
-                    'label' => $tituloGrafico,
-                    'data' => [$pendientes, $parciales, $completas, $anuladas],
-                ]
-            ],
-        ]);
+        $labels = [EstadoTransaccion::PENDIENTE, EstadoTransaccion::PARCIAL, EstadoTransaccion::COMPLETA, EstadoTransaccion::ANULADA];
+        $data = [$pendientes, $parciales, $completas, $anuladas];
+        $graficoEstados = Utils::configurarGrafico(3, 'ESTADOS', 'Egresos de bodega por estados', $labels, Utils::coloresEstadosEgresos(), $tituloGrafico, $data);
         array_push($graficos, $graficoEstados);
 
         return compact(
@@ -328,9 +274,78 @@ class InventarioService
     }
     public static function obtenerDevoluciones($fecha_inicio, $fecha_fin)
     {
+        $request = new Request();
+        $request['fecha_inicio'] = $fecha_inicio;
+        $request['fecha_fin'] = $fecha_fin;
+        $servicioDevolucion = new DevolucionService();
+        $todas = $servicioDevolucion->listar($request);
+        $tituloGrafico = 'Devoluciones Realizadas';
+        $graficos = [];
+        $pendientes = $todas->filter(function ($devolucion) {
+            return $devolucion->autorizacion_id == 1 && $devolucion->estado == Devolucion::CREADA;
+        })->count();
+        $aprobadas = $todas->filter(function ($devolucion) {
+            return $devolucion->autorizacion_id == 2 && $devolucion->estado_bodega == EstadoTransaccion::PENDIENTE;
+        })->count();
+        $parciales = $todas->filter(function ($devolucion) {
+            return $devolucion->autorizacion_id == 2 && $devolucion->estado_bodega == EstadoTransaccion::PARCIAL;
+        })->count();
+        $canceladas = $todas->filter(function ($devolucion) {
+            return $devolucion->autorizacion_id == 3 || $devolucion->estado_bodega == EstadoTransaccion::ANULADA;
+        })->count();
+        $completas = $todas->filter(function ($devolucion) {
+            return $devolucion->estado_bodega == EstadoTransaccion::COMPLETA;
+        })->count();
+        $labels = [EstadoTransaccion::PENDIENTE, Autorizacion::APROBADO, EstadoTransaccion::PARCIAL, Autorizacion::CANCELADO, EstadoTransaccion::COMPLETA];
+        $data = [$pendientes, $aprobadas, $parciales, $canceladas, $completas];
+        $grafico = Utils::configurarGrafico(1, 'ESTADOS', 'Estados de devoluciones de bodega', $labels, Utils::coloresEstadosDevoluciones(), $tituloGrafico, $data);
+        array_push($graficos, $grafico);
+
+        return compact(
+            'graficos',
+            'todas',
+            'pendientes',
+            'aprobadas',
+            'parciales',
+            'canceladas',
+            'completas',
+        );
     }
     public static function obtenerPedidos($fecha_inicio, $fecha_fin)
     {
+        $todas = Pedido::where('created_at', '>=', $fecha_inicio)->where('created_at', '<=', $fecha_fin)->orderBy('updated_at', 'desc')->get();
+        $tituloGrafico = 'Pedidos Realizados';
+        $graficos = [];
+        $pendientes = $todas->filter(function ($pedido) {
+            return $pedido->autorizacion_id == 1;
+        })->count();
+        $aprobadas = $todas->filter(function ($pedido) {
+            return $pedido->autorizacion_id == 2 && $pedido->estado_id == 1;
+        })->count();
+        $parciales = $todas->filter(function ($pedido) {
+            return $pedido->estado_id == 3;
+        })->count();
+        $canceladas = $todas->filter(function ($pedido) {
+            return $pedido->autorizacion_id == 3;
+        })->count();
+        $completas = $todas->filter(function ($pedido) {
+            return $pedido->estado_id == 2;
+        })->count();
+
+        $labels = [EstadoTransaccion::PENDIENTE, Autorizacion::APROBADO, EstadoTransaccion::PARCIAL, Autorizacion::CANCELADO, EstadoTransaccion::COMPLETA];
+        $data = [$pendientes, $aprobadas, $parciales, $canceladas, $completas];
+        $grafico = Utils::configurarGrafico(1, 'ESTADOS', 'Pedidos realizados a bodega', $labels, Utils::coloresEstadosDevoluciones(), $tituloGrafico, $data);
+        array_push($graficos, $grafico);
+
+        return compact(
+            'graficos',
+            'todas',
+            'pendientes',
+            'aprobadas',
+            'parciales',
+            'canceladas',
+            'completas',
+        );
     }
     public static function obtenerInventarios($fecha_inicio, $fecha_fin)
     {

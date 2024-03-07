@@ -279,31 +279,31 @@ class Utils
      * La función `configurarGrafico` crea un objeto de configuración pie de gráfico estadistico con parámetros
      * específicos.
      * 
-     * @param int id El parámetro `id` es un número entero que representa el identificador único del
+     * @param int $id El parámetro `id` es un número entero que representa el identificador único del
      * gráfico. Esto se usa para enviar varios graficos en la respuesta y puedan graficarse en un for|foreach.
-     * @param string identificador El parámetro `identificador` es una cadena que representa el identificador del gráfico. 
+     * @param string $identificador El parámetro `identificador` es una cadena que representa el identificador del gráfico. 
      * Se utiliza para identificar de forma única el gráfico dentro del sistema o aplicación donde se utiliza la función.
-     * @param string encabezado El parámetro `encabezado`  es una
+     * @param string $encabezado El parámetro `encabezado`  es una
      * cadena que representa el encabezado o título del cuadro/gráfico. Es el texto que se mostrará en
      * la parte superior del gráfico para proporcionar una breve descripción o resumen de los datos que
      * se presentan.
-     * @param array labelsArray El parámetro `labelsArray` es una
+     * @param array $labelsArray El parámetro `labelsArray` es una
      * matriz que contiene las etiquetas para los puntos de datos en el gráfico. Estas etiquetas
      * normalmente se muestran a lo largo del eje x del gráfico para proporcionar contexto para los
      * puntos de datos correspondientes. Cada elemento en `labelsArray`
-     * @param array colorsArray El parámetro `colorsArray` es una
+     * @param array $colorsArray El parámetro `colorsArray` es una
      * matriz que contiene los colores de fondo de los conjuntos de datos del gráfico. Cada elemento en
      * `colorsArray` corresponde a un conjunto de datos diferente en el gráfico. El color de fondo se
      * aplicará a los puntos o barras de datos.
-     * @param string label El parámetro `label` representa la
+     * @param string $label El parámetro `label` representa la
      * etiqueta del conjunto de datos en el gráfico. Es una cadena que describe los datos que se
      * representan en el gráfico. Por ejemplo, si muestra datos de ventas, la etiqueta podría ser
      * "Datos de ventas" o "Ingresos".
-     * @param array dataArray El parámetro `dataArray` es una matriz
+     * @param array $dataArray El parámetro `dataArray` es una matriz
      * que contiene los puntos de datos para el gráfico. Cada elemento de la matriz representa un punto
      * de datos que se mostrará en el gráfico.
      * 
-     * @return Una instancia de un objeto Colección con las propiedades especificadas como 'id',
+     * @return mixed Una instancia de un objeto Colección con las propiedades especificadas como 'id',
      * 'identificador', 'encabezado', 'labels' y 'datasets'. La propiedad 'conjuntos de datos' contiene
      * una matriz con propiedades de color de fondo, etiqueta y datos.
      */
@@ -522,6 +522,16 @@ class Utils
             "#f39c12", // parcial
             "#2ecc71", // completa
             "#e74c3c", // anulada
+        ];
+    }
+    public static function coloresEstadosDevoluciones()
+    {
+        return [
+            "#dce83a", //pendiente
+            "#0000ff", // aprobado
+            "#f39c12", // parcial
+            "#e74c3c", // anulada
+            "#2ecc71", // completa
         ];
     }
     public static function coloresAleatorios()

@@ -72,6 +72,14 @@ class Devolucion extends Model implements Auditable
     {
         return $this->belongsTo(Tarea::class);
     }
+    /**
+     * Relación uno a muchos(inversa).
+     * Una devolución pertenece a uno o ningun cliente
+     */
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 
     /**
      * Relacion uno a uno(inversa)

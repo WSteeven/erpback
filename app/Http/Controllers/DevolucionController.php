@@ -57,7 +57,7 @@ class DevolucionController extends Controller
         $campos = explode(',', $request['page']);
         $results = [];
 
-        $results = $this->servicio->filtrarDevoluciones($request);
+        $results = $this->servicio->listar($request);
 
         $results = DevolucionResource::collection($results);
 

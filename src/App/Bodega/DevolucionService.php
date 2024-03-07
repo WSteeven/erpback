@@ -3,6 +3,7 @@
 namespace Src\App\Bodega;
 
 use App\Http\Resources\PedidoResource;
+use App\Models\Autorizacion;
 use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\EstadoTransaccion;
@@ -22,67 +23,77 @@ class DevolucionService
     {
     }
 
-    public static function filtrarDevoluciones($request)
+    public static function listar($request)
     {
         $results = [];
-        switch ($request->estado) {
-            case 'PENDIENTE':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'APROBADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'PARCIAL':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'CANCELADO':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            case 'COMPLETA':
-                if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
-                    $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)->orderBy('updated_at', 'desc')->get();
-                } else {
-                    $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)
-                        ->where(function ($query) {
-                            $query->where('solicitante_id', auth()->user()->empleado->id)
-                                ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
-                        })->orderBy('updated_at', 'desc')->get();
-                }
-                break;
-            default:
-                $results = Devolucion::where('solicitante_id', auth()->user()->empleado->id)->orWhere('per_autoriza_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
+        if ($request->estado) {
+            switch ($request->estado) {
+                case 'PENDIENTE':
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                        $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)->orderBy('updated_at', 'desc')->get();
+                    } else {
+                        $results = Devolucion::where('autorizacion_id', 1)->where('estado', Devolucion::CREADA)
+                            ->where(function ($query) {
+                                $query->where('solicitante_id', auth()->user()->empleado->id)
+                                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                            })->orderBy('updated_at', 'desc')->get();
+                    }
+                    break;
+                case 'APROBADO':
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                        $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)->orderBy('updated_at', 'desc')->get();
+                    } else {
+                        $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PENDIENTE)
+                            ->where(function ($query) {
+                                $query->where('solicitante_id', auth()->user()->empleado->id)
+                                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                            })->orderBy('updated_at', 'desc')->get();
+                    }
+                    break;
+                case 'PARCIAL':
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                        $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)->orderBy('updated_at', 'desc')->get();
+                    } else {
+                        $results = Devolucion::where('autorizacion_id', 2)->where('estado_bodega', EstadoTransaccion::PARCIAL)
+                            ->where(function ($query) {
+                                $query->where('solicitante_id', auth()->user()->empleado->id)
+                                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                            })->orderBy('updated_at', 'desc')->get();
+                    }
+                    break;
+                case 'CANCELADO':
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                        $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)->orderBy('updated_at', 'desc')->get();
+                    } else { 
+                        $results = Devolucion::where('autorizacion_id', 3)->orWhere('estado_bodega', EstadoTransaccion::ANULADA)
+                            ->where(function ($query) {
+                                $query->where('solicitante_id', auth()->user()->empleado->id)
+                                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                            })->orderBy('updated_at', 'desc')->get();
+                    }
+                    break;
+                case 'COMPLETA':
+                    if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR, User::ROL_ACTIVOS_FIJOS, User::ROL_GERENTE, User::ROL_BODEGA_TELCONET])) {
+                        $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)->orderBy('updated_at', 'desc')->get();
+                    } else {
+                        $results = Devolucion::where('estado_bodega', EstadoTransaccion::COMPLETA)
+                            ->where(function ($query) {
+                                $query->where('solicitante_id', auth()->user()->empleado->id)
+                                    ->orWhere('per_autoriza_id', auth()->user()->empleado->id);
+                            })->orderBy('updated_at', 'desc')->get();
+                    }
+                    break;
+                default:
+                    $results = Devolucion::where('solicitante_id', auth()->user()->empleado->id)->orWhere('per_autoriza_id', auth()->user()->empleado->id)->orderBy('updated_at', 'desc')->get();
+            }
+        } else {
+            $results = Devolucion::when($request->fecha_inicio, function ($q) use ($request) {
+                $q->where('created_at', '>=', $request->fecha_inicio);
+            })
+                ->when($request->fecha_fin, function ($q) use ($request) {
+                    $q->where('created_at', '<=', $request->fecha_fin);
+                })
+                ->orderBy('updated_at', 'desc')->get();
         }
         return $results;
     }
