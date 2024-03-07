@@ -45,4 +45,5 @@ enum RutasStorage: string
     case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
     case TRANSFERENCIAS_PRODUCTOS_EMPLEADOS  = 'public/transferencias_productos_empleados/archivos';
+    case DOCUMENTOS_DIGITALIZADOS_EMPLEADOS = 'public/carpeta_digital_empleados/';
 }

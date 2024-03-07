@@ -64,6 +64,7 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
@@ -106,6 +107,7 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
@@ -416,6 +418,16 @@ class Empleado extends Model implements Auditable
     {
         return $this->hasOne(Vendedor::class);
     }
+
+    /**
+   * Relacion polimorfica con Archivos uno a muchos.
+   *
+   */
+  public function archivos()
+  {
+    return $this->morphMany(Archivo::class, 'archivable');
+  }
+
     public static function empaquetarListado($empleados)
     {
         $results = [];

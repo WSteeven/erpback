@@ -57,6 +57,7 @@ class EmpleadoResource extends JsonResource
             'supa' => $this->supa,
             'roles' => $this->user ? implode(', ', $this->user?->getRoleNames()->filter(fn ($rol) => $rol !== 'EMPLEADO')->toArray()) : [],
             'direccion' => $this->direccion,
+
         ];
 
 
@@ -86,6 +87,7 @@ class EmpleadoResource extends JsonResource
             $modelo['talla_guantes'] = $this->talla_guantes;
             $modelo['talla_pantalon'] = $this->talla_pantalon;
             $modelo['nivel_academico'] = $this->nivel_academico;
+            $modelo['titulo'] = $this->titulo;
             $modelo['estado_civil'] = $this->estado_civil_id;
             $modelo['estado_civil_info'] = $this->estadoCivil  ? $this->estadoCivil->nombre : null;
             $modelo['area_info'] =  $this->area ? $this->area->nombre : null;

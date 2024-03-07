@@ -23,19 +23,23 @@ use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
+
 
 class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
     private EmpleadoService $servicio;
     private $reporteService;
+    private $archivoService;
 
 
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
+        $this->archivoService = new ArchivoService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -144,6 +148,7 @@ class EmpleadoController extends Controller
                 'tiene_discapacidad' => $datos['tiene_discapacidad'],
                 'observacion' => $datos['observacion'],
                 'nivel_academico' => $datos['nivel_academico'],
+                'titulo' => $datos['titulo'],
                 'supa' => $datos['supa'],
                 'talla_zapato' => $datos['talla_zapato'],
                 'talla_camisa' => $datos['talla_camisa'],
@@ -515,5 +520,36 @@ class EmpleadoController extends Controller
             throw new ValidationException($th->getMessage());
         }
         return response()->json(compact('results'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request,Empleado $empleado)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($empleado);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Empleado $empleado)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($empleado, $request->file, RutasStorage::DOCUMENTOS_DIGITALIZADOS_EMPLEADOS->value . $empleado->identificacion);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

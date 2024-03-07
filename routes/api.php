@@ -319,6 +319,7 @@ Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('a
 /**
  * Listar Archivos
  */
+Route::get('empleados/files/{empleado}', [EmpleadoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -327,6 +328,7 @@ Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'ind
 /**
  * Subidas de archivos
  */
+Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');

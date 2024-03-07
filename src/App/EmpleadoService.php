@@ -93,7 +93,7 @@ class EmpleadoService
                 'supa'
             ]
         );
-        // Log::channel('testing')->info('Log', ['Empleado', $results]);
+        Log::channel('testing')->info('Log', ['Empleado', $results]);
         return EmpleadoResource::collection($results);
     }
 
@@ -143,10 +143,10 @@ class EmpleadoService
     /**
      * La función obtiene varios valores financieros relacionados con un empleado específico para un
      * sistema de fondos rotativos.
-     * 
-     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones, 
-     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado. 
-     * 
+     *
+     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones,
+     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado.
+     *
      * @return array Se devuelve una serie de valores relacionados con las transacciones de fondos de un
      * empleado específico. La matriz incluye el estado activo del empleado, el nombre, el id, el
      * saldo inicial, el total de acreditaciones, los gastos totales, el total de transferencias
@@ -173,7 +173,7 @@ class EmpleadoService
     /**
      * La función "obtenerValoresFondosRotativos" recupera valores de fondos rotativos de los empleados
      * que tienen saldo.
-     * 
+     *
      * @return mixed Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
      */
     public function obtenerValoresFondosRotativos()
@@ -193,7 +193,7 @@ class EmpleadoService
 
     /**
      * La función obtiene empleados con el último saldo de fondos rotatorios.
-     * 
+     *
      * @return mixed La función `obtenerEmpleadosConSaldoFondosRotativos()` está devolviendo una colección de
      * empleados que tienen el último saldo en su cuenta de rotación de fondos. La consulta filtra los
      * empleados según el `id` máximo en la tabla `saldo_grupo` para cada empleado y luego recupera
