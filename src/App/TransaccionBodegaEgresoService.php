@@ -55,8 +55,16 @@ class TransaccionBodegaEgresoService
                         break;
                     default:
                 }
-            } else
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
+            } else {
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)
+                    ->when($request->fecha_inicio, function ($q) use ($request) {
+                        $q->where('created_at', '>=', $request->fecha_inicio);
+                    })
+                    ->when($request->fecha_fin, function ($q) use ($request) {
+                        $q->where('created_at', '<=', $request->fecha_fin);
+                    })
+                    ->orderBy('id', 'desc')->get();
+            }
         }
         if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
             if ($estado) {
@@ -85,7 +93,15 @@ class TransaccionBodegaEgresoService
                     default:
                 }
             } else
-                $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
+                $results = TransaccionBodega::whereIn('motivo_id', $motivos)
+                    ->where('cliente_id', ClientesCorporativos::TELCONET)
+                    ->when($request->fecha_inicio, function ($q) use ($request) {
+                        $q->where('created_at', '>=', $request->fecha_inicio);
+                    })
+                    ->when($request->fecha_fin, function ($q) use ($request) {
+                        $q->where('created_at', '<=', $request->fecha_fin);
+                    })
+                    ->orderBy('id', 'desc')->get();
         }
         return $results;
     }
