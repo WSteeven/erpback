@@ -39,6 +39,7 @@ class EmpleadoController extends Controller
     {
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
+        $this->archivoService = new ArchivoService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -521,7 +522,21 @@ class EmpleadoController extends Controller
         return response()->json(compact('results'));
     }
 
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request,Empleado $empleado)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($empleado);
 
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
     /**
      * Guardar archivos
      */
@@ -532,7 +547,7 @@ class EmpleadoController extends Controller
             $mensaje = 'Archivo subido correctamente';
         } catch (\Throwable $th) {
             $mensaje = $th->getMessage() . '. ' . $th->getLine();
-            Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpresaController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
             return response()->json(compact('mensaje'), 500);
         }
         return response()->json(compact('mensaje', 'modelo'));
