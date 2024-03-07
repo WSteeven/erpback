@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Models\FondosRotativos\Gasto\Gasto;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\RecursosHumanos\Area;
 use App\Models\RecursosHumanos\Banco;
@@ -11,6 +13,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Vehiculo;
+use App\Models\Ventas\Vendedor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -61,6 +64,7 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
@@ -103,6 +107,7 @@ class Empleado extends Model implements Auditable
         'tiene_discapacidad',
         'observacion',
         'nivel_academico',
+        'titulo',
         'supa',
         'talla_zapato',
         'talla_camisa',
@@ -163,6 +168,15 @@ class Empleado extends Model implements Auditable
     public function user()
     {
         return $this->belongsTo(User::class, 'usuario_id', 'id');
+    }
+
+    /**
+     * Relacion uno a muchos.
+     * Un empleado tiene muchos registros de saldo.
+     */
+    public function saldo()
+    {
+        return $this->hasMany(SaldoGrupo::class, 'id_usuario');
     }
 
     // Relacion muchos a muchos
@@ -390,10 +404,29 @@ class Empleado extends Model implements Auditable
         return $this->hasMany(EgresoRolPago::class, 'empleado_id', 'id');
     }
 
+    public function ordenesCompras()
+    {
+        return $this->hasMany(OrdenCompra::class, 'solicitante_id');
+    }
+
     public function gastos()
     {
         return $this->hasMany(Gasto::class, 'id_usuario');
     }
+
+    public function vendedor()
+    {
+        return $this->hasOne(Vendedor::class);
+    }
+
+    /**
+   * Relacion polimorfica con Archivos uno a muchos.
+   *
+   */
+  public function archivos()
+  {
+    return $this->morphMany(Archivo::class, 'archivable');
+  }
 
     public static function empaquetarListado($empleados)
     {

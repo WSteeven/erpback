@@ -239,6 +239,7 @@ Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionControlle
  ******************************************************/
 //Reportes de pedidos
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesDetalle']);
 //Reportes de ingresos y egresos
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
@@ -268,7 +269,9 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'corregirPedido']);
+Route::put('devoluciones/corregir-devolucion/{devolucion}', [DevolucionController::class, 'corregirDevolucion']);
 Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
+Route::post('devoluciones/eliminar-item', [DevolucionController::class, 'eliminarDetalleDevolucion']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
@@ -303,6 +306,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
 
 });
+/***********
+ * Dashboard
+ ***********/
+Route::post('dashboard-bodega', [InventarioController::class, 'dashboard'])->middleware('auth:sanctum');
 
 
 /**
@@ -319,6 +326,7 @@ Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('a
 /**
  * Listar Archivos
  */
+Route::get('empleados/files/{empleado}', [EmpleadoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -327,6 +335,7 @@ Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'ind
 /**
  * Subidas de archivos
  */
+Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');

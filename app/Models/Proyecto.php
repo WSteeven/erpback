@@ -25,6 +25,7 @@ class Proyecto extends Model implements Auditable
         'fiscalizador_id',
         'fecha_inicio',
         'fecha_fin',
+        'fecha_hora_finalizado',
         'finalizado',
     ];
 

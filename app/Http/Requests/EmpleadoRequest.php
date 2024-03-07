@@ -69,6 +69,7 @@ class EmpleadoRequest extends FormRequest
             'tiene_grupo' => 'required',
             'tiene_discapacidad' => 'required',
             'nivel_academico' => 'required',
+            'titulo' => 'required|string',
             'supa' => 'nullable',
             'talla_zapato' => 'nullable',
             'talla_camisa' => 'required',

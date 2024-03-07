@@ -113,26 +113,6 @@ class TransaccionBodegaEgresoController extends Controller
         }
     }
 
-    /*public function materialesDespachadosSinBobinaRespaldo($id)
-    {
-        $results = $this->servicio->obtenerListadoMaterialesPorTareaSinBobina($id);
-        return response()->json(compact('results'));
-    }
-
-    public function materialesDespachados($id)
-    {
-        $results = $this->servicio->obtenerListadoMaterialesPorTarea($id);
-        return response()->json(compact('results'));
-    }*/
-
-    /* public function prueba($id)
-    {
-        $results = $this->servicio->obtenerTransaccionesPorTarea($id);
-        $results = TransaccionBodega::listadoProductosTarea($results);
-        $results = TransaccionBodegaResource::collection($results);
-        return response()->json(compact('results'));
-    } */
-
     /**
      * Listar
      */
@@ -464,7 +444,7 @@ class TransaccionBodegaEgresoController extends Controller
 
     public function filtrarEgresos(Request $request)
     {
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO])) {
+        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_CONTABILIDAD, User::ROL_COORDINADOR, User::ROL_GERENTE, User::ROL_JEFE_TECNICO, User::ROL_EMPLEADO])) {
             $datos = TransaccionBodega::whereHas('comprobante', function ($q) {
                 $q->where('estado', request('estado'));
             })->get();

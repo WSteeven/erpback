@@ -75,30 +75,12 @@
                             <td>
                                 <table width="100%" style="border: 3px solid #000000;">
                                     <tr>
-                                        <td
-                                            style="text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            RUC</td>
-                                        <td
-                                            style="text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            RAZON SOCIAL</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            CIUDAD</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            ESTABLECIMIENTO</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            DIRECCION</td>
-                                        <td
-                                            style="  text-align: center !important;
-                                background-color: #DBDBDB;">
-                                            CELULAR</td>
+                                        <td style="text-align: center;background-color: #DBDBDB;">RUC</td>
+                                        <td style="text-align: center;background-color: #DBDBDB;">RAZON SOCIAL</td>
+                                        <td style="  text-align: center;background-color: #DBDBDB;">CIUDAD</td>
+                                        <td style="  text-align: center;background-color: #DBDBDB;">ESTABLECIMIENTO</td>
+                                        <td style="  text-align: center;background-color: #DBDBDB;">DIRECCION</td>
+                                        <td style="  text-align: center;background-color: #DBDBDB;">CELULAR</td>
                                         <td style="background-color:#DBDBDB">ESTADO</td>
                                         <td style="background-color:#DBDBDB">CALIFICACION</td>
                                         <td style="background-color:#DBDBDB">CATEGORIAS</td>

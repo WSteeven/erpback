@@ -278,7 +278,7 @@ class ProveedorController extends Controller
                         $pdf->render();
                         return $pdf->stream();
                     } catch (Throwable $ex) {
-                        throw $ex->getMessage().'. '. $ex->getLine();
+                        throw $ex->getMessage() . '. ' . $ex->getLine();
                     }
                     break;
                 default:
@@ -292,12 +292,13 @@ class ProveedorController extends Controller
         $results = ProveedorResource::collection($results);
         return response()->json(compact('results'));
     }
-    public function reporteTodos(){
+    public function reporteTodos()
+    {
         try {
             $proveedoresCompletos = $this->proveedorService->empaquetarDatosProveedoresCompletos(Proveedor::all(), 'razon_social');
-           return Excel::download(new TodosProveedoresExport($proveedoresCompletos), 'datos_proveedores.xlsx');
+            return Excel::download(new TodosProveedoresExport($proveedoresCompletos), 'datos_proveedores.xlsx');
         } catch (Exception $ex) {
-            
+
             throw ValidationException::withMessages([
                 'Error al generar reporte' => [$ex->getMessage()],
             ]);
@@ -338,10 +339,25 @@ class ProveedorController extends Controller
 
 
 
-    public function actualizarCalificacion(Proveedor $proveedor){
+    public function actualizarCalificacion(Proveedor $proveedor)
+    {
         Proveedor::guardarCalificacion($proveedor->id);
         $modelo = new ProveedorResource($proveedor->refresh());
         $mensaje = 'Calificación de proveedor actualizada con éxito';
         return response()->json(compact('mensaje', 'modelo'));
+    }
+
+    public function proveedoresConOrdenes(Request $request)
+    {
+        // Log::channel('testing')->info('Log', ['Requst:', $request->all()]);
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $proveedores = Proveedor::whereHas('ordenesCompras', function ($query) use ($request, $campos) {
+            $query->when($request->solicitante_id, function ($q) use ($request) {
+                $q->where('solicitante_id', $request->solicitante_id);
+            });
+        })->get($campos);
+
+        $results = ProveedorResource::collection($proveedores);
+        return response()->json(compact('results'));
     }
 }

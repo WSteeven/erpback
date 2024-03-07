@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\ComprasProveedores\CategoriaOfertaProveedor;
 use App\Models\ComprasProveedores\ContactoProveedor;
 use App\Models\ComprasProveedores\OfertaProveedor;
+use App\Models\ComprasProveedores\OrdenCompra;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
@@ -90,6 +91,9 @@ class Proveedor extends Model implements Auditable
         return $this->belongsToMany(Departamento::class, 'detalle_departamento_proveedor', 'proveedor_id', 'departamento_id')
             ->withPivot(['id','empleado_id','calificacion', 'fecha_calificacion'])
             ->withTimestamps();
+    }
+    public function ordenesCompras(){
+        return $this->hasMany(OrdenCompra::class, 'proveedor_id');
     }
 
     /**

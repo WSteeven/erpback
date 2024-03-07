@@ -87,7 +87,7 @@ class DetalleProducto extends Model implements Auditable
      */
     public function inventarios()
     {
-        return $this->hasMany(Inventario::class);
+        return $this->hasMany(Inventario::class, 'detalle_id');
     }
 
     /**

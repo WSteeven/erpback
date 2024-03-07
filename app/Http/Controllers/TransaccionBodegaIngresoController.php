@@ -55,15 +55,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
-        }
-        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
-        }
+        $results = $this->servicio->listar();
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -273,7 +265,7 @@ class TransaccionBodegaIngresoController extends Controller
                     $itemInventario = Inventario::find($detalle['inventario_id']);
                     $itemInventario->cantidad -= $detalle['cantidad_inicial'];
                     $itemInventario->save();
-                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
+                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
                 }
 
                 $transaccion->estado_id = $estadoAnulado->id;
@@ -290,7 +282,7 @@ class TransaccionBodegaIngresoController extends Controller
             }
         } else {
             // Log::channel('testing')->info('Log', ['La transacción está anulada, ya no se anulará nuevamente']);
-            $mensaje = 'La transacción está anulada, ya no se anulará nuevamente';
+            $mensaje = 'La transacción ya está anulada, ya no se anulará nuevamente';
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
             return response()->json(compact('modelo', 'mensaje'));
         }

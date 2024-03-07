@@ -39,10 +39,13 @@ enum RutasStorage: string
     case PROVEEDORES = 'public/proveedores/empresas/';
     case CONFIGURACION_GENERAL = 'public/configuracion_general';
     case FOTOGRAFIAS_NOVEDADES_ORDENES_COMPRAS  = 'public/fotografias_novedades_ordenes_compras';
+    case FOTOGRAFIAS_NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/fotografias_novedades_ventas_claro';
+    case NOVEDADES_VENTAS_CLARO  = 'public/ventasClaro/novedades_ventas_claro';
     case NOVEDADES_ORDENES_COMPRAS  = 'public/novedades_ordenes_compras';
     case PREINGRESOS  = 'public/preingresos/archivos';
     case FOTOGRAFIAS_ITEMS_PREINGRESOS  = 'public/fotografias_preingresos';
     case TRANSFERENCIAS_PRODUCTOS_EMPLEADOS  = 'public/transferencias_productos_empleados/archivos';
+    case DOCUMENTOS_DIGITALIZADOS_EMPLEADOS = 'public/carpeta_digital_empleados/';
     // Medico
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
 }

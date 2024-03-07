@@ -19,7 +19,7 @@ class CategoriaController extends Controller
         $this->middleware('can:puede.ver.categorias')->only('index', 'show');
         $this->middleware('can:puede.crear.categorias')->only('store');
         $this->middleware('can:puede.editar.categorias')->only('update');
-        $this->middleware('can:puede.eliminar.categorias')->only('update');
+        $this->middleware('can:puede.eliminar.categorias')->only('destroy');
     }
 
     /**
