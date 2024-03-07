@@ -147,13 +147,13 @@ class Inventario extends Model implements Auditable
      * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un prestamo temporal
      */
-    public function detallesPrestamoInventario()
-    {
-        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
-            ->withPivot('cantidad')
-            ->withTimestamps()
-            ->using(InventarioPrestamoTemporal::class);
-    }
+    // public function detallesPrestamoInventario()
+    // {
+    //     return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
+    //         ->withPivot('cantidad')
+    //         ->withTimestamps()
+    //         ->using(InventarioPrestamoTemporal::class);
+    // }
 
     /**
      * ______________________________________________________________________________________
