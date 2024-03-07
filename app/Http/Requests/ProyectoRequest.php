@@ -33,6 +33,7 @@ class ProyectoRequest extends FormRequest
             'fiscalizador' => 'nullable|numeric|integer',
             'fecha_inicio' => 'required|string',
             'fecha_fin' => 'required|string',
+            'finalizado' => 'boolean',
         ];
 
         if(in_array($this->method(), ['PUT', 'PATCH'])){

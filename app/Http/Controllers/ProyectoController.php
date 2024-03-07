@@ -10,6 +10,7 @@ use App\Models\Subtarea;
 use App\Models\Tarea;
 use App\Models\Tareas\Etapa;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Src\Shared\Utils;
@@ -79,6 +80,15 @@ class ProyectoController extends Controller
 
         // Respuesta
         $proyecto->update($datos);
+
+        // if ($request->isMethod('patch')) {
+            if ($request['finalizado']) {
+                $request['fecha_hora_finalizado'] = Carbon::now();
+            }
+
+            $proyecto->update($request->except(['id']));
+        // }
+
         $modelo = new ProyectoResource($proyecto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('modelo', 'mensaje'));
