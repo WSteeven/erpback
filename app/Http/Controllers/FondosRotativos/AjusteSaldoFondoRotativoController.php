@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FondosRotativos\AjusteSaldoFondoRotativoRequest;
 use App\Http\Resources\FondosRotativos\AjusteSaldoFondoRotativoResource;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
+use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Src\App\FondosRotativos\SaldoService;
+use Src\Shared\Utils;
 
 class AjusteSaldoFondoRotativoController extends Controller
 {
@@ -33,7 +37,12 @@ class AjusteSaldoFondoRotativoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
+            $modelo = AjusteSaldoFondoRotativo::create($datos);
+            $modelo = new  AjusteSaldoFondoRotativoResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            SaldoService::ajustarSaldo($datos);
             DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
             throw ValidationException::withMessages([
