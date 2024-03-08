@@ -28,8 +28,8 @@ class AjusteSaldoFondoRotativo extends Model implements Auditable
         'tipo',
     ];
 
-    const INGRESO = 'INGRESO';
-    const EGRESO = 'EGRESO';
+    const INGRESO = 'Ingreso';
+    const EGRESO = 'Egreso';
 
     private static $whiteListFilter = ['*'];
 

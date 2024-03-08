@@ -174,7 +174,7 @@ class SaldoGrupoController extends Controller
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            if ($usuario_ac->hasRole('CONTABILIDAD')) {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_ADMINISTRADOR])) {
                 $saldos_actual_user = $request->usuario == null ?
                     SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
                         $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
