@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Saldo\TipoSaldo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\TipoFondo;
@@ -120,6 +121,11 @@ class SaldoGrupo extends  Model implements Auditable
                 return $saldo['total'];
             }
         }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+                return $saldo['monto'];
+            }
+        }
 
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)
@@ -140,6 +146,11 @@ class SaldoGrupo extends  Model implements Auditable
                 return $saldo['monto'];
             }
         }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
+                return $saldo['monto'];
+            }
+        }
         return 0;
     }
     private static function descripcion_saldo($saldo)
@@ -151,6 +162,9 @@ class SaldoGrupo extends  Model implements Auditable
             $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
             return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+        }
+        if (isset($saldo['motivo'])) {
+            return $saldo['motivo'];
         }
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
@@ -168,6 +182,9 @@ class SaldoGrupo extends  Model implements Auditable
     {
         if (isset($saldo['observacion'])) {
             return $saldo['observacion'];
+        }
+        if (isset($saldo['descripcion'])) {
+            return $saldo['descripcion'];
         }
         return '';
     }
