@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos;
 
 use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -14,6 +15,7 @@ class AjusteSaldoFondoRotativo extends Model implements Auditable
     use HasFactory;
     use AuditableModel;
     use UppercaseValuesTrait;
+    use Filterable;
 
     protected $table = 'fr_ajustes_saldos';
     protected $fillable = [

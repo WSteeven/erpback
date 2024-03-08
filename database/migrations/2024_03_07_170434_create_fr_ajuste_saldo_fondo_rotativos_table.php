@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fr_ajuste_saldo_fondo_rotativos', function (Blueprint $table) {
+        Schema::create('fr_ajustes_saldos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('solicitante_id');
             $table->unsignedBigInteger('destinatario_id');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('motivo');
             $table->text('descripcion');
             $table->double('monto');
-            $table->enum('tipo', [AjusteSaldoFondoRotativo::INGRESO, AjusteSaldoFondoRotativo::EGRESO])->nullable();
+            $table->enum('tipo', [AjusteSaldoFondoRotativo::INGRESO, AjusteSaldoFondoRotativo::EGRESO]);
 
             $table->timestamps();
         });
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fr_ajuste_saldo_fondo_rotativos');
+        Schema::dropIfExists('fr_ajustes_saldos');
     }
 };

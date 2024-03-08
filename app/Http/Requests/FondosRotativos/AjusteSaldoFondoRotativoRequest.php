@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\FondosRotativos;
 
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AjusteSaldoFondoRotativoRequest extends FormRequest
 {
@@ -24,13 +26,13 @@ class AjusteSaldoFondoRotativoRequest extends FormRequest
     public function rules()
     {
         return [
-            'solicitante_id' => 'required|exists:empleados,id',
-            'destinatario_id' => 'required|exists:empleados,id',
-            'autorizador_id' => 'required|exists:empleados,id',
+            'solicitante' => 'required|exists:empleados,id',
+            'destinatario' => 'required|exists:empleados,id',
+            'autorizador' => 'required|exists:empleados,id',
             'motivo' => 'required|string',
             'descripcion' => 'required|string',
             'monto' => 'required|numeric|decimal:0,2',
-            'tipo' => 'sometimes|nullable',
+            'tipo' => ['required', Rule::in(AjusteSaldoFondoRotativo::INGRESO, AjusteSaldoFondoRotativo::EGRESO)],
         ];
     }
 

@@ -33,6 +33,12 @@ class AjusteSaldoFondoRotativoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
+                //hacer toda la logica para cuando se guarde un ajuste este sume o reste el saldo del empleado segun corresponda
+                // este tipo de transacciones deben verse reflejadas en el estado de cuenta, 
+                // no se veran reflejadas en ningun otro reporte
+
+
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
