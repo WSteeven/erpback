@@ -36,7 +36,7 @@ class Ticket extends Model implements Auditable
     const SSO = 5;
 
     // Motivos de pausas
-    const FIN_DE_JORNADA = 9;
+    const PAUSA_AUTOMATICA_SISTEMA = 14;
 
     protected $table = 'tickets';
     protected $fillable = [
