@@ -609,7 +609,7 @@ class GastoController extends Controller
     public function reporte_valores_fondos(Request $request)
     {
         try {
-            Log::channel('testing')->info('Log', ['Request', $request->all()]);
+            // Log::channel('testing')->info('Log', ['Request', $request->all()]);
             $empleadoService = new EmpleadoService();
             if ($request->todos)
                 $results = $empleadoService->obtenerValoresFondosRotativos();

@@ -26,9 +26,9 @@ class AjusteSaldoFondoRotativoRequest extends FormRequest
     public function rules()
     {
         return [
-            'solicitante' => 'required|exists:empleados,id',
-            'destinatario' => 'required|exists:empleados,id',
-            'autorizador' => 'required|exists:empleados,id',
+            'solicitante_id' => 'required|exists:empleados,id',
+            'destinatario_id' => 'required|exists:empleados,id',
+            'autorizador_id' => 'required|exists:empleados,id',
             'motivo' => 'required|string',
             'descripcion' => 'required|string',
             'monto' => 'required|numeric|decimal:0,2',
@@ -43,5 +43,7 @@ class AjusteSaldoFondoRotativoRequest extends FormRequest
             'destinatario_id' => $this->destinatario,
             'autorizador_id' => $this->autorizador,
         ]);
+        if (is_null($this->solicitante)) $this->merge(['solicitante_id' => auth()->user()->empleado->id]);
+        if (is_null($this->autorizador)) $this->merge(['autorizador_id' => auth()->user()->empleado->id]);
     }
 }
