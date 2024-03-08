@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Empleado;
+use App\Models\MotivoPausaTicket;
 use App\Models\Notificacion;
 use App\Models\Ticket;
 use Illuminate\Broadcasting\Channel;
@@ -79,7 +80,8 @@ class TicketEvent implements ShouldBroadcast
     {
         switch ($this->ticket->estado) {
             case Ticket::PAUSADO:
-                return 'Ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', ha sido PAUSADO por el sistema. Motivo: FIN DE JORNADA.';
+                $motivo = MotivoPausaTicket::find(Ticket::PAUSA_AUTOMATICA_SISTEMA)->motivo;
+                return 'Ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', ha sido PAUSADO. Motivo: ' . $motivo;
         }
     }
 }
