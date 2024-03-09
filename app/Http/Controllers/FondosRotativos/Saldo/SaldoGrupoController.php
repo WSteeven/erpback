@@ -604,10 +604,9 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $ajuste_saldo = AjusteSaldoFondoRotativo::where('destinatario_id', $request->usuario)
-                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
-                ->get();
-                
+            $ajuste_saldo =AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+            ->where('destinatario_id', 46)
+            ->get();
             //Unir todos los reportes
             $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $ajuste_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
