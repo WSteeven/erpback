@@ -322,7 +322,7 @@ class SaldoGrupo extends  Model implements Auditable
                 Carbon::parse($gasto->updated_at)->subSecond(1),
                 Carbon::parse($gasto->updated_at)->addSecond(1),
                 ])->get();
-                Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
+                // Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
                 if($registros->count() > 1){
                     $gastos->splice($index, 0, [$gasto]);
                     $registro_saldo_grupo_duplicado = true;
