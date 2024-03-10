@@ -319,8 +319,8 @@ class SaldoGrupo extends  Model implements Auditable
             $registros = SaldoGrupo::where('id_usuario', $gasto->id_usuario)
             ->where('saldo_depositado', $gasto->total)
             ->whereBetween('created_at',[
-                Carbon::parse($gasto->updated_at)->subSecond(1),
-                Carbon::parse($gasto->updated_at)->addSecond(1),
+                Carbon::parse($gasto->updated_at)->subSecond(2),
+                Carbon::parse($gasto->updated_at)->addSecond(2),
                 ])->get();
                 // Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
                 if($registros->count() > 1){
