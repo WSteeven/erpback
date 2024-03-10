@@ -31,8 +31,12 @@ class Ticket extends Model implements Auditable
     const BAJA = 'BAJA';
     const EMERGENCIA = 'EMERGENCIA';
 
+    // Configuracion ATS de tickets
     const TIPO_TICKET_ATS = 166;
     const SSO = 5;
+
+    // Motivos de pausas
+    const PAUSA_AUTOMATICA_SISTEMA = 14;
 
     protected $table = 'tickets';
     protected $fillable = [
