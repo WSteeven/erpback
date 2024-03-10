@@ -587,6 +587,10 @@ class SaldoGrupoController extends Controller
                         ->orWhere('estado', '=', 4);
                 })
                 ->get();
+
+                $gastos_reporte = SaldoGrupo::verificarGastosRepetidosEnSaldoGrupo($gastos_reporte);
+                // SaldoGrupo::verificarGastosRepetidosEnSaldoGrupo($gastos_reporte);
+
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -608,10 +612,6 @@ class SaldoGrupoController extends Controller
             whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
                 ->where('destinatario_id', $request->usuario)
                 ->get();
-                Log::channel('testing')->info('Log', ['ajuste saldo',AjusteSaldoFondoRotativo::
-                whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
-                    ->where('destinatario_id', $request->usuario)
-                    ->toSql()]);
 
             //Unir todos los reportes
             $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $ajuste_saldo->toArray());
@@ -667,7 +667,7 @@ class SaldoGrupoController extends Controller
             $export_excel = new EstadoCuentaExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            Log::channel('testing')->info('Log', ['error reporte_estado_cuenta', $e->getMessage(), $e->getLine()]);
         }
     }
 

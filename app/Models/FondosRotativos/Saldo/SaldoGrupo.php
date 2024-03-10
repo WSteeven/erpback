@@ -293,4 +293,46 @@ class SaldoGrupo extends  Model implements Auditable
         ]);
         return $saldo_grupo;
     }
+
+
+    /**
+     * La función `verificarGastosRepetidosEnSaldoGrupo` busca registros duplicados en un cobro de
+     * gastos basándose en criterios específicos y ajusta el cobro en consecuencia.
+     *
+     * @param gastos La función `verificarGastosRepetidosEnSaldoGrupo` está diseñada para verificar si
+     * hay registros duplicados en la tabla `SaldoGrupo` basándose en ciertas condiciones. Itera sobre
+     * el array de `` y busca entradas duplicadas en la tabla `SaldoGrupo`.
+     *
+     * @return La función `verificarGastosRepetidosEnSaldoGrupo` devuelve el array de `` después
+     * de verificar y manejar cualquier registro duplicado en la tabla `SaldoGrupo` según ciertas
+     * condiciones.
+     */
+    public static function verificarGastosRepetidosEnSaldoGrupo($gastos){
+        try {
+            //code...
+            $registro_saldo_grupo_duplicado=false;
+            foreach($gastos as $index=> $gasto){
+            if($registro_saldo_grupo_duplicado){
+                $registro_saldo_grupo_duplicado=false;
+                continue;
+            }
+            $registros = SaldoGrupo::where('id_usuario', $gasto->id_usuario)
+            ->where('saldo_depositado', $gasto->total)
+            ->whereBetween('created_at',[
+                Carbon::parse($gasto->updated_at)->subSecond(1),
+                Carbon::parse($gasto->updated_at)->addSecond(1),
+                ])->get();
+                Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
+                if($registros->count() > 1){
+                    $gastos->splice($index, 0, [$gasto]);
+                    $registro_saldo_grupo_duplicado = true;
+                }
+            }
+            // Log::channel('testing')->info('Log', ['lo que se retorna',$gastos]);
+            return $gastos;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en verificarRepetidos',$th->getMessage(), $th->getLine()]);
+            throw $th;
+        }
+    }
 }

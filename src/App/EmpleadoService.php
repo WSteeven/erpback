@@ -144,10 +144,10 @@ class EmpleadoService
     /**
      * La función obtiene varios valores financieros relacionados con un empleado específico para un
      * sistema de fondos rotativos.
-     * 
-     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones, 
-     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado. 
-     * 
+     *
+     * @param Empleado $empleado Toma un objeto `Empleado` y recupera (saldo_inicial, acreditaciones,
+     * gastos, saldo_actual, transferencias enviadas y recibidas) relacionados con ese empleado.
+     *
      * @return array Se devuelve una serie de valores relacionados con las transacciones de fondos de un
      * empleado específico. La matriz incluye el estado activo del empleado, el nombre, el id, el
      * saldo inicial, el total de acreditaciones, los gastos totales, el total de transferencias
@@ -169,7 +169,7 @@ class EmpleadoService
         $row['ajustes_saldos_negativo'] = AjusteSaldoFondoRotativo::where('destinatario_id', $empleado->id)->where('tipo', AjusteSaldoFondoRotativo::EGRESO)->sum('monto');
         $row['ajustes_saldos'] = $row['ajustes_saldos_positivo'] - $row['ajustes_saldos_negativo'];
         $row['saldo_actual'] = SaldoGrupo::where('id_usuario', $empleado->id)->orderBy('id', 'desc')->first()->saldo_actual;
-        $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas'] +$row['ajustes_saldos_positivo'] - $row['gastos'] - $row['transferencias_enviadas'] -$row['ajustes_saldos_negativo']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
+        $row['diferencia'] = round(($row['saldo_inicial'] + $row['acreditaciones'] + $row['transferencias_recibidas']  - $row['gastos'] - $row['transferencias_enviadas']), 2); //la suma de ingresos menos egresos, al final este valor debe coincidir con saldo_actual
         $row['inconsistencia'] = $row['diferencia'] == $row['saldo_actual'] ? 'NO' : 'SI'; //false : true;
         return $row;
     }
@@ -177,7 +177,7 @@ class EmpleadoService
     /**
      * La función "obtenerValoresFondosRotativos" recupera valores de fondos rotativos de los empleados
      * que tienen saldo.
-     * 
+     *
      * @return mixed Se están devolviendo una serie de valores por los fondos rotativos de los empleados.
      */
     public function obtenerValoresFondosRotativos()
@@ -197,7 +197,7 @@ class EmpleadoService
 
     /**
      * La función obtiene empleados con el último saldo de fondos rotatorios.
-     * 
+     *
      * @return mixed La función `obtenerEmpleadosConSaldoFondosRotativos()` está devolviendo una colección de
      * empleados que tienen el último saldo en su cuenta de rotación de fondos. La consulta filtra los
      * empleados según el `id` máximo en la tabla `saldo_grupo` para cada empleado y luego recupera
