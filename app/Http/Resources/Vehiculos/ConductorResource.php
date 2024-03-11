@@ -23,8 +23,8 @@ class ConductorResource extends JsonResource
             'apellidos' => $this->empleado->apellidos,
             'identificacion' => $this->empleado->identificacion,
             'tipo_licencia' => $this->tipo_licencia,
-            'inicio_vigencia' => date('d-m-Y', strtotime($this->inicio_vigencia)),
-            'fin_vigencia' => date('d-m-Y', strtotime($this->fin_vigencia)),
+            'inicio_vigencia' => $this->inicio_vigencia,
+            'fin_vigencia' => $this->fin_vigencia,
             'puntos' => $this->puntos,
             'plaza' => $this->plaza,
             'info_empleado'  => new EmpleadoResource($this->empleado),
@@ -33,6 +33,7 @@ class ConductorResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['empleado'] = $this->empleado_id;
+            $modelo['multas'] = MultaConductorResource::collection($this->multas);
         }
 
         return $modelo;

@@ -25,7 +25,7 @@ class MatriculaController extends Controller
 
     public function index()
     {
-        $results = Matricula::filter()->get();
+        $results = Matricula::filter()->orderBy('fecha_matricula')->get();
         $results = MatriculaResource::collection($results);
         return response()->json(compact('results'));
     }

@@ -102,4 +102,12 @@ class Vehiculo extends Model implements Auditable
     public function archivos(){
         return $this->morphMany(Archivo::class, 'archivable');
     }
+
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+
 }
