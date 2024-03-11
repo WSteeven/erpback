@@ -68,12 +68,12 @@ class GastoController extends Controller
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->orderBy('id', 'desc')->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         }
@@ -609,7 +609,7 @@ class GastoController extends Controller
     public function reporte_valores_fondos(Request $request)
     {
         try {
-            Log::channel('testing')->info('Log', ['Request', $request->all()]);
+            // Log::channel('testing')->info('Log', ['Request', $request->all()]);
             $empleadoService = new EmpleadoService();
             if ($request->todos)
                 $results = $empleadoService->obtenerValoresFondosRotativos();

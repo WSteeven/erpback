@@ -1,8 +1,10 @@
 <html>
 @php
     $fecha = new Datetime();
-    $logo_principal = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
-    $logo_watermark = 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
+    $logo_principal =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
+    $logo_watermark =
+        'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_marca_agua']));
     $num_registro = 1;
 @endphp
 
@@ -198,6 +200,7 @@
                                                     {{ number_format($acreditaciones, 2, ',', '.') }}</div>
                                             </td>
                                         </tr>
+
                                         <!--Fin Acreditaciones-->
                                         <!--Transferencias-->
                                         <tr>
@@ -273,6 +276,54 @@
                                             </td>
                                         </tr>
                                         <!--Fin Gastos-->
+                                        <!-- Ajuste de saldos Ingreso -->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $empleado->canton->canton }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">
+                                                    {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Ajuste de Saldo Ingreso (+)</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($ajuste_saldo_ingreso, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
+                                        <!-- Ajuste de saldos Egreso -->
+                                        <tr>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">
+                                                    {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="15%">
+                                                <div align="left">{{ $empleado->canton->canton }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="17%">
+                                                <div align="center">
+                                                    {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                </div>
+                                            </td>
+                                            <td style="font-size:10px" width="29%">
+                                                <div align="left">Ajuste de Saldo Egreso (-)</div>
+                                            </td>
+                                            <td style="font-size:10px" width="10%">
+                                                <div align="right">
+                                                    {{ number_format($ajuste_saldo_egreso, 2, ',', '.') }}</div>
+                                            </td>
+                                        </tr>
                                         <!--Saldo Final-->
                                         <tr>
                                             <td colspan="4" style="font-size:10px">
@@ -364,7 +415,7 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $dato['proyecto'] != null ? $dato['proyecto']['codigo_proyecto'].' - '.$dato['proyecto']['nombre'] : 'Sin Proyecto' }}
+                                {{ $dato['proyecto'] != null ? $dato['proyecto']['codigo_proyecto'] . ' - ' . $dato['proyecto']['nombre'] : 'Sin Proyecto' }}
                             </div>
                         </td>
                         <td style="font-size:10px">
@@ -593,6 +644,162 @@
                     </td>
                     <td style="font-size:10px">
                         <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                    </td>
+                </tr>
+            @endif
+        </table>
+        <br>
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
+        <div class="col-md-7" align="center"><b>Ajuste de Ingreso</b></div>
+        </p>
+        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <tr>
+                <td width="15%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>SOLICITANTE</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESTINATARIO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MOTIVO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESCRICPCION</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MONTO</strong></div>
+                </td>
+            </tr>
+            @if (sizeof($ajuste_saldo_ingreso_reporte) == 0)
+                <tr>
+                    <td colspan="7">
+                        <div align="center">NO HAY AJUSTE DE INGRESO</div>
+                    </td>
+                </tr>
+            @else
+                @foreach ($ajuste_saldo_ingreso_reporte as $ajuste_saldo_ingreso_data)
+                    <tr>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['fecha'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['solicitante'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['destinatario'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['motivo'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['descripcion'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_ingreso_data['monto'] }}
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:10px">
+                        <div align="right"><strong>TOTAL DE AJUSTE INGRESO:&nbsp;</strong></div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($ajuste_saldo_ingreso, 2, ',', ' ') }}</div>
+                    </td>
+                </tr>
+            @endif
+        </table>
+        <br>
+        <p
+            style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:75%; font-weight:bold; margin-top: -6px;">
+        <div class="col-md-7" align="center"><b>Ajuste de Egreso</b></div>
+        </p>
+        <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+            <tr>
+                <td width="15%" bgcolor="#a9d08e">
+                    <div align="center"><strong>FECHA</strong></div>
+                </td>
+                <td width="17%" bgcolor="#a9d08e">
+                    <div align="center"><strong>SOLICITANTE</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESTINATARIO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MOTIVO</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>DESCRICPCION</strong></div>
+                </td>
+                <td width="20%" bgcolor="#a9d08e">
+                    <div align="center"><strong>MONTO</strong></div>
+                </td>
+            </tr>
+            @if (sizeof($ajuste_saldo_egreso_reporte) == 0)
+                <tr>
+                    <td colspan="7">
+                        <div align="center">NO HAY AJUSTE DE EGRESO</div>
+                    </td>
+                </tr>
+            @else
+                @foreach ($ajuste_saldo_egreso_reporte as $ajuste_saldo_egreso_data)
+                    <tr>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['fecha'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['solicitante'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['destinatario'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['motivo'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['descripcion'] }}
+                            </div>
+                        </td>
+                        <td style="font-size:10px">
+                            <div align="center">
+                                {{ $ajuste_saldo_egreso_data['monto'] }}
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:10px">
+                        <div align="right"><strong>TOTAL DE AJUSTE EGRESO:&nbsp;</strong></div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="center">{{ number_format($ajuste_saldo_ingreso, 2, ',', ' ') }}</div>
                     </td>
                 </tr>
             @endif

@@ -3,6 +3,7 @@
 namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Saldo\TipoSaldo;
 use App\Models\FondosRotativos\Viatico\EstadoViatico;
 use App\Models\FondosRotativos\Viatico\TipoFondo;
@@ -72,7 +73,7 @@ class SaldoGrupo extends  Model implements Auditable
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
-        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : $saldo['fecha'];
+        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
         $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);
@@ -120,6 +121,11 @@ class SaldoGrupo extends  Model implements Auditable
                 return $saldo['total'];
             }
         }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+                return $saldo['monto'];
+            }
+        }
 
         if (isset($saldo['usuario_recibe_id'])) {
             if ($saldo['usuario_recibe_id'] == $empleado)
@@ -140,6 +146,11 @@ class SaldoGrupo extends  Model implements Auditable
                 return $saldo['monto'];
             }
         }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
+                return $saldo['monto'];
+            }
+        }
         return 0;
     }
     private static function descripcion_saldo($saldo)
@@ -147,10 +158,13 @@ class SaldoGrupo extends  Model implements Auditable
         if (isset($saldo['descripcion_acreditacion'])) {
             return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
         }
-        if (isset($saldo['motivo'])) {
+        if (isset($saldo['usuario_envia_id'])) {
             $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
             $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
             return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+        }
+        if (isset($saldo['motivo'])) {
+            return $saldo['motivo'];
         }
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
@@ -168,6 +182,9 @@ class SaldoGrupo extends  Model implements Auditable
     {
         if (isset($saldo['observacion'])) {
             return $saldo['observacion'];
+        }
+        if (isset($saldo['descripcion'])) {
+            return $saldo['descripcion'];
         }
         return '';
     }
@@ -275,5 +292,47 @@ class SaldoGrupo extends  Model implements Auditable
             'id_usuario'=>$id_usuario
         ]);
         return $saldo_grupo;
+    }
+
+
+    /**
+     * La función `verificarGastosRepetidosEnSaldoGrupo` busca registros duplicados en un cobro de
+     * gastos basándose en criterios específicos y ajusta el cobro en consecuencia.
+     *
+     * @param gastos La función `verificarGastosRepetidosEnSaldoGrupo` está diseñada para verificar si
+     * hay registros duplicados en la tabla `SaldoGrupo` basándose en ciertas condiciones. Itera sobre
+     * el array de `` y busca entradas duplicadas en la tabla `SaldoGrupo`.
+     *
+     * @return La función `verificarGastosRepetidosEnSaldoGrupo` devuelve el array de `` después
+     * de verificar y manejar cualquier registro duplicado en la tabla `SaldoGrupo` según ciertas
+     * condiciones.
+     */
+    public static function verificarGastosRepetidosEnSaldoGrupo($gastos){
+        try {
+            //code...
+            $registro_saldo_grupo_duplicado=false;
+            foreach($gastos as $index=> $gasto){
+            if($registro_saldo_grupo_duplicado){
+                $registro_saldo_grupo_duplicado=false;
+                continue;
+            }
+            $registros = SaldoGrupo::where('id_usuario', $gasto->id_usuario)
+            ->where('saldo_depositado', $gasto->total)
+            ->whereBetween('created_at',[
+                Carbon::parse($gasto->updated_at)->subSecond(2),
+                Carbon::parse($gasto->updated_at)->addSecond(2),
+                ])->get();
+                // Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
+                if($registros->count() > 1){
+                    $gastos->splice($index, 0, [$gasto]);
+                    $registro_saldo_grupo_duplicado = true;
+                }
+            }
+            // Log::channel('testing')->info('Log', ['lo que se retorna',$gastos]);
+            return $gastos;
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en verificarRepetidos',$th->getMessage(), $th->getLine()]);
+            throw $th;
+        }
     }
 }
