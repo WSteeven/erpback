@@ -2,6 +2,7 @@
 
 namespace Src\App;
 
+use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\MaterialEmpleado;
@@ -224,19 +225,32 @@ class SeguimientoService
     public function actualizarDescuentoCantidadUtilizadaMaterialEmpleadoTarea($request)
     {
         $idTarea = $request['tarea_id'];
+        $etapa_id = $request['etapa_id'];
+        $proyecto_id = $request['proyecto_id'];
+        $cliente_id = $request['cliente_id'];
         $idSubtarea = $request['subtarea_id'];
         $idEmpleado = $request['empleado_id'];
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
         $cantidadAnterior = $request['cantidad_anterior'];
 
-        $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->first();
+        if ($proyecto_id) {
+            $mensaje = 'Es de proyecto...........';
+            Log::channel('testing')->info('Log', compact('mensaje'));
+            // $idTarea = null;
+            // Log::channel('testing')->info('Log', compact('idTarea'));
+            $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
+        } else {
+            $material = MaterialEmpleadoTarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('tarea_id', $idTarea)->where('etapa_id', $etapa_id)->where('proyecto_id', $proyecto_id)->where('cliente_id', $cliente_id)->first();
+        }
         $material->cantidad_stock += (isset($cantidadAnterior) ? $cantidadAnterior : 0)  - $cantidadUtilizada;
         $material->save();
 
         $detalle = DetalleProducto::find($material->detalle_producto_id);
+        $producto = Producto::find($detalle->producto_id);
 
         $modelo = [
+            'id' => $material->detalle_producto_id,
             'producto' => Producto::find($detalle->producto_id)->nombre,
             'detalle_producto' => $detalle->descripcion,
             'detalle_producto_id' => $material->detalle_producto_id,
@@ -245,14 +259,21 @@ class SeguimientoService
             'despachado' => intval($material->despachado),
             'devuelto' => intval($material->devuelto),
             'cantidad_utilizada' => intval($cantidadUtilizada),
+            'medida' => $producto->unidadMedida?->simbolo,
+            'serial' => $detalle->serial,
+            'cliente' => $material->cliente_id ? Cliente::find($material->cliente_id)->empresa->razon_social : null,
+            'cliente_id' => $material->cliente_id,
         ];
 
         $servicio = new TransaccionBodegaEgresoService();
         $materialesUsados = $servicio->obtenerSumaMaterialTareaUsado($idSubtarea, $idEmpleado);
 
+        Log::channel('testing')->info('Log', compact('materialesUsados'));
+        Log::channel('testing')->info('Log', compact('material'));
+
         $modelo['total_cantidad_utilizada'] = intval($materialesUsados->first(function ($item) use ($material) {
             return $item->detalle_producto_id === $material->detalle_producto_id;
-        })->suma_total);
+        })?->suma_total);
 
         return $modelo;
     }
@@ -307,7 +328,7 @@ class SeguimientoService
         $material->save();
 
         $detalle = DetalleProducto::find($material->detalle_producto_id);
-            $producto = Producto::find($detalle->producto_id);
+        $producto = Producto::find($detalle->producto_id);
 
         $modelo = [
             'producto' => $producto->nombre,
@@ -320,6 +341,7 @@ class SeguimientoService
             'cantidad_utilizada' => intval($cantidadUtilizada),
             'medida' => $producto->unidadMedida?->simbolo,
             'serial' => $detalle->serial,
+            'cliente' => $material->cliente_id ? Cliente::find($material->cliente_id)->empresa->razon_social : null,
         ];
 
         $servicio = new TransaccionBodegaEgresoService();
@@ -327,7 +349,7 @@ class SeguimientoService
 
         $modelo['total_cantidad_utilizada'] = intval($materialesUsados->first(function ($item) use ($material) {
             return $item->detalle_producto_id === $material->detalle_producto_id;
-        })->suma_total);
+        })?->suma_total);
 
         return $modelo;
     }

@@ -8,7 +8,11 @@ use App\Events\DevolucionCreadaEvent;
 use App\Http\Requests\DevolucionRequest;
 use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
+use App\Models\Condicion;
+use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
+use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
 use App\Models\Producto;
 use App\Models\User;
@@ -53,7 +57,7 @@ class DevolucionController extends Controller
         $campos = explode(',', $request['page']);
         $results = [];
 
-        $results = $this->servicio->filtrarDevoluciones($request);
+        $results = $this->servicio->listar($request);
 
         $results = DevolucionResource::collection($results);
 
@@ -77,6 +81,7 @@ class DevolucionController extends Controller
             $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
             $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
             $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+            $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
             $datos['stock_personal'] = $request->es_para_stock;
 
             // Respuesta
@@ -85,8 +90,22 @@ class DevolucionController extends Controller
             $modelo = new DevolucionResource($devolucion);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-            foreach ($request->listadoProductos as $listado) {
-                $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            if ($request->misma_condicion) {
+                foreach ($request->listadoProductos as $listado) {
+                    $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'condicion_id' => $request->condicion]);
+                }
+            } else {
+                foreach ($request->listadoProductos as $listado) {
+                    $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+                    $devolucion->detalles()->attach(
+                        $listado['id'],
+                        [
+                            'cantidad' => $listado['cantidad'],
+                            'observacion' => array_key_exists('observacion', $listado) ?  $listado['observacion'] : null,
+                            'condicion_id' => $condicion->id
+                        ]
+                    );
+                }
             }
 
 
@@ -96,7 +115,7 @@ class DevolucionController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['ERROR del catch', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro'], 422);
+            throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
         }
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -124,6 +143,7 @@ class DevolucionController extends Controller
         $datos['canton_id'] = $request->safe()->only(['canton'])['canton'];
         $datos['autorizacion_id'] = $request->safe()->only(['autorizacion'])['autorizacion'];
         $datos['per_autoriza_id'] = $request->safe()->only(['per_autoriza'])['per_autoriza'];
+        $datos['cliente_id'] = $request->safe()->only(['cliente'])['cliente'];
 
         // Respuesta
         $devolucion->update($datos);
@@ -133,7 +153,8 @@ class DevolucionController extends Controller
 
         //Guardar los productos seleccionados
         foreach ($request->listadoProductos as $listado) {
-            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad']]);
+            $condicion = Condicion::where('nombre', $listado['condiciones'])->first();
+            $devolucion->detalles()->attach($listado['id'], ['cantidad' => $listado['cantidad'], 'observacion' => $listado['observacion'], 'condicion_id' => $condicion->id]);
         }
 
         $modelo = new DevolucionResource($devolucion->refresh());
@@ -189,11 +210,34 @@ class DevolucionController extends Controller
         return response()->json(compact('modelo'));
     }
 
+    public function corregirDevolucion(Request $request, Devolucion $devolucion){
+        if(count($request->listadoProductos)>0){
+            foreach($request->listadoProductos as $listado){
+                // $devolucion->detalles()->updateExistingPivot($listado['id'], ['cantidad'=>$listado['cantidad']]);
+                $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
+                $detalle->cantidad = $listado['cantidad'];
+                $detalle->save();
+            }
+        }
+    }
+
+    public function eliminarDetalleDevolucion(Request $request)
+    {
+        $detalle = DetalleDevolucionProducto::where('devolucion_id', $request->devolucion_id)->where('detalle_id', $request->detalle_id)->first();
+        $detalle->delete();
+        $mensaje = 'El item ha sido eliminado con éxito';
+        return response()->json(compact('mensaje'));
+    }
+
     public function imprimir(Devolucion $devolucion)
     {
+        $configuracion  = ConfiguracionGeneral::first();
         $resource = new DevolucionResource($devolucion);
+        $persona_solicitante = Empleado::find($devolucion->solicitante_id);
+        $persona_autoriza = Empleado::find($devolucion->per_autoriza_id);
         try {
-            $pdf = Pdf::loadView('devoluciones.devolucion', $resource->resolve());
+            $devolucion = $resource->resolve();
+            $pdf = Pdf::loadView('devoluciones.devolucion', compact(['devolucion', 'configuracion', 'persona_solicitante', 'persona_autoriza']));
             $pdf->setPaper('A5', 'landscape');
             $pdf->render();
             $file = $pdf->output();
@@ -207,6 +251,8 @@ class DevolucionController extends Controller
             // file_put_contents($ruta, $file); en caso de que se quiera guardar el documento en el backend
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'), 500);
         }
     }
 

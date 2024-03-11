@@ -2,7 +2,6 @@
 
 namespace Src\App\ComprasProveedores;
 
-use App\Models\ComprasProveedores\CriterioCalificacion;
 use App\Models\ComprasProveedores\DetalleDepartamentoProveedor;
 use App\Models\ComprasProveedores\OfertaProveedor;
 use App\Models\Proveedor;
@@ -14,22 +13,22 @@ class ProveedorService
 
     public static function datosProveedor($proveedor)
     {
-        // Log::channel('testing')->info('Log', ['datosProveedor', $proveedor]);
+
         if ($proveedor->estado_calificado === Proveedor::CALIFICADO) {
             switch ($proveedor->calificacion) {
                 case $proveedor->calificacion >= 90:
                     $categoria = 'Excelente';
                     $resumen = 'Cumple todos los requisitos para ser nuestro proveedor';
                     break;
-                case $proveedor->calificacion > 80 && $proveedor->calificacion < 90:
+                case $proveedor->calificacion >= 80 && $proveedor->calificacion < 90:
                     $categoria = 'Muy bueno';
                     $resumen = 'Cumple la mayoria de requisitos para ser nuestro proveedor';
                     break;
-                case $proveedor->calificacion > 70 && $proveedor->calificacion < 80:
+                case $proveedor->calificacion >= 70 && $proveedor->calificacion < 80:
                     $categoria = 'Bueno';
                     $resumen = 'Cumple con los estandares basicos requeridos para ser nuestro proveedor';
                     break;
-                case $proveedor->calificacion > 50 && $proveedor->calificacion < 70:
+                case $proveedor->calificacion >= 50 && $proveedor->calificacion < 70:
                     $categoria = 'Poco eficiente';
                     $resumen = 'Notificar observaciones al proveedor para mejorar su situación';
                     break;
@@ -62,8 +61,7 @@ class ProveedorService
         })->when($request->estado_calificado, function ($query) use ($request) {
             $query->whereIn('estado_calificado', $request->estado_calificado);
         })->where('estado', $request->estado)->get();
-        // $results = Proveedor::with('empresa')->filter()->get();
-        // Log::channel('testing')->info('Log', ['results', $results]);
+
 
 
         return $results;
@@ -152,6 +150,35 @@ class ProveedorService
         return $results;
     }
 
+    public function empaquetarDatosProveedoresCompletos($datos, string $var_ordenacion)
+    {
+        $proveedores = $datos->unique('empresa_id'); //se elimina los rucs repetidos, esto se realizado debido a que una razon social puede tener varias sucursales
+        $results = [];
+        $cont = 0;
+        foreach($proveedores as $proveedor){
+                $row['tipo'] = $proveedor->empresa->tipo_contribuyente;
+                $row['ruc'] = $proveedor->empresa->identificacion;
+                $row['razon_social'] = $proveedor->empresa->razon_social;
+                $row['nombre_comercial'] = $proveedor->empresa->nombre_comercial;
+                $row['telefonos'] = Utils::convertArrayToString($proveedor->empresa->proveedores->map(fn($item)=> $item->celular.'/'.$item->telefono)->toArray(),',');
+                $row['direccion'] = $proveedor->empresa->direccion;
+                $row['email'] = $proveedor->empresa->correo;
+                $row['es_cliente'] = $proveedor->empresa->es_cliente?'SI':'NO';
+                $row['es_proveedor'] = $proveedor->empresa->es_proveedor?'SI':'NO';
+                $row['canton'] = $proveedor->empresa->canton?->canton;
+                $row['contribuyente_especial'] = $proveedor->empresa->contribuyente_especial?'SI':'NO';
+                $results[$cont] = $row;
+                $cont++;
+        }
+
+
+        usort($results, function ($a, $b) use ($var_ordenacion) {
+            return $a[$var_ordenacion] <=> $b[$var_ordenacion]; //ordena de menor a mayor o de A a Z
+        });
+
+        return $results;
+    }
+
     public function empaquetarDatosCalificacionProveedor($proveedor)
     {
         $results = [];
@@ -163,6 +190,10 @@ class ProveedorService
             $row['razon_social']  = $proveedor->empresa->razon_social;
             $row['sucursal']  = $proveedor->sucursal;
             $row['departamento']  = $detalle->nombre;
+            $row['ciudad']  = $proveedor->parroquia?->canton->canton;
+            $row['direccion']  = $proveedor->direccion;
+            $row['categorias'] = implode(', ',  $proveedor->categorias_ofertadas->map(fn ($item) => $item->nombre)->toArray());
+            $row['calificacion_total'] = $proveedor->calificacion;
             $detalle_departamentos = DetalleDepartamentoProveedor::find($detalle->pivot->id);
             $row['empleado'] = $detalle_departamentos->empleado?->nombres . ' ' . $detalle_departamentos->empleado?->apellidos;
             $row['calificacion'] = $detalle_departamentos->calificacion;
@@ -187,7 +218,6 @@ class ProveedorService
             $results[$cont] = $row;
             $cont++;
         }
-        Log::channel('testing')->info('Log', ['ProveedorController -> reporteCalificacionProveedor->empaquetarDatos', $results]);
 
         return $results;
     }

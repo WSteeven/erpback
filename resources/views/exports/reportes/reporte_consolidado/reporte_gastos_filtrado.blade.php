@@ -150,6 +150,12 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="20%">
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
                     <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
@@ -207,6 +213,8 @@
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['detalle_estado'] }}</div>
                     </td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['autorizador'] }}
@@ -229,21 +237,21 @@
             <tr>
                 @if ($subtitulo == '')
                     @if ($subdetalle == 96)
-                        <td colspan="11" style="font-size:10px" width="29%">
+                        <td colspan="13" style="font-size:10px" width="29%">
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @else
-                        <td colspan="9" style="font-size:10px" width="29%">
+                        <td colspan="11" style="font-size:10px" width="29%">
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @endif
                 @else
                     @if ($subdetalle == 96)
-                        <td colspan="10" style="font-size:10px" width="29%">
+                        <td colspan="12" style="font-size:10px" width="29%">
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @else
-                        <td colspan="9" style="font-size:10px" width="29%">
+                        <td colspan="11" style="font-size:10px" width="29%">
                             <div align="right"><strong>Total</strong></div>
                         </td>
                     @endif

@@ -31,6 +31,7 @@ Route::apiResources(
             'motivos-pausas-tickets' => 'motivo_pausa_ticket',
             'motivos-cancelados-tickets' => 'motivo_cancelado_ticket',
             'actividades-realizadas-seguimientos-tickets' => 'actividad_realizada',
+            'categorias-tipos-tickets' => 'categoria_tipo_ticket',
         ],
     ]
 );

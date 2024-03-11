@@ -13,7 +13,7 @@ class CategoriaTipoTicket extends Model implements Auditable
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
     protected $table = 'categorias_tipos_tickets';
-    protected $fillable = ['nombre', 'departamento_id'];
+    protected $fillable = ['nombre', 'activo', 'departamento_id'];
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',

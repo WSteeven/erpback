@@ -10,6 +10,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransaccionBodega extends Model implements Auditable
@@ -20,6 +21,7 @@ class TransaccionBodega extends Model implements Auditable
 
     const PENDIENTE = 'PENDIENTE';
     const ACEPTADA = 'ACEPTADA';
+    const PARCIAL = 'PARCIAL';
     const RECHAZADA = 'RECHAZADA';
 
     public $table = 'transacciones_bodega';
@@ -35,6 +37,8 @@ class TransaccionBodega extends Model implements Auditable
         'devolucion_id',
         'pedido_id',
         'transferencia_id',
+        'proyecto_id',
+        'etapa_id',
         'tarea_id',
         'tipo_id',
         'sucursal_id',
@@ -99,7 +103,7 @@ class TransaccionBodega extends Model implements Auditable
     public function items()
     {
         return $this->belongsToMany(Inventario::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
     /**
@@ -285,6 +289,8 @@ class TransaccionBodega extends Model implements Auditable
             $row['serial'] = $item->detalle->serial;
             $row['condiciones'] = $item->condicion->nombre;
             $row['cantidad'] = $item->pivot->cantidad_inicial;
+            $row['recibido'] = $item->pivot->recibido;
+            $row['pendiente'] = $item->pivot->cantidad_inicial - $item->pivot->recibido;
             $row['despachado'] = $item->pivot->cantidad_final;
             $row['devuelto'] = $detalleProductoTransaccion->devoluciones_sum_cantidad;
             $results[$id] = $row;
@@ -324,61 +330,29 @@ class TransaccionBodega extends Model implements Auditable
     public static function asignarMateriales(TransaccionBodega $transaccion)
     {
         try {
+            DB::beginTransaction();
             $detalles = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get(); //detalle_producto_transaccion
             foreach ($detalles as $detalle) {
-                $itemInventario = Inventario::find($detalle['inventario_id']);
+                $detalleTransaccion = DetalleProductoTransaccion::find($detalle['id']);
+                if ($detalle) {
+                    $valor = $detalleTransaccion->cantidad_inicial - $detalleTransaccion->recibido;
+                    $detalleTransaccion->recibido += $valor;
+                    $detalleTransaccion->save();
+                    $itemInventario = Inventario::find($detalle['inventario_id']);
 
-                // Si es material para tarea
-                if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
-                    $material = MaterialEmpleadoTarea::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('tarea_id', $transaccion->tarea_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->save();
+                    // Si es material para tarea
+                    if ($transaccion->tarea_id) { // Si el pedido se realizó para una tarea, hagase lo siguiente.
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($itemInventario->detalle_id, $transaccion->responsable_id, $transaccion->tarea_id, $valor, $transaccion->cliente_id, $transaccion->proyecto_id, $transaccion->etapa_id);
                     } else {
-                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
-
-                        MaterialEmpleadoTarea::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'tarea_id' => $transaccion->tarea_id,
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'es_fibra' => $esFibra, // Pendiente de obtener
-                        ]);
+                        // Stock personal
+                        MaterialEmpleado::cargarMaterialEmpleado($itemInventario->detalle_id, $transaccion->responsable_id, $valor, $transaccion->cliente_id);
                     }
-                } else {
-                    // Stock personal
-                    $material = MaterialEmpleado::where('detalle_producto_id', $itemInventario->detalle_id)
-                        ->where('empleado_id', $transaccion->responsable_id)
-                        ->first();
-
-                    // Log::channel('testing')->info('Log', compact('itemInventario'));
-                    // Log::channel('testing')->info('Log', compact('transaccion'));
-
-                    if ($material) {
-                        $material->cantidad_stock += $detalle['cantidad_inicial'];
-                        $material->despachado += $detalle['cantidad_inicial'];
-                        $material->save();
-                    } else {
-                        $esFibra = !!Fibra::where('detalle_id', $itemInventario->detalle_id)->first();
-
-                        MaterialEmpleado::create([
-                            'cantidad_stock' => $detalle['cantidad_inicial'],
-                            'despachado' => $detalle['cantidad_inicial'],
-                            'empleado_id' => $transaccion->responsable_id,
-                            'detalle_producto_id' => $itemInventario->detalle_id,
-                            'es_fibra' => $esFibra,
-                        ]);
-                    }
-                }
+                } else throw new Exception('No se encontró el detalleProductoTransaccion ' . $detalle);
             }
+            DB::commit();
         } catch (Exception $e) {
-            //
+            DB::rollBack();
+            throw new Exception($e->getMessage() . ' ' . $e->getLine());
         }
     }
 
@@ -467,6 +441,49 @@ class TransaccionBodega extends Model implements Auditable
     {
         $motivoSeleccionado = Motivo::where('nombre', $motivo)->where('tipo_transaccion_id', $tipo)->first();
         return $motivoSeleccionado->id === $id;
+    }
+
+    /**
+     * La función `verificarTransferenciaEnEgreso` verifica si existe una transacción de transferencia
+     * en una transacción de egreso.
+     *
+     * @param int $id El ID de la transacción actual que se está verificando.
+     * @param int $transferencia_id El parámetro `transferencia_id` es el ID de una transferencia.
+     *
+     * @return boolean Si la variable transacción no es nula devolverá verdadero. De lo
+     * contrario, devolverá falso.
+     */
+    public static function verificarTransferenciaEnEgreso($id, $transferencia_id)
+    {
+        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::EGRESO)->first();
+        $ids_motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
+        $transaccion = TransaccionBodega::whereIn('motivo_id', $ids_motivos)->where('id', '<>', $id)->where('transferencia_id', $transferencia_id)->first();
+        if ($transaccion) return true;
+        else return false;
+    }
+
+    /**
+     * La función "verificarMotivosEgreso" verifica si un determinado ID está presente en un conjunto
+     * de motivos de salida que no generan recibo.
+     *
+     * @param int $id El parámetro "id" es el ID del motivo de egreso que necesita ser verificado.
+     *
+     * @return bool un valor booleano que indica si el ID proporcionado está presente en el conjunto de
+     * motivos de alta que no generan un comprobante.
+     */
+    public static function verificarMotivosEgreso(int $id)
+    {
+        $motivosDeEgresoQueNoGeneranComprobante = [
+            ['id' => 15, 'nombre' => 'VENTA'],
+            ['id' => 18, 'nombre' => 'DESTRUCCION'],
+            ['id' => 23, 'nombre' => 'EGRESO TRANSFERENCIA ENTRE BODEGAS'],
+            ['id' => 24, 'nombre' => 'EGRESO POR LIQUIDACION DE MATERIALES'],
+            ['id' => 25, 'nombre' => 'AJUSTE DE EGRESO POR REGULARIZACION'],
+            ['id' => 28, 'nombre' => 'ROBO'],
+        ];
+        $ids_motivos = array_column($motivosDeEgresoQueNoGeneranComprobante, 'id');
+
+        return in_array($id, $ids_motivos);
     }
 
 

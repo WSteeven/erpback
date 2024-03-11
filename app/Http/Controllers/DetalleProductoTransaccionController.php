@@ -70,16 +70,16 @@ class DetalleProductoTransaccionController extends Controller
     public function update(DetalleProductoTransaccionRequest $request, DetalleProductoTransaccion $detalle)
     {
         Log::channel('testing')->info('Log', ['metodo update del controlador DetalleProductoTransaccionController', $request->all()]);
-        $datos = $request->validated();
-        Log::channel('testing')->info('Log', ['DetalleProductoTransaccion', $detalle]);
-        Log::channel('testing')->info('Log', ['DATOS DetalleProductoTransaccion', $datos]);
-        //Se crea la devolucion
-        $devolucion = new DevolucionTransaccion(['cantidad'=>$request->cantidad_final]);
-        $detalle->devoluciones()->save($devolucion);
-        $detalle->cantidad_final += $datos['cantidad_final'];
-        $detalle->save();
-        $modelo = new DetalleProductoTransaccionResource($detalle->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+        // $datos = $request->validated();
+        // Log::channel('testing')->info('Log', ['DetalleProductoTransaccion', $detalle]);
+        // Log::channel('testing')->info('Log', ['DATOS DetalleProductoTransaccion', $datos]);
+        // //Se crea la devolucion
+        // $devolucion = new DevolucionTransaccion(['cantidad'=>$request->cantidad_final]);
+        // $detalle->devoluciones()->save($devolucion);
+        // $detalle->cantidad_final += $datos['cantidad_final'];
+        // $detalle->save();
+        // $modelo = new DetalleProductoTransaccionResource($detalle->refresh());
+        // $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
         return response()->json(compact('mensaje', 'modelo'));
     }
     

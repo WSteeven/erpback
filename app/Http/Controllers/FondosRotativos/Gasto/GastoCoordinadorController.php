@@ -116,13 +116,18 @@ class GastoCoordinadorController extends Controller
     {
         try {
             $datos = $request->all();
-            $date_inicio = Carbon::createFromFormat('d-m-Y', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('d-m-Y', $request->fecha_fin);
+            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
+            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
-            $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
+            $usuario = null;
+            if($request->usuario !== null){
+                $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
+                $usuario = Empleado::where('id', $request->usuario)->first();
+            }else{
+                $results = GastoCoordinador::whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
+            }
             $solicitudes = GastoCoordinador::empaquetar($results);
-            $usuario = Empleado::where('id', $request->usuario)->first();
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
             $reportes = compact('solicitudes','usuario', 'fecha_inicio', 'fecha_fin');

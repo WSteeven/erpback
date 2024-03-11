@@ -48,7 +48,7 @@ class SubtareaResource extends JsonResource
             'fecha_solicitud' => $this->cargar('fecha_solicitud', $campos) ? $this->tarea?->fecha_solicitud : null,
             'cliente' => $this->cargar('cliente', $campos) ? $this->tarea->cliente?->empresa?->razon_social : null,
             'cliente_id' => $this->cargar('cliente_id', $campos) ? $this->tarea->cliente_id : null,
-            'proyecto' => $this->cargar('proyectos', $campos) ? $this->tarea->proyecto?->codigo_proyecto : null,
+            'proyecto' => $this->cargar('proyecto', $campos) ? $this->tarea->proyecto?->codigo_proyecto : null,
             'ruta_tarea' => $this->cargar('ruta_tarea', $campos) ? $this->tarea->rutaTarea?->ruta : null,
             'cliente_final' => $this->cargar('cliente_final', $campos) ? $tarea->clienteFinal?->id_cliente_final : null,
             'es_ventana' => $this->cargar('es_ventana', $campos) ? $this->es_ventana : null,
@@ -88,6 +88,9 @@ class SubtareaResource extends JsonResource
             'tiempo_estimado' => $this->cargar('tiempo_estimado', $campos) ? $this->tiempo_estimado : null,
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
+            'etapa_id' => $tarea->etapa_id,
+            'proyecto_id' => $tarea->proyecto_id,
+            'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
         ];
 
         if ($controller_method == 'show') {
@@ -230,7 +233,7 @@ class SubtareaResource extends JsonResource
 
     private function verificarSiPuedeEjecutar()
     {
-        $existeTrabajoEjecutado = !!$this->empleado->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
+        $existeTrabajoEjecutado = !!$this->empleado?->subtareas()->where('estado', Subtarea::EJECUTANDO)->count();
         return $this->puedeEjecutarHoy() && !$existeTrabajoEjecutado;
     }
 

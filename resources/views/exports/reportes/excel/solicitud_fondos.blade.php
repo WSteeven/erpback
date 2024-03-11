@@ -50,7 +50,7 @@
                                         <td width="17%">
                                         </td>
                                         <td width="83%" bgcolor="#bfbfbf" style="font-size:12px;" >
-                                            <div align="center"><strong> {{ $usuario->nombres.' '.$usuario->apellidos }}</strong>
+                                            <div align="center"><strong> {{ $usuario !== null? $usuario->nombres.' '.$usuario->apellidos : '' }}</strong>
                                             </div>
                                         </td>
                                     </tr>

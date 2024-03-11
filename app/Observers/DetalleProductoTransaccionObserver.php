@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Log;
 
 class DetalleProductoTransaccionObserver
 {
+
+    /****************************************************************************************************************************************************************
+     * ESTE OBSERVER NO FUNCIONA NI HACE NADA BUENO, CONSIDERESE BORRARLO
+     ****************************************************************************************************************************************************************/
+
+
     /**
      * Handle the DetalleProductoTransaccion "created" event.
      *
@@ -33,42 +39,35 @@ class DetalleProductoTransaccionObserver
     {
         Log::channel('testing')->info('Log', ['metodo updated del observer DetalleProductoTransaccionObserver', $detalleProductoTransaccion]);
 
-        /* MovimientoProducto::create([
-            'inventario_id'=> $item->id,
-            'transaccion_id'=>$request->transaccion_id,
-            'cantidad'=>$request->cantidad,
-            'precio_unitario'=>$item->detalle->precio_compra,
-            'saldo'=>$item->cantidad-$request->cantidad
-        ]); */
-        $pedido=null;
-        //Se debe llamar al store de movimiento desde el front
-        $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
-        $itemInventario = Inventario::where('id',$detalleProductoTransaccion->inventario_id)->first();
-        Log::channel('testing')->info('Log', ['Hubo transaccion?', $transaccion]);
-        if ($transaccion->pedido_id) {
-            $pedido = Pedido::find($transaccion->pedido_id);
-            Log::channel('testing')->info('Log', ['Hubo pedido?', $pedido]);
-            Log::channel('testing')->info('Log', ['Hubo item inventario?', $itemInventario]);
-            $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
-            Log::channel('testing')->info('Log', ['Hubo detallePedido?', $detallePedido]);
-            $detallePedido->update(['despachado'=>$detalleProductoTransaccion->cantidad_final]);
-        }
-        Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
-        $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
-        $esParcial = false;
-        foreach ($detallesTransaccion as $detalle) {
-            if ($detalle->cantidad_inicial !== $detalle->cantidad_final) {
-                $esParcial = true;
-            }
-            // Log::channel('testing')->info('Log', ['foreach del observer DetalleProductoTransaccionObserver', $detalle, $detalle->cantidad_final]);
-        }
-        if ($esParcial) {
-            $transaccion->estados()->attach(3);
-            if (!is_null($pedido)) $pedido->update(['estado_id' => 3]);
-        } else {
-            $transaccion->estados()->attach(2);
-            if (!is_null($pedido)) $pedido->update(['estado_id' => 2]);
-        }
+        // $pedido=null;
+        // //Se debe llamar al store de movimiento desde el front
+        // $transaccion = TransaccionBodega::findOrFail($detalleProductoTransaccion->transaccion_id);
+        // $itemInventario = Inventario::where('id',$detalleProductoTransaccion->inventario_id)->first();
+        // // Log::channel('testing')->info('Log', ['Hubo transaccion?', $transaccion]);
+        // if ($transaccion->pedido_id) {
+        //     $pedido = Pedido::find($transaccion->pedido_id);
+        //     // Log::channel('testing')->info('Log', ['Hubo pedido?', $pedido]);
+        //     // Log::channel('testing')->info('Log', ['Hubo item inventario?', $itemInventario]);
+        //     $detallePedido = DetallePedidoProducto::where('pedido_id', $pedido->id)->where('detalle_id', $itemInventario->detalle_id)->first();
+        //     Log::channel('testing')->info('Log', ['Hubo detallePedido?', $detallePedido]);
+        //     $detallePedido->update(['despachado'=>$detalleProductoTransaccion->recibido]);
+        // }
+        // Log::channel('testing')->info('Log', ['transaccion en el metodo updated del observer DetalleProductoTransaccionObserver', $transaccion]);
+        // $detallesTransaccion = DetalleProductoTransaccion::where('transaccion_id', $transaccion->id)->get();
+        // $esParcial = false;
+        // foreach ($detallesTransaccion as $detalle) {
+        //     if ($detalle->cantidad_inicial !== $detalle->recibido) {
+        //         $esParcial = true;
+        //     }
+        //     // Log::channel('testing')->info('Log', ['foreach del observer DetalleProductoTransaccionObserver', $detalle, $detalle->recibido]);
+        // }
+        // if ($esParcial) {
+        //     // $transaccion->estado()->attach(3);
+        //     if (!is_null($pedido)) $pedido->update(['estado_id' => 3]);
+        // } else {
+        //     // $transaccion->estado()->attach(2);
+        //     if (!is_null($pedido)) $pedido->update(['estado_id' => 2]);
+        // }
     }
 
     /**

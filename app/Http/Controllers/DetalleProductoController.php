@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DetalleProductoRequest;
 use App\Http\Resources\DetalleProductoResource;
+use App\Http\Resources\SucursalResource;
 use App\Models\Cliente;
 use App\Models\DetalleProducto;
 use App\Models\Inventario;
+use App\Models\Sucursal;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +31,7 @@ class DetalleProductoController extends Controller
      */
     public function index(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Inicio del metodo, se recibe lo siguiente:', $request->all()]);
         $search = $request['search'];
         $sucursal = $request['sucursal_id'];
         $page = $request['page'];
@@ -37,6 +39,11 @@ class DetalleProductoController extends Controller
         $results = [];
         if ($request->tipo_busqueda) {
             switch ($request->tipo_busqueda) {
+                case 'only_inventario':
+                    $results = DetalleProducto::whereHas('inventarios')->get();
+                    $results = DetalleProductoResource::collection($results);
+                    return response()->json(compact('results'));
+                    break;
                 case 'only_sucursal':
                     //aqui se lista solo los detalles que estan en la bodega seleccionada
                     $ids_detalles = Inventario::where('sucursal_id', $sucursal)->get('detalle_id');
@@ -230,12 +237,37 @@ class DetalleProductoController extends Controller
     /**
      * Desactivar un detalle especifico
      */
-    public function desactivar(DetalleProducto $detalle){
+    public function desactivar(DetalleProducto $detalle)
+    {
         // Log::channel('testing')->info('Log', ['Inicio del metodo desactivar:', $detalle]);
         $detalle->activo = !$detalle->activo;
         $detalle->save();
 
         $modelo = new DetalleProductoResource($detalle->refresh());
         return response()->json(compact('modelo'));
+    }
+
+
+    public function obtenerMateriales(Request $request)
+    {
+        $detalles = DetalleProducto::whereHas('producto', function ($query) {
+            $query->where('categoria_id', 7);
+        })->where(function ($query) use ($request) {
+            $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
+            $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');
+        })->get();
+
+        $results = DetalleProductoResource::collection($detalles);
+        return response()->json(compact('results'));
+    }
+
+    public function sucursalesDetalle(Request $request)
+    {
+        $ids_sucursales = Inventario::where('detalle_id', $request->detalle_id)->get('sucursal_id');
+        // $ids_sucursales = DetalleProducto::whereHas('inventarios', function ($query) use ($request) {
+        //     $query->where('detalle_id', $request->detalle_id);
+        // })->get();
+        $results = SucursalResource::collection(Sucursal::whereIn('id', $ids_sucursales)->get());
+        return response()->json(compact('results'));
     }
 }

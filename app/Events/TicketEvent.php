@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Empleado;
+use App\Models\MotivoPausaTicket;
 use App\Models\Notificacion;
 use App\Models\Ticket;
 use Illuminate\Broadcasting\Channel;
@@ -28,14 +29,14 @@ class TicketEvent implements ShouldBroadcast
      *
      * @return void
      */
-    public function __construct(Ticket $ticket, int $emisor, int $destinatario)
+    public function __construct(Ticket $ticket, int $emisor, int $destinatario, bool $sistema = false)
     {
         $this->ticket = $ticket;
         $this->destinatario = $destinatario;
         $this->emisor = $emisor;
 
         $ruta = '/tickets-asignados';
-        $mensaje = $this->obtenerMensaje();
+        $mensaje = $sistema ? $this->generarMensajeSistema() : $this->obtenerMensaje();
 
         $ticket->notificaciones()->update(['leida' => 1]);
 
@@ -64,14 +65,23 @@ class TicketEvent implements ShouldBroadcast
                 return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . ' con asunto: '  . $this->ticket->asunto;
             case Ticket::PAUSADO:
                 $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('created_at', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
+                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
             case Ticket::RECHAZADO:
                 $motivo = $this->ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
             case Ticket::CANCELADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha CANCELADO el ticket ' . $this->ticket->codigo. ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $this->ticket->motivoCanceladoTicket?->motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha CANCELADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $this->ticket->motivoCanceladoTicket?->motivo;
             case Ticket::FINALIZADO_SOLUCIONADO || Ticket::FINALIZADO_SOLUCIONADO:
                 return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha FINALIZADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
+        }
+    }
+
+    private function generarMensajeSistema()
+    {
+        switch ($this->ticket->estado) {
+            case Ticket::PAUSADO:
+                $motivo = MotivoPausaTicket::find(Ticket::PAUSA_AUTOMATICA_SISTEMA)->motivo;
+                return 'Ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', ha sido PAUSADO. Motivo: ' . $motivo;
         }
     }
 }

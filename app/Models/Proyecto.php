@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\Etapa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UppercaseValuesTrait;
@@ -24,6 +25,7 @@ class Proyecto extends Model implements Auditable
         'fiscalizador_id',
         'fecha_inicio',
         'fecha_fin',
+        'fecha_hora_finalizado',
         'finalizado',
     ];
 
@@ -31,7 +33,10 @@ class Proyecto extends Model implements Auditable
         'finalizado' => 'boolean',
     ];
 
-    private static $whiteListFilter = ['*'];
+    private static $whiteListFilter = [
+        '*',
+        'etapas.responsable_id',
+    ];
 
     // Relacion uno a muchos (inversa)
     public function cliente()
@@ -49,6 +54,19 @@ class Proyecto extends Model implements Auditable
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+    /**
+     * Relación uno a muchos.
+     * Un proyecto tiene varias etapas
+     */
+    public function etapas()
+    {
+        return $this->hasMany(Etapa::class);
+    }
+
+    public function tareas()
+    {
+        return $this->hasMany(Etapa::class);
     }
 
     /*********

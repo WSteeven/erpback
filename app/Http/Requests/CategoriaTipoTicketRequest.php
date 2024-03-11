@@ -31,8 +31,10 @@ class CategoriaTipoTicketRequest extends FormRequest
         ];
 
         if (in_array($this->method(), ['PUT', 'PATCH'])) {
-            $id = $this->route('categoria_tipo_ticket')->id;
-            $rules['nombre'] = [Rule::unique('categorias_tipos_tickets')->ignore($id)];
+            /*$id = $this->route('categoria_tipo_ticket')->id;
+            $rules['nombre'] = [Rule::unique('categorias_tipos_tickets')->ignore($id)];*/
+            $rules['nombre'] = 'nullable';
+            $rules['departamento'] = 'nullable';
         }
 
         return $rules;

@@ -5,6 +5,7 @@ namespace App\Models\ComprasProveedores;
 use App\Models\Cliente;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -67,7 +68,16 @@ class Prefactura extends Model implements Auditable
         return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
     }
 
-    
+    /**
+     * Relación uno a muchos (inversa).
+     * Una prefactura pertence a una proforma.
+     */
+    public function proforma()
+    {
+        return $this->belongsTo(Proforma::class);
+    }
+
+
     /**
      * Relación uno a uno(inversa).
      * Uno o varios prefacturas solo pueden tener un estado.
@@ -178,13 +188,12 @@ class Prefactura extends Model implements Auditable
 
     public static function filtrarPrefacturasEmpleado($request)
     {
-      $results = Prefactura::where(function ($query) {
-        $query->orWhere('solicitante_id', auth()->user()->empleado->id)
-          ->orWhere('autorizador_id', auth()->user()->empleado->id);
-      })->ignoreRequest(['solicitante_id', 'autorizador_id'])->filter()->get();
-      return $results;
+        $results = Prefactura::where(function ($query) {
+            $query->orWhere('solicitante_id', auth()->user()->empleado->id);
+        })->ignoreRequest(['solicitante_id'])->filter()->get();
+        return $results;
     }
-  
+
     /**
      * La función obtiene un código concatenando el año actual (2 digitos), el mes (dos digitos) y un código generado con una
      * longitud específica.
@@ -194,10 +203,8 @@ class Prefactura extends Model implements Auditable
      */
     public static function obtenerCodigo()
     {
-      $mes = Carbon::now()->format('m');
-      $suma = Prefactura::whereYear('created_at', date('Y'))->whereMonth('created_at', $mes)->count();
-      return date('y') . '-' . $mes . Utils::generarCodigoConLongitud($suma + 1, 3);
+        $mes = Carbon::now()->format('m');
+        $suma = Prefactura::whereYear('created_at', date('Y'))->whereMonth('created_at', $mes)->count();
+        return date('y') . '-' . $mes . Utils::generarCodigoConLongitud($suma + 1, 3);
     }
-
-
 }

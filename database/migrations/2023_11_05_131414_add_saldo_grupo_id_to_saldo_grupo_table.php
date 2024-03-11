@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('saldo_grupo', function (Blueprint $table) {
-            $table->unsignedBigInteger('saldo_grupo_id');
-            $table->string('saldo_grupo_type');
+            $table->unsignedBigInteger('saldo_grupo_id')->nullable();
+            $table->string('saldo_grupo_type')->nullable();
         });
     }
 

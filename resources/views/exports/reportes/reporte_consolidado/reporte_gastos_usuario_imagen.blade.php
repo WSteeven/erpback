@@ -72,6 +72,18 @@
             text-transform: uppercase;
         }
 
+        table {
+            table-layout: auto;
+            /* Adjust column width to fit content */
+            width: 100%;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+
+        table td:nth-child(11) {
+            max-width: 10%;
+            /* Set max width for "Autorizador" column */
+        }
 
         .row {
             width: 100%;
@@ -100,7 +112,8 @@
         <table style="width: 100%;">
             <tr>
                 <td style="line-height: normal;">
-                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}</div>
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">{{ $copyright }}
+                    </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Generado por el
                         Usuario:
                         {{ auth('sanctum')->user()->empleado->nombres }}
@@ -122,12 +135,185 @@
             </p>
             <br>
         @endif
+        @if ($usuario != '')
+            <table
+                style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:10px;margin-top: 20px;">
+                <tr height="29">
+                    <td height="15">
+                        <div align="center">
+                            <table width="100%">
+                                <tr>
+                                    <td height="55px;">
+                                        <table width="100%" border="1" align="left" cellpadding="0"
+                                            cellspacing="0">
+                                            <tr>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                                    <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
+                                                </td>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                                                    <div align="center"><strong>LUGAR</strong></div>
+                                                </td>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="17%">
+                                                    <div align="center"><strong>FECHA CONSOLIDADO</strong></div>
+                                                </td>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="29%">
+                                                    <div align="center"><strong>DESCRIPCI&Oacute;N</strong></div>
+                                                </td>
+                                                <td bgcolor="#a9d08e" style="font-size:10px" width="10%">
+                                                    <div align="center"><strong>MONTO</strong></div>
+                                                </td>
+                                            </tr>
+                                            <!--Saldo Inicial-->
+                                            <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="17%">
+                                                    <div align="center">{{ date('d-m-Y', strtotime($fecha_anterior)) }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">Saldo Inicial (+)</div>
+                                                </td>
+                                                <td style="font-size:10px" width="10%">
+                                                    <div align="right">
+                                                        {{ number_format($saldo_anterior, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Fin Saldo Inicial-->
+                                            <!--Acreditaciones-->
+                                            <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="17%">
+                                                    <div align="center">
+                                                        {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">Acreditaciones (+)</div>
+                                                </td>
+                                                <td style="font-size:10px" width="10%">
+                                                    <div align="right">
+                                                        {{ number_format($acreditaciones, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Fin Acreditaciones-->
+                                            <!--Transferencias-->
+                                            <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="17%">
+                                                    <div align="center">
+                                                        {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">Transferencias Enviadas (-)</div>
+                                                </td>
+                                                <td style="font-size:10px" width="10%">
+                                                    <div align="right">
+                                                        {{ number_format($transferencia, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Fin Transferencias-->
+                                            <!--transferencias recibidas-->
+                                            <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="17%">
+                                                    <div align="center">
+                                                        {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">Transferencias Recibidas (+)</div>
+                                                </td>
+                                                <td style="font-size:10px" width="10%">
+                                                    <div align="right">
+                                                        {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Gastos-->
+                                            <tr>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">
+                                                        {{ $usuario }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="15%">
+                                                    <div align="left">{{ $usuario_canton }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="17%">
+                                                    <div align="center">
+                                                        {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px" width="29%">
+                                                    <div align="left">Gastos (-)</div>
+                                                </td>
+                                                <td style="font-size:10px" width="10%">
+                                                    <div align="right">
+                                                        {{ number_format($gastos_totales, 2, ',', '.') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Fin Gastos-->
+                                            <!--Saldo Final-->
+                                            <tr>
+                                                <td colspan="4" style="font-size:10px">
+                                                    <div align="right"><strong>TOTAL:</strong></div>
+                                                </td>
+                                                <td style="font-size:10px" align="center">
+                                                    <div align="right" style="margin-right:20px;">
+                                                        {{ number_format($total_suma, 2, ',', ' ') }}</div>
+                                                </td>
+                                            </tr>
+                                            <!--Fin Saldo Final-->
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        @endif
+
+
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="3%">
                     <div align="center"><strong>#</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
                     <div align="center"><strong>NOMBRES Y APELLIDOS</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="6%">
@@ -142,19 +328,34 @@
                 <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
                     <div align="center"><strong>#COMPROBANTE</strong></div>
                 </td>
-              <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                    <div align="center"><strong>PROYECTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="15%">
+                    <div align="center"><strong>TAREA</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="30%">
+                    <div align="center"><strong>DESCRIPCION DETALLE</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
                     <div align="center"><strong>COMPROBANTE 1</strong></div>
                 </td>
-               <td bgcolor="#a9d08e" style="font-size:10px" width="8%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="12%">
                     <div align="center"><strong>COMPROBANTE 2</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="13%">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="33%">
                     <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
                     <div align="center"><strong>COMENTARIO</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px" width="7%">
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>CENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
+                    <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
+                </td>
+                <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>AUTORIZADOR</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px" width="5%">
@@ -177,7 +378,7 @@
                         </div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="left">{{ $gasto['lugar'] }}
+                        <div align="left">{{ strtoupper($gasto['lugar']) }}
                         </div>
                     </td>
                     <td style="font-size:10px">
@@ -189,26 +390,39 @@
                     <td style="font-size:10px">
                         <div align="left">{{ $gasto['factura'] }}</div>
                     </td>
-                   <td style="font-size:10px">
+                    <td style="font-size:10px">
+                        <div align="left">  {{ $gasto['proyecto'] != null ? $gasto['proyecto']['codigo_proyecto'].' - '.$gasto['proyecto']['nombre'] : 'Sin Proyecto' }} </div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left"> {{ $gasto['tarea'] != null ? $gasto['tarea']['codigo_tarea'] : 'Sin Tarea' }}</div>
+                    </td>
+                    <td style="font-size:10px">
+                        <div align="left">{{ strtoupper($gasto['sub_detalle_desc']) }}</div>
+                    </td>
+                    <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante']))  }}" width="250">
+                                <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) }}"
+                                    width="250">
                             </a>
                         </div>
                     </td>
-                     <td style="font-size:10px">
+                    <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2']))  }}" width="250"/>
+                                <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])) }}"
+                                    width="250" />
                             </a>
                         </div>
                     </td>
-                    <td style="font-size:10px">
-                        <div align="left">{{ $gasto['observacion'] }}</div>
+                    <td style="font-size:10px; word-wrap: break-word;">
+                        <div align="left">{{ strtoupper($gasto['observacion']) }}</div>
                     </td>
-                    <td style="font-size:10px">
-                        <div align="left">{{ $gasto['detalle_estado'] }}</div>
+                    <td style="font-size:10px; word-wrap: break-word;">
+                        <div align="left">{{ strtoupper($gasto['detalle_estado']) }}</div>
                     </td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
+                    <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                     <td style="font-size:10px" width="29%">
                         <div align="left">
                             {{ $gasto['autorizador'] }}
@@ -221,7 +435,7 @@
                 </tr>
             @endforeach
             <tr>
-                <td colspan="11" style="font-size:10px" width="29%">
+                <td colspan="16" style="font-size:10px" width="29%">
                     <div align="right"><strong>Total</strong></div>
                 </td>
                 <td style="font-size:10px" width="10%">

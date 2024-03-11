@@ -29,6 +29,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\TransaccionBodegaIngresoService;
 use Src\Config\ClientesCorporativos;
@@ -54,15 +55,7 @@ class TransaccionBodegaIngresoController extends Controller
     public function index(Request $request)
     {
         $estado = $request['estado'];
-        $tipoTransaccion = TipoTransaccion::where('nombre', TipoTransaccion::INGRESO)->first();
-        $motivos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
-        $results = [];
-        if (auth()->user()->hasRole([User::ROL_BODEGA, User::ROL_ADMINISTRADOR])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->orderBy('id', 'desc')->get();
-        }
-        if (auth()->user()->hasRole([User::ROL_BODEGA_TELCONET])) {
-            $results = TransaccionBodega::whereIn('motivo_id', $motivos)->where('cliente_id', ClientesCorporativos::TELCONET)->orderBy('id', 'desc')->get();
-        }
+        $results = $this->servicio->listar();
         $results = TransaccionBodegaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -137,24 +130,27 @@ class TransaccionBodegaIngresoController extends Controller
                         if ($transaccion->devolucion_id) {
                             $this->servicio->actualizarDevolucion($transaccion, $detalle, $listado['cantidad']);
                             $this->servicio->descontarMaterialesAsignados($listado, $transaccion, $detalle);
-
                         }
                     }
                 }
 
-                DB::commit(); //Se registra la transaccion y sus detalles exitosamente
-
-
+                
+                
                 //se entiende que si hay un ingreso por transferencia es porque la transferencia llegó a su destino,
                 // entonces procedemos a actualizar la transferencia
                 if ($transaccion->transferencia_id) {
-                    $transferencia = Transferencia::find($transaccion->transferencia_id);
-                    $transferencia->estado = Transferencia::COMPLETADO;
-                    $transferencia->recibida = true;
-                    $transferencia->save();
+                    if(TransaccionBodega::verificarTransferenciaEnEgreso($transaccion->id, $transaccion->transferencia_id)){
+                        $transferencia = Transferencia::find($transaccion->transferencia_id);
+                        $transferencia->estado = Transferencia::COMPLETADO;
+                        $transferencia->recibida = true;
+                        $transferencia->save();
+                    }else{
+                        throw new Exception('Primero debes realizar el EGRESO POR TRANSFERENCIA ENTRE BODEGAS en la bodega de origen');
+                    }
                 }
-
-                if($transaccion->motivo_id==1){
+                
+                DB::commit(); //Se registra la transaccion y sus detalles exitosamente
+                if ($transaccion->motivo_id == 1) {
                     //en caso de que sea ingreso por COMPRA A PROVEEDOR se notifica a contabilidad
                     event(new IngresoPorCompraEvent($transaccion, User::ROL_CONTABILIDAD));
                 }
@@ -164,6 +160,7 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR en el insert de la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
+                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
                 return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . $e->getLine()], 422);
             }
 
@@ -268,7 +265,9 @@ class TransaccionBodegaIngresoController extends Controller
                     $itemInventario = Inventario::find($detalle['inventario_id']);
                     $itemInventario->cantidad -= $detalle['cantidad_inicial'];
                     $itemInventario->save();
+                    if($transaccion->devolucion_id) $this->servicio->anularIngresoDevolucion($transaccion, $transaccion->devolucion_id, $itemInventario->detalle_id, $detalle['cantidad_inicial']);
                 }
+
                 $transaccion->estado_id = $estadoAnulado->id;
                 $transaccion->save();
                 DB::commit();
@@ -278,11 +277,12 @@ class TransaccionBodegaIngresoController extends Controller
             } catch (Exception $e) {
                 DB::rollBack();
                 Log::channel('testing')->info('Log', ['ERROR al anular la transaccion de ingreso', $e->getMessage(), $e->getLine()]);
-                return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
+                throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
+                // return response()->json(['mensaje' => 'Ha ocurrido un error al anular la transacción'], 422);
             }
         } else {
             // Log::channel('testing')->info('Log', ['La transacción está anulada, ya no se anulará nuevamente']);
-            $mensaje = 'La transacción está anulada, ya no se anulará nuevamente';
+            $mensaje = 'La transacción ya está anulada, ya no se anulará nuevamente';
             $modelo = new TransaccionBodegaResource($transaccion->refresh());
             return response()->json(compact('modelo', 'mensaje'));
         }

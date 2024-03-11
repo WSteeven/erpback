@@ -27,27 +27,21 @@ class TareaResource extends JsonResource
             'id' => $this->id,
             'codigo_tarea' => $this->codigo_tarea,
             'codigo_tarea_cliente' => $this->codigo_tarea_cliente,
-            // 'fecha_solicitud' => $this->fecha_solicitud,
             'titulo' => $this->titulo,
-            // 'observacion' => $this->observacion,
-            // 'novedad' => $this->novedad,
-            /* 'para_cliente_proyecto' => $this->para_cliente_proyecto,
-            'ubicacion_trabajo' => $this->ubicacion_trabajo,
-            'ruta_tarea' => $this->rutaTarea?->ruta, */
-            // 'proyecto' => $this->proyecto?->codigo_proyecto,
             'proyecto_id' => $this->proyecto_id,
             // 'fiscalizador' => $this->fiscalizador?->nombres . ' ' . $this->fiscalizador?->apellidos,
+            'coordinador_id' => $this->coordinador_id,
             'coordinador' => $this->coordinador ? Empleado::extraerNombresApellidos($this->coordinador) : null,
-            // 'cliente' => $this->obtenerCliente(),
             'cliente_id' => $this->cliente_id,
-            // 'cliente_final' => $this->clienteFinal ? $this->clienteFinal?->nombres . ' ' . $this->clienteFinal?->apellidos : null,
-            'cantidad_subtareas' => $this->subtareas->count(), //$this->tiene_subtareas ? $this->subtareas->count() : null,
-            // 'medio_notificacion' => $this->medio_notificacion,
-            // 'canton' => $this->obtenerCanton(),
+            'cantidad_subtareas' => $this->subtareas->count(),
             'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'imagen_informe' => $this->imagen_informe ? url($this->imagen_informe) : null,
             'finalizado' => $this->finalizado,
             'metraje_tendido' => $this->metraje_tendido,
+            'etapa_id' => $this->etapa_id,
+            'etapa' => $this->etapa?->nombre,
+            'proyecto' => $this->proyecto?->nombre,
+            'centro_costo' => $this->centroCosto?->nombre,
         ];
 
         if ($controller_method == 'show') {
@@ -61,6 +55,8 @@ class TareaResource extends JsonResource
             $modelo['ubicacion_trabajo'] = $this->ubicacion_trabajo;
             $modelo['observacion'] = $this->observacion;
             $modelo['fecha_solicitud'] = $this->fecha_solicitud;
+            $modelo['etapa'] = $this->etapa_id;
+            $modelo['centro_costo'] = $this->centro_costo_id;
         }
 
         return $modelo;

@@ -87,7 +87,7 @@ class DetalleProducto extends Model implements Auditable
      */
     public function inventarios()
     {
-        return $this->hasMany(Inventario::class);
+        return $this->hasMany(Inventario::class, 'detalle_id');
     }
 
     /**
@@ -192,7 +192,7 @@ class DetalleProducto extends Model implements Auditable
     public function detalleProductoTransaccion()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'detalle_producto_transaccion', 'transaccion_id', 'detalle_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
 

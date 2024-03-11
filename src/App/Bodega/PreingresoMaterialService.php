@@ -11,6 +11,7 @@ use App\Models\MaterialEmpleadoTarea;
 use App\Models\PreingresoMaterial;
 use App\Models\Producto;
 use App\Models\UnidadMedida;
+use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -29,34 +30,36 @@ class PreingresoMaterialService
     public static function filtrarPreingresos(Request $request)
     {
         if ($request->autorizacion_id) {
-            switch ($request->autorizacion_id) {
-                case 1: //PENDIENTE
+            // switch ($request->autorizacion_id) {
+            //     case 1: //PENDIENTE
+                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
                     $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
                         ->where(function ($query) {
                             $query->where('responsable_id', auth()->user()->empleado->id)
                                 ->orWhere('autorizador_id', auth()->user()->empleado->id)
                                 ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
-                    break;
-                case 2: //APROBADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
-                    break;
-                case 3: //CANCELADO
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->get();
-                    break;
-                default:
-                    $results = PreingresoMaterial::all();
-            }
+                        })->orderBy('id', 'desc')->get();
+            //         break;
+            //     case 2: //APROBADO
+            //         if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
+            //         $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+            //             ->where(function ($query) {
+            //                 $query->where('responsable_id', auth()->user()->empleado->id)
+            //                     ->orWhere('autorizador_id', auth()->user()->empleado->id)
+            //                     ->orWhere('coordinador_id', auth()->user()->empleado->id);
+            //             })->orderBy('id', 'desc')->get();
+            //         break;
+            //     case 3: //CANCELADO
+            //         $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+            //             ->where(function ($query) {
+            //                 $query->where('responsable_id', auth()->user()->empleado->id)
+            //                     ->orWhere('autorizador_id', auth()->user()->empleado->id)
+            //                     ->orWhere('coordinador_id', auth()->user()->empleado->id);
+            //             })->orderBy('id', 'desc')->get();
+            //         break;
+            //     default:
+            //         $results = PreingresoMaterial::all();
+            // }
         } else {
             $results = PreingresoMaterial::all();
         }
@@ -67,7 +70,7 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item)) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
 
         $datos = [
@@ -152,9 +155,9 @@ class PreingresoMaterialService
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad']);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id,$preingreso->proyecto_id, $preingreso->etapa_id);
                     else  // se carga el material al stock personal del tecnico responsable
-                        MaterialEmpleado::cargarMaterialEmpleado($detalle, $preingreso->responsable_id, $item['cantidad']);
+                        MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {
                     throw new Exception('No se encontró un detalle ');
                 }
@@ -248,6 +251,15 @@ class PreingresoMaterialService
                     $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
                     if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
                     else self::guardarDetalles($preingreso, [$item]);
+                } else {
+                    $detalle = DetalleProducto::obtenerDetalle($producto->id, $item['descripcion']);
+                    if ($detalle) {
+                        $itemPreingreso = ItemDetallePreingresoMaterial::where('preingreso_id', $preingreso->id)->where('detalle_id', $detalle->id)->first();
+                        Log::channel('testing')->info('Log', ['item 255:', $itemPreingreso]);
+                        if ($itemPreingreso) self::modificarItemPreingreso($itemPreingreso, $item);
+                        else self::guardarDetalles($preingreso, [$item]);
+                    }
+                    // throw new Exception('No se encontró un detalle coincidente');
                 }
             }
         }
@@ -257,6 +269,7 @@ class PreingresoMaterialService
         try {
             // Ingresa aquí cuando se aprueba el preingreso
             if ($preingreso->autorizacion_id == Autorizaciones::APROBADO) {
+                self::modificarItems($preingreso, $listado);
                 self::cargarMaterialesEmpleado($preingreso, $listado);
             }
 

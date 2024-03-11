@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Tareas\SolicitudAts;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,6 +30,13 @@ class Ticket extends Model implements Auditable
     const MEDIA = 'MEDIA';
     const BAJA = 'BAJA';
     const EMERGENCIA = 'EMERGENCIA';
+
+    // Configuracion ATS de tickets
+    const TIPO_TICKET_ATS = 166;
+    const SSO = 5;
+
+    // Motivos de pausas
+    const PAUSA_AUTOMATICA_SISTEMA = 14;
 
     protected $table = 'tickets';
     protected $fillable = [
@@ -122,5 +130,10 @@ class Ticket extends Model implements Auditable
     public function motivoCanceladoTicket()
     {
         return $this->belongsTo(MotivoCanceladoTicket::class);
+    }
+
+    public function solicitud_ats()
+    {
+        return $this->hasMany(SolicitudAts::class);
     }
 }

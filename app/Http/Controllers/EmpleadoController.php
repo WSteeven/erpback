@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
+use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\UserResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
@@ -22,19 +23,23 @@ use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
+
 
 class EmpleadoController extends Controller
 {
     private $entidad = 'Empleado';
     private EmpleadoService $servicio;
     private $reporteService;
+    private $archivoService;
 
 
     public function __construct()
     {
         $this->servicio = new EmpleadoService();
         $this->reporteService = new ReportePdfExcelService();
+        $this->archivoService = new ArchivoService();
 
         $this->middleware('can:puede.ver.empleados')->only('index', 'show');
         $this->middleware('can:puede.crear.empleados')->only('store');
@@ -83,6 +88,7 @@ class EmpleadoController extends Controller
     public function index()
     {
         $results = $this->list();
+        $results = EmpleadoResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -105,18 +111,16 @@ class EmpleadoController extends Controller
         if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
-
-        // Log::channel('testing')->info('Log', ['Datos validados', $datos]);
-
         try {
             DB::beginTransaction();
+            $username = $this->generarNombreUsuario($datos);
+            $email = $username . '@' . explode("@", $datos['email'])[1];
             $user = User::create([
-                'name' => $datos['usuario'],
+                'name' => $username,
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-
             $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
@@ -126,6 +130,7 @@ class EmpleadoController extends Controller
                 'jefe_id' => $datos['jefe_id'],
                 'canton_id' => $datos['canton_id'],
                 'cargo_id' => $datos['cargo_id'],
+                'coordenadas' => $datos['coordenadas'],
                 'departamento_id' => $datos['departamento_id'],
                 'grupo_id' => $datos['grupo_id'],
                 'firma_url' => $datos['firma_url'],
@@ -143,6 +148,7 @@ class EmpleadoController extends Controller
                 'tiene_discapacidad' => $datos['tiene_discapacidad'],
                 'observacion' => $datos['observacion'],
                 'nivel_academico' => $datos['nivel_academico'],
+                'titulo' => $datos['titulo'],
                 'supa' => $datos['supa'],
                 'talla_zapato' => $datos['talla_zapato'],
                 'talla_camisa' => $datos['talla_camisa'],
@@ -153,6 +159,7 @@ class EmpleadoController extends Controller
                 'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
                 'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
                 'realiza_factura' => $datos['realiza_factura'],
+                'coordenadas' => $datos['coordenadas'],
             ]);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
@@ -178,7 +185,7 @@ class EmpleadoController extends Controller
     public function HabilitaEmpleado(Request $request)
     {
         $empleado = Empleado::find($request->id);
-        $empleado->estado = $request->estado=='true'?1:0;
+        $empleado->estado = $request->estado == 'true' ? 1 : 0;
         $empleado->save();
         $modelo = $empleado;
         return response()->json(compact('modelo'));
@@ -406,7 +413,7 @@ class EmpleadoController extends Controller
         $roles = [];
         if (!is_null($request->roles)) {
             $roles = explode(',', $request->roles);
-            $results = UserResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
+            $results = EmpleadoRolePermisoResource::collection(User::role($roles)->with('empleado')->whereHas('empleado', function ($query) {
                 $query->where('estado', true);
             })->get());
         }
@@ -419,7 +426,7 @@ class EmpleadoController extends Controller
         if (!is_null($request->permisos)) {
             $permisos = explode(',', $request->permisos);
             $permisos_consultados = Permission::whereIn('name', $permisos)->get();
-            $results = UserResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
+            $results = EmpleadoRolePermisoResource::collection(User::permission($permisos_consultados)->with('empleado')->get());
         }
         return response()->json(compact('results'));
     }
@@ -437,5 +444,112 @@ class EmpleadoController extends Controller
         $nombre_reporte = 'lista_empleados';
         $vista = 'recursos-humanos.empleados';
         return $this->reporteService->imprimir_reporte('pdf', 'A4', 'landscape', compact('results'), $nombre_reporte, $vista, null);
+    }
+    /**
+     * La función genera un nombre de usuario único basado en el nombre de pila y verifica si ya existe
+     * en la base de datos.
+     *
+     * @param Request request El parámetro  es una instancia de la clase Request, que se utiliza
+     * para recuperar datos de la solicitud HTTP. Contiene información como los campos de entrada
+     * enviados en un formulario o los parámetros pasados en la URL.
+     *
+     * @return el nombre de usuario generado.
+     */
+    function generarNombreUsuario($request)
+    {
+        $nombreUsuario = $request['usuario'];
+        $nombres = str_replace('ñ', 'n', $request['nombres']);
+        $apellidos = str_replace('ñ', 'n', $request['apellidos']);
+        // Comprobamos si el nombre de usuario ya existe
+        $query = User::where('name', $nombreUsuario)->get();
+        $username = $nombreUsuario;
+        $inicio_username = '';
+        if ($query->count() > 0) {
+            // Separamos el nombre y el apellido en dos cadenas
+            $nombre = explode(" ", $nombres);
+            $apellido = explode(" ", $apellidos);
+            $inicio_username = $nombre[1][0];
+            $username = $nombre[0][0] . $inicio_username . $apellido[0];
+            $contador = 1;
+            while (User::where('name',  $username)->count() > 0) {
+                if ($contador <= strlen($nombre[0])) {
+                    $inicio_username .= $nombre[0][$contador];
+                    $username = $inicio_username . $nombre[1][0] . $apellido[0];
+                    $contador++;
+                }
+            }
+        }
+        return $username;
+    }
+    function obtenerNombreUsuario(Request $request)
+    {
+        $datos = $request->validate(['nombres' => 'required', 'string', 'apellidos' => 'required|string', 'usuario' => 'required|string']);
+        $username = $this->generarNombreUsuario($datos);
+        return response()->json(compact('username'));
+    }
+
+    public function empleadosConSaldoFondosRotativos(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = $this->servicio->obtenerEmpleadosConSaldoFondosRotativos();
+
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
+
+    public function empleadosConOrdenes(Request $request)
+    {
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $empleados = Empleado::has('ordenesCompras')->ignoreRequest(['campos'])->filter()->get($campos);
+
+        $results = EmpleadoResource::collection($empleados);
+        return response()->json(compact('results'));
+    }
+
+    function obtenerEmpleadosFondosRotativos(Request $request)
+    {
+        try {
+            Log::channel('testing')->info('Log', ['request', $request->all()]);
+            $empleados = Empleado::has('gastos')->get();
+            Log::channel('testing')->info('Log', ['encontrados', $empleados]);
+            Log::channel('testing')->info('Log', ['resource', EmpleadoResource::collection($empleados)]);
+
+            $results = EmpleadoResource::collection($empleados);
+        } catch (\Throwable $th) {
+            Log::channel('testing')->info('Log', ['error en obtenerEmpleadosFondosRotativos', $th->getMessage(), $th->getLine()]);
+            throw new ValidationException($th->getMessage());
+        }
+        return response()->json(compact('results'));
+    }
+
+    /**
+     * Listar archivos
+     */
+    public function indexFiles(Request $request,Empleado $empleado)
+    {
+        try {
+            $results = $this->archivoService->listarArchivos($empleado);
+
+            return response()->json(compact('results'));
+        } catch (Exception $ex) {
+            $mensaje = $ex->getMessage();
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('results'));
+    }
+    /**
+     * Guardar archivos
+     */
+    public function storeFiles(Request $request, Empleado $empleado)
+    {
+        try {
+            $modelo = $this->archivoService->guardarArchivo($empleado, $request->file, RutasStorage::DOCUMENTOS_DIGITALIZADOS_EMPLEADOS->value . $empleado->identificacion);
+            $mensaje = 'Archivo subido correctamente';
+        } catch (\Throwable $th) {
+            $mensaje = $th->getMessage() . '. ' . $th->getLine();
+            Log::channel('testing')->info('Log', ['Error en el storeFiles de EmpleadoController', $th->getMessage(), $th->getCode(), $th->getLine()]);
+            return response()->json(compact('mensaje'), 500);
+        }
+        return response()->json(compact('mensaje', 'modelo'));
     }
 }

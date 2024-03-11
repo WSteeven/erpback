@@ -28,6 +28,7 @@ class RolPago extends Model implements Auditable
         'dias',
         'salario',
         'sueldo',
+        'supa',
         'anticipo',
         'bonificacion',
         'bono_recurente',
@@ -45,8 +46,10 @@ class RolPago extends Model implements Auditable
         'rol_pago_id',
         'rol_firmado',
         'medio_tiempo',
+        'es_vendedor_medio_tiempo',
         'fondos_reserva',
-
+        'porcentaje_quincena',
+        'sueldo_quincena_modificado',
     ];
     private static $whiteListFilter = [
         'id',
@@ -65,24 +68,50 @@ class RolPago extends Model implements Auditable
         'rol_firmado',
         'fondos_reserva',
         'medio_tiempo',
-
-
+        'es_vendedor_medio_tiempo',
+        'porcentaje_quincena',
+        'sueldo_quincena_modificado',
     ];
-    protected $casts = ['medio_tiempo' => 'boolean'];
+    protected $casts = [
+        'medio_tiempo' => 'boolean',
+        'es_vendedor_medio_tiempo' => 'boolean',
+        'sueldo_quincena_modificado' => 'boolean',
+    ];
 
     public function empleado_info()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('cargo','user');
+        return $this->belongsTo(Empleado::class, 'empleado_id', 'id')->with('cargo', 'user');
     }
 
     public function egreso_rol_pago()
     {
-        return $this->hasMany(EgresoRolPago::class, 'id_rol_pago', 'id')->with('descuento');
+        return $this->hasMany(EgresoRolPago::class, 'id_rol_pago', 'id')->with('descuento', 'empleado');
     }
     public function ingreso_rol_pago()
     {
         return $this->hasMany(IngresoRolPago::class, 'id_rol_pago', 'id')->with('concepto_ingreso_info');
     }
+
+    // Relacion uno a muchos (inversa)
+    public function rolPagoMes()
+    {
+        return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
+    }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+
+    /**
+     * La función "empaquetarListado" toma una matriz de objetos "roles de pagos" y devuelve una matriz ordenada
+     * de datos formateados.
+     *
+     * @param rol_pagos Conjunto de objetos que representan información de nómina de empleados.
+     *
+     * @return una serie de resultados.
+     */
     public static function empaquetarListado($rol_pagos)
     {
         $results = [];
@@ -100,23 +129,23 @@ class RolPago extends Model implements Auditable
             $row['cargo'] = $rol_pago->empleado_info->cargo != null ? $rol_pago->empleado_info->cargo->nombre : '';
             $row['departamento'] = $rol_pago->empleado_info->departamento != null ? $rol_pago->empleado_info->departamento->nombre : '';
             $row['ciudad'] = $rol_pago->empleado_info->canton != null ? $rol_pago->empleado_info->canton->canton : '';
-            $row['dias_laborados'] = $rol_pago->dias;
-            $row['sueldo'] = $rol_pago->sueldo;
-            $row['decimo_tercero'] = $rol_pago->decimo_tercero;
-            $row['decimo_cuarto'] = $rol_pago->decimo_cuarto;
-            $row['fondos_reserva'] = $rol_pago->fondos_reserva;
-            $row['bonificacion'] = $rol_pago->bonificacion;
-            $row['bono_recurente'] = $rol_pago->bono_recurente;
-            $row['iess'] = $rol_pago->iess;
-            $row['anticipo'] = $rol_pago->anticipo;
-            $row['prestamo_quirorafario'] = $rol_pago->prestamo_quirorafario;
-            $row['prestamo_hipotecario'] = $rol_pago->prestamo_hipotecario;
-            $row['extension_conyugal'] = $rol_pago->extension_conyugal;
-            $row['prestamo_empresarial'] = $rol_pago->prestamo_empresarial;
-            $row['total_ingreso'] = $rol_pago->total_ingreso;
-            $row['total_egreso'] = $rol_pago->total_egreso;
-            $row['total'] = $rol_pago->total;
-            $row['supa'] = $rol_pago->empleado_info->supa;
+            $row['dias_laborados'] = intval($rol_pago->dias);
+            $row['sueldo'] =  str_replace(",", "", number_format($rol_pago->sueldo, 2));
+            $row['decimo_tercero'] = str_replace(",", "", number_format($rol_pago->decimo_tercero, 2));
+            $row['decimo_cuarto'] = str_replace(",", "", number_format($rol_pago->decimo_cuarto, 2));
+            $row['fondos_reserva'] = str_replace(",", "", number_format($rol_pago->fondos_reserva, 2));
+            $row['bonificacion'] = str_replace(",", "", number_format($rol_pago->bonificacion, 2));
+            $row['bono_recurente'] = str_replace(",", "", number_format($rol_pago->bono_recurente, 2));
+            $row['iess'] = str_replace(",", "", number_format($rol_pago->iess, 2));
+            $row['anticipo'] = str_replace(",", "", number_format($rol_pago->anticipo, 2));
+            $row['prestamo_quirorafario'] = str_replace(",", "", number_format($rol_pago->prestamo_quirorafario, 2));
+            $row['prestamo_hipotecario'] = str_replace(",", "", number_format($rol_pago->prestamo_hipotecario, 2));
+            $row['extension_conyugal'] = str_replace(",", "", number_format($rol_pago->extension_conyugal, 2));
+            $row['prestamo_empresarial'] = str_replace(",", "", number_format($rol_pago->prestamo_empresarial, 2));
+            $row['total_ingreso'] = str_replace(",", "", number_format($rol_pago->total_ingreso, 2));
+            $row['total_egreso'] = str_replace(",", "", number_format($rol_pago->total_egreso, 2));
+            $row['total'] = str_replace(",", "", number_format($rol_pago->total, 2));
+            $row['supa'] = str_replace(",", "", number_format($rol_pago->supa, 2));
             $row['ingresos'] = $rol_pago->ingreso_rol_pago;
             $row['egresos'] = $rol_pago->egreso_rol_pago;
             $row['egresos_cantidad_columna'] = count($rol_pago->egreso_rol_pago);
@@ -129,6 +158,15 @@ class RolPago extends Model implements Auditable
 
         return $results;
     }
+
+    /**
+     * La función "empaquetarCash" toma un conjunto de "rol_pagos" y devuelve un conjunto ordenado de
+     * datos relacionados con pagos en efectivo.
+     *
+     * @param rol_pagos Una serie de objetos que representan pagos de nómina.
+     *
+     * @return una serie de resultados.
+     */
     public static function empaquetarCash($rol_pagos)
     {
         $results = [];
@@ -138,36 +176,41 @@ class RolPago extends Model implements Auditable
         foreach ($rol_pagos as $rol_pago) {
             $cuenta_bancarea_num = intval($rol_pago->empleado_info->num_cuenta_bancaria);
             if ($cuenta_bancarea_num > 0) {
-            $referencia = $rol_pago->rolPagoMes->es_quincena?'PAGO ROL PRIMERA QUINCENA MES ':'PAGO ROL FIN DE MES ';
-            $row['item'] = $id + 1;
-            $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
-            $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;
-            $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
-            $row['email'] =  $rol_pago->empleado_info->user->email;
-            $row['tipo_pago'] = 'PA';
-            $row['numero_cuenta_empresa'] = '02653010903';
-            $row['moneda'] = 'USD';
-            $row['forma_pago'] = 'CTA';
-            $row['codigo_banco'] = '0036';
-            $row['tipo_cuenta'] = 'AHO';
-            $row['tipo_documento_empleado'] = 'C';
-            $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
-            $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
-            $row['total'] =  number_format($rol_pago->total, 2, ',', '.') ;
-            $results[$id] = $row;
+                $referencia = $rol_pago->rolPagoMes->es_quincena ? 'PAGO ROL PRIMERA QUINCENA MES ' : 'PAGO ROL FIN DE MES ';
+                $row['item'] = $id + 1;
+                $row['empleado_info'] =  $rol_pago->empleado_info->apellidos . ' ' . $rol_pago->empleado_info->nombres;
+                $row['departamento'] = $rol_pago->empleado_info->departamento->nombre;
+                $row['numero_cuenta_bancareo'] =  $rol_pago->empleado_info->num_cuenta_bancaria;
+                $row['email'] =  $rol_pago->empleado_info->user->email;
+                $row['tipo_pago'] = 'PA';
+                $row['numero_cuenta_empresa'] = '02653010903';
+                $row['moneda'] = 'USD';
+                $row['forma_pago'] = 'CTA';
+                $row['codigo_banco'] = '0036';
+                $row['tipo_cuenta'] = 'AHO';
+                $row['tipo_documento_empleado'] = 'C';
+                $row['referencia'] = strtoupper($referencia . ucfirst(Carbon::createFromFormat('m-Y', $rol_pago->mes)->locale('es')->translatedFormat('F')));
+                $row['identificacion'] =  $rol_pago->empleado_info->identificacion;
+                $row['total'] = str_replace(".", "", number_format($rol_pago->total, 2, ',', '.'));
+                $results[$id] = $row;
 
-            $id++;
+                $id++;
             }
         }
         usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
 
         return $results;
     }
-    // Relacion uno a muchos (inversa)
-    public function rolPagoMes()
-    {
-        return $this->hasOne(RolPagoMes::class, 'id', 'rol_pago_id');
-    }
+
+    /**
+     * La función "ordenar_por_nombres_apellidos" ordena una matriz de empleados según sus nombres y
+     * apellidos.
+     *
+     * @param a Una matriz que representa la información del primer empleado.
+     * @param b El parámetro `` es una matriz que representa la información de un empleado.
+     *
+     * @return el resultado de la comparación entre los nombres concatenados de los dos empleados.
+     */
     private static function  ordenar_por_nombres_apellidos($a, $b)
     {
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];

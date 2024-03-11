@@ -53,31 +53,31 @@ class Gasto extends Model implements Auditable
         'detalle_estado'
     ];
 
-    private static $whiteListFilter = [
-        'factura',
-        'fecha_viat',
-        'id_tarea',
-        'subdetalle',
-        'id_proyecto',
-        'ruc',
-        'factura',
-        'aut_especial',
-        'detalle',
-        'cantidad',
-        'valor_u',
-        'total',
-        'comprobante',
-        'comprobante2',
-        'observacion',
-        'id_usuario',
-        'estado',
-        'detalle_estado',
-        'usuario',
-        'fecha_inicio',
-        'fecha_fin',
-        'ciudad',
-        'id_lugar'
-    ];
+    private static $whiteListFilter = ['*'];
+        // 'factura',
+        // 'fecha_viat',
+        // 'id_tarea',
+        // 'subdetalle',
+        // 'id_proyecto',
+        // 'ruc',
+        // 'factura',
+        // 'aut_especial',
+        // 'detalle',
+        // 'cantidad',
+        // 'valor_u',
+        // 'total',
+        // 'comprobante',
+        // 'comprobante2',
+        // 'observacion',
+        // 'id_usuario',
+        // 'estado',
+        // 'detalle_estado',
+        // 'usuario',
+        // 'fecha_inicio',
+        // 'fecha_fin',
+        // 'ciudad',
+        // 'id_lugar'
+    // ];
 
     public function detalle_info()
     {
@@ -111,7 +111,7 @@ class Gasto extends Model implements Auditable
     }
     public function tarea_info()
     {
-        return $this->hasOne(Tarea::class, 'id', 'id_tarea');
+        return $this->hasOne(Tarea::class, 'id', 'id_tarea')->with('centroCosto');
     }
     public function subtarea_info()
     {
@@ -152,20 +152,26 @@ class Gasto extends Model implements Auditable
             $id = 0;
             $row = [];
             foreach ($gastos as $gasto) {
+                $row['id'] = $gasto->id;
                 $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
                 $row['fecha_autorizacion']= $gasto->updated_at;
                 $row['lugar']= $gasto->lugar_info?->canton;
                 $row['factura']= $gasto->factura;
+                $row['ruc'] = $gasto->ruc;
                 $row['num_comprobante']= $gasto->num_comprobante;
                 $row['empleado_info']= $gasto->empleado_info->user;
                 $row['usuario'] = $gasto->empleado_info;
                 $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
                 $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
                 $row['tarea'] = $gasto->tarea_info;
+                $row['centro_costo'] = $gasto->tarea_info !== null ? $gasto->tarea_info?->centroCosto?->nombre:'';
+                $row['sub_centro_costo'] = $gasto->empleado_info->grupo==null ?'':$gasto->empleado_info->grupo?->subCentroCosto?->nombre;
                 $row['proyecto'] = $gasto->proyecto_info;
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
                 $row['sub_detalle'] = $gasto->sub_detalle_info;
+                $row['cantidad'] = $gasto->cantidad;
+                $row['valor_u'] = $gasto->valor_u;
                 $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
                 //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
                 $row['placa'] = $gasto->gasto_vehiculo_info?->placa;

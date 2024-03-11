@@ -18,6 +18,7 @@ use Src\Config\Autorizaciones;
 use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 
 class OrdenCompraService
 {
@@ -30,6 +31,7 @@ class OrdenCompraService
     {
         try {
             $configuracion = ConfiguracionGeneral::first();
+            if (!$orden_compra->proveedor_id) throw new Exception('Debes ingresar un proveedor en la Orden de Compra para poder imprimir');
             $proveedor = new ProveedorResource(Proveedor::find($orden_compra->proveedor_id));
             $empleado_solicita = Empleado::find($orden_compra->solicitante_id);
             $orden = new OrdenCompraResource($orden_compra);
@@ -38,8 +40,6 @@ class OrdenCompraService
             $orden = $orden->resolve();
             $proveedor = $proveedor->resolve();
             $valor = Utils::obtenerValorMonetarioTexto($orden['sum_total']);
-            Log::channel('testing')->info('Log', ['Balor a enviar', $orden['sum_total']]);
-            Log::channel('testing')->info('Log', ['Elementos a imprimir', ['orden' => $orden, 'proveedor' => $proveedor, 'empleado_solicita' => $empleado_solicita]]);
             $pdf = Pdf::loadView('compras_proveedores.orden_compra', compact(['orden', 'proveedor', 'empleado_solicita', 'valor', 'configuracion']));
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOption(['isRemoteEnabled' => true]);
@@ -55,13 +55,11 @@ class OrdenCompraService
                 //Se actualiza la ruta en la orden de compra
                 $orden_compra->file = $ruta;
                 $orden_compra->save();
-                Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
+                // Log::channel('testing')->info('Log', ['RUTA donde se almacenó la orden de compra', $ruta]);
 
                 if ($descargar) {
-                    Log::channel('testing')->info('Log', ['Descargar orden de compra', $ruta]);
                     return Storage::download($ruta, $filename);
                 } else {
-                    Log::channel('testing')->info('Log', ['NO Descargar orden de compra', $ruta]);
                     return $ruta;
                 }
             } else {
@@ -73,13 +71,22 @@ class OrdenCompraService
         }
     }
 
-    public static function obtenerDashboard($request)
+    public static function obtenerDashboard(Request $request)
     {
         $results = [];
         $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
         $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
-        $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])->get();
-        Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $ordenes, $fecha_inicio, $fecha_fin]);
+        $ordenes = OrdenCompra::whereBetween('created_at', [$fecha_inicio, $fecha_fin])
+            ->when($request->empleado, function ($query) use ($request) {
+                $query->where('solicitante_id', $request->empleado);
+            })
+            ->when($request->proveedor && $request->tipo == 'PROVEEDOR', function ($query) use ($request) {
+                if ($request->proveedor != null) $query->where('proveedor_id', $request->proveedor);
+            })
+            // ->where('solicitante_id', $request->empleado)
+            ->get();
+        // Log::channel('testing')->info('Log', ['request:', $request->empleado]);
+        // Log::channel('testing')->info('Log', ['obtener ordenes por estados:', $fecha_inicio, $fecha_fin, $ordenes]);
 
         switch ($request->tipo) {
             case 'ESTADO':
@@ -89,7 +96,7 @@ class OrdenCompraService
                 $results = self::dividirOrdenesPorProveedores($ordenes);
                 break;
             default:
-                Log::channel('testing')->info('Log', ['Entró en default, se lanzará un error']);
+                // Log::channel('testing')->info('Log', ['Entró en default, se lanzará un error']);
                 throw new Exception('Error al filtrar las ordenes de compras para el dashboard');
         }
 
@@ -182,33 +189,46 @@ class OrdenCompraService
         );
     }
     /** KPIS
-     * pie de proveedores a los que se les ha comprado, con sus respectivas ordenes de compra, 
+     * pie de proveedores a los que se les ha comprado, con sus respectivas ordenes de compra,
      * al darle clic que muestre los estados de las ordenes de compra de dichos proveedores
      */
     public static function dividirOrdenesPorProveedores($ordenes)
     {
         $results = [];
         //filtramos las ordenes de compras revisadas y realizadas en adelante
-        $todas = $ordenes->filter(function ($orden) {
-            return $orden->proveedor_id != null;
+        $todas_sin_proveedor = $ordenes->filter(function ($orden) {
+            return $orden->proveedor_id == null;
         });
+        $todas = $ordenes;
+        // $todas = $ordenes->filter(function ($orden) {
+        //     return $orden->proveedor_id != null;
+        // });
         $pendientes = $ordenes->filter(function ($orden) {
             return $orden->proveedor_id != null && $orden->estado_id == 1;
         });
         $revisadas = $ordenes->filter(function ($orden) {
-            return $orden->proveedor_id != null && $orden->estado_id == 2 && $orden->realizada==false;
+            return $orden->proveedor_id != null && $orden->estado_id == 2 && $orden->realizada == false;
         });
         $realizadas = $ordenes->filter(function ($orden) {
-            return $orden->proveedor_id != null && $orden->realizada == true;
+            return $orden->proveedor_id != null && $orden->realizada == true && !$orden->pagada;
         });
         $pagadas = $ordenes->filter(function ($orden) {
             return $orden->proveedor_id != null && $orden->pagada == true;
         });
         $anuladas = $ordenes->filter(function ($orden) {
-            return $orden->proveedor_id != null && ($orden->autorizacion_id == Autorizaciones::CANCELADO || $orden->estado_id == EstadosTransacciones::ANULADA);
+            // return $orden->proveedor_id != null && ($orden->autorizacion_id == Autorizaciones::CANCELADO || $orden->estado_id == EstadosTransacciones::ANULADA);
+            return $orden->estado_id == 4;
         });
+        // Log::channel('testing')->info('Log', ['pendientes:', $pendientes->count()]);
+        // Log::channel('testing')->info('Log', ['revisadas:', $revisadas->count()]);
+        // Log::channel('testing')->info('Log', ['realizadas:', $realizadas->count()]);
+        // Log::channel('testing')->info('Log', ['pagadas:', $pagadas->count()]);
+        // Log::channel('testing')->info('Log', ['anuladas:', $anuladas->count(), $ordenes->filter(function ($orden) {
+        //     return $orden->estado_id == 4;
+        // })]);
         $todas = OrdenCompraResource::collection($todas);
-        $cant_ordenes_proveedores = $todas->count();
+        $cant_ordenes_sin_proveedor = $todas_sin_proveedor->count();
+        $cant_ordenes_proveedores = $todas->count() - $todas_sin_proveedor->count();
         $cant_ordenes_pendientes = $pendientes->count();
         $cant_ordenes_revisadas = $revisadas->count();
         $cant_ordenes_realizadas = $realizadas->count();
@@ -223,12 +243,24 @@ class OrdenCompraService
             'id' => 1,
             'identificador' => 'PROVEEDORES',
             'encabezado' => 'Estados de las ordenes de compras que tienen proveedor',
-            'labels' => ['REVISADAS', 'PENDIENTES DE REVISAR', 'REALIZADAS', 'PAGADAS', 'ANULADAS'],
+            'labels' => [
+                'REVISADAS',
+                'PENDIENTES DE REVISAR',
+                'REALIZADAS',
+                'PAGADAS',
+                'ANULADAS'
+            ],
             'datasets' => [
                 [
                     'backgroundColor' => Utils::coloresAleatorios(),
                     'label' => $tituloGrafico,
-                    'data' => [$revisadas->count(), $todas->count() - $revisadas->count() - $realizadas->count(), $realizadas->count(), $anuladas->count()],
+                    'data' => [
+                        $revisadas->count(),
+                        $todas->count() - $revisadas->count() - $realizadas->count() - $anuladas->count() - $pagadas->count(), //pendientes de revisar
+                        $realizadas->count(), //realizadas
+                        $pagadas->count(), //pagadas
+                        $anuladas->count() //anuladas
+                    ],
                 ]
             ],
         ]);
@@ -259,6 +291,7 @@ class OrdenCompraService
             'realizadas',
             'pagadas',
             'anuladas',
+            'cant_ordenes_sin_proveedor',
             'cant_ordenes_proveedores',
             'cant_ordenes_pendientes',
             'cant_ordenes_revisadas',

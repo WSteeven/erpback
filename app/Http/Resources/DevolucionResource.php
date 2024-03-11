@@ -36,11 +36,13 @@ class DevolucionResource extends JsonResource
             'estado_bodega' => $this->estado_bodega,
             'es_para_stock' => $this->stock_personal,
             'listadoProductos' => $detalles,
-            'created_at' => date('d/m/Y', strtotime($this->created_at)),
+            'created_at' => date('Y-m-d', strtotime($this->created_at)),
             'updated_at' => $this->updated_at,
 
             'es_tarea' => $this->tarea ? true : false,
             'tiene_observacion_aut' => $this->observacion_aut ? true : false,
+            'cliente' => $this->cliente?->empresa->razon_social,
+            'cliente_id' => $this->cliente_id,
             'sucursal' => $this->sucursal?->lugar,
             'sucursal_id' => $this->sucursal_id,
             'pedido_automatico' => $this->pedido_automatico,
@@ -53,6 +55,8 @@ class DevolucionResource extends JsonResource
             $modelo['per_autoriza'] = $this->per_autoriza_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
             $modelo['sucursal'] = $this->sucursal_id;
+            $modelo['cliente'] = $this->cliente_id;
+            $modelo['misma_condicion'] = Devolucion::obtenerCondicionListado($this->id);
         }
 
         return $modelo;

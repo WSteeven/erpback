@@ -19,6 +19,7 @@ use App\Http\Controllers\ControlStockController;
 use App\Http\Controllers\ProcesadorController;
 use App\Http\Controllers\ActivoFijoController;
 use App\Http\Controllers\ArchivoController;
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\DevolucionController;
 use App\Http\Controllers\InventarioController;
@@ -43,16 +44,6 @@ use App\Http\Controllers\MotivoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\PerchaController;
 use App\Http\Controllers\DiscoController;
-use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
-use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
-use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
-use App\Http\Controllers\FondosRotativos\TipoFondoController;
-use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
-use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
-use App\Http\Controllers\FondosRotativos\Gasto\MotivoGastoController;
-use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
-use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FormaPagoController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\LoginController;
@@ -66,26 +57,16 @@ use App\Http\Controllers\PisoController;
 use App\Http\Controllers\PreingresoMaterialController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RamController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\EstadoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\MotivoPermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\PermisoEmpleadoController;
-use App\Http\Controllers\RecursosHumanos\NominaPrestamos\RolPagosController;
-use App\Http\Controllers\RecursosHumanos\TipoContratoController;
 use App\Http\Controllers\RolController;
 use App\Http\Resources\CantonResource;
-use App\Http\Resources\ParroquiaResource;
-use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Provincia;
 use App\Models\Canton;
+use App\Models\DetalleProducto;
 use App\Models\Empleado;
 use App\Models\Pais;
-use App\Models\Parroquia;
-use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Permission;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +80,7 @@ use Spatie\Permission\Models\Permission;
 */
 
 Route::get('tablero', [TableroController::class, 'index']);
+Route::get('auditorias', [AuditoriaController::class, 'index']);
 Route::get('permisos_roles_usuario', [PermisoController::class, 'listarPermisosRoles']);
 Route::get('permisos_administrar', [PermisoController::class, 'listarPermisos']);
 Route::post('asignar-permisos', [PermisoRolController::class, 'asignarPermisos']);
@@ -239,6 +221,7 @@ Route::get('devoluciones/imprimir/{devolucion}', [DevolucionController::class, '
 Route::get('traspasos/imprimir/{traspaso}', [TraspasoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-ingresos/imprimir/{transaccion}', [TransaccionBodegaIngresoController::class, 'imprimir'])->middleware('auth:sanctum');
 Route::get('transacciones-egresos/imprimir/{transaccion}', [TransaccionBodegaEgresoController::class, 'imprimir'])->middleware('auth:sanctum');
+Route::get('preingresos/imprimir/{preingreso}', [PreingresoMaterialController::class, 'imprimir'])->middleware('auth:sanctum');
 
 /*********************************************************
  * ANULACIONES
@@ -256,6 +239,7 @@ Route::post('notificaciones/marcar-leida/{notificacion}', [NotificacionControlle
  ******************************************************/
 //Reportes de pedidos
 Route::post('pedidos/reportes', [PedidoController::class, 'reportes']);
+Route::get('sucursales-detalle', [DetalleProductoController::class, 'sucursalesDetalle']);
 //Reportes de ingresos y egresos
 Route::post('transacciones-ingresos/reportes', [TransaccionBodegaIngresoController::class, 'reportes']);
 Route::post('transacciones-egresos/reportes', [TransaccionBodegaEgresoController::class, 'reportes']);
@@ -269,7 +253,10 @@ Route::post('reporte-inventario/kardex', [InventarioController::class, 'kardex']
  ******************************************************/
 Route::post('proveedores/reportes', [ProveedorController::class, 'reportes']);
 Route::get('proveedores/imprimir-calificacion/{proveedor}', [ProveedorController::class, 'reporteCalificacion']);
+Route::get('proveedores/actualizar-calificacion/{proveedor}', [ProveedorController::class, 'actualizarCalificacion']);
 
+
+Route::get('detalles-materiales', [DetalleProductoController::class, 'obtenerMateriales'])->middleware('auth:sanctum');
 
 //gestionar egresos
 Route::get('gestionar-egresos', [TransaccionBodegaEgresoController::class, 'showEgresos'])->middleware('auth:sanctum');
@@ -282,13 +269,16 @@ Route::get('egresos-filtrados', [TransaccionBodegaEgresoController::class, 'filt
 Route::get('devoluciones/show-preview/{devolucion}', [DevolucionController::class, 'showPreview']);
 Route::get('pedidos/show-preview/{pedido}', [PedidoController::class, 'showPreview']);
 Route::put('pedidos/corregir-pedido/{pedido}', [PedidoController::class, 'corregirPedido']);
+Route::put('devoluciones/corregir-devolucion/{devolucion}', [DevolucionController::class, 'corregirDevolucion']);
 Route::post('pedidos/eliminar-item', [PedidoController::class, 'eliminarDetallePedido']);
+Route::post('devoluciones/eliminar-item', [DevolucionController::class, 'eliminarDetalleDevolucion']);
 Route::get('traspasos/show-preview/{traspaso}', [TraspasoController::class, 'showPreview']);
 Route::get('transacciones-ingresos/show-preview/{transaccion}', [TransaccionBodegaIngresoController::class, 'showPreview']);
 Route::get('transacciones-egresos/show-preview/{transaccion}', [TransaccionBodegaEgresoController::class, 'showPreview']);
 Route::get('proveedores/show-preview/{proveedor}', [ProveedorController::class, 'showPreview']);
 
-Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
+// Route::put('comprobantes/{transaccion}', [TransaccionBodegaEgresoController::class, 'updateComprobante'])->middleware('auth:sanctum');
+Route::put('comprobantes/aceptar-parcial/{transaccion}', [ComprobanteController::class, 'comprobanteParcial'])->middleware('auth:sanctum');
 Route::get('buscarDetalleInventario', [InventarioController::class, 'buscar']);
 Route::post('buscarIdsEnInventario', [InventarioController::class, 'buscarProductosSegunId']);
 Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarProductosSegunDetalleId']);
@@ -298,6 +288,7 @@ Route::post('buscarDetallesEnInventario', [InventarioController::class, 'buscarP
 Route::get('all-items', [InventarioController::class, 'vista']);
 
 Route::get('empleados/obtenerTecnicos/{grupo_id}', [EmpleadoController::class, 'obtenerTecnicos'])->middleware('auth:sanctum');
+Route::get('empleados-fondos-rotativos', [EmpleadoController::class, 'obtenerEmpleadosFondosRotativos'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->group(function () {
     // Fecha y hora del sistema
@@ -315,6 +306,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('lista-usuarios', [UserController::class, 'listaUsuarios']);
 
 });
+/***********
+ * Dashboard
+ ***********/
+Route::post('dashboard-bodega', [InventarioController::class, 'dashboard'])->middleware('auth:sanctum');
 
 
 /**
@@ -331,6 +326,7 @@ Route::get('w-auditoria', [PedidoController::class, 'auditoria'])->middleware('a
 /**
  * Listar Archivos
  */
+Route::get('empleados/files/{empleado}', [EmpleadoController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('empresas/files/{empresa}', [EmpresaController::class, 'indexFiles'])->middleware('auth:sanctum');
 Route::get('proveedores/files/{proveedor}', [ProveedorController::class, 'indexFilesDepartamentosCalificadores'])->middleware('auth:sanctum');
 Route::get('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'indexFiles'])->middleware('auth:sanctum');
@@ -339,6 +335,7 @@ Route::get('devoluciones/files/{devolucion}', [DevolucionController::class, 'ind
 /**
  * Subidas de archivos
  */
+Route::post('empleados/files/{empleado}', [EmpleadoController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('empresas/files/{empresa}', [EmpresaController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('preingresos/files/{preingreso}', [PreingresoMaterialController::class, 'storeFiles'])->middleware('auth:sanctum');
 Route::post('devoluciones/files/{devolucion}', [DevolucionController::class, 'storeFiles'])->middleware('auth:sanctum');

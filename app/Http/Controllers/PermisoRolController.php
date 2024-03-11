@@ -57,15 +57,15 @@ class PermisoRolController extends Controller
         $roles = Role::whereIn('id', $request->roles)->get();
         $permisos = [];
         if ($request->permiso_personalizado) {
-            $permiso = Permission::firstOrCreate(['name' => $request->name])->syncRoles($roles);
+            $permiso = Permission::firstOrCreate(['name' => strtolower($request->name)])->syncRoles($roles);
             return response()->json(['mensaje' => 'Se creó un permiso exitosamente',  'permiso' => $permiso]);
         } else {
-            if ($request->autorizar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.autorizar.' . $request->name])->syncRoles($roles));
-            if ($request->acceder) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.acceder.' . $request->name])->syncRoles($roles));
-            if ($request->ver) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.ver.' . $request->name])->syncRoles($roles));
-            if ($request->crear) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.crear.' . $request->name])->syncRoles($roles));
-            if ($request->editar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.editar.' . $request->name])->syncRoles($roles));
-            if ($request->eliminar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.eliminar.' . $request->name])->syncRoles($roles));
+            if ($request->autorizar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.autorizar.' . strtolower($request->name)])->syncRoles($roles));
+            if ($request->acceder) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.acceder.' . strtolower($request->name)])->syncRoles($roles));
+            if ($request->ver) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.ver.' . strtolower($request->name)])->syncRoles($roles));
+            if ($request->crear) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.crear.' . strtolower($request->name)])->syncRoles($roles));
+            if ($request->editar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.editar.' . strtolower($request->name)])->syncRoles($roles));
+            if ($request->eliminar) array_push($permisos, Permission::firstOrCreate(['name' => 'puede.eliminar.' . strtolower($request->name)])->syncRoles($roles));
             return response()->json(['mensaje' => 'Se crearon exitosamente los permisos',  'permisos' => $permisos]);
         }
     }

@@ -73,7 +73,7 @@ class Inventario extends Model implements Auditable
     public function detalleProductoTransaccion()
     {
         return $this->belongsToMany(TransaccionBodega::class, 'detalle_producto_transaccion', 'transaccion_id', 'inventario_id')
-            ->withPivot(['cantidad_inicial', 'cantidad_final'])
+            ->withPivot(['cantidad_inicial', 'recibido'])
             ->withTimestamps();
     }
     /**
@@ -147,13 +147,13 @@ class Inventario extends Model implements Auditable
      * Relación muchos a muchos.
      * Uno o varios items del inventario estan en un prestamo temporal
      */
-    public function detallesPrestamoInventario()
-    {
-        return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
-            ->withPivot('cantidad')
-            ->withTimestamps()
-            ->using(InventarioPrestamoTemporal::class);
-    }
+    // public function detallesPrestamoInventario()
+    // {
+    //     return $this->belongsToMany(PrestamoTemporal::class, 'inventario_prestamo_temporal', 'prestamo_id', 'inventario_id')
+    //         ->withPivot('cantidad')
+    //         ->withTimestamps()
+    //         ->using(InventarioPrestamoTemporal::class);
+    // }
 
     /**
      * ______________________________________________________________________________________
@@ -178,10 +178,10 @@ class Inventario extends Model implements Auditable
     /**
      * La función "contarExistenciasDetalleSerial" cuenta la cantidad total de artículos del inventario
      * para un determinado "detalle_id".
-     * 
+     *
      * @param detalle_id El parámetro "detalle_id" es el ID del detalle del que se quieren contar las
      * existencias.
-     * 
+     *
      * @return la suma del campo 'cantidad' de la colección 'existencias'.
      */
     public static function contarExistenciasDetalleSerial($detalle_id){
@@ -193,14 +193,14 @@ class Inventario extends Model implements Auditable
 
     /**
      * It takes an array of data and returns the same array of data
-     * 
+     *
      * @param inventario_id The id of the inventory
      * @param detalle_producto_transaccion_id is the id of the detail of the transaction
      * @param cantidad quantity
      * @param precio_unitario the price of the product
      * @param saldo the current stock of the product
      * @param tipo 1 = entrada, 2 = salida
-     * 
+     *
      * @return an array with the following structure:
      * <code> = [
      *             'inventario_id' =&gt; ,
@@ -404,7 +404,7 @@ class Inventario extends Model implements Auditable
     /**
      * La función "verificarExistenciasDetalles" verifica si hay suficientes artículos en inventario
      * para cada detalle en un pedido determinado y genera una preorden si es necesario.
-     * 
+     *
      * @param pedido El parámetro "pedido" es un objeto que representa un pedido en el sistema. Se
      * utiliza para comprobar la existencia de detalles en el pedido.
      */
@@ -414,7 +414,7 @@ class Inventario extends Model implements Auditable
         //estas categorias no generan preorden de compra
         $categorias = [
             'EQUIPO PROPIO',
-            'EQUIPOS',
+            'EQUIPO',
             'UNIFORME',
             'EPP',
             'INFORMATICA',
@@ -428,10 +428,10 @@ class Inventario extends Model implements Auditable
             try {
                 foreach ($pedido->detalles as $index => $detalle) {
                     Log::channel('testing')->info('Log', ['El detalle es', $detalle]);
-                    // aqui se verifica si el detalle no pertenece a la categoria del array $categorias para continuar a generar la preorden 
+                    // aqui se verifica si el detalle no pertenece a la categoria del array $categorias para continuar a generar la preorden
                     if(!in_array($detalle->producto->categoria->nombre, $categorias)){
                         Log::channel('testing')->info('Log', ['La categoria es', $detalle->producto->categoria->nombre]);
-                        
+
                         $itemsInventario = Inventario::where('detalle_id', $detalle['id'])->whereIn('sucursal_id', $ids_sucursales)->whereIn('condicion_id', [Condicion::NUEVO, Condicion::USADO])->get();
                         if ($itemsInventario->sum('cantidad') < $detalle->pivot->cantidad) {
                             $row['detalle_id'] = $detalle->id;
@@ -441,11 +441,11 @@ class Inventario extends Model implements Auditable
                         }
                     }
                 }
-                Log::channel('testing')->info('Log', ['Todos los items', $items]);    
+                Log::channel('testing')->info('Log', ['Todos los items', $items]);
                 if (count($items) > 0) //Si hay al menos un item cuya cantidad no esté en inventario se genera una preorden de compra
                     PreordenCompra::generarPreorden($pedido, $items);
 
-                    
+
             } catch (Exception $e) {
                 Log::channel('testing')->info('Log', ['Ha ocurrido un error en el metodo verificarExistencias', $e->getMessage(), $e->getLine()]);
             }
@@ -454,9 +454,9 @@ class Inventario extends Model implements Auditable
     /**
      * La función "verificarClienteSucursalPedido" comprueba si una sucursal determinada pertenece a un
      * cliente específico.
-     * 
+     *
      * @param sucursal_id El parámetro "sucursal_id" es el ID de la sucursal o bodega.
-     * 
+     *
      * @return un valor booleano. Si la condición es verdadera, devolverá verdadero. De lo contrario,
      * devolverá falso.
      */

@@ -18,7 +18,7 @@ class GastoResource extends JsonResource
     {
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
-            'id' => $this->id,
+            'id'=> $this->id,
             'fecha_viat' => $this->cambiar_fecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
             'lugar_info' => $this->lugar_info->canton,
@@ -26,10 +26,11 @@ class GastoResource extends JsonResource
             'subTarea' => $this->id_subtarea == null ? 0 : $this->id_subtarea,
             'subTarea_info' => $this->subtarea_info != null ? $this->subtarea_info->codigo_subtarea . ' - ' . $this->subtarea_info->titulo : 'Sin Subtarea',
             'tarea_info' =>  $this->tarea_info != null ? $this->tarea_info->codigo_tarea . ' - ' . $this->tarea_info->detalle : 'Sin Tarea',
+            'tarea_cliente' =>  $this->tarea_info != null ? $this->tarea_info->codigo_tarea_cliente : 'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->proyecto_info != null ? $this->proyecto_info->codigo_proyecto . ' - ' . $this->proyecto_info->nombre : 'Sin Proyecto',
             'ruc' => $this->ruc,
-            'factura' => $this->factura,
+            'factura' => strlen($this->factura)>1?$this->factura:null,
             'aut_especial_user' => $this->aut_especial_user->nombres . ' ' . $this->aut_especial_user->apellidos,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
@@ -38,7 +39,9 @@ class GastoResource extends JsonResource
             'beneficiarios' => $this->beneficiario_info != null ? $this->beneficiario_info->pluck('empleado_id') : null,
             'beneficiarios_info' => $this->beneficiario_empleado_info($this->beneficiario_info),
             'sub_detalle' => $this->sub_detalle_info != null ? $this->sub_detalle_info->pluck('id') : null,
-            'placa' => $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->placa : '',
+            'vehiculo' => $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->id_vehiculo : '',
+            'placa' =>  $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->placa : '',
+            'es_vehiculo_alquilado' =>  $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->es_vehiculo_alquilado : null,
             'kilometraje' => $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->kilometraje : '',
             'detalle' => $this->detalle,
             'cantidad' => $this->cantidad,
@@ -52,14 +55,14 @@ class GastoResource extends JsonResource
             'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
             'estado' => $this->estado,
             'estado_info' => $this->estado_info->descripcion,
-            'detalle_esta' => $this->detalle,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->sub_detalle_info != null ? $this->sub_detalle_info : true,
-
             'tiene_factura' => $this->sub_detalle_info != null ? $this->tiene_factura($this->sub_detalle_info) : true,
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
+            'centro_costo' => $this->tarea_info !== null ? $this->tarea_info?->centroCosto?->nombre:'',
+            'subcentro_costo' => $this->empleado_info->grupo==null ?'':$this->empleado_info->grupo?->subCentroCosto?->nombre,
         ];
         return $modelo;
     }
@@ -92,7 +95,7 @@ class GastoResource extends JsonResource
         $descripcion = '';
         $i = 0;
         foreach ($beneficiarios as $beneficiario) {
-            $descripcion .= $beneficiario->empleado_info->nombres . ' ' . $beneficiario->empleado_info->apellidos;
+            $descripcion .= $beneficiario?->empleado_info?->nombres . ' ' . $beneficiario?->empleado_info?->apellidos;
             $i++;
             if ($i !== count($beneficiarios)) {
                 $descripcion .= ', ';
@@ -102,7 +105,7 @@ class GastoResource extends JsonResource
     }
     private function cambiar_fecha($fecha)
     {
-        $fecha_formateada = Carbon::parse($fecha)->format('d-m-Y');
+        $fecha_formateada = Carbon::parse($fecha)->format('Y-m-d');
         return $fecha_formateada;
     }
 }

@@ -3,24 +3,19 @@
 namespace App\Http\Controllers\RecursosHumanos\NominaPrestamos;
 
 use App\Exports\CashRolPagoExport;
-use App\Exports\RolPagoExport;
 use App\Exports\RolPagoGeneralExport;
 use App\Exports\RolPagoMesExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecursosHumanos\NominaPrestamos\RolPagoMesRequest;
 use App\Http\Resources\RecursosHumanos\NominaPrestamos\RolPagoMesResource;
-use App\Mail\RolPagoEmail;
 use App\Models\Empleado;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPagoMes;
-use App\Models\User;
-use Barryvdh\DomPDF\PDF;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\FondosRotativos\ReportePdfExcelService;
@@ -48,11 +43,7 @@ class RolPagoMesController extends Controller
 
     public function index(Request $request)
     {
-        $results = [];
-        if ($request) {
-            $request['finalizado'] = $request['finalizado'] == 'true' ? '1' : '0';
-        }
-        $results = RolPagoMes::ignoreRequest(['campos'])->filter()->get();
+        $results = RolPagoMes::ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = RolPagoMesResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -80,13 +71,15 @@ class RolPagoMesController extends Controller
             $rolPago = RolPagoMes::create($datos);
             $modelo = new RolPagoMesResource($rolPago);
             $this->tabla_roles($rolPago);
+            Log::channel('testing')->info('Log', ['despues de tabla roles']);
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             DB::rollBack();
             throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
+                'Error al insertar registro' => [$e->getMessage() . $e->getLine()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de rol de pago' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
@@ -173,7 +166,7 @@ class RolPagoMesController extends Controller
             $vista = $es_quincena ? 'recursos-humanos.rol_pago_quincena' : 'recursos-humanos.rol_pago_mes';
             $export_excel = new RolPagoMesExport($reportes, $es_quincena);
             $orientacion = $es_quincena ? 'portail' : 'landscape';
-            $tipo_pagina = $es_quincena ? 'A4' : 'A3';
+            $tipo_pagina = $es_quincena ? 'A4' : 'A2';
             return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -365,7 +358,7 @@ class RolPagoMesController extends Controller
             'nombre' => $nombre,
             'creador_rol_pago' => $creador_rol_pago,
             'sumatoria_ingresos' => $this->calculate_column_sum($results, $maxColumIngresosValue, 'ingresos_cantidad_columna', 'ingresos'),
-            'sumatoria_egresos' =>  $this->sumatoria_llaves($colum_egreso_value),
+            'sumatoria_egresos' => $this->sumatoria_llaves($colum_egreso_value),
         ];
     }
     /**
@@ -412,32 +405,54 @@ class RolPagoMesController extends Controller
     {
         // Creamos un arreglo para almacenar los objetos agrupados por descuento_id
         $groupedData = [];
-        $size_array = count($column_name) - 1;
         foreach ($data as $item) {
             // Recorremos el arreglo original y agrupamos los objetos por descuento_id
             foreach ($item[$key1] as $item) {
                 $descuentoId = $abreviatura ? $item[$key2]->abreviatura : $item[$key2]->nombre;
-                $index = array_search($descuentoId, $column_name);
                 if (!isset($groupedData[$descuentoId])) {
                     $groupedData[$descuentoId] = [];
                 }
-                if ($index > $size_array) {
-                    for ($i = 0; $i < $index - 1; $i++) {
-                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                foreach ($column_name as $name) {
+                    if ($name != $descuentoId) {
+                        $groupedData[$name][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                     }
-                } else {
-                    for ($i = 0; $i < $index; $i++) {
-                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
+                    if ($name == $descuentoId) {
+                        $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
                     }
-                }
-                $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => $item['monto']];
-                for ($i = 0; $i < $size_array - $index; $i++) {
-                    $groupedData[$descuentoId][] = ['id' => $item['id_rol_pago'], 'valor' => 0];
                 }
             }
         }
-        return $groupedData;
+        return $this->eliminar_duplicados($groupedData, 'id');
     }
+    public function eliminar_duplicados(array $datos, $llave_buscar): array
+    {
+        $array_sin_duplicados = [];
+        foreach ($datos as $clave => $objeto) {
+            $array_sin_duplicados[$clave] = [];
+            $serial_ant = null;
+            if ($this->verificar_valor_cero_primera_posicion($objeto)) {
+                rsort($objeto);
+            }
+            foreach ($objeto as $objeto_actual) {
+                $serial_act = $clave . '' . $objeto_actual['id'];
+                if ($objeto_actual['id'] !== 0 && $serial_act !== $serial_ant) {
+                    $array_sin_duplicados[$clave][] = $objeto_actual;
+                }
+                $serial_ant = $clave . '' . $objeto_actual['id'];
+            }
+        }
+
+        return $array_sin_duplicados;
+    }
+    function verificar_valor_cero_primera_posicion($array)
+    {
+        if ($array[0]['valor'] == 0) {
+            return true;
+        }
+        return false;
+    }
+
+
 
     /**
      * La función extrae nombres de columnas de una matriz multidimensional basada en claves especificadas
@@ -540,19 +555,32 @@ class RolPagoMesController extends Controller
      */
     private function tabla_roles(RolPagoMes $rol)
     {
+        Log::channel('testing')->info('Log', ['rol', $rol]);
         try {
-            $empleados_activos = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->orderBy('apellidos', 'asc')->get();
-            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m'); // mes en formato yyyy-mm
+            $mes_fecha = new Carbon($mes); //mes en instancia de fecha
+            $ultimo_dia_mes = $mes_fecha->endOfMonth();
+            $empleados_activos = Empleado::where('id', '>', 2)
+                ->where('estado', true)
+                ->where('esta_en_rol_pago', true)
+                ->where('salario', '!=', 0)
+                ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
+                ->orderBy('apellidos', 'asc')->get();
             $this->nominaService->setMes($mes);
+            Log::channel('testing')->info('Log', ['luego de setMes', $mes]);
             $this->prestamoService->setMes($mes);
+            Log::channel('testing')->info('Log', ['luego de setMes en prestamoService', $mes]);
             $roles_pago = [];
             foreach ($empleados_activos as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
+                Log::channel('testing')->info('Log', ['luego de setEmpleado', $mes]);
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
-                $dias = $rol->es_quincena ? 15 : 30;
-                $dias = $this->nominaService->calcularDias($rol->es_quincena ? 15 : 30, $dias, $mes);
-                $salario = $this->nominaService->calcularSalario();
+                $diasTranscurridos = $rol->es_quincena ? 15 : 30;
+                $dias = $this->nominaService->calcularDias($diasTranscurridos);
+                Log::channel('testing')->info('Log', ['luego de calcular dias transcurridos', $mes]);
+                // $salario = $this->nominaService->calcularSalario();
+                $salario = $empleado->salario;
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
                 $decimo_tercero =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
@@ -564,7 +592,8 @@ class RolPagoMesController extends Controller
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $supa =  $rol->es_quincena ? 0 : $empleado->supa;
+                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
+                $supa =  $rol->es_quincena ? 0 : $valor_supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
                 $total = abs($ingresos) - $egreso;
                 $roles_pago[] = [
@@ -604,10 +633,22 @@ class RolPagoMesController extends Controller
      *
      * @param RolPagoMes rol El parámetro `` es una instancia de la clase `RolPagoMes`.
      */
-    private function actualizar_tabla_roles(RolPagoMes $rol)
+    public function agregar_nuevos_empleados(RolPagoMes $rol)
     {
         try {
-            $empleadosSinRolPago = Empleado::where('id', '>', 2)->where('estado', true)->where('esta_en_rol_pago', true)->where('salario', '!=', 0)->whereDoesntHave('rolesPago')->get();
+            // $rol_pago = RolPagoMes::find($rolPagoId);
+            $mes_rol = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
+            $final_mes = new Carbon($mes_rol);
+            $ultimo_dia_mes = $final_mes->endOfMonth();
+            $empleadosSinRolPago = Empleado::where('id', '>', 2)
+                ->where('estado', true)
+                ->where('esta_en_rol_pago', true)
+                ->where('fecha_vinculacion', '<', $ultimo_dia_mes)
+                ->where('salario', '!=', 0)
+                ->whereDoesntHave('rolesPago')
+                ->get();
+            // Log::channel('testing')->info('Log', ['mes rol', $rol, $mes_rol, $final_mes, $ultimo_dia_mes]);
+            // Log::channel('testing')->info('Log', ['empleados sin rol', $empleadosSinRolPago]);
             $mes = Carbon::createFromFormat('m-Y', $rol->mes)->format('Y-m');
             $this->nominaService->setMes($mes);
             $this->prestamoService->setMes($mes);
@@ -615,8 +656,8 @@ class RolPagoMesController extends Controller
             foreach ($empleadosSinRolPago as $empleado) {
                 $this->nominaService->setEmpleado($empleado->id);
                 $this->prestamoService->setEmpleado($empleado->id);
-                $dias = $rol->es_quincena ? 15 : 30;
-                $dias = $this->nominaService->calcularDias($rol->es_quincena ? 15 : 30, $dias);
+                $diasTranscurridos = $rol->es_quincena ? 15 : 30;
+                $dias = $this->nominaService->calcularDias($diasTranscurridos);
                 $salario = $this->nominaService->calcularSalario();
                 // Calcular el número total de días de permiso dentro del mes seleccionado usando funciones de agregación
                 $sueldo =  $this->nominaService->calcularSueldo($dias, $rol->es_quincena);
@@ -624,13 +665,14 @@ class RolPagoMesController extends Controller
                 $decimo_cuarto =  $rol->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
                 $fondos_reserva =  $rol->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
                 $ingresos = $rol->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva;
-                $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS();
+                $iess =  $rol->es_quincena ? 0 : $this->nominaService->calcularAporteIESS($dias);
                 $anticipo =  $rol->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
                 $prestamo_quirorafario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
                 $prestamo_hipotecario =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
                 $prestamo_empresarial =  $rol->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
                 $extension_conyugal =  $rol->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
-                $supa =  $rol->es_quincena ? 0 : $empleado->supa;
+                $valor_supa = $empleado->supa != null ? $empleado->supa : 0;
+                $supa =  $rol->es_quincena ? 0 : $valor_supa;
                 $egreso = $rol->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $supa);
                 $total = abs($ingresos) - $egreso;
                 $roles_pago[] = [
@@ -653,6 +695,7 @@ class RolPagoMesController extends Controller
                     'total_egreso' => $egreso,
                     'total' => $total,
                     'rol_pago_id' => $rol->id,
+                    'estado' => RolPago::EJECUTANDO,
                     'created_at' => $this->date,
                     'updated_at' => $this->date
                 ];
@@ -672,9 +715,74 @@ class RolPagoMesController extends Controller
         $estan_finalizadas = $totalSubrol_pagosNoFinalizadas == 0;
         return response()->json(compact('estan_finalizadas'));
     }
+    public function actualizar_tabla_roles(RolPagoMes $rol_mes)
+    {
+        try {
+            $mes = Carbon::createFromFormat('m-Y', $rol_mes->mes)->format('Y-m');
+            $this->nominaService->setMes($mes);
+            $this->prestamoService->setMes($mes);
+            $roles_pago =  RolPago::where('rol_pago_id', $rol_mes->id)->get();
+            foreach ($roles_pago as $key => $rol_pago) {
+                $this->nominaService->setEmpleado($rol_pago->empleado_id);
+                $this->prestamoService->setEmpleado($rol_pago->empleado_id);
+                $this->nominaService->setRolPago($rol_mes);
+                $dias = $rol_pago->dias;
+                $salario = $this->nominaService->calcularSalario();
+                $sueldo =  $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                if ($rol_mes->es_quincena) {
+                    $quincena = $this->nominaService->calcularSueldo($dias, $rol_mes->es_quincena);
+                    if ($quincena !== $rol_pago->sueldo) {
+                        $sueldo =  $rol_pago->sueldo;
+                    }
+                }
+                $decimo_tercero =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(3, $dias);
+                $decimo_cuarto =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularDecimo(4, $dias);
+                $fondos_reserva =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularFondosReserva($dias);
+                $ingresos = $rol_mes->es_quincena ? $sueldo : $sueldo + $decimo_tercero + $decimo_cuarto + $fondos_reserva + $this->nominaService->obtener_total_ingresos();
+                $iess =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularAporteIESS($dias);
+                $anticipo =  $rol_mes->es_quincena ? 0 : $this->nominaService->calcularAnticipo();
+                $prestamo_quirorafario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosQuirografarios();
+                $prestamo_hipotecario =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosHipotecarios();
+                $prestamo_empresarial =  $rol_mes->es_quincena ? 0 : $this->prestamoService->prestamosEmpresariales();
+                $extension_conyugal =  $rol_mes->es_quincena ? 0 : $this->nominaService->extensionesCoberturaSalud();
+                $valor_supa = $this->nominaService->getEmpleado()->supa != null ? $this->nominaService->getEmpleado()->supa : 0;
+                $supa =  $rol_mes->es_quincena ? 0 : $valor_supa;
+                $egreso = $rol_mes->es_quincena ? 0 : ($iess + $anticipo + $prestamo_quirorafario + $prestamo_hipotecario + $extension_conyugal + $prestamo_empresarial + $this->nominaService->obtener_total_descuentos_multas() + $supa);
+                $total = abs($ingresos) - $egreso;
+                $rol_pago_mes_empleado =  RolPago::where('rol_pago_id', $rol_mes->id)->where('empleado_id', $rol_pago->empleado_id)->first();
+                $rol_pago_mes_empleado->update(array(
+                    'empleado_id' => $rol_pago->empleado_id,
+                    'dias' => $dias,
+                    'mes' => $rol_mes->mes,
+                    'salario' => $salario,
+                    'sueldo' => $sueldo,
+                    'decimo_tercero' => $decimo_tercero,
+                    'decimo_cuarto' => $decimo_cuarto,
+                    'fondos_reserva' => $fondos_reserva,
+                    'total_ingreso' => $ingresos,
+                    'iess' => $iess,
+                    'anticipo' => $anticipo,
+                    'prestamo_quirorafario' => $prestamo_quirorafario,
+                    'prestamo_hipotecario' => $prestamo_hipotecario,
+                    'extension_conyugal' => $extension_conyugal,
+                    'prestamo_empresarial' => $prestamo_empresarial,
+                    'supa' => $supa,
+                    'total_egreso' => $egreso,
+                    'total' => $total,
+                    'rol_pago_id' => $rol_mes->id,
+                ));
+            }
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['error', $ex->getMessage(), $ex->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al refrescar rol pago por empleado' => [$ex->getMessage()],
+            ]);
+        }
+    }
     public function refrescar_rol_pago($rolPagoId)
     {
         $rol_pago = RolPagoMes::find($rolPagoId);
+        // $this->agregar_nuevos_empleados($rol_pago);
         $this->actualizar_tabla_roles($rol_pago);
         $mensaje = "Rol de pago Actualizado Exitosamente";
         return response()->json(compact('mensaje'));

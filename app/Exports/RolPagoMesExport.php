@@ -5,11 +5,12 @@ namespace App\Exports;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RolPagoMesExport implements FromView,ShouldAutoSize,WithStyles
+class RolPagoMesExport implements FromView,ShouldAutoSize,WithStyles,WithColumnWidths
 {
     protected $reporte;
     protected $es_quincena;
@@ -33,5 +34,12 @@ class RolPagoMesExport implements FromView,ShouldAutoSize,WithStyles
         foreach ($columns as $column) {
             $sheet->getStyle($column)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
+    }
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 5,
+            'B' => 39,
+        ];
     }
 }

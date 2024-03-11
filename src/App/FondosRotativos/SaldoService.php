@@ -2,6 +2,8 @@
 
 namespace Src\App\FondosRotativos;
 
+use App\Http\Requests\FondosRotativos\AjusteSaldoFondoRotativoRequest;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
@@ -18,6 +20,10 @@ class SaldoService
     private $fechaInicio;
     private $fechaFin;
     private $idEmpleado;
+    public const INGRESO = 'INGRESO';
+    public const EGRESO = 'EGRESO';
+    public const AJUSTE = 'AJUSTE';
+    public const ANULACION = 'ANULACION';
     public function __construct()
     {
     }
@@ -95,12 +101,12 @@ class SaldoService
 
         // Obtén el saldo anterior de manera más eficiente
         $saldo_anterior_reporte = $this->EstadoCuentaAnterior($fechaInicio, $id_empleado);
-        $saldo_anterior = $saldo_anterior_reporte !=0? $saldo_anterior_reporte :
-        SaldoGrupo::where('id_usuario', $id_empleado)
+        $saldo_anterior = $saldo_anterior_reporte != 0 ? $saldo_anterior_reporte :
+            SaldoGrupo::where('id_usuario', $id_empleado)
             ->where('fecha', '<=', Carbon::parse($fechaInicio)->subDay())
             ->latest('created_at')->first()->saldo_actual;
 
-        $saldo_anterior = $saldo_anterior ? $saldo_anterior : 0;
+        $saldo_anterior = $saldo_anterior !== null ? $saldo_anterior : 0;
 
         // Calcula las sumas directamente en las consultas
         $acreditaciones = Acreditaciones::where('id_usuario', $id_empleado)
@@ -129,6 +135,62 @@ class SaldoService
         return $saldo_actual;
     }
 
+    public static function guardarSaldo($empleado_id, $fecha, $tipo, $monto)
+    {
+        $saldo_anterior = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
+        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+        $saldo = new SaldoGrupo();
+        $saldo->fecha = $fecha;
+        $saldo->saldo_anterior = $total_saldo_actual;
+        $saldo->saldo_depositado = $monto;
+        $nuevo_saldo = ($tipo == self::INGRESO || self::ANULACION) ?
+            (array('monto' => ($total_saldo_actual + $monto), 'descripcion' => $tipo)) : (array('monto' => ($total_saldo_actual - $monto), 'descripcion' => $tipo));
+        $saldo->saldo_actual =  $nuevo_saldo['monto'];
+        $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
+        $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
+        $saldo->id_usuario = $empleado_id;
+        $saldo->tipo_saldo = $nuevo_saldo['descripcion'];
+        $saldo->save();
+    }
+    public static function ajustarSaldo($data)
+    {
+        $empleado_id = $data['destinatario_id'];
+        $fecha = Carbon::now();
+        $monto = $data['monto'];
+        $tipo = $data['tipo'];
+        $saldo_anterior = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
+        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+        $saldo = new SaldoGrupo();
+        $saldo->fecha = $fecha;
+        $saldo->saldo_anterior = $total_saldo_actual;
+        $saldo->saldo_depositado = $monto;
+        $nuevo_saldo = ($tipo == AjusteSaldoFondoRotativo::INGRESO) ?
+            (array('monto' => ($total_saldo_actual + $monto), 'descripcion' => $tipo)) : (array('monto' => ($total_saldo_actual - $monto), 'descripcion' => $tipo));
+        $saldo->saldo_actual =  $nuevo_saldo['monto'];
+        $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
+        $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
+        $saldo->id_usuario = $empleado_id;
+        $saldo->tipo_saldo = $nuevo_saldo['descripcion'];
+        $saldo->save();
+    }
+    private static function calcular_fechas($fecha)
+    {
+        $array_dias['Sunday'] = 0;
+        $array_dias['Monday'] = 1;
+        $array_dias['Tuesday'] = 2;
+        $array_dias['Wednesday'] = 3;
+        $array_dias['Thursday'] = 4;
+        $array_dias['Friday'] = 5;
+        $array_dias['Saturday'] = 6;
+
+        $dia_actual = $array_dias[date('l', strtotime($fecha))];
+
+        $rest = $dia_actual + 1;
+        $sum = 5 - $dia_actual;
+        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
+        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
+        return array($fechaIni, $fechaFin);
+    }
 
     public function EstadoCuentaAnterior($fechaInicio = null, $id_empleado)
     {

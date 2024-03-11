@@ -16,11 +16,13 @@ class GastoVehiculo extends  Model implements Auditable
     use Filterable;
     use UppercaseValuesTrait;
     protected $table = 'gasto_vehiculos';
+    protected $primaryKey = 'id_gasto';
     protected $fillable = [
         'id_gasto',
         'placa',
         'id_vehiculo',
         'kilometraje',
+        'es_vehiculo_alquilado'
     ];
     private static $whiteListFilter = [
         'gasto',
@@ -28,10 +30,16 @@ class GastoVehiculo extends  Model implements Auditable
         'placa',
         'vehiculo',
         'kilometraje',
+        'es_vehiculo_alquilado'
     ];
     public function gasto_info()
     {
         return $this->hasOne(Gasto::class, 'id','id_gasto');
     }
+
+    protected $casts = [
+        'es_vehiculo_alquilado' => 'boolean',
+
+    ];
 
 }

@@ -31,6 +31,11 @@ class PreingresoMaterialResource extends JsonResource
             'coordinador' => $this->coordinador->nombres . ' ' . $this->coordinador->apellidos,
             'autorizacion' => $this->autorizacion->nombre,
             'observacion_aut' => $this->observacion_aut,
+            'solicitante'=>$this->solicitante?->nombres . ' ' . $this->solicitante?->apellidos,
+            'proyecto'=>$this->proyecto?->codigo_proyecto,
+            'etapa'=>$this->etapa?->nombre,
+            'created_at'=>$this->created_at,
+            'updated_at'=>$this->updated_at,
         ];
 
         if ($controller_method == 'show') {
@@ -39,7 +44,13 @@ class PreingresoMaterialResource extends JsonResource
             $modelo['autorizador'] = $this->autorizador_id;
             $modelo['coordinador'] = $this->coordinador_id;
             $modelo['autorizacion'] = $this->autorizacion_id;
+            $modelo['solicitante'] = $this->solicitante_id?$this->solicitante_id:$this->responsable_id;
+            $modelo['responsable'] = $this->responsable_id;
+            $modelo['proyecto'] = $this->proyecto_id;
+            $modelo['etapa'] = $this->etapa_id;
             $modelo['listadoProductos'] = PreingresoMaterial::listadoProductos($this->id);
+            // $modelo['created_at'] = $this->created_at;
+            // $modelo['updated_at'] = $this->updated_at;
         }
         return $modelo;
     }
