@@ -18,7 +18,7 @@ class SeguroVehicularResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'num_poliza' => $this->num_poliza,
-            'fecha_caducidad' => date('d-m-Y', strtotime($this->fecha_caducidad)),
+            'fecha_caducidad' => $this->fecha_caducidad,
             'estado' => $this->estado,
         ];
     }

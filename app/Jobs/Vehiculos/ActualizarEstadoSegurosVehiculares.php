@@ -43,7 +43,7 @@ class ActualizarEstadoSegurosVehiculares implements ShouldQueue
             $seguro->save();
             $vehiculo = Vehiculo::where('seguro_id', $seguro->id)->get(); //Si hay un vehiculo con un seguro caducado asignado se notifica para que cambie de seguro el vehículo 
             if ($vehiculo) {
-                event(new NotificarSeguroVencidoEvent($seguro, 'vencido',));
+                event(new NotificarSeguroVencidoEvent($seguro, 'vencido'));
                 $vehiculo->seguro_id = null;
                 $vehiculo->save();
             }

@@ -23,6 +23,7 @@ class NotificarSeguroVencidoEvent implements ShouldBroadcast
     public Notificacion $notificacion;
     public $url = '/seguros';
     public $tipo;
+    public User $admin_vehiculos;
     /**
      * Create a new event instance.
      *
@@ -32,10 +33,10 @@ class NotificarSeguroVencidoEvent implements ShouldBroadcast
     {
         $this->seguro = $seguro;
         $this->tipo = $tipo;
-        $admin_vehiculos = User::whereHa('roles', function ($query) {
+        $this->admin_vehiculos = User::whereHa('roles', function ($query) {
             $query->where('name', User::ROL_ADMINISTRADOR_VEHICULOS);
         })->first();
-        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::SEGURO_VEHICULAR, null, $admin_vehiculos->empleado->id, $seguro, true);
+        $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->url, TiposNotificaciones::SEGURO_VEHICULAR, null, $this->admin_vehiculos->empleado->id, $seguro, true);
     }
 
     /**
@@ -45,7 +46,7 @@ class NotificarSeguroVencidoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('seguros-vehiculares');
+        return new Channel('seguros-vehiculares-'.$this->admin_vehiculos->empleado->id);
     }
     public function broadcastAs()
     {
@@ -56,7 +57,7 @@ class NotificarSeguroVencidoEvent implements ShouldBroadcast
     {
         switch ($this->tipo) {
             case 'vencido':
-                return 'El seguro vehicular ' . $this->seguro->nombre . ' con póliza N° ' . $this->seguro->num_poliza . ' está caducacado. Fecha de caducidad: ' . $this->seguro->fecha_caducidad;
+                return 'El seguro vehicular ' . $this->seguro->nombre . ' con póliza N° ' . $this->seguro->num_poliza . ' está caducacado. Fecha de caducidad: ' . $this->seguro->fecha_caducidad.'. Por favor cambia el seguro en el vehículo asociado';
                 break;
             case 'por_vencer':
                 return 'El seguro vehicular ' . $this->seguro->nombre . ' con póliza N° ' . $this->seguro->num_poliza . ' está proximo a caducar. Fecha de caducidad: ' . $this->seguro->fecha_caducidad;
