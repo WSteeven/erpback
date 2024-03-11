@@ -14,14 +14,25 @@ class AjusteSaldoFondoRotativoResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'solicitante_id',
-            'destinatario_id',
-            'autorizador_id',
-            'motivo',
-            'descripcion',
-            'monto',
-            'tipo',
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo =  [
+            'id' => $this->id,
+            'solicitante' => $this->solicitante ? $this->solicitante->nombres . ' ' . $this->solicitante->apellidos : null,
+            'destinatario' => $this->destinatario ? $this->destinatario->nombres . ' ' . $this->destinatario->apellidos : null,
+            'autorizador' => $this->autorizador ? $this->autorizador->nombres . ' ' . $this->autorizador->apellidos : null,
+            'motivo' => $this->motivo,
+            'descripcion' => $this->descripcion,
+            'monto' => $this->monto,
+            'tipo' => $this->tipo,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['solicitante'] = $this->solicitante_id;
+            $modelo['destinatario'] = $this->destinatario_id;
+            $modelo['autorizador'] = $this->autorizador_id;
+        }
+
+        return $modelo;
     }
 }
