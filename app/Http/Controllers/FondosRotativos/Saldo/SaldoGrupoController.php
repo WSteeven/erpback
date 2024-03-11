@@ -25,6 +25,7 @@ use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Canton;
 use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
@@ -173,7 +174,7 @@ class SaldoGrupoController extends Controller
             $usuario = Auth::user();
             $usuario_ac = User::where('id', $usuario->id)->first();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            if ($usuario_ac->hasRole('CONTABILIDAD')) {
+            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
                 $saldos_actual_user = $request->usuario == null ?
                     SaldoGrupo::with('usuario')->whereIn('id', function ($sub) {
                         $sub->selectRaw('max(id)')->from('saldo_grupo')->groupBy('id_usuario');
@@ -603,12 +604,12 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $encuadres_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
-                ->where('tipo_saldo', 'Encuadre')
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
+            $ajuste_saldo = AjusteSaldoFondoRotativo::where('destinatario_id', $request->usuario)
+                ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->get();
+
             //Unir todos los reportes
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $encuadres_saldo->toArray());
+            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $ajuste_saldo->toArray());
             $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
