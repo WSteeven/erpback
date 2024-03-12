@@ -757,7 +757,7 @@ class SaldoGrupoController extends Controller
             $sub_total = 0;
             $nuevo_saldo =   $ultimo_saldo != null ? $ultimo_saldo->saldo_actual : 0;
             $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
-            $total = $saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos;
+            $total = ($saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos)+$ajuste_saldo_ingreso- $ajuste_saldo_egreso;
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
@@ -778,7 +778,7 @@ class SaldoGrupoController extends Controller
                 'transferencias_recibidas' => $transferencias_recibidas,
                 'ajuste_saldo_ingreso' => $ajuste_saldo_ingreso,
                 'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
-                'ajuste_saldo_egreso' => $ajuste_saldo_ingreso,
+                'ajuste_saldo_egreso' =>  $ajuste_saldo_egreso,
                 'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,

@@ -397,7 +397,7 @@
             </tr>
             @if (sizeof($gastos_reporte) == 0)
                 <tr>
-                    <td colspan="12">
+                    <td colspan="13">
                         <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                     </td>
                 </tr>
@@ -468,7 +468,7 @@
             @endif
             <tr>
                 <td>&nbsp;</td>
-                <td colspan="12" style="font-size:10px">
+                <td colspan="13" style="font-size:10px">
                     <div align="right"><strong>TOTAL DE GASTOS:&nbsp;</strong></div>
                 </td>
                 <td style="font-size:10px">
@@ -754,7 +754,7 @@
             </tr>
             @if (sizeof($ajuste_saldo_egreso_reporte) == 0)
                 <tr>
-                    <td colspan="7">
+                    <td colspan="4">
                         <div align="center">NO HAY AJUSTE DE EGRESO</div>
                     </td>
                 </tr>
@@ -795,11 +795,11 @@
                 @endforeach
                 <tr>
                     <td>&nbsp;</td>
-                    <td colspan="5" style="font-size:10px">
+                    <td colspan="4" style="font-size:10px">
                         <div align="right"><strong>TOTAL DE AJUSTE EGRESO:&nbsp;</strong></div>
                     </td>
                     <td style="font-size:10px">
-                        <div align="center">{{ number_format($ajuste_saldo_ingreso, 2, ',', ' ') }}</div>
+                        <div align="center">{{ number_format($ajuste_saldo_egreso, 2, ',', ' ') }}</div>
                     </td>
                 </tr>
             @endif
