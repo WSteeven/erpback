@@ -587,6 +587,7 @@ class SaldoGrupoController extends Controller
                         ->orWhere('estado', '=', 4);
                 })
                 ->get();
+                $gastos_reporte = SaldoGrupo::verificarGastosRepetidosEnSaldoGrupo($gastos_reporte);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
                 ->with('usuario_recibe', 'usuario_envia')
@@ -604,7 +605,7 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $ajuste_saldo = AjusteSaldoFondoRotativo::where('destinatario_id', $request->usuario)
+                $ajuste_saldo = AjusteSaldoFondoRotativo::where('destinatario_id', $request->usuario)
                 ->whereBetween('created_at', [$fecha_inicio, $fecha_fin])
                 ->get();
 
@@ -732,6 +733,23 @@ class SaldoGrupoController extends Controller
                 ->where('estado', 1)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
+                $ajuste_saldo_ingreso = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)->sum('monto');
+            $ajuste_saldo_egreso = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
+                ->sum('monto');
+                $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::INGRESO)
+                ->get();
+            $ajuste_saldo_ingreso_reporte = AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_ingreso_reporte);
+            $ajuste_saldo_egreso_reporte = AjusteSaldoFondoRotativo::whereBetween(DB::raw('DATE(created_at)'), [$fecha_inicio, $fecha_fin])
+                ->where('destinatario_id', $request->usuario)
+                ->where('tipo', AjusteSaldoFondoRotativo::EGRESO)
+                ->get();
+            $ajuste_saldo_egreso_reporte =AjusteSaldoFondoRotativo::empaquetar($ajuste_saldo_egreso_reporte);
             $ultimo_saldo = SaldoGrupo::where('id_usuario', $request->usuario)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
@@ -758,6 +776,10 @@ class SaldoGrupoController extends Controller
                 'transferencia_recibida' => $transferencia_recibida,
                 'transferencias_enviadas' => $transferencias_enviadas,
                 'transferencias_recibidas' => $transferencias_recibidas,
+                'ajuste_saldo_ingreso' => $ajuste_saldo_ingreso,
+                'ajuste_saldo_ingreso_reporte' => $ajuste_saldo_ingreso_reporte,
+                'ajuste_saldo_egreso' => $ajuste_saldo_ingreso,
+                'ajuste_saldo_egreso_reporte' => $ajuste_saldo_egreso_reporte,
                 'nuevo_saldo' => $nuevo_saldo,
                 'sub_total' => $sub_total,
                 'total_suma' => $total
