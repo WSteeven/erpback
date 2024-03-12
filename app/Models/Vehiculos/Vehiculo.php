@@ -9,6 +9,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -33,13 +34,13 @@ class Vehiculo extends Model implements Auditable
     ];
 
     //Tracciones
-    const SENCILLA_DELANTERA='4X2 FWD';
-    const SENCILLA_TRASERA='4X2 RWD';
-    const AWD='AWD';
-    const FOUR_WD='4WD';
-    const TODOTERRENO='4X4';
-    const DOSXUNO='2X1';
-    const DOSXDOS='2X2';
+    const SENCILLA_DELANTERA = '4X2 FWD';
+    const SENCILLA_TRASERA = '4X2 RWD';
+    const AWD = 'AWD';
+    const FOUR_WD = '4WD';
+    const TODOTERRENO = '4X4';
+    const DOSXUNO = '2X1';
+    const DOSXDOS = '2X2';
 
     //Transmisiones
     // const MANUAL='MANUAL';
@@ -69,6 +70,13 @@ class Vehiculo extends Model implements Auditable
     {
         return $this->belongsTo(Combustible::class);
     }
+    /**
+     * Relación uno a muchos
+     */
+    public function itemsMantenimiento()
+    {
+        return $this->hasMany(PlanMantenimiento::class);
+    }
 
     /**
      * Relación uno a muchos (inversa).
@@ -81,9 +89,10 @@ class Vehiculo extends Model implements Auditable
      * Realación muchos a muchos.
      * Un vehículo tiene varias bitacoras
      */
-    public function bitacoras(){
+    public function bitacoras()
+    {
         return $this->belongsToMany(Empleado::class, 'bitacora_vehiculos', 'vehiculo_id', 'chofer_id')
-        ->withPivot('fecha','hora_salida','hora_llegada', 'km_inicial', 'km_final','tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
+            ->withPivot('fecha', 'hora_salida', 'hora_llegada', 'km_inicial', 'km_final', 'tanque_inicio', 'tanque_final', 'firmada')->withTimestamps();
     }
 
     /**
@@ -99,7 +108,8 @@ class Vehiculo extends Model implements Auditable
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */
-    public function archivos(){
+    public function archivos()
+    {
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
@@ -109,5 +119,38 @@ class Vehiculo extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
+    public static function listadoItemsPlanMantenimiento($id, $metodo)
+    {
+        $items = Vehiculo::find($id)->itemsMantenimiento()->get();
+        $listadoServicios = $items;
+        if ($metodo == 'show') {
+            $aplicar_desde = $items->max('aplicar_desde');
+            $estado = $items->where('estado', 1)->count() > $items->where('estado', 0)->count();
+            foreach ($items as $index => $item) {
+                
 
+                $servicio = Servicio::find($item->servicio_id);
+                $listadoServicios[$index] = [
+                    'id' => $servicio->id,
+                    'nombre' => $servicio->nombre,
+                    'tipo' => $servicio->tipo,
+                    'intervalo' => $item->aplicar_cada,
+                    'estado' => $item->activo,
+                ];
+            }
+            return [
+                $aplicar_desde,
+                $estado,
+                $listadoServicios,
+            ];
+        } else {
+            $aplicar_desde = $items->max('aplicar_desde');
+            $estado = $items->where('estado', 1)->count() > $items->where('estado', 0)->count();
+            return [
+                $aplicar_desde,
+                $estado,
+                $listadoServicios,
+            ];
+        }
+    }
 }

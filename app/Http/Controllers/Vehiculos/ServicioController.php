@@ -8,6 +8,7 @@ use App\Http\Resources\Vehiculos\ServicioResource;
 use App\Models\Vehiculos\Servicio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -25,6 +26,8 @@ class ServicioController extends Controller
 
     public function index()
     {
+        Log::channel('testing')->info('Log', ['index', request()->all()]);
+        // if(reque)
         $results = Servicio::filter()->orderBy('nombre', 'asc')->get();
         $results = ServicioResource::collection($results);
         return response()->json(compact('results'));

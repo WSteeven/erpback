@@ -5,6 +5,7 @@ use App\Http\Controllers\Vehiculos\CombustibleController;
 use App\Http\Controllers\Vehiculos\ConductorController;
 use App\Http\Controllers\Vehiculos\MatriculaController;
 use App\Http\Controllers\Vehiculos\MultaConductorController;
+use App\Http\Controllers\Vehiculos\PlanMantenimientoController;
 use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
@@ -22,11 +23,13 @@ Route::apiResources(
         'bitacoras-vehiculos' => BitacoraVehicularController::class,
         'servicios' => ServicioController::class,
         'seguros' => SeguroVehicularController::class,
+        'planes-mantenimientos' => PlanMantenimientoController::class,
     ],
     [
         'parameters' => [
             'bitacoras-vehiculos' => 'bitacora',
             'conductores' => 'conductor',
+            'planes-mantenimientos' => 'vehiculo',
         ],
         'middleware' => ['auth:sanctum']
     ]

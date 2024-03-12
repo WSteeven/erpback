@@ -13,9 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('veh_plan_mantenimiento', function (Blueprint $table) {
+        Schema::create('veh_planes_mantenimientos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('vehiculo_id');
+            $table->unsignedBigInteger('servicio_id');
+            $table->integer('aplicar_desde');
+            $table->integer('aplicar_cada');
+            $table->boolean('activo')->default(true);
             $table->timestamps();
+
+            $table->unique(['vehiculo_id', 'servicio_id']);
+            $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreign('servicio_id')->references('id')->on('veh_servicios')->cascadeOnUpdate()->cascadeOnDelete();
         });
     }
 
@@ -26,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('veh_plan_mantenimiento');
+        Schema::dropIfExists('veh_planes_mantenimientos');
     }
 };
