@@ -135,6 +135,7 @@ class Vehiculo extends Model implements Auditable
                     'nombre' => $servicio->nombre,
                     'tipo' => $servicio->tipo,
                     'intervalo' => $item->aplicar_cada,
+                    'notificar_antes' => $item->notificar_antes,
                     'estado' => $item->activo,
                 ];
             }

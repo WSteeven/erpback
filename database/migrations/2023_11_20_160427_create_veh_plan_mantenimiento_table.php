@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('servicio_id');
             $table->integer('aplicar_desde');
             $table->integer('aplicar_cada');
+            $table->integer('notificar_antes')->nullable();
             $table->boolean('activo')->default(true);
             $table->timestamps();
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre');
             $table->string('tipo');
+            $table->integer('notificar_antes')->nullable();
             $table->integer('intervalo')->nullable();
             $table->boolean('estado')->default(true);
             $table->timestamps();

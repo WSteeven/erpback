@@ -18,6 +18,7 @@ class ServicioResource extends JsonResource
             'id' => $this->id,
             'nombre' => $this->nombre,
             'tipo' => $this->tipo,
+            'notificar_antes' => $this->notificar_antes,
             'intervalo' => $this->intervalo,
             'estado' => $this->estado,
         ];

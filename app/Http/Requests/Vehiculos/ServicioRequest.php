@@ -25,11 +25,19 @@ class ServicioRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'nombre' => 'required|string|unique:veh_servicios,nombre',
             'tipo' => ['string', 'required', Rule::in(Servicio::PREVENTIVO, Servicio::CORRECTIVO)],
+            'notificar_antes' => 'nullable|numeric',
             'intervalo' => 'nullable|numeric',
             'estado' => 'boolean',
         ];
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $servicio = $this->route()->parameter('servicio');
+
+            $rules['nombre'] = ['required', 'string', Rule::unique('veh_servicios')->ignore($servicio)];
+        }
+        return $rules;
     }
 }

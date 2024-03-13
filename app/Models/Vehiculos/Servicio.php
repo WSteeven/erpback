@@ -20,6 +20,7 @@ class Servicio extends Model implements Auditable
     protected $fillable = [
         'nombre',
         'tipo',
+        'notificar_antes',
         'intervalo',
         'estado',
     ];
