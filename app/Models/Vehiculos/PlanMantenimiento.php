@@ -25,7 +25,7 @@ class PlanMantenimiento extends Model implements Auditable
         'aplicar_cada',
         'activo',
     ];
-    
+
     protected $auditInclude = ['*'];
 
     /**

@@ -78,7 +78,7 @@ class PlanMantenimientoController extends Controller
                 $plan = PlanMantenimiento::where('vehiculo_id', $request->vehiculo)->where('servicio_id', $servicio['id'])->first();
                 Log::channel('testing')->info('Log', ['plan', $plan]);
                 // Auditar el evento
-                Auditor::execute($plan);
+
             }
             PlanMantenimiento::eliminarObsoletos($request->vehiculo, $ids_servicios);
 
