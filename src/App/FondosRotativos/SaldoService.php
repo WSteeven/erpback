@@ -150,7 +150,7 @@ class SaldoService
                 (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
             $entidad->saldoFondoRotativo()->create([
                 'fecha' => $data['fecha'],
-                'saldo_anterior' => is_null($saldo_anterior) ? 0 : $saldo_anterior,
+                'saldo_anterior' =>$total_saldo_actual,
                 'saldo_depositado' => $data['monto'],
                 'saldo_actual' => $nuevo_saldo['monto'],
                 'tipo_saldo' => $nuevo_saldo['tipo_saldo'],
