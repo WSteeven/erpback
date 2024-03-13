@@ -10,6 +10,7 @@ use App\Http\Resources\DevolucionResource;
 use App\Models\Autorizacion;
 use App\Models\Condicion;
 use App\Models\ConfiguracionGeneral;
+use App\Models\DetalleDevolucionProducto;
 use App\Models\Devolucion;
 use App\Models\Empleado;
 use App\Models\EstadoTransaccion;
@@ -56,7 +57,7 @@ class DevolucionController extends Controller
         $campos = explode(',', $request['page']);
         $results = [];
 
-        $results = $this->servicio->filtrarDevoluciones($request);
+        $results = $this->servicio->listar($request);
 
         $results = DevolucionResource::collection($results);
 
@@ -207,6 +208,25 @@ class DevolucionController extends Controller
         $modelo = new DevolucionResource($devolucion->refresh());
 
         return response()->json(compact('modelo'));
+    }
+
+    public function corregirDevolucion(Request $request, Devolucion $devolucion){
+        if(count($request->listadoProductos)>0){
+            foreach($request->listadoProductos as $listado){
+                // $devolucion->detalles()->updateExistingPivot($listado['id'], ['cantidad'=>$listado['cantidad']]);
+                $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
+                $detalle->cantidad = $listado['cantidad'];
+                $detalle->save();
+            }
+        }
+    }
+
+    public function eliminarDetalleDevolucion(Request $request)
+    {
+        $detalle = DetalleDevolucionProducto::where('devolucion_id', $request->devolucion_id)->where('detalle_id', $request->detalle_id)->first();
+        $detalle->delete();
+        $mensaje = 'El item ha sido eliminado con éxito';
+        return response()->json(compact('mensaje'));
     }
 
     public function imprimir(Devolucion $devolucion)

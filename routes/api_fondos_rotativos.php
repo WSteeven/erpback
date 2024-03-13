@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\FondosRotativos\AjusteSaldoFondoRotativoController;
 use App\Http\Controllers\FondosRotativos\Gasto\DetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoController;
 use App\Http\Controllers\FondosRotativos\Gasto\GastoCoordinadorController;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Generar GET - POST - PUT - DELETE
 Route::apiResources(
     [
+        'ajustes-saldos' => AjusteSaldoFondoRotativoController::class,
         'detalles-viaticos' => DetalleViaticoController::class,
         'sub-detalles-viaticos' => SubDetalleViaticoController::class,
         'gastos' => GastoController::class,
@@ -34,7 +36,9 @@ Route::apiResources(
         'valor-acreditar' => ValorAcreditarController::class,
     ],
     [
-        'parameters' => [],
+        'parameters' => [
+            'ajustes-saldos' => 'ajuste'
+        ],
     ]
 );
 
