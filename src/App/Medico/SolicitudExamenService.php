@@ -69,29 +69,25 @@ class SolicitudExamenService
             $solicitud = SolicitudExamen::find($id);
             $solicitud->update($data);
 
-            $cantidadCambiosFechaHora = 0; // $this->cambioFechaHora($data['examenes_solicitados']);
+            $existenCambiosFechaHora = 0;
 
-            // if ($cambioFechaHora) {
             foreach ($data['examenes_solicitados'] as $examenSolicitado) {
                 $examen['examen_id'] = $examenSolicitado['examen'];
                 $examen['laboratorio_clinico_id'] = $examenSolicitado['laboratorio_clinico'];
                 $examen['fecha_hora_asistencia'] = $examenSolicitado['fecha_hora_asistencia'];
                 $examen['solicitud_examen_id'] = $solicitud->id;
 
-                // unset($xamen['id']);
-                Log::channel('testing')->info('Log', ['examenSolicitado', $examenSolicitado]);
                 $modelo = EstadoSolicitudExamen::find($examenSolicitado['id']); // Examen solicitado
                 $modelo->fill($examen);
 
-                Log::channel('testing')->info('Log', ['cambio', $modelo->isDirty()]);
-                $cantidadCambiosFechaHora += $modelo->isDirty() ? 1 : 0;
+                $existenCambiosFechaHora += $modelo->isDirty() ? 1 : 0;
 
                 if ($modelo->isDirty()) $modelo->save();
-
             }
-            // }
 
-            Log::channel('testing')->info('Log', ['cantidadCambiosFechaHora', $cantidadCambiosFechaHora]);
+            if ($existenCambiosFechaHora) $this->notificarAlSolicitante();
+
+            Log::channel('testing')->info('Log', ['cantidadCambiosFechaHora', $existenCambiosFechaHora]);
 
             DB::commit();
 
@@ -102,10 +98,11 @@ class SolicitudExamenService
         }
     }
 
-    /* private function cambioFechaHora(array $examenes_solicitados_antes, $examen_solicitado)
+    private function notificarAlSolicitante()
     {
-        array_where($examenes_solicitados_antes, function () {
+        // enviar email
 
-        });
-    } */
+        // notificar sistema
+
+    }
 }

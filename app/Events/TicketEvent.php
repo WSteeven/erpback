@@ -39,14 +39,6 @@ class TicketEvent implements ShouldBroadcast
             'responsable' => $ticket->responsable,
         ];
 
-        /*$ticketAux = new Ticket();
-        $ticketAux->id = $ticket->id;
-        $ticketAux->estado = $ticket->estado;
-        $ticketAux->codigo = $ticket->codigo;
-        $ticketAux->responsable = $ticket->responsable;
-
-        $this->ticket = $ticketAux;*/
-
         $this->destinatario = $destinatario;
         $this->emisor = $emisor;
 
