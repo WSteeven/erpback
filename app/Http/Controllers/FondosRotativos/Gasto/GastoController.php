@@ -114,77 +114,16 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            //Adaptacion de foreign keys
-            $datos['aut_especial'] =  $request->safe()->only(['aut_especial'])['aut_especial'];
-            $datos['id_usuario'] = Auth::user()->empleado->id;
+            $datos['estado'] = Gasto::PENDIENTE;
             //Asignacion de estatus de gasto
             $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-            if ($datos_detalle->descripcion == '') {
-                if ($datos_detalle->autorizacion == 'SI') {
-                    $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-                } else {
-                    $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                }
-            } else {
-                if ($datos_detalle->autorizacion == 'SI') {
-                    $datos_estatus_via = EstadoViatico::where('descripcion', 'POR APROBAR')->first();
-                } else {
-                    $datos_estatus_via = EstadoViatico::where('descripcion', 'APROBADO')->first();
-                }
-            }
-            $datos['estado'] = $datos_estatus_via->id;
-            //Convierte base 64 a url
-            if ($datos['comprobante']) {
+              //Convierte base 64 a url
+              if ($datos['comprobante']) {
                 $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             if ($datos['comprobante2']) {
                 $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
-            $bloqueo_comprobante_aprob = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante',  $datos['num_comprobante'])
-                ->where('estado', 1)
-                ->lockForUpdate()
-                ->get();
-            if (count($bloqueo_comprobante_aprob) > 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['comprobante  ya existe'],
-                ]);
-            }
-            $bloqueo_gastos_aprob = DB::table('gastos')
-                ->where('ruc', '=', $datos['ruc'])
-                ->where('ruc', '!=', '9999999999999')
-                ->where('factura', '=', $datos['factura'])
-                ->where('estado', '=', 1)
-                ->lockForUpdate()
-                ->get();
-            if (count($bloqueo_gastos_aprob) > 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['factura ya existe'],
-                ]);
-            }
-            $bloqueo_comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
-                ->where('num_comprobante',  $datos['num_comprobante'])
-                ->where('estado', 3)
-                ->lockForUpdate()
-                ->get();
-            if (count($bloqueo_comprobante_pendiente) > 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['comprobante  ya existe'],
-                ]);
-            }
-            $bloqueo_gastos_pend = DB::table('gastos')
-                ->where('ruc', '=', $datos['ruc'])
-                ->where('ruc', '!=', '9999999999999')
-                ->where('factura', '=', $datos['factura'])
-                ->where('estado', '=', 3)
-                ->lockForUpdate()
-                ->get();
-            if (count($bloqueo_gastos_pend) > 0) {
-                throw ValidationException::withMessages([
-                    '404' => ['factura ya existe'],
-                ]);
-            }
-
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
@@ -195,48 +134,9 @@ class GastoController extends Controller
             }
             $datos['id_gasto'] = $gasto->id;
             //Busca si existe detalle de gasto 6 o 16
-
-            if ($request->detalle == 24) {
-                $this->guardar_gasto_vehiculo($request, $gasto);
-            }
-            if ($request->detalle == 6 || $request->detalle == 16) {
-                //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
-                $sub_detalle = $request->sub_detalle;
-                $sub_detalle = array_map('intval', $sub_detalle);
-                $sub_detalle = array_flip($sub_detalle);
-                if (array_key_exists(65, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(66, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(96, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(97, $sub_detalle)) {
-                    $this->guardar_gasto_vehiculo($request, $gasto);
-                }
-
-            }
+            $this->validarGastoVehiculo($request, $gasto);
             event(new FondoRotativoEvent($gasto));
-            $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
-            $datos_saldo_usuario = SaldoGrupo::where('id', $max_datos_usuario)->first();
-            $saldo_actual_usuario = $datos_saldo_usuario != null ? $datos_saldo_usuario->saldo_actual : 0.0;
             $modelo = new GastoResource($modelo);
-            DB::table('gastos')
-                ->where('ruc', '=', $datos['ruc'])
-                ->where('factura', '=', $datos['factura'])
-                ->where('num_comprobante', '=', $datos['num_comprobante'])
-                ->where('estado', '=', 1)
-                ->sharedLock()
-                ->get();
-            DB::table('gastos')
-                ->where('ruc', '=', $datos['ruc'])
-                ->where('factura', '=', $datos['factura'])
-                ->where('num_comprobante', '=', $datos['num_comprobante'])
-                ->where('estado', '=', 3)
-                ->sharedLock()
-                ->get();
             DB::commit();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
@@ -440,11 +340,17 @@ class GastoController extends Controller
      */
     public function aprobar_gasto(GastoRequest $request)
     {
+        Log::channel('testing')->info('Log', ['gareq', $request->all()]);
         try {
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
+            Log::channel('testing')->info('Log', ['gasto']);
+
             $datos = $request->validated();
-            $datos['estado'] = 1;
+            Log::channel('testing')->info('Log', ['validar gastos']);
+
+            $datos['estado'] = Gasto::APROBADO;
+            Log::channel('testing')->info('Log', ['cambia estado a apruebar gastos']);
             if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
                 $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
             } else {
@@ -456,28 +362,9 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
-            if ($request->detalle == 24) {
-                $this->modificar_gasto_vehiculo($request, $gasto);
-            }
-            if ($request->detalle == 6 || $request->detalle == 16) {
-                //busca en arreglo sub_detalle si existe el id 65, 66,96 y 97
-                $sub_detalle = $request->sub_detalle;
-                $sub_detalle = array_map('intval', $sub_detalle);
-                $sub_detalle = array_flip($sub_detalle);
-                if (array_key_exists(65, $sub_detalle)) {
-                    $this->modificar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(66, $sub_detalle)) {
-                    $this->modificar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(96, $sub_detalle)) {
-                    $this->modificar_gasto_vehiculo($request, $gasto);
-                }
-                if (array_key_exists(97, $sub_detalle)) {
-                    $this->modificar_gasto_vehiculo($request, $gasto);
-                }
-
-            }
+            Log::channel('testing')->info('Log', [' aprueba gastos']);
+            $this->validarGastoVehiculo($request, $gasto);
+            Log::channel('testing')->info('Log', ['validar gastos vehiculo']);
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
             $gasto_service->marcar_notificacion_leida();
@@ -485,10 +372,33 @@ class GastoController extends Controller
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
+            Log::channel('testing')->info('Log', ['error' => $e->getMessage(),'linea: '=>$e->getLine()]);
+
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
-            ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al aprobar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            ]);}
+    }
+    public function validarGastoVehiculo(GastoRequest $request, Gasto $gasto)
+    {
+        if ($request->detalle == 24) {
+            $this->guardar_gasto_vehiculo($request, $gasto);
+        }
+        if ($request->detalle == 6 || $request->detalle == 16) {
+            $sub_detalle = $request->sub_detalle;
+            $sub_detalle = array_map('intval', $sub_detalle);
+            $sub_detalle = array_flip($sub_detalle);
+            if (array_key_exists(65, $sub_detalle)) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
+            if (array_key_exists(66, $sub_detalle)) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
+            if (array_key_exists(96, $sub_detalle)) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
+            if (array_key_exists(97, $sub_detalle)) {
+                $this->modificar_gasto_vehiculo($request, $gasto);
+            }
         }
     }
     /**
@@ -503,7 +413,7 @@ class GastoController extends Controller
         try {
             DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
-            $gasto->estado = 2;
+            $gasto->estado = Gasto::RECHAZADO;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
@@ -524,12 +434,12 @@ class GastoController extends Controller
         try {
             DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
-            if ($gasto->estado == 4) {
+            if ($gasto->estado == Gasto::ANULADO) {
                 throw ValidationException::withMessages([
                     '404' => ['El gasto ya fue anulado'],
                 ]);
             }
-            $gasto->estado = 4;
+            $gasto->estado = Gasto::ANULADO;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
@@ -565,9 +475,9 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
-            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado',$datos['es_vehiculo_alquilado']]);
+            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado', $datos['es_vehiculo_alquilado']]);
 
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
@@ -588,11 +498,11 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $request->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
 
-            $gasto_vehiculo = GastoVehiculo::where('id_gasto' , $datos['id_gasto'])->first();
-            $gasto_vehiculo -> update($datos);
+            $gasto_vehiculo = GastoVehiculo::where('id_gasto', $datos['id_gasto'])->first();
+            $gasto_vehiculo->update($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
             DB::commit();

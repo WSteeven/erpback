@@ -34,6 +34,11 @@ class Transferencias extends Model implements Auditable
         'comprobante',
         'fecha'
     ];
+    public const APROBADO = 1;
+    public const RECHAZADO = 2;
+    public const PENDIENTE = 3;
+    public const ANULADO = 4;
+
     public function usuario_envia()
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');
@@ -54,9 +59,9 @@ class Transferencias extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
-    public function saldo_grupo()
+    public function saldoFondoRotativo()
     {
-        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+        return $this->morphMany(SaldosFondosRotativos::class, 'saldoable');
     }
     private static $whiteListFilter = [
         'usuario_envia_id',

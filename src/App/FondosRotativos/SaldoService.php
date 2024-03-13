@@ -8,12 +8,17 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Ramsey\Uuid\Type\Decimal;
 
 class SaldoService
 {
@@ -135,22 +140,27 @@ class SaldoService
         return $saldo_actual;
     }
 
-    public static function guardarSaldo($empleado_id, $fecha, $tipo, $monto)
+    public static function guardarSaldo($entidad,$data)
     {
-        $saldo_anterior = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new SaldoGrupo();
-        $saldo->fecha = $fecha;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $monto;
-        $nuevo_saldo = ($tipo == self::INGRESO || self::ANULACION) ?
-            (array('monto' => ($total_saldo_actual + $monto), 'descripcion' => $tipo)) : (array('monto' => ($total_saldo_actual - $monto), 'descripcion' => $tipo));
-        $saldo->saldo_actual =  $nuevo_saldo['monto'];
-        $saldo->fecha_inicio = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[0];
-        $saldo->fecha_fin = self::calcular_fechas(date('Y-m-d', strtotime($fecha)))[1];;
-        $saldo->id_usuario = $empleado_id;
-        $saldo->tipo_saldo = $nuevo_saldo['descripcion'];
-        $saldo->save();
+        try {
+            DB::beginTransaction();
+            $saldo_anterior = SaldosFondosRotativos::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
+            $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
+            $nuevo_saldo = ($data['tipo'] == self::INGRESO || self::ANULACION) ?
+                (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
+            $entidad->saldoFondoRotativo()->create([
+                'fecha' => $data['fecha'],
+                'saldo_anterior' => is_null($saldo_anterior) ? 0 : $saldo_anterior,
+                'saldo_depositado' => $data['monto'],
+                'saldo_actual' => $nuevo_saldo['monto'],
+                'tipo_saldo' => $nuevo_saldo['tipo_saldo'],
+                'empleado_id'=>$data['empleado_id']
+            ]);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
     }
     public static function ajustarSaldo($data)
     {

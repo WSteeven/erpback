@@ -68,7 +68,7 @@ class Acreditaciones extends Model implements Auditable
                     $results[$id] = $row;
                     $id++;
                 }
-    
+
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error Acreditaciones::empaquetar', $e->getMessage(), $e->getLine()]);
@@ -77,8 +77,8 @@ class Acreditaciones extends Model implements Auditable
         return $results;
 
     }
-    public function saldo_grupo()
+    public function saldoFondoRotativo()
     {
-        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+        return $this->morphMany(SaldosFondosRotativos::class, 'saldoable');
     }
 }

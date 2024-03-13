@@ -52,9 +52,9 @@ class GastoResource extends JsonResource
             'comprobante2' => $this->comprobante2 ? url($this->comprobante2) : null,
             'observacion' => $this->observacion,
             'id_usuario' => $this->id_usuario,
-            'empleado_info' => $this->empleado_info->nombres . ' ' . $this->empleado_info->apellidos,
+            'empleado_info' => $this?->empleado_info?->nombres . ' ' . $this?->empleado_info?->apellidos,
             'estado' => $this->estado,
-            'estado_info' => $this->estado_info->descripcion,
+            'estado_info' => $this?->estado_info?->descripcion,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->sub_detalle_info != null ? $this->sub_detalle_info : true,
@@ -62,7 +62,7 @@ class GastoResource extends JsonResource
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
             'centro_costo' => $this->tarea_info !== null ? $this->tarea_info?->centroCosto?->nombre:'',
-            'subcentro_costo' => $this->empleado_info->grupo==null ?'':$this->empleado_info->grupo?->subCentroCosto?->nombre,
+            'subcentro_costo' => $this?->empleado_info?->grupo==null ?'':$this?->empleado_info?->grupo?->subCentroCosto?->nombre,
         ];
         return $modelo;
     }

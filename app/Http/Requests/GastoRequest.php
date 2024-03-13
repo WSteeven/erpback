@@ -10,6 +10,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
+use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
@@ -51,6 +54,7 @@ class GastoRequest extends FormRequest
             'detalle_estado' => 'nullable|string',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
+            'id_usuario' => 'required|exists:empleados,id'
         ];
         if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
@@ -77,11 +81,13 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 'required|integer',
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
+                'id_usuario' => 'required|exists:empleados,id'
             ];
         }
         return $rules;
     }
     /**
+     * Esto se ejecuta despues de validar
      * Configure the validator instance.
      *
      * @param \Illuminate\Validation\Validator $validator
@@ -92,21 +98,18 @@ class GastoRequest extends FormRequest
         $validator->after(function ($validator) {
             try {
                 if ($this->route()->getActionMethod() === 'store') {
-                    $this->validar_numero_comprobante($validator);
+                    $this->validarNumeroComprobante($validator);
                 }
-
                 if ($this->route()->getActionMethod() === 'aprobar_gasto') {
                     $gasto = Gasto::find($this->id);
                     $estado = $gasto->estado;
-                    if ($estado == 1) {
+                    if ($estado == Gasto::APROBADO) {
                         $validator->errors()->add('estado', 'El gasto ya fue aprobado');
                     }
                 }
                 if (substr_count($this->ruc, '9') < 9) {
                     $validador = new ValidarIdentificacion();
-
                     $existeRUC = $validador->validarRUCSRI($this->ruc);
-
                     if (!(($validador->validarCedula($this->ruc)) || $existeRUC)) {
                         $validator->errors()->add('ruc', 'La identificación no pudo ser validada, revisa que sea una cédula/RUC válido');
                     }
@@ -117,13 +120,13 @@ class GastoRequest extends FormRequest
         });
     }
 
-    public function validar_numero_comprobante($validator)
+    public function validarNumeroComprobante($validator)
     {
         $factura = Gasto::where('factura', '!=', null)
             ->where('factura', '!=', '')
             ->where('ruc', $this->ruc)
             ->where('factura', $this->factura)
-            ->where('estado', 1)
+            ->where('estado', Gasto::APROBADO)
             ->first();
         $factura_pendiente = Gasto::where('factura', '!=', null)
             ->where('factura', '!=', '')
@@ -178,6 +181,10 @@ class GastoRequest extends FormRequest
             }
         }
     }
+
+    /**
+     * Esto se ejecuta antes de validar
+     */
     protected function prepareForValidation()
     {
         $date_viat = Carbon::createFromFormat('Y-m-d', $this->fecha_viat);
@@ -219,9 +226,11 @@ class GastoRequest extends FormRequest
             $proyecto = $this->proyecto;
         }
         $this->merge([
+            'id_usuario' => Auth::user()->empleado->id,
             'id_tarea' => $tarea,
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
         ]);
     }
+
 }

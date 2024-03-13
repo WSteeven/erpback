@@ -9,6 +9,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Spatie\LaravelIgnition\Recorders\DumpRecorder\Dump;
+use Src\App\FondosRotativos\SaldoService;
 
 class GastosObserver
 {
@@ -30,8 +31,8 @@ class GastosObserver
      */
     public function updated(Gasto $gasto)
     {
-        if ($gasto->estado == 1) $this->guardar_gasto($gasto);
-        if ($gasto->estado == 4) $this->revertir_cambios($gasto);
+        if ($gasto->estado == Gasto::APROBADO) $this->guardarGasto($gasto);
+        if ($gasto->estado == Gasto::ANULADO) $this->revertirCambios($gasto);
     }
 
     /**
@@ -66,58 +67,40 @@ class GastosObserver
     {
         //
     }
-    private function calcular_fechas($fecha)
+
+   /**
+    * La función `revertirCambios` anula un gasto específico guardando los datos necesarios en un
+    * objeto `SaldoGrupo`.
+    *
+    * @param gasto El parámetro `gasto` parece ser un objeto que contiene las siguientes propiedades o
+    * atributos:
+    */
+    private function revertirCambios($gasto)
     {
-        $array_dias['Sunday'] = 0;
-        $array_dias['Monday'] = 1;
-        $array_dias['Tuesday'] = 2;
-        $array_dias['Wednesday'] = 3;
-        $array_dias['Thursday'] = 4;
-        $array_dias['Friday'] = 5;
-        $array_dias['Saturday'] = 6;
-
-        $dia_actual = $array_dias[date('l', strtotime($fecha))];
-
-        $rest = $dia_actual + 1;
-        $sum = 5 - $dia_actual;
-        $fechaIni = date("Y-m-d", strtotime($fecha . "-$rest days"));
-        $fechaFin = date("Y-m-d", strtotime($fecha . "+$sum days"));
-        return array($fechaIni, $fechaFin);
-    }
-    private function revertir_cambios($gasto)
-    {
-        $ultimo_saldo = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->latest()->first();
-        //$saldo_actual = $ultimo_saldo->saldo_actual + $gasto->total;
-        SaldoGrupo::create([
-            'fecha' => $gasto->fecha_viat,
-            'saldo_anterior' => $ultimo_saldo->saldo_actual,
-            'saldo_depositado' => $gasto->total,
-            'saldo_actual' => $ultimo_saldo->saldo_actual+$gasto->total,
-            'fecha_inicio' => $this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[0],
-            'fecha_fin' =>$this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[1],
-            'id_usuario' => $gasto->id_usuario,
-            'tipo_saldo'=> 'Anulacion'
-        ]);
-        //SaldoGrupo::crearSaldoGrupo($gasto->fecha_viat,$ultimo_saldo->saldo_actual,$gasto->total,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1],$gasto->id_usuario,"Egreso",$gasto);
-
+        $data = array(
+            'fecha' =>  $gasto->fecha_viat,
+            'monto' =>  $gasto->total,
+            'empleado_id' => $gasto->id_usuario,
+            'tipo' => SaldoService::ANULACION
+        );
+        SaldoService::guardarSaldo($gasto, $data);
     }
 
-    private function guardar_gasto(Gasto $gasto)
+/**
+ * La función `guardarGasto` guarda un objeto Gasto como una entrada de SaldoGrupo con campos de datos
+ * específicos.
+ *
+ * @param Gasto gasto El parámetro `gasto` es un objeto de tipo `Gasto`. Contiene las siguientes
+ * propiedades:
+ */
+    private function guardarGasto(Gasto $gasto)
     {
-        $saldo_anterior = SaldoGrupo::where('id_usuario', $gasto->id_usuario)->orderBy('id', 'desc')->first();
-        $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        //$saldo_actual = $total_saldo_actual - $gasto->total;
-        $saldo = new SaldoGrupo();
-        $saldo->fecha = $gasto->fecha_viat;
-        $saldo->saldo_anterior = $total_saldo_actual;
-        $saldo->saldo_depositado = $gasto->total;
-        $saldo->saldo_actual =  $total_saldo_actual - $gasto->total;
-        $saldo->fecha_inicio = $this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[0];
-        $saldo->fecha_fin = $this->calcular_fechas(date('Y-m-d', strtotime($gasto->fecha_viat)))[1];;
-        $saldo->id_usuario = $gasto->id_usuario;
-        $saldo->tipo_saldo = "Egreso";
-        $saldo->save();
-        //SaldoGrupo::crearSaldoGrupo($gasto->fecha_viat,$total_saldo_actual,$gasto->total,$saldo_actual,$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[0],$this->calcular_fechas( date('Y-m-d', strtotime($gasto->fecha_viat)))[1],$gasto->id_usuario,"Egreso",$gasto);
-
+        $data = array(
+            'fecha' =>  $gasto->fecha_viat,
+            'monto' =>  $gasto->total,
+            'empleado_id' => $gasto->id_usuario,
+            'tipo' => SaldoService::EGRESO
+        );
+        SaldoService::guardarSaldo($gasto, $data);
     }
 }
