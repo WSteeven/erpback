@@ -65,6 +65,7 @@ class EmpleadoService
                 'jefe_id',
                 'canton_id',
                 'direccion',
+                'fecha_nacimiento',
                 'estado',
                 'grupo_id',
                 'cargo_id',
