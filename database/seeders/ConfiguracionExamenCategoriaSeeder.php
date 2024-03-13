@@ -15,37 +15,35 @@ class ConfiguracionExamenCategoriaSeeder extends Seeder
      */
     public function run()
     {
-        ConfiguracionExamenCategoria::insert ([
+        ConfiguracionExamenCategoria::insert([
             [
-                'nombre' =>'BIOMETRIA', 
-                'examen_id' =>2,
+                'nombre' => 'BIOMETRIA',
+                'examen_id' => 2,
             ],
             [
-                'nombre' =>'FISICO', 
-                'examen_id' =>3,
+                'nombre' => 'FISICO',
+                'examen_id' => 3,
             ],
             [
-                'nombre' =>'QUIMICO', 
-                'examen_id' =>3,
+                'nombre' => 'QUIMICO',
+                'examen_id' => 3,
             ],
             [
-                'nombre' =>'MICROSCOPICO', 
-                'examen_id' =>3,
+                'nombre' => 'MICROSCOPICO',
+                'examen_id' => 3,
             ],
             [
-                'nombre' =>'COPROPARASITARIO + COPROLOGICO', 
-                'examen_id' =>4,
+                'nombre' => 'COPROPARASITARIO + COPROLOGICO',
+                'examen_id' => 4,
             ],
             [
-                'nombre' =>'QUIMICA SANGUINEA', 
-                'examen_id' =>5,
+                'nombre' => 'QUIMICA SANGUINEA',
+                'examen_id' => 5,
             ],
             [
-                'nombre' =>'ENZIMAS', 
-                'examen_id' =>6,
+                'nombre' => 'ENZIMAS',
+                'examen_id' => 6,
             ],
         ]);
-
-        
     }
 }

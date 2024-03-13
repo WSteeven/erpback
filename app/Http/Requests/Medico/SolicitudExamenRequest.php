@@ -31,7 +31,6 @@ class SolicitudExamenRequest extends FormRequest
     {
         $enumEstados = [SolicitudExamen::PENDIENTE, SolicitudExamen::SOLICITADO, SolicitudExamen::APROBADO_POR_COMPRAS, SolicitudExamen::RESULTADOS, SolicitudExamen::DIAGNOSTICO_REALIZADO];
 
-        // 'estado_solicitud_examen' => 'required|string',
         return [
             'registro_empleado_examen_id' =>  'required|exists:med_registros_empleados_examenes,id',
             'observacion' => 'nullable|string',
@@ -40,6 +39,7 @@ class SolicitudExamenRequest extends FormRequest
             'solicitante_id' => 'nullable|numeric|integer|exists:empleados,id',
             'canton_id' => 'required|numeric|integer|exists:cantones,id',
             'estado_solicitud_examen' => ['nullable', 'string', 'in:' . implode(',', $enumEstados)],
+            'examenes_solicitados.*.id' => 'nullable|numeric|integer',
             'examenes_solicitados.*.examen' => 'required|exists:med_examenes,id',
             'examenes_solicitados.*.laboratorio_clinico' => 'required|exists:med_laboratorios_clinicos,id',
             'examenes_solicitados.*.fecha_hora_asistencia' => 'required|string',
@@ -48,18 +48,17 @@ class SolicitudExamenRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-        // Log::channel('testing')->info('Log', ['data', 'passed validation']);
         if ($this->isMethod('post')) {
-            // Log::channel('testing')->info('Log', ['data', 'dentro de if post']);
             $this->merge([
                 'estado_solicitud_examen' => SolicitudExamen::SOLICITADO,
                 'solicitante_id' => Auth::user()->empleado->id,
-                'canton_id' => $this->canton,
+                'autorizador_id' => $this->autorizador,
             ]);
         }
 
         $this->merge([
             'registro_empleado_examen_id' => $this->registro_empleado_examen,
+            'canton_id' => $this->canton,
         ]);
     }
 }

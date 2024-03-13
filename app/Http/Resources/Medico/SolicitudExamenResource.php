@@ -24,6 +24,7 @@ class SolicitudExamenResource extends JsonResource
             'observacion' => $this->observacion,
             'observacion_autorizador' => $this->observacion_autorizador,
             'registro_empleado_examen_id' => $this->registro_empleado_examen_id,
+            'registro_empleado_examen' => $this->registro_empleado_examen_id,
             'estado_examen' => $this->estado_examen,
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             'cantidad_examenes_solicitados' => $this->examenesSolicitados->count(),
@@ -34,6 +35,7 @@ class SolicitudExamenResource extends JsonResource
             'autorizador' => $this->autorizador_id,
             'solicitante' => $this->solicitante_id,
             'canton' => $this->canton_id,
+            'estado_solicitud_examen' => $this->estado_solicitud_examen,
         ];
     }
 }

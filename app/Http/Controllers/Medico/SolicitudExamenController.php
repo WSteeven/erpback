@@ -59,7 +59,7 @@ class SolicitudExamenController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function update(Request $request, $id)
+    public function update(SolicitudExamenRequest $request, $id)
     {
         $datosValidados = $request->validated();
 

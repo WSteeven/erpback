@@ -66,20 +66,32 @@ class SolicitudExamenService
             DB::beginTransaction();
 
             // Log::channel('testing')->info('Log', ['data', $data]);
-            $solicitud = SolicitudExamen::create($data);
+            $solicitud = SolicitudExamen::find($id);
+            $solicitud->update($data);
 
-            $cambioFechaHora = $this->cambioFechaHora($data['examenes_solicitados']);
+            $cantidadCambiosFechaHora = 0; // $this->cambioFechaHora($data['examenes_solicitados']);
 
-            if ($cambioFechaHora) {
-                foreach ($data['examenes_solicitados'] as $examenSolicitado) {
-                    $examen['examen_id'] = $examenSolicitado['examen'];
-                    $examen['laboratorio_clinico_id'] = $examenSolicitado['laboratorio_clinico'];
-                    $examen['fecha_hora_asistencia'] = $examenSolicitado['fecha_hora_asistencia'];
-                    $examen['solicitud_examen_id'] = $solicitud->id;
+            // if ($cambioFechaHora) {
+            foreach ($data['examenes_solicitados'] as $examenSolicitado) {
+                $examen['examen_id'] = $examenSolicitado['examen'];
+                $examen['laboratorio_clinico_id'] = $examenSolicitado['laboratorio_clinico'];
+                $examen['fecha_hora_asistencia'] = $examenSolicitado['fecha_hora_asistencia'];
+                $examen['solicitud_examen_id'] = $solicitud->id;
 
-                    EstadoSolicitudExamen::create($examen);
-                }
+                // unset($xamen['id']);
+                Log::channel('testing')->info('Log', ['examenSolicitado', $examenSolicitado]);
+                $modelo = EstadoSolicitudExamen::find($examenSolicitado['id']); // Examen solicitado
+                $modelo->fill($examen);
+
+                Log::channel('testing')->info('Log', ['cambio', $modelo->isDirty()]);
+                $cantidadCambiosFechaHora += $modelo->isDirty() ? 1 : 0;
+
+                if ($modelo->isDirty()) $modelo->save();
+
             }
+            // }
+
+            Log::channel('testing')->info('Log', ['cantidadCambiosFechaHora', $cantidadCambiosFechaHora]);
 
             DB::commit();
 
@@ -90,8 +102,10 @@ class SolicitudExamenService
         }
     }
 
-    private function cambioFechaHora($examenes_solicitados)
+    /* private function cambioFechaHora(array $examenes_solicitados_antes, $examen_solicitado)
     {
-        //
-    }
+        array_where($examenes_solicitados_antes, function () {
+
+        });
+    } */
 }

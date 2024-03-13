@@ -18,10 +18,10 @@ class LaboratorioClinicoController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.laborarios_clinicos')->only('index', 'show');
-        $this->middleware('can:puede.crear.laborarios_clinicos')->only('store');
-        $this->middleware('can:puede.editar.laborarios_clinicos')->only('update');
-        $this->middleware('can:puede.eliminar.laborarios_clinicos')->only('destroy');
+        $this->middleware('can:puede.ver.laboratorios_clinicos')->only('index', 'show');
+        $this->middleware('can:puede.crear.laboratorios_clinicos')->only('store');
+        $this->middleware('can:puede.editar.laboratorios_clinicos')->only('update');
+        $this->middleware('can:puede.eliminar.laboratorios_clinicos')->only('destroy');
     }
 
     public function index()
