@@ -17,10 +17,12 @@ use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use OwenIt\Auditing\Models\Audit;
 use Src\App\InventarioService;
 use Src\Shared\Utils;
 
@@ -293,6 +295,7 @@ class InventarioController extends Controller
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         $cont = 0;
+        $cantAudit = 0;
         $row = [];
         $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
         $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
@@ -326,6 +329,17 @@ class InventarioController extends Controller
         // Log::channel('testing')->info('Log', ['Listado de movimientos', $movimientos]);
         foreach ($movimientos as $movimiento) {
             Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
+            if ($cont == 0) {
+                $audit = Audit::where('auditable_id', $movimiento->inventario_id)
+                    ->where('auditable_type', Inventario::class)
+                    ->whereBetween('updated_at', [
+                        Carbon::parse($movimiento->created_at)->subSecond(2),
+                        Carbon::parse($movimiento->created_at)->addSecond(2),
+                    ])
+                    ->first();
+                // Log::channel('testing')->info('Log', ['audit', $audit]);
+                if ($audit) $cantAudit =  $audit->old_values['cantidad'];
+            }
             $row['id'] = $movimiento->inventario->detalle->id;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
             $row['num_transaccion'] = $movimiento->transaccion->id;
@@ -333,8 +347,9 @@ class InventarioController extends Controller
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
             $row['sucursal'] = $movimiento->inventario->sucursal->lugar;
             $row['cantidad'] = $movimiento->cantidad_inicial;
-            $row['cant_anterior'] = $cont == 0 ? 0 : $row['cant_actual'];
-            $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
+            $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+            $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
+            // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
             $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
             $results[$cont] = $row;
             $cont++;
@@ -364,7 +379,7 @@ class InventarioController extends Controller
         }
     }
 
-    
+
     /**
      * Dashboard de bodega
      */

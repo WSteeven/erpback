@@ -37,7 +37,8 @@ class Servicio extends Model implements Auditable
     public function toSearchableArray()
     {
         return [
-            'nombres' => $this->nombres,
+            'nombre' => $this->nombre,
+            'tipo' => $this->tipo,
         ];
     }
 

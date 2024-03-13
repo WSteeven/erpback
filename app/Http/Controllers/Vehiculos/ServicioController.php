@@ -27,8 +27,10 @@ class ServicioController extends Controller
     public function index()
     {
         Log::channel('testing')->info('Log', ['index', request()->all()]);
-        // if(reque)
-        $results = Servicio::filter()->orderBy('nombre', 'asc')->get();
+        if (request()->search)
+            $results = Servicio::search(request()->search)->orderBy('nombre', 'asc')->get();
+        else
+            $results = Servicio::ignoreRequest(['search'])->filter()->orderBy('nombre', 'asc')->get();
         $results = ServicioResource::collection($results);
         return response()->json(compact('results'));
     }

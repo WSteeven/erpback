@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use OwenIt\Auditing\Facades\Auditor;
 use Src\Shared\Utils;
 
 class PlanMantenimientoController extends Controller
@@ -64,15 +65,24 @@ class PlanMantenimientoController extends Controller
         try {
             DB::beginTransaction();
             $datos = $request->validated();
+            $ids_servicios = [];
             foreach ($request->listadoServicios as $servicio) {
-                $plan = PlanMantenimiento::upsert([
+                $ids_servicios[] = $servicio['id'];
+                PlanMantenimiento::upsert([
                     'vehiculo_id' => $request->vehiculo,
                     'servicio_id' => $servicio['id'],
                     'aplicar_desde' => $request->aplicar_desde,
                     'aplicar_cada' => $servicio['intervalo'],
                     'activo' => $request->activo,
                 ], uniqueBy: ['vehiculo_id', 'servicio_id'], update: ['aplicar_desde', 'aplicar_cada', 'activo']);
+                $plan = PlanMantenimiento::where('vehiculo_id', $request->vehiculo)->where('servicio_id', $servicio['id'])->first();
+                Log::channel('testing')->info('Log', ['plan', $plan]);
+                // Auditar el evento
+                Auditor::execute($plan);
             }
+            PlanMantenimiento::eliminarObsoletos($request->vehiculo, $ids_servicios);
+
+
             // throw new Exception('No se puede actualizar ');
             // $servicio->update($datos);
             $modelo = new PlanMantenimientoResource($vehiculo);
