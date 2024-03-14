@@ -4,6 +4,7 @@ namespace App\Observers\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Src\App\FondosRotativos\SaldoService;
 
@@ -72,7 +73,7 @@ class TransferenciaObserver
     private function guardara_transferencia(Transferencias $transferencia)
     {
         $this->actualizacionEmpleadoEnvia($transferencia);
-        if ($transferencia->usuario_recibe_id != null && $transferencia->usuario_recibe_id != 10) {
+        if (!$transferencia->es_devolucion) {
             $this->actualizacionEmpleadoRecibe($transferencia);
         }
     }
@@ -97,22 +98,24 @@ class TransferenciaObserver
         SaldoService::guardarSaldo($transferencia, $data);
     }
 
-    private function anularTransferenciaEmpleadoEnvia(Transferencias $transferencia){
+    private function anularTransferenciaEmpleadoEnvia(Transferencias $transferencia)
+    {
         $data = array(
             'fecha' =>  $transferencia->created_at,
             'monto' =>  $transferencia->monto,
             'empleado_id' => $transferencia->usuario_envia_id,
-            'tipo' => SaldoService::ANULACION
+            'tipo' => SaldoService::INGRESO
         );
-        SaldoService::guardarSaldo($transferencia, $data);
+        SaldoService::anularSaldo($transferencia, $data);
     }
-    private function anularTransferenciaEmpleadoRecibe(Transferencias $transferencia){
+    private function anularTransferenciaEmpleadoRecibe(Transferencias $transferencia)
+    {
         $data = array(
             'fecha' =>  $transferencia->created_at,
             'monto' =>  $transferencia->monto,
             'empleado_id' => $transferencia->usuario_recibe_id,
-            'tipo' => SaldoService::ANULACIONINGRESO
+            'tipo' => SaldoService::EGRESO
         );
-        SaldoService::guardarSaldo($transferencia, $data);
+        SaldoService::anularSaldo($transferencia, $data);
     }
 }

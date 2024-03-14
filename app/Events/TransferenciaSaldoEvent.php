@@ -2,19 +2,13 @@
 
 namespace App\Events;
 
-use App\Http\Resources\UserResource;
-use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
-use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class TransferenciaSaldoEvent implements ShouldBroadcast
@@ -22,39 +16,81 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public Transferencias $transferencia;
     public Notificacion $notificacion;
+    private String $nombre_canal;
+
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($transferencia)
+    public function __construct(Transferencias $transferencia)
     {
-        $ruta = $transferencia->estado == 3 ? '/autorizar-transferencia' : '/transferencia';
-        $mensaje = '';
-        $informativa = false;
         $this->transferencia = $transferencia;
-        $destinatario = $transferencia->estado != 3 ? $transferencia->usuario_recibe_id : $transferencia->usuario_envia_id;
-        $remitente = $transferencia->estado != 3 ? $transferencia->usuario_envia_id : $transferencia->usuario_recibe_id;
-        switch ($transferencia->estado) {
-            case 1:
-                $informativa = true;
-                $mensaje = 'Te han aceptado una Transferencia';
+
+        $ruta = $this->obtenerRuta();
+        $this->nombre_canal = $this->obtenerNombreCanal();
+        $this->notificacion = Notificacion::crearNotificacion(
+            $ruta['mensaje'],
+            $ruta['ruta'],
+            TiposNotificaciones::TRANSFERENCIA_SALDO,
+            $ruta['originador'],
+            $ruta['destinatario'],
+            $transferencia,
+            $ruta['informativa']
+        );
+    }
+    public function obtenerRuta()
+    {
+        $ruta = null;
+        switch ($this->transferencia->estado) {
+            case Transferencias::APROBADO:
+                $ruta = [
+                    'ruta' => '/transferencia',
+                    'informativa' => true,
+                    'mensaje' => 'Te han aceptado una Transferencia',
+                    'originador' =>   $this->transferencia->usuario_recibe_id,
+                    'destinatario' =>  $this->transferencia->usuario_envia_id,
+                ];
                 break;
-            case 2:
-                $informativa = true;
-                $mensaje = 'Te han rechazado una transferencia';
+            case Transferencias::RECHAZADO:
+                $ruta = [
+                    'ruta' => '/transferencia',
+                    'informativa' => true,
+                    'mensaje' => 'Te han rechazado una transferencia',
+                    'originador' =>   $this->transferencia->usuario_recibe_id,
+                    'destinatario' =>  $this->transferencia->usuario_envia_id,
+                ];
                 break;
-            case 3:
-                $mensaje = 'Tienes una transferencia por aceptar';
-                break;
-            default:
-                $mensaje = 'Tienes un gasto por aceptar';
+            case Transferencias::PENDIENTE:
+                $ruta = [
+                    'ruta' => '/autorizar-transferencia',
+                    'informativa' => false,
+                    'mensaje' => 'Tienes una transferencia por aceptar',
+                    'originador' =>  $this->transferencia->usuario_envia_id,
+                    'destinatario' =>$this->transferencia->usuario_recibe_id,
+                ];
                 break;
         }
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente,$this->transferencia,$informativa);
+        return $ruta;
     }
 
+    public function obtenerNombreCanal()
+    {
+        $nombre_canal = null;
+        switch ($this->transferencia->estado) {
+            case Transferencias::APROBADO:
+                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_envia_id;
+                break;
+            case Transferencias::RECHAZADO:
+                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_envia_id;
+                break;
+            case Transferencias::PENDIENTE:
+                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_recibe_id;
+                break;
+        }
+        return $nombre_canal;
+    }
     /**
      * Get the channels the event should broadcast on.
      *
@@ -62,8 +98,7 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $nombre_chanel =  $this->transferencia->estado == 3 ? 'transferencia-saldo-' . $this->transferencia->usuario_recibe_id : 'transferencia-saldo-' . $this->transferencia->usuario_envia_id;
-        return new Channel($nombre_chanel);
+        return new Channel($this->nombre_canal);
     }
     public function broadcastAs()
     {

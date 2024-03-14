@@ -14,6 +14,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -39,11 +40,11 @@ class TransferenciasController extends Controller
         $results = [];
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
-        if($usuario_ac->hasRole('CONTABILIDAD'))
+        if ($usuario_ac->hasRole('CONTABILIDAD'))
             $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         else
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id',Auth::user()->empleado->id) ->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-            $results = TransferenciaResource::collection($results);
+            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+        $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -56,31 +57,27 @@ class TransferenciasController extends Controller
     public function store(TransferenciaSaldoRequest $request)
     {
         try {
-        $datos = $request->validated();
-        $contabilidad = User::where('name','mvalarezo')->first();
-        $datos['usuario_recibe_id'] = $request->usuario_recibe == 0 ? 10 : $request->usuario_recibe;
-        $datos['id_tarea'] = $request->tarea==0?null:$request->tarea;
-        $datos['estado'] = 3;
-        if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
-        $modelo = Transferencias::create($datos);
-        event(new TransferenciaSaldoEvent($modelo));
-        event(new TransferenciaSaldoContabilidadEvent($modelo));
-        $modelo = new TransferenciaResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-        return response()->json(compact('mensaje', 'modelo'));
-    } catch (Exception $e) {
-        Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-        throw ValidationException::withMessages([
-            'Error al insertar registro' => [$e->getMessage()],
-        ]);
-    }
+            $datos = $request->validated();
+            $datos['estado'] = Transferencias::PENDIENTE;
+            if ($request->comprobante != null) $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::TRANSFERENCIASALDO))->execute();
+            $modelo = Transferencias::create($datos);
+            event(new TransferenciaSaldoEvent($modelo));
+            event(new TransferenciaSaldoContabilidadEvent($modelo));
+            $modelo = new TransferenciaResource($modelo);
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
+        }
     }
     public function autorizaciones_transferencia(Request $request)
     {
         $user = Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
         $results = [];
-
         $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
         $results = TransferenciaResource::collection($results);
 
@@ -106,7 +103,7 @@ class TransferenciasController extends Controller
      * @param  Transferencias  $transferencia
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Transferencias $transferencia)
+    public function update(Request $request, TransferenciaSaldoRequest $transferencia)
     {
         $datos = $request->all();
         $datos['usuario_envia_id'] = auth()->user()->id;
@@ -138,13 +135,24 @@ class TransferenciasController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_transferencia(Request $request)
+    public function aprobar_transferencia(TransferenciaSaldoRequest $request)
     {
-        $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 1;
-        $transferencia->save();
-        event(new TransferenciaSaldoEvent($transferencia));
-        return response()->json(['success' => 'Transferencia realizada correctamente']);
+        try {
+            DB::beginTransaction();
+            $transferencia = Transferencias::find($request->id);
+            $datos = $request->validated();
+            $datos['estado'] = Transferencias::APROBADO;
+            $transferencia->update($datos);
+            event(new TransferenciaSaldoEvent($transferencia));
+            DB::commit();
+            return response()->json(['success' => 'Transferencia realizada correctamente']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['error' => $e->getMessage(), 'linea: ' => $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al aprobar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
     /**
      * It updates the status of the expense to 1, which means it is rejected.

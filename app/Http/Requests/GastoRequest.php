@@ -198,10 +198,15 @@ class GastoRequest extends FormRequest
         $this->merge([
             'comprobante' =>  $this->comprobante1,
         ]);
-        if (is_null($this->aut_especial)) {
-            $id_jefe = Auth::user()->empleado->jefe_id;
+        if ($this->route()->getActionMethod() === 'store') {
+            if (is_null($this->aut_especial)) {
+                $id_jefe = Auth::user()->empleado->jefe_id;
+                $this->merge([
+                    'aut_especial' => $id_jefe,
+                ]);
+            }
             $this->merge([
-                'aut_especial' => $id_jefe,
+                'id_usuario' => Auth::user()->empleado->id,
             ]);
         }
         if (is_null($this->ruc)) {
@@ -224,11 +229,6 @@ class GastoRequest extends FormRequest
         }
         if ($this->proyecto !== 0) {
             $proyecto = $this->proyecto;
-        }
-        if ($this->route()->getActionMethod() === 'store') {
-            $this->merge([
-                'id_usuario' => Auth::user()->empleado->id,
-            ]);
         }
         $this->merge([
             'id_tarea' => $tarea,

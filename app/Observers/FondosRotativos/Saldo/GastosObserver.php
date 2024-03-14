@@ -81,9 +81,9 @@ class GastosObserver
             'fecha' =>  $gasto->fecha_viat,
             'monto' =>  $gasto->total,
             'empleado_id' => $gasto->id_usuario,
-            'tipo' => SaldoService::ANULACION
+            'tipo' => SaldoService::INGRESO
         );
-        SaldoService::guardarSaldo($gasto, $data);
+        SaldoService::anularSaldo($gasto, $data);
     }
 
 /**

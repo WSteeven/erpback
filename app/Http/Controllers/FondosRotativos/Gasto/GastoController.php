@@ -340,17 +340,11 @@ class GastoController extends Controller
      */
     public function aprobar_gasto(GastoRequest $request)
     {
-        Log::channel('testing')->info('Log', ['gareq', $request->all()]);
         try {
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
-            Log::channel('testing')->info('Log', ['gasto']);
-
             $datos = $request->validated();
-            Log::channel('testing')->info('Log', ['validar gastos']);
-
             $datos['estado'] = Gasto::APROBADO;
-            Log::channel('testing')->info('Log', ['cambia estado a apruebar gastos']);
             if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
                 $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
             } else {
@@ -362,12 +356,10 @@ class GastoController extends Controller
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
-            Log::channel('testing')->info('Log', [' aprueba gastos']);
             $this->validarGastoVehiculo($request, $gasto);
-            Log::channel('testing')->info('Log', ['validar gastos vehiculo']);
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
-            $gasto_service->marcar_notificacion_leida();
+            $gasto_service->marcarNotificacionLeida();
             DB::commit();
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {

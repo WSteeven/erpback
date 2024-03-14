@@ -21,7 +21,7 @@ class GastoService
     {
         $this->gasto = $gasto;
     }
-    public function marcar_notificacion_leida()
+    public function marcarNotificacionLeida()
     {
         $notificacion_remitente = Notificacion::where('per_originador_id', $this->gasto->id_usuario)
             ->where('per_destinatario_id', $this->gasto->aut_especial)
@@ -29,19 +29,9 @@ class GastoService
             ->where('leida', 0)
             ->where('notificable_id', $this->gasto->id)
             ->first();
-        if ($notificacion_remitente !== null) {
+        if ($notificacion_remitente) {
             $notificacion_remitente->leida = 1;
             $notificacion_remitente->save();
-        }
-        $notificacion_destinatario = Notificacion::where('per_originador_id',$this->gasto->aut_especial )
-        ->where('per_destinatario_id', $this->gasto->id_usuario )
-        ->where('tipo_notificacion', 'AUTORIZACION GASTO')
-        ->where('leida', 0)
-        ->where('notificable_id', $this->gasto->id)
-        ->first();
-        if ($notificacion_destinatario !== null) {
-            $notificacion_destinatario->leida = 1;
-            $notificacion_destinatario->save();
         }
     }
 }

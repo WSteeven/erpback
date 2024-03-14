@@ -76,8 +76,8 @@ class AcreditacionObserver
             'fecha' =>  $acreditacion->fecha,
             'monto' =>  $acreditacion->monto,
             'empleado_id' => $acreditacion->id_usuario,
-            'tipo' => SaldoService::ANULACIONINGRESO
+            'tipo' => SaldoService::EGRESO
         );
-        SaldoService::guardarSaldo($acreditacion, $data);    }
+        SaldoService::anularSaldo($acreditacion, $data);    }
 
 }

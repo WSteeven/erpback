@@ -39,6 +39,10 @@ class Transferencias extends Model implements Auditable
     public const PENDIENTE = 3;
     public const ANULADO = 4;
 
+    protected $casts = [
+        'es_devolucion' => 'boolean',
+    ];
+
     public function usuario_envia()
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');

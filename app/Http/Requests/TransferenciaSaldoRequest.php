@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -35,6 +36,9 @@ class TransferenciaSaldoRequest extends FormRequest
             'comprobante' => 'required|string',
             'detalle_estado' => 'nullable|srtring',
             'observacion' => 'string',
+            'usuario_recibe_id' => 'required|exists:empleados,id',
+            'id_tarea' => 'nullable|exists:tareas,id',
+            'es_devolucion' => 'required'
         ];
     }
     protected function prepareForValidation()
@@ -44,5 +48,10 @@ class TransferenciaSaldoRequest extends FormRequest
             'usuario_envia_id' =>  Auth()->user()->empleado->id,
             'fecha' =>  $date->format('Y-m-d'),
         ]);
+        $admin_contabilidad = User::whereHas('roles', function ($q) {
+            $q->where('name', User::COORDINADOR_CONTABILIDAD);
+        })->first();
+        $this->tarea == 0 ?  $this->merge(['id_tarea' => null]) :  $this->merge(['id_tarea' => $this->tarea]);
+        $this->es_devolucion ? $this->merge(['usuario_recibe_id' => $admin_contabilidad->empleado->id]) : $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
     }
 }

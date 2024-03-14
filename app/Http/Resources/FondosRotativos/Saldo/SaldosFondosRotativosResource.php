@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\FondosRotativos\Saldos;
+namespace App\Http\Resources\FondosRotativos\Saldo;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
