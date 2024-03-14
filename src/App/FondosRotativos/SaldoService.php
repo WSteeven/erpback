@@ -29,6 +29,8 @@ class SaldoService
     public const EGRESO = 'EGRESO';
     public const AJUSTE = 'AJUSTE';
     public const ANULACION = 'ANULACION';
+    public const ANULACIONINGRESO =  'ANULACIONINGRESO';
+
     public function __construct()
     {
     }
@@ -144,10 +146,12 @@ class SaldoService
     {
         try {
             DB::beginTransaction();
+            Log::channel('testing')->info('Log', ['tipo', $data]);
+
             $saldo_anterior = SaldosFondosRotativos::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
             $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-            $nuevo_saldo = ($data['tipo'] == self::INGRESO || self::ANULACION) ?
-                (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
+            $nuevo_saldo = ($data['tipo'] === self::INGRESO || $data['tipo'] === self::ANULACION) ?
+                (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'] === self::ANULACIONINGRESO?self::ANULACION:$data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
             $entidad->saldoFondoRotativo()->create([
                 'fecha' => $data['fecha'],
                 'saldo_anterior' =>$total_saldo_actual,

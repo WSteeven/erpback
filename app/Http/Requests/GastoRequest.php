@@ -225,8 +225,12 @@ class GastoRequest extends FormRequest
         if ($this->proyecto !== 0) {
             $proyecto = $this->proyecto;
         }
+        if ($this->route()->getActionMethod() === 'store') {
+            $this->merge([
+                'id_usuario' => Auth::user()->empleado->id,
+            ]);
+        }
         $this->merge([
-            'id_usuario' => Auth::user()->empleado->id,
             'id_tarea' => $tarea,
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
