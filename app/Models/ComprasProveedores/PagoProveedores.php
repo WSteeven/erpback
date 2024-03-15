@@ -47,9 +47,4 @@ class PagoProveedores extends Model implements Auditable
         return $this->hasMany(ItemPagoProveedores::class, 'pago_proveedor_id', 'id');
     }
 
-    public static function listadoElementos(int $id)
-    {
-        // $elementos = 
-        // Log::channel('testing')->info('Log', ['Error en metodo', $pago]);
-    }
 }

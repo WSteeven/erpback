@@ -6,6 +6,7 @@ use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -50,5 +51,16 @@ class ItemPagoProveedores extends Model implements Auditable
     public function pago()
     {
         return $this->belongsTo(PagoProveedores::class, 'id', 'pago_proveedor_id');
+    }
+
+    /**
+     * ______________________________________________________________________________________
+     * FUNCIONES
+     * ______________________________________________________________________________________
+     */
+    public static function eliminarObsoletos(int $id, array $ids_elementos)
+    {
+        $items = ItemPagoProveedores::where('pago_proveedor_id', $id)->whereNotIn('id', $ids_elementos)->delete();
+        Log::channel('testing')->info('Log', ['Items eliminados', $items]);
     }
 }

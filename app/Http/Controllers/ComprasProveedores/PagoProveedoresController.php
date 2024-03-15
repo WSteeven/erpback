@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ComprasProveedores;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ComprasProveedores\PagoProveedoresResource;
 use App\Imports\ComprasProveedores\PagoProveedoresImport;
+use App\Models\ComprasProveedores\ItemPagoProveedores;
 use App\Models\ComprasProveedores\PagoProveedores;
 use Carbon\Carbon;
 use Exception;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
+use Src\Shared\Utils;
 
 class PagoProveedoresController extends Controller
 {
@@ -71,5 +73,38 @@ class PagoProveedoresController extends Controller
     {
         $modelo = new PagoProveedoresResource($pago);
         return response()->json(compact('modelo'));
+    }
+    public function update(Request $request, PagoProveedores $pago)
+    {
+        Log::channel('testing')->info('Log', ['request pago-proveeodres:', $request->all()]);
+        Log::channel('testing')->info('Log', ['pago-proveeodres:', $pago]);
+        $ids_items = [];
+        try {
+            //code...
+            DB::beginTransaction();
+            //se debe actualizar los registros con un foreach
+            foreach ($request->listado as $key => $item) {
+                $ids_items[] = $item['id']; //se asigna los ids para saber que items se tiene que mantener y eliminar los que no esten
+                $itemEncontrado = ItemPagoProveedores::find($item['id']);
+                if ($itemEncontrado) {
+                    Log::channel('testing')->info('Log', ['item_encontrado:', $itemEncontrado]);
+                    $itemEncontrado->valor_pagar = $item['valor_pagar'];
+                    $itemEncontrado->save();
+                }
+            }
+            //se elimina los registros que no vienen desde el front
+            ItemPagoProveedores::eliminarObsoletos($pago->id, $ids_items);
+
+            DB::commit();
+            $modelo = new PagoProveedoresResource($pago->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::channel('testing')->info('Log', ['ERROR al actualizar los registros', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'error' => [$e->getMessage(), $e->getLine()],
+            ]);
+        }
     }
 }
