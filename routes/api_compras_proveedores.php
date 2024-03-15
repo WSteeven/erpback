@@ -69,6 +69,7 @@ Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'i
 
 //reportes excel
 Route::get('reporte-proveedores', [ProveedorController::class, 'reporteTodos'])->middleware('auth:sanctum');
+Route::get('pagos-proveedores/cash/{pago}', [PagoProveedoresController::class, 'reporteCash'])->middleware('auth:sanctum');
 
 
 //listar archivos

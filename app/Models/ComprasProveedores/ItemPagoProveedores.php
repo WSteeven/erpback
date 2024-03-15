@@ -58,9 +58,5 @@ class ItemPagoProveedores extends Model implements Auditable
      * FUNCIONES
      * ______________________________________________________________________________________
      */
-    public static function eliminarObsoletos(int $id, array $ids_elementos)
-    {
-        $items = ItemPagoProveedores::where('pago_proveedor_id', $id)->whereNotIn('id', $ids_elementos)->delete();
-        Log::channel('testing')->info('Log', ['Items eliminados', $items]);
-    }
+    
 }
