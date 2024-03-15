@@ -24,6 +24,7 @@ class TransferenciaResource extends JsonResource
             'usuario_envia_info' => $this->usuario_envia->nombres . ' ' . $this->usuario_envia->apellidos,
             'usuario_recibe_info' => $this->motivo === 'DEVOLUCION' ||  $this->es_devolucion ? 'JPCONSTRUCRED C.LTDA' :  $this->usuario_recibe->nombres . ' ' . $this->usuario_recibe->apellidos,
             'usuario_recibe' => $this->usuario_recibe_id,
+            'usuario_envia' => $this->usuario_envia_id,
             'usuario_envia_id' => $this->usuario_envia_id,
             'usuario_recive_id' => $this->usuario_recibe_id,
             'estado' => $this->estado,

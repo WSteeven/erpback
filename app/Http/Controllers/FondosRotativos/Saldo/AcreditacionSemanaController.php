@@ -8,19 +8,24 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FondosRotativos\Saldo\AcreditacionSemanaRequest;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionSemanaResource;
+use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\AcreditacionSemana;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Src\App\FondosRotativos\AcreditacionSemanalService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\FondosRotativos\SaldoService;
 use Src\Shared\Utils;
 
 class AcreditacionSemanaController extends Controller
@@ -80,28 +85,28 @@ class AcreditacionSemanaController extends Controller
         $acreditacionsemana->delete();
         return response()->json(compact('acreditacionsemana'));
     }
-    public function acreditacion_saldo_semana($id)
+    public function acreditacionSaldoSemana($id)
     {
         $date = Carbon::now();
         $acreditaciones = [];
         $acreditacion_semana = AcreditacionSemana::where('id', $id)->first();
         $acreditacion_semana->acreditar = true;
         $acreditacion_semana->save();
-        $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->where('estado',1)->where('empleado_id','!=',0)->with('acreditacion_semanal')->get();
+        $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->where('estado', 1)->where('empleado_id', '!=', 0)->with('acreditacion_semanal')->get();
         foreach ($valores_acreditar as $key => $acreditacion) {
-                Acreditaciones::create(array(
-                    'id_tipo_fondo' => 1,
-                    'id_tipo_saldo' => 1,
-                    'id_saldo' => '',
-                    'id_usuario' => $acreditacion->empleado_id,
-                    'fecha' =>  $date->format('Y-m-d'),
-                    'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
-                    'monto' => $acreditacion->monto_modificado,
-                    'id_estado' => 1,
-                    'created_at' => $date,
-                    'updated_at' => $date
-                ));
-          /*  $acreditaciones[] = [
+            Acreditaciones::create(array(
+                'id_tipo_fondo' => 1,
+                'id_tipo_saldo' => 1,
+                'id_saldo' => '',
+                'id_usuario' => $acreditacion->empleado_id,
+                'fecha' =>  $date->format('Y-m-d'),
+                'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
+                'monto' => $acreditacion->monto_modificado,
+                'id_estado' => 1,
+                'created_at' => $date,
+                'updated_at' => $date
+            ));
+            /*  $acreditaciones[] = [
                 'id_tipo_fondo' => 1,
                 'id_tipo_saldo' => 1,
                 'id_saldo' => '',
@@ -113,17 +118,16 @@ class AcreditacionSemanaController extends Controller
                 'created_at' => $date,
                 'updated_at' => $date
             ];*/
-
         }
-      //  $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
+        //  $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
 
     }
-    public function crear_cash_acreditacion_saldo($id)
+    public function crearCashAcreditacionSaldo($id)
     {
         $nombre_reporte = 'cash_acreditacion_saldo';
         $valores_acreditar = ValorAcreditar::with(['acreditacion_semanal', 'umbral'])
             ->where('acreditacion_semana_id', $id)
-            ->where('estado',1)
+            ->where('estado', 1)
             ->get();
         $results = ValorAcreditar::empaquetarCash($valores_acreditar);
         $results = collect($results)->map(function ($elemento, $index) {
@@ -134,23 +138,24 @@ class AcreditacionSemanaController extends Controller
         $export_excel = new CashAcreditacionSaldoExport($reporte);
         return Excel::download($export_excel, $nombre_reporte . '.xlsx');
     }
-    public function reporte_acreditacion_semanal(Request $request,$id){
+    public function reporteAcreditacionSemanal(Request $request, $id)
+    {
         try {
             $tipo = $request->tipo == 'xlsx' ? 'excel' : $request->tipo;
             $nombre_reporte = 'acreditaciones';
             // Fetch data with relationships
             $valores_acreditar = ValorAcreditar::with(['acreditacion_semanal', 'umbral'])
-            ->where('acreditacion_semana_id', $id)
-            ->where('estado',1)
-            ->get();
-            $suma= str_replace(".", "", number_format($valores_acreditar->sum('monto_modificado'), 2, ',', '.'));
-            $titulo= AcreditacionSemana::select('semana')->where('id',$id)->first()->semana;
-            $vista = 'exports.reportes.acreditacion_semanal' ;
+                ->where('acreditacion_semana_id', $id)
+                ->where('estado', 1)
+                ->get();
+            $suma = str_replace(".", "", number_format($valores_acreditar->sum('monto_modificado'), 2, ',', '.'));
+            $titulo = AcreditacionSemana::select('semana')->where('id', $id)->first()->semana;
+            $vista = 'exports.reportes.acreditacion_semanal';
             $reportes = ValorAcreditar::empaquetar($valores_acreditar);
-            $reportes =compact('reportes','titulo','suma');
+            $reportes = compact('reportes', 'titulo', 'suma');
             $export_excel = new AcreditacionSemanalExport($reportes);
             $orientacion = 'portail';
-            $tipo_pagina =  'A4' ;
+            $tipo_pagina =  'A4';
             return $this->reporteService->imprimir_reporte($tipo,  $tipo_pagina, $orientacion, $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR', $e->getMessage(), $e->getLine()]);
@@ -159,43 +164,27 @@ class AcreditacionSemanaController extends Controller
             ]);
         }
     }
-    public function cortar_saldo()
+    public function cortarSaldo()
     {
         try {
-            $fechaActual = Carbon::now();
-            $numeroSemana = $fechaActual->weekOfYear;
-            $nombreSemana = "Fondo Rotativo Semana # " . $numeroSemana;
-            $semana = AcreditacionSemana::where('semana', $nombreSemana)->get()->count();
+            $fecha_actual = Carbon::now();
+            $numero_semana = $fecha_actual->weekOfYear;
+            $nombre_semana = "Fondo Rotativo Semana # " . $numero_semana;
+            $semana = AcreditacionSemana::where('semana', $nombre_semana)->get()->count();
             if ($semana > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Ya se ha acreditado saldos en esta semana '],
                 ]);
             }
             DB::beginTransaction();
-            $acreditacionsemana = new AcreditacionSemana();
-            $acreditacionsemana->semana = $nombreSemana;
-            $acreditacionsemana->save();
-            $modelo = new AcreditacionSemanaResource($acreditacionsemana);
+            $acreditacion_semana = new AcreditacionSemana();
+            $acreditacion_semana->semana = $nombre_semana;
+            $acreditacion_semana->save();
+            $modelo = new AcreditacionSemanaResource($acreditacion_semana);
             $mensaje = 'Se ha generado  Acreditacion de la semana exitosamente';
-            $umbrales = UmbralFondosRotativos::where('empleado_id','!=',0)->get();
-            $acreditaciones = [];
-            foreach ($umbrales as $key => $umbral) {
-                $saldo_actual = $this->obtener_saldo_actual($umbral->empleado_id);
-                $valorRecibir = $umbral->valor_minimo - $saldo_actual;
-                $numeroRedondeado = $valorRecibir;
-                if ($saldo_actual == 0) {
-                    $numeroRedondeado = $valorRecibir;
-                } else {
-                    $numeroRedondeado = $valorRecibir > 0 ? (ceil($valorRecibir / 10) * 10) : 0;
-                }
-                $acreditaciones[] = [
-                    'empleado_id' => $umbral->empleado_id,
-                    'acreditacion_semana_id' => $acreditacionsemana->id,
-                    'monto_generado' => $numeroRedondeado,
-                    'monto_modificado' => $numeroRedondeado,
-                ];
-            }
-            $acreditacionsemana->valor_acreditar()->createMany($acreditaciones);
+            $umbrales = UmbralFondosRotativos::where('empleado_id', '!=', 0)->get();
+            $acreditaciones = AcreditacionSemanalService::asignarAcreditaciones($umbrales, $acreditacion_semana);
+            $acreditacion_semana->valorAcreditar()->createMany($acreditaciones);
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
@@ -206,40 +195,13 @@ class AcreditacionSemanaController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function obtener_saldo_actual($empleado_id)
-    {
-        $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
-        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
-        return $saldo_actual;
-    }
-    public function refrescar_acreditaciones_semana($acreditacion_semana_id)
-    {
-        $acreditaciones_semanales = ValorAcreditar::where('acreditacion_semana_id', $acreditacion_semana_id)->get();
-        foreach ($acreditaciones_semanales as $key => $valoracreditar) {
-            $saldo_actual = $this->obtener_saldo_actual($valoracreditar->empleado_id);
-            $valorRecibir = $this->umbral_usuario($valoracreditar->empleado_id) - $saldo_actual;
-            $numeroRedondeado = $valorRecibir;
-            if ($saldo_actual == 0) {
-                $numeroRedondeado = $valorRecibir;
-            } else {
-                $numeroRedondeado = $valorRecibir > 0 ? (ceil($valorRecibir / 10) * 10) : 0;
-            }
-            $valor_acreditar =  ValorAcreditar::where('acreditacion_semana_id', $acreditacion_semana_id)
-                ->where('empleado_id', $valoracreditar->empleado_id)->first();
 
-            $valor_acreditar->update(array(
-                'empleado_id' => $valoracreditar->empleado_id,
-                'acreditacion_semana_id' => $valoracreditar->iacreditacion_semana_idd,
-                'monto_generado' => $numeroRedondeado,
-                'monto_modificado' => $valoracreditar->monto_modificado,
-            ));
-        }
+    public function refrescarAcreditacionesSemana($acreditacion_semana_id)
+    {
+        $acreditacion_semana = AcreditacionSemana::find($acreditacion_semana_id);
+        $acreditaciones_semanales = ValorAcreditar::where('acreditacion_semana_id', $acreditacion_semana_id)->get();
+        AcreditacionSemanalService::refrescarAcreditacion($acreditaciones_semanales, $acreditacion_semana);
         $mensaje = "Acreditaciones Actualizadas Exitosamente";
         return response()->json(compact('mensaje'));
-    }
-    function umbral_usuario($empleado_id)
-    {
-        $umbral = UmbralFondosRotativos::where('empleado_id', $empleado_id)->first();
-        return $umbral != null ? $umbral->valor_minimo : 0;
     }
 }

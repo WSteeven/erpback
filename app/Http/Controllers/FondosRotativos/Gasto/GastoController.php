@@ -38,6 +38,7 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
+use Src\App\FondosRotativos\SaldoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
@@ -78,7 +79,7 @@ class GastoController extends Controller
             return response()->json(compact('results'));
         }
     }
-    public function autorizaciones_gastos(Request $request)
+    public function autorizacionesGastos(Request $request)
     {
         try {
             $usuario_autenticado =  Auth::user();
@@ -117,8 +118,8 @@ class GastoController extends Controller
             $datos['estado'] = Gasto::PENDIENTE;
             //Asignacion de estatus de gasto
             $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-              //Convierte base 64 a url
-              if ($datos['comprobante']) {
+            //Convierte base 64 a url
+            if ($datos['comprobante']) {
                 $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
             }
             if ($datos['comprobante2']) {
@@ -194,57 +195,40 @@ class GastoController extends Controller
      *
      * @return The data is being returned in the form of a collection.
      */
-    public function generar_reporte(Request $request, $tipo)
+    public function generarReporte(Request $request, $tipo)
     {
         try {
             $datos_usuario_logueado = $request->usuario == null ? Empleado::where('id', Auth::user()->empleado->id)->first() : Empleado::where('id', $request->usuario)->first();
-            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
-            $fecha_inicio = $date_inicio->format('Y-m-d');
-            $fecha_fin = $date_fin->format('Y-m-d');
+            $fecha_inicio = $request->fecha_inicio;
+            $fecha_fin = $request->fecha_fin;
             $fecha_anterior = date('Y-m-d', strtotime($fecha_inicio . '- 1 day'));
-            $saldo_anterior_data = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
-                ->where('fecha', $fecha_anterior)
-                ->first();
+            $saldo_anterior_data = SaldoService::obtenerSaldoEmpleadoFecha($fecha_anterior, $request->usuario);
             $saldo_anterior = $saldo_anterior_data != null ? $saldo_anterior_data->saldo_actual : 0.0;
             $acreditaciones = Acreditaciones::with('usuario')
                 ->where('id_usuario', $datos_usuario_logueado->id)
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos_realizados = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
-                ->where('estado', 1)
-                ->where('id_usuario', $datos_usuario_logueado->id)
-                ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->sum('total');
             $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
-                ->where('estado', '=', 1)
+                ->where('estado', '=', Gasto::APROBADO)
                 ->where('id_usuario', '=',  $datos_usuario_logueado->id)
                 ->get();
+            $gastos_realizados = $gastos_reporte->sum('total');
 
             $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
                 ->with('usuario_recibe', 'usuario_envia')
-                ->where('estado', 1)
+                ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $transferencia_enviada = Transferencias::where('usuario_envia_id', $datos_usuario_logueado->id)
-                ->where('estado', 1)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->sum('monto');
-            $transferencia_recibida = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
-                ->where('estado', 1)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->sum('monto');
+            $transferencia_enviada = $transferencias_enviadas->sum('monto');
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
                 ->with('usuario_recibe', 'usuario_envia')
-                ->where('estado', 1)
+                ->where('estado',  Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $ultimo_saldo = SaldoGrupo::where('id_usuario', $datos_usuario_logueado->id)
-                ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
-                ->orderBy('id', 'desc')
-                ->first();
+            $transferencia_recibida = $transferencias_recibidas->sum('monto');
+            $ultimo_saldo = SaldoService::obtenerSaldoEmpleadoEntreFechas($fecha_inicio, $fecha_fin, $datos_usuario_logueado->id);
             $ultimo_saldo = $ultimo_saldo == null ? 0.0 : $ultimo_saldo->saldo_actual;
             $datos_saldo_depositados_semana = Acreditaciones::with('usuario')
                 ->where('id_usuario', $datos_usuario_logueado->id)
@@ -283,14 +267,12 @@ class GastoController extends Controller
      *
      * @param Request request The request object.
      */
-    public function reporte_autorizaciones(Request $request, $tipo)
+    public function reporteAutorizaciones(Request $request, $tipo)
     {
         try {
-            $date_inicio = Carbon::createFromFormat('Y-m-d', $request->fecha_inicio);
-            $date_fin = Carbon::createFromFormat('Y-m-d', $request->fecha_fin);
-            $fecha_inicio = $date_inicio->format('Y-m-d');
-            $fecha_fin = $date_fin->format('Y-m-d');
-            $tipo_ARCHIVO = $tipo;
+            $fecha_inicio =  $request->fecha_inicio;
+            $fecha_fin = $request->fecha_fin;
+            $tipo_archivo = $tipo;
             $id_tipo_reporte = $request->tipo_reporte;
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
@@ -312,7 +294,7 @@ class GastoController extends Controller
                 'div' => $div,
                 'resto' => $resto,
                 'datos_reporte' => $reporte_empaquetado,
-                'tipo_ARCHIVO' => $tipo_ARCHIVO,
+                'tipo_ARCHIVO' => $tipo_archivo,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
                 'usuario' => $usuario,
@@ -338,7 +320,7 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_gasto(GastoRequest $request)
+    public function aprobarGasto(GastoRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -364,11 +346,12 @@ class GastoController extends Controller
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['error' => $e->getMessage(),'linea: '=>$e->getLine()]);
+            Log::channel('testing')->info('Log', ['error' => $e->getMessage(), 'linea: ' => $e->getLine()]);
 
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
-            ]);}
+            ]);
+        }
     }
     public function validarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
@@ -400,7 +383,7 @@ class GastoController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function rechazar_gasto(Request $request)
+    public function rechazarGasto(Request $request)
     {
         try {
             DB::beginTransaction();
@@ -421,7 +404,7 @@ class GastoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function anular_gasto(Request $request)
+    public function anularGasto(Request $request)
     {
         try {
             DB::beginTransaction();
@@ -447,7 +430,7 @@ class GastoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    public function crear_beneficiarios(Gasto $gasto, $beneficiarios)
+    public function crearBeneficiarios(Gasto $gasto, $beneficiarios)
     {
         $beneficiariosActualizados = array();
 
@@ -460,7 +443,7 @@ class GastoController extends Controller
         }
         BeneficiarioGasto::insert($beneficiariosActualizados);
     }
-    public function guardar_gasto_vehiculo(GastoRequest $request, Gasto $gasto)
+    public function guardarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
         try {
             $datos = $request->validated();
@@ -483,7 +466,7 @@ class GastoController extends Controller
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
-    public function modificar_gasto_vehiculo(GastoRequest $request, Gasto $gasto)
+    public function modificarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
         try {
             $datos = $request->validated();
@@ -506,9 +489,7 @@ class GastoController extends Controller
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
-
-
-    public function reporte_valores_fondos(Request $request)
+    public function reporteValoresFondos(Request $request)
     {
         try {
             // Log::channel('testing')->info('Log', ['Request', $request->all()]);

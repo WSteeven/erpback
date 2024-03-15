@@ -3,6 +3,7 @@
 namespace App\Http\Resources\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -25,7 +26,7 @@ class ValorAcreditarResource extends JsonResource
             'empleado_info'=>$this->empleado->nombres!=null ?$this->empleado->apellidos.' '.$this->empleado->nombres:'',
             'empleado'=>$this->empleado_id,
             'umbral_empleado'=>$this->empleado->umbral!=null ?number_format($this->empleado->umbral->valor_minimo,2):0,
-            'saldo_empleado'=>$this->obtener_saldo($this->empleado_id,$numeroSemana),
+            'saldo_empleado'=>$this->obtenerSaldo($this->empleado_id,$numeroSemana),
             'monto_generado'=>number_format($this->monto_generado, 2),
             'monto_modificado'=> str_replace(",", "", number_format($this->monto_modificado, 2)),
             'acreditacion_semana'=>$this->acreditacion_semana_id,
@@ -36,13 +37,13 @@ class ValorAcreditarResource extends JsonResource
         ];
         return $modelo;
     }
-    public function obtener_saldo($empleado_id,$numero_semana){
-        $rango_fecha = $this->obtener_rango_semana($numero_semana);
-        $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
+    public function obtenerSaldo($empleado_id,$numero_semana){
+        $rango_fecha = $this->obtenerRangoSemana($numero_semana);
+        $saldo_actual = SaldosFondosRotativos::where('empleado_id', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
         $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
     }
-    public  function obtener_rango_semana($weekNumber)
+    public  function obtenerRangoSemana($weekNumber)
     {
         $startOfWeek = Carbon::now()->startOfWeek($weekNumber)->format('Y-m-d');;
         $endOfWeek = Carbon::now()->endOfWeek($weekNumber)->format('Y-m-d');

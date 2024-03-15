@@ -73,7 +73,7 @@ class TransferenciasController extends Controller
             ]);
         }
     }
-    public function autorizaciones_transferencia(Request $request)
+    public function autorizacionesTransferencia(Request $request)
     {
         $user = Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
@@ -135,15 +135,13 @@ class TransferenciasController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobar_transferencia(TransferenciaSaldoRequest $request)
+    public function aprobarTransferencia(TransferenciaSaldoRequest $request)
     {
         try {
             DB::beginTransaction();
             $transferencia = Transferencias::find($request->id);
-            $datos = $request->validated();
-            $datos['estado'] = Transferencias::APROBADO;
-            $transferencia->update($datos);
-            event(new TransferenciaSaldoEvent($transferencia));
+            $transferencia->estado = Transferencias::APROBADO;
+            $transferencia->save();
             DB::commit();
             return response()->json(['success' => 'Transferencia realizada correctamente']);
         } catch (Exception $e) {
@@ -161,7 +159,7 @@ class TransferenciasController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function rechazar_transferencia(Request $request)
+    public function rechazarTransferencia(Request $request)
     {
         $transferencia = Transferencias::where('id', $request->id)->first();
         $transferencia->estado = 2;
@@ -169,7 +167,7 @@ class TransferenciasController extends Controller
         event(new TransferenciaSaldoEvent($transferencia));
         return response()->json(['success' => 'Transferencia rechazada']);
     }
-    public function anular_transferencia(Request $request)
+    public function anularTransferencia(Request $request)
     {
         $transferencia = Transferencias::where('id', $request->id)->first();
         $transferencia->estado = 4;

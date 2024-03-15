@@ -44,14 +44,16 @@ class TransferenciaSaldoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $date = Carbon::now();
-        $this->merge([
-            'usuario_envia_id' =>  Auth()->user()->empleado->id,
-            'fecha' =>  $date->format('Y-m-d'),
-        ]);
         $admin_contabilidad = User::whereHas('roles', function ($q) {
             $q->where('name', User::COORDINADOR_CONTABILIDAD);
         })->first();
-        $this->tarea == 0 ?  $this->merge(['id_tarea' => null]) :  $this->merge(['id_tarea' => $this->tarea]);
         $this->es_devolucion ? $this->merge(['usuario_recibe_id' => $admin_contabilidad->empleado->id]) : $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
+        $this->merge(['usuario_envia_id' => $this->usuario_envia,'fecha' =>  $date->format('Y-m-d'),]);
+        $this->tarea == 0 ?  $this->merge(['id_tarea' => null]) :  $this->merge(['id_tarea' => $this->tarea]);
+        if ($this->route()->getActionMethod() === 'store') {
+            $this->merge([
+                'usuario_envia_id' =>  Auth()->user()->empleado->id,
+            ]);
+        }
     }
 }
