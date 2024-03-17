@@ -131,7 +131,7 @@ class GastoController extends Controller
             //Guardar en tabla de destalle gasto
             $gasto->sub_detalle_info()->sync($request->sub_detalle);
             if ($request->beneficiarios != null) {
-                $this->crear_beneficiarios($gasto, $request->beneficiarios);
+                $this->crearBeneficiarios($gasto, $request->beneficiarios);
             }
             $datos['id_gasto'] = $gasto->id;
             //Busca si existe detalle de gasto 6 o 16
@@ -355,24 +355,25 @@ class GastoController extends Controller
     }
     public function validarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
+        $gasto_vehiculo = GastoVehiculo::where('id_gasto', $gasto->id)->first();
         if ($request->detalle == 24) {
-            $this->guardar_gasto_vehiculo($request, $gasto);
+            is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
         }
         if ($request->detalle == 6 || $request->detalle == 16) {
             $sub_detalle = $request->sub_detalle;
             $sub_detalle = array_map('intval', $sub_detalle);
             $sub_detalle = array_flip($sub_detalle);
             if (array_key_exists(65, $sub_detalle)) {
-                $this->modificar_gasto_vehiculo($request, $gasto);
+                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(66, $sub_detalle)) {
-                $this->modificar_gasto_vehiculo($request, $gasto);
+                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(96, $sub_detalle)) {
-                $this->modificar_gasto_vehiculo($request, $gasto);
+                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(97, $sub_detalle)) {
-                $this->modificar_gasto_vehiculo($request, $gasto);
+                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
             }
         }
     }
