@@ -84,6 +84,15 @@ class FondoRotativoEvent implements ShouldBroadcast
                     'destinatario' => $this->gasto->aut_especial,
                 ];
                 break;
+         case Gasto::ANULADO:
+                $ruta = [
+                    'ruta' => '/gasto',
+                    'informativa' => false,
+                    'mensaje' => 'Te han anulado un gasto por el siguiente motivo: ' . $this->gasto->detalle_estado,
+                    'originador' =>  $this->gasto->aut_especial,
+                    'destinatario' => $this->gasto->id_usuario,
+                ];
+                break;
         }
         return $ruta;
     }
@@ -145,6 +154,9 @@ class FondoRotativoEvent implements ShouldBroadcast
                 break;
             case Gasto::PENDIENTE:
                 $nombre_canal = 'fondo-rotativo-' . $this->gasto->aut_especial;
+                break;
+        case Gasto::ANULADO:
+                $nombre_canal = 'fondo-rotativo-' . $this->gasto->id_usuario;
                 break;
         }
         return $nombre_canal;

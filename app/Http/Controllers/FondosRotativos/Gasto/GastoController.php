@@ -394,7 +394,7 @@ class GastoController extends Controller
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
-            $gasto_service->marcar_notificacion_leida();
+            $gasto_service->marcarNotificacionLeida();
             DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
@@ -420,7 +420,7 @@ class GastoController extends Controller
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
-            $gasto_service->marcar_notificacion_leida();
+            $gasto_service->marcarNotificacionLeida();
             DB::commit();
             return response()->json(['success' => 'Gasto rechazado']);
         } catch (Exception $e) {
