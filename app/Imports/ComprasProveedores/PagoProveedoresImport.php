@@ -4,9 +4,6 @@ namespace App\Imports\ComprasProveedores;
 
 use App\Models\ComprasProveedores\ItemPagoProveedores;
 use App\Models\ComprasProveedores\PagoProveedores;
-use Carbon\Carbon;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 
 class PagoProveedoresImport implements ToModel
@@ -24,17 +21,17 @@ class PagoProveedoresImport implements ToModel
      */
     public function model(array $row)
     {
-        Log::channel('testing')->info('Log', ['Fila en import', $row]);
+        // Log::channel('testing')->info('Log', ['Fila en import', $row]);
         $cant_nulos = 0;
         foreach ($row as $key => $r) {
-            Log::channel('testing')->info('Log', ['Es numero', $key, $r, doubleval($r),]);
+            // Log::channel('testing')->info('Log', ['Es numero', $key, $r, doubleval($r),]);
             if (is_null($r)) $cant_nulos++;
             if ($key == 19) {
                 if ($cant_nulos == 0) {
-                    Log::channel('testing')->info('Log', ['Encabezado']);
+                    // Log::channel('testing')->info('Log', ['Encabezado']);
                 }
                 if ($cant_nulos > 0 && $cant_nulos < 8) {
-                    Log::channel('testing')->info('Log', ['La fila es valida, se procede a almacenar']);
+                    // Log::channel('testing')->info('Log', ['La fila es valida, se procede a almacenar']);
                     $this->filas_validas++;
                     ItemPagoProveedores::create([
                         'pago_proveedor_id' => $this->pago->id,
@@ -53,7 +50,7 @@ class PagoProveedoresImport implements ToModel
                         'pagos' => $row[19],
                     ]);
                 }
-                Log::channel('testing')->info('Log', ['cant_nulos', $cant_nulos, $this->filas_validas]);
+                // Log::channel('testing')->info('Log', ['cant_nulos', $cant_nulos, $this->filas_validas]);
             }
         }
     }
