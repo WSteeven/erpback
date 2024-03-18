@@ -34,6 +34,12 @@ class ProformaService
                         ->orWhere('autorizador_id', auth()->user()->empleado->id);
                 })->where('estado_id', EstadosTransacciones::COMPLETA)->ignoreRequest(['solicitante_id', 'autorizador_id', 'autorizacion_id'])->filter()->get();
                 return $results;
+            case 5: //cuando esta aprobada la autorizacion pero se anula el prefacturado
+                $results = Proforma::where(function ($query) {
+                    $query->orWhere('solicitante_id', auth()->user()->empleado->id)
+                        ->orWhere('autorizador_id', auth()->user()->empleado->id);
+                })->where('estado_id', EstadosTransacciones::ANULADA)->where('autorizacion_id', Autorizaciones::APROBADO)->ignoreRequest(['solicitante_id', 'autorizador_id', 'autorizacion_id'])->filter()->get();
+                return $results;
             default:
                 $results = Proforma::where(function ($query) {
                     $query->orWhere('solicitante_id', auth()->user()->empleado->id)
