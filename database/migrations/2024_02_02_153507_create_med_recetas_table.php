@@ -13,17 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_consultas', function (Blueprint $table) {
+        Schema::create('med_recetas', function (Blueprint $table) {
             $table->string('rp');
             $table->string('prescripcion');
 
             //Laves foraneas
-            $table->unsignedBigInteger('cita_id');
-            $table->primary('cita_id');
-            $table->foreign('cita_id')->references('id')->on('med_citas_medicas')->cascadeOnUpdate();
-
-            $table->unsignedBigInteger('empleado_id');
-            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnUpdate();
+            $table->unsignedBigInteger('cita_medica_id');
+            $table->primary('cita_medica_id');
+            $table->foreign('cita_medica_id')->references('id')->on('med_citas_medicas')->cascadeOnUpdate();
 
             $table->timestamps();
         });
@@ -36,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_consultas');
+        Schema::dropIfExists('med_recetas');
     }
 };

@@ -20,6 +20,7 @@ use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
 use App\Http\Controllers\Medico\DiagnosticoController;
+use App\Http\Controllers\Medico\DiagnosticoRecetaController;
 use App\Http\Controllers\Medico\EsquemaVacunaController;
 use App\Http\Controllers\Medico\EstadoExamenController;
 use App\Http\Controllers\Medico\EstadoSolicitudExamenController;
@@ -118,6 +119,7 @@ Route::apiResources(
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
         'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
+        'diagnosticos-recetas' => DiagnosticoRecetaController::class,
     ],
     [
         'parameters' => [
@@ -129,6 +131,7 @@ Route::apiResources(
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
             'citas-medicas' => 'cita_medica',
             'solicitudes-examenes' => 'solicitud_examen',
+            'diagnosticos-recetas' => 'diagnostico_receta',
         ],
 
     ]

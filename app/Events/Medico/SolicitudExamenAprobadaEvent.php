@@ -12,10 +12,11 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Src\Config\ModulosPusherEvent;
 use Src\Config\PusherEvents;
 use Src\Config\TiposNotificaciones;
 
-class CambioFechaHoraSolicitudExamenEvent implements ShouldBroadcast
+class SolicitudExamenAprobadaEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -36,7 +37,7 @@ class CambioFechaHoraSolicitudExamenEvent implements ShouldBroadcast
         $this->destinatario = $destinatario;
 
         $ruta = '/gestionar-pacientes';
-        $mensaje = 'El autorizador ' . Empleado::extraerNombresApellidos($solicitud_examen->autorizador) . ' ha cambiado la fecha u hora de asistencia a los laboratorios.';
+        $mensaje = 'El autorizador ' . Empleado::extraerNombresApellidos($solicitud_examen->autorizador) . ' ha APROBADO la solicitud de exámenes médicos.';
 
         $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::SOLICITUD_EXAMEN, $emisor, $destinatario, $solicitud_examen, true);
     }
@@ -48,11 +49,11 @@ class CambioFechaHoraSolicitudExamenEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel(PusherEvents::CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN . '-tracker-' . $this->destinatario);
+        return new PrivateChannel(PusherEvents::SOLICITUD_EXAMEN . '-tracker-' . $this->destinatario);
     }
 
     public function broadcastAs()
     {
-        return PusherEvents::CAMBIO_FECHA_HORA_SOLICITUD_EXAMEN . '-event';
+        return PusherEvents::SOLICITUD_EXAMEN . '-event';
     }
 }

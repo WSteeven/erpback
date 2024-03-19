@@ -72,6 +72,14 @@ class PermisosMedicoSeeder extends Seeder
 
         // Citas medicas
         Permission::firstOrCreate(['name' => self::RECHAZAR. '.citas_medicas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER. '.citas_medicas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . '.citas_medicas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR. '.citas_medicas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.citas_medicas'])->syncRoles([$medico]);
+
+        // Diagnosticos y recetas
+        Permission::firstOrCreate(['name' => self::VER. '.diagnosticos_recetas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR. '.diagnosticos_recetas'])->syncRoles([$medico]);
 
         // Cies
         Permission::firstOrCreate(['name' => self::VER . '.cies'])->syncRoles([$medico]);

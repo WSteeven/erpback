@@ -13,13 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_diagnosticos_citas', function (Blueprint $table) {
+        Schema::create('med_diagnosticos_cita_medica', function (Blueprint $table) {
             $table->id();
             $table->string('recomendacion');
 
             //Laves foraneas
             $table->unsignedBigInteger('cie_id');
             $table->foreign('cie_id')->references('id')->on('med_cies')->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('cita_medica_id');
+            $table->foreign('cita_medica_id')->references('id')->on('med_citas_medicas')->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }
@@ -31,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_diagnostico_citas');
+        Schema::dropIfExists('med_diagnosticos_cita_medica');
     }
 };

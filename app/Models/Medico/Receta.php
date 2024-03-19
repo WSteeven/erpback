@@ -15,9 +15,9 @@ class Receta extends Model implements Auditable
 
     protected $table = 'med_recetas';
     protected $fillable = [
-        'medicamento',
-        'dosis_frecuencia'
+        'rp',
+        'prescripcion'
     ];
-    private static $whiteListFilter = ['*'];
 
+    private static $whiteListFilter = ['*'];
 }

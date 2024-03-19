@@ -3,6 +3,8 @@
 namespace App\Models\Medico;
 
 use App\Models\Canton;
+use App\Models\Empleado;
+use App\Models\Notificacion;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use OwenIt\Auditing\Auditable as AuditableModel;
@@ -47,5 +49,20 @@ class SolicitudExamen extends Model implements Auditable
     public function canton()
     {
         return $this->belongsTo(Canton::class);
+    }
+
+    public function autorizador()
+    {
+        return $this->belongsTo(Empleado::class, 'autorizador_id', 'id');
+    }
+
+    public function solicitante()
+    {
+        return $this->belongsTo(Empleado::class, 'solicitante_id', 'id');
+    }
+
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }

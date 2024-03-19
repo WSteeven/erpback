@@ -2,7 +2,10 @@
 
 namespace Src\App\Medico;
 
+use App\Events\ActualizarNotificacionesEvent;
+use App\Events\Medico\CambioFechaHoraSolicitudExamenEvent;
 use App\Http\Requests\Medico\SolicitudExamenRequest;
+use App\Mail\Medico\CambioFechaHoraSolicitudExamenMail;
 use App\Models\Medico\EstadoSolicitudExamen;
 use App\Models\Medico\SolicitudExamen;
 use Exception;
@@ -11,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
 
 class SolicitudExamenService
 {
@@ -85,9 +89,9 @@ class SolicitudExamenService
                 if ($modelo->isDirty()) $modelo->save();
             }
 
-            if ($existenCambiosFechaHora) $this->notificarAlSolicitante();
+            if ($existenCambiosFechaHora) $this->notificarAlSolicitante($solicitud);
 
-            Log::channel('testing')->info('Log', ['cantidadCambiosFechaHora', $existenCambiosFechaHora]);
+            // Log::channel('testing')->info('Log', ['cantidadCambiosFechaHora', $existenCambiosFechaHora]);
 
             DB::commit();
 
@@ -98,11 +102,13 @@ class SolicitudExamenService
         }
     }
 
-    private function notificarAlSolicitante()
+    private function notificarAlSolicitante(SolicitudExamen $solicitud_examen)
     {
-        // enviar email
-
-        // notificar sistema
-
+        // NO BORRAR - HABILITAR ESTO EN PRODUCCION
+        // Enviar email al solicitante
+        // Mail::to($solicitud_examen->solicitante->user->email)->send(new CambioFechaHoraSolicitudExamenMail($solicitud_examen));
+        // Notificar sistema
+        event(new CambioFechaHoraSolicitudExamenEvent($solicitud_examen, $solicitud_examen->autorizador_id, $solicitud_examen->solicitante_id));
+        event(new ActualizarNotificacionesEvent());
     }
 }

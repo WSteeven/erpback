@@ -25,5 +25,5 @@ enum TiposNotificaciones: string{
     case PREFACTURA = 'PREFACTURA';
     case PROVEEDOR = 'PROVEEDOR';
     // medico
-    case SOLICITUD_EXAMEN = 'SOLICITUD_EXAMEN';
+    case SOLICITUD_EXAMEN = 'SOLICITUD DE EXAMEN';
 }
