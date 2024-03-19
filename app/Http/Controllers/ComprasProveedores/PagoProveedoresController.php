@@ -18,19 +18,20 @@ use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 use Src\App\ArchivoService;
 use Src\App\CashGenericoService;
+use Src\Shared\ConeccionContifico;
 use Src\Shared\Utils;
 
 class PagoProveedoresController extends Controller
 {
     //pagos_proveedores
     private $entidad = 'Pago a proveedores';
-    private $archivoService;
+    private $contifico;
     private $cashService;
 
     public function __construct()
     {
         // $this->servicio = new OrdenCompraService();
-        $this->archivoService = new ArchivoService();
+        $this->contifico = new ConeccionContifico();
         $this->cashService = new CashGenericoService();
         $this->middleware('can:puede.ver.pagos_proveedores')->only('index', 'show');
         $this->middleware('can:puede.crear.pagos_proveedores')->only('store');
@@ -121,11 +122,16 @@ class PagoProveedoresController extends Controller
             });
             $results = [];
             foreach ($datos_consolidados as $index => $dato) {
-                $row['identificacion_beneficiario'] = '9999999999';
+                // Log::channel('testing')->info('Log', ['dato en reporteCash', $dato]);
+                $objeto_consultado =  $this->cashService->obtenerDatosProveedor($this->contifico, ['filtro' => $dato['proveedor']]);
+                $row['identificacion_beneficiario'] = $objeto_consultado['identificacion'];
                 $row['total'] = $dato['valor_pagar'];
-                $row['banco'] = 'PRODUBANCO';
-                $row['tipo_cta'] = DatoBancarioProveedor::CORRIENTE;
-                $row['num_cuenta_beneficiario'] = '00000000000';
+                $row['tipo_cta'] = $objeto_consultado['tipo_cta'];
+                $row['num_cuenta_beneficiario'] = $objeto_consultado['num_cta'];
+                if ($row['num_cuenta_beneficiario'] == '00000000000') {
+                    [$row['banco'], $row['num_cuenta_beneficiario']] = $this->cashService->obtenerBanco($objeto_consultado['identificacion']);
+                } else
+                    [$row['banco'],] = $this->cashService->obtenerBanco($objeto_consultado['identificacion']);
                 $row['beneficiario'] = $dato['proveedor'];
                 $row['referencia'] = $dato['descripcion'];
                 $row['correo'] = null;
