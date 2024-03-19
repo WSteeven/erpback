@@ -48,6 +48,7 @@ class ProformaController extends Controller
         } else {
             $results = $this->servicio->filtrarProformasEmpleado($request);
         }
+        $results = $results->sortByDesc('id');
         $results = ProformaResource::collection($results);
         return response()->json(compact('results'));
     }

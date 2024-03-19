@@ -24,4 +24,14 @@ class Banco extends Model implements Auditable
         'codigo',
         'nombre',
     ];
+
+    const PRODUBANCO = 'PRODUBANCO';
+
+
+    public static function obtenerDatosBanco($nombre_banco = Banco::PRODUBANCO, $codigo_banco = '0036')
+    {
+        $banco = Banco::where('nombre', 'LIKE', '%' . $nombre_banco . '%')->orWhere('codigo', $codigo_banco)->first();
+        if ($banco) return  $banco;
+        else return  null;
+    }
 }
