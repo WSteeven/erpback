@@ -29,11 +29,11 @@ class BeneficiarioGasto extends Model implements Auditable
         'empleado_id',
         'beneficiario',
     ];
-    public function gasto_info()
+    public function gasto()
     {
         return $this->hasOne(Gasto::class, 'id','id_gasto');
     }
-    public function empleado_info()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'empleado_id');
     }

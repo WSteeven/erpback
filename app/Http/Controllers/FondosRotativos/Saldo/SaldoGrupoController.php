@@ -300,20 +300,20 @@ class SaldoGrupoController extends Controller
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', Gasto::APROBADO)
                 ->with(
-                    'empleado_info',
+                    'empleado',
                     'detalle_estado',
-                    'sub_detalle_info',
+                    'subDetalle',
                     'proyecto_info'
                 );
 
             if ($request->tipo_filtro == 9) {
-                $gastosQuery->whereHas('empleado_info', function ($query) use ($request) {
+                $gastosQuery->whereHas('empleado', function ($query) use ($request) {
                     $query->where('canton_id', $request['ciudad']);
                 });
             }
 
             if ($request->subdetalle != null) {
-                $gastos = $gastosQuery->whereHas('sub_detalle_info', function ($q) use ($request) {
+                $gastos = $gastosQuery->whereHas('subDetalle', function ($q) use ($request) {
                     $q->where('subdetalle_gasto_id', $request['subdetalle']);
                 })->get();
             } else {
@@ -454,7 +454,7 @@ class SaldoGrupoController extends Controller
             $fecha_anterior = '';
             $saldo_anterior = 0;
             if ($request->usuario == null) {
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info', 'aut_especial_user', 'tarea_info')
+                $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle', 'authEspecialUser', 'tarea')
                     ->where('estado', Gasto::APROBADO)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
@@ -478,7 +478,7 @@ class SaldoGrupoController extends Controller
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->sum('monto');
 
-                $gastos = Gasto::with('empleado_info', 'detalle_estado', 'detalle_info', 'sub_detalle_info', 'aut_especial_user', 'tarea_info')
+                $gastos = Gasto::with('empleado', 'detalle_estado', 'detalle_info', 'subDetalle', 'authEspecialUser', 'tarea')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -543,7 +543,7 @@ class SaldoGrupoController extends Controller
                 })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle')
                 ->where('estado', Gasto::APROBADO)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -566,7 +566,7 @@ class SaldoGrupoController extends Controller
                 ->sum('monto');
 
             //Gastos
-            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')
+            $gastos_reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')
                 ->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('id_usuario', '=', $request->usuario)
@@ -683,7 +683,7 @@ class SaldoGrupoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user', 'tarea_info')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $gastos_reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser', 'tarea')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', 1)
                 ->where('id_usuario', '=',  $request->usuario)
@@ -844,7 +844,7 @@ class SaldoGrupoController extends Controller
             $date_fin = Carbon::createFromFormat($mask, $request->fecha_fin);
             $fecha_inicio = $date_inicio->format($mask);
             $fecha_fin = $date_fin->format($mask);
-            $gastos = Gasto::with('empleado_info', 'detalle_estado', 'sub_detalle_info')
+            $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->orderBy('fecha_viat', 'asc')

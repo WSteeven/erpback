@@ -53,7 +53,7 @@ class GastoController extends Controller
         $this->middleware('can:puede.ver.gasto')->only('index', 'show');
         $this->middleware('can:puede.crear.gasto')->only('store');
         $this->middleware('can:puede.editar.gasto')->only('update');
-        $this->middleware('can:puede.eliminar.gasto')->only('update');
+        $this->middleware('can:puede.eliminar.gasto')->only('destroy');
         $this->middleware('can:puede.ver.reporte_autorizaciones')->only('reporte_autorizaciones');
     }
     /**
@@ -69,12 +69,12 @@ class GastoController extends Controller
         $usuario_ac = User::where('id', $usuario->id)->first();
         $results = [];
         if ($usuario_ac->hasRole([User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
-            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
+            $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         } else {
             $usuario = Auth::user()->empleado;
-            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->orderBy('id', 'desc')->get();
+            $results = Gasto::where('id_usuario', $usuario->id)->orwhere('aut_especial', $usuario->id)->ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
             $results = GastoResource::collection($results);
             return response()->json(compact('results'));
         }
@@ -85,13 +85,13 @@ class GastoController extends Controller
             $usuario_autenticado =  Auth::user();
             $results = [];
             if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
-                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->filter()->get();
+                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             } else {
                 $fechaActual = Carbon::now();
                 $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d');
-                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'sub_detalle_info', 'aut_especial_user', 'estado_info', 'tarea_info', 'proyecto_info')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             }
@@ -129,7 +129,7 @@ class GastoController extends Controller
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
             //Guardar en tabla de destalle gasto
-            $gasto->sub_detalle_info()->sync($request->sub_detalle);
+            $gasto->subDetalle()->sync($request->sub_detalle);
             if ($request->beneficiarios != null) {
                 $this->crearBeneficiarios($gasto, $request->beneficiarios);
             }
@@ -209,7 +209,7 @@ class GastoController extends Controller
                 ->where('id_estado', EstadoAcreditaciones::REALIZADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos_reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'aut_especial_user')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
+            $gastos_reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'authEspecialUser')->selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->where('estado', '=', Gasto::APROBADO)
                 ->where('id_usuario', '=',  $datos_usuario_logueado->id)
@@ -277,12 +277,12 @@ class GastoController extends Controller
             $id_usuario = $request->usuario;
             $usuario = Empleado::where('id', $id_usuario)->first();
             $tipo_reporte = EstadoViatico::where('id', $id_tipo_reporte)->first();
-            $reporte = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info', 'tarea_info')
+            $reporte = Gasto::with('empleado', 'detalle_info', 'subDetalle', 'tarea')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->get();
-            $subtotal = Gasto::with('empleado_info', 'detalle_info', 'sub_detalle_info')
+            $subtotal = Gasto::with('empleado', 'detalle_info', 'subDetalle')
                 ->where('estado', $id_tipo_reporte)
                 ->where('aut_especial', $id_usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])->sum('total');
@@ -390,7 +390,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
             $gasto->estado = Gasto::RECHAZADO;
-            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->detalleEstado = $request->detalle_estado;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
@@ -416,7 +416,7 @@ class GastoController extends Controller
                 ]);
             }
             $gasto->estado = Gasto::ANULADO;
-            $gasto->detalle_estado = $request->detalle_estado;
+            $gasto->detalleEstado = $request->detalle_estado;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);

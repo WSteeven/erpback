@@ -38,23 +38,23 @@ class GastoCoordinador extends Model implements Auditable
         'observacion',
         'id_usuario',
     ];
-    public function motivo_info()
+    public function motivoGasto()
     {
         return $this->hasOne(MotivoGasto::class, 'id','id_motivo');
     }
-    public function empleado_info()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id','id_usuario')->with('user');
     }
-    public function grupo_info()
+    public function grupo()
     {
         return $this->hasOne(Grupo::class, 'id','id_grupo');
     }
-    public function lugar_info()
+    public function canton()
     {
         return $this->hasOne(Canton::class, 'id','id_lugar');
     }
-    public function detalle_motivo_info()
+    public function detalleMotivoGasto()
     {
         return $this->belongsToMany(MotivoGasto::class,'detalle_motivo_gastos','id_gasto_coordinador','id_motivo_gasto');
     }
@@ -67,14 +67,14 @@ class GastoCoordinador extends Model implements Auditable
             $row['fecha_gasto']= $gasto->fecha_gasto;
             $row['lugar'] = $gasto->id_lugar;
             $row['grupo'] = $gasto->id_grupo;
-            $row['grupo_info'] = $gasto->grupo_info->nombre;
-            $row['motivo_info'] = $gasto->detalle_motivo_info != null ? $gasto->detalle_motivo_info:'';
-            $row['motivo'] = $gasto->detalle_motivo_info != null ? $gasto->detalle_motivo_info->pluck('id'):null;
-            $row['lugar_info'] = $gasto->lugar_info->canton;
+            $row['grupo_info'] = $gasto->grupo->nombre;
+            $row['motivo_info'] = $gasto->motivoGasto != null ? $gasto->motivoGasto:'';
+            $row['motivo'] = $gasto->motivoGasto != null ? $gasto->motivoGasto->pluck('id'):null;
+            $row['lugar_info'] = $gasto->canton->canton;
             $row['monto'] = $gasto->monto;
             $row['observacion'] = $gasto->observacion;
             $row['usuario'] = $gasto->id_usuario;
-            $row['empleado_info'] = $gasto->empleado_info != null ? $gasto->empleado_info->nombres.' '.$gasto->empleado_info->apellidos:' ' ;
+            $row['empleado_info'] = $gasto->empleado != null ? $gasto->empleado->nombres.' '.$gasto->empleado->apellidos:' ' ;
 
             $results[$id] = $row;
             $id++;

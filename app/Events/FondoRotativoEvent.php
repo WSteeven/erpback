@@ -70,7 +70,7 @@ class FondoRotativoEvent implements ShouldBroadcast
                 $ruta = [
                     'ruta' => '/gasto',
                     'informativa' => true,
-                    'mensaje' => 'Te han rechazado un gasto por el siguiente motivo: ' . $this->gasto->detalle_estado,
+                    'mensaje' => 'Te han rechazado un gasto por el siguiente motivo: ' . $this->gasto->detalleEstado,
                     'originador' =>  $this->gasto->aut_especial,
                     'destinatario' => $this->gasto->id_usuario,
                 ];
@@ -88,7 +88,7 @@ class FondoRotativoEvent implements ShouldBroadcast
                 $ruta = [
                     'ruta' => '/gasto',
                     'informativa' => false,
-                    'mensaje' => 'Te han anulado un gasto por el siguiente motivo: ' . $this->gasto->detalle_estado,
+                    'mensaje' => 'Te han anulado un gasto por el siguiente motivo: ' . $this->gasto->detalleEstado,
                     'originador' =>  $this->gasto->aut_especial,
                     'destinatario' => $this->gasto->id_usuario,
                 ];
@@ -113,7 +113,7 @@ class FondoRotativoEvent implements ShouldBroadcast
         $empleado = Empleado::find($this->gasto->id_usuario);
         $modelo = new GastoResource($this->gasto);
         $detalle = $modelo->detalle_info->descripcion;
-        $sub_detalle_info = $this->subdetalleInfo($modelo->sub_detalle_info);
+        $sub_detalle_info = $this->subdetalleInfo($modelo->subDetalle);
         $mensaje = $empleado->nombres . ' ' . $empleado->apellidos . ' ha solicitado un gasto por un monto de $' . $this->gasto->total . ' con respecto a ' . $detalle . ' ' . $sub_detalle_info;
         return $mensaje;
     }

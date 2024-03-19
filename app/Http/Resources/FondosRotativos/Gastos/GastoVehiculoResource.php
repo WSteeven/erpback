@@ -18,7 +18,7 @@ class GastoVehiculoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id_gasto' => $this->id_gasto,
-            'gasto_info' => $this->gasto_info,
+            'gasto' => $this->gasto,
             'placa' => $this->placa,
             'valor_u' => $this->kilometraje,
         ];

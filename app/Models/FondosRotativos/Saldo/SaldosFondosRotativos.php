@@ -77,7 +77,7 @@ class SaldosFondosRotativos extends Model  implements Auditable
                     $row['empleado'] = $saldos->empleado;
                     $row['cargo'] =  $saldos->empleado->cargo != null ? $saldos->empleado->cargo->nombre : '';
                     $row['localidad'] = $saldos->empleado->canton != null ? $saldos->empleado->canton->canton : '';
-                    $row['descripcion_saldo'] = $saldos->descripcion_saldo;
+                    $row['descripcion_saldo'] = $saldos->descripcionSaldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;
                     $row['saldo_actual'] = $saldos->saldo_actual;

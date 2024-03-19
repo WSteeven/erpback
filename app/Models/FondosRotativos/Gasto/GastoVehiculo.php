@@ -32,7 +32,7 @@ class GastoVehiculo extends  Model implements Auditable
         'kilometraje',
         'es_vehiculo_alquilado'
     ];
-    public function gasto_info()
+    public function gasto()
     {
         return $this->hasOne(Gasto::class, 'id','id_gasto');
     }

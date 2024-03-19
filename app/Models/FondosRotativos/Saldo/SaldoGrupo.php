@@ -54,13 +54,13 @@ class SaldoGrupo extends  Model implements Auditable
                 if (isset($saldo['detalle_info']['descripcion'])) {
                     $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                     $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                    $row = SaldoGrupo::guardar_arreglo($id, $ingreso, $gasto, $saldo);
+                    $row = SaldoGrupo::guardarArreglo($id, $ingreso, $gasto, $saldo);
                     $results[$id] = $row;
                     $id++;
                 } else {
                     $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
                     $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                    $row = SaldoGrupo::guardar_arreglo($id, $ingreso, $gasto, $saldo);
+                    $row = SaldoGrupo::guardarArreglo($id, $ingreso, $gasto, $saldo);
                     $results[$id] = $row;
                     $id++;
                 }
@@ -68,15 +68,15 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return $results;
     }
-    private static function guardar_arreglo($id, $ingreso, $gasto, $saldo)
+    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
     {
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
         $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
-        $row['descripcion'] = SaldoGrupo::descripcion_saldo($saldo);
-        $row['observacion'] = SaldoGrupo::observacion_saldo($saldo);
+        $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
+        $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
         $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
@@ -153,7 +153,7 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return 0;
     }
-    private static function descripcion_saldo($saldo)
+    private static function descripcionSaldo($saldo)
     {
         if (isset($saldo['descripcion_acreditacion'])) {
             return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
@@ -169,16 +169,16 @@ class SaldoGrupo extends  Model implements Auditable
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
                 if ($saldo['estado'] == 4) {
-                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['subDetalle']);
                     return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
-                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['sub_detalle_info']);
+                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['subDetalle']);
                 return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
         }
         return '';
     }
-    private static function observacion_saldo($saldo)
+    private static function observacionSaldo($saldo)
     {
         if (isset($saldo['observacion'])) {
             return $saldo['observacion'];
@@ -255,7 +255,7 @@ class SaldoGrupo extends  Model implements Auditable
                     $row['empleado'] = $saldos->usuario;
                     $row['cargo'] =  $saldos->usuario->cargo != null ? $saldos->usuario->cargo->nombre : '';
                     $row['localidad'] = $saldos->usuario->canton != null ? $saldos->usuario->canton->canton : '';
-                    $row['descripcion_saldo'] = $saldos->descripcion_saldo;
+                    $row['descripcion_saldo'] = $saldos->descripcionSaldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;
                     $row['saldo_actual'] = $saldos->saldo_actual;

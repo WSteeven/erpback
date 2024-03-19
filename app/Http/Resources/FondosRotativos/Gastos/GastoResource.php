@@ -21,28 +21,28 @@ class GastoResource extends JsonResource
             'id'=> $this->id,
             'fecha_viat' => $this->cambiar_fecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
-            'lugar_info' => $this->lugar_info->canton,
+            'lugar_info' => $this->canton->canton,
             'num_tarea' => $this->id_tarea == null ? 0 : $this->id_tarea,
             'subTarea' => $this->id_subtarea == null ? 0 : $this->id_subtarea,
-            'subTarea_info' => $this->subtarea_info != null ? $this->subtarea_info->codigo_subtarea . ' - ' . $this->subtarea_info->titulo : 'Sin Subtarea',
-            'tarea_info' =>  $this->tarea_info != null ? $this->tarea_info->codigo_tarea . ' - ' . $this->tarea_info->detalle : 'Sin Tarea',
-            'tarea_cliente' =>  $this->tarea_info != null ? $this->tarea_info->codigo_tarea_cliente : 'Sin Tarea',
+            'subTarea_info' => $this->subTarea != null ? $this->subTarea->codigo_subtarea . ' - ' . $this->subTarea->titulo : 'Sin Subtarea',
+            'tarea_info' =>  $this->tarea != null ? $this->tarea->codigo_tarea . ' - ' . $this->tarea->detalle : 'Sin Tarea',
+            'tarea_cliente' =>  $this->tarea != null ? $this->tarea->codigo_tarea_cliente : 'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
-            'proyecto_info' => $this->proyecto_info != null ? $this->proyecto_info->codigo_proyecto . ' - ' . $this->proyecto_info->nombre : 'Sin Proyecto',
+            'proyecto_info' => $this->Proyecto != null ? $this->Proyecto->codigo_proyecto . ' - ' . $this->Proyecto->nombre : 'Sin Proyecto',
             'ruc' => $this->ruc,
             'factura' => strlen($this->factura)>1?$this->factura:null,
-            'aut_especial_user' => $this->aut_especial_user->nombres . ' ' . $this->aut_especial_user->apellidos,
+            'aut_especial_user' => $this->authEspecialUser->nombres . ' ' . $this->authEspecialUser->apellidos,
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
-            'sub_detalle_info' => $this->sub_detalle_info != null ? $this->subdetalle_info($this->sub_detalle_info) : '',
-            'beneficiarios' => $this->beneficiario_info != null ? $this->beneficiario_info->pluck('empleado_id') : null,
-            'beneficiarios_info' => $this->beneficiario_empleado_info($this->beneficiario_info),
-            'sub_detalle' => $this->sub_detalle_info != null ? $this->sub_detalle_info->pluck('id') : null,
-            'vehiculo' => $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->id_vehiculo : '',
-            'placa' =>  $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->placa : '',
-            'es_vehiculo_alquilado' =>  $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->es_vehiculo_alquilado : null,
-            'kilometraje' => $this->gasto_vehiculo_info != null ? $this->gasto_vehiculo_info->kilometraje : '',
+            'sub_detalle_info' => $this->subDetalle != null ? $this->subdetalle_info($this->subDetalle) : '',
+            'beneficiarios' => $this->beneficiarioGasto != null ? $this->beneficiarioGasto->pluck('empleado_id') : null,
+            'beneficiarios_info' => $this->beneficiario_empleado_info($this->beneficiarioGasto),
+            'sub_detalle' => $this->subDetalle != null ? $this->subDetalle->pluck('id') : null,
+            'vehiculo' => $this->gastoVehiculo != null ? $this->gastoVehiculo->id_vehiculo : '',
+            'placa' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->placa : '',
+            'es_vehiculo_alquilado' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->es_vehiculo_alquilado : null,
+            'kilometraje' => $this->gastoVehiculo != null ? $this->gastoVehiculo->kilometraje : '',
             'detalle' => $this->detalle,
             'cantidad' => $this->cantidad,
             'valor_u' => $this->valor_u,
@@ -52,17 +52,17 @@ class GastoResource extends JsonResource
             'comprobante2' => $this->comprobante2 ? url($this->comprobante2) : null,
             'observacion' => $this->observacion,
             'id_usuario' => $this->id_usuario,
-            'empleado_info' => $this?->empleado_info?->nombres . ' ' . $this?->empleado_info?->apellidos,
+            'empleado_info' => $this?->empleado?->nombres . ' ' . $this?->empleado?->apellidos,
             'estado' => $this->estado,
-            'estado_info' => $this?->estado_info?->descripcion,
+            'estado_info' => $this?->estadoViatico?->descripcion,
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
-            'tiene_factura_info' => $this->sub_detalle_info != null ? $this->sub_detalle_info : true,
-            'tiene_factura' => $this->sub_detalle_info != null ? $this->tiene_factura($this->sub_detalle_info) : true,
+            'tiene_factura_info' => $this->subDetalle != null ? $this->subDetalle : true,
+            'tiene_factura' => $this->subDetalle != null ? $this->tiene_factura($this->subDetalle) : true,
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
-            'centro_costo' => $this->tarea_info !== null ? $this->tarea_info?->centroCosto?->nombre:'',
-            'subcentro_costo' => $this?->empleado_info?->grupo==null ?'':$this?->empleado_info?->grupo?->subCentroCosto?->nombre,
+            'centro_costo' => $this->tarea !== null ? $this->tarea?->centroCosto?->nombre:'',
+            'subcentro_costo' => $this?->empleado?->grupo==null ?'':$this?->empleado?->grupo?->subCentroCosto?->nombre,
         ];
         return $modelo;
     }
@@ -95,7 +95,7 @@ class GastoResource extends JsonResource
         $descripcion = '';
         $i = 0;
         foreach ($beneficiarios as $beneficiario) {
-            $descripcion .= $beneficiario?->empleado_info?->nombres . ' ' . $beneficiario?->empleado_info?->apellidos;
+            $descripcion .= $beneficiario?->empleado?->nombres . ' ' . $beneficiario?->empleado?->apellidos;
             $i++;
             if ($i !== count($beneficiarios)) {
                 $descripcion .= ', ';

@@ -47,11 +47,11 @@ class Transferencias extends Model implements Auditable
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');
     }
-    public function estado_info()
+    public function estadoViatico()
     {
         return $this->hasOne(EstadoViatico::class, 'id','estado');
     }
-    public function tarea_info()
+    public function tarea()
     {
         return $this->hasOne(Tarea::class, 'id','id_tarea');
     }

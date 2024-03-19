@@ -39,9 +39,9 @@ class GastoCoordinadorController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->orderBy('fecha_gasto','desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->orderBy('fecha_gasto','desc')->get();
         } else {
-            $results = GastoCoordinador::with('empleado_info', 'motivo_info', 'lugar_info')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto','desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto','desc')->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -61,7 +61,7 @@ class GastoCoordinadorController extends Controller
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
             $modelo = GastoCoordinador::create($datos);
-            $modelo->detalle_motivo_info()->sync($request->motivo);
+            $modelo->detalleMotivoGasto()->sync($request->motivo);
             event(new SolicitudFondosEvent($modelo));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
