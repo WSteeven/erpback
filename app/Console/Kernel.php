@@ -32,8 +32,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(new NotificarPermisoJob)->dailyAt('09:00');
         $schedule->job(new NotificarPedidoParcialJob)->dailyAt('08:00');
         // Programación para días de semana lunes a viernes
+        // ->dailyAt('17:00')
         $schedule->job(new PausarTicketsFinJornadaJob)
-            ->dailyAt('17:00')
+            ->between('17:00', '08:00')
             ->everyFourHours()
             ->when(function () {
                 return !in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
@@ -42,7 +43,6 @@ class Kernel extends ConsoleKernel
         // Programación para fines de semana
         $schedule->job(new PausarTicketsFinJornadaJob)
             ->everyFourHours()
-            ->between('17:00', '08:00')
             ->when(function () {
                 return in_array(Carbon::now()->dayOfWeek, [Carbon::SATURDAY, Carbon::SUNDAY]);
             });
