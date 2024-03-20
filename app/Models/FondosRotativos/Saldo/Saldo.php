@@ -13,13 +13,13 @@ use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
-class SaldosFondosRotativos extends Model  implements Auditable
+class Saldo extends Model  implements Auditable
 {
     use HasFactory;
     use AuditableModel;
     use Filterable;
     use UppercaseValuesTrait;
-    protected $table = 'fr_saldos_fondos_rotativos';
+    protected $table = 'fr_saldos';
     protected $primaryKey = 'id';
     protected $fillable = [
         'fecha',

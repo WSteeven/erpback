@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('fr_saldos_fondos_rotativos', function (Blueprint $table) {
+        Schema::create('fr_saldos', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');
             $table->double('saldo_anterior');

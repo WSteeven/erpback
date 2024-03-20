@@ -3,7 +3,7 @@
 namespace App\Http\Resources\FondosRotativos\Saldo;
 
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -50,13 +50,13 @@ class ValorAcreditarResource extends JsonResource
      *
      * @return La función `obtenerSaldo` devuelve el saldo actual de un fondo para un empleado específico
      * durante una semana determinada. Calcula el saldo consultando en la base de datos la entrada más
-     * reciente en la tabla `SaldosFondosRotativos` para el empleado que tiene una fecha en o antes del
+     * reciente en la tabla `Saldo` para el empleado que tiene una fecha en o antes del
      * inicio de la semana especificada por el parámetro de entrada ``. Si tal entrada
      */
     public function obtenerSaldo(int $empleado_id, string $numero_semana)
     {
         $rango_fecha = $this->obtenerRangoSemana($numero_semana);
-        $saldo_actual = SaldosFondosRotativos::where('empleado_id', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
+        $saldo_actual = Saldo::where('empleado_id', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
         $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
     }

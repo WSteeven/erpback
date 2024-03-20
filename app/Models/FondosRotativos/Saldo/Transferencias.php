@@ -65,7 +65,7 @@ class Transferencias extends Model implements Auditable
     }
     public function saldoFondoRotativo()
     {
-        return $this->morphMany(SaldosFondosRotativos::class, 'saldoable');
+        return $this->morphMany(Saldo::class, 'saldoable');
     }
     private static $whiteListFilter = [
         'usuario_envia_id',

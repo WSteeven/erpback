@@ -5,7 +5,7 @@ namespace App\Models\FondosRotativos\Gasto;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -143,7 +143,7 @@ class Gasto extends Model implements Auditable
     }
     public function saldoFondoRotativo()
     {
-        return $this->morphOne(SaldosFondosRotativos::class, 'saldoable');
+        return $this->morphOne(Saldo::class, 'saldoable');
     }
 
     public static function empaquetar($gastos)

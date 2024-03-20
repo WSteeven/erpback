@@ -10,6 +10,7 @@ use App\Http\Controllers\FondosRotativos\Gasto\SubDetalleViaticoController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionesController;
 use App\Http\Controllers\FondosRotativos\Saldo\AcreditacionSemanaController;
 use App\Http\Controllers\FondosRotativos\Saldo\SaldoGrupoController;
+use App\Http\Controllers\FondosRotativos\Saldo\SaldosFondosRotativosController;
 use App\Http\Controllers\FondosRotativos\Saldo\TipoSaldoController;
 use App\Http\Controllers\FondosRotativos\Saldo\TransferenciasController;
 use App\Http\Controllers\FondosRotativos\Saldo\ValorAcreditarController;
@@ -26,7 +27,7 @@ Route::apiResources(
         'gastos' => GastoController::class,
         'tipo-saldo' => TipoSaldoController::class,
         'tipo-fondo' => TipoFondoController::class,
-        'saldo-grupo' => SaldoGrupoController::class,
+        'saldo-grupo' => SaldosFondosRotativosController::class,
         'acreditacion' => AcreditacionesController::class,
         'transferencia' => TransferenciasController::class,
         'gasto-coordinador' => GastoCoordinadorController::class,
@@ -44,15 +45,16 @@ Route::apiResources(
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('reporte/fecha/{tipo}', [GastoController::class, 'generarReporte']);
+    //Route::post('reporte/saldo_actual/{tipo}', [SaldosFondosRotativosController::class, 'saldoActual']);
     Route::post('reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldoActual']);
     Route::post('reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
     Route::get('cortar_saldo', [AcreditacionSemanaController::class, 'cortarSaldo']);
-    Route::get('ultimo_saldo/{id}', [SaldoGrupoController::class, 'saldoActualUsuario']);
+    Route::get('ultimo_saldo/{id}', [SaldosFondosRotativosController::class, 'saldoActualUsuario']);
     Route::get('monto_acreditar_usuario/{id}', [ValorAcreditarController::class, 'montoAcreditarUsuario']);
     Route::post('autorizaciones_fecha/{tipo}', [GastoController::class, 'reporteAutorizaciones']);
-    Route::post('consolidado/{tipo}', [SaldoGrupoController::class, 'consolidado']);
-    Route::post('consolidado_filtrado/{tipo}', [SaldoGrupoController::class, 'consolidadoFiltrado']);
-    Route::get('gastocontabilidad', [SaldoGrupoController::class, 'gastoContabilidad']);
+    Route::post('consolidado/{tipo}', [SaldosFondosRotativosController::class, 'consolidado']);
+    Route::post('consolidado_filtrado/{tipo}', [SaldosFondosRotativosController::class, 'consolidadoFiltrado']);
+    Route::get('gastocontabilidad', [SaldosFondosRotativosController::class, 'gastoContabilidad']);
     Route::get('autorizaciones_gastos', [GastoController::class, 'autorizacionesGastos']);
     Route::get('autorizaciones_transferencia', [TransferenciasController::class, 'autorizacionesTransferencia']);
     Route::post('aprobar-gasto', [GastoController::class, 'aprobarGasto']);

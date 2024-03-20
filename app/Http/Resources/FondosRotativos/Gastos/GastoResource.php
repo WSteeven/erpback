@@ -3,6 +3,7 @@
 namespace App\Http\Resources\FondosRotativos\Gastos;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -35,7 +36,7 @@ class GastoResource extends JsonResource
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
-            'sub_detalle_info' => $this->subDetalle != null ? $this->subdetalleInfo($this->subDetalle) : '',
+            'sub_detalle_info' => $this->subdetalleInfo($this?->subDetalle) ,
             'beneficiarios' => $this->beneficiarioGasto != null ? $this->beneficiarioGasto->pluck('empleado_id') : null,
             'beneficiarios_info' => $this->beneficiarioEmpleadoInfo($this->beneficiarioGasto),
             'sub_detalle' => $this->subDetalle != null ? $this->subDetalle->pluck('id') : null,
@@ -80,7 +81,7 @@ class GastoResource extends JsonResource
    * función de si algún elemento en la matriz `` tiene la clave "tiene_factura"
    * establecida en un valor verdadero.
    */
-    private function tieneFactura(array $subdetalle_info)
+    private function tieneFactura(Collection $subdetalle_info)
     {
         $tieneFactura = false;
         foreach ($subdetalle_info as $item) {
@@ -101,15 +102,17 @@ class GastoResource extends JsonResource
     * @return La función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
     * `subdetalle_info`, separadas por comas.
     */
-    private function subdetalleInfo(array $subdetalle_info)
+    private function subdetalleInfo(Collection $subdetalle_info)
     {
         $descripcion = '';
-        $i = 0;
-        foreach ($subdetalle_info as $sub_detalle) {
-            $descripcion .= $sub_detalle->descripcion;
-            $i++;
-            if ($i !== count($subdetalle_info)) {
-                $descripcion .= ', ';
+        if (!is_null($subdetalle_info)) {
+            $i = 0;
+            foreach ($subdetalle_info as $sub_detalle) {
+                $descripcion .= $sub_detalle->descripcion;
+                $i++;
+                if ($i !== count($subdetalle_info)) {
+                    $descripcion .= ', ';
+                }
             }
         }
         return $descripcion;
@@ -128,7 +131,7 @@ class GastoResource extends JsonResource
      * dentro de cada objeto beneficiario. Los nombres se concatenan con un espacio entre ellos, y si
      * hay varios beneficiarios, se separan por un
      */
-    private function beneficiarioEmpleadoInfo(array $beneficiarios)
+    private function beneficiarioEmpleadoInfo(Collection $beneficiarios)
     {
         $descripcion = '';
         $i = 0;

@@ -9,7 +9,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -147,7 +147,7 @@ class SaldoService
     {
         try {
             DB::beginTransaction();
-            $saldo_anterior = SaldosFondosRotativos::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
+            $saldo_anterior = Saldo::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
             $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
             $nuevo_saldo = ($data['tipo'] === self::INGRESO) ?
                 (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => $data['tipo'])) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => $data['tipo']));
@@ -167,7 +167,7 @@ class SaldoService
     }
     public static function obtenerSaldoActual(Empleado $empleado)
     {
-        $saldo_actual = SaldosFondosRotativos::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
+        $saldo_actual = Saldo::where('empleado_id', $empleado->id)->orderBy('id', 'desc')->first();
         $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
     }
@@ -175,7 +175,7 @@ class SaldoService
     {
         try {
             DB::beginTransaction();
-            $saldo_anterior = SaldosFondosRotativos::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
+            $saldo_anterior = Saldo::where('empleado_id', $data['empleado_id'])->orderBy('id', 'desc')->first();
             $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
             $nuevo_saldo = ($data['tipo'] === self::INGRESO) ?
                 (array('monto' => ($total_saldo_actual + $data['monto']), 'tipo_saldo' => self::ANULACION)) : (array('monto' => ($total_saldo_actual - $data['monto']), 'tipo_saldo' => self::ANULACION));
@@ -248,7 +248,7 @@ class SaldoService
         if ($saldo_grupo) {
             return $saldo_grupo;
         } else {
-            $saldo_fondos = SaldosFondosRotativos::where('empleado_id', $empleado_id)
+            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
                 ->where('fecha', $fecha_anterior)
                 ->first();
             return  $saldo_fondos;
@@ -265,7 +265,7 @@ class SaldoService
         if ($saldo_grupo) {
             return $saldo_grupo;
         } else {
-            $saldo_fondos = SaldosFondosRotativos::where('empleado_id', $empleado_id)
+            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->orderBy('id', 'desc')
                 ->first();
@@ -280,7 +280,7 @@ class SaldoService
     if ($saldo_grupo) {
         return $saldo_grupo;
     } else {
-        $saldo_fondos = SaldosFondosRotativos::where('empleado_id', $empleado_id)
+        $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
         ->where('fecha', '>=', $fecha)
             ->orderBy('id', 'desc')
             ->first();
@@ -296,7 +296,7 @@ class SaldoService
         if ($saldo_grupo) {
             return $saldo_grupo;
         } else {
-            $saldo_fondos = SaldosFondosRotativos::where('empleado_id', $empleado_id)
+            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
                 ->where('fecha', '<=', $fecha)
                 ->orderBy('id', 'desc')
                 ->first();
@@ -308,10 +308,12 @@ class SaldoService
         $results = [];
         $id = 0;
         foreach ($saldos_fondos as $saldo) {
-            if (!in_array($saldo->saldoable->id, $array_ids)) {
-                $results[$id] = $saldo->saldoable;
-                $id++;
-                $array_ids[] = $saldo->saldoable->id;
+            if(!is_null($saldo->saldoabLe_id)){
+                if (!in_array($saldo->saldoable->id, $array_ids)) {
+                    $results[$id] = $saldo->saldoable;
+                    $id++;
+                    $array_ids[] = $saldo->saldoable->id;
+                }
             }
         }
         return $results;

@@ -12,7 +12,7 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\AcreditacionSemana;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use Maatwebsite\Excel\Facades\Excel;

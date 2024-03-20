@@ -10,6 +10,7 @@ use App\Models\FondosRotativos\Viatico\TipoFondo;
 use App\Models\User;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -77,7 +78,7 @@ class SaldoGrupo extends  Model implements Auditable
         $row['fecha_creacion'] = $saldo['updated_at'];
         $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
         $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
-        $row['num_comprobante'] = SaldoGrupo::num_comprobante($saldo);
+        $row['num_comprobante'] = SaldoGrupo::obtenerNumeroComprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
         // $row['saldo_count'] = $ingreso -$gasto;
@@ -166,13 +167,15 @@ class SaldoGrupo extends  Model implements Auditable
         if (isset($saldo['motivo'])) {
             return $saldo['motivo'];
         }
+        Log::channel('testing')->info('Log', ['saldo', $saldo]);
+
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
                 if ($saldo['estado'] == 4) {
-                    $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['subDetalle']);
+                    $sub_detalle_info = SaldoGrupo::subDetalleInfo($saldo['sub_detalle']);
                     return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
-                $sub_detalle_info = SaldoGrupo::subdetalle_info($saldo['subDetalle']);
+                $sub_detalle_info = SaldoGrupo::subDetalleInfo($saldo['sub_detalle']);
                 return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
             }
         }
@@ -188,7 +191,7 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return '';
     }
-    private static function num_comprobante($saldo)
+    private static function obtenerNumeroComprobante($saldo)
     {
         if (isset($saldo['cuenta'])) {
             return $saldo['cuenta'];
@@ -201,7 +204,7 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return '';
     }
-    private static function subdetalle_info($subdetalle_info)
+    private static function subDetalleInfo(array $subdetalle_info)
     {
         $descripcion = '';
         $i = 0;

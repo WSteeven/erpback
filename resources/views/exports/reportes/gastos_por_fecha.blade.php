@@ -159,7 +159,7 @@
                         <td style="font-size:10px">{{ date('d-m-Y', strtotime($dato->fecha)) }}</td>
                         <td style="font-size:10px">
                             {{ number_format($dato->monto, 2, ',', '.') }}</td>
-                        <td style="font-size:10px">{{ $dato->tipo_fondo->descripcion }}
+                        <td style="font-size:10px">{{ $dato->tipoFondo->descripcion }}
                         </td>
                         <td style="font-size:10px">{{ $dato->descripcion_saldo }}</td>
                     </tr>
