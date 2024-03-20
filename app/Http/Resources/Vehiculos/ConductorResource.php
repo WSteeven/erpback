@@ -4,6 +4,7 @@ namespace App\Http\Resources\Vehiculos;
 
 use App\Http\Resources\EmpleadoResource;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class ConductorResource extends JsonResource
 {
@@ -33,6 +34,7 @@ class ConductorResource extends JsonResource
 
         if ($controller_method == 'show') {
             $modelo['empleado'] = $this->empleado_id;
+            $modelo['tipo_licencia'] = $this->tipo_licencia ? Utils::convertirStringComasArray($this->tipo_licencia) : null;
             $modelo['multas'] = MultaConductorResource::collection($this->multas);
         }
 

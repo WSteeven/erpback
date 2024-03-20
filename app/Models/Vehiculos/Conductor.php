@@ -35,6 +35,7 @@ class Conductor extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
+    protected $primaryKey = 'empleado_id';
     //obtener la llave primaria
     public function getKeyName()
     {
@@ -52,7 +53,7 @@ class Conductor extends Model implements Auditable
      */
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class,  'empleado_id', 'id');
+        return $this->belongsTo(Empleado::class, 'empleado_id',);
     }
 
     /**

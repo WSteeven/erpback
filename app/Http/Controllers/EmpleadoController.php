@@ -111,6 +111,7 @@ class EmpleadoController extends Controller
         if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
+        throw new Exception('Parada obligatoria para revisar la logica de guardar conductor. ' . $request->all());
         try {
             DB::beginTransaction();
             $username = $this->generarNombreUsuario($datos);
@@ -525,7 +526,7 @@ class EmpleadoController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request,Empleado $empleado)
+    public function indexFiles(Request $request, Empleado $empleado)
     {
         try {
             $results = $this->archivoService->listarArchivos($empleado);

@@ -12,6 +12,7 @@ use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
 use App\Models\Vehiculos\BitacoraVehicular;
+use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\Vehiculo;
 use App\Models\Ventas\Vendedor;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -417,6 +418,10 @@ class Empleado extends Model implements Auditable
     public function vendedor()
     {
         return $this->hasOne(Vendedor::class);
+    }
+    public function conductor()
+    {
+        return $this->hasOne(Conductor::class, 'empleado_id');
     }
 
     /**

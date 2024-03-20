@@ -9,6 +9,7 @@ use App\Models\Vehiculos\Conductor;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
@@ -43,18 +44,25 @@ class ConductorController extends Controller
      */
     public function store(ConductorRequest $request)
     {
+        Log::channel('testing')->info('Log', ['¿Todo bien en casa?', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only('empleado')['empleado'];
+            $datos['tipo_licencia'] = Utils::convertArrayToString($request->tipo_licencia, ',');
+
+            // throw new Exception('Excepcion:');
 
             $conductor = Conductor::create($datos);
+            Log::channel('testing')->info('Log', ['conductor creado: ', $conductor]);
             $modelo = new ConductorResource($conductor);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
+            DB::rollBack();
             $mensaje = '(' . $e->getLine() . ') Hubo un error al registrar un conductor: ' . $e->getMessage();
+            Log::channel('testing')->info('Log', ['?', $e->getLine(), $e->getMessage()]);
             throw ValidationException::withMessages([
                 '500' => [$mensaje],
             ]);
@@ -87,6 +95,7 @@ class ConductorController extends Controller
             DB::beginTransaction();
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only('empleado')['empleado'];
+            $datos['tipo_licencia'] = Utils::convertArrayToString($request->tipo_licencia, ',');
 
             $conductor->update($datos);
             $modelo = new ConductorResource($conductor);
@@ -110,6 +119,8 @@ class ConductorController extends Controller
      */
     public function destroy(Conductor $conductor)
     {
-        //
+        $conductor->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
     }
 }

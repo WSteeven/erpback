@@ -26,7 +26,7 @@ class ConductorRequest extends FormRequest
     {
         $rules = [
             'empleado' => 'required|exists:empleados,id|unique:veh_conductores,empleado_id',
-            'tipo_licencia' => 'required',
+            'tipo_licencia' => 'required|array',
             'inicio_vigencia' => 'required',
             'fin_vigencia' => 'required',
             'puntos' => 'required',
