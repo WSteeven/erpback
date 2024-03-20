@@ -243,7 +243,7 @@ class SaldoGrupo extends  Model implements Auditable
                             $id++;
                         }
                     }
-                    usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+                    usort($results, __CLASS__ . "::ordenarNombresApellidos");
                     break;
                 case 'usuario':
                     $row['item'] = 1;
@@ -267,7 +267,7 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return $results;
     }
-    private static function  ordenar_por_nombres_apellidos($a, $b)
+    private static function  ordenarNombresApellidos($a, $b)
     {
         $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;

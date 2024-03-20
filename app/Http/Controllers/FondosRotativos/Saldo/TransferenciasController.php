@@ -41,9 +41,9 @@ class TransferenciasController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD'))
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+            $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         else
-            $results = Transferencias::with('usuario_envia', 'usuario_recibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+            $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = TransferenciaResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -78,7 +78,7 @@ class TransferenciasController extends Controller
         $user = Auth::user()->empleado;
         $usuario = User::where('id', $user->id)->first();
         $results = [];
-        $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('usuario_envia', 'usuario_recibe')->filter()->get();
+        $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'usuario_recibe')->filter()->get();
         $results = TransferenciaResource::collection($results);
 
         return response()->json(compact('results'));
@@ -162,15 +162,25 @@ class TransferenciasController extends Controller
     public function rechazarTransferencia(Request $request)
     {
         $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 2;
+        $transferencia->estado = Transferencias::RECHAZADO;
         $transferencia->save();
         event(new TransferenciaSaldoEvent($transferencia));
         return response()->json(['success' => 'Transferencia rechazada']);
     }
+/**
+ * La función `anularTransferencia` cancela una transferencia y dispara un evento para notificar sobre
+ * la cancelación.
+ *
+ * @param Request request La función `anularTransferencia` se utiliza para cancelar una transferencia
+ * en la base de datos. Aquí hay un desglose del código:
+ *
+ * @return La función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
+ * 'Transferencia anulada'.
+ */
     public function anularTransferencia(Request $request)
     {
         $transferencia = Transferencias::where('id', $request->id)->first();
-        $transferencia->estado = 4;
+        $transferencia->estado = Transferencias::ANULADO;
         $transferencia->save();
         event(new TransferenciaSaldoEvent($transferencia));
         return response()->json(['success' => 'Transferencia anulada']);

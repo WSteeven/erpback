@@ -43,7 +43,7 @@ class Transferencias extends Model implements Auditable
         'es_devolucion' => 'boolean',
     ];
 
-    public function usuario_envia()
+    public function empleadoEnvia()
     {
         return $this->belongsTo(Empleado::class, 'usuario_envia_id');
     }
@@ -55,7 +55,7 @@ class Transferencias extends Model implements Auditable
     {
         return $this->hasOne(Tarea::class, 'id','id_tarea');
     }
-    public function usuario_recibe()
+    public function empleadoRecibe()
     {
         return $this->belongsTo(Empleado::class, 'usuario_recibe_id');
     }

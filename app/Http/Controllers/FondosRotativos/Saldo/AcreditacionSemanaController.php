@@ -40,6 +40,17 @@ class AcreditacionSemanaController extends Controller
         $this->middleware('can:puede.ver.acreditacion_semana')->only('index', 'show');
         $this->middleware('can:puede.crear.acreditacion_semana')->only('store');
     }
+    /**
+     * La función de índice recupera y filtra datos del modelo AcreditacionSemana y los devuelve como una
+     * respuesta JSON.
+     *
+     * @param Request request El parámetro `Request ` en la función `index` es una instancia de la
+     * clase Illuminate\Http\Request en Laravel. Representa la solicitud HTTP que se realiza al servidor.
+     *
+     * @return Un array que contiene los resultados del modelo AcreditacionSemana después de aplicar los
+     * métodos ignoreRequest y filter, que luego se convierten a formato JSON y se devuelven como
+     * respuesta.
+     */
     public function index(Request $request)
     {
         $results = [];
@@ -50,6 +61,20 @@ class AcreditacionSemanaController extends Controller
     {
         return response()->json(compact('descuentos_generales'));
     }
+    /**
+     * La función `store` en PHP maneja la creación de un nuevo registro en la tabla de la base de datos
+     * `AcreditacionSemana` y devuelve una respuesta JSON con un mensaje de éxito o un mensaje de error si
+     * ocurre una excepción.
+     *
+     * @param AcreditacionSemanaRequest request La función `store` que proporcionó se utiliza para
+     * almacenar un nuevo registro `AcreditacionSemana` en la base de datos en función de los datos
+     * proporcionados en la solicitud `AcreditacionSemanaRequest`. Aquí hay un desglose del código:
+     *
+     * @return La función `store` está devolviendo una respuesta JSON con los datos `mensaje` y `modelo`.
+     * Si la operación es exitosa devolverá un mensaje y el modelo `AcreditacionSemanaResource` recién
+     * creado. Si ocurre una excepción durante el proceso, devolverá una respuesta JSON con un mensaje de
+     * error indicando que ocurrió un error al insertar el registro.
+     */
     public function store(AcreditacionSemanaRequest $request)
     {
         try {
@@ -65,6 +90,23 @@ class AcreditacionSemanaController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+    /**
+     * La función `actualizar` en este fragmento de código PHP actualiza un registro en la base de datos
+     * utilizando los datos de la solicitud validada y devuelve una respuesta JSON con un mensaje y el
+     * modelo actualizado.
+     *
+     * @param AcreditacionSemanaRequest request AcreditacionSemanaRequest : este parámetro es una
+     * instancia de la clase AcreditacionSemanaRequest, que se utiliza para validar los datos de la
+     * solicitud entrante antes de procesarlos más.
+     * @param AcreditacionSemana acreditacionsemana El método `update` que proporcionó se utiliza para
+     * actualizar un modelo `AcreditacionSemana` existente con los datos proporcionados en la solicitud
+     * `AcreditacionSemanaRequest`. Aquí hay un desglose del proceso:
+     *
+     * @return El método `update` devuelve una respuesta JSON con los datos `mensaje` y `modelo`. La
+     * variable `mensaje` contiene un mensaje obtenido usando el método `Utils::obtenerMensaje` para la
+     * acción 'almacenar' sobre la entidad. La variable `modelo` contiene el recurso `AcreditacionSemana`
+     * actualizado después de la operación de actualización.
+     */
     public function update(AcreditacionSemanaRequest $request, AcreditacionSemana $acreditacionsemana)
     {
         try {
@@ -80,12 +122,35 @@ class AcreditacionSemanaController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+    /**
+     * La función destruye una instancia específica de AcreditacionSemana y devuelve una respuesta JSON que
+     * contiene la instancia eliminada.
+     *
+     * @param Request request El parámetro `` en la función `destroy` es una instancia de la clase
+     * `Illuminate\Http\Request`. Representa la solicitud HTTP que se realiza al servidor. Este parámetro
+     * le permite acceder a los datos enviados por el cliente, como entradas de formulario o parámetros de
+     * consulta.
+     * @param AcreditacionSemana acreditacionsemana El parámetro `acreditacionsemana` en la función
+     * `destroy` es una instancia del modelo `AcreditacionSemana`. En esta función se utiliza para eliminar
+     * el registro específico `AcreditacionSemana` de la base de datos. Después de eliminar el registro,
+     * una respuesta JSON
+     *
+     * @return La función `destroy` elimina el registro `` y luego devuelve una
+     * respuesta JSON que contiene el objeto `acreditacionsemana` eliminado.
+     */
     public function destroy(Request $request, AcreditacionSemana $acreditacionsemana)
     {
         $acreditacionsemana->delete();
         return response()->json(compact('acreditacionsemana'));
     }
-    public function acreditacionSaldoSemana($id)
+    /**
+     * La función `acreditacionSaldoSemana` acredita saldos de la semana
+     * registros en función de ciertas condiciones.
+     *
+     * @param int id El código que proporcionaste parece ser una función en PHP que se encarga de acreditar
+     * un saldo para una semana determinada en función del ID proporcionado.
+     */
+    public function acreditacionSaldoSemana(int $id)
     {
         $date = Carbon::now();
         $acreditaciones = [];
@@ -106,23 +171,21 @@ class AcreditacionSemanaController extends Controller
                 'created_at' => $date,
                 'updated_at' => $date
             ));
-            /*  $acreditaciones[] = [
-                'id_tipo_fondo' => 1,
-                'id_tipo_saldo' => 1,
-                'id_saldo' => '',
-                'id_usuario' => $acreditacion->empleado_id,
-                'fecha' =>  $date->format('Y-m-d'),
-                'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
-                'monto' => $acreditacion->monto_modificado,
-                'id_estado' => 1,
-                'created_at' => $date,
-                'updated_at' => $date
-            ];*/
         }
-        //  $acreditacion_semana->valor_acreditar()->createMany($acreditaciones);
-
     }
-    public function crearCashAcreditacionSaldo($id)
+    /**
+     * La función crea un informe en formato Excel para el saldo de acreditación de efectivo en función de
+     * criterios específicos.
+     *
+     * @param int id de acreditacion que genera un informe y lo
+     * exporta a un archivo de Excel. La función `crearCashAcreditacionSaldo` toma un parámetro entero
+     * `` que se utiliza para filtrar los datos.
+     *
+     * @return Se devuelve para su descarga un archivo Excel llamado 'cash_acreditacion_saldo.xlsx' que
+     * contiene datos relacionados con los saldos de acreditación de efectivo para una semana específica
+     * identificada por el parámetro .
+     */
+    public function crearCashAcreditacionSaldo(int $id)
     {
         $nombre_reporte = 'cash_acreditacion_saldo';
         $valores_acreditar = ValorAcreditar::with(['acreditacion_semanal', 'umbral'])
@@ -164,6 +227,14 @@ class AcreditacionSemanaController extends Controller
             ]);
         }
     }
+    /**
+     * La función "cortarSaldo" en PHP genera un registro de crédito semanal, asigna montos de crédito en
+     * función de umbrales y maneja excepciones durante el proceso.
+     *
+     * @return La función `cortarSaldo` devuelve una respuesta JSON que contiene las variables `mensaje` y
+     * `modelo` si el proceso es exitoso. Si ocurre una excepción, devolverá una respuesta JSON con un
+     * mensaje de error.
+     */
     public function cortarSaldo()
     {
         try {
@@ -196,6 +267,19 @@ class AcreditacionSemanaController extends Controller
         }
     }
 
+    /**
+     * La función `refrescarAcreditacionesSemana` actualiza las acreditaciones semanales para un ID de
+     * semana determinado y devuelve un mensaje de éxito en formato JSON.
+     *
+     * @param acreditacion_semana_id La función `refrescarAcreditacionesSemana` toma como parámetro un
+     * ``. Este ID se utiliza para encontrar un registro específico de
+     * "AcreditacionSemana" de la base de datos. La función luego recupera todos los registros
+     * `ValorAcreditar` asociados con
+     *
+     * @return La función `refrescarAcreditacionesSemana` está devolviendo una respuesta JSON con un
+     * mensaje indicando que las acreditaciones se han actualizado correctamente. El mensaje
+     * "Acreditaciones Actualizadas Exitosamente" se devuelve en formato JSON.
+     */
     public function refrescarAcreditacionesSemana($acreditacion_semana_id)
     {
         $acreditacion_semana = AcreditacionSemana::find($acreditacion_semana_id);

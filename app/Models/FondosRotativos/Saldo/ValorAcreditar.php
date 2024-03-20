@@ -79,7 +79,7 @@ class ValorAcreditar extends Model implements Auditable
                 $id++;
             }
         }
-        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+        usort($results, __CLASS__ . "::ordenarNombresApellidos");
 
         return $results;
     }
@@ -102,11 +102,11 @@ class ValorAcreditar extends Model implements Auditable
             $results[$id] = $row;
             $id++;
         }
-        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+        usort($results, __CLASS__ . "::ordenarNombresApellidos");
 
         return $results;
     }
-    private static function  ordenar_por_nombres_apellidos($a, $b)
+    private static function  ordenarNombresApellidos($a, $b)
     {
         $nameA = $a['empleado_info'] . ' ' . $a['empleado_info'];
         $nameB = $b['empleado_info'] . ' ' . $b['empleado_info'];
@@ -114,13 +114,13 @@ class ValorAcreditar extends Model implements Auditable
     }
     public static  function obtener_saldo($empleado_id, $numero_semana)
     {
-        $rango_fecha = ValorAcreditar::obtener_rango_semana($numero_semana);
+        $rango_fecha = ValorAcreditar::obtenerRangoSemana($numero_semana);
         $saldo_actual = SaldoGrupo::where('id_usuario', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
         $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
     }
 
-    public static function obtener_rango_semana($weekNumber)
+    public static function obtenerRangoSemana($weekNumber)
     {
         $startOfWeek = Carbon::now()->startOfWeek($weekNumber)->format('Y-m-d');;
         $endOfWeek = Carbon::now()->endOfWeek($weekNumber)->format('Y-m-d');

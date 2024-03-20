@@ -32,7 +32,7 @@ class AcreditacionesController extends Controller
     public function index()
     {
         $results = [];
-        $results = Acreditaciones::with('usuario','estado')->ignoreRequest(['campos'])->filter()->get();
+        $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->get();
         $results = AcreditacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -77,10 +77,23 @@ class AcreditacionesController extends Controller
         $modelo = new AcreditacionResource($acreditacion);
         return response()->json(compact('modelo'));
     }
-    public function anular_acreditacion(Request $request)
+    /**
+     * La función `anularAcreditacion` anula la acreditacion
+     * basado en los datos de la solicitud proporcionados.
+     *
+     * @param Request request La función `anularAcreditacion` toma como parámetro un objeto de solicitud.
+     * Es probable que este objeto de solicitud contenga datos necesarios para procesar la solicitud, como
+     * el ID de la acreditación que se cancelará y una descripción del motivo de la cancelación.
+     *
+     * @return La función `anularAcreditacion` está devolviendo una respuesta JSON con un mensaje
+     * almacenado en la variable ``. El mensaje se obtiene mediante el método `obtenerMensaje` de
+     * la clase `Utils` con los parámetros `->entidad` y `'update'`. La respuesta JSON incluye el
+     * mensaje en la clave `mensaje`.
+     */
+    public function anularAcreditacion(Request $request)
     {
-        $acreditacion = Acreditaciones::where('id',$request->id)->first();
-        $acreditacion->motivo = 'Anulado por motivo de: '.$request->descripcion_acreditacion;
+        $acreditacion = Acreditaciones::where('id', $request->id)->first();
+        $acreditacion->motivo = 'Anulado por motivo de: ' . $request->descripcion_acreditacion;
         $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
         $acreditacion->save();
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

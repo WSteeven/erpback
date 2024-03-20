@@ -50,7 +50,7 @@ class TransferenciaSaldoRequest extends FormRequest
             try {
                 if ($this->route()->getActionMethod() === 'store') {
                     if (Auth()->user()->empleado->id === $this->usuario_recibe) {
-                        $validator->errors()->add('usuario_envia', 'No se puede transferir  a si mismo');
+                        $validator->errors()->add('empleadoEnvia', 'No se puede transferir  a si mismo');
                     }
                 }
             } catch (Exception $e) {

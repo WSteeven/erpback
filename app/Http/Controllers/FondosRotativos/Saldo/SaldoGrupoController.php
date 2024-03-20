@@ -10,26 +10,21 @@ use App\Exports\GastoFiltradoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Saldo\SaldoGrupoResource;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Facades\Excel;
 use Src\Shared\Utils;
 use App\Exports\SaldoActualExport;
 use App\Exports\TranferenciaSaldoExport;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Canton;
-use App\Models\ConfiguracionGeneral;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
-use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldosFondosRotativos;
@@ -47,6 +42,13 @@ class SaldoGrupoController extends Controller
     private $entidad = 'saldo_grupo';
     private $reporteService;
     private $saldoService;
+    private const ACREDITACION= 1;
+    private const GASTO= 2;
+    private const CONSOLIDADO= 3;
+    private const ESTADO_CUENTA= 4;
+    private const TRANSFERENCIA= 5;
+    private const GASTO_IMAGEN= 6;
+
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -200,60 +202,84 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
+
+
     /**
-     * It's a function that returns a function that returns a function
+     * La función "consolidado" en PHP procesa diferentes tipos de informes según el tipo de saldo
+     * solicitado.
      *
-     * @param Request request The request object.
-     * @param tipo 1 = Acreditaciones, 2 = Gasos, 3 = Consolidado
+     * @param Request request La función `consolidado` en el fragmento de código que proporcionaste
+     * toma dos parámetros: `` y ``.
+     * @param tipo_reporte La función `consolidado`  maneja diferentes
+     * tipos de reportes los cuales pueden ser PDF y Excel
+     *
+     * @return La función `consolidado` devuelve el resultado de una de las siguientes funciones según
+     * el valor de `tipo_saldo`:
+     * - Función `acreditación` si el valor es `ACREDITACIÓN`
+     * - Función `gasto` si el valor es `GASTO` o `GASTO_IMAGEN`
+     * - Función `reporteConsolidado` si el valor es `CONSOLIDADO`
+     * - Función `reporteTransferencia` si el valor es `TRANSFERENCIA`
      */
-    public function consolidado(Request $request, $tipo)
+    public function consolidado(Request $request, $tipo_reporte)
     {
         try {
             switch ($request->tipo_saldo) {
-                case '1':
-                    return $this->acreditacion($request, $tipo);
+                case self::ACREDITACION:
+                    return $this->acreditacion($request, $tipo_reporte);
                     break;
-                case '2':
-                    return $this->gasto($request, $tipo);
+                case self::GASTO:
+                    return $this->gasto($request, $tipo_reporte);
                     break;
-                case '3':
-                    return $this->reporteConsolidado($request, $tipo);
+                case self::CONSOLIDADO:
+                    return $this->reporteConsolidado($request, $tipo_reporte);
                     break;
-                case '4':
-                    return $this->reporteEstadoCuenta($request, $tipo);
+                case self::ESTADO_CUENTA:
+                    return $this->reporteEstadoCuenta($request, $tipo_reporte);
                     break;
-                case '5':
-                    return $this->reporteTransferencia($request, $tipo);
+                case self::TRANSFERENCIA:
+                    return $this->reporteTransferencia($request, $tipo_reporte);
                     break;
-                case '6':
-                    return $this->gasto($request, $tipo, true);
+                case self::GASTO_IMAGEN:
+                    return $this->gasto($request, $tipo_reporte, true);
                     break;
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    /**
-     * It returns a function based on the value of the variable ->tipo_saldo
-     *
-     * @param Request request The request object.
-     * @param tipo 1 = Acreditaciones, 2 = Gasos Filtrado, 3 = Consolidado
-     */
-    public function consolidadoFiltrado(Request $request, $tipo)
+
+/**
+ * La función `consolidadoFiltrado` en PHP toma una solicitud y un tipo de informe, luego, según el
+ * tipo de saldo solicitado, llama a diferentes métodos para generar y devolver informes específicos.
+ *
+ * @param Request request La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
+ * `Request` y ``.
+ * @param tipo_reporte La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
+ * `Request` y `` de tipo no especificado. Luego, la función usa una declaración de cambio
+ * para determinar la acción en función del valor de `->tipo_saldo`. Dependiendo del valor,
+ *
+ * @return El método `consolidadoFiltrado` está devolviendo el resultado de uno de los siguientes
+ * métodos basado en el valor de `->tipo_saldo`:
+ * - `acreditacion(, )` si el valor es `self::ACREDITACION`
+ * - `gastoFiltrado(, )` si el valor es `self::GASTO
+ * - `reporteConsolidado(, )` si el valor es `self::CONSOLIDADO
+ * - `reporteEstadoCuenta(, )` si el valor es `self::ESTADO_CUENTA
+ */
+    public function consolidadoFiltrado(Request $request,  $tipo_reporte)
     {
         try {
             switch ($request->tipo_saldo) {
-                case '1':
-                    return $this->acreditacion($request, $tipo);
+                case self::ACREDITACION:
+                    return $this->acreditacion($request,  $tipo_reporte);
                     break;
-                case '2':
-                    return $this->gastoFiltrado($request, $tipo);
+                case self::GASTO:
+                    return $this->gastoFiltrado($request,  $tipo_reporte);
                     break;
-                case '3':
-                    return $this->reporteConsolidado($request, $tipo);
+                case self::CONSOLIDADO:
+                    return $this->reporteConsolidado($request,  $tipo_reporte);
                     break;
-                case '4':
-                    return $this->reporteEstadoCuenta($request, $tipo);
+                case self::ESTADO_CUENTA:
+                    return $this->reporteEstadoCuenta($request,  $tipo_reporte);
                     break;
             }
         } catch (Exception $e) {
@@ -523,7 +549,22 @@ class SaldoGrupoController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-    private function reporteEstadoCuenta(Request $request, $tipo)
+/**
+ * La función `reporteEstadoCuenta` genera un informe consolidado de transacciones financieras para un
+ * usuario específico dentro de un rango de fechas determinado.
+ *
+ * @param Request request La función `reporteEstadoCuenta` parece generar un informe basado en los
+ * datos de la solicitud proporcionados y un tipo de informe. Calcula diversos datos financieros, como
+ * saldos, transacciones y gastos de un usuario determinado dentro de un rango de fechas específico.
+ * @param string tipo_reporte Tipo_reporte es un parámetro de cadena que especifica el tipo de informe
+ * a generar. Podría ser algo como "PDF" o "Excel".
+ *
+ * @return La función `reporteEstadoCuenta` está devolviendo el resultado de llamar al método
+ * `imprimir_reporte` del objeto ``. El método `imprimir_reporte` parece generar e
+ * imprimir un informe basado en los datos y parámetros proporcionados. El valor de retorno del método
+ * `imprimir_reporte` es lo que finalmente devuelve el método `reporteEstadoCuenta
+ */
+    private function reporteEstadoCuenta(Request $request, string $tipo_reporte)
     {
         try {
             $fecha_inicio = $request->fecha_inicio;
@@ -578,12 +619,12 @@ class SaldoGrupoController extends Controller
             $gastos_reporte = SaldoGrupo::verificarGastosRepetidosEnSaldoGrupo($gastos_reporte);
             //Transferencias
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
@@ -648,7 +689,7 @@ class SaldoGrupoController extends Controller
 
             $vista = 'exports.reportes.reporte_consolidado.reporte_movimiento_saldo';
             $export_excel = new EstadoCuentaExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
+            return $this->reporteService->imprimir_reporte($tipo_reporte, 'A4', 'portail', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -691,13 +732,13 @@ class SaldoGrupoController extends Controller
             $gastos = $gastos_reporte->sum('total');
             $gastos_reporte = Gasto::empaquetar($gastos_reporte);
             $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencia =  $transferencias_enviadas->sum('monto');
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
@@ -788,13 +829,13 @@ class SaldoGrupoController extends Controller
                 $empleado = Empleado::where('id', $request->usuario)->first();
                 $usuario = User::where('id', $empleado->usuario_id)->first();
                 $transferencias_enviadas = Transferencias::where('usuario_envia_id', $request->usuario)
-                    ->with('usuario_recibe', 'usuario_envia')
+                    ->with('empleadoRecibe', 'empleadoEnvia')
                     ->where('estado', Transferencias::APROBADO)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->get();
                 $transferencia_enviada =  $transferencias_enviadas->sum('monto');
                 $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $request->usuario)
-                    ->with('usuario_recibe', 'usuario_envia')
+                    ->with('empleadoRecibe', 'empleadoEnvia')
                     ->where('estado', Transferencias::APROBADO)
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->get();

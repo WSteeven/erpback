@@ -7,24 +7,19 @@ use App\Exports\AutorizacionesExport;
 use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoRequest;
-use App\Http\Requests\GastoVehiculoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Http\Resources\FondosRotativos\Gastos\GastoVehiculoResource;
-use App\Http\Resources\UserInfoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Gasto\BeneficiarioGasto;
 use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\GastoVehiculo;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
-use App\Models\Notificacion;
 use App\Models\User;
 use App\Models\Vehiculos\Vehiculo;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -32,8 +27,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Maatwebsite\Excel\Facades\Excel;
-use PgSql\Lob;
 use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
@@ -180,6 +173,16 @@ class GastoController extends Controller
         return response()->json(compact('modelo'), 200);
     }
 
+    /**
+     * La función `destroy` elimina una instancia de Gasto y devuelve una respuesta JSON con un mensaje.
+     *
+     * @param Gasto gasto La función `destruir` que proporcionó se utiliza para eliminar un objeto `Gasto`
+     * de la base de datos. Luego de eliminar el objeto `Gasto`, recupera un mensaje usando el método
+     * `Utils::obtenerMensaje` para la acción 'destruir' sobre la entidad. Finalmente, devuelve un JSON.
+     *
+     * @return Una respuesta JSON que contiene el mensaje obtenido del método `Utils::obtenerMensaje` luego
+     * de eliminar la entidad `Gasto`.
+     */
     public function destroy(Gasto $gasto)
     {
         $gasto->delete();
@@ -217,13 +220,13 @@ class GastoController extends Controller
             $gastos_realizados = $gastos_reporte->sum('total');
 
             $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
             $transferencia_enviada = $transferencias_enviadas->sum('monto');
             $transferencias_recibidas = Transferencias::where('usuario_recibe_id', $datos_usuario_logueado->id)
-                ->with('usuario_recibe', 'usuario_envia')
+                ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado',  Transferencias::APROBADO)
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->get();
@@ -353,27 +356,38 @@ class GastoController extends Controller
             ]);
         }
     }
+    /**
+     * La función `validarGastoVehiculo` verifica ciertas condiciones en una solicitud y guarda o modifica
+     * un objeto GastoVehiculo en consecuencia.
+     *
+     * @param GastoRequest request  es un objeto de tipo GastoRequest que contiene detalles de un
+     * gasto que necesita ser validado para un gasto de vehículo. Probablemente incluya información como el
+     * detalle y sub_detalle del gasto.
+     * @param Gasto gasto Según el fragmento de código proporcionado, la función `validarGastoVehiculo`
+     * toma dos parámetros: `` de tipo `GastoRequest` y `` de tipo `Gasto`. La función
+     * verifica el valor de `->detalle` y, según ciertas condiciones,
+     */
     public function validarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
         $gasto_vehiculo = GastoVehiculo::where('id_gasto', $gasto->id)->first();
         if ($request->detalle == 24) {
-            is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
+            is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
         }
         if ($request->detalle == 6 || $request->detalle == 16) {
             $sub_detalle = $request->sub_detalle;
             $sub_detalle = array_map('intval', $sub_detalle);
             $sub_detalle = array_flip($sub_detalle);
             if (array_key_exists(65, $sub_detalle)) {
-                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
+                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(66, $sub_detalle)) {
-                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
+                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(96, $sub_detalle)) {
-                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
+                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
             }
             if (array_key_exists(97, $sub_detalle)) {
-                is_null($gasto_vehiculo)? $this->guardarGastoVehiculo($request, $gasto): $this->modificarGastovehiculo($request, $gasto);
+                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
             }
         }
     }
@@ -383,6 +397,18 @@ class GastoController extends Controller
      * @param Request request The request object.
      *
      * @return A JSON object with the success message.
+     */
+    /**
+     * La función `rechazarGasto` en PHP maneja el rechazo de un registro de gastos, actualiza su estado,
+     * activa un evento, marca una notificación como leída y revierte la transacción en caso de error.
+     *
+     * @param Request request La función `rechazarGasto` se utiliza para rechazar un gasto (gasto) en base
+     * a los datos de la solicitud proporcionados. Aquí hay un desglose de la función:
+     *
+     * @return una respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
+     * ocurre una excepción durante el proceso, detectará la excepción, revertirá la transacción y
+     * devolverá una respuesta JSON con un mensaje de error que indica que ocurrió un error al rechazar el
+     * gasto junto con el mensaje de excepción y el número de línea.
      */
     public function rechazarGasto(Request $request)
     {
@@ -405,6 +431,18 @@ class GastoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+    /**
+     * La función `anularGasto` en PHP se utiliza para marcar un gasto específico como cancelado y manejar
+     * cualquier error que pueda ocurrir durante el proceso.
+     *
+     * @param Request request La función `anularGasto` se utiliza para cancelar un gasto específico (gasto)
+     * en función de los datos de la solicitud proporcionados. Aquí hay un desglose de la función:
+     *
+     * @return una respuesta JSON con un mensaje de éxito 'Gasto rechazado' si la operación es exitosa. Si
+     * ocurre un error durante el proceso, arrojará una ValidationException con un mensaje de error 'Error
+     * al insertar registro' que contiene el mensaje de excepción. Además devolverá una respuesta JSON con
+     * un mensaje de error 'Ha ocurrido un error al rechazar el gasto
+     */
     public function anularGasto(Request $request)
     {
         try {
@@ -431,6 +469,16 @@ class GastoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
+    /**
+     * La función `crearBeneficiarios` crea nuevas entradas de beneficiarios para un gasto determinado.
+     *
+     * @param Gasto gasto El parámetro `gasto` es una instancia de la clase `Gasto`. Parece representar un
+     * gasto o costo específico para el cual es necesario crear beneficiarios. El método crearBeneficiarios
+     * se encarga de crear beneficiarios para este gasto.
+     * @param beneficiarios La función `createBeneficiaries` toma un objeto `Expense` y una matriz de
+     * `beneficiarios` como parámetros. La matriz `beneficiarios` contiene valores `employee_id` que
+     * representan los ID de los empleados que se asociarán con el objeto `Expense` dado.
+     */
     public function crearBeneficiarios(Gasto $gasto, $beneficiarios)
     {
         $beneficiariosActualizados = array();
@@ -444,6 +492,22 @@ class GastoController extends Controller
         }
         BeneficiarioGasto::insert($beneficiariosActualizados);
     }
+    /**
+     * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP
+     * usando Laravel.
+     *
+     * @param GastoRequest request La función `guardarGastoVehiculo` se encarga de guardar un registro de
+     * gastos del vehículo en base a los objetos `GastoRequest` y `Gasto` proporcionados. Analicemos el
+     * fragmento de código:
+     * @param Gasto gasto Con base en el fragmento de código proporcionado, la función
+     * `guardarGastoVehiculo` es responsable de ahorrar un gasto de vehículo (“GastoVehiculo`) asociado a
+     * un `Gasto` específico. La función toma dos parámetros:
+     *
+     * @return La función `guardarGastoVehiculo` está devolviendo una respuesta JSON con las variables
+     * `` y `` compactadas. La variable `` contiene un mensaje obtenido usando el
+     * método `Utils::obtenerMensaje` para la entidad y acción 'store'. La variable `` contiene la
+     * representación de recursos del objeto `GastoVehiculo` creado.
+     */
     public function guardarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
         try {
@@ -467,6 +531,22 @@ class GastoController extends Controller
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
+    /**
+     * Esta función PHP modifica un registro de gastos de vehículo en función de los datos de solicitud
+     * proporcionados.
+     *
+     * @param GastoRequest request La función `modificarGastoVehiculo` parece estar actualizando un
+     * registro en la tabla `gasto_vehiculos` en base a los datos proporcionados en el objeto
+     * `GastoRequest` y el objeto `Gasto` existente.
+     * @param Gasto gasto La función `modificarGastoVehiculo` se utiliza para actualizar un registro
+     * específico de `GastoVehiculo` basado en los datos de `GastoRequest` proporcionados y la instancia de
+     * `Gasto` existente.
+     *
+     * @return La función `modificarGastoVehiculo` está devolviendo una respuesta JSON con las variables
+     * `mensaje` y `modelo`. La variable `mensaje` contiene un mensaje obtenido usando el método
+     * `Utils::obtenerMensaje` para la acción 'almacenar' sobre la entidad. La variable `modelo` contiene
+     * los datos del recurso `GastoVehiculo` actualizado luego de la modificación.
+     */
     public function modificarGastoVehiculo(GastoRequest $request, Gasto $gasto)
     {
         try {
@@ -490,6 +570,20 @@ class GastoController extends Controller
             throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
         }
     }
+    /**
+     * La función `reporteValoresFondos` recupera valores de fondos basados en la información de los
+     * empleados y maneja excepciones con el registro.
+     *
+     * @param Request request Según el fragmento de código proporcionado, la función `reporteValoresFondos`
+     * toma un objeto `Solicitud` como parámetro. Este objeto "Solicitud" probablemente contenga datos
+     * enviados desde una solicitud del lado del cliente, como datos de formulario o parámetros de
+     * consulta.
+     *
+     * @return La función `reporteValoresFondos` está devolviendo una respuesta JSON que contiene la
+     * variable `resultados`. La variable `resultados` es una matriz que contiene los valores obtenidos al
+     * llamar al método `obtenerValoresFondosRotativos` en `EmpleadoService` si `->todos` es
+     * verdadero, o contiene el valor obtenido al llamar a `obtenerValoresFond
+     */
     public function reporteValoresFondos(Request $request)
     {
         try {

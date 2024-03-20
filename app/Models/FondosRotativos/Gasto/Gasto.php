@@ -173,8 +173,7 @@ class Gasto extends Model implements Auditable
                 $row['sub_detalle'] = $gasto->subDetalle;
                 $row['cantidad'] = $gasto->cantidad;
                 $row['valor_u'] = $gasto->valor_u;
-                $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->subDetalle->toArray());
-                //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
+                $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subDetalleInform($gasto->subDetalle->toArray());
                 $row['placa'] = $gasto->gastoVehiculo?->placa;
                 $row['kilometraje'] = $gasto->gastoVehiculo?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
@@ -192,7 +191,7 @@ class Gasto extends Model implements Auditable
 
 
     }
-    private static function empleado_inform($empleado_info)
+    private static function empleadoInform($empleado_info)
     {
         $descripcion = '';
         $i = 0;
@@ -205,7 +204,7 @@ class Gasto extends Model implements Auditable
         }
         return $descripcion;
     }
-    private static function subdetalle_inform($subdetalle_info)
+    private static function subDetalleInform($subdetalle_info)
     {
         $descripcion = '';
         $i = 0;

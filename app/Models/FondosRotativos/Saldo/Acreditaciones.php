@@ -44,7 +44,7 @@ class Acreditaciones extends Model implements Auditable
     public function tipoSaldo(){
         return $this->hasOne(TipoSaldo::class, 'id', 'id_tipo_saldo');
     }
-    public function tipo_fondo(){
+    public function tipoFondo(){
         return $this->hasOne(TipoFondo::class, 'id', 'id_tipo_fondo');
     }
     public static function empaquetar($acreditaciones)
@@ -59,7 +59,7 @@ class Acreditaciones extends Model implements Auditable
                     $row['id'] = $acreditacion->id;
                     $row['fecha'] = $acreditacion->fecha;
                     $row['tipo_saldo'] = $acreditacion->tipoSaldo->descripcion;
-                    $row['tipo_fondo'] = $acreditacion->tipo_fondo->descripcion;
+                    $row['tipo_fondo'] = $acreditacion->tipoFondo->descripcion;
                     $row['usuario'] = $acreditacion->usuario->user;
                     $row['cargo'] = $acreditacion->usuario->cargo==null?'':$acreditacion->usuario->cargo->nombre;
                     $row['empleado'] = $acreditacion->usuario;

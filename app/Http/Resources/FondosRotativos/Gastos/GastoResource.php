@@ -19,7 +19,7 @@ class GastoResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id'=> $this->id,
-            'fecha_viat' => $this->cambiar_fecha($this->fecha_viat),
+            'fecha_viat' => $this->cambiarFecha($this->fecha_viat),
             'lugar' => $this->id_lugar,
             'lugar_info' => $this->canton->canton,
             'num_tarea' => $this->id_tarea == null ? 0 : $this->id_tarea,
@@ -35,9 +35,9 @@ class GastoResource extends JsonResource
             'aut_especial' => $this->aut_especial,
             'detalle_info' => $this->detalle_info->descripcion,
             'detalle_estado' => $this->detalle_estado,
-            'sub_detalle_info' => $this->subDetalle != null ? $this->subdetalle_info($this->subDetalle) : '',
+            'sub_detalle_info' => $this->subDetalle != null ? $this->subdetalleInfo($this->subDetalle) : '',
             'beneficiarios' => $this->beneficiarioGasto != null ? $this->beneficiarioGasto->pluck('empleado_id') : null,
-            'beneficiarios_info' => $this->beneficiario_empleado_info($this->beneficiarioGasto),
+            'beneficiarios_info' => $this->beneficiarioEmpleadoInfo($this->beneficiarioGasto),
             'sub_detalle' => $this->subDetalle != null ? $this->subDetalle->pluck('id') : null,
             'vehiculo' => $this->gastoVehiculo != null ? $this->gastoVehiculo->id_vehiculo : '',
             'placa' =>  $this->gastoVehiculo != null ? $this->gastoVehiculo->placa : '',
@@ -58,7 +58,7 @@ class GastoResource extends JsonResource
             'estado' => $this->estado,
             'id_lugar' => $this->id_lugar,
             'tiene_factura_info' => $this->subDetalle != null ? $this->subDetalle : true,
-            'tiene_factura' => $this->subDetalle != null ? $this->tiene_factura($this->subDetalle) : true,
+            'tiene_factura' => $this->subDetalle != null ? $this->tieneFactura($this->subDetalle) : true,
             'created_at'  => Carbon::parse($this->created_at)
                 ->format('d-m-Y H:i'),
             'centro_costo' => $this->tarea !== null ? $this->tarea?->centroCosto?->nombre:'',
@@ -66,7 +66,21 @@ class GastoResource extends JsonResource
         ];
         return $modelo;
     }
-    private function tiene_factura($subdetalle_info)
+
+  /**
+   * La función "tieneFactura" comprueba si algún artículo del array tiene factura y devuelve verdadero
+   * si al menos un artículo tiene factura.
+   *
+   * @param array subdetalle_info Según el fragmento de código proporcionado, la función `tieneFactura`
+   * toma una matriz `` como entrada e itera sobre sus elementos para verificar si
+   * alguno de los elementos tiene una clave llamada "tiene_factura" con un valor verdadero. Si se
+   * encuentra tal elemento
+   *
+   * @return La función `tieneFactura` devuelve un valor booleano, ya sea `verdadero` o `falso`, en
+   * función de si algún elemento en la matriz `` tiene la clave "tiene_factura"
+   * establecida en un valor verdadero.
+   */
+    private function tieneFactura(array $subdetalle_info)
     {
         $tieneFactura = false;
         foreach ($subdetalle_info as $item) {
@@ -77,7 +91,17 @@ class GastoResource extends JsonResource
         }
         return $tieneFactura;
     }
-    private function subdetalle_info($subdetalle_info)
+   /**
+    * La función "subdetalleInfo" concatena las descripciones de los subdetalles en una matriz con
+    * comas entre ellas.
+    *
+    * @param array subdetalle_info Parece que la función `subdetalleInfo` está diseñada para concatenar
+    * la propiedad `descripcion` de cada objeto en la matriz ``, separada por comas.
+    *
+    * @return La función `subdetalleInfo` devuelve una cadena concatenada de descripciones de la matriz
+    * `subdetalle_info`, separadas por comas.
+    */
+    private function subdetalleInfo(array $subdetalle_info)
     {
         $descripcion = '';
         $i = 0;
@@ -90,7 +114,21 @@ class GastoResource extends JsonResource
         }
         return $descripcion;
     }
-    private function beneficiario_empleado_info($beneficiarios)
+    /**
+     * La función `beneficiarioEmpleadoInfo` toma una serie de beneficiarios y devuelve una cadena
+     * concatenada de los nombres de sus empleados.
+     *
+     * @param array beneficiarios La función `beneficiarioEmpleadoInfo` toma una matriz de
+     * `beneficiarios` como entrada. Se espera que cada `beneficiario` en la matriz tenga una propiedad
+     * `empleado` que a su vez tenga propiedades `nombres` y `apellidos`.
+     *
+     * @return La función `beneficiarioEmpleadoInfo` devuelve una cadena concatenada de los nombres
+     * completos de los empleados asociados con el conjunto de beneficiarios dado. Los nombres
+     * completos se obtienen accediendo a las propiedades `nombres` y `apellidos` del objeto `empleado`
+     * dentro de cada objeto beneficiario. Los nombres se concatenan con un espacio entre ellos, y si
+     * hay varios beneficiarios, se separan por un
+     */
+    private function beneficiarioEmpleadoInfo(array $beneficiarios)
     {
         $descripcion = '';
         $i = 0;
@@ -103,7 +141,19 @@ class GastoResource extends JsonResource
         }
         return $descripcion;
     }
-    private function cambiar_fecha($fecha)
+/**
+ * La función "cambiarFecha" toma una cadena de fecha como entrada, la analiza usando Carbon y devuelve
+ * la fecha formateada como 'Y-m-d'.
+ *
+ * @param string fecha La función `cambiarFecha` toma un parámetro de cadena llamado ``, que
+ * representa una fecha en un formato específico. La función utiliza la biblioteca Carbon para analizar
+ * la cadena de fecha de entrada y luego formatearla como 'Y-m-d', que representa la fecha en el
+ * formato año-mes-día. Finalmente,
+ *
+ * @return La función `cambiarFecha` toma una cadena `` como entrada, la analiza usando Carbon y
+ * luego la formatea en formato 'Y-m-d' (Año-Mes-Día). Luego se devuelve la fecha formateada.
+ */
+    private function cambiarFecha(string $fecha)
     {
         $fecha_formateada = Carbon::parse($fecha)->format('Y-m-d');
         return $fecha_formateada;

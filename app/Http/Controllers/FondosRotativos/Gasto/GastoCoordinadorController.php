@@ -39,9 +39,9 @@ class GastoCoordinadorController extends Controller
         $usuario = Auth::user();
         $usuario_ac = User::where('id', $usuario->id)->first();
         if ($usuario_ac->hasRole('CONTABILIDAD')) {
-            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->orderBy('fecha_gasto','desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->orderBy('fecha_gasto', 'desc')->get();
         } else {
-            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto','desc')->get();
+            $results = GastoCoordinador::with('empleado', 'motivoGasto', 'canton')->where('id_usuario', $usuario->empleado->id)->orderBy('fecha_gasto', 'desc')->get();
         }
         $results = GastoCoordinadorResource::collection($results);
         return compact('results');
@@ -57,7 +57,7 @@ class GastoCoordinadorController extends Controller
     {
         try {
             $datos = $request->validated();
-           // $datos['id_motivo'] = $request->safe()->only(['motivo'])['motivo'];
+            // $datos['id_motivo'] = $request->safe()->only(['motivo'])['motivo'];
             $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
             $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
             $modelo = GastoCoordinador::create($datos);
@@ -112,7 +112,20 @@ class GastoCoordinadorController extends Controller
         $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
         return response()->json(compact('mensaje', 'modelo'));
     }
-    public function reporte(Request $request, $tipo)
+    /**
+     * La función `reporte` genera un informe basado en la entrada del usuario y maneja excepciones.
+     *
+     * @param Request request La función "reporte" que proporcionó parece estar manejando la generación de
+     * un informe basado en los datos de la solicitud. Aquí hay un desglose de la función:
+     * @param string tipo El parámetro `tipo` en la función `reporte` parece indicar el tipo de informe que
+     * se generará. Es un parámetro de cadena que probablemente especifica el formato o tipo de informe,
+     * como PDF, Excel.
+     *
+     * @return La función `reporte` devuelve el resultado de llamar al método `imprimir_reporte` en el
+     * objeto `reporteService`. El método está siendo llamado con los parámetros ``, `'A4'`,
+     * `'landscape'`, ``, ``, `` y ``.
+     */
+    public function reporte(Request $request, string $tipo)
     {
         try {
             $datos = $request->all();
@@ -121,16 +134,16 @@ class GastoCoordinadorController extends Controller
             $fecha_inicio = $date_inicio->format('Y-m-d');
             $fecha_fin = $date_fin->format('Y-m-d');
             $usuario = null;
-            if($request->usuario !== null){
+            if ($request->usuario !== null) {
                 $results = GastoCoordinador::where('id_usuario', $request->usuario)->whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
                 $usuario = Empleado::where('id', $request->usuario)->first();
-            }else{
+            } else {
                 $results = GastoCoordinador::whereBetween('fecha_gasto', [$fecha_inicio, $fecha_fin])->get();
             }
             $solicitudes = GastoCoordinador::empaquetar($results);
             $nombre_reporte = 'reporte_solicitud_fondos_del' . $fecha_inicio . '-' . $fecha_fin . 'de' .  Auth::user()->empleado->nombres . ' ' . Auth::user()->apellidos;
             $vista = 'exports.reportes.solicitud_fondos';
-            $reportes = compact('solicitudes','usuario', 'fecha_inicio', 'fecha_fin');
+            $reportes = compact('solicitudes', 'usuario', 'fecha_inicio', 'fecha_fin');
             $export_excel = new SolicitudFondosExport($reportes);
             return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {

@@ -19,7 +19,7 @@ class GastoCoordinadorResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha_gasto' => $this->cambiar_fecha($this->fecha_gasto),
+            'fecha_gasto' => $this->cambiarFecha($this->fecha_gasto),
             'lugar' => $this->id_lugar,
             'grupo' => $this->id_grupo,
             'grupo_info' => $this->grupo->nombre,
@@ -33,7 +33,7 @@ class GastoCoordinadorResource extends JsonResource
         ];
         return $modelo;
     }
-    private function motivoGasto($motivo_info){
+    private function detalleMotivoGasto($motivo_info){
         $descripcion = '';
         $i=0;
         foreach($motivo_info as $motivo){
@@ -48,7 +48,16 @@ class GastoCoordinadorResource extends JsonResource
 
 
 
-   private function cambiar_fecha($fecha){
+/**
+ * La función "cambiarFecha" toma una entrada de fecha, la analiza usando Carbon y la devuelve en el
+ * formato 'd-m-Y'.
+ *
+ * @param fecha La función `cambiarFecha` que proporcionó toma una cadena de fecha como entrada, la
+ * analiza usando Carbon y luego la formatea al formato 'd-m-Y' antes de devolver la fecha formateada.
+ *
+ * @return La función `cambiarFecha` devuelve la fecha formateada en el formato 'd-m-Y'.
+ */
+   private function cambiarFecha($fecha){
     $fecha_formateada = Carbon::parse( $fecha)->format('d-m-Y');
         return $fecha_formateada;
     }
