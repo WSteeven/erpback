@@ -21,12 +21,19 @@ class Conductor extends Model implements Auditable
     protected $table = 'veh_conductores';
     protected $fillable = [
         'empleado_id',
-        'identificacion',
         'tipo_licencia',
         'inicio_vigencia',
         'fin_vigencia',
         'puntos',
     ];
+
+    protected $primaryKey = 'empleado_id';
+    //obtener la llave primaria
+    public function getKeyName()
+    {
+        return 'empleado_id';
+    }
+    public $incrementing = false;
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
@@ -35,12 +42,6 @@ class Conductor extends Model implements Auditable
 
     private static $whiteListFilter = ['*'];
 
-    protected $primaryKey = 'empleado_id';
-    //obtener la llave primaria
-    public function getKeyName()
-    {
-        return 'empleado_id';
-    }
 
     /**
      * ______________________________________________________________________________________
@@ -53,7 +54,7 @@ class Conductor extends Model implements Auditable
      */
     public function empleado()
     {
-        return $this->belongsTo(Empleado::class, 'empleado_id',);
+        return $this->belongsTo(Empleado::class);
     }
 
     /**

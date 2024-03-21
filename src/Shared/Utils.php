@@ -5,6 +5,7 @@ namespace Src\Shared;
 use App\Models\ComprasProveedores\DatoBancarioProveedor;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -113,6 +114,24 @@ class Utils
         ];
 
         return $mensajes[$metodo];
+    }
+    /**
+     * La función "obtenerMensajeError" en PHP devuelve un mensaje de error formateado que incluye el
+     * número de línea, el texto personalizado y el mensaje de excepción.
+     * 
+     * @param Exception $e El parámetro `e` es un objeto de tipo `Exception`. La función recupera 
+     * información de este objeto de excepción, como el mensaje y número de línea donde ocurrió la excepción.
+     * @param string $textoPersonalizado Le permite
+     * proporcionar un mensaje personalizado o información adicional para incluir en el mensaje de
+     * error. 
+     * 
+     * @return string mensaje de error formateado que incluye el número de línea donde ocurrió la
+     * excepción, cualquier texto personalizado proporcionado y el mensaje de excepción en sí.
+     */
+    public static function obtenerMensajeError(Exception $e, string $textoPersonalizado = '')
+    {
+        $mensaje = '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
+        return $mensaje;
     }
 
     /**

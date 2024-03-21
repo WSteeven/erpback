@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Vehiculos\ConductorResource;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
@@ -96,6 +97,7 @@ class EmpleadoResource extends JsonResource
             $modelo['tipo_contrato_info'] = $this->tipoContrato ? $this->tipoContrato->nombre : null;
             $modelo['genero'] = $this->genero;
             $modelo['realiza_factura'] = $this->realiza_factura;
+            $modelo['conductor'] = $this->conductor;
         }
 
         // Filtra los campos personalizados y añádelos a la respuesta si existen

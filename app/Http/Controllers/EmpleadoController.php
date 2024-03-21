@@ -6,11 +6,13 @@ use App\Http\Requests\EmpleadoRequest;
 use App\Http\Resources\EmpleadoResource;
 use App\Http\Resources\EmpleadoRolePermisoResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\Vehiculos\ConductorResource;
 use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\Grupo;
 use App\Models\RecursosHumanos\NominaPrestamos\PermisoEmpleado;
 use App\Models\User;
+use App\Models\Vehiculos\Conductor;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
@@ -111,7 +113,7 @@ class EmpleadoController extends Controller
         if ($datos['firma_url']) {
             $datos['firma_url'] = (new GuardarImagenIndividual($datos['firma_url'], RutasStorage::FIRMAS))->execute();
         }
-        throw new Exception('Parada obligatoria para revisar la logica de guardar conductor. ' . $request->all());
+
         try {
             DB::beginTransaction();
             $username = $this->generarNombreUsuario($datos);
@@ -121,55 +123,26 @@ class EmpleadoController extends Controller
                 'email' => $datos['email'],
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
+            //Adaptar datos
             $datos['usuario_id'] = $user->id;
-            $user->empleado()->create([
-                'nombres' => $datos['nombres'],
-                'apellidos' => $datos['apellidos'],
-                'identificacion' => $datos['identificacion'],
-                'telefono' => $datos['telefono'],
-                'fecha_nacimiento' => new DateTime($datos['fecha_nacimiento']),
-                'jefe_id' => $datos['jefe_id'],
-                'canton_id' => $datos['canton_id'],
-                'cargo_id' => $datos['cargo_id'],
-                'coordenadas' => $datos['coordenadas'],
-                'departamento_id' => $datos['departamento_id'],
-                'grupo_id' => $datos['grupo_id'],
-                'firma_url' => $datos['firma_url'],
-                'tipo_sangre' => $datos['tipo_sangre'],
-                'direccion' => $datos['direccion'],
-                'estado_civil_id' => $datos['estado_civil_id'],
-                'correo_personal' => $datos['correo_personal'],
-                'area_id' => $datos['area_id'],
-                'num_cuenta_bancaria' => $datos['num_cuenta_bancaria'],
-                'salario' => $datos['salario'],
-                'fecha_ingreso' => $datos['fecha_ingreso'],
-                'fecha_vinculacion' => $datos['fecha_ingreso'],
-                'fecha_salida' => $datos['fecha_salida'] ? $datos['fecha_salida'] : null,
-                'tipo_contrato_id' => $datos['tipo_contrato_id'],
-                'tiene_discapacidad' => $datos['tiene_discapacidad'],
-                'observacion' => $datos['observacion'],
-                'nivel_academico' => $datos['nivel_academico'],
-                'titulo' => $datos['titulo'],
-                'supa' => $datos['supa'],
-                'talla_zapato' => $datos['talla_zapato'],
-                'talla_camisa' => $datos['talla_camisa'],
-                'talla_guantes' => $datos['talla_guantes'],
-                'talla_pantalon' => $datos['talla_pantalon'],
-                'banco' => $datos['banco'],
-                'genero' => $datos['genero'],
-                'esta_en_rol_pago' => $datos['esta_en_rol_pago'],
-                'acumula_fondos_reserva' => $datos['acumula_fondos_reserva'],
-                'realiza_factura' => $datos['realiza_factura'],
-                'coordenadas' => $datos['coordenadas'],
-            ]);
+            $datos['fecha_vinculacion'] = $datos['fecha_ingreso'];
+            $datos['fecha_nacimiento'] = new DateTime($datos['fecha_nacimiento']);
+            $datos['fecha_salida'] = $datos['fecha_salida'] ? $datos['fecha_salida'] : null;
 
-            //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
-            //$grupo = Grupo::find($datos['grupo_id']);
+            //Crear empleado
+            $user->empleado()->create($datos);
+            //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
+            if (!empty($request->conductor)) {
+                $datos_conductor = $request->conductor;
+                $datos_conductor['empleado_id'] = $user->empleado->id;
+                $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
+                $conductor = Conductor::create($datos_conductor);
+            }
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
+            throw ValidationException::withMessages(['error' => [Utils::obtenerMensajeError($e)]]);
         }
 
         $modelo = new EmpleadoResource($user->empleado);
@@ -213,8 +186,8 @@ class EmpleadoController extends Controller
      */
     public function show(Empleado $empleado)
     {
-        // Log::channel('testing')->info('Log', ['Consultaste un empleado', $empleado]);
         $modelo = new EmpleadoResource($empleado);
+        $modelo['conductor'] = new ConductorResource($modelo->conductor);
         return response()->json(compact('modelo'));
     }
 
@@ -223,7 +196,6 @@ class EmpleadoController extends Controller
      */
     public function update(EmpleadoRequest $request, Empleado  $empleado)
     {
-        // Log::channel('testing')->info('Log', ['request recibida para update', $request->all()]);
         //Respuesta
         $datos = $request->validated();
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
@@ -510,15 +482,11 @@ class EmpleadoController extends Controller
     function obtenerEmpleadosFondosRotativos(Request $request)
     {
         try {
-            Log::channel('testing')->info('Log', ['request', $request->all()]);
             $empleados = Empleado::has('gastos')->get();
-            Log::channel('testing')->info('Log', ['encontrados', $empleados]);
-            Log::channel('testing')->info('Log', ['resource', EmpleadoResource::collection($empleados)]);
 
             $results = EmpleadoResource::collection($empleados);
         } catch (\Throwable $th) {
-            Log::channel('testing')->info('Log', ['error en obtenerEmpleadosFondosRotativos', $th->getMessage(), $th->getLine()]);
-            throw new ValidationException($th->getMessage());
+            throw ValidationException::withMessages(['error' => Utils::obtenerMensajeError($th)]);
         }
         return response()->json(compact('results'));
     }

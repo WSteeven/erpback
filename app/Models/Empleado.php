@@ -421,7 +421,7 @@ class Empleado extends Model implements Auditable
     }
     public function conductor()
     {
-        return $this->hasOne(Conductor::class, 'empleado_id');
+        return $this->hasOne(Conductor::class);
     }
 
     /**
