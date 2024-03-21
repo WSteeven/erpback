@@ -342,6 +342,9 @@ class GastoController extends Controller
             }
             $gasto->update($datos);
             $this->validarGastoVehiculo($request, $gasto);
+            if ($request->beneficiarios != null) {
+                $this->sincronizarBeneficiarios($gasto, $request->beneficiarios);
+            }
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
             $gasto_service->marcarNotificacionLeida();
@@ -350,7 +353,6 @@ class GastoController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             Log::channel('testing')->info('Log', ['error' => $e->getMessage(), 'linea: ' => $e->getLine()]);
-
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
             ]);
@@ -416,7 +418,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::where('id', $request->id)->first();
             $gasto->estado = Gasto::RECHAZADO;
-            $gasto->detalleEstado = $request->detalle_estado;
+            $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
@@ -454,7 +456,7 @@ class GastoController extends Controller
                 ]);
             }
             $gasto->estado = Gasto::ANULADO;
-            $gasto->detalleEstado = $request->detalle_estado;
+            $gasto->observacion_anulacion = $request->observacion_anulacion;
             $gasto->save();
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
@@ -492,6 +494,32 @@ class GastoController extends Controller
         }
         BeneficiarioGasto::insert($beneficiariosActualizados);
     }
+
+    public function sincronizarBeneficiarios(Gasto $gasto, $beneficiarios)
+    {
+        // Supongamos que $ids es tu arreglo de empleados _id
+        $ids = $beneficiarios;
+        // Obtener el gasto al que se asocian los beneficiarios
+        $gastoId = $gasto?->id; // Debes establecer este valor según tu lógica de la aplicación
+        // Obtener los registros existentes de beneficiarios para este gasto
+        $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gastoId)->pluck('empleado_id');
+        // Filtrar los ids para evitar repeticiones
+        $idsNuevos = collect($ids)->diff($registrosExistentes);
+        // Añadir nuevos registros a la tabla beneficiario_gastos
+        $nuevosRegistros = $idsNuevos->map(function ($empleadoId) use ($gastoId) {
+            return [
+                'gasto_id' => $gastoId,
+                'empleado_id' => $empleadoId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        });
+        // Insertar los nuevos registros
+        BeneficiarioGasto::insert($nuevosRegistros->toArray());
+        // Si deseas eliminar los registros que ya no están en el arreglo $ids, puedes hacerlo así
+        $registrosEliminar = $registrosExistentes->diff($ids);
+        BeneficiarioGasto::where('gasto_id', $gastoId)->whereIn('empleado_id', $registrosEliminar)->delete();
+    }
     /**
      * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP
      * usando Laravel.
@@ -517,8 +545,6 @@ class GastoController extends Controller
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
             $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
-            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado', $datos['es_vehiculo_alquilado']]);
-
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();

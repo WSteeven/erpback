@@ -4,7 +4,7 @@ namespace App\Http\Resources\FondosRotativos\Saldo;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SaldosFondosRotativosResource extends JsonResource
+class SaldoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

@@ -11,7 +11,7 @@ use App\Exports\SaldoActualExport;
 use App\Exports\TranferenciaSaldoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
-use App\Http\Resources\FondosRotativos\Saldo\SaldosFondosRotativosResource;
+use App\Http\Resources\FondosRotativos\Saldo\SaldoResource;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
@@ -37,17 +37,17 @@ use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
 use Src\Shared\Utils;
 
-class SaldosFondosRotativosController extends Controller
+class SaldoController extends Controller
 {
     private $entidad = 'saldo';
     private $reporteService;
     private $saldoService;
-    private const ACREDITACION= 1;
-    private const GASTO= 2;
-    private const CONSOLIDADO= 3;
-    private const ESTADO_CUENTA= 4;
-    private const TRANSFERENCIA= 5;
-    private const GASTO_IMAGEN= 6;
+    private const ACREDITACION = 1;
+    private const GASTO = 2;
+    private const CONSOLIDADO = 3;
+    private const ESTADO_CUENTA = 4;
+    private const TRANSFERENCIA = 5;
+    private const GASTO_IMAGEN = 6;
     public function __construct()
     {
         $this->reporteService = new ReportePdfExcelService();
@@ -70,7 +70,7 @@ class SaldosFondosRotativosController extends Controller
     {
         $results = [];
         $results = Saldo::with('usuario')->ignoreRequest(['campos'])->filter()->get();
-        $results = SaldosFondosRotativosResource::collection($results);
+        $results = SaldoResource::collection($results);
         return response()->json(compact('results'));
     }
     /**
@@ -83,7 +83,7 @@ class SaldosFondosRotativosController extends Controller
     public function show($id)
     {
         $SaldoGrupo = Saldo::where('id', $id)->first();
-        $modelo = new SaldosFondosRotativosResource($SaldoGrupo);
+        $modelo = new SaldoResource($SaldoGrupo);
         return response()->json(compact('modelo'), 200);
     }
     /**
@@ -128,7 +128,7 @@ class SaldosFondosRotativosController extends Controller
         $datos['fecha_inicio'] = $fechaIni;
         $datos['fecha_fin'] = $fechaFin;
         $modelo = SaldoGrupo::create($datos);
-        $modelo = new SaldosFondosRotativosResource($modelo);
+        $modelo = new SaldoResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
         return response()->json(compact('mensaje', 'modelo'));
     }
@@ -247,23 +247,23 @@ class SaldosFondosRotativosController extends Controller
         }
     }
 
-/**
- * La función `consolidadoFiltrado` en PHP toma una solicitud y un tipo de informe, luego, según el
- * tipo de saldo solicitado, llama a diferentes métodos para generar y devolver informes específicos.
- *
- * @param Request request La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
- * `Request` y ``.
- * @param tipo_reporte La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
- * `Request` y `` de tipo no especificado. Luego, la función usa una declaración de cambio
- * para determinar la acción en función del valor de `->tipo_saldo`. Dependiendo del valor,
- *
- * @return El método `consolidadoFiltrado` está devolviendo el resultado de uno de los siguientes
- * métodos basado en el valor de `->tipo_saldo`:
- * - `acreditacion(, )` si el valor es `self::ACREDITACION`
- * - `gastoFiltrado(, )` si el valor es `self::GASTO
- * - `reporteConsolidado(, )` si el valor es `self::CONSOLIDADO
- * - `reporteEstadoCuenta(, )` si el valor es `self::ESTADO_CUENTA
- */
+    /**
+     * La función `consolidadoFiltrado` en PHP toma una solicitud y un tipo de informe, luego, según el
+     * tipo de saldo solicitado, llama a diferentes métodos para generar y devolver informes específicos.
+     *
+     * @param Request request La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
+     * `Request` y ``.
+     * @param tipo_reporte La función `consolidadoFiltrado` toma dos parámetros: `` de tipo
+     * `Request` y `` de tipo no especificado. Luego, la función usa una declaración de cambio
+     * para determinar la acción en función del valor de `->tipo_saldo`. Dependiendo del valor,
+     *
+     * @return El método `consolidadoFiltrado` está devolviendo el resultado de uno de los siguientes
+     * métodos basado en el valor de `->tipo_saldo`:
+     * - `acreditacion(, )` si el valor es `self::ACREDITACION`
+     * - `gastoFiltrado(, )` si el valor es `self::GASTO
+     * - `reporteConsolidado(, )` si el valor es `self::CONSOLIDADO
+     * - `reporteEstadoCuenta(, )` si el valor es `self::ESTADO_CUENTA
+     */
     public function consolidadoFiltrado(Request $request,  $tipo_reporte)
     {
         try {
@@ -548,21 +548,21 @@ class SaldosFondosRotativosController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-/**
- * La función `reporteEstadoCuenta` genera un informe consolidado de transacciones financieras para un
- * usuario específico dentro de un rango de fechas determinado.
- *
- * @param Request request La función `reporteEstadoCuenta` parece generar un informe basado en los
- * datos de la solicitud proporcionados y un tipo de informe. Calcula diversos datos financieros, como
- * saldos, transacciones y gastos de un usuario determinado dentro de un rango de fechas específico.
- * @param string tipo_reporte Tipo_reporte es un parámetro de cadena que especifica el tipo de informe
- * a generar. Podría ser algo como "PDF" o "Excel".
- *
- * @return La función `reporteEstadoCuenta` está devolviendo el resultado de llamar al método
- * `imprimir_reporte` del objeto ``. El método `imprimir_reporte` parece generar e
- * imprimir un informe basado en los datos y parámetros proporcionados. El valor de retorno del método
- * `imprimir_reporte` es lo que finalmente devuelve el método `reporteEstadoCuenta
- */
+    /**
+     * La función `reporteEstadoCuenta` genera un informe consolidado de transacciones financieras para un
+     * usuario específico dentro de un rango de fechas determinado.
+     *
+     * @param Request request La función `reporteEstadoCuenta` parece generar un informe basado en los
+     * datos de la solicitud proporcionados y un tipo de informe. Calcula diversos datos financieros, como
+     * saldos, transacciones y gastos de un usuario determinado dentro de un rango de fechas específico.
+     * @param string tipo_reporte Tipo_reporte es un parámetro de cadena que especifica el tipo de informe
+     * a generar. Podría ser algo como "PDF" o "Excel".
+     *
+     * @return La función `reporteEstadoCuenta` está devolviendo el resultado de llamar al método
+     * `imprimir_reporte` del objeto ``. El método `imprimir_reporte` parece generar e
+     * imprimir un informe basado en los datos y parámetros proporcionados. El valor de retorno del método
+     * `imprimir_reporte` es lo que finalmente devuelve el método `reporteEstadoCuenta
+     */
     private function reporteEstadoCuenta(Request $request, string $tipo_reporte)
     {
         try {
@@ -570,7 +570,7 @@ class SaldosFondosRotativosController extends Controller
             $fecha_fin = $request->fecha_fin;
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->usuario,$fecha_anterior);
+            $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->usuario, $fecha_anterior);
             if ($saldo_anterior != null) {
                 $fecha_anterior = $saldo_anterior->fecha;
             }
@@ -638,12 +638,12 @@ class SaldosFondosRotativosController extends Controller
                 ->get();
             //Unir todos los reportes
             $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->usuario)->whereBetween('fecha', [$fecha_inicio, $fecha_fin])->get();
-            $array_id = array_merge($gastos_reporte->pluck('id')->toArray(), $transferencias_enviadas->pluck('id')->toArray(), $transferencias_recibidas->pluck('id')->toArray(), $acreditaciones_reportes->pluck('id')->toArray(), $ajuste_saldo->pluck('id')->toArray());
-            $saldo_fondos_empaquetado = SaldoService::empaquetarSaldoable($saldos_fondos,$array_id);
-            $reportes_unidos = array_merge($gastos_reporte->toArray(), $transferencias_enviadas->toArray(), $transferencias_recibidas->toArray(), $acreditaciones_reportes->toArray(), $ajuste_saldo->toArray(),$saldo_fondos_empaquetado);
-            $reportes_unidos = SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
-            $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion')->toArray();
-            $ultimo_saldo = SaldoService::obtenerSaldoActualUltimaFecha( $fecha_fin,  $request->usuario);
+            $array_id = $gastos_reporte->pluck('id')->merge($transferencias_enviadas->pluck('id'))->merge($transferencias_recibidas->pluck('id'))->merge($acreditaciones_reportes->pluck('id'))->merge($ajuste_saldo->pluck('id'));
+            $saldo_fondos_empaquetado = SaldoService::empaquetarSaldoable($saldos_fondos, $array_id);
+            $reportes_unidos = $saldo_fondos_empaquetado->merge($gastos_reporte)->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones_reportes)->merge($ajuste_saldo);
+            $reportes_unidos = Saldo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
+            $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion');
+            $ultimo_saldo = SaldoService::obtenerSaldoActualUltimaFecha($fecha_fin,  $request->usuario);
             $estado_cuenta_anterior = $request->fecha_inicio != '01-06-2023' ? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario) : $saldo_anterior->saldo_actual;
             $saldo_anterior_db = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
             $salt_ant =  $estado_cuenta_anterior !== 0 ? $estado_cuenta_anterior : $saldo_anterior_db;
@@ -659,9 +659,8 @@ class SaldosFondosRotativosController extends Controller
                 'saldo_anterior' => $salt_ant,
                 'saldo' => $saldo_anterior_db,
             ];
-            $reportes_unidos =  collect($reportes_unidos)
-                ->prepend($nuevo_elemento)
-                ->toArray();
+            $reportes_unidos =  $reportes_unidos
+                ->prepend($nuevo_elemento);
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual : 0;
             //$nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
@@ -713,7 +712,7 @@ class SaldosFondosRotativosController extends Controller
             $fecha_fin = $request->fecha_fin;
             $fecha = Carbon::parse($fecha_inicio);
             $fecha_anterior =  $fecha->subDay()->format('Y-m-d');
-            $saldo_anterior = SaldoService::obtenerSaldoAnterior( $request->usuario, $fecha_anterior);
+            $saldo_anterior = SaldoService::obtenerSaldoAnterior($request->usuario, $fecha_anterior);
             if ($saldo_anterior != null) {
                 $fecha =  Carbon::parse($saldo_anterior->fecha);
                 $fecha_anterior =  $fecha->format('Y-m-d');
@@ -895,5 +894,4 @@ class SaldosFondosRotativosController extends Controller
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
     }
-
 }

@@ -54,7 +54,8 @@ class GastoRequest extends FormRequest
             'detalle_estado' => 'nullable|string',
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
-            'id_usuario' => 'required|exists:empleados,id'
+            'id_usuario' => 'required|exists:empleados,id',
+            'observacion_anulacion' => 'nullable'
         ];
         if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
@@ -81,7 +82,8 @@ class GastoRequest extends FormRequest
                 'kilometraje' => 'required|integer',
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
-                'id_usuario' => 'required|exists:empleados,id'
+                'id_usuario' => 'required|exists:empleados,id',
+                'observacion_anulacion' => 'nullable'
             ];
         }
         return $rules;
@@ -235,6 +237,7 @@ class GastoRequest extends FormRequest
             'id_proyecto' => $proyecto,
             'id_lugar' => $this->lugar,
         ]);
+
     }
 
 }

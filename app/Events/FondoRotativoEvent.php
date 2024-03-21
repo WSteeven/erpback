@@ -70,7 +70,7 @@ class FondoRotativoEvent implements ShouldBroadcast
                 $ruta = [
                     'ruta' => '/gasto',
                     'informativa' => true,
-                    'mensaje' => 'Te han rechazado un gasto por el siguiente motivo: ' . $this->gasto->detalleEstado,
+                    'mensaje' => 'Te han rechazado un gasto por el siguiente motivo: ' . $this->gasto->detalle_estado,
                     'originador' =>  $this->gasto->aut_especial,
                     'destinatario' => $this->gasto->id_usuario,
                 ];
@@ -88,7 +88,7 @@ class FondoRotativoEvent implements ShouldBroadcast
                 $ruta = [
                     'ruta' => '/gasto',
                     'informativa' => false,
-                    'mensaje' => 'Te han anulado un gasto por el siguiente motivo: ' . $this->gasto->detalleEstado,
+                    'mensaje' => 'Te han anulado un gasto por el siguiente motivo: ' . $this->gasto->observacion_anulacion,
                     'originador' =>  $this->gasto->aut_especial,
                     'destinatario' => $this->gasto->id_usuario,
                 ];

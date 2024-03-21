@@ -4,7 +4,7 @@ namespace App\Http\Requests\FondosRotativos\Saldos;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SaldosFondosRotativosRequest extends FormRequest
+class SaldoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

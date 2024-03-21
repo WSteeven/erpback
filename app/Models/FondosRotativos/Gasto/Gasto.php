@@ -51,7 +51,8 @@ class Gasto extends Model implements Auditable
         'observacion',
         'id_usuario',
         'estado',
-        'detalle_estado'
+        'detalle_estado',
+        'observacion_anulacion'
     ];
 
     private static $whiteListFilter = ['*'];

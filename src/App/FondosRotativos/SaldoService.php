@@ -14,6 +14,7 @@ use App\Models\FondosRotativos\Saldo\Transferencias;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -303,19 +304,35 @@ class SaldoService
             return  $saldo_fondos;
         }
     }
-    public static function empaquetarSaldoable(Collection $saldos_fondos, array $array_ids)
+    public static function empaquetarSaldoable(Collection $saldos_fondos, SupportCollection $array_ids)
     {
         $results = [];
         $id = 0;
         foreach ($saldos_fondos as $saldo) {
             if(!is_null($saldo->saldoabLe_id)){
-                if (!in_array($saldo->saldoable->id, $array_ids)) {
+                if (!in_array($saldo->saldoable->id, $array_ids->toArray())) {
                     $results[$id] = $saldo->saldoable;
                     $id++;
                     $array_ids[] = $saldo->saldoable->id;
                 }
             }
         }
-        return $results;
+        return collect($results);
     }
+    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
+    {
+        $row = [];
+        // $saldo =0;
+        $row['item'] = $id + 1;
+        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
+        $row['fecha_creacion'] = $saldo['updated_at'];
+        $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
+        $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
+        $row['num_comprobante'] = SaldoGrupo::obtenerNumeroComprobante($saldo);
+        $row['ingreso'] = $ingreso;
+        $row['gasto'] = $gasto;
+        // $row['saldo_count'] = $ingreso -$gasto;
+        return $row;
+    }
+
 }

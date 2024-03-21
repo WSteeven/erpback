@@ -37,15 +37,21 @@ class TransferenciasController extends Controller
      */
     public function index()
     {
-        $results = [];
-        $usuario = Auth::user();
-        $usuario_ac = User::where('id', $usuario->id)->first();
-        if ($usuario_ac->hasRole('CONTABILIDAD'))
-            $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-        else
-            $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
-        $results = TransferenciaResource::collection($results);
-        return response()->json(compact('results'));
+        try {
+            $results = [];
+            $usuario = Auth::user();
+            $usuario_ac = User::where('id', $usuario->id)->first();
+            if ($usuario_ac->hasRole('CONTABILIDAD'))
+                $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+            else
+                $results = Transferencias::with('empleadoEnvia', 'empleadoRecibe')->where('usuario_envia_id', Auth::user()->empleado->id)->orWhere('usuario_recibe_id', Auth::user()->empleado->id)->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
+            $results = TransferenciaResource::collection($results);
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'Error al consultar registro' => [$e->getMessage()],
+            ]);
+        }
     }
 
     /**
@@ -56,6 +62,7 @@ class TransferenciasController extends Controller
      */
     public function store(TransferenciaSaldoRequest $request)
     {
+        DB::beginTransaction();
         try {
             $datos = $request->validated();
             $datos['estado'] = Transferencias::PENDIENTE;
@@ -65,9 +72,11 @@ class TransferenciasController extends Controller
             event(new TransferenciaSaldoContabilidadEvent($modelo));
             $modelo = new TransferenciaResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            DB::rollBack();
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
@@ -75,13 +84,19 @@ class TransferenciasController extends Controller
     }
     public function autorizacionesTransferencia(Request $request)
     {
-        $user = Auth::user()->empleado;
-        $usuario = User::where('id', $user->id)->first();
-        $results = [];
-        $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'usuario_recibe')->filter()->get();
-        $results = TransferenciaResource::collection($results);
-
-        return response()->json(compact('results'));
+        try {
+            $user = Auth::user()->empleado;
+            $usuario = User::where('id', $user->id)->first();
+            $results = [];
+            $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'empleadoRecibe')->filter()->get();
+            $results = TransferenciaResource::collection($results);
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
+            throw ValidationException::withMessages([
+                'Error al consultar registro' => [$e->getMessage()],
+            ]);
+        }
     }
     /**
      * Display the specified resource.
@@ -135,7 +150,7 @@ class TransferenciasController extends Controller
      *
      * @return A JSON object with the success message.
      */
-    public function aprobarTransferencia(TransferenciaSaldoRequest $request)
+    public function aprobarTransferencia(Request $request)
     {
         try {
             DB::beginTransaction();

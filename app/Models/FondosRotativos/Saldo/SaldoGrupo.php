@@ -4,19 +4,13 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
-use App\Models\FondosRotativos\Saldo\TipoSaldo;
-use App\Models\FondosRotativos\Viatico\EstadoViatico;
-use App\Models\FondosRotativos\Viatico\TipoFondo;
-use App\Models\User;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
-use Illuminate\Support\Facades\Auth;
 
 class SaldoGrupo extends  Model implements Auditable
 {
@@ -167,8 +161,6 @@ class SaldoGrupo extends  Model implements Auditable
         if (isset($saldo['motivo'])) {
             return $saldo['motivo'];
         }
-        Log::channel('testing')->info('Log', ['saldo', $saldo]);
-
         if (isset($saldo['detalle_info']['descripcion'])) {
             if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
                 if ($saldo['estado'] == 4) {
@@ -204,18 +196,21 @@ class SaldoGrupo extends  Model implements Auditable
         }
         return '';
     }
-    private static function subDetalleInfo(array $subdetalle_info)
+    private static function subDetalleInfo($subdetalle_info)
     {
-        $descripcion = '';
-        $i = 0;
-        foreach ($subdetalle_info as $sub_detalle) {
-            $descripcion .= $sub_detalle['descripcion'];
-            $i++;
-            if ($i !== count($subdetalle_info)) {
-                $descripcion .= ', ';
+        if (!is_null($subdetalle_info)) {
+            $descripcion = '';
+            $i = 0;
+            foreach ($subdetalle_info as $sub_detalle) {
+                $descripcion .= $sub_detalle['descripcion'];
+                $i++;
+                if ($i !== count($subdetalle_info)) {
+                    $descripcion .= ', ';
+                }
             }
+            return $descripcion;
         }
-        return $descripcion;
+        return '';
     }
     public static function empaquetarListado($saldos, $tipo)
     {
@@ -282,7 +277,7 @@ class SaldoGrupo extends  Model implements Auditable
         return $this->morphTo();
     }
 
-    public static function crearSaldoGrupo($fecha, $saldo_anterior,$saldo_depositado,$saldo_actual,$fecha_inicio,$fecha_fin,$id_usuario,$tipo_saldo, $entidad)
+    public static function crearSaldoGrupo($fecha, $saldo_anterior, $saldo_depositado, $saldo_actual, $fecha_inicio, $fecha_fin, $id_usuario, $tipo_saldo, $entidad)
     {
         $saldo_grupo = $entidad->saldo_grupo()->create([
             'fecha' => $fecha,
@@ -292,7 +287,7 @@ class SaldoGrupo extends  Model implements Auditable
             'tipo_saldo' => $tipo_saldo,
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
-            'id_usuario'=>$id_usuario
+            'id_usuario' => $id_usuario
         ]);
         return $saldo_grupo;
     }
@@ -310,23 +305,24 @@ class SaldoGrupo extends  Model implements Auditable
      * de verificar y manejar cualquier registro duplicado en la tabla `SaldoGrupo` según ciertas
      * condiciones.
      */
-    public static function verificarGastosRepetidosEnSaldoGrupo($gastos){
+    public static function verificarGastosRepetidosEnSaldoGrupo($gastos)
+    {
         try {
             //code...
-            $registro_saldo_grupo_duplicado=false;
-            foreach($gastos as $index=> $gasto){
-            if($registro_saldo_grupo_duplicado){
-                $registro_saldo_grupo_duplicado=false;
-                continue;
-            }
-            $registros = SaldoGrupo::where('id_usuario', $gasto->id_usuario)
-            ->where('saldo_depositado', $gasto->total)
-            ->whereBetween('created_at',[
-                Carbon::parse($gasto->updated_at)->subSecond(2),
-                Carbon::parse($gasto->updated_at)->addSecond(2),
-                ])->get();
+            $registro_saldo_grupo_duplicado = false;
+            foreach ($gastos as $index => $gasto) {
+                if ($registro_saldo_grupo_duplicado) {
+                    $registro_saldo_grupo_duplicado = false;
+                    continue;
+                }
+                $registros = SaldoGrupo::where('id_usuario', $gasto->id_usuario)
+                    ->where('saldo_depositado', $gasto->total)
+                    ->whereBetween('created_at', [
+                        Carbon::parse($gasto->updated_at)->subSecond(2),
+                        Carbon::parse($gasto->updated_at)->addSecond(2),
+                    ])->get();
                 // Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
-                if($registros->count() > 1){
+                if ($registros->count() > 1) {
                     $gastos->splice($index, 0, [$gasto]);
                     $registro_saldo_grupo_duplicado = true;
                 }
@@ -334,7 +330,7 @@ class SaldoGrupo extends  Model implements Auditable
             // Log::channel('testing')->info('Log', ['lo que se retorna',$gastos]);
             return $gastos;
         } catch (\Throwable $th) {
-            Log::channel('testing')->info('Log', ['error en verificarRepetidos',$th->getMessage(), $th->getLine()]);
+            Log::channel('testing')->info('Log', ['error en verificarRepetidos', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
     }

@@ -3,9 +3,7 @@
 namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Gasto\EstadoViatico;
-use App\Models\Notificacion;
-use App\Models\Tarea;
+use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,6 +36,33 @@ class Saldo extends Model  implements Auditable
     public function saldoable()
     {
         return $this->morphTo();
+    }
+    public static function empaquetarCombinado($arreglo, $empleado, $fecha, $saldo_anterior)
+    {
+        $results = [];
+        $id = 0;
+        $row = [];
+        if (isset($arreglo)) {
+            //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
+            $id += 1;
+            $fecha_anterior = $fecha;
+            foreach ($arreglo as $saldo) {
+                if (isset($saldo['detalle_info']['descripcion'])) {
+                    $ingreso = self::ingreso($saldo, $empleado);
+                    $gasto = self::gasto($saldo, $empleado);
+                    $row = self::guardarArreglo($id, $ingreso, $gasto, $saldo);
+                    $results[$id] = $row;
+                    $id++;
+                } else {
+                    $ingreso = self::ingreso($saldo, $empleado);
+                    $gasto = self::gasto($saldo, $empleado);
+                    $row = self::guardarArreglo($id, $ingreso, $gasto, $saldo);
+                    $results[$id] = $row;
+                    $id++;
+                }
+            }
+        }
+        return $results;
     }
     public static function empaquetarListado($saldos, $tipo)
     {
@@ -94,5 +119,139 @@ class Saldo extends Model  implements Auditable
         $nameA = $a['empleado']->apellidos . ' ' . $a['empleado']->nombres;
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
+    }
+       /**
+     * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
+     * función de los parámetros dados.
+     *
+     * @param saldo Una matriz que contiene información sobre un saldo o crédito.
+     * @param empleado El parámetro "empleado" representa el ID de un empleado.
+     *
+     * @return el valor de la clave 'monto' de la matriz  si se establece la clave
+     * 'descripcion_acreditacion'. En caso contrario, comprueba si el array 'detalle_info' tiene clave
+     * 'descripcion' y si la clave 'estado' es igual a 4. Si se cumplen ambas condiciones, devuelve el
+     * valor de la clave 'total' del registro
+     */
+    private static function ingreso($saldo, $empleado)
+    {
+        if (isset($saldo['descripcion_acreditacion'])) {
+            return $saldo['monto'];
+        }
+
+        if (isset($saldo['detalle_info']['descripcion'])) {
+            if ($saldo['estado'] == 4) {
+                return $saldo['total'];
+            }
+        }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+                return $saldo['monto'];
+            }
+        }
+
+        if (isset($saldo['usuario_recibe_id'])) {
+            if ($saldo['usuario_recibe_id'] == $empleado)
+                return $saldo['monto'];
+        }
+        return 0;
+    }
+    // verifica si es un egreso
+    private static function gasto($saldo, $empleado)
+    {
+        if (isset($saldo['detalle_info']['descripcion'])) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
+                return  $saldo['total'];
+            }
+        }
+        if (isset($saldo['usuario_envia_id'])) {
+            if ($saldo['usuario_envia_id'] == $empleado) {
+                return $saldo['monto'];
+            }
+        }
+        if (isset($saldo['tipo'])) {
+            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
+                return $saldo['monto'];
+            }
+        }
+        return 0;
+    }
+    private static function descripcionSaldo($saldo)
+    {
+        if (isset($saldo['descripcion_acreditacion'])) {
+            return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
+        }
+        if (isset($saldo['usuario_envia_id'])) {
+            $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
+            $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
+            return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+        }
+        if (isset($saldo['motivo'])) {
+            return $saldo['motivo'];
+        }
+        if (isset($saldo['detalle_info']['descripcion'])) {
+            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
+                if ($saldo['estado'] == 4) {
+                    $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
+                    return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
+                $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
+                return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+            }
+        }
+        return '';
+    }
+    private static function observacionSaldo($saldo)
+    {
+        if (isset($saldo['observacion'])) {
+            return $saldo['observacion'];
+        }
+        if (isset($saldo['descripcion'])) {
+            return $saldo['descripcion'];
+        }
+        return '';
+    }
+    private static function obtenerNumeroComprobante($saldo)
+    {
+        if (isset($saldo['cuenta'])) {
+            return $saldo['cuenta'];
+        }
+        if (isset($saldo['factura'])) {
+            return $saldo['factura'];
+        }
+        if (isset($saldo['id_saldo'])) {
+            return $saldo['id_saldo'];
+        }
+        return '';
+    }
+    private static function subDetalleInfo($subdetalle_info)
+    {
+        if(!is_null($subdetalle_info)){
+            $descripcion = '';
+            $i = 0;
+            foreach ($subdetalle_info as $sub_detalle) {
+                $descripcion .= $sub_detalle['descripcion'];
+                $i++;
+                if ($i !== count($subdetalle_info)) {
+                    $descripcion .= ', ';
+                }
+            }
+            return $descripcion;
+        }
+        return '';
+    }
+    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
+    {
+        $row = [];
+        // $saldo =0;
+        $row['item'] = $id + 1;
+        $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
+        $row['fecha_creacion'] = $saldo['updated_at'];
+        $row['descripcion'] = self::descripcionSaldo($saldo);
+        $row['observacion'] = self::observacionSaldo($saldo);
+        $row['num_comprobante'] = self::obtenerNumeroComprobante($saldo);
+        $row['ingreso'] = $ingreso;
+        $row['gasto'] = $gasto;
+        // $row['saldo_count'] = $ingreso -$gasto;
+        return $row;
     }
 }
