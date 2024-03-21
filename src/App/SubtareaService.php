@@ -90,7 +90,7 @@ class SubtareaService
         // Monitor
         if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
             // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
-            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get();//->orderBy('fecha_hora_agendado', 'desc')->get();
+            $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get(); //->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
         }
 
@@ -118,15 +118,10 @@ class SubtareaService
 
     public function puedeRealizar(Subtarea $subtarea)
     {
-        // $seguimiento = SeguimientoSubtarea::find($subtarea->seguimiento_id);
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
-        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {/*  && !$seguimiento) throw ValidationException::withMessages([
-            'falta_seguimiento' => ['Debe registrar actividades en el seguimiento!'],
-        ]); */
-
-
-            if ($subtarea->trabajosRealizados->count() < 3)
+        if (!in_array($subtarea->tipo_trabajo_id, $ids)) {
+            if ($subtarea->trabajosRealizados->count() < 1)
                 throw ValidationException::withMessages([
                     'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
                 ]);

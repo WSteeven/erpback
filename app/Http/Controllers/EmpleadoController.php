@@ -169,7 +169,6 @@ class EmpleadoController extends Controller
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            // Log::channel('testing')->info('Log', ['ERROR', $e->getMessage()]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro', "excepción" => $e->getMessage()]);
         }
 
@@ -188,6 +187,7 @@ class EmpleadoController extends Controller
         $empleado = Empleado::find($request->id);
         $empleado->estado = $request->estado == 'true' ? 1 : 0;
         $empleado->save();
+        EmpleadoService::eliminarUmbralFondosRotativos($empleado);
         $modelo = $empleado;
         return response()->json(compact('modelo'));
     }

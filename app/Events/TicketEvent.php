@@ -13,13 +13,14 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class TicketEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Ticket $ticket;
+    public $ticket;
     public Notificacion $notificacion;
     public int $destinatario;
     public int $emisor;
@@ -31,12 +32,26 @@ class TicketEvent implements ShouldBroadcast
      */
     public function __construct(Ticket $ticket, int $emisor, int $destinatario, bool $sistema = false)
     {
-        $this->ticket = $ticket;
+        $this->ticket = [
+            'id' => $ticket->id,
+            'estado' => $ticket->estado,
+            'codigo' => $ticket->codigo,
+            'responsable' => $ticket->responsable,
+        ];
+
+        /*$ticketAux = new Ticket();
+        $ticketAux->id = $ticket->id;
+        $ticketAux->estado = $ticket->estado;
+        $ticketAux->codigo = $ticket->codigo;
+        $ticketAux->responsable = $ticket->responsable;
+
+        $this->ticket = $ticketAux;*/
+
         $this->destinatario = $destinatario;
         $this->emisor = $emisor;
 
         $ruta = '/tickets-asignados';
-        $mensaje = $sistema ? $this->generarMensajeSistema() : $this->obtenerMensaje();
+        $mensaje = $sistema ? $this->generarMensajeSistema($ticket) : $this->obtenerMensaje($ticket);
 
         $ticket->notificaciones()->update(['leida' => 1]);
 
@@ -54,34 +69,34 @@ class TicketEvent implements ShouldBroadcast
         return 'ticket-event';
     }
 
-    private function obtenerMensaje()
+    private function obtenerMensaje(Ticket $ticket)
     {
-        switch ($this->ticket->estado) {
+        switch ($ticket->estado) {
             case Ticket::ASIGNADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha ASIGNADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha ASIGNADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto;
             case Ticket::REASIGNADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha REASIGNADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha REASIGNADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto;
             case Ticket::EJECUTANDO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $this->ticket->codigo . ' con asunto: '  . $this->ticket->asunto;
+                return Empleado::extraerNombresApellidos($ticket->responsable) . ' ha comenzado a EJECUTAR el ticket ' . $ticket->codigo . ' con asunto: '  . $ticket->asunto;
             case Ticket::PAUSADO:
-                $motivo = $this->ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('created_at', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha PAUSADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
+                $motivo = $ticket->pausasTicket()->orderBy('fecha_hora_pausa', 'DESC')->first()->motivoPausaTicket()->orderBy('created_at', 'DESC')->first()->motivo;
+                return Empleado::extraerNombresApellidos($ticket->responsable) . ' ha PAUSADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto . ', por el motivo: ' . $motivo;
             case Ticket::RECHAZADO:
-                $motivo = $this->ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $motivo;
+                $motivo = $ticket->ticketsRechazados()->orderBy('fecha_hora', 'DESC')->first()->motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' ha RECHAZADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto . ', por el motivo: ' . $motivo;
             case Ticket::CANCELADO:
-                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha CANCELADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', por el motivo: ' . $this->ticket->motivoCanceladoTicket?->motivo;
+                return Empleado::extraerNombresApellidos(Empleado::find($this->emisor)) . ' le ha CANCELADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto . ', por el motivo: ' . $ticket->motivoCanceladoTicket?->motivo;
             case Ticket::FINALIZADO_SOLUCIONADO || Ticket::FINALIZADO_SOLUCIONADO:
-                return Empleado::extraerNombresApellidos($this->ticket->responsable) . ' ha FINALIZADO el ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto;
+                return Empleado::extraerNombresApellidos($ticket->responsable) . ' ha FINALIZADO el ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto;
         }
     }
 
-    private function generarMensajeSistema()
+    private function generarMensajeSistema(Ticket $ticket)
     {
-        switch ($this->ticket->estado) {
+        switch ($ticket->estado) {
             case Ticket::PAUSADO:
                 $motivo = MotivoPausaTicket::find(Ticket::PAUSA_AUTOMATICA_SISTEMA)->motivo;
-                return 'Ticket ' . $this->ticket->codigo . ' con asunto: ' . $this->ticket->asunto . ', ha sido PAUSADO. Motivo: ' . $motivo;
+                return 'Ticket ' . $ticket->codigo . ' con asunto: ' . $ticket->asunto . ', ha sido PAUSADO. Motivo: ' . $motivo;
         }
     }
 }

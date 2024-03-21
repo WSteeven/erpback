@@ -180,7 +180,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      * el material para el empleado.
      * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
      * cargar para el empleado y tarea debido a una baja o devolución.
-     * @param int cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * @param int|null cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
      * cargando el material.
      * @param int proyecto_id El parámetro "proyecto_id" es un número entero opcional que representa el
      * ID de un proyecto. Se utiliza para filtrar el material por proyecto si se proporciona. Si no se
@@ -189,7 +189,7 @@ class MaterialEmpleadoTarea extends Model implements Auditable
      * Se utiliza en la función para filtrar el material asignado a un empleado según la etapa
      * específica del proyecto.
      */
-    public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int $cliente_id, int|null $proyecto_id, int|null $etapa_id)
+    public static function cargarMaterialEmpleadoTareaPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $tarea_id, int $cantidad, int|null $cliente_id, int|null $proyecto_id, int|null $etapa_id)
     {
         try {
             $material = MaterialEmpleadoTarea::where('detalle_producto_id', $detalle_id)

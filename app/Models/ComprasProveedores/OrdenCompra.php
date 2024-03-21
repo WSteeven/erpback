@@ -13,6 +13,7 @@ use App\Models\Pedido;
 use App\Models\Producto;
 use App\Models\Proveedor;
 use App\Models\Tarea;
+use App\Models\UnidadMedida;
 use App\Traits\UppercaseValuesTrait;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
@@ -87,7 +88,7 @@ class OrdenCompra extends Model implements Auditable
   public function productos()
   {
     return $this->belongsToMany(Producto::class, 'cmp_item_detalle_orden_compra', 'orden_compra_id', 'producto_id')
-      ->withPivot(['id', 'descripcion', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
+      ->withPivot(['id', 'descripcion', 'unidad_medida_id', 'cantidad', 'porcentaje_descuento', 'facturable', 'grava_iva', 'precio_unitario', 'iva', 'subtotal', 'total'])->withTimestamps();
   }
   /**
    * Relación uno a uno.
@@ -213,7 +214,7 @@ class OrdenCompra extends Model implements Auditable
       $row['producto_id'] = $producto->id;
       $row['descripcion'] = Utils::mayusc($producto->pivot->descripcion);
       $row['categoria'] = $producto->categoria->nombre;
-      $row['unidad_medida'] = $producto->unidadMedida->nombre;
+      $row['unidad_medida'] = $producto->pivot->unidad_medida_id ? $producto->pivot->unidad_medida_id : $producto->unidadMedida->nombre;
       $row['cantidad'] = $producto->pivot->cantidad;
       $row['precio_unitario'] = $producto->pivot->precio_unitario;
       $row['porcentaje_descuento'] = $producto->pivot->porcentaje_descuento;
@@ -252,7 +253,6 @@ class OrdenCompra extends Model implements Auditable
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) use ($metodo) {
-        // if ($metodo == 'crear') {
         if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
         else $producto = Producto::where('nombre', $detalle['producto'])->first();
         // }
@@ -260,6 +260,7 @@ class OrdenCompra extends Model implements Auditable
           'producto_id' => array_key_exists('producto_id', $detalle) ? $detalle['producto_id'] : $producto->id,
           'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
           'cantidad' => $detalle['cantidad'],
+          'unidad_medida_id' => is_int($detalle['unidad_medida']) ? $detalle['unidad_medida'] : UnidadMedida::where('nombre', $detalle['unidad_medida'])->first()->id,
           'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
           'facturable' => $detalle['facturable'],
           'grava_iva' => $detalle['grava_iva'],

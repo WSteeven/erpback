@@ -170,7 +170,7 @@ class Proforma extends Model implements Auditable
 
   public static function guardarDetalles($proforma, $items)
   {
-    Log::channel('testing')->info('Log', ['Datos recibidos en guardar Detalles de proformas :', $items]);
+    // Log::channel('testing')->info('Log', ['Datos recibidos en guardar Detalles de proformas :', $items]);
     try {
       DB::beginTransaction();
       $datos = array_map(function ($detalle) {

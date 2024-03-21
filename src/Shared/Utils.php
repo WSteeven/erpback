@@ -2,6 +2,7 @@
 
 namespace Src\Shared;
 
+use App\Models\ComprasProveedores\DatoBancarioProveedor;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
@@ -245,6 +246,25 @@ class Utils
             }
         }
         return $text;
+    }
+
+    /**
+     * La función `obtenerTipoCta` devuelve la abreviatura del tipo de cuenta según el tipo de entrada.
+     * Esto se realiza para obtener datos para el cash de pagos. 
+     * 
+     * @param string $tipo El tipo de cuenta (CORRIENTE o AHORROS)
+     * 
+     * @return string Si el valor es igual a `CORRIENTE`, la
+     * función devuelve 'CTE'. De lo contrario, devuelve 'AHO'.
+     */
+    public static function obtenerTipoCta(string $tipo)
+    {
+        switch ($tipo) {
+            case DatoBancarioProveedor::CORRIENTE:
+                return 'CTE';
+            default:
+                return 'AHO';
+        }
     }
 
     /**

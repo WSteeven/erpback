@@ -59,12 +59,17 @@ class PausarTicketsFinJornadaJob implements ShouldQueue
                     'responsable_id' => $ticket->responsable_id,
                 ]);
 
-                event(new TicketEvent($ticket->refresh(), $ticket->solicitante_id, $ticket->responsable_id, true));
-                event(new TicketEvent($ticket->refresh(), $ticket->responsable_id, $ticket->solicitante_id, true));
+                $ticketAux = new Ticket();
+                $ticket->refresh();
+                $ticketAux->id = $ticket->id;
+                $ticketAux->estado = $ticket->estado;
+
+                event(new TicketEvent($ticketAux, $ticket->solicitante_id, $ticket->responsable_id, true));
+                event(new TicketEvent($ticketAux, $ticket->responsable_id, $ticket->solicitante_id, true));
                 event(new ActualizarNotificacionesEvent());
             }
 
-            Log::channel('testing')->info('Log', ['JOB5', 'Dentro del job tickets pausados']);
+            // Log::channel('testing')->info('Log', ['JOB5', 'Dentro del job tickets pausados']);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
