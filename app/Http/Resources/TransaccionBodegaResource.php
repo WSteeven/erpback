@@ -7,7 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 use Src\Config\MotivosTransaccionesBodega;
 
-set_time_limit(120);
 class TransaccionBodegaResource extends JsonResource
 {
     /**
