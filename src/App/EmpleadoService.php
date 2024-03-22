@@ -10,6 +10,7 @@ use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\FondosRotativos\UmbralFondosRotativos;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -66,6 +67,7 @@ class EmpleadoService
                 'jefe_id',
                 'canton_id',
                 'direccion',
+                'fecha_nacimiento',
                 'estado',
                 'grupo_id',
                 'cargo_id',
@@ -211,5 +213,12 @@ class EmpleadoService
         })->ignoreRequest(['campos'])->filter()->get();
 
         return $empleados;
+    }
+    public static function eliminarUmbralFondosRotativos(Empleado $empleado)
+    {
+        $umbral = UmbralFondosRotativos::where('empleado_id', $empleado->id)->first();
+        if ($umbral && !$empleado->estado) {
+            $umbral->delete();
+        }
     }
 }

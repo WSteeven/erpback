@@ -131,10 +131,10 @@ class MaterialEmpleado extends Model implements Auditable
      * @param int empleado_id El parámetro empleado_id representa el ID del empleado.
      * @param int cantidad El parámetro cantidad representa la cantidad de material que se necesita
      * cargar o agregar al stock.
-     * @param int cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
+     * @param int|null cliente_id El parámetro `cliente_id` representa el ID del cliente para quien se está
      * cargando el material.
      */
-    public static function cargarMaterialEmpleadoPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $cantidad, int $cliente_id)
+    public static function cargarMaterialEmpleadoPorAnulacionDevolucion(int $detalle_id, int $empleado_id, int $cantidad, int|null $cliente_id)
     {
         try {
             $material = MaterialEmpleado::where('detalle_producto_id', $detalle_id)->where('empleado_id', $empleado_id)->where('cliente_id', $cliente_id)->first();

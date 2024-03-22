@@ -17,11 +17,15 @@ use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
 use App\Models\VistaInventarioPercha;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use OwenIt\Auditing\Models\Audit;
 use Src\App\InventarioService;
+use Src\Config\EstadosTransacciones;
 use Src\Shared\Utils;
 
 class InventarioController extends Controller
@@ -50,78 +54,6 @@ class InventarioController extends Controller
         } else {
             $results = $this->servicio->todos($request);
         }
-        // if ($search) {
-        //     // Log::channel('testing')->info('Log', ['SEARCH', $request->all()]);
-        //     $results = Inventario::search($search ?? '')
-        //         ->query(function ($query) {
-        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //             // ->orderBy('inventarios.id', 'DESC');
-        //         })->get();
-        //     $results = InventarioResource::collection($results);
-        // }
-        // if ($search && $request->cliente_id) {
-        //     // Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE', $request->all()]);
-        //     $results = Inventario::search($search ?? '')
-        //         ->query(function ($query) {
-        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //         })->where('cliente_id', $request['cliente_id'])->get();
-        //     $results = InventarioResource::collection($results);
-        // }
-        // if ($search && $request['sucursal_id']) {
-        //     // Log::channel('testing')->info('Log', ['SEARCH Y SUCURSAL', $request->all()]);
-        //     $results = Inventario::search($search ?? '')
-        //         ->query(function ($query) {
-        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //         })->where('sucursal_id', $request['sucursal_id'])->get();
-        //     $results = InventarioResource::collection($results);
-        // }
-        // if ($search && $request['cliente_id'] && $request['sucursal_id'] && $request->boolean('zeros')) {
-        //     //  Log::channel('testing')->info('Log', ['SEARCH Y CLIENTE Y SUCURSAL', $request->all()]);
-        //     $results = Inventario::search($search ?? '')
-        //         ->query(function ($query) {
-        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //         })->where('cliente_id', $request['cliente_id'])
-        //         ->where('sucursal_id', $request['sucursal_id'])->get();
-        //     $results = InventarioResource::collection($results);
-        // } else {
-        //     // Log::channel('testing')->info('Log', ['else linea 69', $request->all()]);
-        //     $results = Inventario::search($search ?? '')
-        //         ->query(function ($query) {
-        //             $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                 ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //         })->where('cliente_id', $request['cliente_id'])
-        //         ->where('sucursal_id', $request['sucursal_id'])
-        //         ->where('cantidad', '>', 0)->get();
-        //     $results = InventarioResource::collection($results);
-        // }
-        // //si no entra en ningun if
-        // if (!$request->hasAny(['search']) && !$request->boolean('zeros')) {
-        //     Log::channel('testing')->info('Log', ['if search 92', $request->all()]);
-        //     $results = Inventario::ignoreRequest(['zeros'])->filter()->get();
-        //     $results = InventarioResource::collection($results);
-        // } else {
-        //     Log::channel('testing')->info('Log', ['if search 96', $request->all()]);
-        //     if ($request->has('zeros')) {
-        //         Log::channel('testing')->info('Log', ['if 98', $request->all()]);
-        //         $results = Inventario::search($search ?? '')
-        //             ->query(function ($query) {
-        //                 $query->join('detalles_productos', 'inventarios.detalle_id', 'detalles_productos.id')
-        //                     ->select(['inventarios.id', 'detalle_id', 'cliente_id', 'condicion_id', 'sucursal_id', 'cantidad', 'estado', 'detalles_productos.descripcion as descripcion']);
-        //             })->ignoreRequest(['zeros', 'search'])->where('cantidad', '>', 0)->OrWhere('por_recibir', '<>', 0)->OrWhere('por_entregar', '<>', 0)->filter()->get();
-        //     } else {
-        //         Log::channel('testing')->info('Log', ['if 101', $request->all()]);
-        //         $results = Inventario::ignoreRequest(['search'])->filter()->get();
-        //     }
-        //     $results = InventarioResource::collection($results);
-        // }
-        // if ($sucursal) {
-        //     $results = Inventario::where('sucursal_id', $sucursal)->get();
-        //     $results = InventarioResource::collection($results);
-        // }
         $results = InventarioResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -129,34 +61,34 @@ class InventarioController extends Controller
     /**
      * Guardar
      */
-    public function store(InventarioRequest $request)
-    {
-        //Adaptacion de foreign keys
-        $datos = $request->validated();
-        // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
-        // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
-        $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
-        // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
-        //Respuesta
-        // Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
-        $item = Inventario::where('detalle_id', $request->detalle_id)
-            ->where('sucursal_id', $request->sucursal_id)
-            ->where('cliente_id', $request->cliente_id)
-            ->where('condicion_id', $request->condicion)
-            ->first();
-        if ($item) {
-            // Log::channel('testing')->info('Log', ['item encontrado', $item]);
-            $datos['cantidad'] = $request->cantidad + $item->cantidad;
-            $item->update($datos);
-            $modelo = $item->refresh();
-        } else {
-            $modelo = Inventario::create($datos);
-        }
-        $modelo = new InventarioResource($modelo);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+    // public function store(InventarioRequest $request)
+    // {
+    //     //Adaptacion de foreign keys
+    //     $datos = $request->validated();
+    //     // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
+    //     // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
+    //     $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
+    //     // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
+    //     //Respuesta
+    //     // Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
+    //     $item = Inventario::where('detalle_id', $request->detalle_id)
+    //         ->where('sucursal_id', $request->sucursal_id)
+    //         ->where('cliente_id', $request->cliente_id)
+    //         ->where('condicion_id', $request->condicion)
+    //         ->first();
+    //     if ($item) {
+    //         // Log::channel('testing')->info('Log', ['item encontrado', $item]);
+    //         $datos['cantidad'] = $request->cantidad + $item->cantidad;
+    //         $item->update($datos);
+    //         $modelo = $item->refresh();
+    //     } else {
+    //         $modelo = Inventario::create($datos);
+    //     }
+    //     $modelo = new InventarioResource($modelo);
+    //     $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-        return response()->json(compact('mensaje', 'modelo'));
-    }
+    //     return response()->json(compact('mensaje', 'modelo'));
+    // }
 
     /**
      * Consultar
@@ -261,7 +193,7 @@ class InventarioController extends Controller
                 ->orWhere('por_recibir', '>', 0)->orWhere('por_entregar', '>', 0)->get();
         }
         $resource = InventarioResourceExcel::collection($items);
-        Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
+        // Log::channel('testing')->info('Log', ['Elementos sin pasar por el resource', $resource]);
         try {
             $reporte = $resource->resolve();
             // Log::channel('testing')->info('Log', ['Elementos pasados por el resource', $reporte]);
@@ -274,6 +206,9 @@ class InventarioController extends Controller
             return $file;
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            throw ValidationException::withMessages([
+                'pdf' => [$ex->getMessage()],
+            ]);
         }
     }
     /**
@@ -288,11 +223,12 @@ class InventarioController extends Controller
 
     public function kardex(Request $request)
     {
-        Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
+        // Log::channel('testing')->info('Log', ['Request kardex', $request->all()]);
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
         $cont = 0;
+        $cantAudit = 0;
         $row = [];
         $tipoTransaccion = TipoTransaccion::where('nombre', 'INGRESO')->first();
         $ids_motivos_ingresos = Motivo::where('tipo_transaccion_id', $tipoTransaccion->id)->get('id');
@@ -301,43 +237,95 @@ class InventarioController extends Controller
                 $q->where('sucursal_id', $request->sucursal_id);
             })->orderBy('updated_at', 'desc')->get('id');
         if ($request->fecha_inicio && $request->fecha_fin) {
-            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'primer if']);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
                 ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date('Y-m-d', strtotime($request->fecha_fin))])
-                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
                 ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         if ($request->fecha_inicio && !$request->fecha_fin) {
-            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'segundo if', date('Y-m-d h:i:s')]);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
                 ->whereBetween('detalle_producto_transaccion.created_at', [date('Y-m-d', strtotime($request->fecha_inicio)), date("Y-m-d h:i:s")])
-                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
                 ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
         if (!$request->fecha_inicio && !$request->fecha_fin) {
-            // Log::channel('testing')->info('Log', ['Request', $request->all(), 'tercer if']);
             $movimientos = DetalleProductoTransaccion::whereIn('inventario_id', $ids_itemsInventario)
-                ->join('transacciones_bodega', 'transacciones_bodega.id', '=', 'detalle_producto_transaccion.transaccion_id')
                 ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-            // ->where('transacciones_bodega.estado_id', $estadoCompleta->id)->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
         }
-        // Log::channel('testing')->info('Log', ['Listado de movimientos', $movimientos]);
+        //Obtener los ingresos y egresos anulados
+        $movimientosIngresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
+            $query->whereIn('motivo_id', $ids_motivos_ingresos)
+                ->whereIn('id', $movimientos->pluck('transaccion_id'))
+                ->where('estado_id', EstadosTransacciones::ANULADA);
+        })
+            ->whereIn('inventario_id', $ids_itemsInventario)
+            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+        $movimientosEgresosAnulados = DetalleProductoTransaccion::withWhereHas('transaccion', function ($query) use ($ids_motivos_ingresos, $movimientos) {
+            $query->where('estado_id', EstadosTransacciones::ANULADA)
+                ->whereIn('id', $movimientos->pluck('transaccion_id'))
+                ->whereNotIn('motivo_id', $ids_motivos_ingresos);
+        })
+            ->whereIn('inventario_id', $ids_itemsInventario)
+            ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
+        
         foreach ($movimientos as $movimiento) {
-            Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
-            $row['id'] = $movimiento->inventario->detalle->id;
+            // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
+            if ($cont == 0) {
+                $audit = Audit::where('auditable_id', $movimiento->inventario_id)
+                    ->where('auditable_type', Inventario::class)
+                    ->whereBetween('updated_at', [
+                        Carbon::parse($movimiento->created_at)->subSecond(2),
+                        Carbon::parse($movimiento->created_at)->addSecond(2),
+                    ])
+                    ->first();
+                // Log::channel('testing')->info('Log', ['audit', $audit]);
+                if ($audit) $cantAudit =  $audit->old_values['cantidad'];
+            }
+            $row['id'] = $cont + 1;
             $row['detalle'] = $movimiento->inventario->detalle->descripcion;
             $row['num_transaccion'] = $movimiento->transaccion->id;
             $row['motivo'] = $movimiento->transaccion->motivo->nombre;
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
             $row['sucursal'] = $movimiento->inventario->sucursal->lugar;
             $row['cantidad'] = $movimiento->cantidad_inicial;
-            $row['cant_anterior'] = $cont == 0 ? 0 : $row['cant_actual'];
-            $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
+            $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+            $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
+            // $row['cant_actual'] = $cont == 0 ? $movimiento->cantidad_inicial : ($row['tipo'] == 'INGRESO' ? $row['cant_actual'] + $movimiento->cantidad_inicial : $row['cant_actual'] - $movimiento->cantidad_inicial);
             $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
             $results[$cont] = $row;
             $cont++;
+            //Aqui se verifica si contiene el id actual la collection de ingresos anulados
+            $ingresoCoincidente = $movimientosIngresosAnulados->firstWhere('id', $movimiento->id);
+            if ($ingresoCoincidente !== null) {
+                //Se ingresa el movimiento como anulado y se resta al inventario
+                $row['id'] = $cont + 1;
+                $row['detalle'] = $ingresoCoincidente->inventario->detalle->descripcion;
+                $row['num_transaccion'] = $ingresoCoincidente->transaccion->id;
+                $row['motivo'] = $ingresoCoincidente->transaccion->motivo->nombre;
+                $row['tipo'] = 'ANULACION';
+                $row['sucursal'] = $ingresoCoincidente->inventario->sucursal->lugar;
+                $row['cantidad'] = $ingresoCoincidente->cantidad_inicial;
+                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+                $row['cant_actual'] = $row['cant_anterior'] - $movimiento->cantidad_inicial;
+                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+                $results[$cont] = $row;
+                $cont++;
+            }
+            //Aqui se verifica si contiene el id actual la collection de egresos anulados
+            $egresoCoincidente = $movimientosEgresosAnulados->firstWhere('id', $movimiento->id);
+            if ($egresoCoincidente !== null) {
+                //Se ingresa el movimiento como anulado y se suma al inventario
+                $row['id'] = $cont + 1;
+                $row['detalle'] = $egresoCoincidente->inventario->detalle->descripcion;
+                $row['num_transaccion'] = $egresoCoincidente->transaccion->id;
+                $row['motivo'] = $egresoCoincidente->transaccion->motivo->nombre;
+                $row['tipo'] = 'ANULACION';
+                $row['sucursal'] = $egresoCoincidente->inventario->sucursal->lugar;
+                $row['cantidad'] = $egresoCoincidente->cantidad_inicial;
+                $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
+                $row['cant_actual'] = $row['cant_anterior'] + $egresoCoincidente->cantidad_inicial;
+                $row['fecha'] = date('d/m/Y', strtotime($movimiento->created_at));
+                $results[$cont] = $row;
+                $cont++;
+            }
         }
         rsort($results); //aqui se ordena el array en forma descendente
         switch ($request->tipo_rpt) {
@@ -346,6 +334,9 @@ class InventarioController extends Controller
                     return Excel::download(new KardexExport(collect($results)), 'kardex.xlsx');
                 } catch (Exception $ex) {
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw ValidationException::withMessages([
+                        'error' => [$ex->getMessage()],
+                    ]);
                 }
                 break;
             case 'pdf':
@@ -357,6 +348,9 @@ class InventarioController extends Controller
                     return $file;
                 } catch (Exception $ex) {
                     Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+                    throw ValidationException::withMessages([
+                        'error' => [$ex->getMessage()],
+                    ]);
                 }
                 break;
             default:
@@ -364,7 +358,7 @@ class InventarioController extends Controller
         }
     }
 
-    
+
     /**
      * Dashboard de bodega
      */

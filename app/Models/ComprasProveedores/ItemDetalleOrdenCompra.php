@@ -2,6 +2,7 @@
 
 namespace App\Models\ComprasProveedores;
 
+use App\Models\UnidadMedida;
 use App\Traits\UppercaseItemsOrdenCompra;
 use App\Traits\UppercaseValuesTrait;
 use Attribute;
@@ -20,6 +21,7 @@ class ItemDetalleOrdenCompra extends Model implements Auditable
         'orden_compra_id',
         'producto_id',
         'descripcion',
+        'unidad_medida_id',
         'cantidad',
         'porcentaje_descuento',
         'descuento',
@@ -37,5 +39,12 @@ class ItemDetalleOrdenCompra extends Model implements Auditable
         'facturable' => 'boolean',
         'grava_iva' => 'boolean',
     ];
-    
+
+    /**
+     * Uno o varios items pertenecen a una categoría
+     */
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class);
+    }
 }

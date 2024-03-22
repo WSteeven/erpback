@@ -29,7 +29,8 @@ class VehiculoController extends Controller
      */
     public function index()
     {
-        $results = Vehiculo::all();
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $results = Vehiculo::get($campos);
         $results = VehiculoResource::collection($results);
         return response()->json(compact('results'));
     }

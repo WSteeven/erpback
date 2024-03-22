@@ -93,6 +93,7 @@ class OrdenCompraController extends Controller
             } else {
                 $datos['categorias'] = implode(',', $request->categorias);
             }
+            // throw new Exception('Error para que no se guarde la oc');
             //Creación de la orden de compra
             $orden = OrdenCompra::create($datos);
             // Guardar los detalles de la orden de compra
