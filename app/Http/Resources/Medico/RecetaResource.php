@@ -16,8 +16,11 @@ class RecetaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'medicamento' => $this->medicamento,
-            'dosis_frecuencia' => $this->dosis_frecuencia
+            'rp' => $this->rp,
+            'prescripcion' => $this->prescripcion,
+            'cita_medica' => $this->cita_medica_id,
+            'registro_empleado_examen' => $this->registro_empleado_examen_id,
+            'diagnosticos' => $this->diagnosticos,
         ];
     }
 }

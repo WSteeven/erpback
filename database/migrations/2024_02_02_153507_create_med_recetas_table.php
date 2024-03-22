@@ -14,13 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('med_recetas', function (Blueprint $table) {
+            $table->id();
+
             $table->string('rp');
             $table->string('prescripcion');
 
-            //Laves foraneas
-            $table->unsignedBigInteger('cita_medica_id');
-            $table->primary('cita_medica_id');
-            $table->foreign('cita_medica_id')->references('id')->on('med_citas_medicas')->cascadeOnUpdate();
+            // Foreign leys
+            $table->unsignedBigInteger('consulta_medica_id');
+            $table->foreign('consulta_medica_id')->references('id')->on('med_consultas_medicas')->cascadeOnUpdate();
 
             $table->timestamps();
         });

@@ -10,15 +10,16 @@ use App\Http\Controllers\Medico\AptitudMedicaController;
 use App\Http\Controllers\Medico\CategoriaExamenController;
 use App\Http\Controllers\Medico\CieController;
 use App\Http\Controllers\Medico\CitaMedicaController;
-use App\Http\Controllers\Medico\ConsultaController;
 use App\Http\Controllers\Medico\ConfiguracionCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCampoController;
 use App\Http\Controllers\Medico\ConfiguracionExamenCategoriaController;
 use App\Http\Controllers\Medico\ConstanteVitalController;
+use App\Http\Controllers\Medico\ConsultaMedicaController;
 use App\Http\Controllers\Medico\CuestionarioController;
 use App\Http\Controllers\Medico\DescripcionAntecedenteTrabajoController;
 use App\Http\Controllers\Medico\DetalleExamenController;
 use App\Http\Controllers\Medico\DetalleResultadoExamenController;
+use App\Http\Controllers\Medico\DiagnosticoCitaController;
 use App\Http\Controllers\Medico\DiagnosticoController;
 use App\Http\Controllers\Medico\DiagnosticoRecetaController;
 use App\Http\Controllers\Medico\EsquemaVacunaController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
+use App\Http\Controllers\Medico\RecetaController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
 use App\Http\Controllers\Medico\RespuestaCuestionarioEmpleadoController;
@@ -73,13 +75,19 @@ Route::apiResources(
         'categorias-examenes' => CategoriaExamenController::class,
         'categorias-examenes-fisicos' => CategoriaExamenFisico::class,
         'categorias-factores-riesgos' => CategoriaFactorRiesgo::class,
+        'cie' => CieController::class,
+        'citas-medicas' => CitaMedicaController::class,
         'configuraciones-examenes-campos' => ConfiguracionExamenCampoController::class,
         'configuraciones-examenes-categ' => ConfiguracionExamenCategoriaController::class,
+        'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class,
         'constantes-vitales' => ConstanteVitalController::class,
+        'consultas-medicas' => ConsultaMedicaController::class,
         'descrip-antecedentes-examenes' => DescripcionAntecedenteTrabajoController::class,
         'detalles-examenes' => DetalleExamenController::class,
         'detalles-resultados-examenes' => DetalleResultadoExamenController::class,
         'diagnosticos' => DiagnosticoController::class,
+        'diagnosticos-citas-medicas' => DiagnosticoCitaController::class,
+        'diagnosticos-recetas' => DiagnosticoRecetaController::class,
         'esquemas-vacunas' => EsquemaVacunaController::class,
         'estados-examenes' => EstadoExamenController::class,
         'estados-solicitudes-examenes' => EstadoSolicitudExamenController::class,
@@ -112,14 +120,10 @@ Route::apiResources(
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
         'tipos-vacunas' => TipoVacunaController::class,
-        'cie' => CieController::class,
         'preguntas' => PreguntaController::class,
-        'citas-medicas' => CitaMedicaController::class,
-        'consultas' => ConsultaController::class,
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
-        'config-cuestionario-empleado' => ConfiguracionCuestionarioEmpleadoController::class,
+        'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
-        'diagnosticos-recetas' => DiagnosticoRecetaController::class,
     ],
     [
         'parameters' => [
@@ -132,6 +136,7 @@ Route::apiResources(
             'citas-medicas' => 'cita_medica',
             'solicitudes-examenes' => 'solicitud_examen',
             'diagnosticos-recetas' => 'diagnostico_receta',
+            'consultas-medicas' => 'consulta_medica'
         ],
 
     ]

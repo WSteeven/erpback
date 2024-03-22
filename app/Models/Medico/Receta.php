@@ -16,8 +16,16 @@ class Receta extends Model implements Auditable
     protected $table = 'med_recetas';
     protected $fillable = [
         'rp',
-        'prescripcion'
+        'prescripcion',
+        'consulta_medica_id',
+        // 'cita_medica_id',
+        // 'registro_empleado_examen_id',
     ];
 
     private static $whiteListFilter = ['*'];
+
+    public function consultaMedica()
+    {
+        return $this->belongsTo(ConsultaMedica::class);
+    }
 }

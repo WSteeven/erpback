@@ -5,17 +5,19 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\DiagnosticoRecetaRequest;
 use App\Http\Resources\Medico\DiagnosticoRecetaResource;
+use App\Http\Resources\Medico\RecetaResource;
 use App\Models\Medico\DiagnosticoCitaMedica;
 use App\Models\Medico\Receta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Src\Shared\Utils;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class DiagnosticoRecetaController extends Controller
 {
-    private $entidad = 'CIE';
+    private $entidad = 'Diagnóstico receta';
 
     public function store(DiagnosticoRecetaRequest $request)
     {
@@ -25,17 +27,29 @@ class DiagnosticoRecetaController extends Controller
             DB::beginTransaction();
 
             $datos = $request->validated();
+            // Log::channel('testing')->info('Log', ['diagn', 'diagnosticos gerger']);
 
-            Receta::create([
+            // Log::channel('testing')->info('Log', ['diagn', 'diagnosticos']);
+            // Log::channel('testing')->info('Log', ['diagn', $datos['diagnosticos']]);
+            $receta = Receta::create([
                 'rp' => $datos['rp'],
                 'prescripcion' => $datos['prescripcion'],
+                'cita_medica_id' => $datos['cita_medica'],
+                'registro_empleado_examen_id' => $datos['registro_empleado_examen'],
             ]);
 
+
             foreach ($datos['diagnosticos'] as $diagnostico) {
-                DiagnosticoCitaMedica::create($diagnostico);
+                // Log::channel('testing')->info('Log', ['cie 1', $diagnostico['cie']]);
+                DiagnosticoCitaMedica::create([
+                    'recomendacion' => $diagnostico['recomendacion'],
+                    'cie_id' => $diagnostico['cie'],
+                    'cita_medica_id' => $datos['cita_medica'],
+                    'registro_empleado_examen_id' => $datos['registro_empleado_examen'],
+                ]);
             }
 
-            $modelo = new DiagnosticoRecetaResource($datos);
+            $modelo = new RecetaResource($receta);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

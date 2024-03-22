@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\DiagnosticoCitaRequest;
 use App\Http\Resources\Medico\DiagnosticoCitaResource;
 use App\Models\Medico\DiagnosticoCita;
+use App\Models\Medico\DiagnosticoCitaMedica;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,10 +19,10 @@ class DiagnosticoCitaController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.diagnosticos_citas')->only('index', 'show');
-        $this->middleware('can:puede.crear.diagnosticos_citas')->only('store');
-        $this->middleware('can:puede.editar.diagnosticos_citas')->only('update');
-        $this->middleware('can:puede.eliminar.diagnosticos_citas')->only('destroy');
+        $this->middleware('can:puede.ver.diagnosticos_citas_medicas')->only('index', 'show');
+        $this->middleware('can:puede.crear.diagnosticos_citas_medicas')->only('store');
+        $this->middleware('can:puede.editar.diagnosticos_citas_medicas')->only('update');
+        $this->middleware('can:puede.eliminar.diagnosticos_citas_medicas')->only('destroy');
     }
     /**
      * Display a listing of the resource.
@@ -31,7 +32,8 @@ class DiagnosticoCitaController extends Controller
     public function index()
     {
         $results = [];
-        $results = DiagnosticoCita::ignoreRequest(['campos'])->filter()->get();
+        $results = DiagnosticoCitaMedica::ignoreRequest(['campos'])->filter()->get();
+        $results = DiagnosticoCitaResource::collection($results);
         return response()->json(compact('results'));
     }
 
@@ -46,7 +48,7 @@ class DiagnosticoCitaController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $diagnosticocita = DiagnosticoCita::create($datos);
+            $diagnosticocita = DiagnosticoCitaMedica::create($datos);
             $modelo = new DiagnosticoCitaResource($diagnosticocita);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -66,7 +68,7 @@ class DiagnosticoCitaController extends Controller
      * @param  DiagnosticoCita  $diagnostico_cita
      * @return \Illuminate\Http\Response
      */
-    public function show(DiagnosticoCita $diagnostico_cita)
+    public function show(DiagnosticoCitaMedica $diagnostico_cita)
     {
         $modelo = new DiagnosticoCitaResource($diagnostico_cita);
         return response()->json(compact('modelo'));
@@ -104,7 +106,7 @@ class DiagnosticoCitaController extends Controller
      * @param  DiagnosticoCita  $diagnostico_cita
      * @return \Illuminate\Http\Response
      */
-    public function destroy(DiagnosticoCita $diagnostico_cita)
+    public function destroy(DiagnosticoCitaMedica $diagnostico_cita)
     {
         try {
             DB::beginTransaction();

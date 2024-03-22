@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class DiagnosticoRecetaRequest extends FormRequest
 {
@@ -24,23 +25,26 @@ class DiagnosticoRecetaRequest extends FormRequest
     public function rules()
     {
         return [
-            'recomendacion' => 'required|string',
             'rp' => 'required|string',
             'prescripcion' => 'required|string',
-            'cita_medica' => 'required|numeric|integer|exists:med_citas_medicas,id',
+            'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
+            'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'diagnosticos.*.cie' => 'required|exists:med_cies,id',
             'diagnosticos.*.recomendacion' => 'nullable|string',
         ];
     }
 
-    protected function prepareForValidation()
+    /*protected function prepareForValidation()
     {
         // Iterar sobre cada entrada de diagnóstico y agregar cita_medica_id
         foreach ($this->diagnosticos as $key => $diagnostico) {
-            $this->merge([
-                "diagnosticos.$key.cie_id" => $diagnostico->cie,
-                "diagnosticos.$key.cita_medica_id" => $this->cita_medica,
+            Log::channel('testing')->info('Log', ['cie 1', $diagnostico['cie']]);
+            // Log::channel('testing')->info('Log', ['cie 2', $diagnostico->cie]);
+            /*$this->merge([
+                "diagnosticos.*.cie" => $diagnostico['cie'],
+                "diagnosticos.*.cita_medica_id" => $this->cita_medica,
+                "diagnosticos.*.recomendacion" => $diagnostico['recomendacion'],
             ]);
         }
-    }
+    }*/
 }

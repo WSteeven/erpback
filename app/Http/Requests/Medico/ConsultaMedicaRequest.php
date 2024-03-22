@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ConsultaRequest extends FormRequest
+class ConsultaMedicaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,20 +24,29 @@ class ConsultaRequest extends FormRequest
     public function rules()
     {
         return [
+            'observacion' => 'nullable|string',
+            'receta.rp' => 'required|string',
+            'receta.prescripcion' => 'required|string',
+            'diagnosticos.*.cie' => 'required|exists:med_cies,id',
+            'diagnosticos.*.recomendacion' => 'nullable|string',
+            'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
+            'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
+        ];
+        /*return [
             'empleado_id'=> 'required|exists:empleados,id',
             'cita_id'=> 'required|exists:med_citas_medicas,id',
             'rp'=> 'required|string',
             'prescripcion'=> 'required|string',
             'diagnosticos.*.id' => 'nullable|exists:med_cies,id',
             'diagnosticos.*.recomendacion' => 'nullable|string',
-        ];
+        ];*/
     }
 
-    protected function prepareForValidation()
+    /*protected function prepareForValidation()
     {
         $this->merge([
-            'empleado_id' => $this->empleado,
-            'cita_id' => $this->cita,
+            'registro_empleado_examen_id' => $this->registro_empleado_examen,
+            'cita_medica_id' => $this->cita_medica,
         ]);
-    }
+    }*/
 }

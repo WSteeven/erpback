@@ -2,7 +2,6 @@
 
 namespace App\Models\Medico;
 
-use App\Models\Empleado;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,9 +18,6 @@ class Cie extends Model implements Auditable
         'codigo',
         'nombre_enfermedad',
     ];
+
     private static $whiteListFilter = ['*'];
-
-
-
-
 }

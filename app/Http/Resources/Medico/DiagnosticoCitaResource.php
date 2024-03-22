@@ -15,9 +15,11 @@ class DiagnosticoCitaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'recomendacion'=> $this->recomendacion,
-            'cie'=> $this->cie_id,
-            'cie_info'=> $this->cie !== null ? $this->cie->codigo.'-'.$this->cie->nombre_enfermedad:' ',
+            'id' => $this->id,
+            'recomendacion' => $this->recomendacion,
+            'cie' => $this->cie_id,
+            'codigo' => $this->cie->codigo,
+            'nombre_enfermedad' => $this->cie->nombre_enfermedad,
         ];
     }
 }

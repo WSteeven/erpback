@@ -71,15 +71,24 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::ACCEDER . '.reporte_cuestionarios_psicosocial'])->syncRoles([$empleado]);
 
         // Citas medicas
-        Permission::firstOrCreate(['name' => self::RECHAZAR. '.citas_medicas'])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::VER. '.citas_medicas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::RECHAZAR . '.citas_medicas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . '.citas_medicas'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.citas_medicas'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::CREAR. '.citas_medicas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.citas_medicas'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.citas_medicas'])->syncRoles([$medico]);
 
         // Diagnosticos y recetas
-        Permission::firstOrCreate(['name' => self::VER. '.diagnosticos_recetas'])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. '.diagnosticos_recetas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . '.diagnosticos_recetas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.diagnosticos_recetas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::EDITAR . '.diagnosticos_recetas'])->syncRoles([$medico]);
+
+        // Recetas
+        Permission::firstOrCreate(['name' => self::VER . '.recetas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.recetas'])->syncRoles([$medico]);
+
+        // Diagnostico cita medica
+        Permission::firstOrCreate(['name' => self::VER . '.diagnosticos_citas_medicas'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.diagnosticos_citas_medicas'])->syncRoles([$medico]);
 
         // Cies
         Permission::firstOrCreate(['name' => self::VER . '.cies'])->syncRoles([$medico]);
@@ -88,43 +97,43 @@ class PermisosMedicoSeeder extends Seeder
         // Laboratorios clinicos
         Permission::firstOrCreate(['name' => self::VER . '.laboratorios_clinicos'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.laboratorios_clinicos'])->syncRoles([$empleado]);
-        Permission::firstOrCreate(['name' => self::CREAR. '.laboratorios_clinicos'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.laboratorios_clinicos'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.laboratorios_clinicos'])->syncRoles([$medico]);
 
         // Registros empleados examenes
         Permission::firstOrCreate(['name' => self::VER . '.registros_empleados_examenes'])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. ".registros_empleados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".registros_empleados_examenes"])->syncRoles([$medico]);
 
         //- Solicitudes de examenes (Agrupa los examenes solicitados)
         Permission::firstOrCreate(['name' => self::VER . '.solicitudes_examenes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.solicitudes_examenes'])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. '.solicitudes_examenes'])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.solicitudes_examenes'])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.solicitudes_examenes'])->syncRoles([$medico, $compras]);
         Permission::firstOrCreate(['name' => self::AUTORIZAR . '.solicitudes_examenes'])->syncRoles([$compras]); // yloja
         //-- Estados solicitudes examenes (Examenes solicitados)
-        Permission::firstOrCreate(['name' => self::CREAR. ".estados_solicitudes_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::VER. ".estados_solicitudes_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".estados_solicitudes_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . ".estados_solicitudes_examenes"])->syncRoles([$medico]);
 
         //- Configuraciones examenes categorias (Configuracion de formularios tabla para llenado de datos de exámenes)
-        Permission::firstOrCreate(['name' => self::VER. ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::ACCEDER. ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".configuraciones_examenes_categorias"])->syncRoles([$medico]);
         //-- Configuraciones examenes campos (Configuracion de formularios tabla para llenado de datos de exámenes)
-        Permission::firstOrCreate(['name' => self::VER. ".configuraciones_examenes_campos"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::ACCEDER. ".configuraciones_examenes_campos"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. ".configuraciones_examenes_campos"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . ".configuraciones_examenes_campos"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".configuraciones_examenes_campos"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".configuraciones_examenes_campos"])->syncRoles([$medico]);
 
         //- Detalles resultados examenes (Sirve para agrupar los resultados_examenes)
-        Permission::firstOrCreate(['name' => self::VER. ".detalles_resultados_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::ACCEDER. ".detalles_resultados_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. ".detalles_resultados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . ".detalles_resultados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".detalles_resultados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".detalles_resultados_examenes"])->syncRoles([$medico]);
         //-- Resultados de examenes (Llenado de los datos de resultados de exámenes en los formularios tablas generados por Configuracion examenes categorias)
-        Permission::firstOrCreate(['name' => self::CREAR. ".resultados_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::VER. ".resultados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".resultados_examenes"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::VER . ".resultados_examenes"])->syncRoles([$medico]);
 
-        // Consultas
-        Permission::firstOrCreate(['name' => self::VER. ".detalles_resultados_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::ACCEDER. ".detalles_resultados_examenes"])->syncRoles([$medico]);
-        Permission::firstOrCreate(['name' => self::CREAR. ".detalles_resultados_examenes"])->syncRoles([$medico]);
+        // Consultas medicas
+        Permission::firstOrCreate(['name' => self::VER . ".consultas_medicas"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".consultas_medicas"])->syncRoles([$medico]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".consultas_medicas"])->syncRoles([$medico]);
     }
 }
