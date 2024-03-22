@@ -62,6 +62,11 @@ class CashGenericoExport extends DefaultValueBinder implements FromCollection, S
             $cell->setValueExplicit($numeroFormateado, DataType::TYPE_STRING);
             return true;
         }
+        if (is_numeric($value)) {
+            $cell->setValueExplicit($value, DataType::TYPE_STRING);
+
+            return true;
+        }
         return parent::bindValue($cell, $value);
     }
 
