@@ -25,7 +25,7 @@ class VehiculoResource extends JsonResource
             'rendimiento' => $this->rendimiento,
             'marca' => $this->modelo->marca->nombre,
             'modelo' => $this->modelo->nombre,
-            'combustible' => $this->combustible->nombre,
+            'combustible' => $this->combustible?->nombre,
             'traccion' => $this->traccion,
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
