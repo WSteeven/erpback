@@ -42,7 +42,7 @@ class SolicitudExamenController extends Controller
         return response()->json(compact('results'));
     }
 
-    public function store(SolicitudExamenRequest $request)
+    public function store(Request $request)
     {
         $datosValidados = $request->validated();
 

@@ -17,7 +17,8 @@ class CieResource extends JsonResource
         return [
             'id' => $this->id,
             'codigo' => $this->codigo,
-            'nombre_enfermedad' => $this->nombre_enfermedad
+            'nombre_enfermedad' => $this->nombre_enfermedad,
+            'codigo_nombre_enfermedad' => $this->codigo . '-' . $this->nombre_enfermedad,
         ];
     }
 }

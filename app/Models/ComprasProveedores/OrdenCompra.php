@@ -248,51 +248,6 @@ class OrdenCompra extends Model implements Auditable
     return [$subtotal, $iva, $descuento, $total];
   }
 
-  public static function guardarDetalles($orden, $items, $metodo)
-  {
-    try {
-      DB::beginTransaction();
-      $datos = array_map(function ($detalle) use ($metodo) {
-        if (array_key_exists('nombre', $detalle)) $producto = Producto::where('nombre', $detalle['nombre'])->first();
-        else $producto = Producto::where('nombre', $detalle['producto'])->first();
-        // }
-        return [
-          'producto_id' => array_key_exists('producto_id', $detalle) ? $detalle['producto_id'] : $producto->id,
-          'descripcion' => $detalle['descripcion'] ? Utils::mayusc($detalle['descripcion']) : $detalle['producto'],
-          'cantidad' => $detalle['cantidad'],
-          'unidad_medida_id' => is_int($detalle['unidad_medida']) ? $detalle['unidad_medida'] : UnidadMedida::where('nombre', $detalle['unidad_medida'])->first()->id,
-          'porcentaje_descuento' => array_key_exists('porcentaje_descuento', $detalle) ? $detalle['porcentaje_descuento'] : 0,
-          'facturable' => $detalle['facturable'],
-          'grava_iva' => $detalle['grava_iva'],
-          'precio_unitario' => array_key_exists('precio_unitario', $detalle) ? $detalle['precio_unitario'] : 0,
-          'iva' => $detalle['iva'],
-          'subtotal' => $detalle['subtotal'],
-          'total' => $detalle['total'],
-        ];
-      }, $items);
-      $orden->productos()->sync($datos);
-      $orden->auditSync('productos', $datos);
-      /**
-       * Auditar modelos relacionados con laravel-auditing
-       */
-      // https://laravel-auditing.com/guide/audit-custom.html
-      // $article->auditAttach('categories', $category);
-      // $orden->auditSync('productos', $datos);
-      // $orden->auditDetach('productos', $datos);
-
-      // aquí se modifica el estado de la preorden de compra
-      if ($orden->productos()->count() > 0 && $orden->preorden_id) {
-        $preorden = PreordenCompra::find($orden->preorden_id);
-        $preorden->latestNotificacion()->update(['leida' => true]); //marcando como leída la notificacion
-        $preorden->estado = EstadoTransaccion::COMPLETA;
-        $preorden->save();
-      }
-      DB::commit();
-    } catch (Exception $e) {
-      Log::channel('testing')->info('Log', ['Error en metodo guardar productos de orden de compras', $e->getMessage(), $e->getLine()]);
-      throw new Exception($e->getMessage());
-    }
-  }
 
   public static function filtrarOrdenesEmpleado($request)
   {

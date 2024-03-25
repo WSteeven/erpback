@@ -28,11 +28,11 @@ class SolicitudExamenService
     public function crearSolicitudExamen(array $data)
     {
         // Si se llama al método desde el controlador, no validar dentro del servicio
-        if (!$this->solicitudExamenRequest instanceof Request) { //->isCalledFromController()) {
+        // if (!$this->solicitudExamenRequest instanceof Request) { //->isCalledFromController
             $validator = Validator::make($data, $this->solicitudExamenRequest->rules());
 
             if ($validator->fails()) throw new \Exception($validator->errors()->first());
-        }
+        // }
 
         try {
             DB::beginTransaction();
