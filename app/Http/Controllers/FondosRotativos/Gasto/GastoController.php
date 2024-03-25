@@ -500,7 +500,7 @@ class GastoController extends Controller
         // Supongamos que $ids es tu arreglo de empleados _id
         $ids = $beneficiarios;
         // Obtener el gasto al que se asocian los beneficiarios
-        $gastoId = $gasto?->id; // Debes establecer este valor según tu lógica de la aplicación
+        $gastoId = $gasto?->id;
         // Obtener los registros existentes de beneficiarios para este gasto
         $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gastoId)->pluck('empleado_id');
         // Filtrar los ids para evitar repeticiones
@@ -516,7 +516,7 @@ class GastoController extends Controller
         });
         // Insertar los nuevos registros
         BeneficiarioGasto::insert($nuevosRegistros->toArray());
-        // Si deseas eliminar los registros que ya no están en el arreglo $ids, puedes hacerlo así
+        // Eliminar los registros que ya no están en el arreglo $ids
         $registrosEliminar = $registrosExistentes->diff($ids);
         BeneficiarioGasto::where('gasto_id', $gastoId)->whereIn('empleado_id', $registrosEliminar)->delete();
     }
