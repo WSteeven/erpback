@@ -2,6 +2,7 @@
 
 namespace Src\App\ComprasProveedores;
 
+use App\Http\Requests\ComprasProveedores\OrdenCompraRequest;
 use App\Http\Resources\ComprasProveedores\OrdenCompraResource;
 use App\Http\Resources\ComprasProveedores\ProveedorResource;
 use App\Models\Autorizacion;
@@ -22,9 +23,10 @@ use Illuminate\Http\Request;
 
 class OrdenCompraService
 {
+    protected $validador;
     public function __construct()
     {
-        //
+        $this->validador = new OrdenCompraRequest();
     }
 
     public static function generarPdf(OrdenCompra $orden_compra, $guardar, $descargar)
@@ -68,6 +70,18 @@ class OrdenCompraService
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['ERROR OrdenCompraService', $e->getMessage(), $e->getLine()]);
             throw $e;
+        }
+    }
+
+    public function crearOrdenCompra(array $datos)
+    {
+        try {
+            $this->validador->setData($datos);
+            if ($this->validador->fails()) throw new \Exception($this->validador->errors()->first());
+            $orden = OrdenCompra::create($datos);
+            return $orden;
+        } catch (\Throwable $th) {
+            throw $th;
         }
     }
 
