@@ -51,17 +51,21 @@ class DevolucionController extends Controller
      */
     public function index(Request $request)
     {
-        $page = $request['page'];
-        $offset = $request['offset'];
-        $estado = $request['estado'];
-        $campos = explode(',', $request['page']);
-        $results = [];
+        try {
+            $page = $request['page'];
+            $offset = $request['offset'];
+            $estado = $request['estado'];
+            $campos = explode(',', $request['page']);
+            $results = [];
 
-        $results = $this->servicio->listar($request);
+            $results = $this->servicio->listar($request);
 
-        $results = DevolucionResource::collection($results);
+            $results = DevolucionResource::collection($results);
 
-        return response()->json(compact('results'));
+            return response()->json(compact('results'));
+        } catch (Exception $e) {
+            throw ValidationException::withMessages(['error' => [$e->getMessage() . '. ' . $e->getLine()]]);
+        }
     }
 
     /**
@@ -210,9 +214,10 @@ class DevolucionController extends Controller
         return response()->json(compact('modelo'));
     }
 
-    public function corregirDevolucion(Request $request, Devolucion $devolucion){
-        if(count($request->listadoProductos)>0){
-            foreach($request->listadoProductos as $listado){
+    public function corregirDevolucion(Request $request, Devolucion $devolucion)
+    {
+        if (count($request->listadoProductos) > 0) {
+            foreach ($request->listadoProductos as $listado) {
                 // $devolucion->detalles()->updateExistingPivot($listado['id'], ['cantidad'=>$listado['cantidad']]);
                 $detalle = DetalleDevolucionProducto::where('devolucion_id', $devolucion->id)->where('detalle_id', $listado['id'])->first();
                 $detalle->cantidad = $listado['cantidad'];

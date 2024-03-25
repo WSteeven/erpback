@@ -226,6 +226,11 @@ class Devolucion extends Model implements Auditable
         // $cuentaAntes = $detalles->count();
         $cuentaDespues = $detalles->unique('condicion_id')->count();
 
-        return $cuentaDespues === 1; //true si son de la misma condicion
+        // Log::channel('testing')->info('Log', ['listado', $cuentaDespues]);
+        if ($cuentaDespues === 1) {
+            //Si son de la misma condicion devuelve true y la condicion
+            return [$cuentaDespues === 1, $detalles->first()->condicion_id];
+        } else
+            return [false, null]; //caso contrario devuelve false y null
     }
 }
