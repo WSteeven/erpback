@@ -23,6 +23,7 @@ return new class extends Migration
             $table->double('puntos', 6, 2)->nullable();
             $table->double('total', 6, 2);
             $table->boolean('estado')->default(false);
+            $table->boolean('descontable')->default(true);
             $table->timestamps();
 
             $table->foreign('empleado_id')->references('empleado_id')->on('veh_conductores')->cascadeOnDelete()->cascadeOnUpdate();

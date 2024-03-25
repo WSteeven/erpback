@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Vehiculos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class MultaConductorResource extends JsonResource
 {
@@ -19,12 +20,13 @@ class MultaConductorResource extends JsonResource
             'id' => $this->id,
             'empleado' => $this->conductor->empleado->nombres . ' ' . $this->conductor->empleado->apellidos,
             'empleado_id' => $this->empleado_id,
-            'fecha_infraccion' => date('d-m-Y', strtotime($this->fecha_infraccion)),
+            'fecha_infraccion' => date(Utils::MASKFECHA, strtotime($this->fecha_infraccion)),
             'placa' => $this->placa,
             'puntos' => $this->puntos,
             'total' => $this->total,
             'estado' => $this->estado,
-            'fecha_pago' => date('d-m-Y', strtotime($this->fecha_pago)),
+            'descontable' => $this->descontable,
+            'fecha_pago' => date(Utils::MASKFECHA, strtotime($this->fecha_pago)),
             'comentario'  => $this->comentario
         ];
 

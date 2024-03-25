@@ -25,12 +25,14 @@ class MultaConductor extends Model implements Auditable
         'estado',
         'fecha_pago',
         'comentario',
+        'descontable',
     ];
 
     protected $casts = [
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'estado'=>'boolean',
+        'descontable'=>'boolean',
     ];
 
     private static $whiteListFilter = ['*'];

@@ -30,6 +30,7 @@ class MultaConductorRequest extends FormRequest
             'puntos' => 'string|sometimes',
             'total' => 'numeric|required',
             'estado' => 'sometimes|boolean',
+            'descontable' => 'boolean',
             'fecha_pago' => 'string|sometimes|nullable',
             'comentario' => 'string|sometimes|nullable',
         ];

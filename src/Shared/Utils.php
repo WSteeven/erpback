@@ -14,6 +14,9 @@ use Ramsey\Uuid\Type\Integer;
 
 class Utils
 {
+
+    const MASKFECHA = 'Y-m-d';
+    const MASKFECHAHORA = 'Y-m-d H:i:s';
     public static $meses = array(
         "January" => "Enero",
         "February" => "Febrero",
