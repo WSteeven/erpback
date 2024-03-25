@@ -8,6 +8,7 @@ use App\Http\Controllers\ComprasProveedores\DatoBancarioProveedorController;
 use App\Http\Controllers\ComprasProveedores\DetalleDepartamentoProveedorController;
 use App\Http\Controllers\ComprasProveedores\NovedadOrdenCompraController;
 use App\Http\Controllers\ComprasProveedores\OrdenCompraController;
+use App\Http\Controllers\ComprasProveedores\PagoProveedoresController;
 use App\Http\Controllers\ComprasProveedores\PrefacturaController;
 use App\Http\Controllers\ComprasProveedores\PreordenCompraController;
 use App\Http\Controllers\ComprasProveedores\ProformaController;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::apiResources([
     'datos-bancarios-proveedores' => DatoBancarioProveedorController::class,
+    'pagos-proveedores' => PagoProveedoresController::class,
     'calificaciones-proveedores' => CalificacionDepartamentoProveedorController::class,
     'proveedores-calificables' => CalificacionDepartamentoProveedorController::class,
     'categorias-ofertas' => CategoriaOfertaProveedorController::class,
@@ -34,6 +36,7 @@ Route::apiResources([
         'contactos-proveedores' => 'contacto',
         'categorias-ofertas' => 'categoria',
         'criterios-calificaciones' => 'criterio',
+        'pagos-proveedores' => 'pago',
         'proveedores-calificables' => 'proveedor',
         'calificaciones-proveedores' => 'calificacion',
         'datos-bancarios-proveedores' => 'dato',
@@ -66,6 +69,7 @@ Route::get('prefacturas/imprimir/{prefactura}', [PrefacturaController::class, 'i
 
 //reportes excel
 Route::get('reporte-proveedores', [ProveedorController::class, 'reporteTodos'])->middleware('auth:sanctum');
+Route::get('pagos-proveedores/cash/{pago}', [PagoProveedoresController::class, 'reporteCash'])->middleware('auth:sanctum');
 
 
 //listar archivos
