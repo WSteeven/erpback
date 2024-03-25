@@ -80,10 +80,10 @@ class OrdenCompraController extends Controller
             $datos = $request->validated();
 
             //Creación de la orden de compra
-            $orden  = $this->servicio->crearOrdenCompra($datos);
+            $orden  = $this->servicio->crearOrdenCompra($datos, $request->listadoProductos);
             // $orden = OrdenCompra::create($datos);
             // Guardar los detalles de la orden de compra
-            OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
+            // OrdenCompra::guardarDetalles($orden, $request->listadoProductos, 'crear');
 
 
             //Respuesta
