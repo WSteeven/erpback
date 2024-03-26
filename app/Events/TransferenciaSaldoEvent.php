@@ -9,6 +9,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class TransferenciaSaldoEvent implements ShouldBroadcast
@@ -27,6 +28,7 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
     public function __construct(Transferencias $transferencia)
     {
         $this->transferencia = $transferencia;
+        Log::channel('testing')->info('Log', ['transferencia',  $transferencia]);
 
         $ruta = $this->obtenerRuta();
         $this->nombre_canal = $this->obtenerNombreCanal();
@@ -68,7 +70,16 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
                     'informativa' => false,
                     'mensaje' => 'Tienes una transferencia por aceptar',
                     'originador' =>  $this->transferencia->usuario_envia_id,
-                    'destinatario' =>$this->transferencia->usuario_recibe_id,
+                    'destinatario' => $this->transferencia->usuario_recibe_id,
+                ];
+                break;
+            case Transferencias::ANULADO:
+                $ruta = [
+                    'ruta' => '/transferencia',
+                    'informativa' => false,
+                    'mensaje' => 'Te han anulado Transferencia',
+                    'originador' =>  $this->transferencia->usuario_recibe_id,
+                    'destinatario' => $this->transferencia->usuario_envia_id,
                 ];
                 break;
         }
@@ -80,13 +91,16 @@ class TransferenciaSaldoEvent implements ShouldBroadcast
         $nombre_canal = null;
         switch ($this->transferencia->estado) {
             case Transferencias::APROBADO:
-                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_envia_id;
+                $nombre_canal = 'transferencia-saldo-' . $this->transferencia->usuario_envia_id;
                 break;
             case Transferencias::RECHAZADO:
-                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_envia_id;
+                $nombre_canal = 'transferencia-saldo-' . $this->transferencia->usuario_envia_id;
                 break;
             case Transferencias::PENDIENTE:
-                $nombre_canal = 'fondo-rotativo-' . $this->transferencia->usuario_recibe_id;
+                $nombre_canal = 'transferencia-saldo-' . $this->transferencia->usuario_recibe_id;
+                break;
+            case Transferencias::ANULADO:
+                $nombre_canal = 'transferencia-saldo-' . $this->transferencia->usuario_envia_id;
                 break;
         }
         return $nombre_canal;

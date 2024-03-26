@@ -8,18 +8,13 @@ use App\Exports\GastoExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GastoRequest;
 use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
-use App\Http\Resources\FondosRotativos\Gastos\GastoVehiculoResource;
 use App\Models\Empleado;
-use App\Models\FondosRotativos\Gasto\BeneficiarioGasto;
-use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\EstadoViatico;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\Gasto;
-use App\Models\FondosRotativos\Gasto\GastoVehiculo;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\User;
-use App\Models\Vehiculos\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -29,10 +24,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
-use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 
@@ -108,27 +101,15 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            $datos['estado'] = Gasto::PENDIENTE;
-            //Asignacion de estatus de gasto
-            $datos_detalle = DetalleViatico::where('id', $request->detalle)->first();
-            //Convierte base 64 a url
-            if ($datos['comprobante']) {
-                $datos['comprobante'] = (new GuardarImagenIndividual($request->comprobante, RutasStorage::COMPROBANTES_GASTOS))->execute();
-            }
-            if ($datos['comprobante2']) {
-                $datos['comprobante2'] = (new GuardarImagenIndividual($request->comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
-            }
+            $datos = GastoService::convertirComprobantesBase64Url($datos);
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
+            $gasto_service = new GastoService($gasto);
             //Guardar en tabla de destalle gasto
             $gasto->subDetalle()->sync($request->sub_detalle);
-            if ($request->beneficiarios != null) {
-                $this->crearBeneficiarios($gasto, $request->beneficiarios);
-            }
-            $datos['id_gasto'] = $gasto->id;
-            //Busca si existe detalle de gasto 6 o 16
-            $this->validarGastoVehiculo($request, $gasto);
+            $gasto_service->crearBeneficiarios($request->beneficiarios);
+            $gasto_service->validarGastoVehiculo($request);
             event(new FondoRotativoEvent($gasto));
             $modelo = new GastoResource($modelo);
             DB::commit();
@@ -168,7 +149,6 @@ class GastoController extends Controller
      */
     public function show(Gasto $gasto)
     {
-
         $modelo = new GastoResource($gasto);
         return response()->json(compact('modelo'), 200);
     }
@@ -218,7 +198,6 @@ class GastoController extends Controller
                 ->where('id_usuario', '=',  $datos_usuario_logueado->id)
                 ->get();
             $gastos_realizados = $gastos_reporte->sum('total');
-
             $transferencias_enviadas = Transferencias::where('usuario_envia_id',  $datos_usuario_logueado->id)
                 ->with('empleadoRecibe', 'empleadoEnvia')
                 ->where('estado', Transferencias::APROBADO)
@@ -329,70 +308,23 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            $datos['estado'] = Gasto::APROBADO;
-            if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
-                $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
-            } else {
-                unset($datos['comprobante']);
-            }
-            if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
-                $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
-            } else {
-                unset($datos['comprobante2']);
-            }
+            GastoService::convertirComprobantesBase64Url($datos, 'update');
             $gasto->update($datos);
-            $this->validarGastoVehiculo($request, $gasto);
-            if ($request->beneficiarios != null) {
-                $this->sincronizarBeneficiarios($gasto, $request->beneficiarios);
-            }
-            event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
+            $gasto_service->validarGastoVehiculo($request);
+            $gasto_service->sincronizarBeneficiarios($request->beneficiarios);
+            event(new FondoRotativoEvent($gasto));
             $gasto_service->marcarNotificacionLeida();
             DB::commit();
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['error' => $e->getMessage(), 'linea: ' => $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
             ]);
         }
     }
-    /**
-     * La función `validarGastoVehiculo` verifica ciertas condiciones en una solicitud y guarda o modifica
-     * un objeto GastoVehiculo en consecuencia.
-     *
-     * @param GastoRequest request  es un objeto de tipo GastoRequest que contiene detalles de un
-     * gasto que necesita ser validado para un gasto de vehículo. Probablemente incluya información como el
-     * detalle y sub_detalle del gasto.
-     * @param Gasto gasto Según el fragmento de código proporcionado, la función `validarGastoVehiculo`
-     * toma dos parámetros: `` de tipo `GastoRequest` y `` de tipo `Gasto`. La función
-     * verifica el valor de `->detalle` y, según ciertas condiciones,
-     */
-    public function validarGastoVehiculo(GastoRequest $request, Gasto $gasto)
-    {
-        $gasto_vehiculo = GastoVehiculo::where('id_gasto', $gasto->id)->first();
-        if ($request->detalle == 24) {
-            is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
-        }
-        if ($request->detalle == 6 || $request->detalle == 16) {
-            $sub_detalle = $request->sub_detalle;
-            $sub_detalle = array_map('intval', $sub_detalle);
-            $sub_detalle = array_flip($sub_detalle);
-            if (array_key_exists(65, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
-            }
-            if (array_key_exists(66, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
-            }
-            if (array_key_exists(96, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
-            }
-            if (array_key_exists(97, $sub_detalle)) {
-                is_null($gasto_vehiculo) ? $this->guardarGastoVehiculo($request, $gasto) : $this->modificarGastovehiculo($request, $gasto);
-            }
-        }
-    }
+
     /**
      * It updates the status of the expense to 1, which means it is rejected.
      *
@@ -471,131 +403,9 @@ class GastoController extends Controller
             return response()->json(['mensaje' => 'Ha ocurrido un error al rechazar el gasto' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
-    /**
-     * La función `crearBeneficiarios` crea nuevas entradas de beneficiarios para un gasto determinado.
-     *
-     * @param Gasto gasto El parámetro `gasto` es una instancia de la clase `Gasto`. Parece representar un
-     * gasto o costo específico para el cual es necesario crear beneficiarios. El método crearBeneficiarios
-     * se encarga de crear beneficiarios para este gasto.
-     * @param beneficiarios La función `createBeneficiaries` toma un objeto `Expense` y una matriz de
-     * `beneficiarios` como parámetros. La matriz `beneficiarios` contiene valores `employee_id` que
-     * representan los ID de los empleados que se asociarán con el objeto `Expense` dado.
-     */
-    public function crearBeneficiarios(Gasto $gasto, $beneficiarios)
-    {
-        $beneficiariosActualizados = array();
 
-        foreach ($beneficiarios as $empleado_id) {
-            $nuevoElemento = array(
-                'gasto_id' =>  $gasto->id,
-                'empleado_id' => $empleado_id
-            );
-            $beneficiariosActualizados[] = $nuevoElemento;
-        }
-        BeneficiarioGasto::insert($beneficiariosActualizados);
-    }
 
-    public function sincronizarBeneficiarios(Gasto $gasto, $beneficiarios)
-    {
-        // Supongamos que $ids es tu arreglo de empleados _id
-        $ids = $beneficiarios;
-        // Obtener el gasto al que se asocian los beneficiarios
-        $gastoId = $gasto?->id;
-        // Obtener los registros existentes de beneficiarios para este gasto
-        $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gastoId)->pluck('empleado_id');
-        // Filtrar los ids para evitar repeticiones
-        $idsNuevos = collect($ids)->diff($registrosExistentes);
-        // Añadir nuevos registros a la tabla beneficiario_gastos
-        $nuevosRegistros = $idsNuevos->map(function ($empleadoId) use ($gastoId) {
-            return [
-                'gasto_id' => $gastoId,
-                'empleado_id' => $empleadoId,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        });
-        // Insertar los nuevos registros
-        BeneficiarioGasto::insert($nuevosRegistros->toArray());
-        // Eliminar los registros que ya no están en el arreglo $ids
-        $registrosEliminar = $registrosExistentes->diff($ids);
-        BeneficiarioGasto::where('gasto_id', $gastoId)->whereIn('empleado_id', $registrosEliminar)->delete();
-    }
-    /**
-     * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP
-     * usando Laravel.
-     *
-     * @param GastoRequest request La función `guardarGastoVehiculo` se encarga de guardar un registro de
-     * gastos del vehículo en base a los objetos `GastoRequest` y `Gasto` proporcionados. Analicemos el
-     * fragmento de código:
-     * @param Gasto gasto Con base en el fragmento de código proporcionado, la función
-     * `guardarGastoVehiculo` es responsable de ahorrar un gasto de vehículo (“GastoVehiculo`) asociado a
-     * un `Gasto` específico. La función toma dos parámetros:
-     *
-     * @return La función `guardarGastoVehiculo` está devolviendo una respuesta JSON con las variables
-     * `` y `` compactadas. La variable `` contiene un mensaje obtenido usando el
-     * método `Utils::obtenerMensaje` para la entidad y acción 'store'. La variable `` contiene la
-     * representación de recursos del objeto `GastoVehiculo` creado.
-     */
-    public function guardarGastoVehiculo(GastoRequest $request, Gasto $gasto)
-    {
-        try {
-            $datos = $request->validated();
-            DB::beginTransaction();
-            $datos['id_gasto'] = $gasto->id;
-            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
-            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
-            $gasto_vehiculo =  GastoVehiculo::create($datos);
-            $modelo = new GastoVehiculoResource($gasto_vehiculo);
-            DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
-            DB::commit();
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
-        }
-    }
-    /**
-     * Esta función PHP modifica un registro de gastos de vehículo en función de los datos de solicitud
-     * proporcionados.
-     *
-     * @param GastoRequest request La función `modificarGastoVehiculo` parece estar actualizando un
-     * registro en la tabla `gasto_vehiculos` en base a los datos proporcionados en el objeto
-     * `GastoRequest` y el objeto `Gasto` existente.
-     * @param Gasto gasto La función `modificarGastoVehiculo` se utiliza para actualizar un registro
-     * específico de `GastoVehiculo` basado en los datos de `GastoRequest` proporcionados y la instancia de
-     * `Gasto` existente.
-     *
-     * @return La función `modificarGastoVehiculo` está devolviendo una respuesta JSON con las variables
-     * `mensaje` y `modelo`. La variable `mensaje` contiene un mensaje obtenido usando el método
-     * `Utils::obtenerMensaje` para la acción 'almacenar' sobre la entidad. La variable `modelo` contiene
-     * los datos del recurso `GastoVehiculo` actualizado luego de la modificación.
-     */
-    public function modificarGastoVehiculo(GastoRequest $request, Gasto $gasto)
-    {
-        try {
-            $datos = $request->validated();
-            DB::beginTransaction();
-            $datos['id_gasto'] = $request->id;
-            $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
-            $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
 
-            $gasto_vehiculo = GastoVehiculo::where('id_gasto', $datos['id_gasto'])->first();
-            $gasto_vehiculo->update($datos);
-            $modelo = new GastoVehiculoResource($gasto_vehiculo);
-            DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
-            DB::commit();
-            $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
-            return response()->json(compact('mensaje', 'modelo'));
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
-            throw ValidationException::withMessages(['error' => [$e->getMessage()]]);
-        }
-    }
     /**
      * La función `reporteValoresFondos` recupera valores de fondos basados en la información de los
      * empleados y maneja excepciones con el registro.
@@ -613,7 +423,6 @@ class GastoController extends Controller
     public function reporteValoresFondos(Request $request)
     {
         try {
-            // Log::channel('testing')->info('Log', ['Request', $request->all()]);
             $empleadoService = new EmpleadoService();
             if ($request->todos)
                 $results = $empleadoService->obtenerValoresFondosRotativos();

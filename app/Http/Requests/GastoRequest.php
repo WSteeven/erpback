@@ -56,7 +56,8 @@ class GastoRequest extends FormRequest
             'id_tarea' => 'nullable',
             'id_proyecto' => 'nullable',
             'id_usuario' => 'required|exists:empleados,id',
-            'observacion_anulacion' => 'nullable'
+            'observacion_anulacion' => 'nullable',
+            'estado' => 'required'
         ];
         if (!is_null($this->vehiculo) || $this->es_vehiculo_alquilado) {
             $rules = [
@@ -84,7 +85,8 @@ class GastoRequest extends FormRequest
                 'id_tarea' => 'nullable',
                 'id_proyecto' => 'nullable',
                 'id_usuario' => 'required|exists:empleados,id',
-                'observacion_anulacion' => 'nullable'
+                'observacion_anulacion' => 'nullable',
+                'estado' => 'required'
             ];
         }
         return $rules;
@@ -210,6 +212,7 @@ class GastoRequest extends FormRequest
             'comprobante' =>  $this->comprobante1,
         ]);
         if ($this->route()->getActionMethod() === 'store') {
+
             if (is_null($this->aut_especial)) {
                 $id_jefe = Auth::user()->empleado->jefe_id;
                 $this->merge([
@@ -218,6 +221,12 @@ class GastoRequest extends FormRequest
             }
             $this->merge([
                 'id_usuario' => Auth::user()->empleado->id,
+                'estado' => Gasto::PENDIENTE
+            ]);
+        }
+        if ($this->route()->getActionMethod() === 'aprobarGasto') {
+            $this->merge([
+                'estado' => Gasto::APROBADO
             ]);
         }
         if (is_null($this->ruc)) {

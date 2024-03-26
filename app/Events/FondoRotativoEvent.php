@@ -13,7 +13,6 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class FondoRotativoEvent implements ShouldBroadcast
@@ -42,8 +41,6 @@ class FondoRotativoEvent implements ShouldBroadcast
             $gasto,
             $ruta['informativa']
         );
-        Log::channel('testing')->info('Log', ['notificacion' => $this->notificacion]);
-
     }
 
     /**

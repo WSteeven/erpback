@@ -161,7 +161,6 @@ class TransferenciasController extends Controller
             return response()->json(['success' => 'Transferencia realizada correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::channel('testing')->info('Log', ['error' => $e->getMessage(), 'linea: ' => $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al aprobar gasto' => [$e->getMessage()],
             ]);
