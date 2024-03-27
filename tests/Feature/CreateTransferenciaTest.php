@@ -6,9 +6,6 @@ use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Tarea;
 use Faker\Factory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class CreateTransferenciaTest extends TestCase
@@ -20,7 +17,7 @@ class CreateTransferenciaTest extends TestCase
      *
      * @return void
      */
-    /* public function test_puede_crear_transferencia()
+     public function test_puede_crear_transferencia()
     {
         $faker = Factory::create('es_PE');
         $this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
@@ -57,19 +54,20 @@ class CreateTransferenciaTest extends TestCase
         $response = $this->post('api/fondos-rotativos/transferencia', $transferencia_data, $headers);
         //Assert
         $response->assertStatus(200);
-    }*/
+    }
     private function setEmpleadoOriginador($empleado_id)
     {
         $this->originador_id = $empleado_id;
         $this->originador = Empleado::where('id', $empleado_id)->with('user')->first();
     }
-    /* public function test_puede_aprobar_transferencia()
+     public function test_puede_aprobar_transferencia()
     {
-       // $this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
-        $this->setEmpleadoOriginador(199);
+        $this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
+      //  $this->setEmpleadoOriginador(199);
         //Arrange:
         $transferencia_data = [
-            "id" =>1330, //Transferencias::where('usuario_recibe_id', $this->originador_id)->where('estado', Transferencias::PENDIENTE)->inRandomOrder()->value('id'),
+           // "id" =>1330,
+           "id" => Transferencias::where('usuario_recibe_id', $this->originador_id)->where('estado', Transferencias::PENDIENTE)->inRandomOrder()->value('id'),
         ];
 
         $usuario = [
@@ -84,8 +82,8 @@ class CreateTransferenciaTest extends TestCase
         $response = $this->post('api/fondos-rotativos/aprobar-transferencia', $transferencia_data, $headers);
         //Assert
         $response->assertStatus(200);
-    }*/
-    /*  public function test_puede_rechazar_transferencia()
+    }
+     public function test_puede_rechazar_transferencia()
     {
        // $this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
       $this->setEmpleadoOriginador(162);
@@ -107,15 +105,15 @@ class CreateTransferenciaTest extends TestCase
         $response = $this->post('api/fondos-rotativos/rechazar-transferencia', $transferencia_data, $headers);
         //Assert
         $response->assertStatus(200);
-    }  */
+    }
     public function test_puede_anular_transferencia()
     {
-        //$this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
-        $this->setEmpleadoOriginador(27);
+        $this->setEmpleadoOriginador(Empleado::where('estado', '1')->inRandomOrder()->value('id'));
+       // $this->setEmpleadoOriginador(27);
         //Arrange:
         $transferencia_data = [
-            //"id" => Transferencias::where('usuario_recibe_id', $this->originador_id)->where('estado', Transferencias::APROBADO)->inRandomOrder()->value('id'),
-            "id" => 1277,
+            "id" => Transferencias::where('usuario_recibe_id', $this->originador_id)->where('estado', Transferencias::APROBADO)->inRandomOrder()->value('id'),
+           // "id" => 1277,
         ];
 
         $usuario = [

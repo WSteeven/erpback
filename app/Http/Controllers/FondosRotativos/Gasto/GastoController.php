@@ -120,7 +120,6 @@ class GastoController extends Controller
             throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
     /**
@@ -309,13 +308,15 @@ class GastoController extends Controller
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
             GastoService::convertirComprobantesBase64Url($datos, 'update');
-            $gasto->update($datos);
-            $gasto_service = new GastoService($gasto);
-            $gasto_service->validarGastoVehiculo($request);
-            $gasto_service->sincronizarBeneficiarios($request->beneficiarios);
-            event(new FondoRotativoEvent($gasto));
-            $gasto_service->marcarNotificacionLeida();
-            DB::commit();
+            if($gasto){
+                $gasto->update($datos);
+                $gasto_service = new GastoService($gasto);
+                $gasto_service->validarGastoVehiculo($request);
+                $gasto_service->sincronizarBeneficiarios($request->beneficiarios);
+                event(new FondoRotativoEvent($gasto));
+                $gasto_service->marcarNotificacionLeida();
+                DB::commit();
+            }
             return response()->json(['success' => 'Gasto autorizado correctamente']);
         } catch (Exception $e) {
             DB::rollBack();
@@ -348,7 +349,7 @@ class GastoController extends Controller
     {
         try {
             DB::beginTransaction();
-            $gasto = Gasto::where('id', $request->id)->first();
+            $gasto = Gasto::find($request->id);
             $gasto->estado = Gasto::RECHAZADO;
             $gasto->detalle_estado = $request->detalle_estado;
             $gasto->save();

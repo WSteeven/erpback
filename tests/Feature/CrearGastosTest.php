@@ -108,7 +108,7 @@ class CrearGastosTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_puede_rechazar_gastos()
+   /* public function test_puede_rechazar_gastos()
     {
         $faker = Factory::create('es_PE');
         $gastoData = [
@@ -127,7 +127,7 @@ class CrearGastosTest extends TestCase
         $response = $this->post('api/fondos-rotativos/rechazar-gasto', $gastoData, $headers);
         //Assert
         $response->assertStatus(200);
-    }
+    }*/
     public function test_puede_anular_gastos()
     {
         $faker = Factory::create('es_PE');

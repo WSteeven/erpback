@@ -9,8 +9,10 @@ use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Gasto\EstadoGasto;
 use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
 use App\Models\User;
+use Dotenv\Exception\ValidationException;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Src\Shared\Utils;
 
@@ -46,23 +48,19 @@ class AcreditacionesController extends Controller
      */
     public function store(AcreditacionRequest $request)
     {
+        DB::beginTransaction();
         try {
             $datos = $request->validated();
-            $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
-            //Adaptacion de campos
-            $datos['id_tipo_fondo'] =  $request->safe()->only(['tipo_fondo'])['tipo_fondo'];
-            $datos['id_tipo_saldo'] =  $request->safe()->only(['tipo_saldo'])['tipo_saldo'];
-            $datos['id_usuario'] =     $request->safe()->only(['usuario'])['usuario'];
-            $datos['id_estado'] = EstadoAcreditaciones::REALIZADO;
             $modelo = Acreditaciones::create($datos);
             $modelo = new AcreditacionResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al insertar registro' => [$e->getMessage()],
+            ]);
         }
-        return response()->json(compact('mensaje', 'modelo'));
     }
 
     /**
@@ -92,12 +90,21 @@ class AcreditacionesController extends Controller
      */
     public function anularAcreditacion(Request $request)
     {
-        $acreditacion = Acreditaciones::where('id', $request->id)->first();
-        $acreditacion->motivo = 'Anulado por motivo de: ' . $request->descripcion_acreditacion;
-        $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
-        $acreditacion->save();
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje'));
+        DB::beginTransaction();
+        try {
+            $acreditacion = Acreditaciones::find($request->id);
+            Acreditaciones::where('id_estado', EstadoAcreditaciones::ANULADO)->lockForUpdate()->get();
+            $acreditacion->motivo =  $request->descripcion_acreditacion;
+            $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
+            $acreditacion->save();
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            return response()->json(compact('mensaje'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al anular registro' => [$e->getMessage()],
+            ]);
+        }
     }
 
     /**
@@ -107,16 +114,10 @@ class AcreditacionesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(AcreditacionRequest $request, $id)
     {
         $acreditacion = Acreditaciones::findOrFail($id);
-        $datos_usuario_add_saldo = User::where('id', $request->usuario)->first();
-        //Adaptacion de campos
-        $datos = $request->all();
-        $datos['id_tipo_fondo'] = $request->tipo_fondo;
-        $datos['id_tipo_saldo'] = $request->tipo_saldo;
-        $datos['id_usuario'] = $request->usuario;
-        $datos['fecha'] = date('Y-m-d H:i:s', strtotime($request->fecha));
+        $datos = $request->validated();
         $modelo = $acreditacion->update($datos);
         $modelo = new AcreditacionResource($modelo);
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');

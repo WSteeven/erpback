@@ -155,14 +155,14 @@ class GastoRequest extends FormRequest
         }
         $comprobante = Gasto::where('num_comprobante', '!=', null)
             ->where('num_comprobante', $this->num_comprobante)
-            ->where('estado', 1)
+            ->where('estado', Gasto::APROBADO)
             ->first();
         if ($comprobante) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
         }
         $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
             ->where('num_comprobante', $this->num_comprobante)
-            ->where('estado', 3)
+            ->where('estado', Gasto::PENDIENTE)
             ->first();
         if ($comprobante_pendiente) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
