@@ -8,6 +8,7 @@ use App\Http\Controllers\Vehiculos\MultaConductorController;
 use App\Http\Controllers\Vehiculos\PlanMantenimientoController;
 use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
+use App\Http\Controllers\Vehiculos\TipoVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -24,12 +25,15 @@ Route::apiResources(
         'servicios' => ServicioController::class,
         'seguros' => SeguroVehicularController::class,
         'planes-mantenimientos' => PlanMantenimientoController::class,
+        'tipos-vehiculos' => TipoVehiculoController::class,
+        'asignaciones-vehiculos' => asignacionvehiculoController::class,
     ],
     [
         'parameters' => [
             'bitacoras-vehiculos' => 'bitacora',
             'conductores' => 'conductor',
             'planes-mantenimientos' => 'vehiculo',
+            'tipos-vehiculos' => 'tipo',
         ],
         'middleware' => ['auth:sanctum']
     ]

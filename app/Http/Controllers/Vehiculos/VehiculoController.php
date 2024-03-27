@@ -9,6 +9,7 @@ use App\Models\Vehiculos\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -50,8 +51,6 @@ class VehiculoController extends Controller
     {
         //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
-        $datos['combustible_id'] = $request->safe()->only(['combustible'])['combustible'];
 
         //Respuesta
         try {
@@ -60,7 +59,7 @@ class VehiculoController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'M');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar vehiculo', $ex->getMessage(), $ex->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error'], 422);
+            throw ValidationException::withMessages(['Error' => Utils::obtenerMensajeError($ex)]);
         }
 
         return response()->json(compact('mensaje', 'modelo'));
@@ -90,8 +89,6 @@ class VehiculoController extends Controller
     {
         //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['modelo_id'] = $request->safe()->only(['modelo'])['modelo'];
-        $datos['combustible_id'] = $request->safe()->only(['combustible'])['combustible'];
 
         //Respuesta
         $vehiculo->update($datos);
@@ -117,10 +114,11 @@ class VehiculoController extends Controller
     /**
      * Listar archivos
      */
-    public function indexFiles(Request $request, Vehiculo $vehiculo){
-        try{
+    public function indexFiles(Request $request, Vehiculo $vehiculo)
+    {
+        try {
             $results = $this->archivoService->listarArchivos($vehiculo);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             $mensaje = $e->getMessage();
             return response()->json(compact('mensaje'), 500);
         }
@@ -130,13 +128,14 @@ class VehiculoController extends Controller
     /**
      * Guardar archivos
      */
-    public function storeFiles(Request $request, Vehiculo $vehiculo){
+    public function storeFiles(Request $request, Vehiculo $vehiculo)
+    {
         try {
-            $modelo  = $this->archivoService->guardarArchivo($vehiculo, $request->file, RutasStorage::VEHICULOS->value.$vehiculo->placa);
+            $modelo  = $this->archivoService->guardarArchivo($vehiculo, $request->file, RutasStorage::VEHICULOS->value . $vehiculo->placa);
             $mensaje = 'Archivo subido correctamente';
 
             return response()->json(compact('mensaje', 'modelo'), 200);
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
             return response()->json(compact('mensaje'), 500);
         }

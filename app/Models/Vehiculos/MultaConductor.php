@@ -2,6 +2,7 @@
 
 namespace App\Models\Vehiculos;
 
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,5 +50,19 @@ class MultaConductor extends Model implements Auditable
     public function conductor()
     {
         return $this->belongsTo(Conductor::class, 'empleado_id');
+    }
+    
+    /**
+     * Relación polimorfica a una notificación.
+     * Un pedido puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
+    }
+
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
     }
 }

@@ -26,7 +26,7 @@ class MultaConductorResource extends JsonResource
             'total' => $this->total,
             'estado' => $this->estado,
             'descontable' => $this->descontable,
-            'fecha_pago' => date(Utils::MASKFECHA, strtotime($this->fecha_pago)),
+            'fecha_pago' => $this->fecha_pago ? date(Utils::MASKFECHA, strtotime($this->fecha_pago)) : null,
             'comentario'  => $this->comentario
         ];
 

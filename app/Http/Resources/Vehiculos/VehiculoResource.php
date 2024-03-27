@@ -35,6 +35,9 @@ class VehiculoResource extends JsonResource
             $modelo['marca'] = $this->modelo->marca->id;
             $modelo['modelo'] = $this->modelo_id;
             $modelo['combustible'] = $this->combustible_id;
+            $modelo['tipo_vehiculo'] = $this->tipo_vehiculo_id;
+            $modelo['tiene_gravamen'] = $this->tiene_gravamen;
+            $modelo['prendador'] = $this->prendador;
         }
 
         return $modelo;

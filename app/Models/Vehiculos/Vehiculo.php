@@ -31,6 +31,9 @@ class Vehiculo extends Model implements Auditable
         'capacidad_tanque',
         'modelo_id',
         'combustible_id',
+        'tipo_vehiculo_id',
+        'tiene_gravamen',
+        'prendador',
     ];
 
     //Tracciones
@@ -52,6 +55,7 @@ class Vehiculo extends Model implements Auditable
         'created_at' => 'datetime:Y-m-d h:i:s a',
         'updated_at' => 'datetime:Y-m-d h:i:s a',
         'aire_acondicionado' => 'boolean',
+        'tiene_gravamen' => 'boolean',
     ];
 
     private static $whiteListFilter = [
@@ -70,6 +74,16 @@ class Vehiculo extends Model implements Auditable
     {
         return $this->belongsTo(Combustible::class);
     }
+
+    /**
+     * Realación uno a muchos (inversa).
+     * Un vehiculo tiene solo un tipo de vehiculo a la vez.
+     */
+    public function tipoVehiculo()
+    {
+        return $this->belongsTo(TipoVehiculo::class);
+    }
+
     /**
      * Relación uno a muchos
      */
@@ -127,7 +141,7 @@ class Vehiculo extends Model implements Auditable
             $aplicar_desde = $items->max('aplicar_desde');
             $estado = $items->where('estado', 1)->count() > $items->where('estado', 0)->count();
             foreach ($items as $index => $item) {
-                
+
 
                 $servicio = Servicio::find($item->servicio_id);
                 $listadoServicios[$index] = [

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Events\Vehiculos\NotificarMultaEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\MultaConductorRequest;
 use App\Http\Resources\Vehiculos\MultaConductorResource;
+use App\Models\Vehiculos\Conductor;
 use App\Models\Vehiculos\MultaConductor;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -33,14 +36,21 @@ class MultaConductorController extends Controller
 
     public function store(MultaConductorRequest $request)
     {
+        Log::channel('testing')->info('Log', ['request', $request->all()]);
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $datos['empleado_id'] = $request->safe()->only('empleado')['empleado'];
-
+            // throw new Exception("error");
             $multa = MultaConductor::create($datos);
+            if ($multa->descontable) event(new NotificarMultaEvent($multa));
             $modelo = new MultaConductorResource($multa);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
+            //Se modifican los puntos del conductor segun la multa registrada
+            $conductor = Conductor::find($multa->empleado_id);
+            $conductor->puntos = $conductor->puntos - $multa->puntos;
+            $conductor->save();
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (\Exception $e) {
@@ -80,6 +90,17 @@ class MultaConductorController extends Controller
         }
     }
 
+    public function destroy(MultaConductor $multa){
+        //Primero aumentamos los puntos de la multa eliminada a la licencia de la persona.
+        $conductor = Conductor::find($multa->empleado_id);
+        $conductor->puntos = $conductor->puntos + $multa->puntos;
+        $conductor->save();
+
+        $multa->delete();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
+        return response()->json(compact('mensaje'));
+    }
+
     public function pagar(Request $request, MultaConductor $multa)
     {
         $request->validate([
@@ -91,6 +112,11 @@ class MultaConductorController extends Controller
             $multa->fecha_pago = date('Y-m-d', strtotime($request['fecha_pago']));
             $multa->comentario = $request['comentario'];
             $multa->save();
+
+            // //Esto se refresca cuando se guarda cambios del conductor
+            // $conductor = Conductor::find($multa->empleado_id);
+            // $conductor->puntos = $conductor->puntos - $multa->puntos;
+            // $conductor->save();
         }
 
         $modelo = new MultaConductorResource($multa->refresh());

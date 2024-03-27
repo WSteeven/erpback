@@ -28,4 +28,5 @@ enum TiposNotificaciones: string{
     //vehiculos
     case MATRICULA = 'MATRICULA';
     case SEGURO_VEHICULAR = 'SEGURO_VEHICULAR';
+    case MULTA_CONDUCTOR = 'MULTA_CONDUCTOR';
 }
