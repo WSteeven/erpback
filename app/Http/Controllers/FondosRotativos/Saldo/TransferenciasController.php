@@ -92,7 +92,6 @@ class TransferenciasController extends Controller
             $results = TransferenciaResource::collection($results);
             return response()->json(compact('results'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
             throw ValidationException::withMessages([
                 'Error al consultar registro' => [$e->getMessage()],
             ]);
@@ -152,18 +151,21 @@ class TransferenciasController extends Controller
     {
         DB::beginTransaction();
         try {
-            $transferencia_repetida =Transferencias::where('estado', Transferencias::APROBADO)->where('id', $request->id)->lockForUpdate()->get();
-            if($transferencia_repetida->count() > 0){
+            $transferencia_repetida = Transferencias::where('estado', Transferencias::APROBADO)->where('id', $request->id)->lockForUpdate()->get();
+            if ($transferencia_repetida->count() > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia  ya fue aprobada'],
                 ]);
             }
             $transferencia = Transferencias::find($request->id);
-            if($transferencia){
+            if ($transferencia) {
                 $transferencia->estado = Transferencias::APROBADO;
                 $transferencia->save();
+                $modelo = new TransferenciaResource($transferencia);
+                event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($modelo));
                 DB::commit();
-            }else{
+            } else {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia no encontrada'],
                 ]);
@@ -188,12 +190,14 @@ class TransferenciasController extends Controller
         DB::beginTransaction();
         try {
             $transferencia = Transferencias::where('id', $request->id)->first();
-            if($transferencia){
+            if ($transferencia) {
                 $transferencia->estado = Transferencias::RECHAZADO;
                 $transferencia->save();
+                $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($modelo));
                 DB::commit();
-            }else{
+            } else {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia no encontrada'],
                 ]);
@@ -206,33 +210,35 @@ class TransferenciasController extends Controller
             ]);
         }
     }
-/**
- * La función `anularTransferencia` cancela una transferencia y dispara un evento para notificar sobre
- * la cancelación.
- *
- * @param Request request La función `anularTransferencia` se utiliza para cancelar una transferencia
- * en la base de datos. Aquí hay un desglose del código:
- *
- * @return La función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
- * 'Transferencia anulada'.
- */
+    /**
+     * La función `anularTransferencia` cancela una transferencia y dispara un evento para notificar sobre
+     * la cancelación.
+     *
+     * @param Request request La función `anularTransferencia` se utiliza para cancelar una transferencia
+     * en la base de datos. Aquí hay un desglose del código:
+     *
+     * @return La función `anularTransferencia` está devolviendo una respuesta JSON con un mensaje de éxito
+     * 'Transferencia anulada'.
+     */
     public function anularTransferencia(Request $request)
     {
         DB::beginTransaction();
         try {
             $transferencia_repetida = Transferencias::where('estado',  Transferencias::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
-            if($transferencia_repetida->count() > 0){
+            if ($transferencia_repetida->count() > 0) {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia  ya fue anulada'],
                 ]);
             }
             $transferencia = Transferencias::where('id', $request->id)->first();
-            if($transferencia){
+            if ($transferencia) {
                 $transferencia->estado = Transferencias::ANULADO;
                 $transferencia->save();
+                $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
+                event(new TransferenciaSaldoContabilidadEvent($modelo));
                 DB::commit();
-            }else{
+            } else {
                 throw ValidationException::withMessages([
                     '404' => ['Transferencia no encontrada'],
                 ]);
