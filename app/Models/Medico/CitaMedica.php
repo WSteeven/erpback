@@ -20,17 +20,22 @@ class CitaMedica extends Model implements Auditable
     const CANCELADO = 'CANCELADO';
     const RECHAZADO = 'RECHAZADO';
 
+    // Tipo de cita medica
+    const ENFERMEDAD_COMUN = 'ENFERMEDAD COMUN';
+    const ACCIDENTE_DE_TRABAJO = 'ACCIDENTE DE TRABAJO';
+
     protected $table = 'med_citas_medicas';
     protected $fillable = [
         'sintomas',
         'observacion',
         'fecha_hora_cita',
         'estado_cita_medica',
-        'paciente_id',
+        'tipo_cita_medica',
         'motivo_rechazo',
         'motivo_cancelacion',
         'fecha_hora_rechazo',
-        'fecha_hora_cancelacion',
+        'fecha_hora_cancelado',
+        'paciente_id',
     ];
 
     private static $whiteListFilter = ['*'];
@@ -46,5 +51,10 @@ class CitaMedica extends Model implements Auditable
     public function paciente()
     {
         return $this->belongsTo(Empleado::class, 'paciente_id', 'id');
+    }
+
+    public function consultaMedica()
+    {
+        return $this->hasOne(ConsultaMedica::class);
     }
 }

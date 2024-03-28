@@ -7,6 +7,7 @@ use App\Http\Requests\Medico\ConsultaMedicaRequest;
 use App\Http\Requests\Medico\ConsultaRequest;
 use App\Http\Resources\Medico\ConsultaMedicaResource;
 use App\Http\Resources\Medico\ConsultaResource;
+use App\Models\Medico\CitaMedica;
 use App\Models\Medico\Consulta;
 use App\Models\Medico\ConsultaMedica;
 use App\Models\Medico\Diagnostico;
@@ -74,11 +75,13 @@ class ConsultaMedicaController extends Controller
                 $consulta_medica->diagnosticosCitaMedica()->create([
                     'recomendacion' => $diagnostico['recomendacion'],
                     'cie_id' => $diagnostico['cie'],
-                    // 'consulta_id' => $consulta_medica->id,
-                    // 'cita_medica_id' => $datos['cita_medica'],
-                    // 'registro_empleado_examen_id' => $datos['registro_empleado_examen'],
                 ]);
             }
+
+            // cita atendida
+            $citaMedica = CitaMedica::find($datos['cita_medica']);
+            $citaMedica->estado_cita_medica = CitaMedica::ATENDIDO;
+            $citaMedica->save();
 
             $modelo = new ConsultaMedicaResource($consulta_medica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
@@ -90,6 +93,19 @@ class ConsultaMedicaController extends Controller
         }
     }
 
+    public function update(ConsultaMedicaRequest $request, ConsultaMedica $consulta_medica)
+    {
+        if ($request->isMethod('patch')) {
+            $keys = $request->keys();
+            unset($keys['id']);
+            $consulta_medica->update($request->only($request->keys()));
+        }
+
+        $modelo = $consulta_medica->refresh();
+        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+
+        return response()->json(compact('mensaje', 'modelo'));
+    }
     /*public function update(ConsultaMedicaRequest $request, ConsultaMedica $consulta_medica)
     {
         try {

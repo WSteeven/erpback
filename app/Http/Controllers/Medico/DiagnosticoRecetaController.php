@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\DiagnosticoRecetaRequest;
+use App\Http\Resources\Medico\CitaMedicaResource;
 use App\Http\Resources\Medico\DiagnosticoRecetaResource;
 use App\Http\Resources\Medico\RecetaResource;
+use App\Models\Medico\CitaMedica;
+use App\Models\Medico\ConsultaMedica;
 use App\Models\Medico\DiagnosticoCitaMedica;
 use App\Models\Medico\Receta;
 use Illuminate\Http\Request;
@@ -15,6 +18,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
+// ELIMINAR
 class DiagnosticoRecetaController extends Controller
 {
     private $entidad = 'Diagnóstico receta';
@@ -49,7 +53,12 @@ class DiagnosticoRecetaController extends Controller
                 ]);
             }
 
-            $modelo = new RecetaResource($receta);
+            // cita atendida
+            $citaMedica = ConsultaMedica::find($datos['cita_medica']);
+            $citaMedica->estado_cita_medica = CitaMedica::ATENDIDO;
+            $citaMedica->save();
+
+            $modelo = new CitaMedicaResource($citaMedica);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));

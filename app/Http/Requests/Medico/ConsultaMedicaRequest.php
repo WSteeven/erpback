@@ -23,7 +23,7 @@ class ConsultaMedicaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $reglas = [
             'observacion' => 'nullable|string',
             'receta.rp' => 'required|string',
             'receta.prescripcion' => 'required|string',
@@ -32,6 +32,13 @@ class ConsultaMedicaRequest extends FormRequest
             'registro_empleado_examen' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
             'cita_medica' => 'nullable|numeric|integer|exists:med_citas_medicas,id',
         ];
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $reglas['receta.rp'] = 'nullable|string';
+            $reglas['receta.prescripcion'] = 'nullable|string';
+        }
+
+        return $reglas;
         /*return [
             'empleado_id'=> 'required|exists:empleados,id',
             'cita_id'=> 'required|exists:med_citas_medicas,id',

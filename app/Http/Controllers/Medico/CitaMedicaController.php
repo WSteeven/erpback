@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\CitaMedicaRequest;
 use App\Http\Resources\Medico\CitaMedicaResource;
 use App\Models\Medico\CitaMedica;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,6 +76,22 @@ class CitaMedicaController extends Controller
 
             $keys = $request->keys();
             unset($keys['id']);
+
+            if ($datos['estado_cita_medica'] === CitaMedica::CANCELADO) {
+                array_push($keys, ...['estado_cita_medica', 'fecha_hora_cancelado', 'motivo_cancelacion']);
+                $request['fecha_hora_cancelado'] = Carbon::now();
+                $request['motivo_cancelacion'] = request('motivo_cancelacion');
+            }
+
+            if ($datos['estado_cita_medica'] === CitaMedica::RECHAZADO) {
+                array_push($keys, ...['estado_cita_medica', 'fecha_hora_rechazo', 'motivo_rechazo']);
+                $request['fecha_hora_rechazo'] = Carbon::now();
+                $request['motivo_rechazo'] = request('motivo_rechazo');
+            }
+
+            Log::channel('testing')->info('Log', ['keys', $keys]);
+            Log::channel('testing')->info('Log', ['request', $request]);
+
             $cita_medica->update($request->only($keys));
 
             // $cita_medica->update($datos);
@@ -107,10 +124,10 @@ class CitaMedicaController extends Controller
         }
     }
 
-    public function cancelar(CitaMedica $cita_medica)
+    /* public function cancelar(CitaMedica $cita_medica)
     {
         return $this->citaMedicaService->cancelar($cita_medica);
-    }
+    } */
 
     public function rechazar(CitaMedica $cita_medica)
     {

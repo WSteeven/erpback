@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Medico\CitaMedica;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,10 +21,11 @@ return new class extends Migration
             $table->text('observacion')->nullable();
             $table->dateTime('fecha_hora_cita')->nullable();
             $table->string('estado_cita_medica');
-            $table->string('motivo_rechazo');
-            $table->string('motivo_cancelacion');
-            $table->dateTime('fecha_hora_rechazo');
-            $table->dateTime('fecha_hora_cancelado');
+            $table->enum('tipo_cita_medica', [CitaMedica::ENFERMEDAD_COMUN, CitaMedica::ACCIDENTE_DE_TRABAJO]);
+            $table->string('motivo_rechazo')->nullable();
+            $table->string('motivo_cancelacion')->nullable();
+            $table->dateTime('fecha_hora_rechazo')->nullable();
+            $table->dateTime('fecha_hora_cancelado')->nullable();
 
             //Laves foraneas
             /*$table->unsignedBigInteger('estado_cita_medica_id');

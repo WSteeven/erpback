@@ -25,9 +25,11 @@ class ConsultaMedicaResource extends JsonResource
             'prescripcion' => $receta?->prescripcion,
             'observacion' => $this->observacion,
             'cita_medica_id' => $this->cita_medica_id,
+            'tipo_cita_medica' => $this->citaMedica?->tipo_cita_medica,
             'registro_empleado_examen_id' => $this->registro_empleado_examen_id,
             'diagnosticos' => DiagnosticoCitaResource::collection($this->diagnosticosCitaMedica),
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
+            'dado_alta' => $this->dado_alta,
         ];
     }
 }

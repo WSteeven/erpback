@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('med_consultas_medicas', function (Blueprint $table) {
             $table->id();
             $table->string('observacion');
+            $table->boolean('dado_alta')->default(false);
 
             // Foreign leys
             $table->unsignedBigInteger('cita_medica_id')->nullable();

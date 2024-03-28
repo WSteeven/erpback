@@ -18,6 +18,7 @@ class ConsultaMedica extends Model implements Auditable
 
     protected $fillable = [
         'observacion',
+        'dado_alta',
         'cita_medica_id',
         'registro_empleado_examen_id',
     ];

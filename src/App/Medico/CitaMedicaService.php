@@ -12,19 +12,19 @@ class CitaMedicaService
     public function cancelar(CitaMedica $cita_medica)
     {
         $cita_medica->estado_cita_medica = CitaMedica::CANCELADO;
-        $cita_medica->fecha_hora_cancelacion = Carbon::now();
+        $cita_medica->fecha_hora_cancelado = Carbon::now();
         $cita_medica->motivo_cancelacion = request('motivo_cancelacion');
         $cita_medica->save();
 
         $modelo = new CitaMedicaResource($cita_medica->refresh());
-        $mensaje = 'Cita médica cancelada exitosamente!';
+        // $mensaje = 'Cita médica cancelada exitosamente!';
 
         // Mail::to($ticket->responsable->user->email)->send(new EnviarMailTicket($ticket));
 
         // event(new TicketEvent($ticket->refresh(), $modelo->solicitante_id, $modelo->responsable_id));
         // event(new ActualizarNotificacionesEvent());
-
-        return response()->json(compact('modelo', 'mensaje'));
+        return $modelo;
+        // return response()->json(compact('modelo', 'mensaje'));
     }
 
     public function rechazar(CitaMedica $cita_medica)
