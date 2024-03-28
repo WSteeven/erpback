@@ -216,7 +216,6 @@ class GastoController extends Controller
                 if (array_key_exists(97, $sub_detalle)) {
                     $this->guardar_gasto_vehiculo($request, $gasto);
                 }
-
             }
             event(new FondoRotativoEvent($gasto));
             $max_datos_usuario = SaldoGrupo::where('id_usuario', auth()->user()->id)->max('id');
@@ -258,13 +257,22 @@ class GastoController extends Controller
     public function update(GastoRequest $request, Gasto $gasto)
     {
         $datos = $request->validated();
+        if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
+            $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+        } else {
+            unset($datos['comprobante']);
+        }
+        if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
+            $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+        } else {
+            unset($datos['comprobante2']);
+        }
         $gasto->update($datos);
         $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-
     /**
      * It shows the gasto
      *
@@ -451,8 +459,10 @@ class GastoController extends Controller
                 unset($datos['comprobante']);
             }
             if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
-                $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                $comprobante2 = explode(",", $datos['comprobante2']);
+                $datos['comprobante2'] = (new GuardarImagenIndividual('data:image/jpeg;base64,'.$comprobante2[1], RutasStorage::COMPROBANTES_GASTOS))->execute();
             } else {
+                Log::channel('testing')->info('Log', ['4']);
                 unset($datos['comprobante2']);
             }
             $gasto->update($datos);
@@ -476,7 +486,6 @@ class GastoController extends Controller
                 if (array_key_exists(97, $sub_detalle)) {
                     $this->modificar_gasto_vehiculo($request, $gasto);
                 }
-
             }
             event(new FondoRotativoEvent($gasto));
             $gasto_service = new GastoService($gasto);
@@ -565,9 +574,9 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $gasto->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
-            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado',$datos['es_vehiculo_alquilado']]);
+            Log::channel('testing')->info('Log', ['es_vehiculo_alquilado', $datos['es_vehiculo_alquilado']]);
 
             $gasto_vehiculo =  GastoVehiculo::create($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
@@ -588,11 +597,11 @@ class GastoController extends Controller
             DB::beginTransaction();
             $datos['id_gasto'] = $request->id;
             $datos['id_vehiculo'] = $request->vehiculo == 0 ? null : $request->safe()->only(['vehiculo'])['vehiculo'];
-            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa: Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
+            $datos['placa'] =  $request->es_vehiculo_alquilado ? $request->placa : Vehiculo::where('id', $datos['id_vehiculo'])->first()->placa;
             $datos['es_vehiculo_alquilado'] = $request->es_vehiculo_alquilado;
 
-            $gasto_vehiculo = GastoVehiculo::where('id_gasto' , $datos['id_gasto'])->first();
-            $gasto_vehiculo -> update($datos);
+            $gasto_vehiculo = GastoVehiculo::where('id_gasto', $datos['id_gasto'])->first();
+            $gasto_vehiculo->update($datos);
             $modelo = new GastoVehiculoResource($gasto_vehiculo);
             DB::table('gasto_vehiculos')->where('id_gasto', '=', $gasto->id)->sharedLock()->get();
             DB::commit();
