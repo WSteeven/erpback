@@ -280,6 +280,12 @@ class SaldoController extends Controller
                 case self::ESTADO_CUENTA:
                     return $this->reporteEstadoCuenta($request,  $tipo_reporte);
                     break;
+                case self::TRANSFERENCIA:
+                    return $this->reporteTransferencia($request, $tipo_reporte);
+                    break;
+                case self::GASTO_IMAGEN:
+                    return $this->gasto($request, $tipo_reporte, true);
+                    break;
             }
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
@@ -326,9 +332,9 @@ class SaldoController extends Controller
                 ->where('estado', Gasto::APROBADO)
                 ->with(
                     'empleado',
-                    'detalle_estado',
+                    'detalleEstado',
                     'subDetalle',
-                    'proyecto_info'
+                    'proyecto'
                 );
 
             if ($request->tipo_filtro == 9) {
@@ -503,7 +509,7 @@ class SaldoController extends Controller
                     ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                     ->sum('monto');
 
-                $gastos = Gasto::with('empleado', 'detalle_estado', 'detalle_info', 'subDetalle', 'authEspecialUser', 'tarea')
+                $gastos = Gasto::with('empleado', 'detalleEstado', 'detalle_info', 'subDetalle', 'authEspecialUser', 'tarea')
                     ->where('estado', Gasto::APROBADO)
                     ->where('id_usuario', $request->usuario)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -759,6 +765,8 @@ class SaldoController extends Controller
             $saldo_old =  $saldo_anterior != null ? $saldo_anterior->saldo_actual : 0;
             $total = ($saldo_old +  $acreditaciones - $transferencia + $transferencia_recibida - $gastos) + $ajuste_saldo_ingreso - $ajuste_saldo_egreso;
             $empleado = Empleado::where('id', $request->usuario)->first();
+            Log::channel('testing')->info('Log', ['empleado', $empleado]);
+
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_consolidado';
             $reportes =  [

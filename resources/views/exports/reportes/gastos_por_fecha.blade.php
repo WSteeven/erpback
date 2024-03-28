@@ -297,7 +297,7 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $dato->aut_especial_user->nombres . '' . $dato->aut_especial_user->apellidos }}
+                                {{ $dato->authEspecialUser->nombres . '' . $dato->authEspecialUser->apellidos }}
                             </div>
                         </td>
                         <td style="font-size:10px">
@@ -305,7 +305,7 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                @foreach ($dato->sub_detalle_info as $sub_detalle)
+                                @foreach ($dato->subDetalle as $sub_detalle)
                                     {{ $sub_detalle->descripcion }}
                                     @if (!$loop->last)
                                         ,
@@ -400,12 +400,12 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $transferencia_enviada_data->usuario_envia->nombres . ' ' . $transferencia_enviada_data->usuario_envia->apellidos }}
+                                {{ $transferencia_enviada_data->empleadoEnvia->nombres . ' ' . $transferencia_enviada_data->empleadoEnvia->apellidos }}
                             </div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $transferencia_enviada_data->usuario_recibe->nombres . ' ' . $transferencia_enviada_data->usuario_recibe->apellidos }}
+                                {{ $transferencia_enviada_data->empleadoRecibe->nombres . ' ' . $transferencia_enviada_data->empleadoRecibe->apellidos }}
                             </div>
                         </td>
                         <td style="font-size:10px">
@@ -487,12 +487,12 @@
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
                             </div>
                         </td>
                         <td style="font-size:10px">
                             <div align="center">
-                                {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
                             </div>
                         </td>
                         <td style="font-size:10px">

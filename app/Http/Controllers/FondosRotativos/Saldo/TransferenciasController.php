@@ -88,7 +88,7 @@ class TransferenciasController extends Controller
             $user = Auth::user()->empleado;
             $usuario = User::where('id', $user->id)->first();
             $results = [];
-            $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'empleadoRecibe')->filter()->get();
+            $results = Transferencias::where('usuario_recibe_id', $user->id)->ignoreRequest(['campos'])->with('empleadoEnvia', 'empleadoRecibe')->filter()->orderBy('id', 'desc')->get();
             $results = TransferenciaResource::collection($results);
             return response()->json(compact('results'));
         } catch (Exception $e) {
@@ -163,7 +163,7 @@ class TransferenciasController extends Controller
                 $transferencia->save();
                 $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
-                event(new TransferenciaSaldoContabilidadEvent($modelo));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();
             } else {
                 throw ValidationException::withMessages([
@@ -236,7 +236,7 @@ class TransferenciasController extends Controller
                 $transferencia->save();
                 $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
-                event(new TransferenciaSaldoContabilidadEvent($modelo));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();
             } else {
                 throw ValidationException::withMessages([

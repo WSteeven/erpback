@@ -71,13 +71,13 @@ class GastoController extends Controller
             $usuario_autenticado =  Auth::user();
             $results = [];
             if (!$usuario_autenticado->hasRole('ADMINISTRADOR')) {
-                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->get();
+                $results = Gasto::where('aut_especial', $usuario_autenticado->empleado->id)->ignoreRequest(['campos'])->with('detalle_info', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->filter()->orderBy('id', 'desc')->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             } else {
                 $fechaActual = Carbon::now();
                 $fechaViatico = $fechaActual->subMonths(6)->format('Y-m-d');
-                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->get();
+                $results = Gasto::ignoreRequest(['campos'])->with('detalle_info', 'subDetalle', 'authEspecialUser', 'EstadoViatico', 'tarea', 'proyecto')->where('fecha_viat', '>=', $fechaViatico)->filter()->orderBy('id', 'desc')->get();
                 $results = GastoResource::collection($results);
                 return response()->json(compact('results'));
             }

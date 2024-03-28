@@ -2,18 +2,14 @@
 
 namespace App\Http\Requests;
 
+use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Exception;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
-use Src\App\RegistroTendido\GuardarImagenIndividual;
-use Src\Config\RutasStorage;
-use Src\Shared\Utils;
 use Src\Shared\ValidarIdentificacion;
 
 class GastoRequest extends FormRequest
@@ -107,7 +103,7 @@ class GastoRequest extends FormRequest
                     $this->comprobarRuc($validator, $this->ruc);
                 }
                 if ($this->route()->getActionMethod() === 'aprobarGasto') {
-                    $gasto = Gasto::find($this->id);
+                    $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
                     $estado = $gasto?->estado;
                     if ($estado == Gasto::APROBADO) {
                         $validator->errors()->add('estado', 'El gasto ya fue aprobado');
@@ -131,8 +127,6 @@ class GastoRequest extends FormRequest
             }
         }
     }
-
-
     public function validarNumeroComprobante($validator)
     {
         $factura = Gasto::where('factura', '!=', null)
@@ -140,12 +134,14 @@ class GastoRequest extends FormRequest
             ->where('ruc', $this->ruc)
             ->where('factura', $this->factura)
             ->where('estado', Gasto::APROBADO)
+            ->lockForUpdate()
             ->first();
         $factura_pendiente = Gasto::where('factura', '!=', null)
             ->where('factura', '!=', '')
             ->where('ruc', $this->ruc)
             ->where('factura', $this->factura)
             ->where('estado', Gasto::PENDIENTE)
+            ->lockForUpdate()
             ->first();
         if ($factura) {
             $validator->errors()->add('ruc', 'El número de factura ya se encuentra registrado');
@@ -156,6 +152,7 @@ class GastoRequest extends FormRequest
         $comprobante = Gasto::where('num_comprobante', '!=', null)
             ->where('num_comprobante', $this->num_comprobante)
             ->where('estado', Gasto::APROBADO)
+            ->lockForUpdate()
             ->first();
         if ($comprobante) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
@@ -163,6 +160,7 @@ class GastoRequest extends FormRequest
         $comprobante_pendiente = Gasto::where('num_comprobante', '!=', null)
             ->where('num_comprobante', $this->num_comprobante)
             ->where('estado', Gasto::PENDIENTE)
+            ->lockForUpdate()
             ->first();
         if ($comprobante_pendiente) {
             $validator->errors()->add('num_comprobante', 'El número de comprobante ya se encuentra registrado');
@@ -170,11 +168,11 @@ class GastoRequest extends FormRequest
         if ($this->factura !== null) {
             $numFacturaObjeto = [
                 [
-                    "detalle" => 16,
+                    "detalle" => DetalleViatico::PEAJE,
                     "cantidad" => 22,
                 ],
                 [
-                    "detalle" => 10,
+                    "detalle" => DetalleViatico::ENVIO_ENCOMIENDA,
                     "cantidad" => 17,
                 ],
             ];
@@ -182,7 +180,7 @@ class GastoRequest extends FormRequest
             $cantidad = ($index !== false && isset($numFacturaObjeto[$index])) ? $numFacturaObjeto[$index]['cantidad'] : 15;
             $num_fact = str_replace(' ', '',  $this->factura);
             if (!!$this->factura) {
-                if ($this->detalle == 16) {
+                if ($this->detalle == DetalleViatico::PEAJE) {
                     if (strlen($num_fact) < $cantidad || strlen($num_fact) < 15) {
                         throw new Exception('El número de dígitos en la factura es insuficiente. Por favor, ingrese al menos ' . max($cantidad, 15) . ' dígitos en la factura.');
                     }

@@ -34,7 +34,7 @@ class AcreditacionesController extends Controller
     public function index()
     {
         $results = [];
-        $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->get();
+        $results = Acreditaciones::with('usuario', 'estado')->ignoreRequest(['campos'])->filter()->orderBy('id', 'desc')->get();
         $results = AcreditacionResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -54,6 +54,7 @@ class AcreditacionesController extends Controller
             $modelo = Acreditaciones::create($datos);
             $modelo = new AcreditacionResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
@@ -92,12 +93,18 @@ class AcreditacionesController extends Controller
     {
         DB::beginTransaction();
         try {
+            $acreditacion_repetida = Acreditaciones::where('id_estado',  EstadoAcreditaciones::ANULADO)->where('id', $request->id)->lockForUpdate()->get();
+            if ($acreditacion_repetida->count() > 0) {
+                throw ValidationException::withMessages([
+                    '404' => ['Acreditación  ya fue anulada'],
+                ]);
+            }
             $acreditacion = Acreditaciones::find($request->id);
-            Acreditaciones::where('id_estado', EstadoAcreditaciones::ANULADO)->lockForUpdate()->get();
             $acreditacion->motivo =  $request->descripcion_acreditacion;
             $acreditacion->id_estado = EstadoAcreditaciones::ANULADO;
             $acreditacion->save();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
             return response()->json(compact('mensaje'));
         } catch (Exception $e) {
             DB::rollBack();
