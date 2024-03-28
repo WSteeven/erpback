@@ -26,6 +26,11 @@ class DevolucionService
     public static function listar($request)
     {
         $results = [];
+        try {
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         if ($request->estado) {
             switch ($request->estado) {
                 case 'PENDIENTE':
