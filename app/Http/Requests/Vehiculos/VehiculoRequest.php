@@ -35,6 +35,7 @@ class VehiculoRequest extends FormRequest
             'modelo_id' => 'required|exists:modelos,id',
             'combustible_id' => 'required|exists:combustibles,id',
             'traccion' => ['required', Rule::in([Vehiculo::AWD, Vehiculo::TODOTERRENO, Vehiculo::SENCILLA_DELANTERA, Vehiculo::SENCILLA_TRASERA, Vehiculo::FOUR_WD, Vehiculo::DOSXDOS, Vehiculo::DOSXUNO])],
+            'color' => 'required|string',
             'aire_acondicionado' => 'required|boolean',
             'capacidad_tanque' => 'required|numeric',
             'tipo_vehiculo_id' => 'required|exists:veh_tipos_vehiculos,id',

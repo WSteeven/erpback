@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Vehiculos\AsignacionVehiculoController;
 use App\Http\Controllers\Vehiculos\BitacoraVehicularController;
 use App\Http\Controllers\Vehiculos\CombustibleController;
 use App\Http\Controllers\Vehiculos\ConductorController;
@@ -10,8 +11,6 @@ use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
 use App\Http\Controllers\Vehiculos\TipoVehiculoController;
 use App\Http\Controllers\Vehiculos\VehiculoController;
-use App\Http\Resources\UserResource;
-use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResources(
@@ -26,7 +25,7 @@ Route::apiResources(
         'seguros' => SeguroVehicularController::class,
         'planes-mantenimientos' => PlanMantenimientoController::class,
         'tipos-vehiculos' => TipoVehiculoController::class,
-        'asignaciones-vehiculos' => asignacionvehiculoController::class,
+        'asignaciones-vehiculos' => AsignacionVehiculoController::class,
     ],
     [
         'parameters' => [
@@ -34,6 +33,7 @@ Route::apiResources(
             'conductores' => 'conductor',
             'planes-mantenimientos' => 'vehiculo',
             'tipos-vehiculos' => 'tipo',
+            'asignaciones-vehiculos' => 'asignacion',
         ],
         'middleware' => ['auth:sanctum']
     ]
@@ -53,3 +53,8 @@ Route::post('vehiculos/files/{vehiculo}', [VehiculoController::class, 'storeFile
 
 //anular
 Route::post('servicios/anular/{servicio}', [ServicioController::class, 'desactivar'])->middleware('auth:sanctum');
+
+/**
+ * RUTAS PARA IMPRIMIR PDFs
+ */
+Route::get('asignaciones-vehiculos/imprimir/{asignacion}', [AsignacionVehiculoController::class, 'actaEntrega'])->middleware('auth:sanctum');

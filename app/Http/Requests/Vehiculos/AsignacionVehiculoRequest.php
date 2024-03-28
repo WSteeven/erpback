@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vehiculos;
 
+use App\Models\Vehiculos\AsignacionVehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AsignacionVehiculoRequest extends FormRequest
@@ -13,7 +14,7 @@ class AsignacionVehiculoRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +25,30 @@ class AsignacionVehiculoRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'vehiculo_id' => 'required|exists:vehiculos,id',
+            'entrega_id' => 'required|exists:veh_conductores,empleado_id',
+            'canton_id' => 'required|exists:cantones,id',
+            'responsable_id' => 'required|exists:veh_conductores,empleado_id',
+            'observacion_recibe' => 'nullable|sometimes|string',
+            'observacion_entrega' => 'nullable|sometimes|string',
+            'fecha_entrega' => 'required|string',
+            'estado' => 'required|string',
         ];
+    }
+    // public function withValidator($validator){
+    //     $validator->after(function($validator){
+    //         $vehiculoAsignado = AsignacionVehiculo::where('vehiculo_id', $this->vehiculo_id)->where('responsable_id')->first();
+    //     })
+    // }
+
+    protected function prepareForValidation()
+    {
+        //Adaptación de foreign keys
+        $this->merge([
+            'vehiculo_id' => $this->vehiculo,
+            'entrega_id' => $this->entrega,
+            'responsable_id' => $this->responsable,
+            'canton_id' => $this->canton,
+        ]);
     }
 }

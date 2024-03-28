@@ -29,6 +29,7 @@ class VehiculoResource extends JsonResource
             'traccion' => $this->traccion,
             'aire_acondicionado' => $this->aire_acondicionado,
             'capacidad_tanque' => $this->capacidad_tanque,
+            'color' => $this->color,
         ];
 
         if ($controller_method == 'show') {

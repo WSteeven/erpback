@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Vehiculos\AsignacionVehiculo;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,20 @@ return new class extends Migration
     {
         Schema::create('veh_asignaciones_vehiculos', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('vehiculo_id')->nullable();
+            $table->unsignedBigInteger('entrega_id')->nullable();
+            $table->unsignedBigInteger('responsable_id')->nullable();
+            $table->unsignedBigInteger('canton_id')->nullable();
+            $table->text('observacion_entrega')->nullable();
+            $table->text('observacion_recibe')->nullable();
+            $table->date('fecha_entrega');
+            $table->enum('estado', [AsignacionVehiculo::PENDIENTE, AsignacionVehiculo::ACEPTADO, AsignacionVehiculo::RECHAZADO, AsignacionVehiculo::ANULADO])->default(AsignacionVehiculo::PENDIENTE);
             $table->timestamps();
+
+            $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('entrega_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('responsable_id')->references('id')->on('empleados')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreign('canton_id')->references('id')->on('cantones')->cascadeOnUpdate()->nullOnDelete();
         });
     }
 

@@ -251,7 +251,7 @@ class DetalleProductoController extends Controller
     public function obtenerMateriales(Request $request)
     {
         $detalles = DetalleProducto::whereHas('producto', function ($query) {
-            $query->where('categoria_id', 7);
+            $query->whereIn('categoria_id', [7,1]);
         })->where(function ($query) use ($request) {
             $query->where('descripcion', 'LIKE', '%' . $request->search . '%');
             $query->orWhere('serial', 'LIKE', '%' . $request->search . '%');

@@ -8,6 +8,7 @@ use App\Http\Resources\Vehiculos\VehiculoResource;
 use App\Models\Vehiculos\Vehiculo;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\ArchivoService;
@@ -54,10 +55,13 @@ class VehiculoController extends Controller
 
         //Respuesta
         try {
+            DB::beginTransaction();
             $modelo = Vehiculo::create($datos);
             $modelo = new VehiculoResource($modelo);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'M');
+            DB::commit();
         } catch (Exception $ex) {
+            DB::rollBack();
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar vehiculo', $ex->getMessage(), $ex->getLine()]);
             throw ValidationException::withMessages(['Error' => Utils::obtenerMensajeError($ex)]);
         }

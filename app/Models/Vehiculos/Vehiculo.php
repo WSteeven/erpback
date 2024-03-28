@@ -33,6 +33,7 @@ class Vehiculo extends Model implements Auditable
         'combustible_id',
         'tipo_vehiculo_id',
         'tiene_gravamen',
+        'color',
         'prendador',
     ];
 

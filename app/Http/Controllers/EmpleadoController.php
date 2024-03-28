@@ -99,6 +99,7 @@ class EmpleadoController extends Controller
      */
     public function store(EmpleadoRequest $request)
     {
+        //  Log::channel('testing')->info('Log', ['request', $request->all()]);
         // Adaptacion de foreign keys
         $datos = $request->validated();
         $datos['jefe_id'] = $request->safe()->only(['jefe'])['jefe'];
@@ -217,6 +218,17 @@ class EmpleadoController extends Controller
 
         $empleado->update($datos);
         $empleado->user->syncRoles($datos['roles']);
+
+        //Si hay datos en $request->conductor se crea un conductor asociado al empleado recién creado
+        if (!empty($request->conductor)) {
+            $datos_conductor = $request->conductor;
+            $datos_conductor['empleado_id'] = $empleado->id;
+            $datos_conductor['tipo_licencia'] = Utils::convertArrayToString($request->conductor['tipo_licencia'], ',');
+            //buscamos un conductor
+            $conductor = Conductor::find($empleado->id);
+            if ($conductor) $conductor->update($datos_conductor);
+            else Conductor::create($datos_conductor);
+        }
 
         if (!is_null($request->password)) {
             // Log::channel('testing')->info('Log', ['La contraseña es nula??', is_null($request->password)]);

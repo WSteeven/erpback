@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::table('vehiculos', function (Blueprint $table) {
             $table->unsignedBigInteger('tipo_vehiculo_id')->after('num_motor')->nullable();
+            $table->string('color')->after('traccion');
             $table->boolean('tiene_gravamen')->after('aire_acondicionado')->default(false);
-            $table->text('prendador')->nullable(); //entidad que ofrece el credito en garantía
+            $table->text('prendador')->after('tiene_gravamen')->nullable(); //entidad que ofrece el credito en garantía
 
             $table->foreign('tipo_vehiculo_id')->references('id')->on('veh_tipos_vehiculos')->cascadeOnUpdate()->cascadeOnDelete();
         });

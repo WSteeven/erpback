@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Type\Integer;
+use Throwable;
 
 class Utils
 {
@@ -131,7 +132,7 @@ class Utils
      * @return string mensaje de error formateado que incluye el número de línea donde ocurrió la
      * excepción, cualquier texto personalizado proporcionado y el mensaje de excepción en sí.
      */
-    public static function obtenerMensajeError(Exception $e, string $textoPersonalizado = '')
+    public static function obtenerMensajeError(Exception|Throwable $e, string $textoPersonalizado = '')
     {
         $mensaje = '[ERROR][' . $e->getLine() . ']: ' . $textoPersonalizado . ' .' . $e->getMessage();
         return $mensaje;
