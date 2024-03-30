@@ -83,31 +83,30 @@ class GastoService
             }
         }
     }
-    public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store')
+    public static function  convertirComprobantesBase64Url(array $datos,$comprobante1,$comprobante2 ,$tipo_metodo = 'store')
     {
         switch ($tipo_metodo) {
             case 'store':
-                if ($datos['comprobante']) {
-                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                if ($comprobante1) {
+                    $datos['comprobante'] = (new GuardarImagenIndividual($comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
                 }
                 if ($datos['comprobante2']) {
-                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                    $datos['comprobante2'] = (new GuardarImagenIndividual($comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
                 }
                 break;
             case 'update':
-                if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
-                    $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                Log::channel('testing')->info('Log', ['metodo update']);
+
+                if ($comprobante1 && Utils::esBase64($comprobante1)) {
+                    $datos['comprobante'] = (new GuardarImagenIndividual($comprobante1, RutasStorage::COMPROBANTES_GASTOS))->execute();
                 } else {
                     unset($datos['comprobante']);
                 }
-                if ($datos['comprobante2'] && Utils::esBase64($datos['comprobante2'])) {
-                    $datos['comprobante2'] = (new GuardarImagenIndividual($datos['comprobante2'], RutasStorage::COMPROBANTES_GASTOS))->execute();
+                if ($comprobante2 && Utils::esBase64($comprobante2)) {
+                    $datos['comprobante2'] = (new GuardarImagenIndividual($comprobante2, RutasStorage::COMPROBANTES_GASTOS))->execute();
                 } else {
                     unset($datos['comprobante2']);
                 }
-                break;
-            default:
-                # code...
                 break;
         }
         return $datos;

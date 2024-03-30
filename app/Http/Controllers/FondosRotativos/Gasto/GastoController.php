@@ -26,6 +26,8 @@ use Src\App\EmpleadoService;
 use Src\App\FondosRotativos\GastoService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\App\FondosRotativos\SaldoService;
+use Src\App\RegistroTendido\GuardarImagenIndividual;
+use Src\Config\RutasStorage;
 use Src\Shared\Utils;
 
 
@@ -101,7 +103,7 @@ class GastoController extends Controller
         DB::beginTransaction();
         try {
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos);
+            $datos = GastoService::convertirComprobantesBase64Url($datos, $request->comprobante1, $request->comprobante2);
             //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
@@ -132,7 +134,7 @@ class GastoController extends Controller
     public function update(GastoRequest $request, Gasto $gasto)
     {
         $datos = $request->validated();
-        $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+        $datos = GastoService::convertirComprobantesBase64Url($datos, $request->comprobante1, $request->comprobante2, 'update');
         $gasto->update($datos);
         $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
@@ -307,8 +309,8 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
-            if($gasto){
+            $datos = GastoService::convertirComprobantesBase64Url($datos, $request->comprobante1, $request->comprobante2, 'update');
+            if ($gasto) {
                 $gasto->update($datos);
                 $gasto_service = new GastoService($gasto);
                 $gasto_service->validarGastoVehiculo($request);
