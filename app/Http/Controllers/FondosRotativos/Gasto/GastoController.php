@@ -132,13 +132,13 @@ class GastoController extends Controller
     public function update(GastoRequest $request, Gasto $gasto)
     {
         $datos = $request->validated();
+        $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
         $gasto->update($datos);
         $modelo = new GastoResource($gasto->refresh());
         $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
 
         return response()->json(compact('mensaje', 'modelo'));
     }
-
     /**
      * It shows the gasto
      *
@@ -307,7 +307,7 @@ class GastoController extends Controller
             DB::beginTransaction();
             $gasto = Gasto::find($request->id);
             $datos = $request->validated();
-            GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
             if($gasto){
                 $gasto->update($datos);
                 $gasto_service = new GastoService($gasto);
