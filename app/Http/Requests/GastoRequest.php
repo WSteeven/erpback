@@ -112,8 +112,14 @@ class GastoRequest extends FormRequest
                         $this->comprobarRuc($validator, $this->ruc);
                     }
                 }
+                if ($this->route()->getActionMethod() === 'update') {
+                    $gasto = Gasto::where('id', $this->id)->lockForUpdate()->first();
+                    if ($gasto?->ruc !== $this->ruc) {
+                        $this->comprobarRuc($validator, $this->ruc);
+                    }
+                }
             } catch (Exception $e) {
-                throw ValidationException::withMessages(['Error al validar gasto' => $e->getMessage()]);
+                throw ValidationException::withMessages(['Error al validar gasto' => $e->getMessage(), $e->getLine()]);
             }
         });
     }

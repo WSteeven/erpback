@@ -27,7 +27,7 @@ class GastoResource extends JsonResource
             'subTarea' => $this->id_subtarea == null ? 0 : $this->id_subtarea,
             'subTarea_info' => $this->subTarea != null ? $this->subTarea->codigo_subtarea . ' - ' . $this->subTarea->titulo : 'Sin Subtarea',
             'tarea_info' =>  $this->tarea != null ? $this->tarea->codigo_tarea . ' - ' . $this->tarea->detalle : 'Sin Tarea',
-            'tarea_cliente' =>  $this->tarea != null ? $this->tarea->codigo_tarea_cliente : 'Sin Tarea',
+            'tarea_cliente' =>  $this->tarea?->codigo_tarea_cliente != null || strlen($this->tarea?->codigo_tarea_cliente ) >0  ? $this->tarea->codigo_tarea_cliente : 'Sin Tarea',
             'proyecto' => $this->id_proyecto != null ? $this->id_proyecto : 0,
             'proyecto_info' => $this->Proyecto != null ? $this->Proyecto->codigo_proyecto . ' - ' . $this->Proyecto->nombre : 'Sin Proyecto',
             'ruc' => $this->ruc,

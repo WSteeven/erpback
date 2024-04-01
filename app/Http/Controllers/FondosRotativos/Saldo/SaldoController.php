@@ -645,9 +645,10 @@ class SaldoController extends Controller
             //Unir todos los reportes
             $saldos_fondos = Saldo::with('saldoable')->where('empleado_id', $request->usuario)->whereBetween('fecha', [$fecha_inicio, $fecha_fin])->get();
             $array_id = $gastos_reporte->pluck('id')->merge($transferencias_enviadas->pluck('id'))->merge($transferencias_recibidas->pluck('id'))->merge($acreditaciones_reportes->pluck('id'))->merge($ajuste_saldo->pluck('id'));
-            $saldo_fondos_empaquetado = SaldoService::empaquetarSaldoable($saldos_fondos, $array_id);
-            $reportes_unidos = $saldo_fondos_empaquetado->merge($gastos_reporte)->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones_reportes)->merge($ajuste_saldo);
-            $reportes_unidos = Saldo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
+            $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla( $fecha_inicio);
+            $saldo_fondos_empaquetado = $es_nuevo_saldo ?SaldoService::empaquetarSaldoable($saldos_fondos):SaldoService::empaquetarSaldoableReporteAntiguo($saldos_fondos, $array_id);
+            $reportes_unidos = !$es_nuevo_saldo ? $saldo_fondos_empaquetado->merge($gastos_reporte)->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones_reportes)->merge($ajuste_saldo): $saldo_fondos_empaquetado;
+            $reportes_unidos = $es_nuevo_saldo ?Saldo::empaquetarCombinado($saldo_fondos_empaquetado, $request->usuario): SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion');
             $ultimo_saldo = SaldoService::obtenerSaldoActualUltimaFecha($fecha_fin,  $request->usuario);
             $estado_cuenta_anterior = $request->fecha_inicio != '01-06-2023' ? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario) : $saldo_anterior->saldo_actual;

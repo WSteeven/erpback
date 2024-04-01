@@ -273,20 +273,21 @@ class SaldoService
             return  $saldo_fondos;
         }
     }
-    public static function obtenerSaldoActualUltimaFecha($fecha,int $empleado_id){
+    public static function obtenerSaldoActualUltimaFecha($fecha, int $empleado_id)
+    {
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
-        ->where('fecha', '>=', $fecha)
-        ->orderBy('id', 'desc')
-        ->first();
-    if ($saldo_grupo) {
-        return $saldo_grupo;
-    } else {
-        $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-        ->where('fecha', '>=', $fecha)
+            ->where('fecha', '>=', $fecha)
             ->orderBy('id', 'desc')
             ->first();
-        return  $saldo_fondos;
-    }
+        if ($saldo_grupo) {
+            return $saldo_grupo;
+        } else {
+            $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
+                ->where('fecha', '>=', $fecha)
+                ->orderBy('id', 'desc')
+                ->first();
+            return  $saldo_fondos;
+        }
     }
     public static function obtenerSaldoAnterior(int $empleado_id, $fecha)
     {
@@ -304,20 +305,39 @@ class SaldoService
             return  $saldo_fondos;
         }
     }
-    public static function empaquetarSaldoable(Collection $saldos_fondos, SupportCollection $array_ids)
+    public static function empaquetarSaldoableReporteAntiguo(Collection $saldos_fondos, SupportCollection $array_ids)
     {
         $results = [];
         $id = 0;
         foreach ($saldos_fondos as $saldo) {
-            if(!is_null($saldo->saldoabLe_id)){
+            if (!is_null($saldo->saldoabLe_id)) {
                 if (!in_array($saldo->saldoable->id, $array_ids->toArray())) {
                     $results[$id] = $saldo->saldoable;
-                    $id++;
                     $array_ids[] = $saldo->saldoable->id;
+                    $results[$id]['tipo'] = $saldo->tipo_saldo;
+                    $id++;
                 }
             }
         }
         return collect($results);
+    }
+    public static function empaquetarSaldoable(Collection $saldos_fondos)
+    {
+        $results = [];
+        $id = 0;
+        foreach ($saldos_fondos as $saldo) {
+            $results[$id] = $saldo->saldoable;
+            $array_ids[] = $saldo->saldoable->id;
+            $results[$id]['tipo'] = $saldo->tipo_saldo;
+            $id++;
+        }
+        return $results;
+    }
+    public static function existeSaldoNuevaTabla($fecha)
+    {
+        $registros_saldos = Saldo::where('fecha', $fecha)->get();
+        $cantidad_registros_saldos = $registros_saldos->count();
+        return $cantidad_registros_saldos > 0;
     }
     private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
     {
@@ -334,5 +354,4 @@ class SaldoService
         // $row['saldo_count'] = $ingreso -$gasto;
         return $row;
     }
-
 }

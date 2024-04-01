@@ -15,7 +15,9 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\ReportePdfExcelService;
 use Src\Shared\Utils;
 
@@ -55,19 +57,21 @@ class GastoCoordinadorController extends Controller
      */
     public function store(GastoCoordinadorRequest $request)
     {
+        DB::beginTransaction();
         try {
             $datos = $request->validated();
-            // $datos['id_motivo'] = $request->safe()->only(['motivo'])['motivo'];
-            $datos['id_lugar'] =  $request->safe()->only(['lugar'])['lugar'];
-            $datos['id_grupo'] =  $request->safe()->only(['grupo'])['grupo'];
-            $modelo = GastoCoordinador::create($datos);
-            $modelo->detalleMotivoGasto()->sync($request->motivo);
-            event(new SolicitudFondosEvent($modelo));
+            $gasto_cordinador = GastoCoordinador::create($datos);
+            $modelo = new GastoCoordinadorResource($gasto_cordinador);
+            $gasto_cordinador->detalleMotivoGasto()->sync($request->motivo);
+            event(new SolicitudFondosEvent($gasto_cordinador));
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+            DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
-            Log::channel('testing')->info('Log', ['ERROR en el insert de gasto', $e->getMessage(), $e->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro' . $e->getMessage() . ' ' . $e->getLine()], 422);
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar gasto' => [$e->getMessage()],
+            ]);
         }
     }
 
@@ -90,13 +94,22 @@ class GastoCoordinadorController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(GastoCoordinadorRequest $request, GastoCoordinador $gasto_coordinador)
     {
-        $datos = $request->all();
-        $modelo = GastoCoordinador::find($id);
-        $modelo->update($datos);
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-        return response()->json(compact('mensaje', 'modelo'));
+        DB::beginTransaction();
+        try {
+            $datos = $request->validated();
+            $gasto_coordinador->update($datos);
+            $modelo = new GastoCoordinadorResource($gasto_coordinador->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
 
     /**

@@ -32,6 +32,8 @@ class GastoCoordinadorRequest extends FormRequest
             'grupo' => 'required|integer',
             'observacion' => 'required|string',
             'id_usuario' => 'required|integer',
+            'id_lugar' => 'required|integer',
+            'id_grupo' => 'required|integer',
         ];
     }
     protected function prepareForValidation()
@@ -40,6 +42,8 @@ class GastoCoordinadorRequest extends FormRequest
         $this->merge([
             'fecha_gasto' =>  date('Y-m-d'),
             'id_usuario' => $user,
+            'id_lugar' => $this->lugar,
+            'id_grupo' => $this->grupo,
         ]);
 
     }

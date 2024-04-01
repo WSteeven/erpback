@@ -104,12 +104,10 @@ class GastoController extends Controller
         try {
             $datos = $request->validated();
             $datos = GastoService::convertirComprobantesBase64Url($datos);
-            //Guardar Registro
             $gasto = Gasto::create($datos);
             $modelo = new GastoResource($gasto);
             $gasto_service = new GastoService($gasto);
-            //Guardar en tabla de destalle gasto
-            $gasto->subDetalle()->sync($request->sub_detalle);
+            $gasto_service->crearSubDetalle($request->sub_detalle);
             $gasto_service->crearBeneficiarios($request->beneficiarios);
             $gasto_service->validarGastoVehiculo($request);
             event(new FondoRotativoEvent($gasto));
@@ -128,18 +126,30 @@ class GastoController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Gasto  $gasto
+     * @param  \App\Models\FondosRotativos\Gasto\Gasto $gasto
      * @return \Illuminate\Http\Response
      */
     public function update(GastoRequest $request, Gasto $gasto)
     {
-        $datos = $request->validated();
-        $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
-        $gasto->update($datos);
-        $modelo = new GastoResource($gasto->refresh());
-        $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-
-        return response()->json(compact('mensaje', 'modelo'));
+        DB::beginTransaction();
+        try {
+            $datos = $request->validated();
+            $datos = GastoService::convertirComprobantesBase64Url($datos, 'update');
+            $gasto->update($datos);
+            $gasto_service = new GastoService($gasto);
+            $gasto_service->validarGastoVehiculo($request);
+            $gasto_service->sincronizarSubDetalle($request->sub_detalle);
+            $gasto_service->sincronizarBeneficiarios($request->beneficiarios);
+            $modelo = new GastoResource($gasto->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+            return response()->json(compact('mensaje', 'modelo'));
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw ValidationException::withMessages([
+                'Error al actualizar gasto' => [$e->getMessage()],
+            ]);
+        }
     }
     /**
      * It shows the gasto
@@ -314,6 +324,7 @@ class GastoController extends Controller
                 $gasto->update($datos);
                 $gasto_service = new GastoService($gasto);
                 $gasto_service->validarGastoVehiculo($request);
+                $gasto_service->sincronizarSubDetalle($request->sub_detalle);
                 $gasto_service->sincronizarBeneficiarios($request->beneficiarios);
                 event(new FondoRotativoEvent($gasto));
                 $gasto_service->marcarNotificacionLeida();

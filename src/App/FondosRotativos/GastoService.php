@@ -7,20 +7,14 @@ use App\Http\Resources\FondosRotativos\Gastos\GastoVehiculoResource;
 use App\Models\FondosRotativos\Gasto\BeneficiarioGasto;
 use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Models\FondosRotativos\Gasto\GastoVehiculo;
-use App\Models\FondosRotativos\Saldo\Acreditaciones;
-use App\Models\FondosRotativos\Saldo\EstadoAcreditaciones;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\Transferencias;
+use App\Models\FondosRotativos\Gasto\SubdetalleGasto;
+use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\Notificacion;
 use App\Models\Vehiculos\Vehiculo;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Maatwebsite\Excel\Facades\Excel;
 use Src\App\RegistroTendido\GuardarImagenIndividual;
 use Src\Config\RutasStorage;
 use Src\Shared\Utils;
@@ -83,7 +77,7 @@ class GastoService
             }
         }
     }
-    public static function  convertirComprobantesBase64Url(array $datos,$tipo_metodo = 'store')
+    public static function  convertirComprobantesBase64Url(array $datos, $tipo_metodo = 'store')
     {
         switch ($tipo_metodo) {
             case 'store':
@@ -95,7 +89,7 @@ class GastoService
                 }
                 break;
             case 'update':
-                if ($datos['comprobante']&& Utils::esBase64($datos['comprobante'])) {
+                if ($datos['comprobante'] && Utils::esBase64($datos['comprobante'])) {
                     $datos['comprobante'] = (new GuardarImagenIndividual($datos['comprobante'], RutasStorage::COMPROBANTES_GASTOS))->execute();
                 } else {
                     unset($datos['comprobante']);
@@ -122,41 +116,70 @@ class GastoService
     public function crearBeneficiarios($beneficiarios)
     {
         if ($beneficiarios != null) {
-            $beneficiariosActualizados = array();
             foreach ($beneficiarios as $empleado_id) {
-                $nuevoElemento = array(
+                BeneficiarioGasto::insert([
                     'gasto_id' =>  $this->gasto->id,
                     'empleado_id' => $empleado_id
-                );
-                $beneficiariosActualizados[] = $nuevoElemento;
+                ]);
             }
-            BeneficiarioGasto::insert($beneficiariosActualizados);
         }
+    }
+    public function crearSubDetalle($subdetalles)
+    {
+        if ($subdetalles != null) {
+            foreach ($subdetalles as $subdetalle_gasto_id) {
+                SubdetalleGasto::create([
+                    'gasto_id' =>  $this->gasto->id,
+                    'subdetalle_gasto_id' => $subdetalle_gasto_id
+                ]);
+            }
+        }
+    }
+    public function sincronizarSubDetalle($sub_detalle)
+    {
+        // Supongamos que $ids es tu arreglo de empleados _id
+        $ids = $sub_detalle;
+        // Obtener el gasto al que se asocian los sub_de$sub_detalle
+        $gasto_id = $this->gasto->id;
+        // Obtener los registros existentes de sub_de$sub_detalle para este gasto
+        $registrosExistentes = SubdetalleGasto::where('gasto_id', $gasto_id)->pluck('subdetalle_gasto_id');
+        // Filtrar los ids para evitar repeticiones
+        $idsNuevos = collect($ids)->diff($registrosExistentes);
+        // Insertar los nuevos registros
+        foreach ($idsNuevos as $subdetalle_gasto_id) {
+            SubdetalleGasto::create([
+                'gasto_id' => $gasto_id,
+                'subdetalle_gasto_id' => $subdetalle_gasto_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        // Eliminar los registros que ya no están en el arreglo $ids
+        $registrosEliminar = $registrosExistentes->diff($ids);
+        SubdetalleGasto::where('gasto_id', $gasto_id)->whereIn('subdetalle_gasto_id', $registrosEliminar)->delete();
     }
     public function sincronizarBeneficiarios($beneficiarios)
     {
         // Supongamos que $ids es tu arreglo de empleados _id
         $ids = $beneficiarios;
         // Obtener el gasto al que se asocian los beneficiarios
-        $gastoId = $this->gasto?->id;
+        $gasto_id = $this->gasto?->id;
         // Obtener los registros existentes de beneficiarios para este gasto
-        $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gastoId)->pluck('empleado_id');
+        $registrosExistentes = BeneficiarioGasto::where('gasto_id', $gasto_id)->pluck('empleado_id');
         // Filtrar los ids para evitar repeticiones
         $idsNuevos = collect($ids)->diff($registrosExistentes);
-        // Añadir nuevos registros a la tabla beneficiario_gastos
-        $nuevosRegistros = $idsNuevos->map(function ($empleadoId) use ($gastoId) {
-            return [
-                'gasto_id' => $gastoId,
-                'empleado_id' => $empleadoId,
+        // Insertar los nuevos registros
+        foreach ($idsNuevos as $empleado_id) {
+            BeneficiarioGasto::create([
+                'gasto_id' => $gasto_id,
+                'empleado_id' => $empleado_id,
                 'created_at' => now(),
                 'updated_at' => now(),
-            ];
-        });
-        // Insertar los nuevos registros
-        BeneficiarioGasto::insert($nuevosRegistros->toArray());
+            ]);
+        }
         // Eliminar los registros que ya no están en el arreglo $ids
         $registrosEliminar = $registrosExistentes->diff($ids);
-        BeneficiarioGasto::where('gasto_id', $gastoId)->whereIn('empleado_id', $registrosEliminar)->delete();
+        BeneficiarioGasto::where('gasto_id', $gasto_id)->whereIn('empleado_id', $registrosEliminar)->delete();
     }
     /**
      * La función `guardarGastoVehiculo` ahorra gasto de vehículo con validación y manejo de errores en PHP

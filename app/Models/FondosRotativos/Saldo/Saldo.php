@@ -4,10 +4,13 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableModel;
 
@@ -27,6 +30,10 @@ class Saldo extends Model  implements Auditable
         'tipo_saldo',
         'empleado_id',
     ];
+    public const INGRESO = 'INGRESO';
+    public const EGRESO = 'EGRESO';
+    public const ANULACION = 'ANULACION';
+
 
     public function empleado()
     {
@@ -37,33 +44,23 @@ class Saldo extends Model  implements Auditable
     {
         return $this->morphTo();
     }
-    public static function empaquetarCombinado($arreglo, $empleado, $fecha, $saldo_anterior)
+
+    public static function empaquetarCombinado($arreglo,  $empleado)
     {
         $results = [];
         $id = 0;
         $row = [];
-        if (isset($arreglo)) {
-            //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
-            $id += 1;
-            $fecha_anterior = $fecha;
-            foreach ($arreglo as $saldo) {
-                if (isset($saldo['detalle_info']['descripcion'])) {
-                    $ingreso = self::ingreso($saldo, $empleado);
-                    $gasto = self::gasto($saldo, $empleado);
-                    $row = self::guardarArreglo($id, $ingreso, $gasto, $saldo);
-                    $results[$id] = $row;
-                    $id++;
-                } else {
-                    $ingreso = self::ingreso($saldo, $empleado);
-                    $gasto = self::gasto($saldo, $empleado);
-                    $row = self::guardarArreglo($id, $ingreso, $gasto, $saldo);
-                    $results[$id] = $row;
-                    $id++;
-                }
-            }
+        foreach ($arreglo as $saldo) {
+            $ingreso = Saldo::ingreso($saldo, $empleado);
+            $gasto = Saldo::gasto($saldo, $empleado);
+            $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo);
+            $results[$id] = $row;
+            $id++;
         }
         return $results;
     }
+
+
     public static function empaquetarListado($saldos, $tipo)
     {
         $results = [];
@@ -120,7 +117,7 @@ class Saldo extends Model  implements Auditable
         $nameB = $b['empleado']->apellidos . ' ' . $b['empleado']->nombres;
         return strcmp($nameA, $nameB);
     }
-       /**
+    /**
      * La función "ingreso" comprueba varias condiciones y devuelve el importe correspondiente en
      * función de los parámetros dados.
      *
@@ -134,44 +131,49 @@ class Saldo extends Model  implements Auditable
      */
     private static function ingreso($saldo, $empleado)
     {
-        if (isset($saldo['descripcion_acreditacion'])) {
-            return $saldo['monto'];
-        }
-
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 4) {
-                return $saldo['total'];
-            }
-        }
-        if (isset($saldo['tipo'])) {
-            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                if ($saldo['tipo'] === self::ANULACION) {
+                    return $saldo['total'];
+                }
+                break;
+            case Acreditaciones::class:
                 return $saldo['monto'];
-            }
-        }
-
-        if (isset($saldo['usuario_recibe_id'])) {
-            if ($saldo['usuario_recibe_id'] == $empleado)
-                return $saldo['monto'];
+                break;
+            case Transferencias::class:
+                if ($saldo['usuario_recibe_id'] == $empleado) {
+                    return $saldo['monto'];
+                }
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+                    return $saldo['monto'];
+                }
+                break;
         }
         return 0;
     }
     // verifica si es un egreso
     private static function gasto($saldo, $empleado)
     {
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
-                return  $saldo['total'];
-            }
-        }
-        if (isset($saldo['usuario_envia_id'])) {
-            if ($saldo['usuario_envia_id'] == $empleado) {
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                if($saldo['estado'] == Gasto::APROBADO){
+                    return $saldo['total'];
+                }
+                break;
+            case Acreditaciones::class:
                 return $saldo['monto'];
-            }
-        }
-        if (isset($saldo['tipo'])) {
-            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
-                return $saldo['monto'];
-            }
+            case Transferencias::class:
+                if ($saldo['usuario_envia_id'] == $empleado) {
+                    return $saldo['monto'];
+                }
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
+                    return $saldo['monto'];
+                }
+                break;
         }
         return 0;
     }
@@ -225,7 +227,7 @@ class Saldo extends Model  implements Auditable
     }
     private static function subDetalleInfo($subdetalle_info)
     {
-        if(!is_null($subdetalle_info)){
+        if (!is_null($subdetalle_info)) {
             $descripcion = '';
             $i = 0;
             foreach ($subdetalle_info as $sub_detalle) {
