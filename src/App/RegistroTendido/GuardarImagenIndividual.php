@@ -21,18 +21,23 @@ class GuardarImagenIndividual
 
     public function execute()
     {
-        $imagen_decodificada = Utils::decodificarImagen($this->imagen_base64);
-        $extension = Utils::obtenerExtension($this->imagen_base64);
+        try {
+            //code...
+            $imagen_decodificada = Utils::decodificarImagen($this->imagen_base64);
+            $extension = Utils::obtenerExtension($this->imagen_base64);
 
-        $directorio = $this->ruta->value;
-        $nombre_archivo = $this->nombre_predeterminado ? $this->nombre_predeterminado . '.' . $extension : Utils::generarNombreArchivoAleatorio($extension);
-        $ruta_relativa = Utils::obtenerRutaRelativaImagen($directorio, $nombre_archivo);
-        $ruta_absoluta = Utils::obtenerRutaAbsolutaImagen($directorio, $nombre_archivo);
+            $directorio = $this->ruta->value;
+            $nombre_archivo = $this->nombre_predeterminado ? $this->nombre_predeterminado . '.' . $extension : Utils::generarNombreArchivoAleatorio($extension);
+            $ruta_relativa = Utils::obtenerRutaRelativaImagen($directorio, $nombre_archivo);
+            $ruta_absoluta = Utils::obtenerRutaAbsolutaImagen($directorio, $nombre_archivo);
 
-        Image::make($imagen_decodificada)->resize(1800, null, function ($constraint) {
-            $constraint->aspectRatio();
-        })->save($ruta_absoluta);
+            Image::make($imagen_decodificada)->resize(1800, null, function ($constraint) {
+                $constraint->aspectRatio();
+            })->save($ruta_absoluta);
 
-        return $ruta_relativa;
+            return $ruta_relativa;
+        } catch (\Throwable $th) {
+            return null;
+        }
     }
 }
