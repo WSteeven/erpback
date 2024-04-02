@@ -116,8 +116,9 @@ class SubtareaResource extends JsonResource
                 $data[$campo] = $modelo[$campo];
             }
         }*/
+
+        return $modelo;
         // return count($campos) ? $data : $modelo;
-        return null;//$modelo;
     }
 
     private function cargar($campo, $campos)

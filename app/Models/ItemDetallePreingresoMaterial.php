@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,4 +38,13 @@ class ItemDetallePreingresoMaterial extends Model implements Auditable
     ];
 
 
+    public function detalle()
+    {
+        return $this->belongsTo(DetalleProducto::class);
+    }
+
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class);
+    }
 }
