@@ -4,6 +4,7 @@ namespace App\Http\Requests\Vehiculos;
 
 use App\Models\Vehiculos\AsignacionVehiculo;
 use Illuminate\Foundation\Http\FormRequest;
+use Src\Shared\Utils;
 
 class AsignacionVehiculoRequest extends FormRequest
 {
@@ -33,6 +34,7 @@ class AsignacionVehiculoRequest extends FormRequest
             'observacion_entrega' => 'nullable|sometimes|string',
             'fecha_entrega' => 'required|string',
             'estado' => 'required|string',
+            'accesorios' => 'nullable|sometimes|string',
         ];
     }
     // public function withValidator($validator){
@@ -49,6 +51,8 @@ class AsignacionVehiculoRequest extends FormRequest
             'entrega_id' => $this->entrega,
             'responsable_id' => $this->responsable,
             'canton_id' => $this->canton,
+            'accesorios'=>Utils::convertArrayToString($this->accesorios, ',')
         ]);
+        
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Cliente;
 use App\Models\EstadoTransaccion;
 use App\Models\MaterialEmpleado;
 use App\Models\MaterialEmpleadoTarea;
@@ -78,10 +79,13 @@ class DevolucionRequest extends FormRequest
                 }
             } else {
                 foreach ($this->listadoProductos as $listado) {
+                    // $cliente = Cliente::whereHas('empresa', function($query) use($listado){
+                    //     $query->where('razon_social', $listado['cliente']);
+                    // })->first();
                     $material = MaterialEmpleado::where('empleado_id', $this->solicitante)
                         ->where(function ($query) {
-                            $query->where('cliente_id', $this->cliente)
-                                ->orWhere('cliente_id', null);
+                            $query->where('cliente_id', $this->cliente);
+                                // ->orWhere('cliente_id', null);
                         })->where('detalle_producto_id', $listado['id'])->orderBy('id', 'desc')->first();
                     if ($material) {
                         if ($listado['cantidad'] > $material->cantidad_stock) {

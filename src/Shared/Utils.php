@@ -389,7 +389,7 @@ class Utils
         return $diferencia;
     }
 
-    public static function convertArrayToString($array, $separator)
+    public static function convertArrayToString($array, $separator=',')
     {
         // Log::channel('testing')->info('Log', ['Array recibido', $array, 'separator', $separator]);
         if (is_array($array) && count($array) > 0) {

@@ -30,6 +30,7 @@ class AsignacionVehiculo extends Model implements Auditable
         'observacion_entrega',
         'fecha_entrega',
         'estado',
+        'accesorios',
     ];
 
     //estados

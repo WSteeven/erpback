@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Vehiculos;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\Shared\Utils;
 
 class AsignacionVehiculoResource extends JsonResource
 {
@@ -26,6 +27,7 @@ class AsignacionVehiculoResource extends JsonResource
             'observacion_entrega' => $this->observacion_entrega,
             'fecha_entrega' => $this->fecha_entrega,
             'estado' => $this->estado,
+            'accesorios' =>  $this->accesorios ? Utils::convertirStringComasArray($this->accesorios) : null,
         ];
 
         if ($controller_method == 'show') {
@@ -33,6 +35,7 @@ class AsignacionVehiculoResource extends JsonResource
             $modelo['entrega'] = $this->entrega_id;
             $modelo['responsable'] = $this->responsable_id;
             $modelo['canton'] = $this->canton_id;
+            $modelo['accesorios'] = $this->accesorios ? Utils::convertirStringComasArray($this->accesorios) : null;
         }
         return $modelo;
     }

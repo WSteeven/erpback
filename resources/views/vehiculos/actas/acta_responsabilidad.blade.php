@@ -41,7 +41,7 @@
         /** Definir las reglas del pie de página **/
         footer {
             position: fixed;
-            bottom: 93px;
+            bottom: 0px;
             left: 0cm;
             right: 0cm;
             height: 2cm;
@@ -49,20 +49,22 @@
             /** Estilos extra personales **/
             text-align: center;
             color: #000000;
-            line-height: 1.5cm;
+            /* line-height: 1.5cm; */
         }
 
-        footer .page:after {
+        /* footer .page:after {
             content: counter(page);
-        }
+        } */
 
         main {
             position: relative;
-            top: 80px;
+            top: 3cm;
+            bottom: 4cm;
             left: 0cm;
             right: 0cm;
             margin: 2cm;
-            margin-bottom: 7cm;
+            /* margin-top: 3cm; */
+            margin-bottom: 3cm;
             font-size: 14px;
         }
 
@@ -75,15 +77,17 @@
             text-transform: uppercase;
         }
 
-        /* .firma {
+        .firma {
             table-layout: fixed;
             width: 100%;
             line-height: normal;
-        } */
+            font-size: 14px;
+        }
 
         .justificado {
             text-align: justify;
             text-justify: inter-word;
+            line-height: 0.6cm;
         }
 
 
@@ -99,29 +103,35 @@
         <table
             style="color:#000000; table-layout:fixed; width: 100%; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:14px;">
             <tr class="row" style="width:auto">
-                <td>
-                    <div class="col-md-3" style="width:25%"><img src="{{ $logo_principal }}" width="90"></div>
+                <td style="width: 10%">
+                    <div class="col-md-3"><img src="{{ $logo_principal }}" width="90"></div>
                 </td>
-                <td>
-                    <div class="col-md-7" style="width:50%" align="center"><b>ACTA DE ENTREGA/RECEPCION DE VEHICULO</b>
+                <td style="width: 68%">
+                    <div align="center"><b>ACTA DE ENTREGA/RECEPCION DE VEHICULO</b>
                     </div>
                 </td>
-                <td>
-                    <div class="col-md-2" style="width:25%" align="center"><b>FIRSTRED v1.0 </b></div>
+                <td style="width: 22%">
+                    <div align="center"><b>FIRSTRED <br> v1.0 </b></div>
                 </td>
             </tr>
         </table>
-        <hr>
+        {{-- <hr> --}}
     </header>
     {{-- Pie de pagina --}}
     <footer>
         <table style="width: 100%;">
             <tr>
-                <td class="page">Página </td>
-                <td style="line-height: normal;">
-                    <div style="margin: 20%; margin-bottom: 0px; margin-top: 0px;" align="center">La información
+                <td></td>
+                <script type="text/php">
+                        $pdf->page_script('
+                            $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
+                            $pdf->text(10, $pdf->get_height() - 25, "Pág $PAGE_NUM de $PAGE_COUNT", $font, 10);
+                        ');
+                    </script>
+                <td style="width: 80%; line-height: normal;">
+                    <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">La información
                         contenida en este documento es confidencial y de uso exclusivo de
-                        {{ $configuracion['razon_social'] }}.
+                        {{ $configuracion['razon_social'] }}
                     </div>
                     <div style="margin: 0%; margin-bottom: 0px; margin-top: 0px;" align="center">Impreso por el
                         Usuario:
@@ -130,21 +140,19 @@
                         {{ $fecha->format('d/m/Y H:i') }}
                     </div>
                 </td>
-                <td>
-                    {{-- <div align="right"><img src="data:image/svg;base64,{!! base64_encode(QrCode::format('svg')->encoding('UTF-8')->size(70)->generate($mensaje_qr)) !!}"></div> --}}
-                </td>
+                <td></td>
             </tr>
         </table>
     </footer>
     {{-- Cuerpo --}}
     <main>
         <div class="justificado">
-            <p>En la ciudad de {{ $asignacion['canton'] }}, al {{ $fecha_entrega->format('d') }} de {{ $mes }}
-                de {{ $fecha_entrega->format('Y') }},</p>
-
+            <p style="text-align: right">En la ciudad de {{ $asignacion['canton'] }}, {{ $fecha_entrega->format('d') }}
+                de {{ $mes }} de {{ $fecha_entrega->format('Y') }}.</p>
+            <br>
+            <p><strong>A) CONSTANCIA DE ENTREGA</strong> </p>
             <p>{{ $configuracion['razon_social'] }}, con domicilio en {{ $configuracion['direccion_principal'] }}, por
-                medio de la presente acta hace constar la entrega del vehículo
-                identificado a continuación:</p>
+                medio de la presente acta hace constar la entrega del vehículo identificado a continuación:</p>
 
             <ul>
                 <li><strong>Vehículo Marca y Modelo:</strong> {{ $vehiculo['marca'] }}, {{ $vehiculo['modelo'] }}</li>
@@ -155,10 +163,27 @@
                 <li><strong>Número de Chasis:</strong> {{ $vehiculo['num_chasis'] }}</li>
             </ul>
 
-            <p>La entrega de dicho vehículo se realiza a {{ $asignacion['responsable'] }} con cédula de identidad
-                número {{ $responsable['identificacion'] }},
-                quien asume la responsabilidad completa sobre el mismo a partir de este momento.</p>
+            <p>La entrega de dicho vehículo se realiza por parte de {{ $asignacion['entrega'] }} con cédula de
+                identidad número {{ $entrega['identificacion'] }} y las siguientes observaciones:
+                {{ $asignacion['observacion_entrega'] }}; a {{ $asignacion['responsable'] }} con cédula de identidad
+                número {{ $responsable['identificacion'] }}, quien
+                @if (is_null($asignacion['observacion_recibe']))
+                    asume la responsabilidad completa sobre el mismo a partir de este momento.
+                @else
+                    emite las siguientes observaciones: {{ $asignacion['observacion_recibe'] }} y asume la
+                    responsabilidad completa sobre el mismo a partir de este momento.
+                @endif
+            </p>
+            <br>
+            <p><strong>B). ACCESORIOS</strong> </p>
+            <p>Junto con el vehículo se entregan los siguientes accesorios: </p>
+            <ul>
+                @foreach ($asignacion['accesorios'] as $accesorio)
+                    <li>{{ $accesorio }}</li>
+                @endforeach
+            </ul>
 
+            <p><strong>C). RESPONSABILIDADES</strong> </p>
             <p>Con la entrega del vehículo, {{ $configuracion['razon_social'] }} declara que el mismo se encuentra en
                 buen estado y condiciones
                 de funcionamiento, sin presentar defectos ni averías visibles.</p>
@@ -173,15 +198,16 @@
                 inmediata a {{ $configuracion['nombre_empresa'] }}
                 sobre cualquier incidente.</p>
 
-            <p>La presente acta se firma por duplicado, quedando un ejemplar en posesión de "La Empresa" y el otro en
-                posesión de "El Responsable".</p>
+            <br>
+            <p><strong>ACEPTACION DE LAS PARTES</strong> </p>
+            <p>Para constancia de lo estipulado firman el presente documento los que en el intervienen.</p>
 
             <br><br><br><br><br>
             <table class="firma" style="width: 100%;">
-                <thead>
-                    <th align="center">___________________</th>
-                    <th align="center"></th>
-                    <th align="center">___________________</th>
+                <thead align="center">
+                    <th>___________________</th>
+                    <th></th>
+                    <th>___________________</th>
                 </thead>
                 <tbody>
                     <tr align="center">
@@ -189,24 +215,23 @@
                         <td><b></b></td>
                         <td><b>RESPONSABLE</b></td>
                     </tr>
-                    <tr>
-                        <td style="padding-left: 60px;">Nombre: </td>
-                        <td></td>
-                        <td style="padding-left: 60px;">Nombre:</td>
-                    </tr>
-                    <tr>
-                        <td style="padding-left: 60px;">C.I: </td>
-                        <td></td>
-                        <td style="padding-left: 60px;">C.I:</td>
+                    <tr align="center">
+                        <td class="col-4">{{ $entrega['nombres'] }} {{ $entrega['apellidos'] }} <br>
+                            {{ $entrega['identificacion'] }}
+                        </td>
+                        <td class="col-4"></td>
+                        <td class="col-4">{{ $responsable['nombres'] }} {{ $responsable['apellidos'] }} <br>
+                            {{ $responsable['identificacion'] }}</td>
                     </tr>
                 </tbody>
             </table>
+            <br><br><br><br>
             <table class="firma" style="width: 100%">
                 <thead>
                     <th align="center">___________________</th>
                 </thead>
-                <tbody>
-                    <tr align="center">
+                <tbody align="center">
+                    <tr>
                         <td><b>EMPLEADOR</b></td>
                     </tr>
                     <tr>
@@ -217,12 +242,6 @@
                     </tr>
                 </tbody>
             </table>
-            <p><strong>Firma del Representante de la Empresa:</strong> ___________________________</p>
-            <p>[Nombre del Representante de la Empresa]</p>
-            <p>[Cargo del Representante de la Empresa]</p>
-
-            <p><strong>Firma del Responsable:</strong> ___________________________</p>
-            <p>[Nombre del Responsable]</p>
         </div>
     </main>
 </body>

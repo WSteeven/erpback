@@ -115,6 +115,7 @@ class AsignacionVehiculoController extends Controller
                 'asignacion' => $resource->resolve(),
                 'vehiculo' => $vehiculo->resolve(),
                 'mes' => Utils::$meses[$fecha_entrega->format('F')],
+                'entrega'=>Empleado::find($asignacion->entrega_id),
                 'responsable'=>Empleado::find($asignacion->responsable_id),
             ]);
             $pdf->setPaper('A4', 'portrait');
