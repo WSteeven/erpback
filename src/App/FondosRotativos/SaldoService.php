@@ -279,13 +279,16 @@ class SaldoService
             ->where('fecha', '>=', $fecha)
             ->orderBy('id', 'desc')
             ->first();
+
         if ($saldo_grupo) {
             return $saldo_grupo;
         } else {
             $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
-                ->where('fecha', '>=', $fecha)
+                ->where('fecha', '<=', $fecha)
                 ->orderBy('id', 'desc')
                 ->first();
+                Log::channel('testing')->info('Log', ['saldo',$fecha, $saldo_grupo ]);
+
             return  $saldo_fondos;
         }
     }
