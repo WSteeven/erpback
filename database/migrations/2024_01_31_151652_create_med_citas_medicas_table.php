@@ -20,6 +20,7 @@ return new class extends Migration
             // $table->text('motivo');
             $table->text('observacion')->nullable();
             $table->dateTime('fecha_hora_cita')->nullable();
+            $table->dateTime('fecha_hora_accidente')->nullable();
             $table->string('estado_cita_medica');
             $table->enum('tipo_cita_medica', [CitaMedica::ENFERMEDAD_COMUN, CitaMedica::ACCIDENTE_DE_TRABAJO]);
             $table->string('motivo_rechazo')->nullable();

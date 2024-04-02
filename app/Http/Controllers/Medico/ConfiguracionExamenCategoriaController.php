@@ -29,26 +29,34 @@ class ConfiguracionExamenCategoriaController extends Controller
 
     private function obtenerCategoriaCampos()
     {
-        $examen_id = request('examen_id');
+        // $idsExamenesRealizados = request('ids_examenes_realizados');
 
-        $categorias = ConfiguracionExamenCategoria::ignoreRequest(['con_campos'])->filter()->where('examen_id', $examen_id)->get();
+        /*if ($idsExamenesRealizados) {
+            $configuracionExamenCategorias = ConfiguracionExamenCategoria::ignoreRequest(['ids_examenes_realizados'])->filter()->whereIn('examen_id', $idsExamenesRealizados)->get();
+        } else {
+            $configuracionExamenCategorias = ConfiguracionExamenCategoria::filter()->get();
+        }*/
+        $configuracionExamenCategorias = ConfiguracionExamenCategoria::filter()->get();
 
-        $data = $categorias->map(fn ($categoria) => [
+        $data = $configuracionExamenCategorias->map(fn ($categoria) => [
             'categoria' => $categoria->nombre,
             'categoria_id' => $categoria->id,
-            'campos' => ConfiguracionExamenCampoResource::collection(ConfiguracionExamenCampo::where('configuracion_examen_categoria_id', $categoria->id)->get()),
+            'examen' => $categoria->examen?->nombre,
+            'campos' => ConfiguracionExamenCampoResource::collection($this->obtenerCamposPorCategoria($categoria->id)),
+
         ]);
+        Log::channel('testing')->info('Log', ['data', $data]);
 
         return $data;
     }
 
     private function listar()
     {
-        $con_campos = request('con_campos');
+        // $con_campos = request('con_campos');
         // Log::channel('testing')->info('Log', ['Empleado', 'listar...']);
 
-        if ($con_campos) return $this->obtenerCategoriaCampos();
-        else return ConfiguracionExamenCampo::ignoreRequest(['campos'])->filter()->get();
+        return $this->obtenerCategoriaCampos();
+        // else return ConfiguracionExamenCampo::ignoreRequest(['campos'])->filter()->get();
     }
 
     public function index()
@@ -117,5 +125,10 @@ class ConfiguracionExamenCategoriaController extends Controller
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al eliminar el registro de configuracion examen categoria' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
+    }
+
+    private function obtenerCamposPorCategoria(int $idConfiguracionExamenCategoria)
+    {
+        return ConfiguracionExamenCampo::where('configuracion_examen_categoria_id', $idConfiguracionExamenCategoria)->get();
     }
 }

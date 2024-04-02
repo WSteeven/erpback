@@ -124,6 +124,15 @@ class EmpleadoService
         return Departamento::has('responsable')->pluck('responsable_id')->toArray();
     }
 
+    public function obtenerIdsEmpleadosPorRol(string $rol)
+    {
+        // $usuario_ac->hasRole('RECURSOS HUMANOS')
+        $idsUsuariosRRHH = User::role($rol)->pluck('id');
+        return Empleado::whereIn('usuario_id', $idsUsuariosRRHH)->pluck('id');
+
+        // return Departamento::where('nombre', 'RECURSOS HUMANOS')->pluck('responsable_id')->toArray();
+    }
+
     public function obtenerTodosSinEstado()
     {
         $results = Empleado::ignoreRequest(['rol', 'campos', 'es_reporte__saldo_actual'])->filter()->where('id', '>', 1)->get();

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('observacion');
             $table->boolean('dado_alta')->default(false);
+            $table->unsignedInteger('dias_descanso')->default(0);
 
             // Foreign leys
             $table->unsignedBigInteger('cita_medica_id')->nullable();

@@ -3,6 +3,7 @@
 namespace App\Models\Medico;
 
 use App\ModelFilters\Medico\ConsultaMedicaFilter;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,7 @@ class ConsultaMedica extends Model implements Auditable
     protected $fillable = [
         'observacion',
         'dado_alta',
+        'dias_descanso',
         'cita_medica_id',
         'registro_empleado_examen_id',
     ];
@@ -43,5 +45,10 @@ class ConsultaMedica extends Model implements Auditable
     public function diagnosticosCitaMedica()
     {
         return $this->hasMany(DiagnosticoCitaMedica::class);
+    }
+
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }

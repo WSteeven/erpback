@@ -14,16 +14,20 @@ class EsquemaVacunaResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
+        $controller_method = $request->route()->getActionMethod();
+
+        $modelo = [
             'id' => $this->id,
-            'nombre_vacuna' => $this->nombre_vacuna,
-            'dosis_totales' => $this->dosis_totales,
             'dosis_aplicadas' => $this->dosis_aplicadas,
             'observacion' => $this->observacion,
-            'registro_empleado_examen' => $this->registro_empleado_examen_id,
-            'registro_empleado_examen_info' =>  $this->registroEmpleadoExamen !== null ?$this->registroEmpleadoExamen?->numero_registro:'',
-            'tipo_vacuna' => $this->tipo_vacuna_id,
-            'tipo_vacuna_info' =>  $this->tipoVacuna !== null ?$this->tipoVacuna?->nombre:'',
+            'tipo_vacuna' => $this->tipoVacuna?->nombre,
+            'tipo_vacuna_id' => $this->tipo_vacuna_id,
         ];
+
+        if ($controller_method == 'show') {
+            $modelo['tipo_vacuna'] = $this->tipo_vacuna_id;
+        }
+
+        return $modelo;
     }
 }

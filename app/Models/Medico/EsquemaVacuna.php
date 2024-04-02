@@ -2,33 +2,41 @@
 
 namespace App\Models\Medico;
 
+use App\Models\Archivo;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class EsquemaVacuna extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
 
     protected $table = 'med_esquemas_vacunas';
     protected $fillable = [
-        'nombre_vacuna',
-        'dosis_totales',
         'dosis_aplicadas',
         'observacion',
-        'registro_empleado_examen_id',
+        'paciente_id',
         'tipo_vacuna_id',
-
     ];
 
+    private static $whiteListFilter = ['*'];
+
     // Relaciones
-    public function registroEmpleadoExamen()
+    /* public function registroEmpleadoExamen()
     {
-        return $this->hasOne(RegistroEmpleadoExamen::class,'id','registro_examen_id');
+        return $this->hasOne(RegistroEmpleadoExamen::class, 'id', 'registro_examen_id');
+    } */
+
+    public function tipoVacuna()
+    {
+        return $this->hasOne(TipoVacuna::class, 'id', 'tipo_vacuna_id');
     }
-    public function tipoVacuna(){
-        return $this->hasOne(TipoVacuna::class,'id','tipo_vacuna_id');
+
+    public function archivos()
+    {
+        return $this->morphMany(Archivo::class, 'archivable');
     }
 }

@@ -18,10 +18,10 @@ class TipoVacunaController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.med_tipos_vacunas')->only('index', 'show');
-        $this->middleware('can:puede.crear.med_tipos_vacunas')->only('store');
-        $this->middleware('can:puede.editar.med_tipos_vacunas')->only('update');
-        $this->middleware('can:puede.eliminar.med_tipos_vacunas')->only('destroy');
+        $this->middleware('can:puede.ver.tipos_vacunas')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_vacunas')->only('store');
+        $this->middleware('can:puede.editar.tipos_vacunas')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_vacunas')->only('destroy');
     }
 
     public function index()

@@ -89,7 +89,7 @@ class SubtareaResource extends JsonResource
             'cantidad_adjuntos' => $this->cargar('cantidad_adjuntos', $campos) ? $this->archivos?->count() : null,
             'metraje_tendido' => $this->cargar('metraje_tendido', $campos) ? $this->metraje_tendido : null,
             'etapa_id' => $tarea->etapa_id,
-            'proyecto_id' => $tarea->proyecto_id,
+            'proyecto_id' => $this->cargar('proyecto_id', $campos) ? $tarea->proyecto_id : null,// $tarea->proyecto_id,
             'etapa' => $this->cargar('etapa', $campos) ? $this->tarea->etapa?->nombre : null,
         ];
 
@@ -110,13 +110,14 @@ class SubtareaResource extends JsonResource
         }
 
         $data = [];
-        foreach ($campos as $campo) {
+        /*foreach ($campos as $campo) {
             if (isset($modelo[$campo])) {
                 // $data[$campo] = $this->{$campo};
                 $data[$campo] = $modelo[$campo];
             }
-        }
-        return count($campos) ? $data : $modelo;
+        }*/
+        // return count($campos) ? $data : $modelo;
+        return null;//$modelo;
     }
 
     private function cargar($campo, $campos)

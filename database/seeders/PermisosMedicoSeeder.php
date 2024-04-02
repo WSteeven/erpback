@@ -60,6 +60,7 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::VER . '.esquemas_vacunas'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::ACCEDER . '.esquemas_vacunas'])->syncRoles([$empleado]);
         Permission::firstOrCreate(['name' => self::EDITAR . '.esquemas_vacunas'])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . '.esquemas_vacunas'])->syncRoles([$empleado]);
 
         // Gestionar pacientes
         Permission::firstOrCreate(['name' => self::VER . '.gestionar_pacientes'])->syncRoles([$medico]);

@@ -17,6 +17,7 @@ class ConsultaMedicaResource extends JsonResource
     public function toArray($request)
     {
         $receta = $this->receta;
+        $citaMedica = $this->citaMedica;
 
         return [
             'id' => $this->id,
@@ -30,6 +31,10 @@ class ConsultaMedicaResource extends JsonResource
             'diagnosticos' => DiagnosticoCitaResource::collection($this->diagnosticosCitaMedica),
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             'dado_alta' => $this->dado_alta,
+            'paciente' => $citaMedica?->paciente, // Empleado::extraerNombresApellidos($citaMedica?->paciente),
+            'sintomas' => $citaMedica?->sintomas,
+            'fecha_hora_solicitud' => $citaMedica?->created_at,
+            'dias_descanso' => $this->dias_descanso,
         ];
     }
 }

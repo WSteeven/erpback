@@ -24,15 +24,15 @@ class DiagnosticoCitaRequest extends FormRequest
     public function rules()
     {
         return [
-            'recomendacion'=> 'required|string',
-            'cie_id'=> 'required|exists:med_cies,id',
+            'recomendacion' => 'required|string',
+            'cie_id' => 'required|exists:med_cies,id',
         ];
     }
+
     protected function prepareForValidation()
     {
         $this->merge([
             'cie_id' => $this->cie,
         ]);
     }
-
 }

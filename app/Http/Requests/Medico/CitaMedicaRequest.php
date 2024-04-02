@@ -27,7 +27,8 @@ class CitaMedicaRequest extends FormRequest
         return [
             'sintomas' => 'required|string',
             'observacion' => 'nullable|string',
-            'fecha_hora_cita' => 'nullable',//|date_format:Y-m-d H:i:s',
+            'fecha_hora_cita' => 'nullable|string',//|date_format:Y-m-d H:i:s',
+            'fecha_hora_accidente' => 'nullable|string',//|date_format:Y-m-d H:i:s',
             'estado_cita_medica' => 'required|string',//exists:med_estados_citas_medicas,id',
             'tipo_cita_medica' => 'required|string',
             'paciente_id' => 'required|exists:empleados,id',

@@ -136,7 +136,8 @@ Route::apiResources(
             'citas-medicas' => 'cita_medica',
             'solicitudes-examenes' => 'solicitud_examen',
             'diagnosticos-recetas' => 'diagnostico_receta',
-            'consultas-medicas' => 'consulta_medica'
+            'consultas-medicas' => 'consulta_medica',
+            'esquemas-vacunas' => 'esquema_vacuna',
         ],
 
     ]
@@ -157,3 +158,6 @@ Route::post('citas-medicas/rechazar/{cita_medica}', [CitaMedicaController::class
  *************************/
 Route::get('detalles-resultados-examenes/files/{detalle_resultado_examen}', [DetalleResultadoExamenController::class, 'indexFiles']);
 Route::post('detalles-resultados-examenes/files/{detalle_resultado_examen}', [DetalleResultadoExamenController::class, 'storeFiles']);
+
+Route::get('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'indexFiles']);
+Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'storeFiles']);

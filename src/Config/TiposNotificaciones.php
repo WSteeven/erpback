@@ -26,4 +26,5 @@ enum TiposNotificaciones: string{
     case PROVEEDOR = 'PROVEEDOR';
     // medico
     case SOLICITUD_EXAMEN = 'SOLICITUD DE EXAMEN';
+    case DIAS_DESCANSO = 'DIAS DE DESCANSO';
 }

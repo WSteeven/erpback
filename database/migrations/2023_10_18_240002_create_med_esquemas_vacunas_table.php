@@ -15,14 +15,12 @@ return new class extends Migration
     {
         Schema::create('med_esquemas_vacunas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_vacuna');
-            $table->unsignedInteger('dosis_totales');
             $table->unsignedInteger('dosis_aplicadas');
-            $table->text('observacion');
+            $table->text('observacion')->nullable();
 
             // Foreign keys
-            $table->unsignedBigInteger('registro_empleado_examen_id');
-            $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedBigInteger('paciente_id');
+            $table->foreign('paciente_id')->references('id')->on('empleados')->onDelete('cascade')->onUpdate('cascade');
 
             $table->unsignedBigInteger('tipo_vacuna_id');
             $table->foreign('tipo_vacuna_id')->references('id')->on('med_tipos_vacunas')->onDelete('cascade')->onUpdate('cascade');

@@ -29,6 +29,7 @@ class CitaMedica extends Model implements Auditable
         'sintomas',
         'observacion',
         'fecha_hora_cita',
+        'fecha_hora_accidente',
         'estado_cita_medica',
         'tipo_cita_medica',
         'motivo_rechazo',

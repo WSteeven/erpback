@@ -13,7 +13,7 @@ class EsquemaVacunaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,18 @@ class EsquemaVacunaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'dosis_aplicadas' => 'required|numeric|integer',
+            'observacion' => 'nullable|string',
+            'tipo_vacuna_id' => 'required|numeric|integer|exists:med_tipos_vacunas,id',
+            'paciente_id' => 'required|numeric|integer|exists:empleados,id',
         ];
+    }
+
+    protected function prepareForValidation()
+    {
+        $this->merge([
+            'tipo_vacuna_id' => $this->tipo_vacuna,
+            'paciente_id' => $this->paciente,
+        ]);
     }
 }

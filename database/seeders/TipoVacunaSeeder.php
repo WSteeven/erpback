@@ -10,7 +10,7 @@ class TipoVacunaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class=TipoVacunaSeeder
      * @return void
      */
     public function run()

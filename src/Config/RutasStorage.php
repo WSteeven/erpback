@@ -48,4 +48,5 @@ enum RutasStorage: string
     case DOCUMENTOS_DIGITALIZADOS_EMPLEADOS = 'public/carpeta_digital_empleados/';
     // Medico
     case DETALLES_RESULTADOS_EXAMENES  = 'public/detalles_resultados_examenes/archivos';
+    case ESQUEMAS_VACUNAS  = 'public/esquemas_vacunas/archivos';
 }

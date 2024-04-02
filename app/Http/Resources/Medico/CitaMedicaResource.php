@@ -22,7 +22,7 @@ class CitaMedicaResource extends JsonResource
             'razon' => $this->razon,
             'observacion' => $this->observacion,
             'fecha_hora_cita' => $this->fecha_hora_cita,
-            'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
+            'fecha_hora_solicitud' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
             'estado_cita_medica' => $this->estado_cita_medica,
             'tipo_cita_medica' => $this->tipo_cita_medica,
             // 'estado_cita_medica_info' => $this->estadoCitaMedica !== null ? $this->estadoCitaMedica?->nombre : ' ',
@@ -33,6 +33,7 @@ class CitaMedicaResource extends JsonResource
             'fecha_hora_cancelado' => $this->fecha_hora_cancelado ? Carbon::parse($this->fecha_hora_cancelado)->format('Y-m-d H:i:s') : null,
             'fecha_hora_rechazo' => $this->fecha_hora_rechazo ? Carbon::parse($this->fecha_hora_rechazo)->format('Y-m-d H:i:s') : null,
             'dado_alta' => $this->consultaMedica?->dado_alta,
+            'fecha_hora_accidente' => $this->fecha_hora_accidente,
         ];
     }
 }
