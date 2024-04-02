@@ -648,7 +648,7 @@ class SaldoController extends Controller
             $es_nuevo_saldo = SaldoService::existeSaldoNuevaTabla( $fecha_inicio);
             $saldo_fondos_empaquetado = $es_nuevo_saldo ?SaldoService::empaquetarSaldoable($saldos_fondos):SaldoService::empaquetarSaldoableReporteAntiguo($saldos_fondos, $array_id);
             $reportes_unidos = !$es_nuevo_saldo ? $saldo_fondos_empaquetado->merge($gastos_reporte)->merge($transferencias_enviadas)->merge($transferencias_recibidas)->merge($acreditaciones_reportes)->merge($ajuste_saldo): $saldo_fondos_empaquetado;
-            $reportes_unidos = $es_nuevo_saldo ?Saldo::empaquetarCombinado($saldo_fondos_empaquetado, $request->usuario): SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
+            $reportes_unidos = $es_nuevo_saldo ?Saldo::empaquetarCombinado($saldos_fondos, $request->usuario): SaldoGrupo::empaquetarCombinado($reportes_unidos, $request->usuario, $fecha_anterior, $saldo_anterior);
             $reportes_unidos = collect($reportes_unidos)->sortBy('fecha_creacion');
             $ultimo_saldo = SaldoService::obtenerSaldoActualUltimaFecha($fecha_fin,  $request->usuario);
             $estado_cuenta_anterior = $request->fecha_inicio != '01-06-2023' ? $this->saldoService->EstadoCuentaAnterior($request->fecha_inicio, $request->usuario) : $saldo_anterior->saldo_actual;
@@ -670,7 +670,6 @@ class SaldoController extends Controller
                 ->prepend($nuevo_elemento);
             $sub_total = 0;
             $nuevo_saldo = $ultimo_saldo != null ?  $ultimo_saldo->saldo_actual : 0;
-            //$nuevo_saldo_aux = $this->saldoService->SaldoEstadoCuentaArrastre($request->fecha_inicio, $request->fecha_fin, $request->usuario);
             $empleado = Empleado::where('id', $request->usuario)->first();
             $usuario = User::where('id', $empleado->usuario_id)->first();
             $nombre_reporte = 'reporte_estado_cuenta';

@@ -2,6 +2,7 @@
 
 namespace App\Models\FondosRotativos\Saldo;
 
+use App\Http\Resources\FondosRotativos\Gastos\GastoResource;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
 use App\Models\FondosRotativos\Gasto\Gasto;
@@ -45,15 +46,15 @@ class Saldo extends Model  implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($arreglo,  $empleado)
+    public static function empaquetarCombinado($arreglo,$empleado)
     {
         $results = [];
         $id = 0;
         $row = [];
         foreach ($arreglo as $saldo) {
-            $ingreso = Saldo::ingreso($saldo, $empleado);
-            $gasto = Saldo::gasto($saldo, $empleado);
-            $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo);
+            $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+            $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+            $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo,$empleado,$saldo->saldoable);
             $results[$id] = $row;
             $id++;
         }
@@ -129,11 +130,11 @@ class Saldo extends Model  implements Auditable
      * 'descripcion' y si la clave 'estado' es igual a 4. Si se cumplen ambas condiciones, devuelve el
      * valor de la clave 'total' del registro
      */
-    private static function ingreso($saldo, $empleado)
+    private static function ingreso($saldo, $tipo, $empleado)
     {
         switch (get_class($saldo)) {
             case Gasto::class:
-                if ($saldo['tipo'] === self::ANULACION) {
+                if ($tipo === self::ANULACION) {
                     return $saldo['total'];
                 }
                 break;
@@ -141,6 +142,11 @@ class Saldo extends Model  implements Auditable
                 return $saldo['monto'];
                 break;
             case Transferencias::class:
+                if ($tipo === self::ANULACION) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
+                }
                 if ($saldo['usuario_recibe_id'] == $empleado) {
                     return $saldo['monto'];
                 }
@@ -154,17 +160,25 @@ class Saldo extends Model  implements Auditable
         return 0;
     }
     // verifica si es un egreso
-    private static function gasto($saldo, $empleado)
+    private static function gasto($saldo, $tipo, $empleado)
     {
         switch (get_class($saldo)) {
             case Gasto::class:
-                if($saldo['estado'] == Gasto::APROBADO){
+                if ($tipo == self::EGRESO) {
                     return $saldo['total'];
                 }
                 break;
             case Acreditaciones::class:
-                return $saldo['monto'];
+                if ($tipo == self::ANULACION) {
+                    return $saldo['monto'];
+                }
+                break;
             case Transferencias::class:
+                if ($tipo == self::ANULACION) {
+                    if ($saldo['usuario_recibe_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
+                }
                 if ($saldo['usuario_envia_id'] == $empleado) {
                     return $saldo['monto'];
                 }
@@ -177,38 +191,61 @@ class Saldo extends Model  implements Auditable
         }
         return 0;
     }
-    private static function descripcionSaldo($saldo)
+    private static function descripcionSaldo($saldo,$tipo,$empleado)
     {
-        if (isset($saldo['descripcion_acreditacion'])) {
-            return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
-        }
-        if (isset($saldo['usuario_envia_id'])) {
-            $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
-            $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-            return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
-        }
-        if (isset($saldo['motivo'])) {
-            return $saldo['motivo'];
-        }
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
-                if ($saldo['estado'] == 4) {
-                    $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                $sub_detalle_info = self::subDetalleInfo($saldo->subDetalle);
+                if ($tipo == self::EGRESO) {
+                    return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
+                if ($tipo == self::ANULACION) {
                     return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
-                $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
-                return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
-            }
+                break;
+            case Acreditaciones::class:
+                if ($tipo == self::INGRESO) {
+                    return $saldo['descripcion_acreditacion'];
+                }if ($tipo == self::ANULACION) {
+                    return 'ANULACIÓN DE ACREDITACIÖN: ' . $saldo['descripcion_acreditacion'];
+                }
+                break;
+            case Transferencias::class:
+                $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
+                $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
+                if ($saldo['usuario_recibe_id'] == $empleado) {
+                    return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                }
+                if ($saldo['usuario_envia_id'] == $empleado) {
+
+                    return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+                }
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                    return $saldo['motivo'];
+                break;
         }
         return '';
     }
-    private static function observacionSaldo($saldo)
+    private static function observacionSaldo($saldo,$tipo,$empleado)
     {
-        if (isset($saldo['observacion'])) {
-            return $saldo['observacion'];
-        }
-        if (isset($saldo['descripcion'])) {
-            return $saldo['descripcion'];
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                $sub_detalle_info = Saldo::subDetalleInfo($saldo['sub_detalle']);
+                if ($tipo == self::EGRESO) {
+                    return $saldo['observacion'];
+                }
+                if ($tipo == self::ANULACION) {
+                    return $saldo['observacion_anulacion'];
+                }
+                break;
+            case Acreditaciones::class:
+                if ($tipo == self::ANULACION) {
+                    return 'ANULACIÓN DE ACREDITACIÖN: ' . $saldo['motivo'];
+                }
+                break;
+            case Transferencias::class:
+                return $saldo['observacion'];
         }
         return '';
     }
@@ -225,31 +262,30 @@ class Saldo extends Model  implements Auditable
         }
         return '';
     }
-    private static function subDetalleInfo($subdetalle_info)
+    private static function subdetalleInfo($subdetalle_info)
     {
+        $descripcion = '';
         if (!is_null($subdetalle_info)) {
-            $descripcion = '';
             $i = 0;
             foreach ($subdetalle_info as $sub_detalle) {
-                $descripcion .= $sub_detalle['descripcion'];
+                $descripcion .= $sub_detalle->descripcion;
                 $i++;
                 if ($i !== count($subdetalle_info)) {
                     $descripcion .= ', ';
                 }
             }
-            return $descripcion;
         }
-        return '';
+        return $descripcion;
     }
-    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
+    private static function guardarArreglo($id, $ingreso, $gasto, $tipo,$empleado,$saldo)
     {
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
         $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
-        $row['descripcion'] = self::descripcionSaldo($saldo);
-        $row['observacion'] = self::observacionSaldo($saldo);
+        $row['descripcion'] = self::descripcionSaldo($saldo,$tipo,$empleado);
+        $row['observacion'] = self::observacionSaldo($saldo,$tipo,$empleado);
         $row['num_comprobante'] = self::obtenerNumeroComprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
