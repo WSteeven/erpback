@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Departamento;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
 use App\Models\User;
 use Carbon\Carbon;
@@ -61,10 +62,13 @@ class TransferenciaSaldoRequest extends FormRequest
     protected function prepareForValidation()
     {
         $date = Carbon::now();
-        $admin_contabilidad = User::whereHas('roles', function ($q) {
-            $q->where('name', User::COORDINADOR_CONTABILIDAD);
-        })->first();
-        $this->es_devolucion ? $this->merge(['usuario_recibe_id' => $admin_contabilidad->empleado->id]) : $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
+        $departamento_contabilidad = Departamento::find(Departamento::DEPARTAMENTO_CONTABILIDAD);
+        $responsable_contabilidad =  $departamento_contabilidad?->responsable?->id;
+        if($this->es_devolucion){
+            $this->merge(['usuario_recibe_id' => $responsable_contabilidad]);
+        }else{
+            $this->merge(['usuario_recibe_id' => $this->usuario_recibe]);
+        }
         $this->merge(['usuario_envia_id' => $this->usuario_envia, 'fecha' =>  $date->format('Y-m-d'),]);
         $this->tarea == 0 ?  $this->merge(['id_tarea' => null]) :  $this->merge(['id_tarea' => $this->tarea]);
         if ($this->route()->getActionMethod() === 'store') {

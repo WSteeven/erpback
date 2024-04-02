@@ -46,17 +46,17 @@ class Saldo extends Model  implements Auditable
         return $this->morphTo();
     }
 
-    public static function empaquetarCombinado($arreglo,$empleado)
+    public static function empaquetarCombinado($arreglo, $empleado)
     {
         $results = [];
         $id = 0;
         $row = [];
         foreach ($arreglo as $saldo) {
-            $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-            $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
-            $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo,$empleado,$saldo->saldoable);
-            $results[$id] = $row;
-            $id++;
+                    $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                    $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                    $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                    $results[$id] = $row;
+                    $id++;
         }
         return $results;
     }
@@ -191,7 +191,7 @@ class Saldo extends Model  implements Auditable
         }
         return 0;
     }
-    private static function descripcionSaldo($saldo,$tipo,$empleado)
+    private static function descripcionSaldo($saldo, $tipo, $empleado)
     {
         switch (get_class($saldo)) {
             case Gasto::class:
@@ -206,7 +206,8 @@ class Saldo extends Model  implements Auditable
             case Acreditaciones::class:
                 if ($tipo == self::INGRESO) {
                     return $saldo['descripcion_acreditacion'];
-                }if ($tipo == self::ANULACION) {
+                }
+                if ($tipo == self::ANULACION) {
                     return 'ANULACIÓN DE ACREDITACIÖN: ' . $saldo['descripcion_acreditacion'];
                 }
                 break;
@@ -222,12 +223,12 @@ class Saldo extends Model  implements Auditable
                 }
                 break;
             case AjusteSaldoFondoRotativo::class:
-                    return $saldo['motivo'];
+                return $saldo['motivo'];
                 break;
         }
         return '';
     }
-    private static function observacionSaldo($saldo,$tipo,$empleado)
+    private static function observacionSaldo($saldo, $tipo, $empleado)
     {
         switch (get_class($saldo)) {
             case Gasto::class:
@@ -277,15 +278,15 @@ class Saldo extends Model  implements Auditable
         }
         return $descripcion;
     }
-    private static function guardarArreglo($id, $ingreso, $gasto, $tipo,$empleado,$saldo)
+    private static function guardarArreglo($id, $ingreso, $gasto, $tipo, $empleado, $saldo)
     {
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
         $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
-        $row['descripcion'] = self::descripcionSaldo($saldo,$tipo,$empleado);
-        $row['observacion'] = self::observacionSaldo($saldo,$tipo,$empleado);
+        $row['descripcion'] = self::descripcionSaldo($saldo, $tipo, $empleado);
+        $row['observacion'] = self::observacionSaldo($saldo, $tipo, $empleado);
         $row['num_comprobante'] = self::obtenerNumeroComprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;

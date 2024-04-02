@@ -284,7 +284,7 @@ class SaldoController extends Controller
                     return $this->reporteTransferencia($request, $tipo_reporte);
                     break;
                 case self::GASTO_IMAGEN:
-                    return $this->gasto($request, $tipo_reporte, true);
+                    return $this->gastoFiltrado($request, $tipo_reporte, true);
                     break;
             }
         } catch (Exception $e) {
@@ -297,7 +297,7 @@ class SaldoController extends Controller
      * @param Request request The request object.
      * @param tipo The type of report you want to generate, in this case it is pdf.
      */
-    private function gastoFiltrado(Request $request, $tipo)
+    private function gastoFiltrado(Request $request, $tipo, $imagen = false)
     {
         try {
             $fecha_inicio = date('Y-m-d', strtotime($request->fecha_inicio));
@@ -411,9 +411,10 @@ class SaldoController extends Controller
                 'tipo_filtro' => $tipo_filtro,
                 'subdetalle' => $request->subdetalle,
             ];
-            $vista = 'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
+            $vista = $imagen ? 'exports.reportes.reporte_consolidado.reporte_gastos_usuario_imagen_filtrado' :'exports.reportes.reporte_consolidado.reporte_gastos_filtrado';
             $export_excel = new GastoFiltradoExport($reportes);
-            return $this->reporteService->imprimir_reporte($tipo, 'A4', 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
+            $tamanio_papel = $imagen ? 'A2' : 'A4';
+            return $this->reporteService->imprimir_reporte($tipo, $tamanio_papel, 'landscape', $reportes, $nombre_reporte, $vista, $export_excel);
         } catch (Exception $e) {
             Log::channel('testing')->info('Log', ['error', $e->getMessage(), $e->getLine()]);
         }
@@ -485,7 +486,7 @@ class SaldoController extends Controller
             $fecha_anterior = '';
             $saldo_anterior = 0;
             if ($request->usuario == null) {
-                $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle', 'authEspecialUser', 'tarea')
+                $gastos = Gasto::with('empleado', 'detalleEstado', 'subDetalle', 'authEspecialUser', 'tarea')
                     ->where('estado', Gasto::APROBADO)
                     ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                     ->get();
@@ -589,7 +590,7 @@ class SaldoController extends Controller
                 })
                 ->whereBetween('fecha', [$fecha_inicio, $fecha_fin])
                 ->sum('monto');
-            $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle')
+            $gastos = Gasto::with('empleado', 'detalleEstado', 'subDetalle')
                 ->where('estado', Gasto::APROBADO)
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
@@ -891,7 +892,7 @@ class SaldoController extends Controller
             $date_fin = Carbon::createFromFormat($mask, $request->fecha_fin);
             $fecha_inicio = $date_inicio->format($mask);
             $fecha_fin = $date_fin->format($mask);
-            $gastos = Gasto::with('empleado', 'detalle_estado', 'subDetalle')
+            $gastos = Gasto::with('empleado', 'detalleEstado', 'subDetalle')
                 ->where('id_usuario', $request->usuario)
                 ->whereBetween('fecha_viat', [$fecha_inicio, $fecha_fin])
                 ->orderBy('fecha_viat', 'asc')

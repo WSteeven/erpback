@@ -34,6 +34,7 @@ class AcreditacionRequest extends FormRequest
             'id_tipo_saldo' => 'required',
             'id_usuario' => 'required',
             'descripcion_acreditacion' => 'required',
+            'id_estado' => 'required',
         ];
     }
     protected function prepareForValidation()

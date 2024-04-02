@@ -402,7 +402,7 @@
                     <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])) }}"
+                                <img src="{{  file_exists(public_path() . $gasto['comprobante']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante'])):' ' }}"
                                     width="250">
                             </a>
                         </div>
@@ -410,7 +410,7 @@
                     <td style="font-size:10px">
                         <div class="col-md-3">
                             <a href="{{ url($gasto['comprobante2']) }}" target="_blank" title="nombreImagen">
-                                <img src="{{ 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])) }}"
+                                <img src="{{ file_exists(public_path() . $gasto['comprobante2']) ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $gasto['comprobante2'])): ' ' }}"
                                     width="250" />
                             </a>
                         </div>
