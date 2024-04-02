@@ -41,6 +41,8 @@ class DetalleProductoController extends Controller
             switch ($request->tipo_busqueda) {
                 case 'only_inventario':
                     $results = DetalleProducto::whereHas('inventarios')->get();
+                    $results2 = DetalleProducto::whereHas('itemsPreingresos')->get();
+                    $results = $results->merge($results2);
                     $results = DetalleProductoResource::collection($results);
                     return response()->json(compact('results'));
                     break;
