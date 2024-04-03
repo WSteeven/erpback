@@ -52,11 +52,25 @@ class Saldo extends Model  implements Auditable
         $id = 0;
         $row = [];
         foreach ($arreglo as $saldo) {
+            switch (get_class($saldo->saldoable)) {
+                case Acreditaciones::class:
+                    if($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION){
+                        $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
+                        $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
+                        $results[$id] = $row;
+                        $id++;
+                    }
+                    break;
+
+                default:
                     $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                     $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                     $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
                     $results[$id] = $row;
                     $id++;
+                    break;
+            }
         }
         return $results;
     }
