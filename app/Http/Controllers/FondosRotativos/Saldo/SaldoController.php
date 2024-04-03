@@ -175,7 +175,7 @@ class SaldoController extends Controller
         try {
             $usuario = Auth::user();
             $id = $request->usuario != null ?  $request->usuario : 0;
-            if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
+            if ( $usuario->hasRole([User::ROL_COORDINADOR, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
                 $saldos_actual_user = $request->usuario == null ?
                     Saldo::with('empleado')->whereIn('id', function ($sub) {
                         $sub->selectRaw('max(id)')->from('fr_saldos')->groupBy('empleado_id');

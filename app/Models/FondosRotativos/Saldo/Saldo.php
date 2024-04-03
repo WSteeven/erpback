@@ -91,7 +91,6 @@ class Saldo extends Model  implements Auditable
                             $row['fecha'] = $saldo->fecha;
                             $row['tipo_saldo'] = $saldo->id_tipo_saldo;
                             $row['usuario'] = $saldo->empleado_id;
-                            $row['empleado_info'] = $saldo->empleado->user;
                             $row['cargo'] = $saldo->empleado->cargo != null ? $saldo->empleado->cargo->nombre : '';
                             $row['empleado'] = $saldo->empleado;
                             $row['localidad'] = $saldo->empleado->canton != null ? $saldo->empleado->canton->canton : '';
@@ -110,11 +109,9 @@ class Saldo extends Model  implements Auditable
                     $row['fecha'] = $saldos->fecha;
                     $row['tipo_saldo'] = $saldos->id_tipo_saldo;
                     $row['usuario'] = $saldos->empleado_id;
-                    $row['empleado_info'] = $saldos->usuario->user;
                     $row['empleado'] = $saldos->empleado;
                     $row['cargo'] =  $saldos->empleado->cargo != null ? $saldos->empleado->cargo->nombre : '';
                     $row['localidad'] = $saldos->empleado->canton != null ? $saldos->empleado->canton->canton : '';
-                    $row['descripcion_saldo'] = $saldos->descripcionSaldo;
                     $row['saldo_anterior'] = $saldos->saldo_anterior;
                     $row['saldo_depositado'] = $saldos->saldo_depositado;
                     $row['saldo_actual'] = $saldos->saldo_actual;

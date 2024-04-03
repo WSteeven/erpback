@@ -128,9 +128,6 @@
                     <div align="center"><strong>LUGAR</strong></div>
                 </td>
                 <td bgcolor="#a9d08e" style="font-size:10px">
-                    <div align="center"><strong>USUARIO</strong></div>
-                </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
                     <div align="center"><strong>MONTO</strong></div>
                 </td>
             </tr>
@@ -158,11 +155,6 @@
                     <td style="font-size:10px">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['localidad'] }}
-                        </div>
-                    </td>
-                    <td style="font-size:10px">
-                        <div align="left" style="margin-left:20px;">
-                            {{ $saldo['empleado_info']->name }}
                         </div>
                     </td>
                     <td style="font-size:10px">
