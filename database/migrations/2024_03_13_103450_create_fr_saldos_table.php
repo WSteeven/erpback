@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('fr_saldos_fondos_rotativos');
+        Schema::dropIfExists('fr_saldos');
     }
 };

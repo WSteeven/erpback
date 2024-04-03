@@ -45,8 +45,8 @@ Route::apiResources(
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('reporte/fecha/{tipo}', [GastoController::class, 'generarReporte']);
-    //Route::post('reporte/saldo_actual/{tipo}', [SaldoController::class, 'saldoActual']);
-    Route::post('reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldoActual']);
+    Route::post('reporte/saldo_actual/{tipo}', [SaldoController::class, 'saldoActual']);
+    //Route::post('reporte/saldo_actual/{tipo}', [SaldoGrupoController::class, 'saldoActual']);
     Route::post('reporte/solicitud_fondo/{tipo}', [GastoCoordinadorController::class, 'reporte']);
     Route::get('cortar_saldo', [AcreditacionSemanaController::class, 'cortarSaldo']);
     Route::get('ultimo_saldo/{id}', [SaldoController::class, 'saldoActualUsuario']);

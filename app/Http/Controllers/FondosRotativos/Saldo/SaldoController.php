@@ -178,14 +178,14 @@ class SaldoController extends Controller
             if (auth()->user()->hasRole([User::ROL_COORDINADOR, User::ROL_CONTABILIDAD, User::ROL_ADMINISTRADOR])) {
                 $saldos_actual_user = $request->usuario == null ?
                     Saldo::with('empleado')->whereIn('id', function ($sub) {
-                        $sub->selectRaw('max(id)')->from('fr_saldos_fondos_rotativos')->groupBy('empleado_id');
+                        $sub->selectRaw('max(id)')->from('fr_saldos')->groupBy('empleado_id');
                     })->get()
                     : Saldo::with('empleado')->where('empleado_id', $id)->orderBy('id', 'desc')->first();
             } else {
                 $empleados = Empleado::where('jefe_id', $usuario->empleado->id)->get('id', 'nombres', 'apellidos')->pluck('id');
                 $saldos_actual_user = $request->usuario == null ?
                     Saldo::with('empleado')->whereIn('id', function ($sub) {
-                        $sub->selectRaw('max(id)')->from('fr_saldos_fondos_rotativos')->groupBy('empleado_id');
+                        $sub->selectRaw('max(id)')->from('fr_saldos')->groupBy('empleado_id');
                     })->whereIn('empleado_id', $empleados)
                     ->get()
                     : Saldo::with('usuario')->where('empleado_id', $id)->orderBy('id', 'desc')->first();
