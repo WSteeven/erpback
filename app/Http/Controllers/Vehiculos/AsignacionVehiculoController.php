@@ -38,11 +38,14 @@ class AsignacionVehiculoController extends Controller
         // if (auth()->user()->hasRole([User::ROL_ADMINISTRADOR, User::ROL_ADMINISTRADOR_VEHICULOS])) {
         //     $results = AsignacionVehiculo::ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
         // } else
-        $results = AsignacionVehiculo::where(function ($query) {
-            $query->where('entrega_id', auth()->user()->empleado->id)
-                ->orWhere('responsable_id', auth()->user()->empleado->id);
-        })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
-
+        if (request()->filtro) {
+            $results = AsignacionVehiculo::ignoreRequest(['filtro'])->filter()->orderBy('id', 'desc')->get();
+        } else {
+            $results = AsignacionVehiculo::where(function ($query) {
+                $query->where('entrega_id', auth()->user()->empleado->id)
+                    ->orWhere('responsable_id', auth()->user()->empleado->id);
+            })->ignoreRequest(['entrega_id', 'responsable_id'])->filter()->orderBy('id', 'desc')->get();
+        }
         $results = AsignacionVehiculoResource::collection($results);
         return response()->json(compact('results'));
     }
@@ -115,8 +118,8 @@ class AsignacionVehiculoController extends Controller
                 'asignacion' => $resource->resolve(),
                 'vehiculo' => $vehiculo->resolve(),
                 'mes' => Utils::$meses[$fecha_entrega->format('F')],
-                'entrega'=>Empleado::find($asignacion->entrega_id),
-                'responsable'=>Empleado::find($asignacion->responsable_id),
+                'entrega' => Empleado::find($asignacion->entrega_id),
+                'responsable' => Empleado::find($asignacion->responsable_id),
             ]);
             $pdf->setPaper('A4', 'portrait');
             $pdf->render();

@@ -25,6 +25,9 @@ return new class extends Migration
             $table->date('fecha_entrega');
             $table->enum('estado', [AsignacionVehiculo::PENDIENTE, AsignacionVehiculo::ACEPTADO, AsignacionVehiculo::RECHAZADO, AsignacionVehiculo::ANULADO])->default(AsignacionVehiculo::PENDIENTE);
             $table->text('accesorios')->nullable();
+            $table->text('estado_carroceria')->nullable();
+            $table->text('estado_mecanico')->nullable();
+            $table->text('estado_electrico')->nullable();
             $table->timestamps();
 
             $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->cascadeOnUpdate()->nullOnDelete();

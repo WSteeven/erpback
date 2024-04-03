@@ -35,6 +35,9 @@ class AsignacionVehiculoRequest extends FormRequest
             'fecha_entrega' => 'required|string',
             'estado' => 'required|string',
             'accesorios' => 'nullable|sometimes|string',
+            'estado_carroceria' => 'nullable|sometimes|string',
+            'estado_mecanico' => 'nullable|sometimes|string',
+            'estado_electrico' => 'nullable|sometimes|string',
         ];
     }
     // public function withValidator($validator){
@@ -51,8 +54,10 @@ class AsignacionVehiculoRequest extends FormRequest
             'entrega_id' => $this->entrega,
             'responsable_id' => $this->responsable,
             'canton_id' => $this->canton,
-            'accesorios'=>Utils::convertArrayToString($this->accesorios, ',')
+            'accesorios' => Utils::convertArrayToString($this->accesorios, ','),
+            'estado_carroceria' => Utils::convertArrayToString($this->estado_carroceria,),
+            'estado_mecanico' => Utils::convertArrayToString($this->estado_mecanico,),
+            'estado_electrico' => Utils::convertArrayToString($this->estado_electrico,),
         ]);
-        
     }
 }

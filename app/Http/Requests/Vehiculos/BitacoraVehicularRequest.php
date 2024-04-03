@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Vehiculos;
 
+use App\Models\Vehiculos\Vehiculo;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BitacoraVehicularRequest extends FormRequest
@@ -32,8 +33,8 @@ class BitacoraVehicularRequest extends FormRequest
             'tanque_inicio' => 'string|required',
             'tanque_final' => 'string|sometimes|nullable',
             'firmada' => 'boolean|sometimes',
-            'chofer' => 'sometimes|exists:empleados,id',
-            'vehiculo' => 'numeric|exists:vehiculos,id',
+            'chofer_id' => 'sometimes|exists:empleados,id',
+            'vehiculo_id' => 'numeric|exists:vehiculos,id',
         ];
 
         return $rules;
@@ -43,8 +44,7 @@ class BitacoraVehicularRequest extends FormRequest
     {
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
-            'chofer' => auth()->user()->empleado->id,
-            'chofer_id' => auth()->user()->empleado->id
+            'vehiculo_id'=>Vehiculo::where('placa', $this->placa),
         ]);
     }
 }

@@ -28,6 +28,9 @@ class AsignacionVehiculoResource extends JsonResource
             'fecha_entrega' => $this->fecha_entrega,
             'estado' => $this->estado,
             'accesorios' =>  $this->accesorios ? Utils::convertirStringComasArray($this->accesorios) : null,
+            'estado_carroceria' =>  $this->estado_carroceria ? Utils::convertirStringComasArray($this->estado_carroceria) : null,
+            'estado_mecanico' =>  $this->estado_mecanico ? Utils::convertirStringComasArray($this->estado_mecanico) : null,
+            'estado_electrico' =>  $this->estado_electrico ? Utils::convertirStringComasArray($this->estado_electrico) : null,
         ];
 
         if ($controller_method == 'show') {
@@ -35,7 +38,6 @@ class AsignacionVehiculoResource extends JsonResource
             $modelo['entrega'] = $this->entrega_id;
             $modelo['responsable'] = $this->responsable_id;
             $modelo['canton'] = $this->canton_id;
-            $modelo['accesorios'] = $this->accesorios ? Utils::convertirStringComasArray($this->accesorios) : null;
         }
         return $modelo;
     }
