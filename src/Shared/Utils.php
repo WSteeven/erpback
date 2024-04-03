@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Ramsey\Uuid\Type\Integer;
 use Throwable;
 
@@ -118,6 +119,23 @@ class Utils
         ];
 
         return $mensajes[$metodo];
+    }
+    /**
+     * La función `obtenerMensajeErrorLanzable` devuelve una ValidationException con un mensaje de
+     * error personalizado basado en la excepción o Throwable proporcionado.
+     * 
+     * @param Exception $e El parámetro `e` es objeto de una instancia de la clase `Exception` o interfaz `Throwable`.
+     * @param string $textoPersonalizado El parámetro `textoPersonalizado` es una cadena que le permite
+     * proporcionar un mensaje personalizado o información adicional que se puede agregar al mensaje de
+     * error. Es opcional y se puede utilizar para personalizar aún más el mensaje de error según
+     * requisitos o contexto específicos.
+     * 
+     * @return ValidationException Se devuelve una `ValidationException` con un mensaje que contiene un error obtenido del
+     * método `obtenerMensajeError`, que toma un objeto `Exception` o `Throwable` y un texto
+     * personalizado como parámetros.
+     */
+    public static function obtenerMensajeErrorLanzable(Exception|Throwable $e, string $textoPersonalizado=''){
+        return ValidationException::withMessages(['error'=> self::obtenerMensajeError($e, $textoPersonalizado)]);
     }
     /**
      * La función "obtenerMensajeError" en PHP devuelve un mensaje de error formateado que incluye el

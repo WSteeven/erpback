@@ -17,11 +17,11 @@ return new class extends Migration
             $table->id();
             $table->date('fecha');
             $table->string('hora_salida');
-            $table->string('hora_llegada');
+            $table->string('hora_llegada')->nullable();
             $table->double('km_inicial',9,2,true);
-            $table->double('km_final',9,2,true);
+            $table->double('km_final',9,2,true)->nullable();
             $table->unsignedInteger('tanque_incio');
-            $table->unsignedInteger('tanque_final');
+            $table->unsignedInteger('tanque_final')->nullable();
             $table->boolean('firmada')->default(false);
             $table->unsignedBigInteger('chofer_id');
             $table->unsignedBigInteger('vehiculo_id');

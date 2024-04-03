@@ -27,11 +27,11 @@ class BitacoraVehicularRequest extends FormRequest
         $rules = [
             'fecha' => 'date|required|date_format:Y-m-d',
             'hora_salida' => 'string|required',
-            'hora_llegada' => 'string|required',
+            'hora_llegada' => 'nullable|string|sometimes',
             'km_inicial' => 'string|required',
             'km_final' => 'string|sometimes|nullable',
-            'tanque_inicio' => 'string|required',
-            'tanque_final' => 'string|sometimes|nullable',
+            'tanque_inicio' => 'numeric|required',
+            'tanque_final' => 'numeric|sometimes|nullable',
             'firmada' => 'boolean|sometimes',
             'chofer_id' => 'sometimes|exists:empleados,id',
             'vehiculo_id' => 'numeric|exists:vehiculos,id',
@@ -44,7 +44,7 @@ class BitacoraVehicularRequest extends FormRequest
     {
         $this->merge([
             'fecha' => date('Y-m-d', strtotime($this->fecha)),
-            'vehiculo_id'=>Vehiculo::where('placa', $this->placa),
+            'vehiculo_id'=>Vehiculo::where('placa', $this->vehiculo)->first()?->id,
         ]);
     }
 }

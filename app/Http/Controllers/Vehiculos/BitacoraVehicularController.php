@@ -49,14 +49,12 @@ class BitacoraVehicularController extends Controller
     public function store(BitacoraVehicularRequest $request)
     {   //Adaptación de foreign keys
         $datos = $request->validated();
-        $datos['vehiculo_id'] = $request->safe()->only(['vehiculo'])['vehiculo'];
-        $datos['chofer_id'] = $request->safe()->only(['chofer'])['chofer'];
 
         //Respuesta
         try {
-            $chofer = Empleado::find($request->chofer);
+            $chofer = Empleado::find($request->chofer_id);
             $chofer->bitacoras()->attach(
-                $request->vehiculo,
+                $datos['vehiculo_id'],
                 [
                     'fecha' => $datos['fecha'],
                     'hora_salida' => $datos['hora_salida'],
@@ -74,7 +72,7 @@ class BitacoraVehicularController extends Controller
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store', 'F');
         } catch (Exception $ex) {
             Log::channel('testing')->info('Log', ['Ha ocurrido un error al guardar la bitacora', $ex->getMessage(), $ex->getLine()]);
-            return response()->json(['mensaje' => 'Ha ocurrido un error: ' . $ex->getMessage()], 422);
+            throw Utils::obtenerMensajeErrorLanzable($ex);
         }
         return response()->json(compact('mensaje', 'modelo'), 200);
     }
