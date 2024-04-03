@@ -36,9 +36,11 @@ class ValorAcreditarRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $valor_acreditar = ValorAcreditar::where('acreditacion_semana_id', $this->acreditacion_semana_id)->where('empleado_id', $this->empleado_id)->first();
-            if ($valor_acreditar) {
-                $validator->errors()->add('empleado', 'Empleado ya  esta registrado');
+            if ($this->route()->getActionMethod() === 'store') {
+                $valor_acreditar = ValorAcreditar::where('acreditacion_semana_id', $this->acreditacion_semana_id)->where('empleado_id', $this->empleado_id)->first();
+                if ($valor_acreditar) {
+                    $validator->errors()->add('empleado', 'Empleado ya  esta registrado');
+                }
             }
         });
     }
