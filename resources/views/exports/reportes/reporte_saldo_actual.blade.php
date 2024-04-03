@@ -115,19 +115,19 @@
     <div class="contenido">
         <table width="100%" border="1" align="left" cellpadding="0" cellspacing="0">
             <tr>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>#</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>APELLIDOS Y NOMBRES</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>CARGO</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>LUGAR</strong></div>
                 </td>
-                <td bgcolor="#a9d08e" style="font-size:10px">
+                <td bgcolor="#a9d08e" style="font-size:12pt">
                     <div align="center"><strong>MONTO</strong></div>
                 </td>
             </tr>
@@ -139,25 +139,25 @@
                     $item++;
                 @endphp
                 <tr>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;"> {{ $item }}</div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['empleado']->apellidos . ' ' . $saldo['empleado']->nombres }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['cargo'] }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="left" style="margin-left:20px;">
                             {{ $saldo['localidad'] }}
                         </div>
                     </td>
-                    <td style="font-size:10px">
+                    <td style="font-size:12pt">
                         <div align="right" style="margin-right:20px;">
                             {{ number_format($saldo['saldo_actual'], 2, ',', '.') }}
                         </div>

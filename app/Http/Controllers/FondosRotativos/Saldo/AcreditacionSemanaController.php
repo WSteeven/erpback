@@ -6,26 +6,20 @@ use App\Exports\CashAcreditacionSaldoExport;
 use App\Exports\FondosRotativos\Saldos\AcreditacionSemanalExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FondosRotativos\Saldo\AcreditacionSemanaRequest;
-use App\Http\Resources\FondosRotativos\Saldo\AcreditacionResource;
 use App\Http\Resources\FondosRotativos\Saldo\AcreditacionSemanaResource;
-use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Acreditaciones;
 use App\Models\FondosRotativos\Saldo\AcreditacionSemana;
-use App\Models\FondosRotativos\Saldo\SaldoGrupo;
-use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use App\Models\FondosRotativos\UmbralFondosRotativos;
 use Maatwebsite\Excel\Facades\Excel;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\App\FondosRotativos\AcreditacionSemanalService;
 use Src\App\FondosRotativos\ReportePdfExcelService;
-use Src\App\FondosRotativos\SaldoService;
 use Src\Shared\Utils;
 
 class AcreditacionSemanaController extends Controller
@@ -159,18 +153,20 @@ class AcreditacionSemanaController extends Controller
         $acreditacion_semana->save();
         $valores_acreditar = ValorAcreditar::where('acreditacion_semana_id', $id)->where('estado', 1)->where('empleado_id', '!=', 0)->with('acreditacion_semanal')->get();
         foreach ($valores_acreditar as $key => $acreditacion) {
-            Acreditaciones::create(array(
-                'id_tipo_fondo' => 1,
-                'id_tipo_saldo' => 1,
-                'id_saldo' => '',
-                'id_usuario' => $acreditacion->empleado_id,
-                'fecha' =>  $date->format('Y-m-d'),
-                'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
-                'monto' => $acreditacion->monto_modificado,
-                'id_estado' => 1,
-                'created_at' => $date,
-                'updated_at' => $date
-            ));
+            if($acreditacion->monto_modificado >0){
+                Acreditaciones::create(array(
+                    'id_tipo_fondo' => 1,
+                    'id_tipo_saldo' => 1,
+                    'id_saldo' => '',
+                    'id_usuario' => $acreditacion->empleado_id,
+                    'fecha' =>  $date->format('Y-m-d'),
+                    'descripcion_acreditacion' => $acreditacion->acreditacion_semanal->semana,
+                    'monto' => $acreditacion->monto_modificado,
+                    'id_estado' => 1,
+                    'created_at' => $date,
+                    'updated_at' => $date
+                ));
+            }
         }
     }
     /**

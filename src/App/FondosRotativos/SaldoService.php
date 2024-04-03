@@ -240,7 +240,7 @@ class SaldoService
         $mesAnterior = $this->getFechaMesAnterior($fechaInicio);
         return $this->SaldoEstadoCuenta($mesAnterior['inicio'], $mesAnterior['fin'], $id_empleado);
     }
-    public static function obtenerSaldoEmpleadoFecha($fecha_anterior, int $empleado_id)
+    public static function obtenerSaldoEmpleadoFecha($fecha_anterior,  $empleado_id)
     {
         $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
             ->where('fecha', $fecha_anterior)

@@ -34,7 +34,9 @@ class ValorAcreditar extends Model implements Auditable
         'empleado_id',
         'acreditacion_semana_id',
         'monto_generado',
-        'monto_modificado'
+        'monto_modificado',
+        'estado',
+
     ];
     protected $casts = [
         'estado' => 'boolean',
