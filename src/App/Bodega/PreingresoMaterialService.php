@@ -32,7 +32,7 @@ class PreingresoMaterialService
         if ($request->autorizacion_id) {
             // switch ($request->autorizacion_id) {
             //     case 1: //PENDIENTE
-                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
+                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_COORDINADOR_BODEGA, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
                     $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
                         ->where(function ($query) {
                             $query->where('responsable_id', auth()->user()->empleado->id)

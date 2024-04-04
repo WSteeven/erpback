@@ -10,6 +10,7 @@ use App\Models\Empleado;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
@@ -99,7 +100,20 @@ class BitacoraVehicularController extends Controller
      */
     public function update(Request $request, BitacoraVehicular $bitacoraVehicular)
     {
-        //
+        try {
+            //Validacion de datos
+            $datos = $request->validated();
+
+            DB::beginTransaction();
+            $bitacoraVehicular->update($datos);
+            $modelo = new BitacoraVehicularResource($bitacoraVehicular->refresh());
+            $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw Utils::obtenerMensajeErrorLanzable($th);
+        }
+        return response()->json(compact('modelo', 'mensaje'));
     }
 
     /**
