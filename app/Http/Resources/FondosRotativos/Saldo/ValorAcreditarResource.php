@@ -7,6 +7,7 @@ use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Log;
 
 class ValorAcreditarResource extends JsonResource
 {
@@ -56,8 +57,9 @@ class ValorAcreditarResource extends JsonResource
     public function obtenerSaldo(int $empleado_id, string $numero_semana)
     {
         $rango_fecha = $this->obtenerRangoSemana($numero_semana);
-        $saldo_actual = Saldo::where('empleado_id', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
-        $saldo_actual = $saldo_actual != null ? $saldo_actual->saldo_actual : 0;
+        $saldo_actual_historico = SaldoGrupo::where('id_usuario', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first();
+        $saldo_actual = is_null($saldo_actual_historico) ?  Saldo::where('empleado_id', $empleado_id)->where('fecha', '<=', $rango_fecha['startOfWeek'])->orderBy('id', 'desc')->first() : $saldo_actual_historico;
+        $saldo_actual = !is_null($saldo_actual)  ? $saldo_actual->saldo_actual : 0;
         return $saldo_actual;
     }
     /**
