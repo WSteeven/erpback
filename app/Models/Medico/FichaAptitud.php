@@ -7,34 +7,42 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
+use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class FichaAptitud extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
 
     protected $table = 'med_fichas_aptitudes';
     protected $fillable = [
-        'fecha_emision',
-        'observaciones_aptitud_medica',
         'recomendaciones',
-        'tipo_evaluacion_id',
+        'observaciones_aptitud_medica',
+        'firmado_profesional_salud',
+        'firmado_paciente',
+        'registro_empleado_examen_id',
         'tipo_aptitud_medica_laboral_id',
-        'tipo_evaluacion_medica_retiro_id',
-        'preocupacional_id'
+        'profesional_salud_id',
     ];
-    public function tipoEvaluacion(){
-        return $this->belongsTo(TipoEvaluacion::class,'tipo_evaluacion_id');
+
+    private static $whiteListFilter = ['*'];
+
+    public function registroEmpleadoExamen()
+    {
+        return $this->belongsTo(RegistroEmpleadoExamen::class);
     }
-    public function tipoAptitudMedicaLaboral(){
-        return $this->belongsTo(TipoAptitudMedicaLaboral::class,'tipo_aptitud_medica_laboral_id');
+
+    public function tipoAptitudMedicaLaboral()
+    {
+        return $this->belongsTo(TipoAptitudMedicaLaboral::class, 'tipo_aptitud_medica_laboral_id');
     }
-    public function tipoEvaluacionMedicaRetiro(){
-        return $this->belongsTo(TipoEvaluacionMedicaRetiro::class,'tipo_evaluacion_medica_retiro_id');
+
+    public function profesionalSalud()
+    {
+        return $this->hasOne(ProfesionalSalud::class, 'id', 'ficha_aptitud_id');
     }
-    public function preocupacional(){
-        return $this->belongsTo(Preocupacional::class,'preocupacional_id');
-    }
-    public function profesionalSalud(){
-        return $this->hasOne(ProfesionalSalud::class,'ficha_aptitud_id','id');
+
+    public function opcionesRespuestasTipoEvaluacionMedicaRetiro()
+    {
+        return $this->hasMany(OpcionRespuestaTipoEvaluacionMedicaRetiro::class);
     }
 }

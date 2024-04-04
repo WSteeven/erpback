@@ -28,32 +28,32 @@ class FichaAptitudController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = FichaAptitud::ignoreRequest(['campos'])->filter()->get();
+        $results = FichaAptitudResource::collection($results);
         return response()->json(compact('results'));
     }
 
     public function store(FichaAptitudRequest $request)
     {
         try {
-            $datos = $request->validated();
             DB::beginTransaction();
+
+            $datos = $request->validated();
             $ficha_aptitud = FichaAptitud::create($datos);
-            $ficha_aptitud_service = new FichaAptitudService($ficha_aptitud->id);
-            $ficha_aptitud_service->insertarProfesionalSalud(new ProfesionalSalud([
-                'nombres' => $request->nombres,
-                'apellidos' => $request->apellidos,
-                'codigo' => $request->codigo,
-            ]));
-            $modelo = new FichaAptitudResource($ficha_aptitud);
+
+            // opcionesRespuestasTipoEvaluacionMedicaRetiro
+            foreach ($datos['opciones_respuestas_tipo_evaluacion_medica_retiro'] as $opcion) {
+                $opcion['tipo_evaluacion_medica_retiro_id'] = $opcion['tipo_evaluacion_medica_retiro'];
+                $ficha_aptitud->opcionesRespuestasTipoEvaluacionMedicaRetiro()->create($opcion);
+            }
+            
+            $modelo = new FichaAptitudResource($ficha_aptitud->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
+
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
-                'Error al insertar registro' => [$e->getMessage()],
-            ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de ficha de aptitud' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }

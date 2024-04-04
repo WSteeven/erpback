@@ -8,6 +8,8 @@ use App\Models\FondosRotativos\Gasto\DetalleViatico;
 use App\Models\FondosRotativos\Gasto\SubDetalleViatico;
 use App\Models\ImagenProducto;
 use App\Models\TransaccionBodega;
+use Database\Seeders\Medico\TipoAptitudMedicaLaboralSeeder;
+use Database\Seeders\Medico\TipoEvaluacionMedicaRetiroSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -98,5 +100,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ExamenSeeder::class);
         $this->call(TipoVacunaSeeder::class);
         $this->call(EsquemaVacunaSeeder::class);
+        $this->call(TipoAptitudMedicaLaboralSeeder::class);
+        $this->call(TipoEvaluacionMedicaRetiroSeeder::class);
     }
 }

@@ -38,25 +38,25 @@ class ConfiguracionExamenCategoriaController extends Controller
         }*/
         $configuracionExamenCategorias = ConfiguracionExamenCategoria::filter()->get();
 
-        $data = $configuracionExamenCategorias->map(fn ($categoria) => [
-            'categoria' => $categoria->nombre,
-            'categoria_id' => $categoria->id,
-            'examen' => $categoria->examen?->nombre,
-            'campos' => ConfiguracionExamenCampoResource::collection($this->obtenerCamposPorCategoria($categoria->id)),
-
-        ]);
-        Log::channel('testing')->info('Log', ['data', $data]);
+        $data = $configuracionExamenCategorias->groupBy('examen')->map(function ($categorias, $examen) {
+            return [
+                'examen' => json_decode($examen)->nombre,
+                'categorias' => $categorias->map(function ($categoria) {
+                    return [
+                        'categoria' => $categoria->nombre,
+                        'categoria_id' => $categoria->id,
+                        'campos' => ConfiguracionExamenCampoResource::collection($this->obtenerCamposPorCategoria($categoria->id)),
+                    ];
+                }),
+            ];
+        });
 
         return $data;
     }
 
     private function listar()
     {
-        // $con_campos = request('con_campos');
-        // Log::channel('testing')->info('Log', ['Empleado', 'listar...']);
-
         return $this->obtenerCategoriaCampos();
-        // else return ConfiguracionExamenCampo::ignoreRequest(['campos'])->filter()->get();
     }
 
     public function index()

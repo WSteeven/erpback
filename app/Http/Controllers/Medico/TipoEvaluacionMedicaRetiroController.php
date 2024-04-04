@@ -12,22 +12,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class TipoEvaluacionMedicaRetiroMedicaRetiroController extends Controller
+class TipoEvaluacionMedicaRetiroController extends Controller
 {
     private $entidad = 'Tipo de evaluaciones medicas de retiro';
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipos_evaluaciones_medica_retiros')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipos_evaluaciones_medica_retiros')->only('store');
-        $this->middleware('can:puede.editar.tipos_evaluaciones_medica_retiros')->only('update');
-        $this->middleware('can:puede.eliminar.tipos_evaluaciones_medica_retiros')->only('destroy');
+        $this->middleware('can:puede.ver.tipos_evaluaciones_medicas_retiros')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_evaluaciones_medicas_retiros')->only('store');
+        $this->middleware('can:puede.editar.tipos_evaluaciones_medicas_retiros')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_evaluaciones_medicas_retiros')->only('destroy');
     }
 
     public function index()
     {
-        $results = [];
         $results = TipoEvaluacionMedicaRetiro::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoEvaluacionMedicaRetiroResource::collection($results);
         return response()->json(compact('results'));
     }
 

@@ -16,6 +16,7 @@ class FichaAptitudService
     private $ficha_aptitud_id;
     private $ficha_aptitud;
     private $profesional_salud;
+    
     public function __construct($ficha_aptitud_id)
     {
         $this->ficha_aptitud_id = $ficha_aptitud_id;

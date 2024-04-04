@@ -18,16 +18,16 @@ class TipoAptitudMedicaLaboralController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.tipos_aptitudes_medica_laborales')->only('index', 'show');
-        $this->middleware('can:puede.crear.tipos_aptitudes_medica_laborales')->only('store');
-        $this->middleware('can:puede.editar.tipos_aptitudes_medica_laborales')->only('update');
-        $this->middleware('can:puede.eliminar.tipos_aptitudes_medica_laborales')->only('destroy');
+        $this->middleware('can:puede.ver.tipos_aptitudes_medicas_laborales')->only('index', 'show');
+        $this->middleware('can:puede.crear.tipos_aptitudes_medicas_laborales')->only('store');
+        $this->middleware('can:puede.editar.tipos_aptitudes_medicas_laborales')->only('update');
+        $this->middleware('can:puede.eliminar.tipos_aptitudes_medicas_laborales')->only('destroy');
     }
 
     public function index()
     {
-        $results = [];
         $results = TipoAptitudMedicaLaboral::ignoreRequest(['campos'])->filter()->get();
+        $results = TipoAptitudMedicaLaboralResource::collection($results);
         return response()->json(compact('results'));
     }
 

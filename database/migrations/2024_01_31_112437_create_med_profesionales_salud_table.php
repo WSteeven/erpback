@@ -15,13 +15,15 @@ return new class extends Migration
     {
         Schema::create('med_profesionales_salud', function (Blueprint $table) {
             $table->id();
-            $table->string('nombres');
-            $table->string('apellidos');
             $table->string('codigo');
-             //Lllave foranea
-             $table->unsignedBigInteger('ficha_aptitud_id');
-             $table->foreign('ficha_aptitud_id')->references('id')->on('med_fichas_aptitudes')->cascadeOnUpdate();
+
+            // foreign keys
+            $table->unsignedBigInteger('empleado_id');
+            // $table->primary('empleado_id');
+            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnUpdate();
+
             $table->timestamps();
+
         });
     }
 

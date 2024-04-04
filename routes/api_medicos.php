@@ -53,14 +53,13 @@ use App\Http\Controllers\Medico\TipoAntecedenteFamiliarController;
 use App\Http\Controllers\Medico\TipoAptitudController;
 use App\Http\Controllers\Medico\TipoAptitudMedicaLaboralController;
 use App\Http\Controllers\Medico\TipoEvaluacionController;
+use App\Http\Controllers\Medico\TipoEvaluacionMedicaRetiroController;
 use App\Http\Controllers\Medico\TipoExamenController;
 use App\Http\Controllers\Medico\TipoFactorRiesgoController;
 use App\Http\Controllers\Medico\TipoHabitoToxicoController;
 use App\Http\Controllers\Medico\TipoVacunaController;
 use App\Models\Medico\CategoriaExamenFisico;
 use App\Models\Medico\CategoriaFactorRiesgo;
-use App\Models\Medico\SolicitudExamen;
-use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -113,9 +112,9 @@ Route::apiResources(
         'laboratorios-clinicos' => LaboratorioClinicoController::class,
         'tipos-antecedentes-familiares' => TipoAntecedenteFamiliarController::class,
         'tipos-aptitudes' => TipoAptitudController::class,
-        'tipos-aptidudes-medicas-laborales' => TipoAptitudMedicaLaboralController::class,
+        'tipos-aptitudes-medicas-laborales' => TipoAptitudMedicaLaboralController::class,
         'tipos-evaluaciones' => TipoEvaluacionController::class,
-        'tipos-eval-medicas-retiro' => TipoEvaluacionMedicaRetiro::class,
+        'tipos-eval-medicas-retiro' => TipoEvaluacionMedicaRetiroController::class,
         'tipos-examenes' => TipoExamenController::class,
         'tipos-factores-riesgos' => TipoFactorRiesgoController::class,
         'tipos-habitos-toxicos' => TipoHabitoToxicoController::class,
@@ -138,6 +137,9 @@ Route::apiResources(
             'diagnosticos-recetas' => 'diagnostico_receta',
             'consultas-medicas' => 'consulta_medica',
             'esquemas-vacunas' => 'esquema_vacuna',
+            'tipos-eval-medicas-retiro' => 'tipo_evaluacion_medica_retiro',
+            'tipos-aptitudes-medicas-laborales' => 'tipo_aptitud_medica_laboral',
+            'fichas-aptitudes' => 'ficha_aptitud',
         ],
 
     ]

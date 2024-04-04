@@ -28,6 +28,7 @@ class FichaAptitudResource extends JsonResource
             'nombres' => $this->profesionalSalud !== null? $this->profesionalSalud->nombres : ' ',
             'apellidos' => $this->profesionalSalud !== null? $this->profesionalSalud->apellidos: ' ',
             'codigo' => $this->profesionalSalud !== null? $this->profesionalSalud->codigo: ' ',
+            'opciones_respuestas_tipo_evaluacion_medica_retiro' => OpcionRespuestaTipoEvaluacionMedicaRetiroResource::collection($this->opcionesRespuestasTipoEvaluacionMedicaRetiro),
         ];
     }
 }

@@ -14,7 +14,7 @@ class FichaAptitudRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,29 +25,31 @@ class FichaAptitudRequest extends FormRequest
     public function rules()
     {
         return [
-            'fecha_emision' => 'required|date_format:Y-m-d',
             'observaciones_aptitud_medica' => 'required|string',
-            'recomendaciones' => 'required|string',
-            'tipo_evaluacion_id' => 'required|exists:med_tipos_evaluaciones,id',
+            'recomendaciones' => 'nullable|string',
+            'firmado_profesional_salud' => 'nullable|boolean',
+            'firmado_paciente' => 'nullable|boolean',
+            'registro_empleado_examen_id' => 'required|exists:med_registros_empleados_examenes,id',
             'tipo_aptitud_medica_laboral_id' => 'required|exists:med_tipos_aptitudes_medica_laborales,id',
-            'tipo_evaluacion_medica_retiro_id' => 'nullable|exists:med_tipos_evaluaciones_medica_retiros,id',
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
-            'nombres' => 'required|string',
-            'apellidos' => 'required|string',
-            'codigo' => 'required|string',
+            'profesional_salud_id' => 'nullable|exists:med_profesionales_salud,empleado_id',
+            'opciones_respuestas_tipo_evaluacion_medica_retiro.*.respuesta' => 'nullable|string',
+            'opciones_respuestas_tipo_evaluacion_medica_retiro.*.tipo_evaluacion_medica_retiro' => 'required|exists:med_tipos_evaluaciones_medica_retiros,id',
         ];
     }
+
     protected function prepareForValidation()
     {
         $this->merge([
-            'fecha_emision' => Carbon::parse($this->fecha_emision)->format('Y-m-d'),
-            'tipo_evaluacion_id' => $this->tipo_evaluacion,
             'tipo_aptitud_medica_laboral_id' => $this->tipo_aptitud_medica_laboral,
+            'registro_empleado_examen_id' => $this->registro_empleado_examen,
+            'profesional_salud_id' => $this->profesional_salud,
         ]);
-        if ($this->tipo_evaluacion_medica_retiro !== null) {
-            $this->merge([
-                'tipo_evaluacion_medica_retiro_id' => $this->tipo_evaluacion_medica_retiro
-            ]);
-        }
+    }
+
+    public function messages()
+    {
+        return [
+            'profesional_salud_id.exists' => 'Usted necesita estar registrado en la tabla de profesionales de salud para realizar esta operación.',
+        ];
     }
 }

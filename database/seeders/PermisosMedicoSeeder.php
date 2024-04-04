@@ -137,5 +137,16 @@ class PermisosMedicoSeeder extends Seeder
         Permission::firstOrCreate(['name' => self::ACCEDER . ".consultas_medicas"])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::CREAR . ".consultas_medicas"])->syncRoles([$medico]);
         Permission::firstOrCreate(['name' => self::EDITAR . ".consultas_medicas"])->syncRoles([$medico]);
+
+        // Fichas aptitudes
+        Permission::firstOrCreate(['name' => self::VER . ".fichas_aptitudes"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::ACCEDER . ".fichas_aptitudes"])->syncRoles([$empleado]);
+        Permission::firstOrCreate(['name' => self::CREAR . ".fichas_aptitudes"])->syncRoles([$empleado]);
+
+        // Tipos aptitudes medicas laborales
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_aptitudes_medicas_laborales"])->syncRoles([$empleado]);
+
+        // Tipos evaluaciones medicas retiros
+        Permission::firstOrCreate(['name' => self::VER . ".tipos_evaluaciones_medicas_retiros"])->syncRoles([$empleado]);
     }
 }
