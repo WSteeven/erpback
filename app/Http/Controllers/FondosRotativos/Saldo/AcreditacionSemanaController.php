@@ -48,7 +48,7 @@ class AcreditacionSemanaController extends Controller
     public function index(Request $request)
     {
         $results = [];
-        $results = AcreditacionSemana::ignoreRequest(['campos'])->filter()->get();
+        $results = AcreditacionSemana::ignoreRequest(['campos'])->filter()->orderby('id','desc')->get();
         return response()->json(compact('results'));
     }
     public function show(Request $request, AcreditacionSemana $descuentos_generales)

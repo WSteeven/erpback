@@ -28,6 +28,7 @@ class ValorAcreditar extends Model implements Auditable
         'monto_modificado',
         'motivo',
         'estado',
+        'saldo_empleado'
     ];
     private static $whiteListFilter = [
         'id',
@@ -36,7 +37,7 @@ class ValorAcreditar extends Model implements Auditable
         'monto_generado',
         'monto_modificado',
         'estado',
-
+        'saldo_empleado'
     ];
     protected $casts = [
         'estado' => 'boolean',
