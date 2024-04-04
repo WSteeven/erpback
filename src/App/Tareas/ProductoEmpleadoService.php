@@ -60,6 +60,7 @@ class ProductoEmpleadoService
                 'medida' => $producto->unidadMedida?->simbolo,
                 'serial' => $detalle->serial,
                 'cliente' => Cliente::find($item->cliente_id)?->empresa->razon_social,
+                'cliente_id' => $item->cliente_id,
             ];
         });
 

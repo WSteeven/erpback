@@ -322,8 +322,9 @@ class SeguimientoService
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
         $cantidadAnterior = $request['cantidad_anterior'];
+        $cliente_id = $request['cliente_id'];
 
-        $material = MaterialEmpleado::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->first();
+        $material = MaterialEmpleado::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('cliente_id', $cliente_id)->first();
         $material->cantidad_stock += (isset($cantidadAnterior) ? $cantidadAnterior : 0)  - $cantidadUtilizada;
         $material->save();
 
