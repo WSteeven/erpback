@@ -70,9 +70,12 @@ class EmpleadoController extends Controller
             return $this->servicio->obtenerTodosSinEstado();
         }
 
-        if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA]) && request('es_reporte__saldo_actual')) {
-            return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
+        if(request('empleados_autorizadores_gasto')){
+            return $this->servicio->obtenerEmpleadosAutorizadoresGasto();
         }
+      /*  if ($user->hasRole([User::ROL_COORDINADOR, User::COORDINADOR_TECNICO, User::ROL_COORDINADOR_BACKUP, User::ROL_COORDINADOR_BODEGA])) {
+            return Empleado::where('jefe_id', Auth::user()->empleado->id)->get($campos);
+        }*/
 
         // Procesar respuesta
         if (request('rol')) return $this->servicio->getUsersWithRoles($rol, $campos); // EmpleadoResource::collection(Empleado::whereIn('usuario_id', User::role($rol)->pluck('id'))->get());

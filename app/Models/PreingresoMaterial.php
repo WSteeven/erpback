@@ -137,7 +137,7 @@ class PreingresoMaterial extends Model implements Auditable
     public function detalles()
     {
         return $this->belongsToMany(DetalleProducto::class, 'item_detalle_preingreso_material', 'preingreso_id', 'detalle_id')
-            ->withPivot('id', 'descripcion', 'cantidad', 'serial', 'punta_inicial', 'punta_final', 'unidad_medida_id', 'fotografia')->withTimestamps();
+            ->withPivot('id', 'descripcion', 'cantidad', 'serial', 'punta_inicial', 'punta_final', 'unidad_medida_id', 'condicion_id', 'fotografia')->withTimestamps();
     }
 
     /**
@@ -160,7 +160,8 @@ class PreingresoMaterial extends Model implements Auditable
      * Relacion polimorfica con Archivos uno a muchos.
      *
      */
-    public function archivos(){
+    public function archivos()
+    {
         return $this->morphMany(Archivo::class, 'archivable');
     }
 
@@ -183,6 +184,7 @@ class PreingresoMaterial extends Model implements Auditable
             $row['descripcion'] = $item->pivot->descripcion;
             $row['categoria'] = $item->producto->categoria->nombre;
             $row['unidad_medida'] = $item->producto->unidadMedida->nombre;
+            $row['condicion'] = Condicion::find($item->pivot->condicion_id)?->nombre;
             $row['serial'] = $item->pivot->serial;
             $row['cantidad'] = $item->pivot->cantidad;
             $row['punta_inicial'] = $item->pivot->punta_inicial;

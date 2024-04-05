@@ -397,7 +397,7 @@ class TransaccionBodegaEgresoService
     /**************************************************************************************
      * Devuelve un listado de los materiales de stock usados y su suma total por producto
      **************************************************************************************/
-    public function obtenerSumaMaterialStockUsado($idSubtarea, $idEmpleado)
+    public function obtenerSumaMaterialStockUsado($idSubtarea, $idEmpleado, $idCliente)
     {
         $subtarea = Subtarea::find($idSubtarea);
         $fecha_inicio = Carbon::parse($subtarea->fecha_hora_agendado)->format('Y-m-d');
@@ -409,6 +409,7 @@ class TransaccionBodegaEgresoService
             ->whereBetween('sms.created_at', [$fecha_inicio, $fecha_fin])
             ->where('empleado_id', $idEmpleado)
             ->where('subtarea_id', $idSubtarea)
+            ->where('cliente_id', $idCliente)
             ->groupBy('detalle_producto_id')
             ->get();
     }

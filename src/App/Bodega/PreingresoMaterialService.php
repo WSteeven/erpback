@@ -2,6 +2,7 @@
 
 namespace Src\App\Bodega;
 
+use App\Models\Condicion;
 use App\Models\DetalleProducto;
 use App\Models\Fibra;
 use App\Models\Inventario;
@@ -32,13 +33,13 @@ class PreingresoMaterialService
         if ($request->autorizacion_id) {
             // switch ($request->autorizacion_id) {
             //     case 1: //PENDIENTE
-                    if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
-                    $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
-                        ->where(function ($query) {
-                            $query->where('responsable_id', auth()->user()->empleado->id)
-                                ->orWhere('autorizador_id', auth()->user()->empleado->id)
-                                ->orWhere('coordinador_id', auth()->user()->empleado->id);
-                        })->orderBy('id', 'desc')->get();
+            if (auth()->user()->hasRole([User::ROL_JEFE_TECNICO, User::ROL_ADMINISTRADOR])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
+            $results = PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)
+                ->where(function ($query) {
+                    $query->where('responsable_id', auth()->user()->empleado->id)
+                        ->orWhere('autorizador_id', auth()->user()->empleado->id)
+                        ->orWhere('coordinador_id', auth()->user()->empleado->id);
+                })->orderBy('id', 'desc')->get();
             //         break;
             //     case 2: //APROBADO
             //         if(auth()->user()->hasRole([User::ROL_JEFE_TECNICO])) return PreingresoMaterial::where('autorizacion_id', $request->autorizacion_id)->orderBy('id', 'desc')->get();
@@ -70,8 +71,9 @@ class PreingresoMaterialService
     {
         $fotografia = null;
         // se guarda la imagen en caso de haber
-        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia']) ) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
+        if (array_key_exists('fotografia', $item) && Utils::esBase64($item['fotografia'])) $fotografia = (new GuardarImagenIndividual($item['fotografia'], RutasStorage::FOTOGRAFIAS_ITEMS_PREINGRESOS, $preingreso_id . '_' . $item['producto'] . time()))->execute();
         $unidad = UnidadMedida::where('nombre', $item['unidad_medida'])->first();
+        $condicion = Condicion::where('nombre', $item['condicion'])->first();
 
         $datos = [
             'preingreso_id' => $preingreso_id,
@@ -82,6 +84,7 @@ class PreingresoMaterialService
             'punta_inicial' => $item['punta_inicial'],
             'punta_final' => $item['punta_final'],
             'unidad_medida_id' => $unidad->id,
+            'condicion_id' => $condicion->id,
             'fotografia' => $fotografia,
         ];
         return $datos;
@@ -155,7 +158,7 @@ class PreingresoMaterialService
                 if ($detalle) {
 
                     if ($preingreso->tarea_id) // se carga el material al stock de tarea del tecnico responsable
-                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id,$preingreso->proyecto_id, $preingreso->etapa_id);
+                        MaterialEmpleadoTarea::cargarMaterialEmpleadoTarea($detalle->id, $preingreso->responsable_id, $preingreso->tarea_id, $item['cantidad'], $preingreso->cliente_id, $preingreso->proyecto_id, $preingreso->etapa_id);
                     else  // se carga el material al stock personal del tecnico responsable
                         MaterialEmpleado::cargarMaterialEmpleado($detalle->id, $preingreso->responsable_id, $item['cantidad'], $preingreso->cliente_id);
                 } else {

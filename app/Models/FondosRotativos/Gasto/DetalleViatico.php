@@ -18,6 +18,8 @@ class DetalleViatico extends Model implements Auditable
     use Filterable;
     protected $table = 'detalle_viatico';
     protected $primaryKey = 'id';
+    public const PEAJE =16;
+    public const ENVIO_ENCOMIENDA =10;
 
     protected $fillable = [
         'descripcion',

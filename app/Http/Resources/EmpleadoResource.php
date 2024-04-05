@@ -28,6 +28,7 @@ class EmpleadoResource extends JsonResource
             'email' => $this->user ? $this->user->email : '',
             'usuario' => $this->user?->name,
             'jefe' => $this->jefe ? $this->jefe->nombres . ' ' . $this->jefe->apellidos : 'N/A',
+            'jefe_id' => $this->jefe_id,
             'canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             // 'nombre_canton' => $this->canton ? $this->canton->canton : 'NO TIENE',
             'estado' => $this->estado, //?Empleado::ACTIVO:Empleado::INACTIVO,

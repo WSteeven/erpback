@@ -15,6 +15,7 @@ class EstadoAcreditaciones extends Model implements Auditable
     use Filterable;
     const REALIZADO = 1;
     const ANULADO = 2;
+    const MIGRACION = 3;
 
     protected $table = 'estado_acreditaciones';
     protected $primaryKey = 'id';

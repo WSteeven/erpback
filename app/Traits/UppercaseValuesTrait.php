@@ -51,5 +51,6 @@ trait UppercaseValuesTrait
         if($key === 'logo_oscuro' && is_string($value)) $this->attributes[$key] = trim($value);
         if($key === 'logo_marca_agua' && is_string($value)) $this->attributes[$key] = trim($value);
         if($key === 'descripcion' && is_string($value)) $this->attributes[$key] = trim($value);
+        if($key === 'saldoable_type' && is_string($value)) $this->attributes[$key] = $value;
     }
 }

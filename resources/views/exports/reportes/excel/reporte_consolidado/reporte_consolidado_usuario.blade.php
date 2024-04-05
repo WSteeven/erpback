@@ -410,12 +410,12 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_enviada->usuario_envia->nombres . ' ' . $transferencia_enviada->usuario_envia->apellidos }}
+                                                        {{ $transferencia_enviada->empleadoEnvia->nombres . ' ' . $transferencia_enviada->empleadoEnvia->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_enviada->usuario_recibe->nombres . ' ' . $transferencia_enviada->usuario_recibe->apellidos }}
+                                                        {{ $transferencia_enviada->empleadoRecibe->nombres . ' ' . $transferencia_enviada->empleadoRecibe->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -504,12 +504,12 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                                        {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                                        {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">

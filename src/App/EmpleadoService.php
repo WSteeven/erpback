@@ -230,4 +230,11 @@ class EmpleadoService
             $umbral->delete();
         }
     }
+
+    public static function obtenerEmpleadosAutorizadoresGasto(){
+        $ids_autorizadores = Gasto::pluck('aut_especial');
+        $results = Empleado::whereIn('id', $ids_autorizadores)->ignoreRequest(['campos','empleados_autorizadores_gasto'])->filter()->get();
+        $results = EmpleadoResource::collection($results);
+        return $results;
+    }
 }

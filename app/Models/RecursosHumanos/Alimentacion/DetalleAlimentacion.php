@@ -52,7 +52,7 @@ class DetalleAlimentacion extends Model implements Auditable
             $results[$id] = $row;
             $id++;
         }
-        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+        usort($results, __CLASS__ . "::ordenarNombresApellidos");
 
         return $results;
     }
@@ -85,11 +85,11 @@ class DetalleAlimentacion extends Model implements Auditable
                 $id++;
             }
         }
-        usort($results, __CLASS__ . "::ordenar_por_nombres_apellidos");
+        usort($results, __CLASS__ . "::ordenarNombresApellidos");
 
         return $results;
     }
-    private static function  ordenar_por_nombres_apellidos($a, $b)
+    private static function  ordenarNombresApellidos($a, $b)
     {
         $nameA = $a['empleado'] . ' ' . $a['empleado'];
         $nameB = $b['empleado'] . ' ' . $b['empleado'];
