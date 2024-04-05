@@ -7,7 +7,7 @@ use App\Exports\KardexExport;
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
-use App\Http\Resources\ItemDetallePreingresoResource;
+use App\Http\Resources\ItemDetallePreingresoMaterialResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProductoTransaccion;
@@ -303,7 +303,7 @@ class InventarioController extends Controller
 
         //Aqui se filtra los preingresos donde ha sido visto el ítem
         $results2 = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
-        $results2 = ItemDetallePreingresoResource::collection($results2);
+        $results2 = ItemDetallePreingresoMaterialResource::collection($results2);
 
 
         rsort($results); //aqui se ordena el array en forma descendente

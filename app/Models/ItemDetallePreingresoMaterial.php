@@ -26,6 +26,7 @@ class ItemDetallePreingresoMaterial extends Model implements Auditable
         'punta_inicial',
         'punta_final',
         'unidad_medida_id',
+        'condicion_id',
         'fotografia',
     ];
     protected $casts = [
@@ -46,5 +47,10 @@ class ItemDetallePreingresoMaterial extends Model implements Auditable
     public function unidadMedida()
     {
         return $this->belongsTo(UnidadMedida::class);
+    }
+    
+    public function condicion()
+    {
+        return $this->belongsTo(Condicion::class);
     }
 }

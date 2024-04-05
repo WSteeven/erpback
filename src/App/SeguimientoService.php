@@ -128,6 +128,7 @@ class SeguimientoService
             $materialEmpleado->save();
         }
     }
+    //
 
     // Descontar individual material de tarea
     public function actualizarSeguimientoCantidadUtilizadaMaterialEmpleadoTarea($request)
@@ -145,8 +146,9 @@ class SeguimientoService
         $idSubtarea = $request['subtarea_id'];
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
+        $cliente_id = $request['cliente_id'];
 
-        $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+        $materialSubtarea = SeguimientoMaterialSubtarea::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
 
         if ($materialSubtarea) {
             $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
@@ -160,6 +162,7 @@ class SeguimientoService
                 'empleado_id' => $idEmpleado,
                 'grupo_id' => $idGrupo,
                 'detalle_producto_id' => $idDetalleProducto,
+                'cliente_id' => $cliente_id,
             ]);
         }
 
@@ -295,8 +298,11 @@ class SeguimientoService
         $idSubtarea = $request['subtarea_id'];
         $idDetalleProducto = $request['detalle_producto_id'];
         $cantidadUtilizada = $request['cantidad_utilizada'];
+        $cliente_id = $request['cliente_id'];
 
-        $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+
+        $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->where('cliente_id', $cliente_id)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
+        // $materialSubtarea = SeguimientoMaterialStock::where('empleado_id', $idEmpleado)->where('detalle_producto_id', $idDetalleProducto)->where('subtarea_id', $idSubtarea)->whereDate('created_at', Carbon::now()->format('Y-m-d'))->first();
 
         if ($materialSubtarea) {
             $materialSubtarea->cantidad_utilizada =  $cantidadUtilizada;
@@ -309,6 +315,7 @@ class SeguimientoService
                 'subtarea_id' => $idSubtarea,
                 'empleado_id' => $idEmpleado,
                 'detalle_producto_id' => $idDetalleProducto,
+                'cliente_id' => $cliente_id,
             ]);
         }
 
@@ -346,7 +353,7 @@ class SeguimientoService
         ];
 
         $servicio = new TransaccionBodegaEgresoService();
-        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($idSubtarea, $idEmpleado);
+        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($idSubtarea, $idEmpleado, $cliente_id);
 
         $modelo['total_cantidad_utilizada'] = intval($materialesUsados->first(function ($item) use ($material) {
             return $item->detalle_producto_id === $material->detalle_producto_id;

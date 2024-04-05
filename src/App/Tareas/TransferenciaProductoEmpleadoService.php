@@ -116,6 +116,8 @@ class TransferenciaProductoEmpleadoService
         $etapa_destino_id = request('etapa_destino');
         $tarea_destino_id = request('tarea_destino');
 
+        // tarea solo a tarea 11 preformados -6 =5
+        // 6164 -> jv
         foreach (request('listado_productos') as $producto) {
             // Restar productos origen
             $productoOrigen = $esOrigenStock ? $this->buscarProductoStock($empleado_origen_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_origen_id, $producto['id'], $proyecto_origen_id, $etapa_origen_id, $tarea_origen_id, $cliente_id);
@@ -130,6 +132,7 @@ class TransferenciaProductoEmpleadoService
                 // $productoDestino = $esOrigenStock ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
                 $productoDestino = $esOrigenStock && !$tarea_destino_id ? $this->buscarProductoStock($empleado_destino_id, $producto['id'], $cliente_id) : $this->buscarProductoProyectoEtapaTarea($empleado_destino_id, $producto['id'], $proyecto_destino_id, $etapa_destino_id, $tarea_destino_id, $cliente_id);
 
+                // SUMAR a destino
                 if ($productoDestino) {
                     // $mensaje = 'Si se encuentra';
                     // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
@@ -140,7 +143,8 @@ class TransferenciaProductoEmpleadoService
                     // $mensaje = 'Si no se encuentra, se crea';
                     // Log::channel('testing')->info(__FILE__ . '/' . basename(__LINE__) . ')', compact('mensaje'));
 
-                    if ($esOrigenStock && !$tarea_destino_id) {
+                    // si el destino es stock
+                    if (!$tarea_destino_id) {
                         $productoDestino = MaterialEmpleado::create([
                             'empleado_id' => $empleado_destino_id,
                             'cantidad_stock' => $producto['cantidad'],

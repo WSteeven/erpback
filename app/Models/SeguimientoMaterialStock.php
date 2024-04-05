@@ -19,6 +19,7 @@ class SeguimientoMaterialStock extends Model implements Auditable
         'empleado_id',
         'subtarea_id',
         'detalle_producto_id',
+        'cliente_id',
     ];
 
     public function scopeResponsable($query)

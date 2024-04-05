@@ -122,10 +122,10 @@ class SubtareaService
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
         if (!in_array($subtarea->tipo_trabajo_id, $ids)) {
-            if ($subtarea->trabajosRealizados->count() < 1)
+            /*if ($subtarea->trabajosRealizados->count() < 1)
                 throw ValidationException::withMessages([
-                    'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
-                ]);
+                    'pocas_actividades' => ['Ingrese al menos  actividades en el formulario de seguimiento!'],
+                ]);*/
 
             if ($subtarea->tarea->cliente_id == ClientesCorporativos::NEDETEL) {
                 if ($subtarea->archivosSeguimiento->count() === 0)

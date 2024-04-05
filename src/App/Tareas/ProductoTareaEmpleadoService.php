@@ -168,6 +168,6 @@ class ProductoTareaEmpleadoService
     // Obtener los materiales utilizados en el dia actual
     private function obtenerMaterialesUsadosHoy()
     {
-        return SeguimientoMaterialSubtarea::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+        return SeguimientoMaterialSubtarea::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
     }
 }
