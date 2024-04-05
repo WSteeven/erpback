@@ -304,7 +304,7 @@ class SaldoController extends Controller
             $fecha_fin = date('Y-m-d', strtotime($request->fecha_fin));
             $request['id_proyecto'] =  $request['proyecto'];
             $request['sub_detalle'] = $request['id_sub_detalle'];
-            $request['id_usuario'] = $request['usuario'];
+            $request['id_usuario'] = $request['empleado'];
             $request['id_estado'] = $request['estado'];
             $request['id_tarea'] = $request['tarea'];
             $request['aut_especial'] = $request['autorizador'];
@@ -318,7 +318,8 @@ class SaldoController extends Controller
                 'tipo_saldo',
                 'tipo_filtro',
                 'sub_detalle',
-                'usuario', 'tarea',
+                'empleado', 
+                'tarea',
                 'autorizador',
                 'fecha_inicio',
                 'fecha_fin',
@@ -336,7 +337,7 @@ class SaldoController extends Controller
                     'subDetalle',
                     'proyecto'
                 );
-
+               
             if ($request->tipo_filtro == 9) {
                 $gastosQuery->whereHas('empleado', function ($query) use ($request) {
                     $query->where('canton_id', $request['ciudad']);
@@ -384,7 +385,7 @@ class SaldoController extends Controller
                     $subtitulo = 'AUTORIZADOR: ' . $autorizador->nombres . ' ' . $autorizador->apellidos;
                     break;
                 case '6':
-                    $usuario = Empleado::where('id', $request->usuario)->first();
+                    $usuario = Empleado::where('id', $request->empleado)->first();
                     $titulo .= 'DE GASTOS POR EMPLEADO ';
                     $subtitulo = 'EMPLEADO: ' . $usuario->nombres . ' ' . $usuario->apellidos;
                     break;

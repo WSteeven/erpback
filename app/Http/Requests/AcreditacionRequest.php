@@ -45,6 +45,7 @@ class AcreditacionRequest extends FormRequest
             'id_tipo_fondo' =>  $this->tipo_fondo,
             'id_tipo_saldo' =>  $this->tipo_saldo,
             'id_usuario' =>  $this->usuario,
+            'monto' => number_format($this->monto,2)
         ]);
         if ($this->route()->getActionMethod() === 'store') {
             $this->merge([

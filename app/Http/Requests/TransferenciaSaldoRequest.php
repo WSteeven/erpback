@@ -76,5 +76,8 @@ class TransferenciaSaldoRequest extends FormRequest
                 'usuario_envia_id' =>  Auth()->user()->empleado->id,
             ]);
         }
+        $this->merge([
+            'monto' => number_format($this->monto,2)
+        ]);
     }
 }

@@ -281,6 +281,10 @@ class SaldoService
             ->first();
 
         if ($saldo_grupo) {
+            $saldo_grupo = SaldoGrupo::where('id_usuario', $empleado_id)
+            ->where('fecha', '<=', $fecha)
+            ->orderBy('id', 'desc')
+            ->first();
             return $saldo_grupo;
         } else {
             $saldo_fondos = Saldo::where('empleado_id', $empleado_id)
