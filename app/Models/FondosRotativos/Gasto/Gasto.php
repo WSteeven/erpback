@@ -5,6 +5,7 @@ namespace App\Models\FondosRotativos\Gasto;
 use App\Models\Canton;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\SaldoGrupo;
+use App\Models\FondosRotativos\Saldo\Saldo;
 use App\Models\Notificacion;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
@@ -50,7 +51,8 @@ class Gasto extends Model implements Auditable
         'observacion',
         'id_usuario',
         'estado',
-        'detalle_estado'
+        'detalle_estado',
+        'observacion_anulacion'
     ];
 
     private static $whiteListFilter = ['*'];
@@ -88,48 +90,48 @@ class Gasto extends Model implements Auditable
      * Relación one to many.
      * Un gasto tiene varios subdetalles asociados
      */
-    public function sub_detalle_info()
+    public function subDetalle()
     {
         return $this->belongsToMany(SubDetalleViatico::class,'subdetalle_gastos', 'gasto_id', 'subdetalle_gasto_id');
     }
-    public function empleado_beneficiario_info()
+    public function empleadoBeneficiario()
     {
         return $this->belongsToMany(BeneficiarioGasto::class,'beneficiario_gastos', 'gasto_id', 'empleado_id');
     }
 
-    public function aut_especial_user()
+    public function authEspecialUser()
     {
         return $this->hasOne(Empleado::class, 'id', 'aut_especial');
     }
-    public function estado_info()
+    public function estadoViatico()
     {
         return $this->hasOne(EstadoViatico::class, 'id', 'estado');
     }
-    public function proyecto_info()
+    public function proyecto()
     {
         return $this->hasOne(Proyecto::class, 'id', 'id_proyecto');
     }
-    public function tarea_info()
+    public function tarea()
     {
         return $this->hasOne(Tarea::class, 'id', 'id_tarea')->with('centroCosto');
     }
-    public function subtarea_info()
+    public function subTarea()
     {
         return $this->hasOne(Subtarea::class, 'id', 'id_subtarea');
     }
-    public function lugar_info()
+    public function canton()
     {
         return $this->hasOne(Canton::class, 'id', 'id_lugar');
     }
-    public function empleado_info()
+    public function empleado()
     {
         return $this->hasOne(Empleado::class, 'id', 'id_usuario')->with('user') ;
     }
-    public function detalle_estado()
+    public function detalleEstado()
     {
         return $this->hasOne(EstadoViatico::class, 'id', 'detalle_estado');
     }
-    public function gasto_vehiculo_info()
+    public function gastoVehiculo()
     {
         return $this->hasOne(GastoVehiculo::class, 'id_gasto', 'id');
     }
@@ -137,12 +139,12 @@ class Gasto extends Model implements Auditable
     {
         return $this->morphMany(Notificacion::class, 'notificable');
     }
-    public function beneficiario_info(){
-        return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado_info');
+    public function beneficiarioGasto(){
+        return $this->hasMany(BeneficiarioGasto::class, 'gasto_id', 'id')->with('empleado');
     }
-    public function saldo_grupo()
+    public function saldoFondoRotativo()
     {
-        return $this->morphMany(SaldoGrupo::class, 'saldo_grupo');
+        return $this->morphOne(Saldo::class, 'saldoable');
     }
 
     public static function empaquetar($gastos)
@@ -156,26 +158,25 @@ class Gasto extends Model implements Auditable
                 $row['num_registro'] = $id+1;
                 $row['fecha']= $gasto->fecha_viat;
                 $row['fecha_autorizacion']= $gasto->updated_at;
-                $row['lugar']= $gasto->lugar_info?->canton;
+                $row['lugar']= $gasto->canton?->canton;
                 $row['factura']= $gasto->factura;
                 $row['ruc'] = $gasto->ruc;
                 $row['num_comprobante']= $gasto->num_comprobante;
-                $row['empleado_info']= $gasto->empleado_info->user;
-                $row['usuario'] = $gasto->empleado_info;
-                $row['autorizador'] = $gasto->aut_especial_user->nombres . ' ' . $gasto->aut_especial_user->apellidos;
-                $row['grupo'] =$gasto->empleado_info->grupo==null?'':$gasto->empleado_info->grupo->descripcion;
-                $row['tarea'] = $gasto->tarea_info;
-                $row['centro_costo'] = $gasto->tarea_info !== null ? $gasto->tarea_info?->centroCosto?->nombre:'';
-                $row['sub_centro_costo'] = $gasto->empleado_info->grupo==null ?'':$gasto->empleado_info->grupo?->subCentroCosto?->nombre;
-                $row['proyecto'] = $gasto->proyecto_info;
+                $row['empleado_info']= $gasto->empleado->user;
+                $row['usuario'] = $gasto->empleado;
+                $row['autorizador'] = $gasto->authEspecialUser->nombres . ' ' . $gasto->authEspecialUser->apellidos;
+                $row['grupo'] =$gasto->empleado->grupo==null?'':$gasto->empleado->grupo->descripcion;
+                $row['tarea'] = $gasto->tarea;
+                $row['centro_costo'] = $gasto->tarea !== null ? $gasto->tarea?->centroCosto?->nombre:'';
+                $row['sub_centro_costo'] = $gasto->empleado->grupo==null ?'':$gasto->empleado->grupo?->subCentroCosto?->nombre;
+                $row['proyecto'] = $gasto->Proyecto;
                 $row['detalle'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion;
-                $row['sub_detalle'] = $gasto->sub_detalle_info;
+                $row['sub_detalle'] = $gasto->subDetalle;
                 $row['cantidad'] = $gasto->cantidad;
                 $row['valor_u'] = $gasto->valor_u;
-                $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subdetalle_inform($gasto->sub_detalle_info->toArray());
-                //$row['beneficiario'] = $gasto->empleado_info ==null ? 'SIN BENEFICIARIO' : Gasto::empleado_inform($gasto->empleado_info->toArray());
-                $row['placa'] = $gasto->gasto_vehiculo_info?->placa;
-                $row['kilometraje'] = $gasto->gasto_vehiculo_info?->kilometraje;
+                $row['sub_detalle_desc'] = $gasto->detalle_info == null ? 'SIN DETALLE' : $gasto->detalle_info->descripcion.': '.Gasto::subDetalleInform($gasto->subDetalle->toArray());
+                $row['placa'] = $gasto->gastoVehiculo?->placa;
+                $row['kilometraje'] = $gasto->gastoVehiculo?->kilometraje;
                 $row['observacion'] = $gasto->observacion;
                 $row['detalle_estado'] = $gasto->detalle_estado;
                 $row['comprobante'] = $gasto->comprobante;
@@ -191,7 +192,7 @@ class Gasto extends Model implements Auditable
 
 
     }
-    private static function empleado_inform($empleado_info)
+    private static function empleadoInform($empleado_info)
     {
         $descripcion = '';
         $i = 0;
@@ -204,7 +205,7 @@ class Gasto extends Model implements Auditable
         }
         return $descripcion;
     }
-    private static function subdetalle_inform($subdetalle_info)
+    private static function subDetalleInform($subdetalle_info)
     {
         $descripcion = '';
         $i = 0;

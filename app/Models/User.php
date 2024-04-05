@@ -46,6 +46,7 @@ class User extends Authenticatable implements Auditable
     const ROL_AUTORIZADOR = 'AUTORIZADOR';
     const ROL_SECRETARIO = 'SECRETARIO';
     const ROL_CONSULTA = 'CONSULTA';
+
     //Roles de administración
     const ROL_ADMINISTRADOR_FONDOS = 'ADMINISTRADOR FONDOS';
     const ROL_ADMINISTRADOR_VEHICULOS = 'ADMINISTRADOR VEHICULOS';
@@ -68,6 +69,9 @@ class User extends Authenticatable implements Auditable
     const JEFE_VENTAS = 'JEFE_VENTAS';
     const SUPERVISOR_VENTAS = 'SUPERVISOR_VENTAS';
     const VENDEDOR = 'VENDEDOR';
+
+    //Fondos Rotativos
+    const COORDINADOR_CONTABILIDAD = 'COORDINADOR_CONTABILIDAD';
 
 
 

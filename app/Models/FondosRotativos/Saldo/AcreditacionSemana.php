@@ -29,7 +29,7 @@ class AcreditacionSemana extends Model implements Auditable
         'acreditar' => 'boolean',
     ];
 
-    public function  valor_acreditar(){
+    public function  valorAcreditar(){
         return $this->hasMany(ValorAcreditar::class,'acreditacion_semana_id','id');
     }
 }

@@ -26,7 +26,7 @@ class SaldoGrupoResource extends JsonResource
             'tipo_saldo' => $this->id_tipo_saldo,
             'usuario' => $this->id_usuario,
             'empleado_info' => $this->usuario,
-            'descripcion_saldo' => $this->descripcion_saldo,
+            'descripcion_saldo' => $this->descripcionSaldo,
             'saldo_anterior' => $this->saldo_anterior,
             'saldo_depositado' => $this->saldo_depositado,
             'saldo_actual' => $this->saldo_actual,
@@ -36,11 +36,31 @@ class SaldoGrupoResource extends JsonResource
         ];
         return $modelo;
     }
-    private function getSaldoGrupo($fecha_inicio,$fecha_fin,$id_usuario){
+ /**
+  * La función `getSaldoGrupo` calcula los gastos totales dentro de un rango de fechas específico para
+  * un empleado específico.
+  *
+  * @param string fecha_inicio El parámetro `fecha_inicio` es una cadena que representa la fecha de
+  * inicio en el formato 'AAAA-MM-DD'. Se utiliza para filtrar los gastos en función de la fecha de los
+  * viajes.
+  * @param string fecha_fin La función `getSaldoGrupo` que proporcionaste parece estar calculando los
+  * gastos totales (``) para un empleado específico (``) dentro de un rango de fechas
+  * determinado (`` a ``). La función utiliza el modelo `Gasto` para consultar
+  * la base de datos.
+  * @param empleado_id La función `getSaldoGrupo` que proporcionaste parece estar calculando los gastos
+  * totales (``) para un empleado específico (``) dentro de un rango de fechas
+  * determinado (`` a ``). La función filtra los gastos según el ID del empleado
+  * y el rango de fechas.
+  *
+  * @return La función `getSaldoGrupo` está devolviendo la suma total de la columna 'total' de la tabla
+  * 'Gasto' donde la fecha 'fecha_viat' cae entre los `` y `` proporcionados, la
+  * columna 'estado' es igual a 1, y la columna 'id_usuario' es igual al `` proporcionado.
+  */
+    private function getSaldoGrupo(string $fecha_inicio,string $fecha_fin,$empleado_id){
         $gasto = Gasto::selectRaw("*, DATE_FORMAT(fecha_viat, '%d/%m/%Y') as fecha")
             ->whereBetween(DB::raw('date_format(fecha_viat, "%Y-%m-%d")'), [$fecha_inicio,$fecha_fin])
             ->where('estado', '=', 1)
-            ->where('id_usuario', '=', $id_usuario)
+            ->where('id_usuario', '=', $empleado_id)
             ->sum('total');
         return $gasto;
     }
