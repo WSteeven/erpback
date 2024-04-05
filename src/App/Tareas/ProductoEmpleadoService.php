@@ -52,7 +52,7 @@ class ProductoEmpleadoService
                 else $results = MaterialEmpleado::ignoreRequest(['subtarea_id'])->filter()->tieneStock()->get();
             }
 
-            $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
+            $materialesUtilizadosHoy = SeguimientoMaterialStock::where('empleado_id', request('empleado_id'))->where('subtarea_id', request('subtarea_id'))->where('cliente_id', request('cliente_id'))->whereDate('created_at', Carbon::now()->format('Y-m-d'))->get();
 
             $materiales = collect($results)->map(function ($item) use ($materialesUtilizadosHoy) {
                 $detalle = DetalleProducto::find($item->detalle_producto_id);
