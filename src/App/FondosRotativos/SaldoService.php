@@ -200,9 +200,9 @@ class SaldoService
         $fecha = Carbon::now();
         $monto = $data['monto'];
         $tipo = $data['tipo'];
-        $saldo_anterior = SaldoGrupo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
+        $saldo_anterior = Saldo::where('id_usuario', $empleado_id)->orderBy('id', 'desc')->first();
         $total_saldo_actual = $saldo_anterior !== null ? $saldo_anterior->saldo_actual : 0;
-        $saldo = new SaldoGrupo();
+        $saldo = new Saldo();
         $saldo->fecha = $fecha;
         $saldo->saldo_anterior = $total_saldo_actual;
         $saldo->saldo_depositado = $monto;
