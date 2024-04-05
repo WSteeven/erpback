@@ -31,8 +31,8 @@ class BitacoraVehicularResource extends JsonResource
         ];
 
         if ($controller_method == 'show') {
-            $modelo['chofer'] = $this->chofer_id;
-            $modelo['vehiculo'] = $this->vehiculo_id;
+            // $modelo['chofer'] = $this->chofer_id;
+            // $modelo['vehiculo'] = $this->vehiculo_id;
         }
 
         return $modelo;
