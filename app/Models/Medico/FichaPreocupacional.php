@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class Preocupacional extends Model implements Auditable
+class FichaPreocupacional extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'fichas_preocupacionales';
+    protected $table = 'med_fichas_preocupacionales';
     protected $fillable = [
         'ciu',
         'esatblecimiento_salud',
@@ -47,7 +47,7 @@ class Preocupacional extends Model implements Auditable
     }
 
     public function examenesPreocupacionales(){
-        return  $this->hasMany(ExamenPreocupacional::class,'preocupacional_id','id');
+        return  $this->hasMany(ResultadoExamenPreocupacional::class,'preocupacional_id','id');
     }
     public function habitosToxicos(){
         return $this->hasMany(HabitoToxico::class,'preocupacional_id','id');

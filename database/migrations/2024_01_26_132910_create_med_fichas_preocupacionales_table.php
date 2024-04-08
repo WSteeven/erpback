@@ -27,6 +27,9 @@ return new class extends Migration
             $table->boolean('consume_medicacion')->default('0');
             $table->string('enfermedad_actual');
             $table->text('recomendaciones_tratamiento');
+            $table->text('actividades_extralaborales');
+            $table->text('enfermedad_actual');
+            $table->text('recomendaciones_tratamiento');
             $table->text('descripcion_examen_fisico_regional');
             $table->text('descripcion_revision_organos_sistemas');
 
@@ -40,8 +43,8 @@ return new class extends Migration
             $table->unsignedBigInteger('identidad_genero_id');
             $table->foreign('identidad_genero_id')->references('id')->on('med_identidades_generos')->cascadeOnDelete()->cascadeOnUpdate();
 
-            $table->unsignedBigInteger('empleado_id');
-            $table->foreign('empleado_id')->references('id')->on('empleados')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('registro_empleado_examen_id');
+            $table->foreign('registro_empleado_examen_id')->references('id')->on('med_registros_empleados_examenes')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
@@ -54,6 +57,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_preocupacionales');
+        Schema::dropIfExists('med_fichas_preocupacionales');
     }
 };

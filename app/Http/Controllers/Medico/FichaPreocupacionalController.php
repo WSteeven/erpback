@@ -3,24 +3,24 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\PreocupacionalRequest;
-use App\Http\Resources\Medico\PreocupacionalResource;
+use App\Http\Requests\Medico\FichaPreocupacionalRequest;
+use App\Http\Resources\Medico\FichaPreocupacionalResource;
 use App\Models\Empleado;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
 use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\ConstanteVital;
 use App\Models\Medico\DescripcionAntecedenteTrabajo;
-use App\Models\Medico\Preocupacional;
+use App\Models\Medico\FichaPreocupacional;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Src\App\Medico\PreocupacionalService;
+use Src\App\Medico\FichaPreocupacionalService;
 use Src\Shared\Utils;
 
-class PreocupacionalController extends Controller
+class FichaPreocupacionalController extends Controller
 {
-    private $entidad = 'Preocupacional';
+    private $entidad = 'FichaPreocupacional';
 
     public function __construct()
     {
@@ -33,17 +33,17 @@ class PreocupacionalController extends Controller
     public function index()
     {
         $results = [];
-        $results = Preocupacional::ignoreRequest(['campos'])->filter()->get();
+        $results = FichaPreocupacional::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(PreocupacionalRequest $request)
+    public function store(FichaPreocupacionalRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $preocupacional = Preocupacional::create($datos);
-            $preocupacional_service = new PreocupacionalService($preocupacional->id);
+            $preocupacional = FichaPreocupacional::create($datos);
+            $preocupacional_service = new FichaPreocupacionalService($preocupacional->id);
             $preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
             $preocupacional_service->agregarEstiloVida($request->estilos_vida);
             $preocupacional_service->agregarMedicacion($request->medicaciones);
@@ -94,7 +94,7 @@ class PreocupacionalController extends Controller
                 'indice_masa_corporal' => $request->indice_masa_corporal,
                 'perimetro_abdominal' => $request->perimetro_abdominal,
             ]));
-            $modelo = new PreocupacionalResource($preocupacional);
+            $modelo = new FichaPreocupacionalResource($preocupacional);
             $this->tabla_roles($preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
@@ -108,20 +108,20 @@ class PreocupacionalController extends Controller
         }
     }
 
-    public function show(PreocupacionalRequest $request, Preocupacional $preocupacional)
+    public function show(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
     {
-        $modelo = new PreocupacionalResource($preocupacional);
+        $modelo = new FichaPreocupacionalResource($preocupacional);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(PreocupacionalRequest $request, Preocupacional $preocupacional)
+    public function update(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $preocupacional->update($datos);
-            $modelo = new PreocupacionalResource($preocupacional->refresh());
+            $modelo = new FichaPreocupacionalResource($preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -134,7 +134,7 @@ class PreocupacionalController extends Controller
         }
     }
 
-    public function destroy(PreocupacionalRequest $request, Preocupacional $preocupacional)
+    public function destroy(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
     {
         try {
             DB::beginTransaction();

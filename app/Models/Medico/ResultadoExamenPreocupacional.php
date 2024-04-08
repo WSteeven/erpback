@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class ExamenPreocupacional extends Model  implements Auditable
+class ResultadoExamenPreocupacional extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
-    protected $table = 'med_examenes_preocupacionales';
+    protected $table = 'med_resultados_examenes_preocupacionales';
     protected $fillable = [
         'nombre',
         'tiempo',

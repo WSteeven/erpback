@@ -32,13 +32,13 @@ use App\Http\Controllers\Medico\ExamenFisicoRegionalController;
 use App\Http\Controllers\Medico\ExamenPreocupacionalController;
 use App\Http\Controllers\Medico\FactorRiesgoController;
 use App\Http\Controllers\Medico\FichaAptitudController;
+use App\Http\Controllers\Medico\FichaPreocupacionalController;
 use App\Http\Controllers\Medico\HabitoToxicoController;
 use App\Http\Controllers\Medico\IdentidadGeneroController;
 use App\Http\Controllers\Medico\LaboratorioClinicoController;
 use App\Http\Controllers\Medico\MedicacionController;
 use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreguntaController;
-use App\Http\Controllers\Medico\PreocupacionalController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RecetaController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
@@ -101,7 +101,7 @@ Route::apiResources(
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
-        'preocupacionales' => PreocupacionalController::class,
+        'preocupacionales' => FichaPreocupacionalController::class,
         'profecionales-salud' => ProfesionalSaludController::class,
         'registros-empleados-examenes' => RegistroEmpleadoExamenController::class,
         'religiones' => ReligionController::class,
