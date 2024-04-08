@@ -11,9 +11,22 @@ use OwenIt\Auditing\Contracts\Auditable;
 class CategoriaExamenFisico extends Model implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
+    public const PIEL ='piel';
+    public const OJOS ='ojos';
+    public const OIDO ='oido';
+    public const OROFARINGUE ='orofaringue';
+    public const NARIZ ='nariz';
+    public const CUELLO ='cuello';
+    public const TORAX ='tórax';
+    public const ABDOMEN ='abdomen';
+    public const COLUMNA ='columna';
+    public const PELVIS ='pelvis';
+    public const EXTREMIDADES ='extremidades';
+    public const NEUROLOGICO ='neurológico';
 
     protected $table = 'med_categorias_examenes_fisicos';
     protected $fillable = [
         'nombre',
+        'region'
     ];
 }

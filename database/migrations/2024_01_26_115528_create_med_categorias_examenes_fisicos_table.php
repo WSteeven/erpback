@@ -15,6 +15,8 @@ return new class extends Migration
     {
         Schema::create('med_categorias_examenes_fisicos', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre');
+            $table->string('region');
             $table->timestamps();
         });
     }
