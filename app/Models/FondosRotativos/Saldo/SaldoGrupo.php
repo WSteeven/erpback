@@ -217,14 +217,6 @@ class SaldoGrupo extends  Model implements Auditable
                 return $saldo['observacion'];
         }
         return '';
-        ///
-        if (isset($saldo['observacion'])) {
-            return $saldo['observacion'];
-        }
-        if (isset($saldo['descripcion'])) {
-            return $saldo['descripcion'];
-        }
-        return '';
     }
     private static function obtenerNumeroComprobante($saldo)
     {
