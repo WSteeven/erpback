@@ -18,7 +18,7 @@ class BitacoraVehicularResource extends JsonResource
         $controller_method = $request->route()->getActionMethod();
         $modelo = [
             'id' => $this->id,
-            'fecha' => date('d-m-Y', strtotime($this->fecha)),
+            'fecha' => date('Y-m-d', strtotime($this->fecha)),
             'hora_salida' => $this->hora_salida,
             'hora_llegada' => $this->hora_llegada,
             'km_inicial' => $this->km_inicial,
