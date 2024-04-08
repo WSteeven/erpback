@@ -4,6 +4,7 @@ namespace App\Models\FondosRotativos\Saldo;
 
 use App\Models\Empleado;
 use App\Models\FondosRotativos\AjusteSaldoFondoRotativo;
+use App\Models\FondosRotativos\Gasto\Gasto;
 use Carbon\Carbon;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -42,36 +43,26 @@ class SaldoGrupo extends  Model implements Auditable
         $id = 0;
         $row = [];
         if (isset($arreglo)) {
-            //  $results[0] = SaldoGrupo::saldoAnterior($id, $fecha, $saldo_anterior);
             $id += 1;
-            $fecha_anterior = $fecha;
             foreach ($arreglo as $saldo) {
-                if (isset($saldo['detalle_info']['descripcion'])) {
-                    $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                    $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                    $row = SaldoGrupo::guardarArreglo($id, $ingreso, $gasto, $saldo);
-                    $results[$id] = $row;
-                    $id++;
-                } else {
-                    $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
-                    $gasto = SaldoGrupo::gasto($saldo, $empleado);
-                    $row = SaldoGrupo::guardarArreglo($id, $ingreso, $gasto, $saldo);
-                    $results[$id] = $row;
-                    $id++;
-                }
+                $ingreso = SaldoGrupo::ingreso($saldo, $empleado);
+                $gasto = SaldoGrupo::gasto($saldo, $empleado);
+                $row = SaldoGrupo::guardarArreglo($id, $ingreso, $gasto, $saldo, $empleado);
+                $results[$id] = $row;
+                $id++;
             }
         }
         return $results;
     }
-    private static function guardarArreglo($id, $ingreso, $gasto, $saldo)
+    private static function guardarArreglo($id, $ingreso, $gasto, $saldo, $empleado)
     {
         $row = [];
         // $saldo =0;
         $row['item'] = $id + 1;
         $row['fecha'] = isset($saldo['fecha_viat']) ? $saldo['fecha_viat'] : (isset($saldo['created_at']) ? $saldo['created_at'] : $saldo['fecha']);
         $row['fecha_creacion'] = $saldo['updated_at'];
-        $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo);
-        $row['observacion'] = SaldoGrupo::observacionSaldo($saldo);
+        $row['descripcion'] = SaldoGrupo::descripcionSaldo($saldo, $empleado);
+        $row['observacion'] = SaldoGrupo::observacionSaldo($saldo, $empleado);
         $row['num_comprobante'] = SaldoGrupo::obtenerNumeroComprobante($saldo);
         $row['ingreso'] = $ingreso;
         $row['gasto'] = $gasto;
@@ -107,74 +98,126 @@ class SaldoGrupo extends  Model implements Auditable
      */
     private static function ingreso($saldo, $empleado)
     {
-        if (isset($saldo['descripcion_acreditacion'])) {
-            return $saldo['monto'];
-        }
-
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 4) {
-                return $saldo['total'];
-            }
-        }
-        if (isset($saldo['tipo'])) {
-            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                if ($saldo['estado'] === Gasto::ANULADO) {
+                    return $saldo['total'];
+                }
+                break;
+            case Acreditaciones::class:
                 return $saldo['monto'];
-            }
-        }
-
-        if (isset($saldo['usuario_recibe_id'])) {
-            if ($saldo['usuario_recibe_id'] == $empleado)
-                return $saldo['monto'];
+                break;
+            case Transferencias::class:
+                if ($saldo['estado'] === Transferencias::ANULADO) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
+                }
+                if ($saldo['estado'] === Transferencias::APROBADO) {
+                    if ($saldo['usuario_recibe_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
+                }
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
+                    return $saldo['monto'];
+                }
+                break;
         }
         return 0;
     }
     // verifica si es un egreso
     private static function gasto($saldo, $empleado)
     {
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
-                return  $saldo['total'];
-            }
-        }
-        if (isset($saldo['usuario_envia_id'])) {
-            if ($saldo['usuario_envia_id'] == $empleado) {
-                return $saldo['monto'];
-            }
-        }
-        if (isset($saldo['tipo'])) {
-            if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
-                return $saldo['monto'];
-            }
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                if (isset($saldo['tipo'])) {
+                    if ($saldo['tipo'] === 'EGRESO') {
+                        return $saldo['total'];
+                    }
+                }
+                return $saldo['total'];
+                break;
+            case Acreditaciones::class:
+                if ($saldo['estado'] === EstadoAcreditaciones::ANULADO) {
+                    return $saldo['monto'];
+                }
+                break;
+            case Transferencias::class:
+                if ($saldo['usuario_envia_id'] == $empleado) {
+                    return $saldo['monto'];
+                }
+                if ($saldo['estado'] === Transferencias::ANULADO) {
+                    if ($saldo['usuario_recibe_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
+                }
+
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                if ($saldo['tipo'] == AjusteSaldoFondoRotativo::EGRESO) {
+                    return $saldo['monto'];
+                }
+                break;
         }
         return 0;
     }
-    private static function descripcionSaldo($saldo)
+    private static function descripcionSaldo($saldo, $empleado)
     {
-        if (isset($saldo['descripcion_acreditacion'])) {
-            return 'ACREDITACION: ' . $saldo['descripcion_acreditacion'];
-        }
-        if (isset($saldo['usuario_envia_id'])) {
-            $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
-            $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-            return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
-        }
-        if (isset($saldo['motivo'])) {
-            return $saldo['motivo'];
-        }
-        if (isset($saldo['detalle_info']['descripcion'])) {
-            if ($saldo['estado'] == 1 || $saldo['estado'] == 4) {
-                if ($saldo['estado'] == 4) {
-                    $sub_detalle_info = SaldoGrupo::subDetalleInfo($saldo['sub_detalle']);
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                $sub_detalle_info = self::subDetalleInfo($saldo->subDetalle);
+                if ($saldo['estado'] === Gasto::APROBADO) {
+                    return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
+                }
+                if ($saldo['estado'] === Gasto::ANULADO) {
                     return 'ANULACIÓN DE GASTO: ' . $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
                 }
-                $sub_detalle_info = SaldoGrupo::subDetalleInfo($saldo['sub_detalle']);
-                return $saldo['detalle_info']['descripcion'] . ': ' . $sub_detalle_info;
-            }
+                break;
+            case Acreditaciones::class:
+                return $saldo['descripcion_acreditacion'];
+                break;
+            case Transferencias::class:
+                $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
+                $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
+                if ($saldo['estado'] ===  Transferencias::APROBADO) {
+                    return 'TRANSFERENCIA DE  ' . self::empleadoTransferencia($saldo['usuario_envia_id']) . ' a ' . self::empleadoTransferencia($saldo['usuario_recibe_id']);
+                }
+                if ($saldo['estado'] === Transferencias::ANULADO) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+                        return 'ANULACION: TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+                    }
+                }
+                break;
+            case AjusteSaldoFondoRotativo::class:
+                return $saldo['motivo'];
+                break;
         }
         return '';
     }
-    private static function observacionSaldo($saldo)
+    private static function observacionSaldo($saldo, $empleado)
     {
+
+        switch (get_class($saldo)) {
+            case Gasto::class:
+                if ($saldo['estado'] === Gasto::APROBADO) {
+                    return $saldo['observacion'];
+                }
+                if ($saldo['estado'] === Gasto::ANULADO) {
+                    return $saldo['observacion_anulacion'];
+                }
+                break;
+            case Acreditaciones::class:
+                if ($saldo['estado'] === EstadoAcreditaciones::ANULADO) {
+                    return 'ANULACIÓN DE ACREDITACIÖN: ' . $saldo['motivo'];
+                }
+                break;
+            case Transferencias::class:
+                return $saldo['observacion'];
+        }
+        return '';
+        ///
         if (isset($saldo['observacion'])) {
             return $saldo['observacion'];
         }
@@ -321,17 +364,20 @@ class SaldoGrupo extends  Model implements Auditable
                         Carbon::parse($gasto->updated_at)->subSecond(2),
                         Carbon::parse($gasto->updated_at)->addSecond(2),
                     ])->get();
-                // Log::channel('testing')->info('Log', ['saldo_grupo',$registros]);
                 if ($registros->count() > 1) {
                     $gastos->splice($index, 0, [$gasto]);
                     $registro_saldo_grupo_duplicado = true;
                 }
             }
-            // Log::channel('testing')->info('Log', ['lo que se retorna',$gastos]);
             return $gastos;
         } catch (\Throwable $th) {
             Log::channel('testing')->info('Log', ['error en verificarRepetidos', $th->getMessage(), $th->getLine()]);
             throw $th;
         }
+    }
+    public static function empleadoTransferencia($empleado_id)
+    {
+        $empleado = Empleado::find($empleado_id);
+        return $empleado?->nombres . ' ' . $empleado?->apellidos;
     }
 }

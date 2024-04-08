@@ -54,7 +54,7 @@ class Saldo extends Model  implements Auditable
         foreach ($arreglo as $saldo) {
             switch (get_class($saldo->saldoable)) {
                 case Acreditaciones::class:
-                    if($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION){
+                    if ($saldo->saldoable['id_estado'] !== EstadoAcreditaciones::MIGRACION) {
                         $ingreso = Saldo::ingreso($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $gasto = Saldo::gasto($saldo->saldoable, $saldo->tipo_saldo, $empleado);
                         $row = Saldo::guardarArreglo($id, $ingreso, $gasto, $saldo->tipo_saldo, $empleado, $saldo->saldoable);
@@ -158,9 +158,12 @@ class Saldo extends Model  implements Auditable
                         return $saldo['monto'];
                     }
                 }
-                if ($saldo['usuario_recibe_id'] == $empleado) {
-                    return $saldo['monto'];
+                if ($tipo == self::INGRESO) {
+                    if ($saldo['usuario_recibe_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
                 }
+
                 break;
             case AjusteSaldoFondoRotativo::class:
                 if ($saldo['tipo'] == AjusteSaldoFondoRotativo::INGRESO) {
@@ -190,8 +193,10 @@ class Saldo extends Model  implements Auditable
                         return $saldo['monto'];
                     }
                 }
-                if ($saldo['usuario_envia_id'] == $empleado) {
-                    return $saldo['monto'];
+                if ($tipo == self::EGRESO) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+                        return $saldo['monto'];
+                    }
                 }
                 break;
             case AjusteSaldoFondoRotativo::class:
@@ -225,12 +230,22 @@ class Saldo extends Model  implements Auditable
             case Transferencias::class:
                 $usuario_envia = Empleado::where('id', $saldo['usuario_envia_id'])->first();
                 $usuario_recibe = Empleado::where('id', $saldo['usuario_recibe_id'])->first();
-                if ($saldo['usuario_recibe_id'] == $empleado) {
-                    return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                if ($tipo === self::ANULACION) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+                        return 'ANULACION: TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+                    }
                 }
-                if ($saldo['usuario_envia_id'] == $empleado) {
+                if ($tipo == self::INGRESO) {
+                    if ($saldo['usuario_recibe_id'] == $empleado) {
+                        return 'TRANSFERENCIA DE  ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' a ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos;
+                    }
+                }
 
-                    return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+                if ($tipo == self::EGRESO) {
+                    if ($saldo['usuario_envia_id'] == $empleado) {
+
+                        return 'TRANSFERENCIA DE  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos;
+                    }
                 }
                 break;
             case AjusteSaldoFondoRotativo::class:
