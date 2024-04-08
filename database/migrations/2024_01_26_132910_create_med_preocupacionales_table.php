@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_preocupacionales', function (Blueprint $table) {
+        Schema::create('med_fichas_preocupacionales', function (Blueprint $table) {
             $table->id();
             $table->string('ciu');
             $table->text('esatblecimiento_salud');
