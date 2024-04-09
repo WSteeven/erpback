@@ -10,13 +10,13 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
-class EstiloVida extends Model  implements Auditable
+class ActividadFisica extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
     protected $table = 'med_estilos_vida';
     protected $fillable = [
-        'actividades_fisicas',
+        'nombre_actividad',
         'tiempo',
         'ficha_preocupacional_id'
     ];

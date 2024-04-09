@@ -41,7 +41,7 @@ class FichaPreocupacionalService
     {
         foreach ($estilos_vida as $key => $value) {
             EstiloVida::create(array(
-                'actividades_fisicas' => $value->actividades_fisicas,
+                'nombre_actividad' => $value->nombre_actividad,
                 'tiempo' => $value->$value->tiempo,
                 'ficha_preocupacional_id' => $this->ficha_preocupacional_id
             ));
