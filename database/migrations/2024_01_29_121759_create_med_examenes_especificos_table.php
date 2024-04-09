@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('examen');
             $table->date('fecha');
             $table->text('resultados');
-            $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

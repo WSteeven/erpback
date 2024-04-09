@@ -37,7 +37,7 @@ class FichaAptitudRequest extends FormRequest
         ];
     }
 
-    protected function prepareForValidation()
+    protected function prepareForValidation(): void
     {
         $this->merge([
             'tipo_aptitud_medica_laboral_id' => $this->tipo_aptitud_medica_laboral,

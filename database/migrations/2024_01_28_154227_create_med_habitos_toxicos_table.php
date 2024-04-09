@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('tiempo_consumo');
 
             // Foreign keys
-            $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

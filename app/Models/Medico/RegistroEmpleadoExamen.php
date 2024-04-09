@@ -40,4 +40,9 @@ class RegistroEmpleadoExamen extends Model implements Auditable
     {
         return $this->hasMany(EstadoSolicitudExamen::class, 'id', 'registro_empleado_examen_id')->with('examen', 'estadoExamen');
     }
+
+    public function fichaAptitud()
+    {
+        return $this->hasOne(FichaAptitud::class);
+    }
 }

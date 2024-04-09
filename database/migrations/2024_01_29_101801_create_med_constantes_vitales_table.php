@@ -25,8 +25,8 @@ return new class extends Migration
             $table->decimal('talla',8,2);
             $table->decimal('indice_masa_corporal',8,2);
             $table->decimal('perimetro_abdominal',8,2);
-            $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

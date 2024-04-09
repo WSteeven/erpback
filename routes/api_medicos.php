@@ -163,3 +163,8 @@ Route::post('detalles-resultados-examenes/files/{detalle_resultado_examen}', [De
 
 Route::get('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'indexFiles']);
 Route::post('esquemas-vacunas/files/{esquema_vacuna}', [EsquemaVacunaController::class, 'storeFiles']);
+
+/*****************
+ * Imprimir PDFs
+ *****************/
+Route::get('fichas-aptitudes/imprimir/{ficha_aptitud}', [FichaAptitudController::class, 'imprimirPDF']);
