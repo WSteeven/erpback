@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\HabitoToxicoRequest;
-use App\Http\Resources\Medico\HabitoToxicoResource;
-use App\Models\Medico\HabitoToxico;
+use App\Http\Requests\Medico\ResultadoHabitoToxicoRequest;
+use App\Http\Resources\Medico\ResultadoHabitoToxicoResource;
+use App\Models\Medico\ResultadoHabitoToxico;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class HabitoToxicoController extends Controller
+class ResultadoHabitoToxicoController extends Controller
 {
     private $entidad = 'Habito toxico';
 
@@ -27,17 +26,17 @@ class HabitoToxicoController extends Controller
     public function index()
     {
         $results = [];
-        $results = HabitoToxico::ignoreRequest(['campos'])->filter()->get();
+        $results = ResultadoHabitoToxico::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(HabitoToxicoRequest $request)
+    public function store(ResultadoHabitoToxicoRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $identidad_genero = HabitoToxico::create($datos);
-            $modelo = new HabitoToxicoResource($identidad_genero);
+            $identidad_genero = ResultadoHabitoToxico::create($datos);
+            $modelo = new ResultadoHabitoToxicoResource($identidad_genero);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -50,20 +49,20 @@ class HabitoToxicoController extends Controller
         }
     }
 
-    public function show(HabitoToxicoRequest $request, HabitoToxico $identidad_genero)
+    public function show(ResultadoHabitoToxicoRequest $request, ResultadoHabitoToxico $identidad_genero)
     {
-        $modelo = new HabitoToxicoResource($identidad_genero);
+        $modelo = new ResultadoHabitoToxicoResource($identidad_genero);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(HabitoToxicoRequest $request, HabitoToxico $identidad_genero)
+    public function update(ResultadoHabitoToxicoRequest $request, ResultadoHabitoToxico $identidad_genero)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $identidad_genero->update($datos);
-            $modelo = new HabitoToxicoResource($identidad_genero->refresh());
+            $modelo = new ResultadoHabitoToxicoResource($identidad_genero->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -76,7 +75,7 @@ class HabitoToxicoController extends Controller
         }
     }
 
-    public function destroy(HabitoToxicoRequest $request, HabitoToxico $identidad_genero)
+    public function destroy(ResultadoHabitoToxicoRequest $request, ResultadoHabitoToxico $identidad_genero)
     {
         try {
             DB::beginTransaction();
