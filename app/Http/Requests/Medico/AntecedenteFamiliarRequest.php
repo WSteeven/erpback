@@ -25,7 +25,7 @@ class AntecedenteFamiliarRequest extends FormRequest
     {
         return [
             'tipo_antecedente_familiar_id'=> 'required|exists:med_tipos_antecedentes_familiares,id',
-            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
         ];
     }
 }

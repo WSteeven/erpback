@@ -10,7 +10,7 @@ use OwenIt\Auditing\Auditable as AuditableModel;
 use OwenIt\Auditing\Contracts\Auditable;
 
 
-class EstiloVida extends Model  implements Auditable
+class ActividadFisica extends Model  implements Auditable
 {
     use HasFactory, UppercaseValuesTrait, AuditableModel;
 
@@ -18,10 +18,10 @@ class EstiloVida extends Model  implements Auditable
     protected $fillable = [
         'nombre_actividad',
         'tiempo',
-        'preocupacional_id'
+        'ficha_preocupacional_id'
     ];
-    public function preocupacional()
+    public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
     }
 }

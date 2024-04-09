@@ -24,7 +24,7 @@ class MedicacionRequest extends FormRequest
     public function rules()
     {
         return [
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
             'nombre' => 'required|string',
         ];
     }

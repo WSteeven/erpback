@@ -16,7 +16,7 @@ class FactorRiesgo extends Model implements Auditable
     protected $fillable = [
         'tipo_factor_riesgo_id',
         'categoria_factor_riesgo_id',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
     public function tipoFactorRiesgo(){
@@ -25,8 +25,8 @@ class FactorRiesgo extends Model implements Auditable
     public function categoriaFactorRiesgo(){
         return $this->hasOne(CategoriaFactorRiesgo::class,'id','categoria_factor_riesgo_id');
     }
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 
 }

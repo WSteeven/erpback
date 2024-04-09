@@ -17,15 +17,15 @@ class AptitudMedica extends Model implements Auditable
         'tipo_aptitud_id',
         'observacion',
         'limitacion',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
     public function tipoAptitud()
     {
         return $this->hasOne(TipoAptitud::class, 'id', 'tipo_aptitud_id');
     }
-    public function preocupacional()
+    public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
     }
 }

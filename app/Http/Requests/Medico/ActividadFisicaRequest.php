@@ -4,7 +4,7 @@ namespace App\Http\Requests\Medico;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class EstiloVidaRequest extends FormRequest
+class ActividadFisicaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class EstiloVidaRequest extends FormRequest
     public function rules()
     {
         return [
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
             'nombre_actividad' => 'required|string',
             'tiempo' => 'required',
         ];

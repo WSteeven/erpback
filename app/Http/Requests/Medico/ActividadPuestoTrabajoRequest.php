@@ -25,7 +25,7 @@ class ActividadPuestoTrabajoRequest extends FormRequest
     {
         return [
             'actividad'=> 'required|string',
-            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
         ];
     }
 }

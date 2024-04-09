@@ -3,6 +3,7 @@
 namespace Database\Seeders\Medico;
 
 use App\Models\Medico\CategoriaExamenFisico;
+use App\Models\Medico\RegionCuerpo;
 use Illuminate\Database\Seeder;
 
 class CategoriaExamenFisicoSeeder extends Seeder
@@ -17,167 +18,167 @@ class CategoriaExamenFisicoSeeder extends Seeder
         CategoriaExamenFisico::insert([
             [
                 'nombre' => 'Cicatrices',
-                'region' => CategoriaExamenFisico::PIEL
+                'region_cuerpo_id' => RegionCuerpo::PIEL
             ],
             [
                 'nombre' => 'Tatuajes',
-                'region' => CategoriaExamenFisico::PIEL
+                'region_cuerpo_id' => RegionCuerpo::PIEL
             ],
             [
                 'nombre' => 'Piel y Faneras',
-                'region' => CategoriaExamenFisico::PIEL
+                'region_cuerpo_id' => RegionCuerpo::PIEL
             ],
             [
                 'nombre' => 'Parpados',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Conjuntivas',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Pupilas',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Cornea',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Motilidad',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Motilidad',
-                'region' => CategoriaExamenFisico::OJOS
+                'region_cuerpo_id' => RegionCuerpo::OJOS
             ],
             [
                 'nombre' => 'Auditivo externo',
-                'region' => CategoriaExamenFisico::OIDO
+                'region_cuerpo_id' => RegionCuerpo::OIDO
             ],
             [
                 'nombre' => 'Pabellón',
-                'region' => CategoriaExamenFisico::OIDO
+                'region_cuerpo_id' => RegionCuerpo::OIDO
             ],
             [
                 'nombre' => 'Tímpanos',
-                'region' => CategoriaExamenFisico::OIDO
+                'region_cuerpo_id' => RegionCuerpo::OIDO
             ],
             [
                 'nombre' => 'Labios',
-                'region' => CategoriaExamenFisico::OROFARINGUE
+                'region_cuerpo_id' => RegionCuerpo::OROFARINGUE
             ],
             [
                 'nombre' => 'Lengua',
-                'region' => CategoriaExamenFisico::OROFARINGUE
+                'region_cuerpo_id' => RegionCuerpo::OROFARINGUE
             ],
             [
                 'nombre' => 'Faringue',
-                'region' => CategoriaExamenFisico::OROFARINGUE
+                'region_cuerpo_id' => RegionCuerpo::OROFARINGUE
             ],
             [
                 'nombre' => 'Amígdalas',
-                'region' => CategoriaExamenFisico::OROFARINGUE
+                'region_cuerpo_id' => RegionCuerpo::OROFARINGUE
             ],
             [
                 'nombre' => 'Dentadura',
-                'region' => CategoriaExamenFisico::OROFARINGUE
+                'region_cuerpo_id' => RegionCuerpo::OROFARINGUE
             ],
             [
                 'nombre' => 'Tabique',
-                'region' => CategoriaExamenFisico::NARIZ
+                'region_cuerpo_id' => RegionCuerpo::NARIZ
             ],
             [
                 'nombre' => 'Cornetes',
-                'region' => CategoriaExamenFisico::NARIZ
+                'region_cuerpo_id' => RegionCuerpo::NARIZ
             ],
             [
                 'nombre' => 'Mucosas',
-                'region' => CategoriaExamenFisico::NARIZ
+                'region_cuerpo_id' => RegionCuerpo::NARIZ
             ],
             [
                 'nombre' => 'Senos paranasales',
-                'region' => CategoriaExamenFisico::NARIZ
+                'region_cuerpo_id' => RegionCuerpo::NARIZ
             ],
             [
                 'nombre' => 'Tiroides masas',
-                'region' => CategoriaExamenFisico::CUELLO
+                'region_cuerpo_id' => RegionCuerpo::CUELLO
             ],
             [
                 'nombre' => 'Movilidad',
-                'region' => CategoriaExamenFisico::CUELLO
+                'region_cuerpo_id' => RegionCuerpo::CUELLO
             ],
             [
                 'nombre' => 'Mamás',
-                'region' => CategoriaExamenFisico::TORAX
+                'region_cuerpo_id' => RegionCuerpo::TORAX
             ],
             [
                 'nombre' => 'Corazón',
-                'region' => CategoriaExamenFisico::TORAX
+                'region_cuerpo_id' => RegionCuerpo::TORAX
             ],
             [
                 'nombre' => 'Pulmones',
-                'region' => CategoriaExamenFisico::TORAX
+                'region_cuerpo_id' => RegionCuerpo::TORAX
             ],
             [
                 'nombre' => 'Parrilla costal',
-                'region' => CategoriaExamenFisico::TORAX
+                'region_cuerpo_id' => RegionCuerpo::TORAX
             ],
             [
                 'nombre' => 'Vísceras',
-                'region' => CategoriaExamenFisico::ABDOMEN
+                'region_cuerpo_id' => RegionCuerpo::ABDOMEN
             ],
             [
                 'nombre' => 'Pared abdominal',
-                'region' => CategoriaExamenFisico::ABDOMEN
+                'region_cuerpo_id' => RegionCuerpo::ABDOMEN
             ],
             [
                 'nombre' => 'Flexibilidad',
-                'region' => CategoriaExamenFisico::COLUMNA
+                'region_cuerpo_id' => RegionCuerpo::COLUMNA
             ],
             [
                 'nombre' => 'Desviación',
-                'region' => CategoriaExamenFisico::COLUMNA
+                'region_cuerpo_id' => RegionCuerpo::COLUMNA
             ],
             [
                 'nombre' => 'Dolor',
-                'region' => CategoriaExamenFisico::COLUMNA
+                'region_cuerpo_id' => RegionCuerpo::COLUMNA
             ],
             [
                 'nombre' => 'Pelvis',
-                'region' => CategoriaExamenFisico::PELVIS
+                'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [
                 'nombre' => 'Genitales',
-                'region' => CategoriaExamenFisico::PELVIS
+                'region_cuerpo_id' => RegionCuerpo::PELVIS
             ],
             [
                 'nombre' => 'Vascular',
-                'region' => CategoriaExamenFisico::EXTREMIDADES
+                'region_cuerpo_id' => RegionCuerpo::EXTREMIDADES
             ],
             [
                 'nombre' => 'Miembros superiores',
-                'region' => CategoriaExamenFisico::EXTREMIDADES
+                'region_cuerpo_id' => RegionCuerpo::EXTREMIDADES
             ],
             [
                 'nombre' => 'Miembros inferiores',
-                'region' => CategoriaExamenFisico::EXTREMIDADES
+                'region_cuerpo_id' => RegionCuerpo::EXTREMIDADES
             ],
             [
                 'nombre' => 'Fuerza',
-                'region' => CategoriaExamenFisico::NEUROLOGICO
+                'region_cuerpo_id' => RegionCuerpo::NEUROLOGICO
             ],
             [
                 'nombre' => 'Sensibilidad',
-                'region' => CategoriaExamenFisico::NEUROLOGICO
+                'region_cuerpo_id' => RegionCuerpo::NEUROLOGICO
             ],
             [
                 'nombre' => 'Marcha',
-                'region' => CategoriaExamenFisico::NEUROLOGICO
+                'region_cuerpo_id' => RegionCuerpo::NEUROLOGICO
             ],
             [
                 'nombre' => 'Reflejos',
-                'region' => CategoriaExamenFisico::NEUROLOGICO
+                'region_cuerpo_id' => RegionCuerpo::NEUROLOGICO
             ],
         ]);
     }

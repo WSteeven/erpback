@@ -17,7 +17,7 @@ class MedicacionResource extends JsonResource
         return [
             'nombre'=>$this->nombre,
             'cantidad'=>$this->cantidad,
-            'preocupacional_id'=>$this->preocupacional_id
+            'ficha_preocupacional_id'=>$this->ficha_preocupacional_id
         ];
     }
 }

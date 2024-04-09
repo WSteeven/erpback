@@ -26,7 +26,7 @@ class RevisionActualOrganoSistemaRequest extends FormRequest
         return [
             'organo_sistema_id'=> 'required|exists:med_sistemas_organicos,id',
             'descripcion'=> 'required|string',
-            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
         ];
     }
     protected function prepareForValidation()

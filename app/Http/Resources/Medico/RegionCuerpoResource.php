@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class HabitoToxicoResource extends JsonResource
+class RegionCuerpoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,10 +15,7 @@ class HabitoToxicoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'tipo_habito_toxico' => $this->tipo_habito_toxico_id,
-            'tipo_habito_toxico_info' => $this->tipoHabitoToxico !== null ? $this->tipoHabitoToxico?->nombre:'',
-            'tiempo_consumo' => $this->tiempo_consumo,
+            'nombre' => $this->nombre,
         ];
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_estilos_vida', function (Blueprint $table) {
+        Schema::create('med_actividades_fisicas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_actividad');
             $table->integer('tiempo');
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_estilos_vida');
+        Schema::dropIfExists('med_actividades_fisicas');
     }
 };

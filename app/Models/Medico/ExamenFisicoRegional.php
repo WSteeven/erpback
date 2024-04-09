@@ -15,15 +15,15 @@ class ExamenFisicoRegional extends Model implements Auditable
     protected $table = 'med_examenes_fisicos_regionales';
     protected $fillable = [
         'categoria_examen_fisico_id',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
     public function categoriaexamenFisico(){
         return $this->hasOne(CategoriaExamenFisico::class,'id','categoria_examen_fisico_id');
     }
 
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','preocupacional_id');
     }
 
 }

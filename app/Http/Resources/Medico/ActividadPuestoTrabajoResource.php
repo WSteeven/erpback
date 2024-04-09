@@ -17,7 +17,7 @@ class ActividadPuestoTrabajoResource extends JsonResource
         return [
             'id' =>$this->id,
             'actividad' =>$this->actividad,
-            'preocupacional_id' =>$this->preocupacional_id
+            'ficha_preocupacional_id' =>$this->preocupacional_id
         ];
     }
 }

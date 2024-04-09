@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\EstiloVidaRequest;
-use App\Http\Resources\Medico\EstiloVidaResource;
-use App\Models\Medico\EstiloVida;
+use App\Http\Requests\Medico\ActividadFisicaRequest;
+use App\Http\Resources\Medico\ActividadFisicaResource;
+use App\Models\Medico\ActividadFisica;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class EstiloVidaController extends Controller
+class ActividadFisicaController extends Controller
 {
     private $entidad = 'Estilo de vida';
 
@@ -27,17 +26,17 @@ class EstiloVidaController extends Controller
     public function index()
     {
         $results = [];
-        $results = EstiloVida::ignoreRequest(['campos'])->filter()->get();
+        $results = ActividadFisica::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(EstiloVidaRequest $request)
+    public function store(ActividadFisicaRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $estilo_vida = EstiloVida::create($datos);
-            $modelo = new EstiloVidaResource($estilo_vida);
+            $estilo_vida = ActividadFisica::create($datos);
+            $modelo = new ActividadFisicaResource($estilo_vida);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -50,20 +49,20 @@ class EstiloVidaController extends Controller
         }
     }
 
-    public function show(EstiloVidaRequest $request, EstiloVida $estilo_vida)
+    public function show(ActividadFisicaRequest $request, ActividadFisica $estilo_vida)
     {
-        $modelo = new EstiloVidaResource($estilo_vida);
+        $modelo = new ActividadFisicaResource($estilo_vida);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(EstiloVidaRequest $request, EstiloVida $estilo_vida)
+    public function update(ActividadFisicaRequest $request, ActividadFisica $estilo_vida)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $estilo_vida->update($datos);
-            $modelo = new EstiloVidaResource($estilo_vida->refresh());
+            $modelo = new ActividadFisicaResource($estilo_vida->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -76,7 +75,7 @@ class EstiloVidaController extends Controller
         }
     }
 
-    public function destroy(EstiloVidaRequest $request, EstiloVida $estilo_vida)
+    public function destroy(ActividadFisicaRequest $request, ActividadFisica $estilo_vida)
     {
         try {
             DB::beginTransaction();

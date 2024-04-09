@@ -24,12 +24,12 @@ class ConstanteVital extends Model implements Auditable
         'talla',
         'indice_masa_corporal',
         'perimetro_abdominal',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
 
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 
 }

@@ -15,11 +15,14 @@ return new class extends Migration
     {
         Schema::create('med_revisiones_actuales_organos_sistemas', function (Blueprint $table) {
             $table->id();
+
+            //ForeingKey
             $table->unsignedBigInteger('organo_sistema_id');
-            $table->text('descripcion');
+            $table->foreign('organo_sistema_id', 'fk_organos_sistema')->on('med_sistemas_organicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('organo_sistema_id','fk_organos_sistema')->on('med_sistemas_organicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('preocupacional_id','fk_preocupacional')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id', 'fk_preocupacional')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
             $table->timestamps();
         });
     }

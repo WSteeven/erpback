@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('ficha_preocupacional_id');
             // $table->foreign('tipo_factor_riesgo_id')->on('med_tipos_factores_riesgos')->references('id')->cascadeOnUpdate();
             $table->foreign('categoria_factor_riesgo_id')->on('med_categorias_factores_riesgos')->references('id')->cascadeOnUpdate();
-            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnUpdate();
             $table->timestamps();
         });
     }

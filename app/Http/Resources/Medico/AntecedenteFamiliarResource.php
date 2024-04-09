@@ -18,7 +18,7 @@ class AntecedenteFamiliarResource extends JsonResource
             'id'=>$this->id,
             'tipo_antecedente_familiares' => $this->tipo_antecedente_familiar_id,
             'tipo_antecedente_familiares_info' => $this->tipoAntecedenteFamiliar !== null? $this->tipoAntecedenteFamiliar->nombre:' ',
-            'preocupacional_id'=> $this->preocupacional_id,
+            'ficha_preocupacional_id'=> $this->ficha_preocupacional_id,
         ];
     }
 }

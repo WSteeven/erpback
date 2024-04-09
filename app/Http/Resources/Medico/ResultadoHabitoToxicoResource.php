@@ -4,7 +4,7 @@ namespace App\Http\Resources\Medico;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ExamenEspecificoResource extends JsonResource
+class ResultadoHabitoToxicoResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,9 @@ class ExamenEspecificoResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'examen'=> $this->examen,
-            'fecha'=> $this->fecha,
-            'resultados'=> $this->resultados,
-            'preocupacional_id'=> $this->preocupacional_id,
+            'tipo_habito_toxico' => $this->tipo_habito_toxico_id,
+            'tipo_habito_toxico_info' => $this->tipoHabitoToxico !== null ? $this->tipoHabitoToxico?->nombre:'',
+            'tiempo_consumo' => $this->tiempo_consumo,
         ];
     }
 }
