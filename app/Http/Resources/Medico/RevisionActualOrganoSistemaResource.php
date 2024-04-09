@@ -19,7 +19,7 @@ class RevisionActualOrganoSistemaResource extends JsonResource
             'organo_sistema' => $this->organo_sistema_id,
             'organo_sistema_info' => $this->organoSistema !== null ?  $this->organoSistema?->nombre : ' ',
             'descripcion' => $this->descripcion,
-            'preocupacional_id' => $this->preocupacional_id
+            'ficha_preocupacional_id' => $this->ficha_preocupacional_id
         ];
     }
 }

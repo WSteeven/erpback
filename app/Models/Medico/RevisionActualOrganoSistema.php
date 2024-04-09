@@ -17,15 +17,15 @@ class RevisionActualOrganoSistema extends Model implements Auditable
     protected $fillable = [
         'organo_sistema_id',
         'descripcion',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
     public function organoSistema(){
         return $this->hasOne(SistemaOrganico::class,'id','organo_sistema_id');
     }
 
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 
 }

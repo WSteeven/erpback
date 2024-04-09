@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('empresa');
             $table->text('puesto_trabajo');
             $table->text('actividades_desempenaba');
-            $table->integer('tiempo_tabajo');
+            $table->integer('tiempo_trabajo_meses');
             $table->string('r_fisico');
             $table->string('r_mecanico');
             $table->string('r_quimico');
@@ -29,7 +29,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

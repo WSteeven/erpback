@@ -20,7 +20,7 @@ class FactorRiesgoResource extends JsonResource
             'tipo_factor_riesgo_info' => $this->tipoFactorRiesgo !== null ? $this->tipoFactorRiesgo?->nombre:' ',
             'categoria_factor_riesgo' => $this->categoria_factor_riesgo_id,
             'categoria_factor_riesgo_info' => $this->categoriaFactorRiesgo !== null ? $this->categoriaFactorRiesgo?->nombre:' ' ,
-            'preocupacional_id' => $this->preocupacional_id,
+            'ficha_preocupacional_id' => $this->ficha_preocupacional_id,
         ];
     }
 }

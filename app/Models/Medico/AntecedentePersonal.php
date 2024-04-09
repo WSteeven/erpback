@@ -20,17 +20,17 @@ class AntecedentePersonal extends Model implements Auditable
         'vida_sexual_activa',
         'tiene_metodo_planificacion_familiar',
         'tipo_metodo_planificacion_familiar',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
-    public function preocupacional()
+    public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
     }
     public function antecedenteGinecoobstetrico()
     {
         return $this->hasOne(AntecedenteGinecoObstetrico::class, 'antecedentes_personales_id', 'id');
     }
-    public function examenPreocupacional(){
-        return $this->hasOne(ExamenPreocupacional::class,'antecedentes_personales_id', 'id');
+    public function examenfichaPreocupacional(){
+        return $this->hasOne(ResultadoExamenPreocupacional::class,'antecedentes_personales_id', 'id');
     }
 }

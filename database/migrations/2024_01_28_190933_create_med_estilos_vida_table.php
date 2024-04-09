@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('med_estilos_vida', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_actividad');
+            $table->string('actividades_fisicas');
             $table->integer('tiempo');
 
             // Foreign keys

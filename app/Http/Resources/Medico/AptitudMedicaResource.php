@@ -19,7 +19,7 @@ class AptitudMedicaResource extends JsonResource
             'tipo_aptitud_info' => $this->tipoAptitud !==null ? $this->tipoAptitud?->nombre:'',
             'observacion' => $this->observacion,
             'limitacion' => $this->limitacion,
-            'preocupacional_id' => $this->preocupacional_id,
+            'ficha_preocupacional_id' => $this->ficha_preocupacional_id,
         ];
     }
 }

@@ -28,7 +28,7 @@ class AptitudMedicaRequest extends FormRequest
             'presion_arterial'=> 'required',
             'observacion'=> 'required',
             'limitacion'=> 'required',
-            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
 
         ];
     }

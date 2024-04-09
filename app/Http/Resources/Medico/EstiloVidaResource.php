@@ -15,9 +15,9 @@ class EstiloVidaResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'nombre_actividad' => $this->nombre_actividad,
+            'actividades_fisicas' => $this->actividades_fisicas,
             'tiempo' => $this->tiempo,
-            'preocupacional' => $this->preocupacional_id
+            'ficha_preocupacional' => $this->ficha_preocupacional_id
         ];
     }
 }

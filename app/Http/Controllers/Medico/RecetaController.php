@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\PreocupacionalRequest;
+use App\Http\Requests\Medico\RecetaRequest;
 use App\Http\Resources\Medico\RecetaResource;
 use App\Models\Medico\Receta;
 use Exception;
@@ -13,7 +13,7 @@ use Src\Shared\Utils;
 
 class RecetaController extends Controller
 {
-    private $entidad = 'Preocupacional';
+    private $entidad ='Receta';
 
     public function __construct()
     {
@@ -40,7 +40,7 @@ class RecetaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(PreocupacionalRequest $request)
+    public function store(RecetaRequest  $request)
     {
         try {
             $datos = $request->validated();
@@ -78,7 +78,7 @@ class RecetaController extends Controller
      * @param  Receta  $receta
      * @return \Illuminate\Http\Response
      */
-    public function update(PreocupacionalRequest $request,Receta $receta)
+    public function update(RecetaRequest $request,Receta $receta)
     {
         try {
             DB::beginTransaction();

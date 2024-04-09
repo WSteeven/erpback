@@ -16,14 +16,14 @@ class AntecedenteFamiliar extends Model implements Auditable
     protected $table = 'med_antecedentes_familiares';
     protected $fillable = [
         'tipo_antecedente_familiar_id',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
     public function tipoAntecedenteFamiliar()
     {
         return $this->hasOne(TipoAntecedenteFamiliar::class, 'id', 'tipo_antecedente_familiares_id');
     }
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 }
 

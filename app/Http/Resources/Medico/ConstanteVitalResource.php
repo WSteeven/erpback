@@ -26,7 +26,7 @@ class ConstanteVitalResource extends JsonResource
             'talla'=>$this->talla,
             'indice_masa_corporal'=>$this->indice_masa_corporal,
             'perimetro_abdominal'=>$this->perimetro_abdominal,
-            'preocupacional_id'=>$this->preocupacional_id,
+            'ficha_preocupacional_id'=>$this->ficha_preocupacional_id,
         ];
     }
 }

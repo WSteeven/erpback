@@ -42,26 +42,24 @@ class FichaPreocupacionalController extends Controller
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $preocupacional = FichaPreocupacional::create($datos);
-            $preocupacional_service = new FichaPreocupacionalService($preocupacional->id);
-            $preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
-            $preocupacional_service->agregarEstiloVida($request->estilos_vida);
-            $preocupacional_service->agregarMedicacion($request->medicaciones);
-            $preocupacional_service->agregarActividadPuestoTrabajo($request->actividades_puestos_trabajos);
-            $preocupacional_service->agregarExamenesExpecificos($request->examenes_especificos);
-            $preocupacional_service->agregarDiagnosticos($request->diagnosticos);
-            $preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
-            $preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
+            $ficha_preocupacional = FichaPreocupacional::create($datos);
+            $ficha_preocupacional_service = new FichaPreocupacionalService($ficha_preocupacional->id);
+            $ficha_preocupacional_service->agregarHabitosToxicos($request->habitos_toxicos);
+            $ficha_preocupacional_service->agregarEstiloVida($request->estilos_vida);
+            $ficha_preocupacional_service->agregarMedicacion($request->medicaciones);
+            $ficha_preocupacional_service->agregarActividadPuestoTrabajo($request->actividades_puestos_trabajos);
+            $ficha_preocupacional_service->agregarAntecedentesEmpleosAnteriores($request->antecedentes_empleos_anteriores);
+            $ficha_preocupacional_service->insertarAntecedentesPersonales(new AntecedentePersonal([
                 'antecedentes_quirorgicos' => $request->antecedentes_quirorgicos,
                 'vida_sexual_activa' => $request->vida_sexual_activa,
                 'tiene_metodo_planificacion_familiar' => $request->tiene_metodo_planificacion_familiar,
                 'tipo_metodo_planificacion_familiar' => $request->tipo_metodo_planificacion_familiar,
             ]));
-            $preocupacional_service->agregarExamenes($request->examenes);
-            $empleado = Empleado::find($preocupacional->empleado_id);
+            $ficha_preocupacional_service->agregarExamenes($request->examenes);
+            $empleado = Empleado::find($ficha_preocupacional->empleado_id);
             $genero = $empleado?->genero;
             if ($genero === 'F') {
-                $preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
+                $ficha_preocupacional_service->insertarAntecedentesGinecoObstetricos(new AntecedenteGinecoObstetrico([
                     'menarquia' => $request->menarquia,
                     'ciclos' => $request->ciclos,
                     'fecha_ultima_menstruacion' => $request->fecha_ultima_menstruacion,
@@ -73,7 +71,7 @@ class FichaPreocupacionalController extends Controller
                     'hijos_muertos' => $request->hijos_muertos,
                 ]));
             }
-            $preocupacional_service->insertarDescripcionAntecedenteTrabajo(
+            $ficha_preocupacional_service->insertarDescripcionAntecedenteTrabajo(
                 new DescripcionAntecedenteTrabajo([
                     'calificado_iess' => $request->calificado_iess,
                     'descripcion' => $request->descripcion,
@@ -82,7 +80,7 @@ class FichaPreocupacionalController extends Controller
                     'tipo_descripcion_antecedente_trabajo' => $request->tipo_descripcion_antecedente_trabajo,
                 ])
             );
-            $preocupacional_service->insertarConstanteVital(new ConstanteVital([
+            $ficha_preocupacional_service->insertarConstanteVital(new ConstanteVital([
                 'presion_arterial' => $request->presion_arterial,
                 'temperatura' => $request->temperatura,
                 'frecuencia_cardiaca' => $request->frecuencia_cardiaca,
@@ -94,8 +92,8 @@ class FichaPreocupacionalController extends Controller
                 'indice_masa_corporal' => $request->indice_masa_corporal,
                 'perimetro_abdominal' => $request->perimetro_abdominal,
             ]));
-            $modelo = new FichaPreocupacionalResource($preocupacional);
-            $this->tabla_roles($preocupacional);
+            $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
+            $this->tabla_roles($ficha_preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -108,20 +106,20 @@ class FichaPreocupacionalController extends Controller
         }
     }
 
-    public function show(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
+    public function show(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
     {
-        $modelo = new FichaPreocupacionalResource($preocupacional);
+        $modelo = new FichaPreocupacionalResource($ficha_preocupacional);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
+    public function update(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
-            $preocupacional->update($datos);
-            $modelo = new FichaPreocupacionalResource($preocupacional->refresh());
+            $ficha_preocupacional->update($datos);
+            $modelo = new FichaPreocupacionalResource($ficha_preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -134,11 +132,11 @@ class FichaPreocupacionalController extends Controller
         }
     }
 
-    public function destroy(FichaPreocupacionalRequest $request, FichaPreocupacional $preocupacional)
+    public function destroy(FichaPreocupacionalRequest $request, FichaPreocupacional $ficha_preocupacional)
     {
         try {
             DB::beginTransaction();
-            $preocupacional->delete();
+            $ficha_preocupacional->delete();
             $mensaje = Utils::obtenerMensaje($this->entidad, 'destroy');
             DB::commit();
             return response()->json(compact('mensaje'));

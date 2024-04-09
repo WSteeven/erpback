@@ -18,7 +18,7 @@ class AntecedenteTrabajoAnteriorResource extends JsonResource
             'id'=>$this->id,
             'puesto_trabajo' => $this->puesto_trabajo,
             'actividades_desempenaba' => $this->actividades_desempenaba,
-            'tiempo_tabajo'=>$this->tiempo_tabajo,
+            'tiempo_trabajo_meses'=>$this->tiempo_trabajo_meses,
             'r_fisico'=>$this->r_fisico,
             'r_mecanico'=>$this->r_mecanico,
             'r_quimico'=>$this->r_quimico,
@@ -26,7 +26,7 @@ class AntecedenteTrabajoAnteriorResource extends JsonResource
             'r_ergonomico'=>$this->r_ergonomico,
             'r_phisosocial'=>$this->r_phisosocial,
             'observacion'=>$this->observacion,
-            'preocupacional_id'=>$this->preocupacional_id,
+            'ficha_preocupacional_id'=>$this->ficha_preocupacional_id,
         ];
     }
 }

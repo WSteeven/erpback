@@ -29,7 +29,7 @@ class DescripcionAntecedenteTrabajoRequest extends FormRequest
             'fecha' => 'required|string',
             'observacion' => 'required|string',
             'tipo_descripcion_antecedente_trabajo' => 'required|string',
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
         ];
     }
 }

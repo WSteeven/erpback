@@ -16,12 +16,12 @@ class ResultadoHabitoToxico extends Model implements Auditable
     protected $fillable = [
         'tipo_habito_toxico_id',
         'tiempo_consumo',
-        'preocupacional_id'
+        'ficha_preocupacional_id'
     ];
     public function tipoHabitoToxico(){
         return $this->hasOne(TipoHabitoToxico::class,'id','tipo_habito_toxico_id');
     }
-    public function preocupacional(){
-        return $this->hasOne(FichaPreocupacional::class,'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class,'id','ficha_preocupacional_id');
     }
 }

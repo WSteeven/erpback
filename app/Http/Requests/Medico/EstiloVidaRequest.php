@@ -24,8 +24,8 @@ class EstiloVidaRequest extends FormRequest
     public function rules()
     {
         return [
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
-            'nombre_actividad' => 'required|string',
+            'ficha_ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'actividades_fisicas' => 'required|string',
             'tiempo' => 'required',
         ];
     }

@@ -17,7 +17,7 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
         'empresa',
         'puesto_trabajo',
         'actividades_desempenaba',
-        'tiempo_tabajo',
+        'tiempo_trabajo_meses',
         'r_fisico',
         'r_mecanico',
         'r_quimico',
@@ -25,10 +25,11 @@ class AntecedenteTrabajoAnterior extends Model implements Auditable
         'r_ergonomico',
         'r_phisosocial',
         'observacion',
-        'preocupacional_id'
+        'tiempo_trabajo_meses',
+        'ficha_preocupacional_id'
     ];
-    public function preocupacional()
+    public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id', 'ficha_preocupacional_id');
     }
 }

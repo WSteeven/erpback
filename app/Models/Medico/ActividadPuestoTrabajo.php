@@ -16,10 +16,10 @@ class ActividadPuestoTrabajo extends Model implements Auditable
     protected $table = 'med_actividades_puestos_trabajos';
     protected $fillable = [
         'actividad',
-        'preocupacional_id',
+        'ficha_preocupacional_id',
     ];
 
-    public function preocupacional(){
-        return $this->hasOne(Preocupacional::class, 'id','preocupacional_id');
+    public function fichaPreocupacional(){
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 }

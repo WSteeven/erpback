@@ -20,10 +20,10 @@ class DescripcionAntecedenteTrabajo extends Model implements Auditable
         'fecha',
         'observacion',
         'tipo_descripcion_antecedente_trabajo',
-        'preocupacional_id'
+        'ficha_preocupacional_id'
     ];
-    public function preocupacional()
+    public function fichaPreocupacional()
     {
-        return $this->hasOne(Preocupacional::class, 'id', 'preocupacional_id');
+        return $this->hasOne(Preocupacional::class, 'id', 'ficha_preocupacional_id');
     }
 }

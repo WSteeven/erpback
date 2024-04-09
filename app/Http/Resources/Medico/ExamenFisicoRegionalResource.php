@@ -18,7 +18,7 @@ class ExamenFisicoRegionalResource extends JsonResource
             'id' => $this->id,
             'categoria_examen_fisico' => $this->categoria_examen_fisico_id,
             'categoria_examen_fisico_info' => $this->categoriaExamenFisico !== null ? $this->categoriaExamenFisico?->nombre:'',
-            'preocupacional_id' => $this->preocupacional_id
+            'ficha_preocupacional_id' => $this->ficha_preocupacional_id
         ];
     }
 }

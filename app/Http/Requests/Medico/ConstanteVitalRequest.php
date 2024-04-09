@@ -34,7 +34,7 @@ class ConstanteVitalRequest extends FormRequest
             'talla'=> 'required',
             'indice_masa_corporal'=> 'required',
             'perimetro_abdominal'=> 'required',
-            'preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
         ];
 
     }

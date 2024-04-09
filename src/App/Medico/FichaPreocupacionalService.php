@@ -2,47 +2,38 @@
 
 namespace Src\App\Medico;
 
-use App\Models\Empleado;
-use App\Models\MaterialEmpleado;
-use App\Models\MaterialEmpleadoTarea;
+
 use App\Models\Medico\ActividadPuestoTrabajo;
 use App\Models\Medico\AntecedenteGinecoObstetrico;
 use App\Models\Medico\AntecedentePersonal;
 use App\Models\Medico\AntecedenteTrabajoAnterior;
 use App\Models\Medico\ConstanteVital;
 use App\Models\Medico\DescripcionAntecedenteTrabajo;
-use App\Models\Medico\Diagnostico;
-use App\Models\Medico\EstadoSolicitudExamen;
 use App\Models\Medico\EstiloVida;
-use App\Models\Medico\Examen;
-use App\Models\Medico\ExamenEspecifico;
-use App\Models\Medico\ExamenPreocupacional;
-use App\Models\Medico\HabitoToxico;
 use App\Models\Medico\Medicacion;
 use App\Models\Medico\FichaPreocupacional;
-use App\Models\Proyecto;
-use App\Models\Subtarea;
-use App\Models\Tarea;
-use Illuminate\Support\Facades\Log;
+use App\Models\Medico\ResultadoExamenPreocupacional;
+use App\Models\Medico\ResultadoHabitoToxico;
+
 
 class FichaPreocupacionalService
 {
-    private $preocupacional_id;
+    private $ficha_preocupacional_id;
     private $preocupacional;
     private $antecedente_personal;
-    public function __construct($preocupacional_id)
+    public function __construct($ficha_preocupacional_id)
     {
-        $this->preocupacional_id = $preocupacional_id;
-        $this->preocupacional = FichaPreocupacional::find($preocupacional_id);
+        $this->ficha_preocupacional_id = $ficha_preocupacional_id;
+        $this->preocupacional = FichaPreocupacional::find($ficha_preocupacional_id);
     }
 
     public function agregarHabitosToxicos(array $habitos_toxicos)
     {
         foreach ($habitos_toxicos as $key => $value) {
-            HabitoToxico::create(array(
+            ResultadoHabitoToxico::create(array(
                 'tipo_habito_toxico_id' => $value->tipo_habito_toxico,
                 'tiempo_consumo' => $value->$value->tiempo_consumo,
-                'preocupacional_id' => $this->preocupacional_id
+                'ficha_preocupacional_id' => $this->ficha_preocupacional_id
             ));
         }
     }
@@ -50,9 +41,9 @@ class FichaPreocupacionalService
     {
         foreach ($estilos_vida as $key => $value) {
             EstiloVida::create(array(
-                'nombre_actividad' => $value->nombre_actividad,
+                'actividades_fisicas' => $value->actividades_fisicas,
                 'tiempo' => $value->$value->tiempo,
-                'preocupacional_id' => $this->preocupacional_id
+                'ficha_preocupacional_id' => $this->ficha_preocupacional_id
             ));
         }
     }
@@ -63,7 +54,7 @@ class FichaPreocupacionalService
                 [
                     'nombre' => $value->nombre,
                     'cantidad' => $value->cantidad,
-                    'preocupacional_id' => $this->preocupacional_id
+                    'ficha_preocupacional_id' => $this->ficha_preocupacional_id
                 ]
             ));
         }
@@ -73,32 +64,11 @@ class FichaPreocupacionalService
         foreach ($actividades_puestos_trabajos as $key => $value) {
             ActividadPuestoTrabajo::create(array([
                 'actividad' => $value->actividad,
-                'preocupacional_id' => $this->preocupacional_id
+                'ficha_preocupacional_id' => $this->ficha_preocupacional_id
             ]));
         }
     }
-    public function agregarExamenesExpecificos(array $examenes_especificos)
-    {
-        foreach ($examenes_especificos as $key => $value) {
-            ExamenEspecifico::create(array([
-                'examen' => $value->examen,
-                'fecha' => $value->fecha,
-                'resultados' => $value->resultados,
-                'preocupacional_id' => $this->preocupacional_id
-            ]));
-        }
-    }
-    public function agregarDiagnosticos(array $diagnosticos)
-    {
-        foreach ($diagnosticos as $key => $value) {
-            Diagnostico::create(array([
-                'examen' => $value->examen,
-                'fecha' => $value->fecha,
-                'resultados'    => $value->resultados,
-                'preocupacional_id' => $this->preocupacional_id
-            ]));
-        }
-    }
+
     public function agregarAntecedentesEmpleosAnteriores(array $antecedentes_empleos_anteriores)
     {
         foreach ($antecedentes_empleos_anteriores as $key => $value) {
@@ -107,7 +77,7 @@ class FichaPreocupacionalService
                     'empresa' => $value->empresa,
                     'puesto_trabajo' => $value->puesto_trabajo,
                     'actividades_desempenaba'   => $value->actividades_desempen,
-                    'tiempo_tabajo' => $value->tiempo_tabajo,
+                    'tiempo_trabajo_meses' => $value->tiempo_trabajo_meses,
                     'r_fisico' => $value->r_fisico,
                     'r_mecanico' => $value->r_mecanico,
                     'r_quimico' => $value->r_quimico,
@@ -115,7 +85,7 @@ class FichaPreocupacionalService
                     'r_ergonomico' => $value->r_ergonomico,
                     'r_phisosocial' => $value->r_phisosocial,
                     'observacion' => $value->observacion,
-                    'preocupacional_id' => $this->preocupacional_id
+                    'ficha_preocupacional_id' => $this->ficha_preocupacional_id
                 ]
             ));
         }
@@ -123,13 +93,13 @@ class FichaPreocupacionalService
 
     public function insertarAntecedentesPersonales(AntecedentePersonal $antecedente_personal)
     {
-        $antecedente_personal->preocupacional_id =  $this->preocupacional_id;
+        $antecedente_personal->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
         $this->antecedente_personal = $antecedente_personal->save();
     }
     public function agregarExamenes(array $examenes)
     {
         foreach ($examenes as $key => $value) {
-            ExamenPreocupacional::create(array(
+            ResultadoExamenPreocupacional::create(array(
                 'nombre' => $value->nombre,
                 'tiempo' => $value->tiempo,
                 'resultados' => $value->resultados,
@@ -140,17 +110,17 @@ class FichaPreocupacionalService
     }
     public function insertarAntecedentesGinecoObstetricos(AntecedenteGinecoObstetrico $antecedente_gineco_obstetrico)
     {
-        $antecedente_gineco_obstetrico->preocupacional_id =  $this->antecedente_personal?->id;
+        $antecedente_gineco_obstetrico->ficha_preocupacional_id =  $this->antecedente_personal?->id;
         $antecedente_gineco_obstetrico->save();
     }
     public function insertarDescripcionAntecedenteTrabajo(DescripcionAntecedenteTrabajo $descripcion_antecedente_trabajo)
     {
-        $descripcion_antecedente_trabajo->preocupacional_id =  $this->preocupacional_id;
+        $descripcion_antecedente_trabajo->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
         $descripcion_antecedente_trabajo->save();
     }
     public function insertarConstanteVital(ConstanteVital $constante_vital)
     {
-        $constante_vital->preocupacional_id =  $this->preocupacional_id;
+        $constante_vital->ficha_preocupacional_id =  $this->ficha_preocupacional_id;
         $constante_vital->save();
     }
 }

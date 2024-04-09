@@ -27,7 +27,7 @@ class AntecedenteTrabajoAnteriorRequest extends FormRequest
             'empresa' => 'required|string',
             'puesto_trabajo' => 'required|string',
             'actividades_desempenaba' => 'required|string',
-            'tiempo_tabajo' => 'required|string',
+            'tiempo_trabajo_meses' => 'required|integer',
             'r_fisico' => 'required|string',
             'r_mecanico' => 'required|string',
             'r_quimico' => 'required|string',
@@ -35,7 +35,7 @@ class AntecedenteTrabajoAnteriorRequest extends FormRequest
             'r_ergonomico' => 'required|string',
             'r_phisosocial' => 'required|string',
             'observacion' => 'required|string',
-            'preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
         ];
     }
 }
