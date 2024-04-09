@@ -2,6 +2,7 @@
 
 namespace App\Models\Medico;
 
+use App\ModelFilters\Medico\FichaAptitudFilter;
 use App\Traits\UppercaseValuesTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 
 class FichaAptitud extends Model implements Auditable
 {
-    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable;
+    use HasFactory, UppercaseValuesTrait, AuditableModel, Filterable, FichaAptitudFilter;
 
     protected $table = 'med_fichas_aptitudes';
     protected $fillable = [
@@ -38,7 +39,8 @@ class FichaAptitud extends Model implements Auditable
 
     public function profesionalSalud()
     {
-        return $this->hasOne(ProfesionalSalud::class, 'id', 'ficha_aptitud_id');
+        return $this->belongsTo(ProfesionalSalud::class, 'id', '');//, 'id', 'ficha_aptitud_id');
+        // return $this->hasOne(ProfesionalSalud::class, 'id', 'ficha_aptitud_id');
     }
 
     public function opcionesRespuestasTipoEvaluacionMedicaRetiro()

@@ -74,19 +74,32 @@ class FichaAptitudController extends Controller
 
     public function update(FichaAptitudRequest $request, FichaAptitud $ficha_aptitud)
     {
+        Log::channel('testing')->info('Dentro de update... ');
         try {
-            DB::beginTransaction();
-            $datos = $request->validated();
-            $ficha_aptitud->update($datos);
+            Log::channel('testing')->info('Dentro de update try... ');
+            // DB::beginTransaction();
+
+            // if ($request->isMethod('patch')) {
+            $keys = $request->keys();
+            Log::channel('testing')->info('Dentro de update... ', [$keys]);
+            unset($keys['id']);
+            // Log::channel('testing')->info('Keys ' . $request->keys());
+            // Log::channel('testing')->info('Keys only ' . $request->only($request->keys()));
+            $ficha_aptitud->update($request->only($request->keys()));
+            // }
+
+            // $datos = $request->validated();
+            // $ficha_aptitud->update($datos);
             $modelo = new FichaAptitudResource($ficha_aptitud->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
-            DB::commit();
+
+            // DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
         } catch (Exception $e) {
             DB::rollBack();
-            throw ValidationException::withMessages([
+            /*throw ValidationException::withMessages([
                 'Error al insertar registro' => [$e->getMessage()],
-            ]);
+            ]);*/
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de ficha de aptitud' . $e->getMessage() . ' ' . $e->getLine()], 422);
         }
     }
@@ -113,6 +126,7 @@ class FichaAptitudController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         $resource = new FichaAptitudResource($ficha_aptitud);
         $empleado = Empleado::find($ficha_aptitud->registroEmpleadoExamen->empleado_id);
+        $profesionalSalud = ProfesionalSalud::find($ficha_aptitud->profesional_salud_id);
 
         $respuestasTiposEvaluacionesMedicasRetiros = [
             ['SI', 'NO'],
@@ -141,6 +155,10 @@ class FichaAptitudController extends Controller
             'empleado' => $empleado,
             'opcionesRespuestasTipoEvaluacionMedicaRetiro' => $opcionesRespuestasTipoEvaluacionMedicaRetiro,
             'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
+            'profesionalSalud' => $profesionalSalud,
+            'firmaProfesionalMedico' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->empleado->firma_url, 1))),
+            'firmaPaciente' => 'data:image/png;base64,' . base64_encode(file_get_contents(substr($ficha_aptitud->registroEmpleadoExamen->empleado->firma_url, 1))),
+            'tipo_proceso_examen' => $ficha_aptitud->registroEmpleadoExamen->tipo_proceso_examen,
         ];
 
         try {

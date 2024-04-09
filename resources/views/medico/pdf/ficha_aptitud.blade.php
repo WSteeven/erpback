@@ -4,6 +4,9 @@
     $logo_principal =
         'data:image/png;base64,' . base64_encode(file_get_contents(public_path() . $configuracion['logo_claro']));
     $num_registro = 1;
+
+    // $firma_profesional_salud = 'data:image/png;base64,' . base64_encode(file_get_contents(substr($profesionalSalud->firma_url, 1)));
+
 @endphp
 
 <head>
@@ -13,7 +16,8 @@
     <title>FICHA DE APTITUD</title>
     <style>
         @page {
-            margin: 80px 40px 0 40px; /* 15px 10px 15px;*/
+            margin: 80px 40px 0 40px;
+            /* 15px 10px 15px;*/
         }
 
         /** Definir las reglas del encabezado **/
@@ -217,14 +221,36 @@
     <div class="border mb-8">
         <div class="pa-8 font-text">
             <span style="margin-right: 24px; display: inline-block;">FECHA DE EMISIÓN:</span> <span
-                class="cuadrado">2024</span><span class="cuadrado">04</span><span class="cuadrado">20</span>
+                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->year }}</span><span
+                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('m') }}</span><span
+                class="cuadrado">{{ $ficha_aptitud['fecha_emision']->format('d') }}</span>
         </div>
         <div class="pa-8 font-text row items-center">
             <span style="margin-right: 24px; display: inline-block;">EVALUACIÓN:</span>
-            <span class="mr-4">INGRESO</span><span class="cuadrado" style="margin-right: 60px;">X</span>
-            <span class="mr-4">PERIÓDICO</span><span class="cuadrado mr-8" style="margin-right: 60px;">&nbsp;&nbsp;</span>
-            <span class="mr-4">REINTEGRO</span><span class="cuadrado mr-8" style="margin-right: 60px;">&nbsp;&nbsp;</span>
-            <span class="mr-4">RETIRO</span><span class="cuadrado mr-8">&nbsp;&nbsp;</span>
+            <span class="mr-4">INGRESO</span>
+            @if ($tipo_proceso_examen === 'INGRESO')
+                <span class="cuadrado mr-8">{{ 'X' }}</span>
+            @else
+                <span class="cuadrado mr-8">&nbsp;&nbsp;</span>
+            @endif
+            <span class="mr-4">PERIÓDICO</span>
+            @if ($tipo_proceso_examen === 'PERIODICO')
+                <span class="cuadrado mr-8">{{ 'X' }}</span>
+            @else
+                <span class="cuadrado mr-8">&nbsp;&nbsp;</span>
+            @endif
+            <span class="mr-4">REINTEGRO</span>
+            @if ($tipo_proceso_examen === 'REINTEGRO')
+                <span class="cuadrado mr-8">{{ 'X' }}</span>
+            @else
+                <span class="cuadrado mr-8">&nbsp;&nbsp;</span>
+            @endif
+            <span class="mr-4">RETIRO</span>
+            @if ($tipo_proceso_examen === 'RETIRO')
+                <span class="cuadrado mr-8">{{ 'X' }}</span>
+            @else
+                <span class="cuadrado mr-8">&nbsp;&nbsp;</span>
+            @endif
         </div>
     </div>
 
@@ -296,14 +322,23 @@
     {{-- F. DATOS DEL PROFESIONAL DE SALUD --}}
     <span style="width: 72%; display: inline-block;" class="border mr-8">
         <div class="titulo-seccion">F. DATOS DEL PROFESIONAL DE SALUD</div>
-        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0" >
+        <table style="table-layout:fixed; width: 100%;" border="1" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="bg-green font-text-10" style="padding: 6px;">NOMBRE Y APELLIDO</td>
-                <td style="width: 20%">&nbsp;</td>
+                <td style="width: 20%">
+                    {{ $profesionalSalud->empleado->nombres . ' ' . $profesionalSalud->empleado->apellidos }}</td>
                 <td class="bg-green font-text-10">CÓDIGO</td>
-                <td style="width: 20%">&nbsp;</td>
+                <td style="width: 20%">{{ $profesionalSalud->codigo }}</td>
                 <td class="bg-green font-text-10">FIRMA Y SELLO</td>
-                <td style="width: 20%">&nbsp;</td>
+                <td style="width: 20%">
+                    @isset($firmaProfesionalMedico)
+                        <img src="{{ $firmaProfesionalMedico }}" alt="" width="100%" height="40">
+                    @endisset
+                    @empty($firmaProfesionalMedico)
+                        &nbsp;<br />
+                    @endempty
+                </td>
+                {{-- <td style="width: 20%">&nbsp;</td> --}}
             </tr>
         </table>
     </span>
@@ -311,7 +346,14 @@
     {{-- G. FIRMA DEL USUARIO --}}
     <span style="width: 25%; display: inline-block;" class="border">
         <div class="titulo-seccion">G. FIRMA DEL USUARIO</div>
-        <div class="pa-12">&nbsp;</div>
+        <div class="pa-12">
+            @isset($firmaPaciente)
+                <img src="{{ $firmaPaciente }}" alt="" width="100%" height="40">
+            @endisset
+            @empty($firmaPaciente)
+                &nbsp;<br />
+            @endempty
+        </div>
     </span>
 
     <footer>
