@@ -137,8 +137,7 @@
                                                 </div>
                                             </td>
                                             <td style="font-size:10px">
-                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}
-                                                </div>
+                                                <div align="center">{{ date('d-m-Y', strtotime($gasto['fecha'])) }}</div>
                                             </td>
                                             @if ($subtitulo == '' || $tipo_filtro != 3)
                                                 <td style="font-size:10px">
@@ -160,10 +159,8 @@
                                             <td style="font-size:10px">
                                                 <div align="left">{{ $gasto['detalle_estado'] }}</div>
                                             </td>
-                                            <td style="font-size:10px; word-wrap: break-word;">
-                                                {{ $gasto['centro_costo'] }}</td>
-                                            <td style="font-size:10px; word-wrap: break-word;">
-                                                {{ $gasto['sub_centro_costo'] }}</td>
+                                            <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['centro_costo'] }}</td>
+                                            <td style="font-size:10px; word-wrap: break-word;">{{ $gasto['sub_centro_costo'] }}</td>
                                             <td style="font-size:10px" width="29%">
                                                 <div align="left">
                                                     {{ $gasto['autorizador'] }}

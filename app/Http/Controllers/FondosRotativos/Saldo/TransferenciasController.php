@@ -195,7 +195,7 @@ class TransferenciasController extends Controller
                 $transferencia->save();
                 $modelo = new TransferenciaResource($transferencia);
                 event(new TransferenciaSaldoEvent($transferencia));
-                event(new TransferenciaSaldoContabilidadEvent($modelo));
+                event(new TransferenciaSaldoContabilidadEvent($transferencia));
                 DB::commit();
             } else {
                 throw ValidationException::withMessages([
