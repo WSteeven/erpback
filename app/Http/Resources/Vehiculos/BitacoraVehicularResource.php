@@ -27,12 +27,14 @@ class BitacoraVehicularResource extends JsonResource
             'tanque_final' => $this->tanque_final,
             'firmada' => $this->firmada,
             'chofer' => $this->chofer->nombres.' '.$this->chofer->apellidos,
+            'chofer_id' => $this->chofer_id,
             'vehiculo' => $this->vehiculo->placa,
         ];
 
         if ($controller_method == 'show') {
             // $modelo['chofer'] = $this->chofer_id;
             // $modelo['vehiculo'] = $this->vehiculo_id;
+            $modelo['actividadesRealizadas'] = [];
         }
 
         return $modelo;

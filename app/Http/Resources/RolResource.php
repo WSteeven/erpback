@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Src\App\EmpleadoService;
 
 class RolResource extends JsonResource
 {
@@ -14,11 +15,18 @@ class RolResource extends JsonResource
      */
     public function toArray($request)
     {
-        // return parent::toArray($request);
-        return [
-            'id'=>$this->id,
-            'name'=>$this->name,
+        $controller_method = $request->route()->getActionMethod();
+        $modelo = [
+            'id' => $this->id,
+            'name' => $this->name,
             'nombre' => $this->name,
         ];
+
+        if ($controller_method == 'show') {
+            $service = new EmpleadoService();
+            $modelo['empleados'] = $service->getUsersWithRoles([$this->name], ['id', 'nombres', 'apellidos']);
+        }
+
+        return $modelo;
     }
 }

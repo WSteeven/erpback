@@ -37,7 +37,8 @@ class TicketController extends Controller
 
     public function index()
     {
-        $results = Ticket::filter()->latest()->get();
+        $campos = request('campos') ? explode(',', request('campos')) : '*';
+        $results = Ticket::ignoreRequest(['campos'])->filter()->latest()->get($campos);
         $results = TicketResource::collection($results);
         return response()->json(compact('results'));
     }
