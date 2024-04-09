@@ -24,7 +24,7 @@ class RegistroEmpleadoExamenResource extends JsonResource
             'tipo_proceso_examen' => $this->tipo_proceso_examen,
             'estados_solicitudes_examenes' => $this->estadosSolicitudesExamenes !== null ? $this->estadosSolicitudesExamenes:[],
             'created_at' => Carbon::parse($this->created_at)->format('d-m-Y H:i:s'),
-
+            'ficha_aptitud' => $this->fichaAptitud?->id,
         ];
     }
 }

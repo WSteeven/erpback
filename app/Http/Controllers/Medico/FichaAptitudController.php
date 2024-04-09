@@ -5,14 +5,20 @@ namespace App\Http\Controllers\Medico;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Medico\FichaAptitudRequest;
 use App\Http\Resources\Medico\FichaAptitudResource;
+use App\Models\ConfiguracionGeneral;
+use App\Models\Empleado;
 use App\Models\Medico\FichaAptitud;
 use App\Models\Medico\ProfesionalSalud;
+use App\Models\Medico\TipoAptitudMedicaLaboral;
+use App\Models\Medico\TipoEvaluacionMedicaRetiro;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\App\Medico\FichaAptitudService;
 use Src\Shared\Utils;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class FichaAptitudController extends Controller
 {
@@ -39,6 +45,7 @@ class FichaAptitudController extends Controller
             DB::beginTransaction();
 
             $datos = $request->validated();
+            $datos['firmado_profesional_salud'] = true;
             $ficha_aptitud = FichaAptitud::create($datos);
 
             // opcionesRespuestasTipoEvaluacionMedicaRetiro
@@ -46,7 +53,7 @@ class FichaAptitudController extends Controller
                 $opcion['tipo_evaluacion_medica_retiro_id'] = $opcion['tipo_evaluacion_medica_retiro'];
                 $ficha_aptitud->opcionesRespuestasTipoEvaluacionMedicaRetiro()->create($opcion);
             }
-            
+
             $modelo = new FichaAptitudResource($ficha_aptitud->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
@@ -98,6 +105,56 @@ class FichaAptitudController extends Controller
                 'Error al insertar registro' => [$e->getMessage()],
             ]);
             return response()->json(['mensaje' => 'Ha ocurrido un error al insertar el registro de ficha de aptitud' . $e->getMessage() . ' ' . $e->getLine()], 422);
+        }
+    }
+
+    public function imprimirPDF(FichaAptitud $ficha_aptitud)
+    {
+        $configuracion = ConfiguracionGeneral::first();
+        $resource = new FichaAptitudResource($ficha_aptitud);
+        $empleado = Empleado::find($ficha_aptitud->registroEmpleadoExamen->empleado_id);
+
+        $respuestasTiposEvaluacionesMedicasRetiros = [
+            ['SI', 'NO'],
+            ['PRESUNTIVA', 'DEFINITIVA', 'NO APLICA'],
+            ['SI', 'NO', 'NO APLICA'],
+        ];
+
+        $opcionesRespuestasTipoEvaluacionMedicaRetiro = TipoEvaluacionMedicaRetiro::all()->map(function ($tipo, $index) use ($respuestasTiposEvaluacionesMedicasRetiros, $ficha_aptitud) {
+            return [
+                'id' => $tipo->id,
+                'nombre' => $tipo->nombre,
+                'posibles_respuestas' => $respuestasTiposEvaluacionesMedicasRetiros[$index],
+                'respuesta' => $ficha_aptitud->opcionesRespuestasTipoEvaluacionMedicaRetiro->first(fn ($opcion) => $opcion->tipo_evaluacion_medica_retiro_id === $tipo->id)->respuesta,
+            ];
+        });
+
+        $tipos_aptitudes_medicas_laborales = TipoAptitudMedicaLaboral::all()->map(function ($tipo) use ($ficha_aptitud) {
+            if ($tipo->id === $ficha_aptitud->tipo_aptitud_medica_laboral_id) $tipo->seleccionado = true;
+            else $tipo->seleccionado = false;
+            return $tipo;
+        });
+
+        $datos = [
+            'ficha_aptitud' => $resource->resolve(),
+            'configuracion' => $configuracion,
+            'empleado' => $empleado,
+            'opcionesRespuestasTipoEvaluacionMedicaRetiro' => $opcionesRespuestasTipoEvaluacionMedicaRetiro,
+            'tipos_aptitudes_medicas_laborales' => $tipos_aptitudes_medicas_laborales,
+        ];
+
+        try {
+            $pdf = Pdf::loadView('medico.pdf.ficha_aptitud', $datos);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOption(['isRemoteEnabled' => true]);
+            $pdf->render();
+
+            $file = $pdf->output();
+            return $file;
+        } catch (Exception $ex) {
+            Log::channel('testing')->info('Log', ['ERROR', $ex->getMessage(), $ex->getLine()]);
+            $mensaje = $ex->getMessage() . '. ' . $ex->getLine();
+            return response()->json(compact('mensaje'));
         }
     }
 }

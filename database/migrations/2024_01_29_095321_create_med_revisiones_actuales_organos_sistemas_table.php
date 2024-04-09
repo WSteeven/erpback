@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('organo_sistema_id');
             $table->text('descripcion');
-            $table->unsignedBigInteger('preocupacional_id');
+            $table->unsignedBigInteger('ficha_preocupacional_id');
             $table->foreign('organo_sistema_id','fk_organos_sistema')->on('med_sistemas_organicos')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('preocupacional_id','fk_preocupacional')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();

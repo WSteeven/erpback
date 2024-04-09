@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('med_actividades_puestos_trabajos', function (Blueprint $table) {
             $table->id();
             $table->text('actividad');
-            $table->unsignedBigInteger('preocupacional_id');
-            $table->foreign('preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->foreign('ficha_preocupacional_id')->on('med_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
