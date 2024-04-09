@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExamenesController;
+use App\Http\Controllers\Medico\ActividadFisicaController;
 use App\Http\Controllers\Medico\ActividadPuestoTrabajoController;
 use App\Http\Controllers\Medico\AntecedenteFamiliarController;
 use App\Http\Controllers\Medico\AntecedenteGinecoObstetricoController;
@@ -41,10 +42,13 @@ use App\Http\Controllers\Medico\OrientacionSexualController;
 use App\Http\Controllers\Medico\PreguntaController;
 use App\Http\Controllers\Medico\ProfesionalSaludController;
 use App\Http\Controllers\Medico\RecetaController;
+use App\Http\Controllers\Medico\RegionCuerpoController;
 use App\Http\Controllers\Medico\RegistroEmpleadoExamenController;
 use App\Http\Controllers\Medico\ReligionController;
 use App\Http\Controllers\Medico\RespuestaCuestionarioEmpleadoController;
 use App\Http\Controllers\Medico\ResultadoExamenController;
+use App\Http\Controllers\Medico\ResultadoExamenPreocupacionalController;
+use App\Http\Controllers\Medico\ResultadoHabitoToxicoController;
 use App\Http\Controllers\Medico\RevisionActualOrganoSistemaController;
 use App\Http\Controllers\Medico\SistemaOrganicoController;
 use App\Http\Controllers\Medico\SolicitudExamenController;
@@ -84,20 +88,18 @@ Route::apiResources(
         'descrip-antecedentes-examenes' => DescripcionAntecedenteTrabajoController::class,
         'detalles-examenes' => DetalleExamenController::class,
         'detalles-resultados-examenes' => DetalleResultadoExamenController::class,
-        'diagnosticos' => DiagnosticoController::class,
         'diagnosticos-citas-medicas' => DiagnosticoCitaController::class,
         'diagnosticos-recetas' => DiagnosticoRecetaController::class,
         'esquemas-vacunas' => EsquemaVacunaController::class,
         'estados-examenes' => EstadoExamenController::class,
         'estados-solicitudes-examenes' => EstadoSolicitudExamenController::class,
-        'estilos-vida' => EstiloVidaController::class,
+        'estilos-vida' => ActividadFisicaController::class,
         'examenes' => ExamenController::class,
-        'examenes-especificos' => ExamenEspecificoController::class,
         'examenes-fisicos-regionales' => ExamenFisicoRegionalController::class,
-        'examenes-preocupacionales' => ExamenPreocupacionalController::class,
+        'examenes-preocupacionales' => ResultadoExamenPreocupacionalController::class,
         'factores-riesgos' => FactorRiesgoController::class,
         'fichas-aptitudes' => FichaAptitudController::class,
-        'habitos-toxicos' => HabitoToxicoController::class,
+        'habitos-toxicos' => ResultadoHabitoToxicoController::class,
         'identidades-generos' => IdentidadGeneroController::class,
         'medicaciones' => MedicacionController::class,
         'orientaciones-sexuales' => OrientacionSexualController::class,
@@ -123,12 +125,13 @@ Route::apiResources(
         'resp-cuestionarios-empleados' => RespuestaCuestionarioEmpleadoController::class,
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
+        'regiones-cuerpo' => RegionCuerpoController::class,
     ],
     [
         'parameters' => [
             'configuraciones-examenes-categ' => 'configuracion_examen_categoria',
-            'tipos_eval_medicas_retiro' => 'tipo_eval_medica_retiro',
-            'tipos_evaluacione' => 'tipo_evaluacion',
+            'tiposeval-medicas-retiro' => 'tipo_eval_medica_retiro',
+            'tipos-evaluacione' => 'tipo_evaluacion',
             'laboratorios-clinicos' => 'laboratorio_clinico',
             'resp-cuestionarios-empleados' => 'respuesta_cuestionario_empleado',
             'detalles-resultados-examenes' => 'detalle_resultado_examen',
@@ -139,7 +142,14 @@ Route::apiResources(
             'esquemas-vacunas' => 'esquema_vacuna',
             'tipos-eval-medicas-retiro' => 'tipo_evaluacion_medica_retiro',
             'tipos-aptitudes-medicas-laborales' => 'tipo_aptitud_medica_laboral',
+            'tipos-antecedentes-familiare' => 'tipo_antecedente_familiar',
+            'tipos-habitos_toxico' => 'tipo_habito_toxico',
             'fichas-aptitudes' => 'ficha_aptitud',
+            'regiones-cuerpo' => 'region_cuerpo',
+            'registros-empleados-examene' => 'registro_empleado_examen',
+            'religione' => 'religion',
+            'resultados-examene' => 'resultado_examen',
+
         ],
 
     ]

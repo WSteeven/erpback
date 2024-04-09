@@ -16,6 +16,18 @@ class RegionCuerpo extends Model implements Auditable
     protected $fillable = [
         'nombre',
     ];
-    private static $whiteListFilter = ['nombre'];
+    public const PIEL = 1;
+    public const OJOS = 2;
+    public const OIDO = 3;
+    public const OROFARINGUE = 4;
+    public const NARIZ = 5;
+    public const CUELLO = 6;
+    public const TORAX = 7;
+    public const ABDOMEN = 8;
+    public const COLUMNA = 9;
+    public const PELVIS = 10;
+    public const EXTREMIDADES = 11;
+    public const NEUROLOGICO = 12;
 
+    private static $whiteListFilter = ['nombre'];
 }
