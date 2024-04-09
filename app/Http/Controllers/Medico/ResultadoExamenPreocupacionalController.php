@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Medico;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Medico\ExamenPreocupacionalRequest;
-use App\Http\Resources\Medico\ExamenPreocupacionalResource;
-use App\Models\Medico\ExamenPreocupacional;
+use App\Http\Requests\Medico\ResultadoExamenPreocupacionalRequest;
+use App\Http\Resources\Medico\ResultadoExamenPreocupacionalResource;
+use App\Models\Medico\ResultadoExamenPreocupacional;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Src\Shared\Utils;
 
-class ExamenPreocupacionalController extends Controller
+class ResultadoExamenPreocupacionalController extends Controller
 {
     private $entidad = 'Examen Preocupacional';
 
@@ -27,17 +27,17 @@ class ExamenPreocupacionalController extends Controller
     public function index()
     {
         $results = [];
-        $results = ExamenPreocupacional::ignoreRequest(['campos'])->filter()->get();
+        $results = ResultadoExamenPreocupacional::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
 
-    public function store(ExamenPreocupacionalRequest $request)
+    public function store(ResultadoExamenPreocupacionalRequest $request)
     {
         try {
             $datos = $request->validated();
             DB::beginTransaction();
-            $preocupacional = ExamenPreocupacional::create($datos);
-            $modelo = new ExamenPreocupacionalResource($preocupacional);
+            $preocupacional = ResultadoExamenPreocupacional::create($datos);
+            $modelo = new ResultadoExamenPreocupacionalResource($preocupacional);
             $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -50,20 +50,20 @@ class ExamenPreocupacionalController extends Controller
         }
     }
 
-    public function show(ExamenPreocupacional $preocupacional)
+    public function show(ResultadoExamenPreocupacional $preocupacional)
     {
-        $modelo = new ExamenPreocupacionalResource($preocupacional);
+        $modelo = new ResultadoExamenPreocupacionalResource($preocupacional);
         return response()->json(compact('modelo'));
     }
 
 
-    public function update(ExamenPreocupacionalRequest $request, ExamenPreocupacional $preocupacional)
+    public function update(ResultadoExamenPreocupacionalRequest $request, ResultadoExamenPreocupacional $preocupacional)
     {
         try {
             DB::beginTransaction();
             $datos = $request->validated();
             $preocupacional->update($datos);
-            $modelo = new ExamenPreocupacionalResource($preocupacional->refresh());
+            $modelo = new ResultadoExamenPreocupacionalResource($preocupacional->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update');
             DB::commit();
             return response()->json(compact('mensaje', 'modelo'));
@@ -76,7 +76,7 @@ class ExamenPreocupacionalController extends Controller
         }
     }
 
-    public function destroy(ExamenPreocupacional $preocupacional)
+    public function destroy(ResultadoExamenPreocupacional $preocupacional)
     {
         try {
             DB::beginTransaction();

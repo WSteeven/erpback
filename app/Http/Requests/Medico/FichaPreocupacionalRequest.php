@@ -5,7 +5,7 @@ namespace App\Http\Requests\Medico;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PreocupacionalRequest extends FormRequest
+class FichaPreocupacionalRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

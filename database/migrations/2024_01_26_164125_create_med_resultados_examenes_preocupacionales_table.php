@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('med_examenes_preocupacionales', function (Blueprint $table) {
+        Schema::create('med_resultados_examenes_preocupacionales', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');
             $table->integer('tiempo');
             $table->text('resultados');
             $table->string('genero');
@@ -23,6 +22,9 @@ return new class extends Migration
             // Foreign keys
             $table->unsignedBigInteger('antecedente_personal_id');
             $table->foreign('antecedente_personal_id')->on('med_antecedentes_personales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+
+            $table->unsignedBigInteger('ficha_preocupacional_id');
+            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });
@@ -35,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('med_examenes_preocupacionales');
+        Schema::dropIfExists('med_resultados_examenes_preocupacionales');
     }
 };

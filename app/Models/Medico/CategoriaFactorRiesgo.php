@@ -15,5 +15,6 @@ class CategoriaFactorRiesgo extends Model implements Auditable
     protected $table = 'med_categorias_factores_riesgos';
     protected $fillable = [
         'nombre',
+        'tipo',
     ];
 }

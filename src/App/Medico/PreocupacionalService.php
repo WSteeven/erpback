@@ -19,13 +19,13 @@ use App\Models\Medico\ExamenEspecifico;
 use App\Models\Medico\ExamenPreocupacional;
 use App\Models\Medico\HabitoToxico;
 use App\Models\Medico\Medicacion;
-use App\Models\Medico\Preocupacional;
+use App\Models\Medico\FichaPreocupacional;
 use App\Models\Proyecto;
 use App\Models\Subtarea;
 use App\Models\Tarea;
 use Illuminate\Support\Facades\Log;
 
-class PreocupacionalService
+class FichaPreocupacionalService
 {
     private $preocupacional_id;
     private $preocupacional;
@@ -33,7 +33,7 @@ class PreocupacionalService
     public function __construct($preocupacional_id)
     {
         $this->preocupacional_id = $preocupacional_id;
-        $this->preocupacional = Preocupacional::find($preocupacional_id);
+        $this->preocupacional = FichaPreocupacional::find($preocupacional_id);
     }
 
     public function agregarHabitosToxicos(array $habitos_toxicos)
