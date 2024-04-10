@@ -25,11 +25,9 @@ return new class extends Migration
             $table->text('motivo_consulta');
             $table->boolean('actividad_fisica')->default('0');
             $table->boolean('consume_medicacion')->default('0');
-            $table->string('enfermedad_actual');
             $table->text('recomendaciones_tratamiento');
             $table->text('actividades_extralaborales');
             $table->text('enfermedad_actual');
-            $table->text('recomendaciones_tratamiento');
             $table->text('descripcion_examen_fisico_regional');
             $table->text('descripcion_revision_organos_sistemas');
 

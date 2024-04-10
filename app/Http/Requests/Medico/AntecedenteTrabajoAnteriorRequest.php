@@ -35,7 +35,7 @@ class AntecedenteTrabajoAnteriorRequest extends FormRequest
             'r_ergonomico' => 'required|string',
             'r_phisosocial' => 'required|string',
             'observacion' => 'required|string',
-            'ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id' => 'required|exists:med_fichas_preocupacionales,id',
         ];
     }
 }

@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('tipo_descripcion_antecedente_trabajo');
 
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('preocupacional_id', 'med_descripcione_anteced_trab')->references('id')->on('med_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id', 'med_descripcione_anteced_trab')->references('id')->on('med_fichas_preocupacionales')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

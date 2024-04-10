@@ -23,7 +23,7 @@ class ExamenFisicoRegional extends Model implements Auditable
     }
 
     public function fichaPreocupacional(){
-        return $this->hasOne(FichaPreocupacional::class, 'id','preocupacional_id');
+        return $this->hasOne(FichaPreocupacional::class, 'id','ficha_preocupacional_id');
     }
 
 }

@@ -26,7 +26,6 @@ class IdentidadGeneroController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = IdentidadGenero::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }

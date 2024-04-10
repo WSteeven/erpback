@@ -24,15 +24,14 @@ class FichaPreocupacionalController extends Controller
 
     public function __construct()
     {
-        $this->middleware('can:puede.ver.preocupacionales')->only('index', 'show');
-        $this->middleware('can:puede.crear.preocupacionales')->only('store');
-        $this->middleware('can:puede.editar.preocupacionales')->only('update');
-        $this->middleware('can:puede.eliminar.preocupacionales')->only('destroy');
+        $this->middleware('can:puede.ver.fichas_periodicas_preocupacionales')->only('index', 'show');
+        $this->middleware('can:puede.crear.fichas_periodicas_preocupacionales')->only('store');
+        $this->middleware('can:puede.editar.fichas_periodicas_preocupacionales')->only('update');
+        $this->middleware('can:puede.eliminar.fichas_periodicas_preocupacionales')->only('destroy');
     }
 
     public function index()
     {
-        $results = [];
         $results = FichaPreocupacional::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }

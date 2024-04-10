@@ -24,7 +24,7 @@ class ResultadoHabitoToxicoRequest extends FormRequest
     public function rules()
     {
         return [
-            'ficha_preocupacional_id' => 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id' => 'required|exists:med_fichas_preocupacionales,id',
             'tipo_habito_toxico_id' => 'required|exists:med_tipos_habitos_toxicos,id',
             'tiempo_consumo' => 'required|string',
         ];

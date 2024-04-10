@@ -30,7 +30,7 @@ class AntecedentePersonalRequest extends FormRequest
             'tipo_metodo_planificacion_familiar'=> 'required|string',
             'hijos_vivos'=> 'required',
             'hijos_muertos'=> 'required',
-            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_fichas_preocupacionales,id',
         ];
     }
     protected function prepareForValidation()

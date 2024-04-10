@@ -16,7 +16,11 @@ return new class extends Migration
         Schema::create('med_categorias_examenes_fisicos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre');
-            $table->string('region');
+
+            // Foreign keys
+            $table->unsignedBigInteger('region_cuerpo_id');
+            $table->foreign('region_cuerpo_id')->references('id')->on('med_regiones_cuerpo')->cascadeOnUpdate()->cascadeOnDelete();
+
             $table->timestamps();
         });
     }
