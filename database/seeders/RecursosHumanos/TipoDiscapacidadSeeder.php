@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Seeders\RecursosHumanos;
+
+use App\Models\RecursosHumanos\TipoDiscapacidad;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class TipoDiscapacidadSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        TipoDiscapacidad::insert([
+            ['nombre' => 'Auditiva'],
+            ['nombre' => 'Física'],
+            ['nombre' => 'Intelectual'],
+            ['nombre' => 'Lenguaje'],
+            ['nombre' => 'Psicosocial '],
+            ['nombre' => 'Visual'],
+        ]);
+    }
+}

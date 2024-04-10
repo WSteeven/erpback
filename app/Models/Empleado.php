@@ -11,6 +11,7 @@ use App\Models\RecursosHumanos\Banco;
 use App\Models\RecursosHumanos\NominaPrestamos\EgresoRolPago;
 use App\Models\RecursosHumanos\NominaPrestamos\Familiares;
 use App\Models\RecursosHumanos\NominaPrestamos\RolPago;
+use App\Models\RecursosHumanos\TipoDiscapacidad;
 use App\Models\Vehiculos\BitacoraVehicular;
 use App\Models\Vehiculos\Vehiculo;
 use App\Models\Ventas\Vendedor;
@@ -449,6 +450,10 @@ class Empleado extends Model implements Auditable
             $id++;
         }
         return $results;
+    }
+
+    public function tiposDiscapacidades(){
+        return $this->belongsToMany(TipoDiscapacidad::class,'rrhh_empleado_tipo_discapacidad_porcentaje');
     }
 
     /*********

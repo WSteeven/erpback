@@ -107,6 +107,8 @@ class EmpleadoController extends Controller
         $datos['grupo_id'] = $request->safe()->only(['grupo'])['grupo'];
         $datos['cargo_id'] = $request->safe()->only(['cargo'])['cargo'];
         $datos['departamento_id'] = $request->safe()->only(['departamento'])['departamento'];
+       /* $datos['fecha_salida'] =  $datos['fecha_salida'] ? $request->safe()->only(['fecha_salida'])['fecha_salida'] : null;//$request->safe()->only(['departamento'])['departamento'];
+        $datos['fecha_nacimiento'] =new DateTime($datos['fecha_nacimiento']);*/
 
         if ($datos['foto_url']) {
             $datos['foto_url'] = (new GuardarImagenIndividual($datos['foto_url'], RutasStorage::FOTOS_PERFILES))->execute();
@@ -124,7 +126,7 @@ class EmpleadoController extends Controller
                 'password' => bcrypt($datos['password']),
             ])->assignRole($datos['roles']);
             $datos['usuario_id'] = $user->id;
-            $user->empleado()->create([
+            $empleado = $user->empleado()->create([
                 'nombres' => $datos['nombres'],
                 'apellidos' => $datos['apellidos'],
                 'identificacion' => $datos['identificacion'],
@@ -164,6 +166,7 @@ class EmpleadoController extends Controller
                 'realiza_factura' => $datos['realiza_factura'],
                 'coordenadas' => $datos['coordenadas'],
             ]);
+            $this->servicio->agregarDiscapacidades($empleado,$datos['discapacidades']);
 
             //$esResponsableGrupo = $request->safe()->only(['es_responsable_grupo'])['es_responsable_grupo'];
             //$grupo = Grupo::find($datos['grupo_id']);
