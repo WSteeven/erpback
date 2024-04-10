@@ -6,6 +6,7 @@ use App\Http\Controllers\Vehiculos\CombustibleController;
 use App\Http\Controllers\Vehiculos\ConductorController;
 use App\Http\Controllers\Vehiculos\MatriculaController;
 use App\Http\Controllers\Vehiculos\MultaConductorController;
+use App\Http\Controllers\Vehiculos\OrdenReparacionController;
 use App\Http\Controllers\Vehiculos\PlanMantenimientoController;
 use App\Http\Controllers\Vehiculos\SeguroVehicularController;
 use App\Http\Controllers\Vehiculos\ServicioController;
@@ -26,6 +27,7 @@ Route::apiResources(
         'planes-mantenimientos' => PlanMantenimientoController::class,
         'tipos-vehiculos' => TipoVehiculoController::class,
         'asignaciones-vehiculos' => AsignacionVehiculoController::class,
+        'ordenes-reparaciones' => OrdenReparacionController::class,
     ],
     [
         'parameters' => [
@@ -34,6 +36,7 @@ Route::apiResources(
             'planes-mantenimientos' => 'vehiculo',
             'tipos-vehiculos' => 'tipo',
             'asignaciones-vehiculos' => 'asignacion',
+            'ordenes-reparaciones' => 'orden',
         ],
         'middleware' => ['auth:sanctum']
     ]

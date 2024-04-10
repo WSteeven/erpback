@@ -28,7 +28,7 @@ class EmpleadoService
         })->pluck('id');
 
         // return EmpleadoResource::collection(Empleado::whereIn('usuario_id', $idUsers)->get($campos));
-        return Empleado::whereIn('usuario_id', $idUsers)->get($campos);
+        return Empleado::whereIn('usuario_id', $idUsers)->where('estado', true)->get($campos);
 
         // return $users;
     }
