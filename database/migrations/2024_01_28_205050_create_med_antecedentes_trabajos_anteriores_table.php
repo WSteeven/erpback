@@ -29,7 +29,7 @@ return new class extends Migration
 
             // Foreign keys
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id', 'fk_ant_tra_ant_fic_pre')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

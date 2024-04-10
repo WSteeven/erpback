@@ -26,7 +26,7 @@ class FactorRiesgoRequest extends FormRequest
         return [
             'tipo_factor_riesgo_id'=> 'required|exists:med_tipos_factores_riesgos,id',
             'categoria_factor_riesgo_id'=> 'required|exists:med_categorias_factores_riesgos,id',
-            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_fichas_preocupacionales,id',
         ];
     }
     protected function prepareForValidation()

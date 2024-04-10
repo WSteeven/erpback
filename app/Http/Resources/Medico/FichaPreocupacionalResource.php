@@ -17,7 +17,7 @@ class FichaPreocupacionalResource extends JsonResource
         return [
             'id' => $this->id,
             'ciu' => $this->ciu,
-            'esatblecimiento_salud' => $this->esatblecimiento_salud,
+            'establecimiento_salud' => $this->establecimiento_salud,
             'numero_historia_clinica' => $this->numero_historia_clinica,
             'numero_archivo' => $this->numero_archivo,
             'puesto_trabajo' => $this->puesto_trabajo,

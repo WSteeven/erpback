@@ -10,17 +10,17 @@ class OrientacionSexualSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class="Database\Seeders\Medico\OrientacionSexualSeeder"
      * @return void
      */
     public function run()
     {
         OrientacionSexual::insert([
-            ['nombres' => 'Lesbiana'],
-            ['nombres' => 'Gay'],
-            ['nombres' => 'Bisexual'],
-            ['nombres' => 'Heterosexual'],
-            ['nombres' => 'No sabe'],
+            ['nombre' => 'Lesbiana'],
+            ['nombre' => 'Gay'],
+            ['nombre' => 'Bisexual'],
+            ['nombre' => 'Heterosexual'],
+            ['nombre' => 'No sabe'],
         ]);
     }
 }

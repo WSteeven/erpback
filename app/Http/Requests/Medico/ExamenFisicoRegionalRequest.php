@@ -25,7 +25,7 @@ class ExamenFisicoRegionalRequest extends FormRequest
     {
         return [
             'categoria_examen_fisico_id'=> 'required|exists:med_tipos_factores_riesgos,id',
-            'ficha_preocupacional_id'=> 'required|exists:med_preocupacionales,id',
+            'ficha_preocupacional_id'=> 'required|exists:med_fichas_preocupacionales,id',
         ];
     }
     protected function prepareForValidation()

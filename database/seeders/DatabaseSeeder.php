@@ -90,17 +90,5 @@ class DatabaseSeeder extends Seeder
         $this->call(MotivoPausaTicketSeeder::class);
         $this->call(CategoriaTipoTicketSeeder::class);
         $this->call(TipoTicketSeeder::class);
-
-        /*****************
-         * Modulo medico
-         *****************/
-        $this->call(CategoriaExamenSeeder::class);
-        $this->call(TipoExamenSeeder::class);
-        $this->call(EstadoExamenSeeder::class);
-        $this->call(ExamenSeeder::class);
-        $this->call(TipoVacunaSeeder::class);
-        $this->call(EsquemaVacunaSeeder::class);
-        $this->call(TipoAptitudMedicaLaboralSeeder::class);
-        $this->call(TipoEvaluacionMedicaRetiroSeeder::class);
     }
 }

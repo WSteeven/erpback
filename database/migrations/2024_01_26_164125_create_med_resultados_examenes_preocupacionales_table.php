@@ -21,10 +21,10 @@ return new class extends Migration
 
             // Foreign keys
             $table->unsignedBigInteger('antecedente_personal_id');
-            $table->foreign('antecedente_personal_id')->on('med_antecedentes_personales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('antecedente_personal_id', 'fk_res_exa_pre_ant_per')->on('med_antecedentes_personales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->unsignedBigInteger('ficha_preocupacional_id');
-            $table->foreign('ficha_preocupacional_id')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('ficha_preocupacional_id', 'fk_res_exa_pre_fic_pre')->on('med_fichas_preocupacionales')->references('id')->cascadeOnDelete()->cascadeOnUpdate();
 
             $table->timestamps();
         });

@@ -10,7 +10,7 @@ class ReligionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class="Database\Seeders\Medico\ReligionSeeder"
      * @return void
      */
     public function run()

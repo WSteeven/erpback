@@ -126,6 +126,7 @@ Route::apiResources(
         'recetas' => RecetaController::class,
         'solicitudes-examenes' => SolicitudExamenController::class,
         'regiones-cuerpo' => RegionCuerpoController::class,
+        'fichas-periodicas-preocupacionales' => FichaPreocupacionalController::class,
     ],
     [
         'parameters' => [
@@ -147,9 +148,11 @@ Route::apiResources(
             'fichas-aptitudes' => 'ficha_aptitud',
             'regiones-cuerpo' => 'region_cuerpo',
             'registros-empleados-examene' => 'registro_empleado_examen',
-            'religione' => 'religion',
+            'religiones' => 'religion',
             'resultados-examene' => 'resultado_examen',
-
+            'fichas-periodicas-preocupacionales' => 'ficha_preocupacional',
+            'orientaciones-sexuales' => 'orientacion_sexual',
+            'identidades-generos' => 'identidad_genero'
         ],
 
     ]

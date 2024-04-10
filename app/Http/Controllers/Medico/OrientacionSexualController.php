@@ -26,7 +26,6 @@ class OrientacionSexualController extends Controller
 
     public function index()
     {
-        $results = [];
         $results = OrientacionSexual::ignoreRequest(['campos'])->filter()->get();
         return response()->json(compact('results'));
     }
