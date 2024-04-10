@@ -30,7 +30,8 @@ class AntecedentePersonal extends Model implements Auditable
     {
         return $this->hasOne(AntecedenteGinecoObstetrico::class, 'antecedentes_personales_id', 'id');
     }
-    public function examenfichaPreocupacional(){
-        return $this->hasOne(ResultadoExamenPreocupacional::class,'antecedentes_personales_id', 'id');
+    public function examenfichaPreocupacional()
+    {
+        return $this->hasOne(ResultadoExamenPreocupacional::class, 'antecedentes_personales_id', 'id');
     }
 }

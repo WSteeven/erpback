@@ -16,9 +16,9 @@ class RegistroEmpleadoExamen extends Model implements Auditable
 
     // Contantes
     const INGRESO = 'INGRESO';
-    const OCUPACIONALES = 'OCUPACIONALES';
-    const REINGRESO = 'REINGRESO';
-    const SALIDA = 'SALIDA';
+    const PERIODICO = 'PERIODICO';
+    const REINTEGRO = 'REINTEGRO';
+    const RETIRO = 'RETIRO';
 
     protected $table = 'med_registros_empleados_examenes';
     protected $fillable = [

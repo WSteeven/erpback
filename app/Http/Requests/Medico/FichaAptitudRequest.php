@@ -24,7 +24,7 @@ class FichaAptitudRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $reglas = [
             'observaciones_aptitud_medica' => 'required|string',
             'recomendaciones' => 'nullable|string',
             'firmado_profesional_salud' => 'nullable|boolean',
@@ -35,15 +35,25 @@ class FichaAptitudRequest extends FormRequest
             'opciones_respuestas_tipo_evaluacion_medica_retiro.*.respuesta' => 'nullable|string',
             'opciones_respuestas_tipo_evaluacion_medica_retiro.*.tipo_evaluacion_medica_retiro' => 'required|exists:med_tipos_evaluaciones_medica_retiros,id',
         ];
+
+        if (in_array($this->method(), ['PUT', 'PATCH'])) {
+            $reglas['observaciones_aptitud_medica'] = 'nullable|string';
+            $reglas['registro_empleado_examen_id'] = 'nullable|string';
+            $reglas['tipo_aptitud_medica_laboral_id'] = 'nullable|string';
+        }
+
+        return $reglas;
     }
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
-            'tipo_aptitud_medica_laboral_id' => $this->tipo_aptitud_medica_laboral,
-            'registro_empleado_examen_id' => $this->registro_empleado_examen,
-            'profesional_salud_id' => $this->profesional_salud,
-        ]);
+        if (in_array($this->method(), ['POST'])) {
+            $this->merge([
+                'tipo_aptitud_medica_laboral_id' => $this->tipo_aptitud_medica_laboral,
+                'registro_empleado_examen_id' => $this->registro_empleado_examen,
+                'profesional_salud_id' => $this->profesional_salud,
+            ]);
+        }
     }
 
     public function messages()
