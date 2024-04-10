@@ -8,9 +8,9 @@ use Illuminate\Database\Seeder;
 
 class TipoDiscapacidadSeeder extends Seeder
 {
-    /**
+  /**
      * Run the database seeds.
-     *
+     * php artisan db:seed --class="Database\Seeders\RcursosHumanos\TipoDiscapacidadSeeder"
      * @return void
      */
     public function run()

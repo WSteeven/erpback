@@ -19,6 +19,7 @@ use Database\Seeders\Medico\TipoDescripcionAntecedenteTrabajoSeeder;
 use Database\Seeders\Medico\TipoEvaluacionMedicaRetiroSeeder;
 use Database\Seeders\Medico\TipoFactorRiesgoSeeder;
 use Database\Seeders\Medico\TipoHabitoToxicoSeeder;
+use Database\Seeders\RecursosHumanos\TipoDiscapacidadSeeder;
 use Illuminate\Database\Seeder;
 
 class ModuloMedicoSeeder extends Seeder
@@ -70,6 +71,7 @@ class ModuloMedicoSeeder extends Seeder
             PermisosMedicoSeeder::class,
             OrientacionSexualSeeder::class,
             ReligionSeeder::class,
+            TipoDiscapacidadSeeder::class,
         ]);
     }
 }
