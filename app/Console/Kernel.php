@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         // $schedule->job(new MyJobExample)->everyMinute(); // Execute job every 5 minutes
         $schedule->job(new AnularProformaJob)->dailyAt('08:00'); // Execute job every day at 08:00
-        $schedule->job(new RechazarGastoJob)->monthly();
+        $schedule->job(new RechazarGastoJob)->monthlyOn(1,'12:00');
         $schedule->job(new NotificarVacacionesJob)->dailyAt('09:00');
         $schedule->job(new NotificarPermisoJob)->dailyAt('09:00');
         $schedule->job(new NotificarPedidoParcialJob)->dailyAt('08:00');

@@ -2,21 +2,17 @@
 
 namespace App\Events;
 
-use App\Http\Resources\UserInfoResource;
-use App\Http\Resources\UserResource;
+use App\Models\Departamento;
 use App\Models\Empleado;
 use App\Models\FondosRotativos\Saldo\Transferencias;
 use App\Models\Notificacion;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Src\Config\TiposNotificaciones;
 
 class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
@@ -24,7 +20,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public Transferencias $transferencia;
     public Notificacion $notificacion;
-
+    public $ruta = '/transferencia';
     /**
      * Create a new event instance.
      *
@@ -32,62 +28,119 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
      */
     public function __construct($transferencia)
     {
-        $ruta = '/transferencia';
         $this->transferencia = $transferencia;
-        $destinatario = $transferencia->estado != 3 ? $transferencia->usuario_recibe_id : $transferencia->usuario_envia_id;
-        $usuario_envia = Empleado::where('id', $transferencia->usuario_envia_id)->first();
-        $usuario_recibe = Empleado::where('id', $transferencia->usuario_recibe_id)->first();
-        $informativa = false;
-        $mensaje = '';
-        if ($transferencia->usuario_recibe_id != 10) {
-            switch ($transferencia->estado) {
-                case 1:
-                    $mensaje = $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . 'Acepto Transferencia';
+        $this->enviarNotificacionesContabilidad();
+    }
+    public function obtenerRuta(Empleado $empleado)
+    {
+        $ruta = null;
+        if ($this->transferencia->es_devolucion) {
+            switch ($this->transferencia->estado) {
+                case  Transferencias::APROBADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Devolución Aceptada',
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' =>  $empleado->id,
+                    ];
                     break;
-                case 2:
-                    $mensaje = 'Han rechazado  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                case Transferencias::RECHAZADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han rechazado  devolucion  a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' =>  $empleado->id,
+                    ];
                     break;
-                case 3:
-                    $mensaje = 'Han realizado una  transferencia de  ' . $usuario_envia->nombres . ' ' . $usuario_envia->apellidos . ' a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                case Transferencias::PENDIENTE:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han realizado una  devolucion  por un monto de $' . $this->transferencia->monto,
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' =>  $empleado->id,
+                    ];
                     break;
-                default:
-                    $informativa = true;
-                    $mensaje = 'Tienes un transferencia por aceptar';
+                case Transferencias::ANULADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han anulado una  devolucion a  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' => $empleado->id,
+                    ];
                     break;
             }
         } else {
-            switch ($transferencia->estado) {
-                case 1:
-                    $mensaje = 'Devolución Aceptada';
+            switch ($this->transferencia->estado) {
+                case Transferencias::APROBADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' =>  $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . 'Acepto Transferencia',
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' => $empleado->id,
+                    ];
                     break;
-                case 2:
-                    $mensaje = 'Han rechazado  devolucion  a ' . $usuario_recibe->nombres . ' ' . $usuario_recibe->apellidos . ' por un monto de $' . $transferencia->monto;
+                case Transferencias::RECHAZADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han rechazado  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' =>  $empleado->id,
+                    ];
                     break;
-                case 3:
-                    $mensaje = 'Han realizado una  devolucion  por un monto de $' . $transferencia->monto;
+                case Transferencias::PENDIENTE:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han realizado una  transferencia de  ' .  $this->transferencia->empleadoEnvia->nombres . ' ' .  $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
+                        'originador'   =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' => $empleado->id,
+                    ];
                     break;
-                default:
-                    $informativa = true;
-                    $mensaje = 'Tienes un devolucion por aceptar';
+                case Transferencias::ANULADO:
+                    $ruta = [
+                        'ruta' => $this->ruta,
+                        'informativa' => false,
+                        'mensaje' => 'Han anulado una  transferencia de  ' . $this->transferencia->empleadoEnvia->nombres . ' ' . $this->transferencia->empleadoEnvia->apellidos . ' a ' . $this->transferencia->empleadoRecibe->nombres . ' ' . $this->transferencia->empleadoRecibe->apellidos . ' por un monto de $' . $this->transferencia->monto,
+                        'originador' =>  $this->transferencia->usuario_recibe_id,
+                        'destinatario' => $empleado->id,
+                    ];
                     break;
             }
         }
-        // recorrer usuarios de Rol CONTABILIDAD
-        $empleados_contabilidad = User::role('CONTABILIDAD')->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
-        foreach ($empleados_contabilidad as $empleado) {
-            if ($this->obtener_id_empleado($empleado->id) != null) {
-                $this->notificar($mensaje, $ruta, $this->obtener_id_empleado($empleado->id), $destinatario, $informativa);
+        return $ruta;
+    }
+    public function enviarNotificacionesContabilidad()
+    {
+        $usuarios_contabilidad = User::role(User::ROL_CONTABILIDAD)->where('users.id', '!=', Auth::user()->id)->orderby('users.name', 'asc')->get();
+        foreach ($usuarios_contabilidad as $usuario) {
+            $ruta =  $this->obtenerRuta($usuario->empleado);
+            if ($usuario->empleado != null) {
+                $this->notificar(
+                    $ruta['mensaje'],
+                    $ruta['ruta'],
+                    $ruta['originador'],
+                    $ruta['destinatario'],
+                );
             }
         }
     }
-    public function obtener_id_empleado($id)
+    public function notificar($mensaje, $ruta, $originador, $destinatario)
     {
-        $empleado = Empleado::where('id', $id)->where('estado',1)->first();
-        return $empleado == null ? null : $empleado->id;
-    }
-    public function notificar($mensaje, $ruta, $destinatario, $remitente, $informativa = false)
-    {
-        $this->notificacion = Notificacion::crearNotificacion($mensaje, $ruta, TiposNotificaciones::AUTORIZACION_GASTO, $destinatario, $remitente, $this->transferencia, $informativa);
+        $this->notificacion = Notificacion::crearNotificacion(
+            $mensaje,
+            $ruta,
+            TiposNotificaciones::TRANSFERENCIA_SALDO,
+            $originador,
+            $destinatario,
+            $this->transferencia,
+            false
+        );
     }
     /**
      * Get the channels the event should broadcast on.
@@ -96,8 +149,7 @@ class TransferenciaSaldoContabilidadEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        $nombre_chanel =  'transferencia-saldo-contabilidad-' . 6;
-        return new Channel($nombre_chanel);
+        return new Channel('transferencia-saldo-contabilidad-' . Departamento::DEPARTAMENTO_CONTABILIDAD);
     }
     public function broadcastAs()
     {

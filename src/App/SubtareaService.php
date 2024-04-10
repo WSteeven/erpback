@@ -86,9 +86,10 @@ class SubtareaService
         $usuario = Auth::user();
         $esCoordinador = $usuario->hasRole(User::ROL_COORDINADOR);
         $esCoordinadorBackup = $usuario->hasRole(User::ROL_COORDINADOR_BACKUP);
+        $esJefeTecnico = $usuario->hasRole(User::ROL_JEFE_TECNICO);
 
         // Monitor
-        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup) {
+        if (!request('tarea_id') && $esCoordinador && !$esCoordinadorBackup && $esJefeTecnico) {
             // $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->latest()->get();
             $results = $usuario->empleado->subtareasCoordinador()->ignoreRequest(['campos'])->filter()->get(); //->orderBy('fecha_hora_agendado', 'desc')->get();
             return SubtareaResource::collection($results);
@@ -121,10 +122,10 @@ class SubtareaService
         $ids = TipoTrabajo::where('descripcion', 'STANDBY')->pluck('id')->toArray();
 
         if (!in_array($subtarea->tipo_trabajo_id, $ids)) {
-            if ($subtarea->trabajosRealizados->count() < 1)
+            /*if ($subtarea->trabajosRealizados->count() < 1)
                 throw ValidationException::withMessages([
-                    'pocas_actividades' => ['Ingrese al menos tres actividades en el formulario de seguimiento!'],
-                ]);
+                    'pocas_actividades' => ['Ingrese al menos  actividades en el formulario de seguimiento!'],
+                ]);*/
 
             if ($subtarea->tarea->cliente_id == ClientesCorporativos::NEDETEL) {
                 if ($subtarea->archivosSeguimiento->count() === 0)

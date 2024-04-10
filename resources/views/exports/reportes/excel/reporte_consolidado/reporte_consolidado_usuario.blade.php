@@ -100,10 +100,11 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="17%">
-                                            <div align="center">{{ date('d-m-Y', strtotime($fecha_anterior)) }}</div>
+                                            <div align="center">{{ date('d-m-Y', strtotime($fecha_anterior)) }}
+                                            </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
-                                            <div align="left">Saldo Inicial</div>
+                                            <div align="left">Saldo Inicial (+)</div>
                                         </td>
                                         <td style="font-size:10px" width="10%">
                                             <div align="right">
@@ -128,13 +129,14 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
-                                            <div align="left">Acreditaciones</div>
+                                            <div align="left">Acreditaciones (+)</div>
                                         </td>
                                         <td style="font-size:10px" width="10%">
                                             <div align="right">
                                                 {{ number_format($acreditaciones, 2, ',', '.') }}</div>
                                         </td>
                                     </tr>
+
                                     <!--Fin Acreditaciones-->
                                     <!--Transferencias-->
                                     <tr>
@@ -153,7 +155,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
-                                            <div align="left">Transferencias Enviadas</div>
+                                            <div align="left">Transferencias Enviadas (-)</div>
                                         </td>
                                         <td style="font-size:10px" width="10%">
                                             <div align="right">
@@ -178,7 +180,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
-                                            <div align="left">Transferencias Recibidas</div>
+                                            <div align="left">Transferencias Recibidas (+)</div>
                                         </td>
                                         <td style="font-size:10px" width="10%">
                                             <div align="right">
@@ -202,7 +204,7 @@
                                             </div>
                                         </td>
                                         <td style="font-size:10px" width="29%">
-                                            <div align="left">Gastos</div>
+                                            <div align="left">Gastos (-)</div>
                                         </td>
                                         <td style="font-size:10px" width="10%">
                                             <div align="right">
@@ -210,6 +212,54 @@
                                         </td>
                                     </tr>
                                     <!--Fin Gastos-->
+                                    <!-- Ajuste de saldos Ingreso -->
+                                    <tr>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="15%">
+                                            <div align="left">{{ $empleado->canton->canton }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="17%">
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">Ajuste de Saldo Ingreso (+)</div>
+                                        </td>
+                                        <td style="font-size:10px" width="10%">
+                                            <div align="right">
+                                                {{ number_format($ajuste_saldo_ingreso, 2, ',', '.') }}</div>
+                                        </td>
+                                    </tr>
+                                    <!-- Ajuste de saldos Egreso -->
+                                    <tr>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">
+                                                {{ $empleado->nombres . ' ' . $empleado->apellidos }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="15%">
+                                            <div align="left">{{ $empleado->canton->canton }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="17%">
+                                            <div align="center">
+                                                {{ date('d-m-Y', strtotime($fecha_inicio)) . ' ' . date('d-m-Y', strtotime($fecha_fin)) }}
+                                            </div>
+                                        </td>
+                                        <td style="font-size:10px" width="29%">
+                                            <div align="left">Ajuste de Saldo Egreso (-)</div>
+                                        </td>
+                                        <td style="font-size:10px" width="10%">
+                                            <div align="right">
+                                                {{ number_format($ajuste_saldo_egreso, 2, ',', '.') }}</div>
+                                        </td>
+                                    </tr>
                                     <!--Saldo Final-->
                                     <tr>
                                         <td colspan="4" style="font-size:10px">
@@ -217,7 +267,7 @@
                                         </td>
                                         <td style="font-size:10px" align="center">
                                             <div align="right" style="margin-right:20px;">
-                                                {{ number_format($nuevo_saldo, 2, ',', ' ') }}</div>
+                                                {{ number_format($total_suma, 2, ',', ' ') }}</div>
                                         </td>
                                     </tr>
                                     <!--Fin Saldo Final-->
@@ -235,54 +285,55 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="5%" bgcolor="#a9d08e">
                                             <div align="center"><strong>N&deg;</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="15%" bgcolor="#a9d08e">
                                             <div align="center"><strong>FECHA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="17%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>PROYECTO</strong></div>
+                                        </td>
+                                        <td width="17%" bgcolor="#a9d08e">
                                             <div align="center"><strong>TAREA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="20%" bgcolor="#a9d08e">
                                             <div align="center"><strong># FACTURA</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="20%" bgcolor="#a9d08e">
                                             <div align="center"><strong>RUC</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
-                                            <div align="center" width="100%"><strong>AUTORIZACION ESPECIAL</strong>
-                                            </div>
+                                        <td width="35%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>AUTORIZACION ESPECIAL</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="25%" bgcolor="#a9d08e">
                                             <div align="center"><strong>DETALLE</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="25%" bgcolor="#a9d08e">
                                             <div align="center"><strong>SUB DETALLE</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e" width="100%">
+                                        <td width="24%" bgcolor="#a9d08e">
                                             <div align="center"><strong>OBSERVACI&Oacute;N</strong></div>
                                         </td>
-
                                         <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center"><strong>CENTRO DE COSTO</strong></div>
                                         </td>
                                         <td bgcolor="#a9d08e" style="font-size:10px">
                                             <div align="center"><strong>SUBCENTRO DE COSTO</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>CANT.</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>V. UNI.</strong></div>
                                         </td>
-                                        <td bgcolor="#a9d08e">
+                                        <td width="10%" bgcolor="#a9d08e">
                                             <div align="center"><strong>TOTAL</strong></div>
                                         </td>
                                     </tr>
                                     @if (sizeof($gastos_reporte) == 0)
                                         <tr>
-                                            <td colspan="12">
+                                            <td colspan="13">
                                                 <div align="center">NO HAY FONDOS ROTATIVOS APROBADOS</div>
                                             </td>
                                         </tr>
@@ -293,14 +344,19 @@
                                             @endphp
                                             <tr>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato['id'] }}</div>
+                                                    <div align="center">{{ $dato['num_registro'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">{{ $dato['fecha'] }}</div>
+                                                    <div align="center">{{ date('d-m-Y', strtotime($dato['fecha'])) }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $dato['tarea'] != null ? $dato['tarea']->codigo_tarea : 'Sin Tarea' }}
+                                                        {{ $dato['proyecto'] != null ? $dato['proyecto']['codigo_proyecto'] . ' - ' . $dato['proyecto']['nombre'] : 'Sin Proyecto' }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $dato['tarea'] != null ? $dato['tarea']['codigo_tarea'] : 'Sin Tarea' }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -311,25 +367,23 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{-- {{ $dato[aut_especial_user]->nombres . '' . $dato->aut_especial_user->apellidos }} --}}
                                                         {{ $dato['autorizador'] }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    {{-- <div align="center">{{ $dato->detalle_info->descripcion }}</div> --}}
                                                     <div align="center">{{ $dato['detalle'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
                                                         @foreach ($dato['sub_detalle'] as $sub_detalle)
-                                                            {{strtoupper( $sub_detalle->descripcion) }}
+                                                            {{ $sub_detalle->descripcion }}
                                                             @if (!$loop->last)
                                                                 ,
                                                             @endif
                                                         @endforeach
                                                     </div>
                                                 </td>
-                                                <td style="font-size:10px">
+                                                <td style="font-size:10px;word-wrap: break-word;">
                                                     <div align="center">{{ $dato['observacion'] }}</div>
                                                 </td>
                                                 <td style="font-size:10px">{{ $dato['centro_costo'] }}</td>
@@ -342,22 +396,21 @@
                                                         {{ number_format($dato['valor_u'], 2, ',', '.') }}</div>
                                                 </td>
                                                 <td style="font-size:10px">
-                                                    <div align="center">
-                                                        {{ number_format($dato['total'], 2, ',', ' ') }}
+                                                    <div align="center">{{ number_format($dato['total'], 2, ',', '.') }}
                                                     </div>
                                                 </td>
                                             </tr>
                                         @endforeach
-                                        <tr>
-                                            <td>&nbsp;</td>
-                                            <td colspan="12" style="font-size:10px">
-                                                <div align="right"><strong>TOTAL DE GASTOS:&nbsp;</strong></div>
-                                            </td>
-                                            <td style="font-size:10px">
-                                                <div align="center">{{ number_format($sub_total, 2, ',', ' ') }}</div>
-                                            </td>
-                                        </tr>
                                     @endif
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td colspan="13" style="font-size:10px">
+                                            <div align="right"><strong>TOTAL DE GASTOS:&nbsp;</strong></div>
+                                        </td>
+                                        <td style="font-size:10px">
+                                            <div align="center">{{ number_format($sub_total, 2, ',', ' ') }}</div>
+                                        </td>
+                                    </tr>
                                 </table>
                             </td>
                         </tr>
@@ -410,12 +463,12 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_enviada->usuario_envia->nombres . ' ' . $transferencia_enviada->usuario_envia->apellidos }}
+                                                        {{ $transferencia_enviada->empleadoEnvia->nombres . ' ' . $transferencia_enviada->empleadoEnvia->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_enviada->usuario_recibe->nombres . ' ' . $transferencia_enviada->usuario_recibe->apellidos }}
+                                                        {{ $transferencia_enviada->empleadoRecibe->nombres . ' ' . $transferencia_enviada->empleadoRecibe->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -443,12 +496,10 @@
                                         <tr>
                                             <td>&nbsp;</td>
                                             <td colspan="5" style="font-size:10px">
-                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                        ENVIADAS:&nbsp;</strong></div>
+                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS ENVIADAS:&nbsp;</strong></div>
                                             </td>
                                             <td style="font-size:10px">
-                                                <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}
-                                                </div>
+                                                <div align="center">{{ number_format($transferencia, 2, ',', ' ') }}</div>
                                             </td>
                                         </tr>
                                     @endif
@@ -479,7 +530,7 @@
                                             <div align="center"><strong>MONTO</strong></div>
                                         </td>
                                         <td width="20%" bgcolor="#a9d08e">
-                                            <div align="center"><strong># Cuenta</strong></div>
+                                            <div align="center"><strong>#COMPROBANTE</strong></div>
                                         </td>
                                         <td width="35%" bgcolor="#a9d08e">
                                             <div align="center"><strong>MOTIVO</strong></div>
@@ -504,12 +555,12 @@
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_recibida_data->usuario_envia->nombres . ' ' . $transferencia_recibida_data->usuario_envia->apellidos }}
+                                                        {{ $transferencia_recibida_data->empleadoEnvia->nombres . ' ' . $transferencia_recibida_data->empleadoEnvia->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
                                                     <div align="center">
-                                                        {{ $transferencia_recibida_data->usuario_recibe->nombres . ' ' . $transferencia_recibida_data->usuario_recibe->apellidos }}
+                                                        {{ $transferencia_recibida_data->empleadoRecibe->nombres . ' ' . $transferencia_recibida_data->empleadoRecibe->apellidos }}
                                                     </div>
                                                 </td>
                                                 <td style="font-size:10px">
@@ -537,18 +588,186 @@
                                         <tr>
                                             <td>&nbsp;</td>
                                             <td colspan="5" style="font-size:10px">
-                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS
-                                                        RECIBIDAS:&nbsp;</strong></div>
+                                                <div align="right"><strong>TOTAL DE TRANSFERENCIAS RECIBIDAS:&nbsp;</strong></div>
                                             </td>
                                             <td style="font-size:10px">
-                                                <div align="center">
-                                                    {{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
+                                                <div align="center">{{ number_format($transferencia_recibida, 2, ',', '.') }}</div>
                                             </td>
                                         </tr>
                                     @endif
                                 </table>
                             </td>
                         </tr>
+
+                        <tr>
+                            <td>
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+                                    <tr>
+                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="7">
+                                            <div class="col-md-7" align="center"><b>Ajuste de Ingreso</b></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="15%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>FECHA</strong></div>
+                                        </td>
+                                        <td width="17%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>SOLICITANTE</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>DESTINATARIO</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>MOTIVO</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>DESCRICPCION</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>MONTO</strong></div>
+                                        </td>
+                                    </tr>
+                                    @if (sizeof($ajuste_saldo_ingreso_reporte) == 0)
+                                        <tr>
+                                            <td colspan="7">
+                                                <div align="center">NO HAY AJUSTE DE INGRESO</div>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        @foreach ($ajuste_saldo_ingreso_reporte as $ajuste_saldo_ingreso_data)
+                                            <tr>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['fecha'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['solicitante'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['destinatario'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['motivo'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['descripcion'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['monto'] }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td colspan="5" style="font-size:10px">
+                                                <div align="right"><strong>TOTAL DE AJUSTE INGRESO:&nbsp;</strong></div>
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="center">{{ number_format($ajuste_saldo_ingreso, 2, ',', ' ') }}</div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </table>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <table width="100%" border="1" cellspacing="0" bordercolor="#666666" class="gastos">
+                                    <tr>
+                                        <td width="100%" style="font-size:16px; font-weight:bold margin-top: -6px;"
+                                            colspan="7">
+                                            <div class="col-md-7" align="center"><b>Ajuste de Egreso</b></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td width="15%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>FECHA</strong></div>
+                                        </td>
+                                        <td width="17%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>SOLICITANTE</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>DESTINATARIO</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>MOTIVO</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>DESCRICPCION</strong></div>
+                                        </td>
+                                        <td width="20%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>MONTO</strong></div>
+                                        </td>
+                                    </tr>
+                                    @if (sizeof($ajuste_saldo_ingreso_reporte) == 0)
+                                        <tr>
+                                            <td colspan="7">
+                                                <div align="center">NO HAY AJUSTE DE INGRESO</div>
+                                            </td>
+                                        </tr>
+                                    @else
+                                        @foreach ($ajuste_saldo_ingreso_reporte as $ajuste_saldo_ingreso_data)
+                                            <tr>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['fecha'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['solicitante'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['destinatario'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['motivo'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['descripcion'] }}
+                                                    </div>
+                                                </td>
+                                                <td style="font-size:10px">
+                                                    <div align="center">
+                                                        {{ $ajuste_saldo_ingreso_data['monto'] }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        <tr>
+                                            <td>&nbsp;</td>
+                                            <td colspan="5" style="font-size:10px">
+                                                <div align="right"><strong>TOTAL DE AJUSTE INGRESO:&nbsp;</strong></div>
+                                            </td>
+                                            <td style="font-size:10px">
+                                                <div align="center">{{ number_format($ajuste_saldo_ingreso, 2, ',', ' ') }}</div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </table>
+                            </td>
+                        </tr>
+
+
                     </table>
                 </div>
             </td>

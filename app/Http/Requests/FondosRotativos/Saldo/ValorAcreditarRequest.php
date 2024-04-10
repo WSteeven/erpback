@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\FondosRotativos\Saldo;
 
+use App\Models\FondosRotativos\Saldo\ValorAcreditar;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ValorAcreditarRequest extends FormRequest
@@ -32,10 +33,21 @@ class ValorAcreditarRequest extends FormRequest
             'estado' => 'required',
         ];
     }
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->route()->getActionMethod() === 'store') {
+                $valor_acreditar = ValorAcreditar::where('acreditacion_semana_id', $this->acreditacion_semana_id)->where('empleado_id', $this->empleado_id)->first();
+                if ($valor_acreditar) {
+                    $validator->errors()->add('empleado', 'Empleado ya  esta registrado');
+                }
+            }
+        });
+    }
     protected function prepareForValidation()
     {
         $this->merge([
-            'empleado_id' =>$this->empleado,
+            'empleado_id' => $this->empleado,
             'acreditacion_semana_id' => $this->acreditacion_semana,
         ]);
     }

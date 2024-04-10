@@ -202,7 +202,7 @@ class SeguimientoSubtareaController extends Controller
 
 
         $servicio = new TransaccionBodegaEgresoService();
-        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id']);
+        $materialesUsados = $servicio->obtenerSumaMaterialStockUsado($request['subtarea_id'], $request['empleado_id'], $request['cliente_id']);
 
 
         $results = $results->map(function ($material, $index) use ($materialesUsados) {

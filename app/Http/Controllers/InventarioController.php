@@ -7,11 +7,13 @@ use App\Exports\KardexExport;
 use App\Http\Requests\InventarioRequest;
 use App\Http\Resources\InventarioResource;
 use App\Http\Resources\InventarioResourceExcel;
+use App\Http\Resources\ItemDetallePreingresoMaterialResource;
 use App\Http\Resources\VistaInventarioPerchaResource;
 use App\Models\ConfiguracionGeneral;
 use App\Models\DetalleProductoTransaccion;
 use App\Models\EstadoTransaccion;
 use App\Models\Inventario;
+use App\Models\ItemDetallePreingresoMaterial;
 use App\Models\Motivo;
 use App\Models\TipoTransaccion;
 use App\Models\TransaccionBodega;
@@ -58,37 +60,7 @@ class InventarioController extends Controller
         return response()->json(compact('results'));
     }
 
-    /**
-     * Guardar
-     */
-    // public function store(InventarioRequest $request)
-    // {
-    //     //Adaptacion de foreign keys
-    //     $datos = $request->validated();
-    //     // $datos['detalle_id']=$request->safe()->only(['detalle'])['detalle'];
-    //     // $datos['sucursal_id']=$request->safe()->only(['sucursal'])['sucursal'];
-    //     $datos['condicion_id'] = $request->safe()->only(['condicion'])['condicion'];
-    //     // $datos['cliente_id']=$request->safe()->only(['cliente'])['cliente'];
-    //     //Respuesta
-    //     // Log::channel('testing')->info('Log', ['listado store de inventario', $request->all()]);
-    //     $item = Inventario::where('detalle_id', $request->detalle_id)
-    //         ->where('sucursal_id', $request->sucursal_id)
-    //         ->where('cliente_id', $request->cliente_id)
-    //         ->where('condicion_id', $request->condicion)
-    //         ->first();
-    //     if ($item) {
-    //         // Log::channel('testing')->info('Log', ['item encontrado', $item]);
-    //         $datos['cantidad'] = $request->cantidad + $item->cantidad;
-    //         $item->update($datos);
-    //         $modelo = $item->refresh();
-    //     } else {
-    //         $modelo = Inventario::create($datos);
-    //     }
-    //     $modelo = new InventarioResource($modelo);
-    //     $mensaje = Utils::obtenerMensaje($this->entidad, 'store');
 
-    //     return response()->json(compact('mensaje', 'modelo'));
-    // }
 
     /**
      * Consultar
@@ -227,6 +199,7 @@ class InventarioController extends Controller
         $configuracion = ConfiguracionGeneral::first();
         // $estadoCompleta = EstadoTransaccion::where('nombre', EstadoTransaccion::COMPLETA)->first();
         $results = [];
+        $results2 = [];
         $cont = 0;
         $cantAudit = 0;
         $row = [];
@@ -265,7 +238,7 @@ class InventarioController extends Controller
         })
             ->whereIn('inventario_id', $ids_itemsInventario)
             ->orderBy('detalle_producto_transaccion.created_at', 'asc')->get();
-        
+
         foreach ($movimientos as $movimiento) {
             Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
             // Log::channel('testing')->info('Log', [$cont, 'Movimiento', $movimiento]);
@@ -286,7 +259,7 @@ class InventarioController extends Controller
             $row['num_transaccion'] = $movimiento->transaccion->id;
             $row['motivo'] = $movimiento->transaccion->motivo->nombre;
             $row['tipo'] = $movimiento->transaccion->motivo->tipoTransaccion->nombre;
-            $row['sucursal'] = $movimiento->inventario->sucursal->lugar;
+            $row['sucursal'] = $movimiento->inventario->sucursal?->lugar;
             $row['cantidad'] = $movimiento->cantidad_inicial;
             $row['cant_anterior'] = $cont == 0 ? $cantAudit : $row['cant_actual'];
             $row['cant_actual'] = ($row['tipo'] == 'INGRESO' ? $row['cant_anterior'] + $movimiento->cantidad_inicial : $row['cant_anterior'] - $movimiento->cantidad_inicial);
@@ -329,6 +302,12 @@ class InventarioController extends Controller
                 $cont++;
             }
         }
+
+        //Aqui se filtra los preingresos donde ha sido visto el ítem
+        $results2 = ItemDetallePreingresoMaterial::where('detalle_id', $request->detalle_id)->get();
+        $results2 = ItemDetallePreingresoMaterialResource::collection($results2);
+
+
         rsort($results); //aqui se ordena el array en forma descendente
         switch ($request->tipo_rpt) {
             case 'excel':
@@ -356,7 +335,7 @@ class InventarioController extends Controller
                 }
                 break;
             default:
-                return response()->json(compact('results'));
+                return response()->json(compact('results', 'results2'));
         }
     }
 

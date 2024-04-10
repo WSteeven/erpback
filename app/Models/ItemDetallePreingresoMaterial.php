@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\FondosRotativos\Gasto\Gasto;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class ItemDetallePreingresoMaterial extends Model implements Auditable
         'punta_inicial',
         'punta_final',
         'unidad_medida_id',
+        'condicion_id',
         'fotografia',
     ];
     protected $casts = [
@@ -37,4 +39,18 @@ class ItemDetallePreingresoMaterial extends Model implements Auditable
     ];
 
 
+    public function detalle()
+    {
+        return $this->belongsTo(DetalleProducto::class);
+    }
+
+    public function unidadMedida()
+    {
+        return $this->belongsTo(UnidadMedida::class);
+    }
+    
+    public function condicion()
+    {
+        return $this->belongsTo(Condicion::class);
+    }
 }

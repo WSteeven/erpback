@@ -22,7 +22,7 @@ class SubdetalleGasto extends Model implements Auditable
         'subdetalle_gasto_id'
     ];
     private static $whiteListFilter = ['gasto_id', 'subdetalle_gasto_id'];
-    public function sub_detalle_info()
+    public function subDetalle()
     {
         return $this->hasOne(SubDetalleViatico::class, 'id', 'sub_detalle');
     }

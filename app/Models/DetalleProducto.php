@@ -89,6 +89,11 @@ class DetalleProducto extends Model implements Auditable
     {
         return $this->hasMany(Inventario::class, 'detalle_id');
     }
+    
+    public function itemsPreingresos()
+    {
+        return $this->hasMany(ItemDetallePreingresoMaterial::class, 'detalle_id');
+    }
 
     /**
      * Relacion muchos a muchos.

@@ -110,13 +110,15 @@ class SubtareaResource extends JsonResource
         }
 
         $data = [];
-        foreach ($campos as $campo) {
+        /*foreach ($campos as $campo) {
             if (isset($modelo[$campo])) {
                 // $data[$campo] = $this->{$campo};
                 $data[$campo] = $modelo[$campo];
             }
-        }
-        return count($campos) ? $data : $modelo;
+        }*/
+
+        return $modelo;
+        // return count($campos) ? $data : $modelo;
     }
 
     private function cargar($campo, $campos)
@@ -287,3 +289,4 @@ class SubtareaResource extends JsonResource
         return null;
     }
 }
+    
