@@ -72,6 +72,12 @@ $num_registro = 1;
                                             <div align="center"><strong>GRUPO</strong></div>
                                         </td>
                                         <td width="8%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>FACTURA</strong></div>
+                                        </td>
+                                        <td width="8%" bgcolor="#a9d08e">
+                                            <div align="center"><strong>COMPROBANTE</strong></div>
+                                        </td>
+                                        <td width="8%" bgcolor="#a9d08e">
                                             <div align="center"><strong>TAREA</strong></div>
                                         </td>
                                         <td width="8%" bgcolor="#a9d08e">
@@ -100,6 +106,8 @@ $num_registro = 1;
                                             {{ $dato['usuario']->nombres . ' ' . $dato['usuario']->apellidos }}
                                         </td>
                                         <td width="8%">{{ $dato['grupo'] }}</td>
+                                        <td width="8%">{{ $dato['factura'] }}</td>
+                                        <td width="8%">{{ $dato['num_comprobante'] }}</td>
                                         <td width="8%">{{ $dato['tarea'] == null ? 'SIN TAREA' : $dato['tarea']->codigo_tarea }}</td>
                                         <td width="8%">{{ $dato['detalle'] }}</td>
                                         <td width="8%">
