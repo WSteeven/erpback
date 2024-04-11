@@ -34,6 +34,7 @@ use App\Http\Controllers\RecursosHumanos\NominaPrestamos\TipoLicenciaController;
 use App\Http\Controllers\RecursosHumanos\NominaPrestamos\VacacionController;
 use App\Http\Controllers\RecursosHumanos\RubroController;
 use App\Http\Controllers\RecursosHumanos\TipoContratoController;
+use App\Http\Controllers\RecursosHumanos\TipoDiscapacidadController;
 use Illuminate\Support\Facades\Route;
 
 // Generar GET - POST - PUT - DELETE
@@ -72,6 +73,7 @@ Route::apiResources(
         'asignar-alimentacion' => AsignarAlimentacionController::class,
         'alimentacion' => AlimentacionController::class,
         'detalle-alimentacion' => DetalleAlimentacionController::class,
+        'tipos-discapacidades' =>TipoDiscapacidadController::class
     ],
     [
         'parameters' => [

@@ -239,4 +239,8 @@ class EmpleadoService
         $results = EmpleadoResource::collection($results);
         return $results;
     }
+
+    public function agregarDiscapacidades(Empleado $empleado,array $discapacidades){
+        $empleado->tiposDiscapacidades()->sync($discapacidades);
+    }
 }
