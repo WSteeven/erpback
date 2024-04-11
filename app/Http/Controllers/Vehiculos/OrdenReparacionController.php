@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Vehiculos;
 
+use App\Events\Vehiculos\NotificarOrdenInternaActualizada;
 use App\Events\Vehiculos\NotificarOrdenInternaAlAdminVehiculos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Vehiculos\OrdenReparacionRequest;
@@ -60,7 +61,8 @@ class OrdenReparacionController extends Controller
         try {
             DB::beginTransaction();
             $orden->update($datos);
-            event(new NotificarOrdenInternaAlAdminVehiculos($orden));
+            $orden->latestNotificacion()->update(['leida' => true]);
+            event(new NotificarOrdenInternaActualizada($orden));
             $modelo = new OrdenReparacionResource($orden->refresh());
             $mensaje = Utils::obtenerMensaje($this->entidad, 'update', 'M');
             DB::commit();

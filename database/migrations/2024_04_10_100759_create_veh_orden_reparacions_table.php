@@ -20,13 +20,13 @@ return new class extends Migration
             $table->unsignedBigInteger('autorizador_id')->nullable();
             $table->unsignedBigInteger('autorizacion_id')->nullable();
             $table->text('servicios')->nullable();
+            $table->text('observacion')->nullable();
             $table->timestamps();
 
             $table->foreign('solicitante_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('vehiculo_id')->references('id')->on('vehiculos')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('autorizador_id')->references('id')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('autorizacion_id')->references('id')->on('autorizaciones')->nullOnDelete()->cascadeOnUpdate();
-            
         });
     }
 

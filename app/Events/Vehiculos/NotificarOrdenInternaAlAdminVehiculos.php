@@ -12,6 +12,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
 use Spatie\Permission\Models\Role;
+use Src\App\EmpleadoService;
 use Src\Config\TiposNotificaciones;
 
 class NotificarOrdenInternaAlAdminVehiculos implements ShouldBroadcast
@@ -31,7 +32,7 @@ class NotificarOrdenInternaAlAdminVehiculos implements ShouldBroadcast
     public function __construct($orden)
     {
         $this->orden = $orden;
-        $this->admin_vehiculos = $this->obtenerIdAdminVehiculos();
+        $this->admin_vehiculos = EmpleadoService::obtenerEmpleadoRolEspecifico(User::ROL_ADMINISTRADOR_VEHICULOS)->id;
 
         $this->notificacion = Notificacion::crearNotificacion($this->obtenerMensaje(), $this->ruta, TiposNotificaciones::ORDEN_REPARACION_VEHICULO, $this->orden->solicitante_id, $this->admin_vehiculos, $this->orden, 1);
     }
@@ -49,21 +50,6 @@ class NotificarOrdenInternaAlAdminVehiculos implements ShouldBroadcast
     public function broadcastAs()
     {
         return 'ordenes-creadas';
-    }
-    /**
-     * Esta función PHP recupera el ID del primer usuario con el rol "ADMINISTRADOR_VEHICULOS" en la
-     * base de datos.
-     * 
-     * @return int el ID del primer usuario con rol "ROL_ADMINISTRADOR_VEHICULOS" que está asociado a un
-     * empleado en el sistema.
-     */
-    private function obtenerIdAdminVehiculos()
-    {
-        try {
-            return  Role::findByName(User::ROL_ADMINISTRADOR_VEHICULOS)->users()->first()->empleado->id;
-        } catch (\Throwable $th) {
-            throw $th;
-        }
     }
 
     private function obtenerMensaje()

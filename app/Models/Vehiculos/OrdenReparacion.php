@@ -4,6 +4,7 @@ namespace App\Models\Vehiculos;
 
 use App\Models\Autorizacion;
 use App\Models\Empleado;
+use App\Models\Notificacion;
 use App\Traits\UppercaseValuesTrait;
 use eloquentFilter\QueryFilter\ModelFilters\Filterable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,5 +59,22 @@ class OrdenReparacion extends Model implements Auditable
     public function vehiculo()
     {
         return $this->belongsTo(Vehiculo::class);
+    }
+
+    /**
+     * Relación para obtener la ultima notificacion de un modelo dado.
+     */
+    public function latestNotificacion()
+    {
+        return $this->morphOne(Notificacion::class, 'notificable')->latestOfMany();
+    }
+
+    /**
+     * Relacion polimorfica a una notificacion.
+     * Una orden de compra puede tener una o varias notificaciones.
+     */
+    public function notificaciones()
+    {
+        return $this->morphMany(Notificacion::class, 'notificable');
     }
 }
